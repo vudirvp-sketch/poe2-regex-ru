@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --poe-bg: #0a0a0f;
+  --poe-bg-secondary: #12121a;
+  --poe-bg-tertiary: #1a1a25;
+  --poe-border: #2a2a3a;
+  --poe-text: #c8c8d0;
+  --poe-text-bright: #e8e8f0;
+  --poe-gold: #af882b;
+  --poe-gold-bright: #d4a843;
+  --poe-red: #c44e4e;
+  --poe-green: #4ec44e;
+  --poe-yellow: #c4c44e;
+}
+
+body {
+  margin: 0;
+  background: var(--poe-bg);
+  color: var(--poe-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  border-color: var(--poe-border);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--poe-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--poe-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4a;
+}
