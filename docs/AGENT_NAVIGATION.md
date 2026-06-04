@@ -1,7 +1,7 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 3.0 | **Date:** 2025-06-05
-> **Current Iteration:** See worklog.md
+> **Version:** 4.0 | **Date:** 2026-06-05
+> **Current Iteration:** 4 (Data Loader + UI Skeleton — partially complete)
 
 ---
 
@@ -74,8 +74,8 @@ shared <- core <- strategies <- store <- data <- ui
 | 0: Verification & Preparation | See worklog | Docs created, in-game verification done |
 | 1: Infrastructure + Bootstrap | See worklog | Vite + routing + sidebar |
 | 2: Core Engine | See worklog | All core logic + tests |
-| 3: ETL Pipeline | See worklog | Waystone + Tablet JSONs |
-| 4: Data Loader + UI Skeleton | See worklog | |
+| 3: ETL Pipeline | ✅ Complete | 1,584 tokens, 8,664 optimizations across 10 categories |
+| 4: Data Loader + UI Skeleton | 🔄 Partial | Stores + components done, page wiring needed |
 | 5: Core -> UI Integration | See worklog | |
 | 6: Relic + Jewels | See worklog | |
 | 7: Vendor | See worklog | |

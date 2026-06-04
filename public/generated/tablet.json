@@ -1,0 +1,5647 @@
+{
+  "version": "2026-06-04T22:14:32.251Z",
+  "category": "tablet",
+  "source": "poe2db.tw",
+  "tokens": [
+    {
+      "id": "tablet.mod_5xy54",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(8—12)% увеличение редкости находимых на карте предметов"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение редкости находимых на карте предметов"
+      },
+      "regex": {
+        "ru": "ти н"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          12
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        20,
+        45,
+        49,
+        52
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_42klst",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительный ритуальный круг"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительный ритуальный круг"
+      },
+      "regex": {
+        "ru": "ый р"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_c8rblg",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% увеличение количества находимых на карте путевых камнейНа карте можно встретить дополнительных бродячих изгнанников: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "% увеличение количества находимых на карте путевых камнейНа карте можно встретить дополнительных бродячих изгнанников: #"
+      },
+      "regex": {
+        "ru": "х бр"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8,
+        18,
+        41,
+        46,
+        55,
+        64,
+        76,
+        90
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_956kqe",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% увеличение количества находимых на карте путевых камнейНа карте можно встретить дополнительных духов азмири: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "% увеличение количества находимых на карте путевых камнейНа карте можно встретить дополнительных духов азмири: #"
+      },
+      "regex": {
+        "ru": "ри:"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8,
+        18,
+        41,
+        46,
+        55,
+        64,
+        76,
+        90
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_i4qxze",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительную Сущность% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительную Сущность% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "ть%"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        56,
+        66,
+        89,
+        94,
+        103
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_wrlukt",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(10—15)% увеличение эффективности монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение эффективности монстров"
+      },
+      "regex": {
+        "ru": "10—1"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_h79bpa",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительных редких сундуков: (2—3)"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительных редких сундуков: ##"
+      },
+      "regex": {
+        "ru": "—3)"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          2,
+          3
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        41
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_m0lt68",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(12—18)% увеличение количества получаемого опыта на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества получаемого опыта на карте"
+      },
+      "regex": {
+        "ru": "чае"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          12,
+          18
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        56
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_xfrnuy",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—35)% увеличение количества находимого на карте золота"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества находимого на карте золота"
+      },
+      "regex": {
+        "ru": "ота"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          35
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        49
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_gnrsv2",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—20)% увеличение редкости монстров на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение редкости монстров на карте"
+      },
+      "regex": {
+        "ru": "5—2"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        21,
+        45
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_guq13l",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—35)% увеличение количества редких монстров на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества редких монстров на карте"
+      },
+      "regex": {
+        "ru": "а редких монстров н"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          35
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        32,
+        54
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_93pla5",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—40)% увеличение количества волшебных монстров на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества волшебных монстров на карте"
+      },
+      "regex": {
+        "ru": "бных"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        35,
+        57
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_yr6d7c",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(5—7)% увеличение размера групп монстров на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение размера групп монстров на карте"
+      },
+      "regex": {
+        "ru": "7)%"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          7
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        22,
+        48
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_2pzo3q",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Delirium Fog in Map spawns (12—26)% increased MirrorShards"
+      },
+      "rawTextTemplate": {
+        "ru": "Delirium Fog in Map spawns ##% increased MirrorShards"
+      },
+      "regex": {
+        "ru": "ium"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          12,
+          26
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_ddtgra",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Боссы карт даруют на (40—80)% больше опыта"
+      },
+      "rawTextTemplate": {
+        "ru": "Боссы карт даруют на ##% больше опыта"
+      },
+      "regex": {
+        "ru": "ссы"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          40,
+          80
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        35
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_mug63h",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(18—30)% увеличение количества выпадающих из боссов карты путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из боссов карты путевых камней"
+      },
+      "regex": {
+        "ru": "рты"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          18,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        61,
+        70
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_swdilk",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительного духа азмири"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительного духа азмири"
+      },
+      "regex": {
+        "ru": "уха"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vc6g4q",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительную Сущность"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительную Сущность"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительную"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_sglt63",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительный алтарь"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительный алтарь"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_a94wuy",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительный ларец"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительный ларец"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        43
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_d3iw8o",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Награды Ритуала на карте с увеличенным на (35—70)% шансом могут оказаться предзнаменованиями"
+      },
+      "rawTextTemplate": {
+        "ru": "Награды Ритуала на карте с увеличенным на ##% шансом могут оказаться предзнаменованиями"
+      },
+      "regex": {
+        "ru": "ься"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          35,
+          70
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        23,
+        33,
+        76,
+        82
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_9l6crt",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(35—60)% увеличение редкости предметов, выпадающих из боссов карт"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение редкости предметов, выпадающих из боссов карт"
+      },
+      "regex": {
+        "ru": "5—6"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          35,
+          60
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        21,
+        31,
+        34
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vj1bxt",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на (25—40)% шансом могут стать редкими"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на ##% шансом могут стать редкими"
+      },
+      "regex": {
+        "ru": "дким"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        16,
+        29,
+        47,
+        58,
+        96
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_gztigx",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на (35—70)% шансом могут стать волшебными"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на ##% шансом могут стать волшебными"
+      },
+      "regex": {
+        "ru": "ыми"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          35,
+          70
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        16,
+        29,
+        47,
+        58,
+        99
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_ldczbk",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Обновленные награды в адтарях Ритуала на карте с (3—6)% шансом могут не стоить дани"
+      },
+      "rawTextTemplate": {
+        "ru": "Обновленные награды в адтарях Ритуала на карте с ##% шансом могут не стоить дани"
+      },
+      "regex": {
+        "ru": "3—6"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          3,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        6,
+        45,
+        70
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_a1jzo3",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
+      },
+      "rawTextTemplate": {
+        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
+      },
+      "regex": {
+        "ru": "поз"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        22,
+        59
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_kbdifj",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Отложенные награды в адтарях Ритуала на карте появляются снова на (25—40)% быстрее"
+      },
+      "rawTextTemplate": {
+        "ru": "Отложенные награды в адтарях Ритуала на карте появляются снова на ##% быстрее"
+      },
+      "regex": {
+        "ru": "отл"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        5,
+        44,
+        80
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_o60jmh",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте"
+      },
+      "regex": {
+        "ru": "ни,"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        15,
+        25,
+        39,
+        96
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_88qasy",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(20—30)% уменьшение стоимости в дани для обновления наград в алтарях Ритуала на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% уменьшение стоимости в дани для обновления наград в алтарях Ритуала на карте"
+      },
+      "regex": {
+        "ru": "оим"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        15,
+        47,
+        84
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_f87zsk",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Монстры, принесенные в жертву на алтарях Ритуала на карте, даруют увеличенное на (18—30)% количество дани"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры, принесенные в жертву на алтарях Ритуала на карте, даруют увеличенное на ##% количество дани"
+      },
+      "regex": {
+        "ru": "тву"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          18,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        15,
+        56,
+        72,
+        95
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_jkqo0p",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—60)% increased chance Vaal Beacon Chests are Rare in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% increased chance Vaal Beacon Chests are Rare in Map"
+      },
+      "regex": {
+        "ru": "sts"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          60
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_l616q8",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с (20—40)% шансом можно встретить четыре дополнительные Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с ##% шансом можно встретить четыре дополнительные Бездны"
+      },
+      "regex": {
+        "ru": "ыре"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        37,
+        44,
+        48,
+        58,
+        66
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_df7zhf",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(10—25)% chance to add a Vaal Beacon Unique Monster to the Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% chance to add a Vaal Beacon Unique Monster to the Map"
+      },
+      "regex": {
+        "ru": "que"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          25
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_v2ddkt",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(5—10)% chance to gain an additional Crystal from Vaal Beacons in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% chance to gain an additional Crystal from Vaal Beacons in Map"
+      },
+      "regex": {
+        "ru": "ain"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_h8udqa",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—50)% increased chance Vaal Beacons summon additional Monsters in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% increased chance Vaal Beacons summon additional Monsters in Map"
+      },
+      "regex": {
+        "ru": "5—5"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          50
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_i7llgb",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—60)% chance for an extra packs of Monsters around Vaal Beacons in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% chance for an extra packs of Monsters around Vaal Beacons in Map"
+      },
+      "regex": {
+        "ru": "cks"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          60
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_lqwqxg",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "1 extra pack of Monsters around Vaal Beacons in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "# extra pack of Monsters around Vaal Beacons in Map"
+      },
+      "regex": {
+        "ru": "1 e"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_q7wgu2",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(10—30)% increased Pack Size for Monsters around Vaal Beacons in Map"
+      },
+      "rawTextTemplate": {
+        "ru": "##% increased Pack Size for Monsters around Vaal Beacons in Map"
+      },
+      "regex": {
+        "ru": "ize"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_3y9nuc",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(20—30)% увеличение шанса получения очерняющей валюты из Бездн на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение шанса получения очерняющей валюты из Бездн на карте"
+      },
+      "regex": {
+        "ru": "нса"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        31,
+        38,
+        44,
+        58,
+        70
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_1vman9",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Монстры Бездны на ваших картах с увеличенным на (20—30)% шансом могут обладать свойствами Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры Бездны на ваших картах с увеличенным на ##% шансом могут обладать свойствами Бездны"
+      },
+      "regex": {
+        "ru": "ших"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        39,
+        91
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_2jjyh7",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(13—20)% увеличение количества предметов, выпадающих из боссов карт"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества предметов, выпадающих из боссов карт"
+      },
+      "regex": {
+        "ru": "(13"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          13,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        33,
+        36
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_efa81a",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "В два раза выше шанс получнения наград в провалах Бездны на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "В два раза выше шанс получнения наград в провалах Бездны на карте"
+      },
+      "regex": {
+        "ru": "два"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        27,
+        51,
+        64
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_m17m7u",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительную Бездну"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительную Бездну"
+      },
+      "regex": {
+        "ru": "дну"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        41
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_iz241m",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Бездны на карте с увеличенным на (10—20)% шансом могут привести к Глубинам Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Бездны на карте с увеличенным на ##% шансом могут привести к Глубинам Бездны"
+      },
+      "regex": {
+        "ru": "рив"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        14,
+        24,
+        76
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_by2ufv",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%"
+      },
+      "regex": {
+        "ru": "ал,"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          12
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        43
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_7jrajl",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Сложность монстров Бездны на карте и награды с них увеличиваются за каждый закрытый провал"
+      },
+      "rawTextTemplate": {
+        "ru": "Сложность монстров Бездны на карте и награды с них увеличиваются за каждый закрытый провал"
+      },
+      "regex": {
+        "ru": "них"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        20,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_7ms10f",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Из Бездн на карте появляется дополнительных редких монстров: (1—2)"
+      },
+      "rawTextTemplate": {
+        "ru": "Из Бездн на карте появляется дополнительных редких монстров: ##"
+      },
+      "regex": {
+        "ru": "ляе"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        16,
+        37,
+        45
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_yvoqjl",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Бездны на карте порождают увеличенное на (20—30)% количество монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "Бездны на карте порождают увеличенное на ##% количество монстров"
+      },
+      "regex": {
+        "ru": "о м"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        14,
+        32,
+        55
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_apm69j",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить бродячих изгнанников"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить бродячих изгнанников"
+      },
+      "regex": {
+        "ru": "ь б"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_al1nsy",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
+      },
+      "rawTextTemplate": {
+        "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
+      },
+      "regex": {
+        "ru": "ble"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_8rpt3p",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Уникальные монстры имеют дополнительных свойств: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "Уникальные монстры имеют дополнительных свойств: #"
+      },
+      "regex": {
+        "ru": "тв:"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        21,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_9lbzqh",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Карта обладает (1—2) дополнительным случайным свойством"
+      },
+      "rawTextTemplate": {
+        "ru": "Карта обладает ## дополнительным случайным свойством"
+      },
+      "regex": {
+        "ru": "слу"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        29
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_o3kmu5",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить ритуальный круг"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить ритуальный круг"
+      },
+      "regex": {
+        "ru": "ь ри"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_bunso1",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить духов азмири"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить духов азмири"
+      },
+      "regex": {
+        "ru": "ь ду"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_3mbysh",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить Сущности"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить Сущности"
+      },
+      "regex": {
+        "ru": "ь су"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_nbn2wl",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% уменьшение размера групп монстров на картеНа карте можно встретить дополнительный ларец% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "% уменьшение размера групп монстров на картеНа карте можно встретить дополнительный ларец% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "ец%"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        8,
+        17,
+        43,
+        51,
+        63,
+        77,
+        87,
+        97,
+        107,
+        130,
+        135,
+        144
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_xpt1fq",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить ларцы"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить ларцы"
+      },
+      "regex": {
+        "ru": "рцы"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vrrumo",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% уменьшение размера групп монстров на картеНа карте можно встретить дополнительный алтарь% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "% уменьшение размера групп монстров на картеНа карте можно встретить дополнительный алтарь% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "рь%"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        8,
+        17,
+        43,
+        51,
+        63,
+        77,
+        98,
+        108,
+        131,
+        136,
+        145
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_swvjcv",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте с увеличенным на (70—100)% шансом можно встретить алтари"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте с увеличенным на ##% шансом можно встретить алтари"
+      },
+      "regex": {
+        "ru": "ь а"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          70,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        17,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_umh3r9",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Редкие монстры на карте имеют (50—80)% к превосходящему шансу обладать дополнительным свойством"
+      },
+      "rawTextTemplate": {
+        "ru": "Редкие монстры на карте имеют ##% к превосходящему шансу обладать дополнительным свойством"
+      },
+      "regex": {
+        "ru": "кие"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          80
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        22,
+        26,
+        43,
+        52,
+        79
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_ld06px",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—40)% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "0)% увеличение количества н"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        48,
+        53,
+        62
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_i5eb4b",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(12—18)% усиление эффекта реликтов Экспедиции на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% усиление эффекта реликтов Экспедиции на карте"
+      },
+      "regex": {
+        "ru": "кта"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          12,
+          18
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        27,
+        39,
+        53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_6i79fw",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Убийство редких монстров на карте останавливает таймер Зеркала Делириума на (3—5) секунд(-ы)"
+      },
+      "rawTextTemplate": {
+        "ru": "Убийство редких монстров на карте останавливает таймер Зеркала Делириума на ## секунд(-ы)"
+      },
+      "regex": {
+        "ru": "—5)"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          3,
+          5
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        32,
+        52,
+        64,
+        83
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_24pi7h",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Туман Делириума на карте порождает увеличенное на (15—30)% количество хрупких зеркал"
+      },
+      "rawTextTemplate": {
+        "ru": "Туман Делириума на карте порождает увеличенное на ##% количество хрупких зеркал"
+      },
+      "regex": {
+        "ru": "хру"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        23,
+        41,
+        64
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_s74b0e",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение размера групп монстров Делириума на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение размера групп монстров Делириума на карте"
+      },
+      "regex": {
+        "ru": "ов д"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        24,
+        44,
+        60
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_6nl4q9",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Плотность Делириума на карте увеличивается на (15—30)% быстрее в зависимости от расстояния до Зеркала"
+      },
+      "rawTextTemplate": {
+        "ru": "Плотность Делириума на карте увеличивается на ##% быстрее в зависимости от расстояния до Зеркала"
+      },
+      "regex": {
+        "ru": "зав"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        27,
+        60
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_4ej297",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Туман Делириума на карте рассеивается на (20—30)% медленнее"
+      },
+      "rawTextTemplate": {
+        "ru": "Туман Делириума на карте рассеивается на ##% медленнее"
+      },
+      "regex": {
+        "ru": "нее"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        23,
+        29,
+        51,
+        54,
+        57
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_ypihik",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Туман Делириума на карте длится (6—12) дополнительных секунд(-ы) перед рассеиванием"
+      },
+      "rawTextTemplate": {
+        "ru": "Туман Делириума на карте длится ## дополнительных секунд(-ы) перед рассеиванием"
+      },
+      "regex": {
+        "ru": "ием"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          6,
+          12
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        23,
+        47,
+        55,
+        66,
+        68,
+        75
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_g8qfur",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение размера находимых на карте стопок осколков Симулякра"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение размера находимых на карте стопок осколков Симулякра"
+      },
+      "regex": {
+        "ru": "пок"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        24,
+        45
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_nnpno6",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение количества меток с руническими монстрами на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества меток с руническими монстрами на карте"
+      },
+      "regex": {
+        "ru": "ток"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        32,
+        44,
+        68
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_87tys9",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "События Делириума на карте с на (15—30)% большим шансом могут породить уникальных боссов"
+      },
+      "rawTextTemplate": {
+        "ru": "События Делириума на карте с на ##% большим шансом могут породить уникальных боссов"
+      },
+      "regex": {
+        "ru": "тия"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        25
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_c50n05",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—40)% увеличение количества редких монстров Экспедиции на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества редких монстров Экспедиции на карте"
+      },
+      "regex": {
+        "ru": "ров э"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        32,
+        51,
+        65
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_206n5",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение количества журналов Экспедиции, выпадающих из рунических монстров на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества журналов Экспедиции, выпадающих из рунических монстров на карте"
+      },
+      "regex": {
+        "ru": "лов"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        44,
+        71,
+        93
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_pmw29p",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение радиуса действия взрывчатки в событии Экспедиции на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение радиуса действия взрывчатки в событии Экспедиции на карте"
+      },
+      "regex": {
+        "ru": "вия"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        29,
+        62,
+        76
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vbi0im",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(1—2) реликт в Экспедициях на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "+## реликт в Экспедициях на карте"
+      },
+      "regex": {
+        "ru": "иях"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8,
+        20,
+        35
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vx5kd7",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение радиуса размещения взрывчатки в событии Экспедиции на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение радиуса размещения взрывчатки в событии Экспедиции на карте"
+      },
+      "regex": {
+        "ru": "мещ"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        32,
+        34,
+        64,
+        78
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_qoeut5",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(15—30)% увеличение количества выпадающих из монстров на карте артефактов Экспедиции"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из монстров на карте артефактов Экспедиции"
+      },
+      "regex": {
+        "ru": "теф"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          15,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        61,
+        66,
+        78
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_xz25i0",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(5—15)% увеличение плотности монстров в Разломах на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение плотности монстров в Разломах на карте"
+      },
+      "regex": {
+        "ru": "мах"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        56
+      ],
+      "level": 1
+    }
+  ],
+  "optimizationTable": {
+    "tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 2
+    },
+    "tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_apm69j:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_bunso1:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 2
+    },
+    "tablet.mod_3mbysh:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительный "
+      },
+      "weight": 40,
+      "count": 2
+    },
+    "tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_apm69j:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_bunso1:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 2
+    },
+    "tablet.mod_3mbysh:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 2
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_a94wuy:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 2
+    },
+    "tablet.mod_42klst:tablet.mod_i4qxze:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_i4qxze:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_i4qxze": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_h79bpa:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_apm69j:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_apm69j",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_bunso1:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_42klst:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_42klst",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительный "
+      },
+      "weight": 40,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_apm69j:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_bunso1:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_42klst:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_42klst",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_apm69j": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_bunso1": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_42klst:tablet.mod_a94wuy": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_42klst:tablet.mod_a94wuy:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_a94wuy",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_i4qxze:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_i4qxze:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_i4qxze:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_i4qxze:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_i4qxze:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_i4qxze:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_i4qxze:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_i4qxze",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_i4qxze": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_i4qxze"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_i4qxze": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_i4qxze"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_i4qxze": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_i4qxze:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_i4qxze",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_h79bpa:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_h79bpa:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_h79bpa:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительны"
+      },
+      "weight": 38,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_h79bpa:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_h79bpa:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_h79bpa:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_h79bpa:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_h79bpa",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_h79bpa": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_h79bpa"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_h79bpa": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_h79bpa"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_h79bpa": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_h79bpa:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_h79bpa",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_swdilk:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_swdilk:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_swdilk",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_swdilk:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_swdilk",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_sglt63:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_swdilk:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_swdilk:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swdilk",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_swdilk": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_swdilk"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_swdilk:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swdilk",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_swdilk:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swdilk",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_sglt63:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_l616q8:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_m17m7u:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_apm69j",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_o3kmu5:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_bunso1:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_swvjcv:tablet.mod_vc6g4q": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_swvjcv:tablet.mod_vc6g4q:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_swvjcv",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "на карте можно встретить дополнительн"
+      },
+      "weight": 37,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_l616q8:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_l616q8:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_m17m7u:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_m17m7u:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_m17m7u",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_apm69j:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_apm69j",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_o3kmu5:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_o3kmu5:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_o3kmu5",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_bunso1:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_bunso1:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_bunso1",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_sglt63:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_sglt63",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_sglt63:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_l616q8:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_l616q8",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_m17m7u:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": " можно встретить д"
+      },
+      "weight": 18,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_m17m7u:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_m17m7u:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_m17m7u",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_bunso1": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_bunso1"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_apm69j": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_apm69j:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_apm69j",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_o3kmu5:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_bunso1": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_bunso1:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_bunso1",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_3mbysh:tablet.mod_a94wuy:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_a94wuy",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_a94wuy:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_swvjcv",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": " можно встретить "
+      },
+      "weight": 17,
+      "count": 3
+    },
+    "tablet.mod_df7zhf:tablet.mod_wrlukt": {
+      "ids": [
+        "tablet.mod_df7zhf",
+        "tablet.mod_wrlukt"
+      ],
+      "regex": {
+        "ru": "(10—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_q7wgu2:tablet.mod_wrlukt": {
+      "ids": [
+        "tablet.mod_q7wgu2",
+        "tablet.mod_wrlukt"
+      ],
+      "regex": {
+        "ru": "(10—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_df7zhf:tablet.mod_q7wgu2:tablet.mod_wrlukt": {
+      "ids": [
+        "tablet.mod_df7zhf",
+        "tablet.mod_q7wgu2",
+        "tablet.mod_wrlukt"
+      ],
+      "regex": {
+        "ru": "(10—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_h8udqa:tablet.mod_xfrnuy": {
+      "ids": [
+        "tablet.mod_h8udqa",
+        "tablet.mod_xfrnuy"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_guq13l:tablet.mod_h8udqa": {
+      "ids": [
+        "tablet.mod_guq13l",
+        "tablet.mod_h8udqa"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_c50n05:tablet.mod_h8udqa": {
+      "ids": [
+        "tablet.mod_c50n05",
+        "tablet.mod_h8udqa"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_guq13l:tablet.mod_h8udqa:tablet.mod_xfrnuy": {
+      "ids": [
+        "tablet.mod_guq13l",
+        "tablet.mod_h8udqa",
+        "tablet.mod_xfrnuy"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_c50n05:tablet.mod_guq13l:tablet.mod_xfrnuy": {
+      "ids": [
+        "tablet.mod_c50n05",
+        "tablet.mod_guq13l",
+        "tablet.mod_xfrnuy"
+      ],
+      "regex": {
+        "ru": ")% увеличение количества "
+      },
+      "weight": 25,
+      "count": 3
+    },
+    "tablet.mod_c50n05:tablet.mod_h8udqa:tablet.mod_xfrnuy": {
+      "ids": [
+        "tablet.mod_c50n05",
+        "tablet.mod_h8udqa",
+        "tablet.mod_xfrnuy"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_c50n05:tablet.mod_guq13l:tablet.mod_h8udqa": {
+      "ids": [
+        "tablet.mod_c50n05",
+        "tablet.mod_guq13l",
+        "tablet.mod_h8udqa"
+      ],
+      "regex": {
+        "ru": "(25—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_93pla5:tablet.mod_jkqo0p": {
+      "ids": [
+        "tablet.mod_93pla5",
+        "tablet.mod_jkqo0p"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_93pla5:tablet.mod_i7llgb": {
+      "ids": [
+        "tablet.mod_93pla5",
+        "tablet.mod_i7llgb"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_jkqo0p:tablet.mod_ld06px": {
+      "ids": [
+        "tablet.mod_jkqo0p",
+        "tablet.mod_ld06px"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_i7llgb:tablet.mod_ld06px": {
+      "ids": [
+        "tablet.mod_i7llgb",
+        "tablet.mod_ld06px"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_93pla5:tablet.mod_i7llgb:tablet.mod_jkqo0p": {
+      "ids": [
+        "tablet.mod_93pla5",
+        "tablet.mod_i7llgb",
+        "tablet.mod_jkqo0p"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_93pla5:tablet.mod_jkqo0p:tablet.mod_ld06px": {
+      "ids": [
+        "tablet.mod_93pla5",
+        "tablet.mod_jkqo0p",
+        "tablet.mod_ld06px"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_93pla5:tablet.mod_i7llgb:tablet.mod_ld06px": {
+      "ids": [
+        "tablet.mod_93pla5",
+        "tablet.mod_i7llgb",
+        "tablet.mod_ld06px"
+      ],
+      "regex": {
+        "ru": "(30—"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "tablet.mod_v2ddkt:tablet.mod_yr6d7c": {
+      "ids": [
+        "tablet.mod_v2ddkt",
+        "tablet.mod_yr6d7c"
+      ],
+      "regex": {
+        "ru": "(5—"
+      },
+      "weight": 3,
+      "count": 2
+    },
+    "tablet.mod_v2ddkt:tablet.mod_xz25i0": {
+      "ids": [
+        "tablet.mod_v2ddkt",
+        "tablet.mod_xz25i0"
+      ],
+      "regex": {
+        "ru": "(5—1"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_v2ddkt:tablet.mod_xz25i0:tablet.mod_yr6d7c": {
+      "ids": [
+        "tablet.mod_v2ddkt",
+        "tablet.mod_xz25i0",
+        "tablet.mod_yr6d7c"
+      ],
+      "regex": {
+        "ru": "(5—"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "tablet.mod_1vman9:tablet.mod_f87zsk:tablet.mod_vj1bxt": {
+      "ids": [
+        "tablet.mod_1vman9",
+        "tablet.mod_f87zsk",
+        "tablet.mod_vj1bxt"
+      ],
+      "regex": {
+        "ru": " карт"
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "tablet.mod_1vman9:tablet.mod_f87zsk:tablet.mod_gztigx": {
+      "ids": [
+        "tablet.mod_1vman9",
+        "tablet.mod_f87zsk",
+        "tablet.mod_gztigx"
+      ],
+      "regex": {
+        "ru": " карт"
+      },
+      "weight": 5,
+      "count": 3
+    }
+  }
+}

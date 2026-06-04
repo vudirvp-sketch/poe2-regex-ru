@@ -1,0 +1,2048 @@
+{
+  "version": "2026-06-04T22:14:44.680Z",
+  "category": "jewel-desecrated",
+  "source": "poe2db.tw",
+  "tokens": [
+    {
+      "id": "jewel-desecrated.mod_wonxx3",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% повышение брони(4—8)% увеличение урона от атак Броня Урон Атака"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение брони##% увеличение урона от атак Броня Урон Атака"
+      },
+      "regex": {
+        "ru": "к б"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage",
+        "attack"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        36
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_61m8bl",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% усиление положительного эффекта боевого клича(5—10)% увеличение урона боевыми кличами Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% усиление положительного эффекта боевого клича##% увеличение урона боевыми кличами Урон"
+      },
+      "regex": {
+        "ru": "ыми"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        23,
+        66
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_os4qn9",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение уклонения(4—8)% увеличение урона тотемов Уклонение Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение уклонения##% увеличение урона тотемов Уклонение Урон"
+      },
+      "regex": {
+        "ru": "в у"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "evasion",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        41,
+        55,
+        65
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_tq6un5",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение максимума энергетического щита(4—8)% увеличение урона тотемов Энергетический щит Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума энергетического щита##% увеличение урона тотемов Энергетический щит Урон"
+      },
+      "regex": {
+        "ru": "в э"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "energy_shield",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        31,
+        38,
+        62,
+        76,
+        83,
+        90
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_eu75ae",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% повышение брони(4—8)% увеличение урона тотемов Броня Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение брони##% увеличение урона тотемов Броня Урон"
+      },
+      "regex": {
+        "ru": "в б"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        36,
+        50
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_cef0fl",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение уклонения(4—8)% увеличение урона шипами Уклонение Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение уклонения##% увеличение урона шипами Уклонение Урон"
+      },
+      "regex": {
+        "ru": "и ук"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "evasion",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        41,
+        64
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_amwoqv",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение максимума энергетического щита(4—8)% увеличение урона шипами Энергетический щит Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума энергетического щита##% увеличение урона шипами Энергетический щит Урон"
+      },
+      "regex": {
+        "ru": "и э"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "energy_shield",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        31,
+        38,
+        62,
+        82,
+        89
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_6gq4zm",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% повышение брони(4—8)% увеличение урона шипами Броня Урон"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение брони##% увеличение урона шипами Броня Урон"
+      },
+      "regex": {
+        "ru": "ми б"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        36
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_egln2c",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от чар(5—10)% увеличение уклонения Уклонение Урон Чародейский"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от чар##% увеличение уклонения Уклонение Урон Чародейский"
+      },
+      "regex": {
+        "ru": "я ук"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "evasion",
+        "damage",
+        "caster"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        44,
+        54,
+        64,
+        79
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_eq4nf2",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от чар(5—10)% увеличение максимума энергетического щита Энергетический щит Урон Чародейский"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от чар##% увеличение максимума энергетического щита Энергетический щит Урон Чародейский"
+      },
+      "regex": {
+        "ru": "ита "
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "energy_shield",
+        "damage",
+        "caster"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        44,
+        61,
+        68,
+        82,
+        89,
+        109
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_gtoz29",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от чар(5—10)% повышение брони Броня Урон Чародейский"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от чар##% повышение брони Броня Урон Чародейский"
+      },
+      "regex": {
+        "ru": "е брони "
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage",
+        "caster"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        43,
+        70
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_l51qdw",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "15% увеличение шанса отравить(5—10)% увеличение силы накладываемого вами отравления Урон Состояние"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение шанса отравить##% увеличение силы накладываемого вами отравления Урон Состояние"
+      },
+      "regex": {
+        "ru": "отр"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "ailment"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [
+        15
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        43,
+        79
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_9iu5hd",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение уклоненияПриспешники имеют (4—8)% увеличение урона Уклонение Урон Приспешник"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение уклоненияПриспешники имеют ##% увеличение урона Уклонение Урон Приспешник"
+      },
+      "regex": {
+        "ru": "ияп"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "evasion",
+        "damage",
+        "minion"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        33,
+        42,
+        59,
+        75,
+        90
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_96ct0v",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение максимума энергетического щитаПриспешники имеют (4—8)% увеличение урона Энергетический щит Урон Приспешник"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума энергетического щитаПриспешники имеют ##% увеличение урона Энергетический щит Урон Приспешник"
+      },
+      "regex": {
+        "ru": "тап"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "energy_shield",
+        "damage",
+        "minion"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        31,
+        38,
+        54,
+        63,
+        80,
+        93,
+        100,
+        120
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_j3anlu",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% повышение брониПриспешники имеют (4—8)% увеличение урона Броня Урон Приспешник"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение брониПриспешники имеют ##% увеличение урона Броня Урон Приспешник"
+      },
+      "regex": {
+        "ru": "нип"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage",
+        "minion"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        28,
+        37,
+        54,
+        81
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_fw5hjq",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от молнииУрон пробивает (4—7)% сопротивления молнии Урон Стихийный Молния"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от молнииУрон пробивает ##% сопротивления молнии Урон Стихийный Молния"
+      },
+      "regex": {
+        "ru": "нии"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "elemental",
+        "lightning"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        64
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_3yl2ru",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(10—20)% увеличение силы накладываемого вамиИстощения Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение силы накладываемого вамиИстощения Бездны"
+      },
+      "regex": {
+        "ru": "дны"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        49,
+        55
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_uvi4ic",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение максимума энергетического щита(4—8)% увеличение урона от атак Энергетический щит Урон Атака"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума энергетического щита##% увеличение урона от атак Энергетический щит Урон Атака"
+      },
+      "regex": {
+        "ru": "к э"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "energy_shield",
+        "damage",
+        "attack"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        31,
+        38,
+        62,
+        83,
+        90
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_kalyag",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(5—10)% увеличение уклонения(4—8)% увеличение урона от атак Уклонение Урон Атака"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение уклонения##% увеличение урона от атак Уклонение Урон Атака"
+      },
+      "regex": {
+        "ru": "к у"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "evasion",
+        "damage",
+        "attack"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        41,
+        65
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_ki02jh",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(8—15)% увеличение области действия присутствия(2—4)% увеличение силы умений аур Аура"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение области действия присутствия##% увеличение силы умений аур Аура"
+      },
+      "regex": {
+        "ru": "5)%"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "aura"
+      ],
+      "ranges": [
+        [
+          8,
+          15
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        28,
+        60,
+        72
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_fy82re",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "15% увеличение шанса наложения кровотечения(5—10)% увеличение силы накладываемого вами кровотечения Урон Физический Состояние"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение шанса наложения кровотечения##% увеличение силы накладываемого вами кровотечения Урон Физический Состояние"
+      },
+      "regex": {
+        "ru": "нал"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "physical",
+        "ailment"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [
+        15
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        26,
+        37,
+        39,
+        57,
+        93,
+        95,
+        110
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_w3f3fr",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона хаосом(3—6)% увеличение силы истощения Урон Хаос"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона хаосом##% увеличение силы истощения Урон Хаос"
+      },
+      "regex": {
+        "ru": "6)%"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "chaos"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        43,
+        58
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_f8l3qm",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от холодаУрон пробивает (4—7)% сопротивления холоду Урон Стихийный Холод"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от холодаУрон пробивает ##% сопротивления холоду Урон Стихийный Холод"
+      },
+      "regex": {
+        "ru": "оду"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "elemental",
+        "cold"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        64
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_7n5k9t",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Компаньоны наносят увеличенный на (5—10)% урон(5—10)% увеличение максимума здоровья компаньонов Здоровье Урон Приспешник"
+      },
+      "rawTextTemplate": {
+        "ru": "Компаньоны наносят увеличенный на ##% урон##% увеличение максимума здоровья компаньонов Здоровье Урон Приспешник"
+      },
+      "regex": {
+        "ru": "оны"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "life",
+        "damage",
+        "minion"
+      ],
+      "ranges": [
+        [
+          5,
+          10
+        ],
+        [
+          5,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        25,
+        60,
+        115
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_2dlrep",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от стихий(4—8)% увеличение силы накладываемых вами состояний Урон Стихийный Огонь Холод Молния Состояние"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от стихий##% увеличение силы накладываемых вами состояний Урон Стихийный Огонь Холод Молния Состояние"
+      },
+      "regex": {
+        "ru": "мых"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "elemental",
+        "fire",
+        "cold",
+        "lightning",
+        "ailment"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        46
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_pkhu7l",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% усиление эффекта восприимчивости Стихийный Огонь Холод Молния"
+      },
+      "rawTextTemplate": {
+        "ru": "##% усиление эффекта восприимчивости Стихийный Огонь Холод Молния"
+      },
+      "regex": {
+        "ru": "вос"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "elemental",
+        "fire",
+        "cold",
+        "lightning"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_vqadj8",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение урона от огняУрон пробивает (4—7)% сопротивления огню Урон Стихийный Огонь"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение урона от огняУрон пробивает ##% сопротивления огню Урон Стихийный Огонь"
+      },
+      "regex": {
+        "ru": "гню"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "damage",
+        "elemental",
+        "fire"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        62
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_e6kjqn",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(4—8)% увеличение глобального физического урона(4—8)% увеличение количества разрушаемой брони Броня Урон Физический"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение глобального физического урона##% увеличение количества разрушаемой брони Броня Урон Физический"
+      },
+      "regex": {
+        "ru": "тва"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "armour",
+        "damage",
+        "physical"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        35,
+        60,
+        70,
+        110
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_5sod0a",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Приспешники имеют (4—8)% увеличение максимума здоровья Здоровье Приспешник"
+      },
+      "rawTextTemplate": {
+        "ru": "Приспешники имеют ##% увеличение максимума здоровья Здоровье Приспешник"
+      },
+      "regex": {
+        "ru": "я з"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Бессветный",
+          "fs": "Бессветная",
+          "ns": "Бессветное",
+          "mp": "Бессветные",
+          "fp": "Бессветные",
+          "np": "Бессветные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "life",
+        "minion"
+      ],
+      "ranges": [
+        [
+          4,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        5,
+        14,
+        31,
+        69
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_znxtl",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(1—2)% повышение ловкости Характеристика"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение ловкости Характеристика"
+      },
+      "regex": {
+        "ru": "лов"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "attribute"
+      ],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12,
+        32
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_5sagzk",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(1—2)% повышение интеллекта Характеристика"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение интеллекта Характеристика"
+      },
+      "regex": {
+        "ru": "инт"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "attribute"
+      ],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12,
+        20,
+        23,
+        34
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-desecrated.mod_omh2g4",
+      "category": "jewel-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "(1—2)% повышение силы Характеристика"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение силы Характеристика"
+      },
+      "regex": {
+        "ru": "ы х"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "attribute"
+      ],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12,
+        28
+      ],
+      "level": 1
+    }
+  ],
+  "optimizationTable": {
+    "jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 2
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_egln2c:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_61m8bl:jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_61m8bl",
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_egln2c:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_egln2c:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_egln2c:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_egln2c",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_eq4nf2:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_eq4nf2",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_gtoz29:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_gtoz29",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_fw5hjq": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_fw5hjq"
+      ],
+      "regex": {
+        "ru": "урон "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "лени"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_fw5hjq": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_fw5hjq"
+      ],
+      "regex": {
+        "ru": "урон "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_fw5hjq:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_fw5hjq",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "урон "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_w3f3fr": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_w3f3fr"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "(4—8)% у"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_f8l3qm:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_f8l3qm",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "урон "
+      },
+      "weight": 5,
+      "count": 3
+    },
+    "jewel-desecrated.mod_2dlrep:jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_pkhu7l": {
+      "ids": [
+        "jewel-desecrated.mod_2dlrep",
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_pkhu7l"
+      ],
+      "regex": {
+        "ru": "ого"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "jewel-desecrated.mod_e6kjqn:jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_vqadj8": {
+      "ids": [
+        "jewel-desecrated.mod_e6kjqn",
+        "jewel-desecrated.mod_pkhu7l",
+        "jewel-desecrated.mod_vqadj8"
+      ],
+      "regex": {
+        "ru": "ого"
+      },
+      "weight": 3,
+      "count": 3
+    }
+  }
+}

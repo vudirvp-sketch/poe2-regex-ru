@@ -1,8 +1,43 @@
 /**
  * Type B page parser for poe2db.tw
- * Used for: Belts, Rings, Amulets, Relics
+ * Used for: Belts, Rings, Amulets, Relics (ModifiersCalc section)
  *
- * These pages have mod data in ModifiersCalc section with summary cards + detail modals.
+ * These pages store mod data as JSON inside a `new ModsView({...})` script tag.
+ * The HTML is client-rendered by Mustache templates — not available in static HTML.
+ *
+ * JSON structure:
+ *   {
+ *     "baseitem": {...},
+ *     "config": {...},
+ *     "gen": {"1": "Префикс", "2": "Суффикс"},
+ *     "opt": {...},
+ *     "normal": [ModObject, ...],
+ *     "corrupted": [ModObject, ...],
+ *     "desecrated": [ModObject, ...],
+ *     "breach_tree": [ModObject, ...],
+ *     "breach_minion": [ModObject, ...],
+ *     "breach_caster": [ModObject, ...],
+ *     "essence": [ModObject, ...],
+ *     "perfect_essence": [ModObject, ...],
+ *     ... (many more empty arrays)
+ *   }
+ *
+ * Per-ModObject:
+ *   Name: string (gender template or plain text)
+ *   Level: string
+ *   ModGenerationTypeID: "1" = Prefix, "2" = Suffix, "5" = Corrupted
+ *   ModFamilyList: string[] (grouping key)
+ *   DropChance: number | string
+ *   str: string (HTML description with mod-value spans)
+ *   fossil_no: string[]
+ *   adds_no: string[]
+ *   spawn_no: string[]
+ *   mod_no: string[] (HTML badges with data-tag attributes)
+ *   mod_fossil_item: string[]
+ *   hover: string (URL containing mod code)
+ *   Code?: string (only for essence mods)
+ *   type?: string ("Desecrated" or "essence")
+ *   IsPerfect?: string ("0" or "1", only for essence mods)
  */
 import * as cheerio from 'cheerio';
 import type { ModOrigin } from '../../src/shared/types.js';
@@ -22,68 +57,206 @@ export interface RawModTier {
   descriptionHtml: string;
   weight: string;
   modCode: string;
+  affix: 'prefix' | 'suffix';
+  tags: string[];
+  modFamily: string[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface ModsViewData {
+  gen: Record<string, string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  normal?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  corrupted?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  desecrated?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  breach_tree?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  breach_minion?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  breach_caster?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  essence?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  perfect_essence?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
+/** Map of JSON category key to ModOrigin */
+const CATEGORY_ORIGIN_MAP: Record<string, ModOrigin> = {
+  normal: 'normal',
+  corrupted: 'corrupted',
+  desecrated: 'desecrated',
+  breach_tree: 'breachborn',
+  breach_minion: 'breachborn',
+  breach_caster: 'breachborn',
+  essence: 'essence',
+  perfect_essence: 'essence',
+};
+
+/** Categories that contain mod data (skip empty arrays) */
+const MOD_CATEGORIES = [
+  'normal',
+  'corrupted',
+  'desecrated',
+  'breach_tree',
+  'breach_minion',
+  'breach_caster',
+  'essence',
+  'perfect_essence',
+];
+
+/**
+ * Extract the ModsView JSON from the HTML.
+ * Searches for `new ModsView({...})` pattern in <script> tags.
+ */
+function extractModsViewJson(html: string): ModsViewData | null {
+  // Pattern: new ModsView({...});
+  // The JSON can be very large and may contain nested objects/arrays
+  const regex = /new\s+ModsView\s*\(\s*(\{[\s\S]*?\})\s*\)\s*;/;
+  const match = regex.exec(html);
+  if (!match) return null;
+
+  try {
+    // The JSON may contain unquoted keys or trailing commas — try direct parse first
+    return JSON.parse(match[1]) as ModsViewData;
+  } catch {
+    // Try more lenient parsing: wrap in parentheses for eval-like safety
+    try {
+      // Use Function constructor for safe evaluation of JS object literal
+      const fn = new Function(`return (${match[1]});`);
+      return fn() as ModsViewData;
+    } catch (e) {
+      console.warn('  Failed to parse ModsView JSON:', (e as Error).message);
+      return null;
+    }
+  }
+}
+
+/**
+ * Extract mod code from hover URL.
+ * Examples:
+ *   "?s=Data%5CMods%2FStrength1" → "Strength1"
+ *   "https://cdn.poe2db.tw/cache2/ru/Poe_Data_Mods_hover/<hash>" → null (no readable code)
+ */
+function extractCodeFromHover(hover: string): string | undefined {
+  if (!hover) return undefined;
+
+  // Try short form: ?s=Data%5CMods%2F<Code>
+  const shortMatch = hover.match(/Mods%2F([^&"']+)/);
+  if (shortMatch) return shortMatch[1];
+
+  // Try decoded form: ?s=Data\Mods\<Code>
+  try {
+    const decoded = decodeURIComponent(hover);
+    const decodedMatch = decoded.match(/Mods[\/\\]([^&"'\s]+)/);
+    if (decodedMatch) return decodedMatch[1];
+  } catch {
+    // ignore
+  }
+
+  return undefined;
+}
+
+/**
+ * Extract tags from mod_no HTML array.
+ * Each entry is like: <span class="badge bg-primary craftingfire" data-tag="fire">Огонь</span>
+ */
+function extractTagsFromModNo(modNo: string[]): string[] {
+  const tags: string[] = [];
+  for (const html of modNo) {
+    const $ = cheerio.load(html);
+    $('[data-tag]').each((_, el) => {
+      const tag = $(el).attr('data-tag');
+      if (tag) tags.push(tag);
+    });
+  }
+  return tags;
+}
+
+/**
+ * Parse affix type from ModGenerationTypeID.
+ * "1" = Prefix, "2" = Suffix, "5" = Corrupted
+ */
+function parseGenTypeId(id: string): 'prefix' | 'suffix' {
+  if (id === '1') return 'prefix';
+  // id === '2' -> suffix, id === '5' -> corrupted (stored as suffix with origin='corrupted')
+  return 'suffix';
 }
 
 /**
  * Parse a Type B page from poe2db.tw (ModifiersCalc structure)
+ * by extracting the JSON from `new ModsView({...})`.
  */
 export function parseTypeBPage(html: string): RawModGroupData[] {
-  const $ = cheerio.load(html);
   const results: RawModGroupData[] = [];
 
-  // Find the ModifiersCalc tab pane
-  const calcPane = $('div.tab-pane[id*="ModifiersCalc"], div.tab-pane[id*="Modifiers"]').first();
-  if (calcPane.length === 0) {
-    console.warn('  No ModifiersCalc pane found');
+  // Step 1: Extract JSON from ModsView
+  const data = extractModsViewJson(html);
+  if (!data) {
+    console.warn('  No ModsView JSON found in page');
     return results;
   }
 
-  // Extract summary cards -> groups
-  calcPane.find('div.mod-title.explicitMod, div.mod-title').each((_, el) => {
-    const $el = $(el);
+  // Step 2: Process each mod category
+  for (const categoryKey of MOD_CATEGORIES) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mods: any[] = data[categoryKey];
+    if (!mods || !Array.isArray(mods) || mods.length === 0) continue;
 
-    // Get genGroup from data attribute
-    const genGroup = $el.attr('data-gengroup') ||
-                     $el.closest('[data-gengroup]').attr('data-gengroup') ||
-                     `group_${results.length}`;
+    const origin = CATEGORY_ORIGIN_MAP[categoryKey] || 'normal';
 
-    // Determine origin from CSS classes or badges
-    let origin: ModOrigin = 'normal';
-    const text = $el.text().toLowerCase();
-    if (text.includes('desecrated') || text.includes('осквернён')) origin = 'desecrated';
-    else if (text.includes('corrupted') || text.includes('оскверн')) origin = 'corrupted';
-    else if (text.includes('essence') || text.includes('сущность')) origin = 'essence';
-    else if (text.includes('breach') || text.includes('разлом')) origin = 'breachborn';
+    // Group mods by ModFamilyList for tier grouping
+    const familyGroups = new Map<string, RawModTier[]>();
 
-    // Extract tags from data-tag attributes
-    const tags: string[] = [];
-    const tagAttr = $el.attr('data-tag') || $el.closest('[data-tag]').attr('data-tag');
-    if (tagAttr) {
-      tags.push(...tagAttr.split(',').map(t => t.trim()).filter(Boolean));
+    for (let i = 0; i < mods.length; i++) {
+      const mod = mods[i];
+      const family = mod.ModFamilyList?.[0] || `unknown_${categoryKey}_${i}`;
+      const genType = parseGenTypeId(String(mod.ModGenerationTypeID || '2'));
+      const level = parseInt(String(mod.Level || '0'), 10) || 0;
+      const descriptionHtml = String(mod.str || '');
+      const nameHtml = String(mod.Name || '');
+      const weight = String(mod.DropChance || '0');
+      const modCode = mod.Code || extractCodeFromHover(String(mod.hover || '')) || `${categoryKey}_${i}`;
+      const tags = extractTagsFromModNo(mod.mod_no || []);
+
+      // Skip empty descriptions
+      if (!descriptionHtml || cheerio.load(descriptionHtml).root().text().trim().length === 0) {
+        continue;
+      }
+
+      const tier: RawModTier = {
+        tier: nameHtml || `T${i + 1}`,
+        nameHtml,
+        level,
+        descriptionHtml,
+        weight,
+        modCode,
+        affix: genType,
+        tags,
+        modFamily: mod.ModFamilyList || [],
+      };
+
+      if (!familyGroups.has(family)) {
+        familyGroups.set(family, []);
+      }
+      familyGroups.get(family)!.push(tier);
     }
 
-    // Extract max level from badge
-    const levelBadge = $el.find('.badge.bg-secondary, .badge').first();
-    const maxLevel = parseInt(levelBadge.text().trim(), 10) || 0;
+    // Convert family groups to RawModGroupData
+    for (const [family, tiers] of familyGroups) {
+      const maxLevel = Math.max(...tiers.map(t => t.level));
+      const allTags = [...new Set(tiers.flatMap(t => t.tags))];
 
-    // Try to extract tiers from associated detail modal
-    const tiers = extractTiersFromModal($, genGroup);
-
-    if (tiers.length > 0) {
-      results.push({ genGroup, origin, tags, maxLevel, tiers });
-    }
-  });
-
-  // If no summary cards found, try extracting from modal tables directly
-  if (results.length === 0) {
-    const modalTiers = extractTiersFromAllModals($);
-    if (modalTiers.length > 0) {
       results.push({
-        genGroup: 'all_mods',
-        origin: 'normal',
-        tags: [],
-        maxLevel: 0,
-        tiers: modalTiers,
+        genGroup: family,
+        origin,
+        tags: allTags,
+        maxLevel,
+        tiers,
       });
     }
   }
@@ -91,80 +264,20 @@ export function parseTypeBPage(html: string): RawModGroupData[] {
   return results;
 }
 
-function extractTiersFromModal($: cheerio.CheerioAPI, genGroup: string): RawModTier[] {
-  const tiers: RawModTier[] = [];
+/**
+ * Get all mod categories found in the page with their mod counts.
+ * Useful for debugging and verification.
+ */
+export function getModCategoryStats(html: string): Record<string, number> {
+  const data = extractModsViewJson(html);
+  if (!data) return {};
 
-  // Find the modal associated with this genGroup
-  const modal = $(`div.modal[id*="${genGroup}"], div.modal[data-gengroup="${genGroup}"]`).first();
-  if (modal.length === 0) return tiers;
-
-  // Parse the table inside the modal
-  modal.find('table.orig tr, table tbody tr').each((_, row) => {
-    const cells = $(row).find('td');
-    if (cells.length < 3) return;
-
-    const tierText = $(cells[0]).text().trim();
-    const nameHtml = $(cells[1]).html() || '';
-    const descriptionHtml = $(cells[2]).html() || '';
-    
-    // Level might be in a badge or a specific cell
-    const level = parseInt($(cells[0]).find('.badge').text().trim() || 
-                          $(row).find('[data-level]').attr('data-level') || '0', 10) || 0;
-
-    // Weight from bg-danger badge
-    const weightBadge = $(row).find('.badge.bg-danger, .badge.bg-warning').first();
-    const weight = weightBadge.text().trim() || '0';
-
-    // Mod code from data attributes
-    const modCode = $(cells[1]).find('[data-code]').attr('data-code') ||
-                    $(cells[1]).find('[data-hover]').attr('data-hover') ||
-                    $(row).attr('data-code') ||
-                    genGroup;
-
-    if (nameHtml || descriptionHtml) {
-      tiers.push({
-        tier: tierText || `T${tiers.length + 1}`,
-        nameHtml,
-        level,
-        descriptionHtml,
-        weight,
-        modCode,
-      });
+  const stats: Record<string, number> = {};
+  for (const categoryKey of MOD_CATEGORIES) {
+    const mods = data[categoryKey];
+    if (Array.isArray(mods) && mods.length > 0) {
+      stats[categoryKey] = mods.length;
     }
-  });
-
-  return tiers;
-}
-
-function extractTiersFromAllModals($: cheerio.CheerioAPI): RawModTier[] {
-  const tiers: RawModTier[] = [];
-
-  $('div.modal table.orig tr, div.modal table tbody tr').each((_, row) => {
-    const cells = $(row).find('td');
-    if (cells.length < 3) return;
-
-    const tierText = $(cells[0]).text().trim();
-    const nameHtml = $(cells[1]).html() || '';
-    const descriptionHtml = $(cells[2]).html() || '';
-    const level = parseInt($(cells[0]).find('.badge').text().trim() || '0', 10) || 0;
-    const weightBadge = $(row).find('.badge.bg-danger, .badge.bg-warning').first();
-    const weight = weightBadge.text().trim() || '0';
-    const modCode = $(cells[1]).find('[data-code]').attr('data-code') ||
-                    $(cells[1]).find('[data-hover]').attr('data-hover') ||
-                    $(row).attr('data-code') ||
-                    `mod_${tiers.length}`;
-
-    if (nameHtml || descriptionHtml) {
-      tiers.push({
-        tier: tierText || `T${tiers.length + 1}`,
-        nameHtml,
-        level,
-        descriptionHtml,
-        weight,
-        modCode,
-      });
-    }
-  });
-
-  return tiers;
+  }
+  return stats;
 }

@@ -2,7 +2,7 @@
  * Normalize raw mod data into the NormalizedMod format.
  * - Extract ranges and values from mod-value spans
  * - Generate internal_id from mod code or English name
- * - Extract gender inflection forms
+ * - Extract gender inflection forms (supports both lowercase and UPPERCASE keys)
  * - Mark E positions for yofication
  */
 import type { Locale, AffixType, ModOrigin, GenderForms } from '../../src/shared/types.js';
@@ -40,17 +40,17 @@ export function normalizeTypeA(
   const genderForms = extractGenderForms(raw.nameHtml);
   const { hasYofication, yoficationPositions } = detectYofication(rawText);
 
-  const id = generateId(raw.modCode, category, rawText);
+  const id = generateId(raw.modCode, category, rawText, raw.origin || origin);
 
   return {
     id,
     category,
-    origin,
+    origin: raw.origin || origin,
     rawText: { ru: rawText },
     rawTextTemplate: { ru: rawTextTemplate },
     genderForms: { ru: genderForms },
     affix: raw.affix,
-    tags: [],
+    tags: raw.tags || [],
     ranges,
     values,
     hasYofication,
@@ -73,7 +73,10 @@ export function normalizeTypeB(
   const genderForms = extractGenderForms(tier.nameHtml);
   const { hasYofication, yoficationPositions } = detectYofication(rawText);
 
-  const id = generateId(tier.modCode || group.genGroup, category, rawText);
+  const id = generateId(tier.modCode || group.genGroup, category, rawText, group.origin);
+
+  // Use the affix from the tier if available, otherwise infer
+  const affix: AffixType = tier.affix || inferAffix(rawText);
 
   return {
     id,
@@ -82,8 +85,8 @@ export function normalizeTypeB(
     rawText: { ru: rawText },
     rawTextTemplate: { ru: rawTextTemplate },
     genderForms: { ru: genderForms },
-    affix: inferAffix(rawText),
-    tags: group.tags,
+    affix,
+    tags: tier.tags?.length > 0 ? tier.tags : group.tags,
     ranges,
     values,
     hasYofication,
@@ -99,7 +102,8 @@ export function normalizeTypeB(
  * Handles:
  * - Numeric ranges: (5<span class="ndash">—</span>9) -> ranges[[5,9]], template uses ##
  * - Standalone numbers: values[], template uses #
- * - Gender templates: <if:ms>...</if:ms> -> extracted separately
+ * - Gender templates: <if:MS>...</if:MS> -> extracted separately
+ * - Multi-line mods separated by <br>
  */
 export function extractTextAndRanges(html: string): {
   rawText: string;
@@ -114,16 +118,16 @@ export function extractTextAndRanges(html: string): {
   // Extract numeric ranges from mod-value spans with ndash
   $('span.mod-value').each((_, el) => {
     const text = $(el).text().trim();
-    
-    // Range pattern: (5—9) or (5-9)
+
+    // Range pattern: (5—9) or (5-9) or (-10—20) or +(1—2)
     const rangeMatch = text.match(/\(([+-]?\d+)\s*[—–-]\s*([+-]?\d+)\)/);
     if (rangeMatch) {
       const min = parseInt(rangeMatch[1], 10);
       const max = parseInt(rangeMatch[2], 10);
       ranges.push([min, max]);
     }
-    
-    // Single number in mod-value
+
+    // Single number in mod-value (not part of a range)
     const singleMatch = text.match(/^([+-]?\d+)$/);
     if (singleMatch && !rangeMatch) {
       values.push(parseInt(singleMatch[1], 10));
@@ -131,50 +135,68 @@ export function extractTextAndRanges(html: string): {
   });
 
   // Build raw text by getting all text content
+  // First, remove secondary spans (internal stat identifiers)
+  $('span.secondary').remove();
+
   let rawText = $.root().text().trim();
-  // Normalize whitespace
+  // Normalize whitespace (multiple spaces, newlines from <br>)
   rawText = rawText.replace(/\s+/g, ' ').trim();
 
   // Build template: replace ranges with ##, single values with #
   let rawTextTemplate = rawText;
-  
+
   // Replace ranges in reverse order to maintain positions
   for (let i = ranges.length - 1; i >= 0; i--) {
     const [min, max] = ranges[i];
-    // Replace the first occurrence of "min—max" or "(min—max)" pattern
+    // Replace the first occurrence of "(min—max)" or "(min-max)" pattern
     const rangeStr = `(${min}—${max})`;
     const rangeStrAlt = `(${min}-${max})`;
     rawTextTemplate = rawTextTemplate.replace(rangeStr, '##').replace(rangeStrAlt, '##');
   }
 
-  // Replace standalone values
+  // Replace standalone values (be careful with negative numbers and context)
   for (const val of values) {
-    // Be careful not to replace values that are part of ranges
-    rawTextTemplate = rawTextTemplate.replace(new RegExp(`(?<!\\d)${val}(?!\\d)`, 'g'), '#');
+    const escaped = String(val).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    rawTextTemplate = rawTextTemplate.replace(
+      new RegExp(`(?<!\\d)${escaped}(?!\\d)`, 'g'),
+      '#'
+    );
   }
 
   return { rawText, rawTextTemplate, ranges, values };
 }
 
 /**
- * Extract gender inflection forms from HTML containing <if:ms> templates.
+ * Extract gender inflection forms from HTML containing <if:MS> templates.
  *
- * Template format:
- * <if:ms>{Глубинный}<elif:fs>{Глубинная}<elif:ns>{Глубинное}
- * <elif:mp>{Глубинные}<elif:fp>{Глубинные}<elif:np>{Глубинные}
- * </if:np></elif:fp></elif:mp></elif:ns></elif:fs></if:ms>
+ * Template format (poe2db.tw uses UPPERCASE keys):
+ * <if:MS>{Глубинный}<elif:FS>{Глубинная}<elif:NS>{Глубинное}
+ * <elif:MP>{Глубинные}<elif:FP>{Глубинные}<elif:NP>{Глубинные}
+ * </if:NP></elif:FP></elif:MP></elif:NS></elif:FS></if:MS>
+ *
+ * Also supports lowercase: <if:ms> / <elif:ms> etc.
  */
 export function extractGenderForms(html: string): GenderForms {
   const forms: GenderForms = {};
 
-  const keys = ['ms', 'fs', 'ns', 'mp', 'fp', 'np'] as const;
+  // Map both uppercase and lowercase keys to GenderForms keys
+  const keyMappings: [string, keyof GenderForms][] = [
+    ['MS', 'ms'], ['ms', 'ms'],
+    ['FS', 'fs'], ['fs', 'fs'],
+    ['NS', 'ns'], ['ns', 'ns'],
+    ['MP', 'mp'], ['mp', 'mp'],
+    ['FP', 'fp'], ['fp', 'fp'],
+    ['NP', 'np'], ['np', 'np'],
+  ];
 
-  for (const key of keys) {
+  for (const [templateKey, formKey] of keyMappings) {
+    if (forms[formKey]) continue; // Already found (uppercase takes priority)
+
     // Match <if:KEY>{content} or <elif:KEY>{content}
-    const regex = new RegExp(`(?:<if:${key}>|<elif:${key}>)\\{([^}]+)\\}`, 'g');
+    const regex = new RegExp(`(?:<if:${templateKey}>|<elif:${templateKey}>)\\{([^}]+)\\}`, 'g');
     const match = regex.exec(html);
     if (match) {
-      forms[key] = match[1];
+      forms[formKey] = match[1];
     }
   }
 
@@ -221,9 +243,17 @@ export function detectYofication(text: string): {
 
 /**
  * Generate an internal ID from the mod code or a fallback.
- * Format: {category}.{snake_case_description}
+ * Format: {category}.{snake_case_description}[_{origin}]
+ *
+ * When the same mod code appears in multiple origins (normal, desecrated, etc.),
+ * we append the origin suffix to differentiate them.
  */
-function generateId(modCode: string | undefined, category: string, rawText: string): string {
+function generateId(
+  modCode: string | undefined,
+  category: string,
+  rawText: string,
+  origin: ModOrigin
+): string {
   if (modCode) {
     // Clean up the mod code: strip non-alphanumeric, convert to snake_case
     const cleaned = modCode
@@ -232,12 +262,16 @@ function generateId(modCode: string | undefined, category: string, rawText: stri
       .replace(/^_|_$/g, '')
       .toLowerCase();
     if (cleaned) {
+      // Only append origin suffix for non-normal origins to avoid ID bloat
+      if (origin !== 'normal') {
+        return `${category}.${cleaned}_${origin}`;
+      }
       return `${category}.${cleaned}`;
     }
   }
 
-  // Fallback: generate a hash from the raw text
-  const hash = simpleHash(rawText);
+  // Fallback: generate a hash from the raw text + origin
+  const hash = simpleHash(rawText + '|' + origin);
   return `${category}.mod_${hash}`;
 }
 

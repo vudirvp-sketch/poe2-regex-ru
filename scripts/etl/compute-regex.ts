@@ -54,15 +54,22 @@ export function computeMinimalUniqueSubstring(
   let bestCandidate = '';
   let bestScore = Infinity;
 
-  // Try all substrings starting from shortest
-  for (let length = 1; length <= primaryText.length; length++) {
+  // Minimum regex length: 3 characters for meaningful matching.
+  // 1-2 char regexes are too generic and would match too broadly in PoE2 search.
+  const MIN_REGEX_LEN = 3;
+
+  // Try all substrings starting from minimum length
+  for (let length = MIN_REGEX_LEN; length <= primaryText.length; length++) {
     let foundForThisLength = false;
 
     for (let start = 0; start <= primaryText.length - length; start++) {
       const candidate = primaryText.substring(start, start + length);
 
       // Skip candidates that are just spaces or very common
-      if (candidate.trim().length === 0) continue;
+      if (candidate.trim().length < MIN_REGEX_LEN) continue;
+
+      // Skip candidates that are purely numeric (not useful as regex)
+      if (/^\d+$/.test(candidate.trim())) continue;
 
       // Check uniqueness against exclusion set
       if (!exclusionSubstrings.has(candidate)) {
@@ -87,11 +94,13 @@ export function computeMinimalUniqueSubstring(
   if (!bestCandidate) {
     for (const formText of targetTexts.slice(1)) {
       if (formText === primaryText) continue;
-      for (let length = 1; length <= formText.length; length++) {
+      const lowerForm = formText.toLowerCase();
+      for (let length = MIN_REGEX_LEN; length <= lowerForm.length; length++) {
         let found = false;
-        for (let start = 0; start <= formText.length - length; start++) {
-          const candidate = formText.substring(start, start + length);
-          if (candidate.trim().length === 0) continue;
+        for (let start = 0; start <= lowerForm.length - length; start++) {
+          const candidate = lowerForm.substring(start, start + length);
+          if (candidate.trim().length < MIN_REGEX_LEN) continue;
+          if (/^\d+$/.test(candidate.trim())) continue;
           if (!exclusionSubstrings.has(candidate)) {
             bestCandidate = candidate;
             found = true;

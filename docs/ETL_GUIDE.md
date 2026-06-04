@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 3.0 | **Date:** 2025-06-05
+> **Version:** 4.0 | **Date:** 2026-06-05
 
 ---
 
@@ -63,7 +63,20 @@ public/generated/waystone.json, tablet.json, etc.
 ## 3. Type A Page Parser (Waystones, Tablets, Jewels)
 
 ### HTML Structure
-Mod data is in `<table class="tablesorter">` tables. All tab content is in HTML (no lazy loading).
+Mod data is in `<table class="table table-hover table-striped mb-0 filters">` tables.
+All tab content is in HTML (no lazy loading). **NOT `tablesorter`** as originally assumed.
+Rows do NOT have `role="row"` attribute. Affix text is in Russian: `Префикс`/`Суффикс`/`Осквернено`.
+
+**Column layouts vary by page:**
+- Waystones normal: [Level, Pre/Suf, Description] (3 cols)
+- Waystones desecrated: [Name, Pre/Suf, Description] (3 cols)
+- Tablets: [Level, Pre/Suf, Description] (3 cols)
+- Jewels normal/desecrated: [Name, Level, Pre/Suf, Description] (4 cols)
+- Jewels corrupted: [Level, Pre/Suf (Осквернено), Description] (3 cols)
+- Relics #RelicMods: [Name, Level, Pre/Suf, Description, Weight] (5 cols)
+
+Tags are in `<span class="badge" data-tag="...">` inside description cells.
+Mod codes can be extracted from `<i class="fas fa-info-circle" data-hover="...">` URLs or `data-keyword` attributes.
 
 ### Raw Data Interface
 ```typescript
@@ -85,7 +98,34 @@ interface RawModData {
 ## 4. Type B Page Parser (Belts, Rings, Amulets, Relics)
 
 ### HTML Structure
-Mod data in `ModifiersCalc` section with summary cards + detail modals. Both are server-rendered.
+Mod data in `ModifiersCalc` section is **NOT in static HTML**. The actual mod data exists as a JSON object embedded in a `<script>` tag, passed to `new ModsView({...})`. The Mustache templates only render client-side.
+
+**Real data source:** Extract JSON from `new ModsView({...})` using regex on the raw HTML string.
+
+### JSON Structure
+The JSON object contains these category arrays:
+- `normal[]` — 135+ mods per belt/ring/amulet
+- `corrupted[]` — 12 mods
+- `desecrated[]` — 21+ mods
+- `breach_tree[]`, `breach_minion[]`, `breach_caster[]` — 16-40 mods each
+- `essence[]` — 35+ mods
+- `perfect_essence[]` — 1 mod
+
+Each mod object has:
+```typescript
+{
+  Name: string;           // Gender template or plain text
+  Level: string;          // Required item level
+  ModGenerationTypeID: string;  // "1"=Prefix, "2"=Suffix, "5"=Corrupted
+  ModFamilyList: string[];      // Grouping key
+  DropChance: number | string;  // Weight
+  str: string;            // HTML description with mod-value spans
+  fossil_no: string[];    // Fossil tags
+  mod_no: string[];       // HTML badges with data-tag attributes
+  hover: string;          // URL containing mod code
+  Code?: string;          // Only for essence mods
+}
+```
 
 ### Raw Data Interface
 ```typescript
@@ -115,14 +155,15 @@ interface RawModTier {
 ## 5. Normalize Step
 
 ### Gender Inflection Template
-Russian mod names on poe2db.tw use a custom template syntax:
+Russian mod names on poe2db.tw use a custom template syntax with **UPPERCASE** keys:
 ```html
-<if:ms>{Глубинный}<elif:fs>{Глубинная}<elif:ns>{Глубинное}
-<elif:mp>{Глубинные}<elif:fp>{Глубинные}<elif:np>{Глубинные}
-</if:np></elif:fp></elif:mp></elif:ns></elif:fs></if:ms>
+<if:MS>{Глубинный}<elif:FS>{Глубинная}<elif:NS>{Глубинное}
+<elif:MP>{Глубинные}<elif:FP>{Глубинные}<elif:NP>{Глубинные}
+</if:NP></elif:FP></elif:MP></elif:NS></elif:FS></if:MS>
 ```
 
-Keys: `ms`=masculine singular, `fs`=feminine singular, `ns`=neuter singular, `mp/fp/np`=plural forms.
+Keys: `MS`=masculine singular, `FS`=feminine singular, `NS`=neuter singular, `MP/FP/NP`=plural forms.
+Note: The original docs specified lowercase (`ms`, `fs`) but actual poe2db.tw uses UPPERCASE.
 
 ### Numeric Range Encoding
 ```html

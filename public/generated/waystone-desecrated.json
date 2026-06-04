@@ -1,0 +1,681 @@
+{
+  "version": "2026-06-04T22:14:30.183Z",
+  "category": "waystone-desecrated",
+  "source": "poe2db.tw",
+  "tokens": [
+    {
+      "id": "waystone-desecrated.mod_tmrm3c",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Монстры Бездны даруют увеличенное на (50—100)% количество опыта"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры Бездны даруют увеличенное на ##% количество опыта"
+      },
+      "regex": {
+        "ru": "уют"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        28,
+        52
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_5lu2g6",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "В области можно встретить дополнительных Бездн: (2—3)"
+      },
+      "rawTextTemplate": {
+        "ru": "В области можно встретить дополнительных Бездн: ##"
+      },
+      "regex": {
+        "ru": "—3)"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          2,
+          3
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        20,
+        34,
+        42
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_jdkriz",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Бездны порождают увеличенное на (50—100)% количество монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "Бездны порождают увеличенное на ##% количество монстров"
+      },
+      "regex": {
+        "ru": "рож"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          100
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        23,
+        47
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_tr8xij",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Из Бездн появляется дополнительных редких монстров: 3В области можно встретить дополнительных Бездн: (14—18)Область захвачена монстрами Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Из Бездн появляется дополнительных редких монстров: #В области можно встретить дополнительных Бездн: ##Область захвачена монстрами Бездны"
+      },
+      "regex": {
+        "ru": "ов:"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          14,
+          18
+        ]
+      ],
+      "values": [
+        3
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        28,
+        36,
+        73,
+        87,
+        95,
+        122,
+        137
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_af0e8g",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Бездны ведут к боссу Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Бездны ведут к боссу Бездны"
+      },
+      "regex": {
+        "ru": "ссу"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        22
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_cx4s1j",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "В области можно встретить дополнительную Царевну инкубатора"
+      },
+      "rawTextTemplate": {
+        "ru": "В области можно встретить дополнительную Царевну инкубатора"
+      },
+      "regex": {
+        "ru": "ную"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        20,
+        34,
+        44
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_id9ll8",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "40% увеличение количества волшебных монстровПровалы Бездны с (50—80)% шансом могут породить как минимум волшебных монстровТрещины Бездны с (40—60)% шансом могут породить как минимум волшебных монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества волшебных монстровПровалы Бездны с ##% шансом могут породить как минимум волшебных монстровТрещины Бездны с ##% шансом могут породить как минимум волшебных монстров"
+      },
+      "regex": {
+        "ru": "сом"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          80
+        ],
+        [
+          40,
+          60
+        ]
+      ],
+      "values": [
+        40
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        30,
+        53,
+        108,
+        124,
+        131,
+        186
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_xmrnsf",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Бездны ведут к Глубинам Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Бездны ведут к Глубинам Бездны"
+      },
+      "regex": {
+        "ru": "нам"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        25
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_9crcta",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Сложность монстров Бездны и награды с них увеличиваются за каждый закрытый провал"
+      },
+      "rawTextTemplate": {
+        "ru": "Сложность монстров Бездны и награды с них увеличиваются за каждый закрытый провал"
+      },
+      "regex": {
+        "ru": "них"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        20
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_lvfynm",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "40% увеличение количества волшебных монстров30% увеличение количества редких монстровПровалы Бездны в области всегда содержат награды"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества волшебных монстров#% увеличение количества редких монстровПровалы Бездны в области всегда содержат награды"
+      },
+      "regex": {
+        "ru": "гда"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        40,
+        30
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        30,
+        54,
+        64,
+        71,
+        94,
+        112,
+        120
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_w7wfug",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "30% увеличение количества редких монстровЕстественные редкие обитатели области обладают 1 дополнительным свойством Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества редких монстровЕстественные редкие обитатели области обладают # дополнительным свойством Бездны"
+      },
+      "regex": {
+        "ru": "ным"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        30,
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        27,
+        44,
+        55,
+        67,
+        98,
+        116
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_3erct7",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Естественные редкие обитатели области пожирают души убитых в их присутствии монстровИгроки крадут поглощаемые души убитых редких монстров в области"
+      },
+      "rawTextTemplate": {
+        "ru": "Естественные редкие обитатели области пожирают души убитых в их присутствии монстровИгроки крадут поглощаемые души убитых редких монстров в области"
+      },
+      "regex": {
+        "ru": "уши"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        3,
+        14,
+        26,
+        123
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_aw9u3m",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "50% увеличение количества редких монстровИгроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества редких монстровИгроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
+      },
+      "regex": {
+        "ru": "ики"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        50
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        27,
+        58,
+        66,
+        85,
+        87,
+        108
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_nku0xl",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Игроки имеют на 3% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений"
+      },
+      "rawTextTemplate": {
+        "ru": "Игроки имеют на #% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений"
+      },
+      "regex": {
+        "ru": "еют"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        3
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        20,
+        24,
+        36,
+        38,
+        43,
+        61,
+        77,
+        82,
+        105
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_aoveo8",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Монстры накладывают цепких лиан при нанесении удара: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "Монстры накладывают цепких лиан при нанесении удара: #"
+      },
+      "regex": {
+        "ru": "иан"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        39,
+        41
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_mfb61l",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Игроки обрекаются на смерть на 10 секунд(-ы)после убийства редкого или уникального монстра"
+      },
+      "rawTextTemplate": {
+        "ru": "Игроки обрекаются на смерть на # секунд(-ы)после убийства редкого или уникального монстра"
+      },
+      "regex": {
+        "ru": "рть"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        10
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        23,
+        35,
+        48,
+        60
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_34v9ul",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Область содержит участки вытягивающей ману земли"
+      },
+      "rawTextTemplate": {
+        "ru": "Область содержит участки вытягивающей ману земли"
+      },
+      "regex": {
+        "ru": "жит"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        35
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_c3hgc1",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "50% увеличение количества редких монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества редких монстров"
+      },
+      "regex": {
+        "ru": "0% увеличение количества редких"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        50
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        27
+      ],
+      "level": 0
+    }
+  ],
+  "optimizationTable": {
+    "waystone-desecrated.mod_af0e8g:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_xmrnsf": {
+      "ids": [
+        "waystone-desecrated.mod_af0e8g",
+        "waystone-desecrated.mod_jdkriz",
+        "waystone-desecrated.mod_xmrnsf"
+      ],
+      "regex": {
+        "ru": "бездны "
+      },
+      "weight": 7,
+      "count": 3
+    }
+  }
+}
