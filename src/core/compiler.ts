@@ -15,7 +15,65 @@ export interface CompileOptions {
  * - RANGE + suffix combines with .* inside a single quoted group.
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
+ *
+ * Min+max RANGE (min ≤ x ≤ max) is handled via AST normalization:
+ * RANGE(min, max, suffix) is expanded into AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix))
+ * before compilation. This produces two AND-joined quoted groups:
+ *   "≥min.*suffix" "≤max.*suffix"
+ * Both conditions must match on the item, which effectively constrains the
+ * matched number to the [min, max] range. There is a theoretical edge case
+ * where two different numbers on the same item could satisfy the conditions
+ * independently, but this is extremely rare in practice and matches the
+ * approach used by poe2.re.
  */
+
+/**
+ * Normalize the AST: expand RANGE nodes that have both min and max
+ * into AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix)).
+ * Nested AND nodes are flattened so the parent AND directly contains
+ * the expanded children (avoiding double-quoting during compilation).
+ *
+ * This keeps compileInner simple — each RANGE node it processes has
+ * at most one bound (min OR max, never both).
+ */
+function normalizeAst(node: ASTNode): ASTNode {
+  switch (node.type) {
+    case 'AND': {
+      // Normalize each child, then flatten any resulting AND nodes
+      const flatChildren: ASTNode[] = [];
+      for (const child of node.children) {
+        const normalized = normalizeAst(child);
+        if (normalized.type === 'AND') {
+          // Splice the inner AND's children into the parent
+          flatChildren.push(...normalized.children);
+        } else {
+          flatChildren.push(normalized);
+        }
+      }
+      return { ...node, children: flatChildren };
+    }
+    case 'OR':
+      return { ...node, children: node.children.map(normalizeAst) };
+    case 'EXCLUDE':
+      return { ...node, child: normalizeAst(node.child) };
+    case 'RANGE': {
+      if (node.min !== undefined && node.max !== undefined) {
+        // Expand RANGE(min, max, suffix) → AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix))
+        // This AND will be flattened into the parent AND during normalization
+        return {
+          type: 'AND',
+          children: [
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix },
+          ],
+        };
+      }
+      return node;
+    }
+    default:
+      return node;
+  }
+}
 
 function compileInner(ast: ASTNode, options: CompileOptions): string {
   const { round10 = true } = options;
@@ -49,11 +107,7 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
     case 'RANGE': {
       if (ast.min === undefined && ast.max === undefined) return '';
 
-      // Handle max-only RANGE (≤ max)
-      // NOTE: This is a basic implementation. Full min+max range (min ≤ x ≤ max)
-      // would require intersection logic which is complex for PoE2 regex.
-      // For now, min takes priority over max when both are specified,
-      // because generateNumberRegex(≥min) is well-tested and max is rarely used.
+      // ≥ min: generate regex matching numbers ≥ min
       if (ast.min !== undefined) {
         const minStr = ast.min.toString();
         const numRegex = generateNumberRegex(minStr, round10);
@@ -62,7 +116,7 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         return numRegex;
       }
 
-      // max-only: generate regex matching numbers ≤ max
+      // ≤ max: generate regex matching numbers ≤ max
       if (ast.max !== undefined) {
         const maxStr = ast.max.toString();
         const numRegex = generateMaxNumberRegex(maxStr, round10);
@@ -77,9 +131,12 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
 }
 
 export function compile(ast: ASTNode, options: CompileOptions = {}): string {
-  const inner = compileInner(ast, options);
+  // Normalize: expand RANGE(min, max) into AND(RANGE(min), RANGE(undefined, max))
+  // and flatten nested ANDs
+  const normalized = normalizeAst(ast);
+  const inner = compileInner(normalized, options);
   if (!inner) return '';
   // AND already handles quoting each child; other types need outer quotes
-  if (ast.type === 'AND') return inner;
+  if (normalized.type === 'AND') return inner;
   return `"${inner}"`;
 }

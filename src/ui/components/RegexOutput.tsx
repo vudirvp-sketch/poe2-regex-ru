@@ -15,15 +15,13 @@
  */
 import React, { useState, useCallback } from 'react';
 import { MAX_CHARS } from '@shared/constants';
-import { getShareableUrl } from '@store/url-sync';
+import { getShareableUrl, type SerializableStore } from '@store/url-sync';
 
 interface RegexOutputProps {
   regex: string;
   isOverflow: boolean;
   /** Optional filter store reference for URL sharing */
-  filterStore?: {
-    serialize: () => Record<string, unknown>;
-  } | null;
+  filterStore?: SerializableStore | null;
 }
 
 /** Get health level for character count */
@@ -73,7 +71,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const handleShare = useCallback(async () => {
     if (!filterStore) return;
     try {
-      const url = getShareableUrl(filterStore as Parameters<typeof getShareableUrl>[0]);
+      const url = getShareableUrl(filterStore);
       await navigator.clipboard.writeText(url);
       setShareCopied(true);
       setTimeout(() => setShareCopied(false), 2000);

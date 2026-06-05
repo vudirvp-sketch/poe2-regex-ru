@@ -33,6 +33,22 @@ export interface CategoryPageConfig {
   extraAstNodes?: ASTNode[];
 }
 
+/** Filter store API exposed by useCategoryPage.
+ *  Wraps Zustand's StoreApi with convenience methods so page components
+ *  can call filterStore.serialize() / getExtraState / setExtraState
+ *  directly without .getState() boilerplate.
+ */
+export interface FilterStoreApi {
+  getState: () => FilterState & FilterActions;
+  subscribe: (listener: (state: FilterState & FilterActions, prevState: FilterState & FilterActions) => void) => () => void;
+  /** Serialize current filter state (for URL sharing & profile persistence) */
+  serialize: () => Record<string, unknown>;
+  /** Get an extraState value by key */
+  getExtraState: (key: string) => unknown;
+  /** Set an extraState value by key */
+  setExtraState: (key: string, value: unknown) => void;
+}
+
 /** Return type of useCategoryPage */
 export interface CategoryPageState {
   /** Loaded category data (null while loading) */
@@ -57,6 +73,10 @@ export interface CategoryPageState {
   minValue: number | null;
   /** Set minimum value for ranged mods */
   setMinValue: (v: number | null) => void;
+  /** Maximum value for ranged mods (null = no maximum) */
+  maxValue: number | null;
+  /** Set maximum value for ranged mods */
+  setMaxValue: (v: number | null) => void;
   /** Selected token IDs */
   selectedIds: Set<string>;
   /** Search text filter */
@@ -77,24 +97,13 @@ export interface CategoryPageState {
   clearSelections: () => void;
   /** Category ID for this page */
   categoryId: string;
-  /** Filter store API (stable reference for URL sharing, profile persistence, and effects) */
-  filterStore: {
-    getState: () => FilterState & FilterActions;
-    subscribe: (listener: (state: FilterState & FilterActions, prevState: FilterState & FilterActions) => void) => () => void;
-  };
+  /** Filter store API (stable reference with serialize/getExtraState/setExtraState) */
+  filterStore: FilterStoreApi;
   /** Restore filter state from a serialized object (e.g., loaded profile) */
   restoreFilterState: (data: Record<string, unknown>) => void;
 }
 
-/**
- * Helper type for the filterStore API returned by useCategoryPage.
- * Provides a stable reference that won't change on every render.
- * Call .getState() to access the current store state.
- */
-export type FilterStoreApi = {
-  getState: () => FilterState & FilterActions;
-  subscribe: (listener: (state: FilterState & FilterActions, prevState: FilterState & FilterActions) => void) => () => void;
-};
+
 
 /**
  * Build an AST from the user's filter selections.
@@ -102,13 +111,15 @@ export type FilterStoreApi = {
  * Logic:
  * - Selected tokens with excludeMode=false → OR group of LITERALs (wanted mods)
  * - Selected tokens with excludeMode=true → EXCLUDE(OR group) (unwanted mods)
- * - Ranged tokens with minValue set → RANGE(min, undefined, suffix)
+ * - Ranged tokens with min/max set → RANGE(min, max, suffix)
+ *   (compiler normalizes RANGE(min,max) into AND(RANGE(min), RANGE(undefined,max)))
  * - All combined with AND
  */
 function buildAstFromSelections(
   selectedTokens: GameToken[],
   excludeMode: boolean,
   minValue: number | null,
+  maxValue: number | null,
   _round10: boolean,
   locale: Locale
 ): ASTNode | null {
@@ -146,10 +157,12 @@ function buildAstFromSelections(
   }
 
   // Handle ranged tokens:
-  // If minValue is set, generate numberRegex.*suffix for each
+  // If min/max is set, generate numberRegex.*suffix for each
   // Otherwise, just use the family suffix regex
   if (rangedTokens.length > 0) {
-    if (minValue !== null && minValue > 0) {
+    const hasMin = minValue !== null && minValue > 0;
+    const hasMax = maxValue !== null && maxValue > 0;
+    if (hasMin || hasMax) {
       // Group ranged tokens by their suffix (family)
       const suffixGroups = new Map<string, GameToken[]>();
       for (const token of rangedTokens) {
@@ -160,8 +173,13 @@ function buildAstFromSelections(
       }
 
       // For each unique suffix, create a RANGE node
+      // When both min and max are set, compiler normalizes into AND(≥min, ≤max)
       for (const [suffix] of suffixGroups) {
-        const rangeNode = range(minValue, undefined, suffix);
+        const rangeNode = range(
+          hasMin ? minValue! : undefined,
+          hasMax ? maxValue! : undefined,
+          suffix
+        );
         andChildren.push(rangeNode);
       }
     } else {
@@ -315,6 +333,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
     return null;
   });
+  const [maxValue, setMaxValue] = useState<number | null>(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('maxValue');
+      if (typeof val === 'number') return val;
+    }
+    return null;
+  });
 
   // Ref to skip the first sync-to-store render cycle, preventing
   // overwrite of URL-restored extraState values before page-level
@@ -372,7 +397,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('excludeMode', excludeMode);
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
-  }, [excludeMode, round10Enabled, minValue, useStore]);
+    useStore.getState().setExtraState('maxValue', maxValue);
+  }, [excludeMode, round10Enabled, minValue, maxValue, useStore]);
 
   // Build selected tokens list
   const selectedTokens = useMemo(() => {
@@ -398,6 +424,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
         selectedTokens,
         excludeMode,
         minValue,
+        maxValue,
         round10Enabled,
         locale
       );
@@ -437,12 +464,23 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       regex: compiledRegex,
       isRegexOverflow: isOverflow(compiledRegex),
     };
-  }, [data, selectedTokens, excludeMode, minValue, round10Enabled, locale, extraAstNodes]);
+  }, [data, selectedTokens, excludeMode, minValue, maxValue, round10Enabled, locale, extraAstNodes]);
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
     useStore.getState().deserialize(data);
   };
+
+  // Create a stable FilterStoreApi wrapper that delegates convenience methods
+  // to the Zustand store, so page components can call filterStore.serialize()
+  // without .getState() boilerplate.
+  const filterStore = useMemo<FilterStoreApi>(() => ({
+    getState: useStore.getState,
+    subscribe: useStore.subscribe,
+    serialize: () => useStore.getState().serialize(),
+    getExtraState: (key: string) => useStore.getState().getExtraState(key),
+    setExtraState: (key: string, value: unknown) => useStore.getState().setExtraState(key, value),
+  }), [useStore]);
 
   return {
     data,
@@ -456,6 +494,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setRound10Enabled,
     minValue,
     setMinValue,
+    maxValue,
+    setMaxValue,
     selectedIds,
     searchText,
     affixFilter,
@@ -466,7 +506,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setOriginFilter,
     clearSelections,
     categoryId,
-    filterStore: useStore,
+    filterStore,
     restoreFilterState,
   };
 }

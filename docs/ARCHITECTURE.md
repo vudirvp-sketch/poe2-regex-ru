@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 4.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 5.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -159,3 +159,41 @@ shared <- core <- strategies <- store <- data <- ui
 - `store` -> imports from `shared`, `core`, `strategies`
 - `data` -> imports from `shared`
 - `ui` -> imports from everyone
+
+## 7. Compiler: Min+Max RANGE Support
+
+### Problem
+When both `min` and `max` are specified in a RANGE node (e.g., "match numbers between 40 and 80"),
+the PoE2 regex dialect cannot express a single "range intersection" pattern. The dialect supports
+`≥N` (via `generateNumberRegex`) and `≤N` (via `generateMaxNumberRegex`) independently, but not
+their intersection in a single pattern.
+
+### Solution: AST Normalization
+The compiler uses a **normalization step** that expands `RANGE(min, max, suffix)` into
+`AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix))` before compilation.
+This produces two AND-joined quoted groups in the output:
+
+```
+RANGE(40, 80, 'm q')  →  "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
+```
+
+Both conditions must match on the item, effectively constraining the number to [40, 80].
+
+### Theoretical Limitation
+There is an edge case where two different numbers on the same item could satisfy the
+conditions independently (e.g., one mod has value ≥40, another has value ≤80). However,
+this is extremely rare in practice because the suffix constraint ensures both patterns
+match against the same mod text. This approach matches what poe2.re uses.
+
+### Flattening
+When a RANGE(min, max) is a child of an AND node, the normalization step **flattens**
+the expanded AND into the parent AND, avoiding double-quoting:
+```
+AND(literal('огн'), RANGE(40, 80, 'm q'))
+→ AND(literal('огн'), RANGE(40, ∅, 'm q'), RANGE(∅, 80, 'm q'))
+→ "огн" "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
+```
+
+### URL Sharing
+Both `minValue` and `maxValue` are synced to the filter store's `extraState` and
+included in share URLs via lz-string compression.

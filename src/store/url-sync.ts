@@ -6,14 +6,21 @@
  * to keep URLs short.
  */
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
-import type { FilterStore } from './filter-store';
+
+/** Minimal interface needed by url-sync functions.
+ *  Both FilterStore (Zustand getState result) and FilterStoreApi (useCategoryPage wrapper) satisfy this.
+ */
+export interface SerializableStore {
+  serialize: () => Record<string, unknown>;
+  deserialize?: (data: Record<string, unknown>) => void;
+}
 
 const HASH_PREFIX = '#q=';
 
 /**
  * Serialize filter store state to URL hash.
  */
-export function syncToUrl(store: FilterStore): void {
+export function syncToUrl(store: SerializableStore): void {
   try {
     const data = store.serialize();
     const json = JSON.stringify(data);
@@ -30,7 +37,7 @@ export function syncToUrl(store: FilterStore): void {
  * Deserialize URL hash to filter store state.
  * Returns true if state was successfully restored.
  */
-export function syncFromUrl(store: FilterStore): boolean {
+export function syncFromUrl(store: SerializableStore): boolean {
   try {
     const hash = window.location.hash;
     if (!hash.startsWith(HASH_PREFIX)) return false;
@@ -42,7 +49,7 @@ export function syncFromUrl(store: FilterStore): boolean {
     if (!json) return false;
 
     const data = JSON.parse(json) as Record<string, unknown>;
-    store.deserialize(data);
+    store.deserialize!(data);
     return true;
   } catch (err) {
     console.warn('Failed to restore state from URL:', err);
@@ -53,7 +60,7 @@ export function syncFromUrl(store: FilterStore): boolean {
 /**
  * Generate a shareable URL for the current filter state.
  */
-export function getShareableUrl(store: FilterStore): string {
+export function getShareableUrl(store: SerializableStore): string {
   try {
     const data = store.serialize();
     const json = JSON.stringify(data);

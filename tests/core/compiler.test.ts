@@ -56,4 +56,39 @@ describe('compile', () => {
   it('returns empty string for RANGE with no min/max', () => {
     expect(compile(range())).toBe('');
   });
+
+  // ─── Min+Max RANGE tests ───
+
+  it('compiles RANGE with both min and max (2-digit)', () => {
+    // range(40, 80, 'm q') → AND(≥40.*m q, ≤80.*m q) → two AND-joined quoted groups
+    const result = compile(range(40, 80, 'm q'), { round10: true });
+    expect(result).toBe('"([4-9].|\\d..).*m q" "([0-9]|[1-7].|80).*m q"');
+  });
+
+  it('compiles RANGE with both min and max (1-digit)', () => {
+    // range(3, 7) → AND(≥3, ≤7) → two AND-joined quoted groups (no suffix)
+    const result = compile(range(3, 7), { round10: false });
+    expect(result).toBe('"([3-9]|\\d..?)" "([0-7])"');
+  });
+
+  it('compiles RANGE with both min and max inside AND', () => {
+    // AND(literal('огн'), range(40, 80, 'm q')) → three AND-joined quoted groups
+    const result = compile(
+      and(literal('огн'), range(40, 80, 'm q')),
+      { round10: true }
+    );
+    expect(result).toBe('"огн" "([4-9].|\\d..).*m q" "([0-9]|[1-7].|80).*m q"');
+  });
+
+  it('compiles RANGE with max-only', () => {
+    // range(undefined, 50, 'm q') → only ≤50.*m q
+    const result = compile(range(undefined, 50, 'm q'), { round10: true });
+    expect(result).toBe('"([0-9]|[1-4].|50).*m q"');
+  });
+
+  it('compiles RANGE with both min and max (3-digit)', () => {
+    // range(100, 200, 'жизн') → AND(≥100.*жизн, ≤200.*жизн)
+    const result = compile(range(100, 200, 'жизн'), { round10: false });
+    expect(result).toBe('"([1-9]..).*жизн" "([0-9]|[1-9].|[1-1]..|200).*жизн"');
+  });
 });

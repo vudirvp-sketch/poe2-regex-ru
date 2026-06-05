@@ -14,6 +14,7 @@ export function RingPage() {
     excludeMode, setExcludeMode,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
+    maxValue, setMaxValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
@@ -83,18 +84,31 @@ export function RingPage() {
 
           {hasRangedTokens && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-2">Минимальное значение (≥N)</div>
-              <div className="flex items-center gap-2">
+              <div className="text-xs text-gray-400 mb-2">Диапазон значений</div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-gray-500">≥</span>
                 <input type="number" min={0} value={minValue ?? ''}
                   onChange={(e) => setMinValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
-                  placeholder="Нет"
+                  placeholder="Мин"
                   className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
                 />
-                <span className="text-xs text-gray-500">
-                  {minValue !== null ? `Число ≥${minValue} + суффикс` : 'Только суффикс'}
-                </span>
+                <span className="text-xs text-gray-500">≤</span>
+                <input type="number" min={0} value={maxValue ?? ''}
+                  onChange={(e) => setMaxValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
+                  placeholder="Макс"
+                  className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                />
               </div>
-              {rangedSuffixes.length > 0 && minValue !== null && (
+              <span className="text-xs text-gray-500">
+                {minValue !== null && maxValue !== null
+                  ? `${minValue} ≤ N ≤ ${maxValue} + суффикс`
+                  : minValue !== null
+                    ? `N ≥ ${minValue} + суффикс`
+                    : maxValue !== null
+                      ? `N ≤ ${maxValue} + суффикс`
+                      : 'Только суффикс'}
+              </span>
+              {rangedSuffixes.length > 0 && (minValue !== null || maxValue !== null) && (
                 <div className="text-[10px] text-gray-600 mt-1">Суффиксы: {rangedSuffixes.join(', ')}</div>
               )}
             </div>
