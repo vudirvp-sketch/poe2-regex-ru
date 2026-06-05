@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 5.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 6.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -9,7 +9,7 @@
 ```
 +------------------------------------------------------------------+
 |                        UI / Presentation                         |
-|  React 19, Vite, Tailwind, shadcn/ui, Zustand, react-router    |
+|  React 19, Vite, Tailwind, @tanstack/react-virtual, Zustand   |
 |  Pages: Waystone, Tablet, Relic, Vendor, Belts, Rings, Amulets |
 +------------------------------------------------------------------+
 |                         Store Layer                              |
@@ -17,7 +17,7 @@
 +------------------------------------------------------------------+
 |                        Core / Domain                             |
 |  Pure TypeScript — ZERO dependencies                             |
-|  AST, Compiler, Optimizer, Number Regex, Limits, Locale         |
+|  AST, Compiler, Optimizer, Number Regex, Limits, Locale, Matcher|
 +------------------------------------------------------------------+
 |                        Data Loader                               |
 |  fetch public/generated/*.json -> typed objects                   |
@@ -91,7 +91,7 @@ I6. Rule of 3: Do not create an abstraction until the same logic has been
 I7. Locale type is 'ru' now. The type system must support extension to
     Locale = 'ru' | 'en' | ... but only 'ru' is implemented.
 I8. PoE2 regex dialect: . (wildcard), | (OR), ! (NOT), "" (grouping),
-    [] (char class), ^/$ (anchors). NOT standard PCRE.
+    [] (char class), ^/$ (anchors), ? (optional). NOT standard PCRE.
 ```
 
 ## 4. Principles
@@ -105,6 +105,7 @@ P5. Overflow = block                   -> red alert + copy disabled
 P6. pnpm only
 P7. Rule of 3
 P8. Test the Core                     -> every core function has unit tests
+P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game search
 ```
 
 ## 5. PoE2 Regex Dialect (NOT Standard PCRE) — VERIFIED IN-GAME (RU Client)

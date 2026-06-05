@@ -6,6 +6,8 @@
  * - Overflow protection: red notification + copy blocked when exceeding 250 chars
  * - Copy-to-clipboard and URL sharing functionality
  * - Sticky positioning so output is always visible while adjusting filters
+ * - Auto-copy on regex generation (optional, toggled by checkbox)
+ * - Keyboard shortcut: Ctrl+Shift+C to copy regex
  *
  * Health bar thresholds (from limits.ts):
  * - Green: 0-200 characters
@@ -13,7 +15,7 @@
  * - Red: 241-250 characters (approaching limit)
  * - Red + pulse: >250 characters (OVERFLOW — copy blocked)
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MAX_CHARS } from '@shared/constants';
 import { getShareableUrl, type SerializableStore } from '@store/url-sync';
 
@@ -56,6 +58,34 @@ const HEALTH_COLORS = {
 export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore }) => {
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [autoCopy, setAutoCopy] = useState(() => {
+    try {
+      return localStorage.getItem('poe2-regex-auto-copy') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const prevRegexRef = useRef<string>('');
+
+  // Persist auto-copy preference
+  useEffect(() => {
+    try {
+      localStorage.setItem('poe2-regex-auto-copy', String(autoCopy));
+    } catch {
+      // ignore
+    }
+  }, [autoCopy]);
+
+  // Auto-copy regex when it changes (if enabled and not overflow)
+  useEffect(() => {
+    if (!autoCopy || !regex || isOverflow) return;
+    if (regex === prevRegexRef.current) return;
+    prevRegexRef.current = regex;
+
+    navigator.clipboard.writeText(regex).catch(() => {
+      // silently ignore clipboard errors
+    });
+  }, [regex, autoCopy, isOverflow]);
 
   const handleCopy = useCallback(async () => {
     if (!regex || isOverflow) return;
@@ -67,6 +97,18 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       console.error('Failed to copy:', err);
     }
   }, [regex, isOverflow]);
+
+  // Keyboard shortcut: Ctrl+Shift+C to copy regex
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        handleCopy();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleCopy]);
 
   const handleShare = useCallback(async () => {
     if (!filterStore) return;
@@ -93,6 +135,16 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-300">Регулярное выражение</h3>
         <div className="flex items-center gap-2">
+          {/* Auto-copy toggle */}
+          <label className="flex items-center gap-1 cursor-pointer" title="Автоматически копировать regex при изменении">
+            <input
+              type="checkbox"
+              checked={autoCopy}
+              onChange={(e) => setAutoCopy(e.target.checked)}
+              className="w-3 h-3 rounded bg-gray-700 border-gray-600 text-blue-500"
+            />
+            <span className="text-[10px] text-gray-500">Авто</span>
+          </label>
           {/* Share button */}
           {filterStore && regex && (
             <button
@@ -118,6 +170,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-500'
             }`}
+            title="Копировать (Ctrl+Shift+C)"
           >
             {copied ? 'Скопировано!' : 'Копировать'}
           </button>

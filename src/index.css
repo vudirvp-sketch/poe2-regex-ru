@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-:root {
+/* ─── Dark theme (default) ─── */
+:root,
+[data-theme="dark"] {
   --poe-bg: #0a0a0f;
   --poe-bg-secondary: #12121a;
   --poe-bg-tertiary: #1a1a25;
@@ -12,6 +14,39 @@
   --poe-red: #c44e4e;
   --poe-green: #4ec44e;
   --poe-yellow: #c4c44e;
+
+  /* Component-specific tokens */
+  --chip-bg: rgba(31, 31, 41, 0.5);
+  --chip-bg-hover: rgba(55, 55, 65, 0.5);
+  --chip-bg-selected: rgba(30, 58, 95, 0.4);
+  --input-bg: #1f2937;
+  --input-border: #4b5563;
+  --panel-bg: #111827;
+  --panel-border: #374151;
+}
+
+/* ─── Light theme ─── */
+[data-theme="light"] {
+  --poe-bg: #f5f5f0;
+  --poe-bg-secondary: #eaeae5;
+  --poe-bg-tertiary: #ddddd8;
+  --poe-border: #c0c0bb;
+  --poe-text: #333338;
+  --poe-text-bright: #1a1a1f;
+  --poe-gold: #8a6a1b;
+  --poe-gold-bright: #6b5112;
+  --poe-red: #c44e4e;
+  --poe-green: #2d8a2d;
+  --poe-yellow: #8a8a2d;
+
+  /* Component-specific tokens */
+  --chip-bg: rgba(255, 255, 255, 0.8);
+  --chip-bg-hover: rgba(240, 240, 235, 0.9);
+  --chip-bg-selected: rgba(59, 130, 246, 0.15);
+  --input-bg: #ffffff;
+  --input-border: #c0c0bb;
+  --panel-bg: #ffffff;
+  --panel-border: #d0d0cb;
 }
 
 body {
@@ -19,6 +54,7 @@ body {
   background: var(--poe-bg);
   color: var(--poe-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {
@@ -41,4 +77,177 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #3a3a4a;
+}
+
+/* ─── Theme-aware component overrides ─── */
+
+/* Light theme: fix Tailwind bg-gray-* classes */
+[data-theme="light"] .bg-gray-800,
+[data-theme="light"] .bg-gray-900 {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="light"] .bg-gray-700 {
+  background-color: var(--poe-bg-tertiary) !important;
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="light"] .bg-gray-800\/50 {
+  background-color: var(--chip-bg) !important;
+}
+
+[data-theme="light"] .hover\:bg-gray-700\/50:hover {
+  background-color: var(--chip-bg-hover) !important;
+}
+
+[data-theme="light"] .bg-blue-900\/40 {
+  background-color: var(--chip-bg-selected) !important;
+}
+
+[data-theme="light"] .text-white {
+  color: var(--poe-text) !important;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #555558 !important;
+}
+
+[data-theme="light"] .text-gray-400 {
+  color: #666668 !important;
+}
+
+[data-theme="light"] .text-gray-500 {
+  color: #777778 !important;
+}
+
+[data-theme="light"] .text-gray-600 {
+  color: #888888 !important;
+}
+
+[data-theme="light"] .text-green-300 {
+  color: #1a6b1a !important;
+}
+
+[data-theme="light"] .text-blue-400 {
+  color: #2563eb !important;
+}
+
+[data-theme="light"] .text-orange-400 {
+  color: #c2410c !important;
+}
+
+[data-theme="light"] .border-gray-600 {
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="light"] .border-gray-700 {
+  border-color: var(--panel-border) !important;
+}
+
+[data-theme="light"] .placeholder-gray-500::placeholder {
+  color: #999999 !important;
+}
+
+[data-theme="light"] .placeholder-gray-600::placeholder {
+  color: #aaaaaa !important;
+}
+
+/* Light theme: buttons */
+[data-theme="light"] .bg-blue-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-blue-600:hover {
+  background-color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .bg-red-600 {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* Light theme: health bar backgrounds */
+[data-theme="light"] .bg-emerald-900\/40 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+[data-theme="light"] .bg-yellow-900\/40 {
+  background-color: rgba(234, 179, 8, 0.15) !important;
+}
+
+[data-theme="light"] .bg-red-900\/40 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+[data-theme="light"] .bg-red-950\/50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+[data-theme="light"] .text-red-300 {
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .text-emerald-400 {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .text-yellow-400 {
+  color: #d97706 !important;
+}
+
+[data-theme="light"] .text-red-400 {
+  color: #dc2626 !important;
+}
+
+/* Light theme: panels */
+[data-theme="light"] .bg-yellow-900\/30 {
+  background-color: rgba(234, 179, 8, 0.1) !important;
+}
+
+[data-theme="light"] .text-yellow-400\/80 {
+  color: #b45309 !important;
+}
+
+/* Light theme: FilterChip border colors */
+[data-theme="light"] .border-l-blue-500 {
+  border-left-color: #2563eb !important;
+}
+
+[data-theme="light"] .border-l-orange-500 {
+  border-left-color: #ea580c !important;
+}
+
+/* Light theme: overflow warning */
+[data-theme="light"] .bg-red-900\/50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+[data-theme="light"] .border-red-700 {
+  border-color: #f87171 !important;
+}
+
+[data-theme="light"] .border-red-800 {
+  border-color: #ef4444 !important;
+}
+
+/* Light theme: sidebar active link */
+[data-theme="light"] .bg-gray-950 {
+  background-color: var(--poe-bg) !important;
+}
+
+/* Light theme: checkbox styling */
+[data-theme="light"] .bg-slate-100 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+[data-theme="light"] .text-slate-900 {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .border-slate-300 {
+  border-color: #2563eb !important;
 }
