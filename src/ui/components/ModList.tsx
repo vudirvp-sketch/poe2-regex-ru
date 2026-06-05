@@ -16,7 +16,7 @@
  * panel ABOVE this component (in a sticky top bar).
  */
 import React, { useMemo, useCallback } from 'react';
-import type { GameToken, AffixType, ModOrigin } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
 import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
 import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';
@@ -50,8 +50,6 @@ interface OriginSubSection {
   colorClass: string;
   groups: FamilyGroup[];
 }
-
-import type { FamilyGroup } from '@shared/types';
 
 /**
  * Split family groups within a semantic sub-group by their origin.
@@ -96,7 +94,7 @@ const ModSubGroupSection: React.FC<{
   selectedIds: Set<string>;
   onToggleTokens: (ids: string[]) => void;
   showOriginSubSections: boolean;
-}> = ({ subGroup, selectedIds, onToggleTokens, showOriginSubSections }) => {
+}> = React.memo(({ subGroup, selectedIds, onToggleTokens, showOriginSubSections }) => {
   // If no origin splitting needed, render flat
   if (!showOriginSubSections) {
     return (
@@ -176,7 +174,7 @@ const ModSubGroupSection: React.FC<{
       ))}
     </div>
   );
-};
+});
 
 /** A single affix column (prefix or suffix) */
 const AffixColumn: React.FC<{
@@ -185,7 +183,7 @@ const AffixColumn: React.FC<{
   selectedIds: Set<string>;
   onToggleTokens: (ids: string[]) => void;
   showOriginSubSections: boolean;
-}> = ({ affix, subGroups, selectedIds, onToggleTokens, showOriginSubSections }) => {
+}> = React.memo(({ affix, subGroups, selectedIds, onToggleTokens, showOriginSubSections }) => {
   const totalCount = subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
   if (totalCount === 0) return null;
 
@@ -209,7 +207,7 @@ const AffixColumn: React.FC<{
       ))}
     </div>
   );
-};
+});
 
 export const ModList: React.FC<ModListProps> = ({
   tokens,
@@ -304,7 +302,7 @@ export const ModList: React.FC<ModListProps> = ({
   const isOriginMode = groupMode === 'origin';
 
   return (
-    <div className="mod-list flex flex-col gap-3">
+    <div className="mod-list flex flex-col gap-3" role="group" aria-label="Список модификаторов">
       {/* Search + Filters row */}
       <div className="flex flex-wrap gap-2 items-center">
         <input
@@ -312,12 +310,14 @@ export const ModList: React.FC<ModListProps> = ({
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Поиск модов..."
+          aria-label="Поиск модификаторов"
           className="flex-1 min-w-[180px] px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
+          aria-label="Фильтр по типу аффикса"
           className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
         >
           <option value="all">Все типы</option>
@@ -329,6 +329,7 @@ export const ModList: React.FC<ModListProps> = ({
           <select
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
+            aria-label="Фильтр по источнику"
             className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
           >
             <option value="all">Все источники</option>

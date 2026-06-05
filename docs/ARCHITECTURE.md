@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 11.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 12.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -620,3 +620,88 @@ width for a two-column mod display:
 4. **P3 — Performance profiling**: With 427 amulet tokens and origin sub-sections,
    render performance should be profiled. Virtual scroll may be needed if
    family group counts grow significantly.
+
+## 13. Iteration 5 Changes — Accessibility + Keyboard Navigation + Performance
+
+### Changes
+
+1. **Accessibility audit — ARIA attributes** (all interactive components):
+   - `FilterChip.tsx`: Added `role="switch"`, `aria-pressed`, `aria-label` (Russian,
+     includes selection state + tier count + range), `aria-hidden` on decorative badges
+   - `VendorChip.tsx`: Added `role="switch"`, `aria-checked`, `aria-label`, `tabIndex={0}`,
+     keyboard handler (Enter/Space), `aria-label` on numeric input
+   - `RegexOutput.tsx`: Added `role="region"`, `aria-label`, `aria-live="polite"` for
+     live updates, `role="progressbar"` with `aria-valuenow/valuemin/valuemax/aria-label`
+     on health bar, `aria-label` on regex display area
+   - `CategoryControlPanel.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"`
+     + `role="radio"` + `aria-checked` on mode toggle buttons, `aria-label` on numeric inputs
+   - `ModList.tsx`: Added `role="group"`, `aria-label`, `aria-label` on search input,
+     affix filter select, origin filter select
+   - `ProfilePanel.tsx`: Added `aria-expanded`, `aria-controls` on toggle button,
+     `id="profile-panel-content"` on expandable section, `aria-hidden` on decorative arrow,
+     `aria-label` on profile name input
+   - `VendorPage.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"` + `role="radio"`
+     on mode toggle, `role="alert"` on verification warning
+
+2. **Keyboard navigation** (`src/index.css`):
+   - Added `focus-visible` outline styles (2px solid blue, 2px offset) for all
+     interactive elements: buttons, selects, inputs, [role="switch"], [role="radio"], links
+   - Added light theme override for darker focus ring contrast
+   - Added `focus:not(:focus-visible)` rule to remove outline for mouse clicks
+   - This ensures keyboard-only users get visible focus indicators without
+     visual noise for mouse users
+
+3. **Skip-to-content link** (`src/ui/layout/Layout.tsx` + `src/index.css`):
+   - Added `<a href="#main-content" className="skip-link">` at the top of Layout
+   - Skip link is visually hidden (`top: -40px`) until focused (keyboard Tab)
+   - Jumps focus to `<main id="main-content" tabIndex={-1}>` when activated
+   - Allows screen reader and keyboard users to bypass sidebar navigation
+
+4. **Screen reader utility class** (`src/index.css`):
+   - Added `.sr-only` utility class for visually hidden but accessible text
+   - Standard clip/rect pattern for screen reader compatibility
+
+5. **Performance review**:
+   - `ModSubGroupSection` and `AffixColumn` already wrapped with `React.memo`
+   - `useMemo` and `useCallback` properly used throughout all components
+   - Family pooling reduces 427 amulet tokens to ~110 families — no virtual
+     scroll needed at current scale
+   - Assessment: virtual scroll would only be needed if family group counts
+     exceed ~500, which is unlikely given current PoE2 mod pool sizes
+
+### Components Modified
+
+| Component | Change | Description |
+|-----------|--------|-------------|
+| `FilterChip.tsx` | **Updated** | ARIA: role=switch, aria-pressed, aria-label, aria-hidden on badges |
+| `VendorChip.tsx` | **Updated** | ARIA: role=switch, aria-checked, aria-label, tabIndex, keyboard handler |
+| `RegexOutput.tsx` | **Updated** | ARIA: role=region, aria-live, progressbar with aria attributes |
+| `CategoryControlPanel.tsx` | **Updated** | ARIA: role=toolbar, radiogroup/radio for mode toggle, aria-labels on inputs |
+| `ModList.tsx` | **Updated** | ARIA: role=group, aria-labels on search/filter controls |
+| `ProfilePanel.tsx` | **Updated** | ARIA: aria-expanded, aria-controls, id on content panel |
+| `VendorPage.tsx` | **Updated** | ARIA: role=toolbar, radiogroup, role=alert on warning |
+| `Layout.tsx` | **Updated** | Skip-to-content link + main content landmark |
+| `index.css` | **Updated** | focus-visible outlines, skip-link styles, .sr-only utility |
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+### Remaining for Next Iteration
+
+1. **P3 — Real device testing**: Mobile CSS + focus-visible outlines need testing
+   on actual iOS/Android devices. Touch behavior may differ from desktop emulation.
+
+2. **P3 — Vendor regex verification**: Vendor regex strings are still unverified
+   in-game. The verification note at the bottom of VendorPage now has `role="alert"`
+   for screen readers. Should remain until community testing confirms them.
+
+3. **P3 — Accessibility deep testing**: ARIA attributes are added but not tested
+   with actual screen readers (NVDA, JAWS, VoiceOver). Manual testing recommended.
+
+4. **P3 — Performance profiling with large datasets**: Current family group counts
+   (17-193) are well within simple rendering limits. If PoE2 adds significantly
+   more mods, re-evaluate virtual scroll.

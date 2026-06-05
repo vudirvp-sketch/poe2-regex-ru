@@ -385,15 +385,19 @@ export function VendorPage() {
       {/* Sticky top: Regex output + controls */}
       <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
         style={{ background: 'var(--poe-bg, #0a0a0f)' }}
+        role="toolbar"
+        aria-label="Панель управления"
       >
         <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore.getState()} />
 
         {/* Controls row */}
         <div className="flex flex-wrap gap-2 items-center mt-2">
           {/* Mode toggle */}
-          <div className="flex gap-1">
+          <div className="flex gap-1" role="radiogroup" aria-label="Режим фильтра">
             <button
               onClick={() => setExcludeMode(false)}
+              role="radio"
+              aria-checked={!excludeMode}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                 !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
               }`}
@@ -402,6 +406,8 @@ export function VendorPage() {
             </button>
             <button
               onClick={() => setExcludeMode(true)}
+              role="radio"
+              aria-checked={excludeMode}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                 excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
               }`}
@@ -462,7 +468,7 @@ export function VendorPage() {
       </div>
 
       {/* Verification note */}
-      <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80">
+      <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80" role="alert">
         <strong>Требуется проверка:</strong> Regex строки для свойств торговца основаны на
         переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает,
         сообщите об этом для исправления.

@@ -419,3 +419,66 @@ body {
     gap: 6px;
   }
 }
+
+/* ─── Keyboard navigation: focus-visible outlines ─── */
+
+/* All interactive elements get a visible focus ring for keyboard users only */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+[role="switch"]:focus-visible,
+[role="radio"]:focus-visible,
+a:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Light theme: darker focus ring for contrast */
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] select:focus-visible,
+[data-theme="light"] input:focus-visible,
+[data-theme="light"] [role="switch"]:focus-visible,
+[data-theme="light"] [role="radio"]:focus-visible,
+[data-theme="light"] a:focus-visible {
+  outline-color: #1d4ed8;
+}
+
+/* Remove outline for mouse clicks (only show for keyboard) */
+button:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+[role="switch"]:focus:not(:focus-visible),
+[role="radio"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Skip-to-content link for screen readers ─── */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 8px 16px;
+  z-index: 100;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ─── Screen reader only utility class ─── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

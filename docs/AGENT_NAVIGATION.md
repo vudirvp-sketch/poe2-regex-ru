@@ -1,7 +1,7 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 16.0 | **Date:** 2026-06-06
-> **Current Iteration:** Layout v2, iteration 4 (VendorPage layout + Relic origins + Mobile) — COMPLETE.
+> **Version:** 17.0 | **Date:** 2026-06-06
+> **Current Iteration:** Layout v2, iteration 5 (Accessibility + Keyboard Navigation + Performance) — COMPLETE.
 > **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
 > **Bugfix:** Session 18 fixed critical React error #185 (ProfilePanel infinite loop) + 404.html for SPA routing + loader.ts BASE_URL fix + ETL refresh with i18n overrides (51 tokens patched).
 
@@ -87,6 +87,9 @@ shared <- core <- strategies <- store <- data <- ui
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
 | 9: Polish + CI/CD | ✅ Complete | 109 tests, deploy.yml fixed, .nojekyll added. See новый_план.md for post-MVP work |
+| 10: Layout v2 | ✅ Complete | Two-column layout, family pooling, semantic grouping (iteration 1-3) |
+| 11: Layout v2 | ✅ Complete | VendorPage layout, Relic origins, Mobile CSS (iteration 4) |
+| 12: Layout v2 | ✅ Complete | Accessibility audit, ARIA attributes, keyboard navigation, focus-visible outlines (iteration 5) |
 
 ## 7. Known Issues & Remaining Work
 

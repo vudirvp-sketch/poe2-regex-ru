@@ -53,6 +53,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   return (
     <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
       style={{ background: 'var(--poe-bg, #0a0a0f)' }}
+      role="toolbar"
+      aria-label="Панель управления фильтрами"
     >
       {/* Regex output */}
       <RegexOutput regex={regex} isOverflow={isOverflow} filterStore={filterStore} />
@@ -60,9 +62,11 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
       {/* Controls row */}
       <div className="flex flex-wrap gap-2 items-center mt-2">
         {/* Mode toggle */}
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="radiogroup" aria-label="Режим фильтра">
           <button
             onClick={() => setExcludeMode(false)}
+            role="radio"
+            aria-checked={!excludeMode}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
@@ -71,6 +75,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           </button>
           <button
             onClick={() => setExcludeMode(true)}
+            role="radio"
+            aria-checked={excludeMode}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
@@ -90,6 +96,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 value={minValue ?? ''}
                 onChange={(e) => setMinValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
                 placeholder="Мин"
+                aria-label="Минимальное значение"
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
               <span className="text-gray-500">&le;</span>
@@ -99,6 +106,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 value={maxValue ?? ''}
                 onChange={(e) => setMaxValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
                 placeholder="Макс"
+                aria-label="Максимальное значение"
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
             </div>

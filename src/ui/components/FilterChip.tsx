@@ -74,20 +74,32 @@ export const FilterChip: React.FC<FilterChipProps> = ({ group, selectedIds, onTo
     return group.rangeSlots.map(([min, max]) => `${min}—${max}`).join(', ');
   }, [group]);
 
+  // ARIA label for screen readers: include full text, selection state, and tier count
+  const ariaLabel = useMemo(() => {
+    const stateText = selectionState === 'full' ? 'выбрано' : selectionState === 'partial' ? 'частично выбрано' : 'не выбрано';
+    const parts = [displayText, stateText];
+    if (tierCount > 1) parts.push(`${tierCount} уровней`);
+    if (rangeText) parts.push(`диапазон ${rangeText}`);
+    return parts.join(', ');
+  }, [displayText, selectionState, tierCount, rangeText]);
+
   return (
     <button
       onClick={handleClick}
       title={tooltip}
+      aria-label={ariaLabel}
+      aria-pressed={selectionState === 'full'}
+      role="switch"
       className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer ${bgClass}`}
     >
       <span className="leading-tight">{displayText}</span>
       {tierCount > 1 && (
-        <span className="text-[10px] text-gray-500 shrink-0">
+        <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
           &times;{tierCount}
         </span>
       )}
       {rangeText && (
-        <span className="text-[10px] text-gray-500 shrink-0">
+        <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
           ({rangeText})
         </span>
       )}

@@ -1743,3 +1743,86 @@ scrolling (193 rows for jewels, 113 for amulets).
 - **VendorPage layout polish**: Not updated in this iteration.
 - **Mobile optimization testing**: Two-column stacks on mobile but needs testing.
 - **Light theme CSS adjustments**: New components may need light theme overrides.
+
+---
+
+## Session 19 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** P3 tasks — Accessibility audit, keyboard navigation, performance review, mobile CSS improvements
+
+### Iteration 5: Accessibility + Keyboard Navigation + Performance
+
+**12.1 — ARIA attributes added to all interactive components**
+
+- `FilterChip.tsx`: Added `role="switch"`, `aria-pressed`, `aria-label` (Russian, includes selection state + tier count + range), `aria-hidden` on decorative badges (tier count, range text)
+- `VendorChip.tsx`: Added `role="switch"`, `aria-checked`, `aria-label`, `tabIndex={0}`, keyboard handler (Enter/Space), `aria-label` on numeric input
+- `RegexOutput.tsx`: Added `role="region"`, `aria-label="Регулярное выражение"`, `aria-live="polite"`, `role="progressbar"` with `aria-valuenow/valuemin/valuemax/aria-label` on health bar, `aria-label` on regex display area
+- `CategoryControlPanel.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"` + `role="radio"` + `aria-checked` on mode toggle, `aria-label` on min/max inputs
+- `ModList.tsx`: Added `role="group"`, `aria-label`, `aria-label` on search input, affix filter, origin filter
+- `ProfilePanel.tsx`: Added `aria-expanded`, `aria-controls="profile-panel-content"`, `id="profile-panel-content"` on expandable section, `aria-hidden` on arrow, `aria-label` on profile name input
+- `VendorPage.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"` + `role="radio"` on mode toggle, `role="alert"` on verification warning
+
+**12.2 — Keyboard navigation (focus-visible outlines)**
+
+- Added `focus-visible` outline styles in `src/index.css`:
+  - 2px solid blue outline, 2px offset for all interactive elements
+  - Covers: buttons, selects, inputs, [role="switch"], [role="radio"], links
+  - Light theme: darker focus ring for contrast (#1d4ed8)
+  - `focus:not(:focus-visible)` rule removes outline for mouse clicks
+  - Keyboard-only users get visible focus indicators without visual noise for mouse users
+
+**12.3 — Skip-to-content link**
+
+- Added `<a href="#main-content" className="skip-link">` to `Layout.tsx`
+- Skip link visually hidden (top: -40px) until focused (keyboard Tab)
+- Jumps to `<main id="main-content" tabIndex={-1}>` when activated
+- Added `.skip-link` CSS class with focus reveal behavior
+
+**12.4 — Screen reader utility class**
+
+- Added `.sr-only` utility class to `src/index.css`
+- Standard clip/rect/overflow/white-space pattern for screen reader compatibility
+
+**12.5 — Performance review**
+
+- `ModSubGroupSection` and `AffixColumn` already wrapped with `React.memo`
+- `useMemo` and `useCallback` properly used throughout all components
+- Family pooling reduces 427 amulet tokens to ~110 families — no virtual scroll needed
+- Assessment: virtual scroll only needed if family group counts exceed ~500
+
+**12.6 — Type check verification**
+
+- `tsc --noEmit` passes with ZERO errors for all modified files
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/ui/components/FilterChip.tsx` | ARIA: role=switch, aria-pressed, aria-label, aria-hidden |
+| `src/ui/components/VendorChip.tsx` | ARIA: role=switch, aria-checked, aria-label, tabIndex, keyboard handler |
+| `src/ui/components/RegexOutput.tsx` | ARIA: role=region, aria-live, progressbar with aria attrs |
+| `src/ui/components/CategoryControlPanel.tsx` | ARIA: role=toolbar, radiogroup/radio, aria-labels |
+| `src/ui/components/ModList.tsx` | ARIA: role=group, aria-labels on controls; fixed import (types were missing) |
+| `src/ui/components/ProfilePanel.tsx` | ARIA: aria-expanded, aria-controls, id, aria-hidden |
+| `src/ui/pages/vendor/VendorPage.tsx` | ARIA: role=toolbar, radiogroup, role=alert |
+| `src/ui/layout/Layout.tsx` | Skip-to-content link + main content landmark |
+| `src/index.css` | focus-visible outlines, skip-link styles, .sr-only utility |
+| `docs/ARCHITECTURE.md` | Added section 13 (iteration 5), bumped version to 12.0 |
+| `docs/AGENT_NAVIGATION.md` | Version 17.0, added iteration 12 to status table |
+
+### Stopping Point (Session 19)
+
+**What's done:**
+- ✅ Accessibility: ARIA attributes on ALL interactive components (7 components updated)
+- ✅ Keyboard navigation: focus-visible outlines for all interactive elements
+- ✅ Skip-to-content link for screen reader/keyboard users
+- ✅ .sr-only utility class for screen reader text
+- ✅ Performance review: React.memo confirmed, virtual scroll not needed at current scale
+- ✅ TypeScript compiles with zero errors
+
+**What's NOT done yet (for next iteration):**
+- **P3 — Real device testing**: Mobile CSS + focus-visible need testing on actual iOS/Android devices
+- **P3 — Vendor regex verification**: 50+ regex strings still unverified in-game. Warning with role=alert remains
+- **P3 — Accessibility deep testing**: ARIA attributes not tested with real screen readers (NVDA, JAWS, VoiceOver)
+- **P3 — Performance profiling with large datasets**: Current counts (17-193 families) well within limits. Re-evaluate if PoE2 adds more mods

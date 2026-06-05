@@ -71,13 +71,15 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-3 text-left"
+        aria-expanded={expanded}
+        aria-controls="profile-panel-content"
       >
         <span className="text-xs text-gray-400">Профили</span>
-        <span className="text-xs text-gray-600">{expanded ? '▲' : '▼'}</span>
+        <span className="text-xs text-gray-600" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
-        <div className="px-3 pb-3 flex flex-col gap-2">
+        <div className="px-3 pb-3 flex flex-col gap-2" id="profile-panel-content">
           {/* Save new profile */}
           <div className="flex gap-2">
             <input
@@ -85,6 +87,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               placeholder="Имя профиля..."
+              aria-label="Имя нового профиля"
               className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
             />

@@ -130,6 +130,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   return (
     <div className="regex-output sticky top-0 z-10 -mx-1 px-1 py-1 -mt-1 pt-1"
       style={{ background: 'var(--poe-bg, #0f0f1a)' }}
+      role="region"
+      aria-label="Регулярное выражение"
+      aria-live="polite"
     >
       {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">
@@ -178,7 +181,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       </div>
 
       {/* Character Health Bar — visual green/yellow/red indicator */}
-      <div className="mb-2">
+      <div className="mb-2" role="progressbar" aria-valuenow={charCount} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
         <div className="flex items-center justify-between mb-1">
           <span className={`text-xs font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
             {isOverflow ? 'ПЕРЕПОЛНЕНИЕ!' : healthConfig.label}
@@ -213,6 +216,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               ? 'bg-gray-800 border border-gray-600 text-green-300'
               : 'bg-gray-900 border border-gray-700 text-gray-500'
         }`}
+        aria-label={regex || 'Регулярное выражение не сгенерировано'}
       >
         {regex || 'Выберите моды для генерации регулярного выражения'}
       </div>
