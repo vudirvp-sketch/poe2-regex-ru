@@ -10,6 +10,20 @@ import { collectTokenIds } from './ast';
  *
  * 2. Replacing groups of LITERAL nodes with shorter shared substrings
  *    from the optimization table (multiple non-overlapping optimizations)
+ *
+ * IMPORTANT: Phase 2 uses a "subset matching" strategy — it iterates over
+ * optimization table entries and checks if the selected token IDs are a
+ * subset of the entry's IDs. This is necessary because the optimization
+ * table keys contain ALL family members (often 10-14 IDs), while the user
+ * typically selects only a subset.
+ *
+ * The shared regex from the table matches ALL tokens in the family, not
+ * just the selected ones. This is acceptable because:
+ * - If the user selects 3 fire resistance tiers, using the shared substring
+ *   "к сопротивлению огню" will match all fire resistance tiers — which is
+ *   usually what the user wants (any fire resistance is acceptable).
+ * - This tradeoff (shorter regex vs. slightly more permissive matching) is
+ *   the same approach poe2.re intended but never implemented.
  */
 export function optimize(
   ast: ASTNode,
@@ -140,10 +154,35 @@ function getValueKey(node: ASTNode): string {
 }
 
 /**
+ * Extract all original (bare) token IDs from a tokenId string.
+ * Handles both plain IDs ("waystone.temporal_chains") and
+ * dedup-prefixed IDs ("dedup:id1:id2:id3").
+ */
+function expandTokenId(tokenId: string | undefined): string[] {
+  if (!tokenId) return [];
+  if (tokenId.startsWith('dedup:')) {
+    return tokenId.slice(6).split(':');
+  }
+  if (tokenId.startsWith('opt:')) {
+    // Already optimized — skip
+    return [];
+  }
+  return [tokenId];
+}
+
+/**
  * Apply optimization table entries to the AST.
  *
- * Enhanced version: applies MULTIPLE non-overlapping optimizations
- * (not just the single best one).
+ * Strategy: Iterate over optimization table entries and check if the
+ * selected token IDs are a SUBSET of the entry's IDs. If so, the shared
+ * regex can replace the individual regexes, saving characters.
+ *
+ * The optimization table keys contain ALL family member IDs (often 10-14),
+ * sorted alphabetically. The user typically selects only a subset. We check
+ * subset membership rather than exact key matching.
+ *
+ * Only applies optimizations when the savings are positive (shared regex
+ * is shorter than the sum of individual regexes).
  */
 function applyOptimizationTable(
   ast: ASTNode,
@@ -151,13 +190,18 @@ function applyOptimizationTable(
   locale: Locale = 'ru'
 ): ASTNode {
   // 1. Collect all LITERAL token IDs that appear in OR groups
+  // Map from bare token ID to the LITERAL node info
   const tokenIdToNode = new Map<string, { node: ASTNode; parent: ASTNode; index: number }>();
 
   function findLiteralsInOr(node: ASTNode): void {
     if (node.type === 'OR') {
       node.children.forEach((child, i) => {
         if (child.type === 'LITERAL' && child.tokenId) {
-          tokenIdToNode.set(child.tokenId, { node: child, parent: node, index: i });
+          // Expand dedup: prefixed IDs into bare IDs
+          const bareIds = expandTokenId(child.tokenId);
+          for (const bareId of bareIds) {
+            tokenIdToNode.set(bareId, { node: child, parent: node, index: i });
+          }
         }
       });
     }
@@ -173,26 +217,46 @@ function applyOptimizationTable(
 
   if (tokenIdToNode.size === 0) return ast;
 
-  // 2. Collect all viable optimizations, sorted by savings (most savings first)
-  const tokenIds = Array.from(tokenIdToNode.keys());
-  const candidateOptimizations: { key: string; entry: OptimizationEntry; savings: number }[] = [];
+  // 2. Iterate over optimization table entries and find applicable ones
+  const selectedBareIds = new Set(tokenIdToNode.keys());
+  const candidateOptimizations: { entry: OptimizationEntry; savings: number; matchedIds: Set<string> }[] = [];
 
-  for (let size = 2; size <= Math.min(5, tokenIds.length); size++) {
-    for (const combo of combinations(tokenIds, size)) {
-      const key = combo.join(':');
-      const entry = optimizationTable[key];
-      if (entry) {
-        const individualLength = combo.reduce((sum, id) => {
-          const info = tokenIdToNode.get(id);
-          return sum + (info?.node.type === 'LITERAL' ? info.node.value.length : 0);
-        }, 0);
-        const sharedLength = entry.regex[locale]?.length ?? entry.weight;
-
-        if (sharedLength < individualLength) {
-          const savings = individualLength - sharedLength;
-          candidateOptimizations.push({ key, entry, savings });
-        }
+  for (const entry of Object.values(optimizationTable)) {
+    // Check which entry IDs are in our selected set
+    const matchedIds = new Set<string>();
+    for (const id of entry.ids) {
+      if (selectedBareIds.has(id)) {
+        matchedIds.add(id);
       }
+    }
+
+    // We need at least 2 matched IDs for optimization to make sense
+    if (matchedIds.size < 2) continue;
+
+    // Calculate savings: sum of individual regex lengths minus shared regex length
+    const sharedRegex = entry.regex[locale] ?? '';
+    if (!sharedRegex) continue;
+
+    let individualLength = 0;
+    for (const id of matchedIds) {
+      const info = tokenIdToNode.get(id);
+      if (info?.node.type === 'LITERAL') {
+        individualLength += info.node.value.length;
+      }
+    }
+
+    // The shared regex replaces all matched individual regexes,
+    // but we need to account for the | separators between them
+    // Individual: "val1|val2|val3" (sum of lengths + (n-1) for | chars)
+    // Shared: just the shared regex length
+    const separatorsSaved = matchedIds.size - 1; // | separators no longer needed
+    const totalIndividualWithSeparators = individualLength + separatorsSaved;
+    const sharedLength = sharedRegex.length;
+
+    const savings = totalIndividualWithSeparators - sharedLength;
+
+    if (savings > 0) {
+      candidateOptimizations.push({ entry, savings, matchedIds });
     }
   }
 
@@ -202,27 +266,32 @@ function applyOptimizationTable(
   candidateOptimizations.sort((a, b) => b.savings - a.savings);
 
   // Apply optimizations greedily, skipping overlapping token IDs
-  const usedTokenIds = new Set<string>();
-  const appliedOptimizations: { key: string; entry: OptimizationEntry }[] = [];
+  const usedBareIds = new Set<string>();
+  const appliedOptimizations: { entry: OptimizationEntry; matchedIds: Set<string> }[] = [];
 
   for (const opt of candidateOptimizations) {
-    // Check if this optimization's token IDs overlap with already-applied ones
-    const hasOverlap = opt.entry.ids.some(id => usedTokenIds.has(id));
+    // Check if this optimization's matched IDs overlap with already-applied ones
+    const hasOverlap = [...opt.matchedIds].some(id => usedBareIds.has(id));
     if (hasOverlap) continue;
 
     // Apply this optimization
-    appliedOptimizations.push({ key: opt.key, entry: opt.entry });
-    opt.entry.ids.forEach(id => usedTokenIds.add(id));
+    appliedOptimizations.push({ entry: opt.entry, matchedIds: opt.matchedIds });
+    for (const id of opt.matchedIds) {
+      usedBareIds.add(id);
+    }
   }
 
   if (appliedOptimizations.length === 0) return ast;
 
   // 3. Apply optimizations to the AST
   let result = ast;
-  for (const { key, entry } of appliedOptimizations) {
+  for (const { entry, matchedIds } of appliedOptimizations) {
     const optimizedRegex = entry.regex[locale] ?? '';
     if (!optimizedRegex) continue;
-    result = replaceWithOptimized(result, key, entry.ids, optimizedRegex);
+
+    // Build the opt key for tracking (sorted, like table keys)
+    const optKey = [...matchedIds].sort().join(':');
+    result = replaceWithOptimized(result, optKey, matchedIds, optimizedRegex);
   }
 
   return result;
@@ -231,19 +300,25 @@ function applyOptimizationTable(
 function replaceWithOptimized(
   ast: ASTNode,
   key: string,
-  ids: string[],
+  ids: Set<string>,
   optimizedRegex: string
 ): ASTNode {
-  const idSet = new Set(ids);
-
   switch (ast.type) {
     case 'OR': {
       const optimized: ASTNode[] = [];
       const remaining: ASTNode[] = [];
 
       for (const child of ast.children) {
-        if (child.type === 'LITERAL' && child.tokenId && idSet.has(child.tokenId)) {
-          optimized.push(child);
+        if (child.type === 'LITERAL' && child.tokenId) {
+          // Check if any of this node's bare IDs are in the optimization set
+          const bareIds = expandTokenId(child.tokenId);
+          const isMatched = bareIds.some(id => ids.has(id));
+
+          if (isMatched) {
+            optimized.push(child);
+          } else {
+            remaining.push(child);
+          }
         } else {
           remaining.push(child);
         }
@@ -280,21 +355,6 @@ function replaceWithOptimized(
     default:
       return ast;
   }
-}
-
-function combinations<T>(arr: T[], size: number): T[][] {
-  if (size === 0) return [[]];
-  if (arr.length < size) return [];
-  if (size === 1) return arr.map(x => [x]);
-
-  const result: T[][] = [];
-  for (let i = 0; i <= arr.length - size; i++) {
-    const rest = combinations(arr.slice(i + 1), size - 1);
-    for (const combo of rest) {
-      result.push([arr[i], ...combo]);
-    }
-  }
-  return result;
 }
 
 // Re-export collectTokenIds for convenience

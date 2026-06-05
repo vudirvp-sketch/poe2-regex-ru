@@ -20,7 +20,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
-import { and, literal, exclude, range } from '@core/ast';
+import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
 import type { ASTNode } from '@shared/types';
 
@@ -170,6 +170,12 @@ export function VendorPage() {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
+        // Clear ghost numeric value when unchecking a numeric property
+        setNumericInputs(prevNum => {
+          const nextNum = { ...prevNum };
+          delete nextNum[id];
+          return nextNum;
+        });
       } else {
         next.add(id);
       }
@@ -203,6 +209,8 @@ export function VendorPage() {
     }
 
     const astNodes: ASTNode[] = [];
+    const includeLiterals: ASTNode[] = [];
+    const excludeLiterals: ASTNode[] = [];
 
     for (const prop of selectedProps) {
       if (prop.hasNumericInput) {
@@ -216,10 +224,12 @@ export function VendorPage() {
 
       if (!prop.regex) continue;
 
+      // Collect all non-numeric props and group them for efficiency
+      // Using OR within one quoted group is more compact than separate quoted groups
       if (excludeMode) {
-        astNodes.push(exclude(literal(prop.regex)));
+        excludeLiterals.push(literal(prop.regex));
       } else {
-        astNodes.push(literal(prop.regex));
+        includeLiterals.push(literal(prop.regex));
       }
     }
 
@@ -230,6 +240,21 @@ export function VendorPage() {
       if (prop?.hasNumericInput && !selectedIds.has(id) && prop.numericSuffix) {
         astNodes.push(range(value, undefined, prop.numericSuffix));
       }
+    }
+
+    // Add included properties as a single OR group (compact: "A|B|C")
+    if (includeLiterals.length > 0) {
+      if (includeLiterals.length === 1) {
+        astNodes.push(includeLiterals[0]);
+      } else {
+        astNodes.push(or(...includeLiterals));
+      }
+    }
+
+    // Add excluded properties as EXCLUDE(OR(...)) — compact: "!A|B|C"
+    // Much more efficient than separate "!A" "!B" "!C" (saves 3+ chars per property)
+    if (excludeLiterals.length > 0) {
+      astNodes.push(exclude(or(...excludeLiterals)));
     }
 
     if (astNodes.length === 0) {

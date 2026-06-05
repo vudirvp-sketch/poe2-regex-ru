@@ -12,7 +12,9 @@ export function applyYofication(
 ): string {
   let result = text;
   let offset = 0;
-  for (const pos of positions) {
+  // Sort positions to ensure correct offset tracking
+  const sortedPositions = [...positions].sort((a, b) => a - b);
+  for (const pos of sortedPositions) {
     if (canAfford(3)) {
       const adjustedPos = pos + offset;
       result = result.slice(0, adjustedPos) + '[её]' + result.slice(adjustedPos + 1);

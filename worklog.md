@@ -1103,3 +1103,87 @@ Additionally, manual string building produced separate `"!A" "!B"` instead of co
   - Virtualized lists for belt/ring/amulet (react-virtuoso / @tanstack/react-virtual)
   - More aggressive ёфикация [её] for short regexes
   - CI/CD deploy.yml not tested with real GitHub Pages deployment
+
+---
+
+## Session 12 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Bug fixes, CI/CD review, add .gitignore, update documentation, prepare archive for user
+
+### 12.1 — CRITICAL bug fix: Optimizer Phase 2 completely rewritten
+
+**Problem:** The optimizer's `applyOptimizationTable()` function had two compounding bugs that made Phase 2 completely non-functional:
+
+1. **Key ordering mismatch:** The optimizer generated combo keys by joining token IDs in AST traversal order (`combo.join(':')`), but optimization table keys across all 10 data files are sorted alphabetically. Zero out of ~5,000 table keys matched the optimizer's unsorted key format.
+
+2. **Subset vs full-set mismatch:** The optimizer generated combinations of sizes 2-5 from selected token IDs, but optimization table keys contain ALL IDs in the family (often 10-14). A 2-token combo key never matches a 12-token table key.
+
+3. **Dedup prefix incompatibility:** After Phase 1 deduplication, tokenIds become `dedup:id1:id2:id3`. Phase 2 indexed by these prefixed IDs, but table keys use bare IDs.
+
+**Fix implemented in `src/core/optimizer.ts` — complete rewrite of Phase 2:**
+
+- Changed strategy from "generate combos → lookup in table" to "iterate over table entries → check subset membership"
+- Added `expandTokenId()` helper that extracts bare IDs from `dedup:` and `opt:` prefixed tokenIds
+- For each table entry, check which entry IDs are in the selected set
+- Only apply when ≥2 matched IDs exist and the shared regex saves characters
+- Calculate savings accounting for `|` separators (n-1 per group)
+- Sort and apply optimizations greedily (non-overlapping, most savings first)
+- Updated `replaceWithOptimized()` to work with bare ID sets instead of string arrays
+
+**Impact:** Cross-family shared-substring optimizations (e.g., collapsing "к сопротивлению огню|к сопротивлению холоду" → shared shorter form) are now functional. Previously, only Phase 1 (deduplication of identical regex values) worked.
+
+### 12.2 — MEDIUM bug fix: VendorPage ghost numeric value
+
+**Problem:** When a user checked a numeric property (e.g., "Item Level"), typed a value, then unchecked the box, the numeric value remained in React state but the input field disappeared. The range constraint still generated regex output that the user couldn't see or clear.
+
+**Fix in `src/ui/pages/vendor/VendorPage.tsx`:**
+- `toggleProperty()` now clears `numericInputs[id]` when unchecking a numeric property
+
+### 12.3 — MEDIUM bug fix: VendorPage excludeMode wasteful output
+
+**Problem:** Each excluded property became a separate `exclude(literal(...))` node, producing `"!A" "!B" "!C"` (3+ chars per property for redundant quotes). With the 250-char limit, this was wasteful.
+
+**Fix in `src/ui/pages/vendor/VendorPage.tsx`:**
+- Added `includeLiterals[]` and `excludeLiterals[]` arrays
+- Included properties grouped as OR → `or(...includeLiterals)` → compact `"A|B|C"`
+- Excluded properties grouped as `exclude(or(...))` → compact `"!A|B|C"`
+- Added `import { or }` from `@core/ast`
+
+### 12.4 — LOW bug fix: applyYofication positions not sorted
+
+**Problem:** `applyYofication()` tracked offsets assuming positions were sorted, but didn't enforce sorting internally. Unsorted positions would corrupt output.
+
+**Fix in `src/strategies/locale.ts`:**
+- Added `const sortedPositions = [...positions].sort((a, b) => a - b)` before iteration
+
+### 12.5 — Added missing `.gitignore`
+
+**Problem:** No `.gitignore` file existed in the repository. This would cause `node_modules/`, `dist/`, and other build artifacts to be committed.
+
+**New file: `.gitignore`:**
+- node_modules/, dist/, .cache/, IDE files, OS files, .env, debug logs
+
+### 12.6 — Removed unnecessary `pnpm-workspace.yaml`
+
+**Problem:** `pnpm-workspace.yaml` existed with only `allowBuilds: esbuild: true`. Per the plan (Invariant P6 + I5), this is NOT a monorepo. The file is unnecessary.
+
+**Fix:** Deleted `pnpm-workspace.yaml`, added `.npmrc` with `ignore-scripts=false` to allow esbuild's postinstall script.
+
+### 12.7 — CI/CD review
+
+Reviewed `.github/workflows/deploy.yml` — it is well-structured and ready for use:
+- Auto-deploys on push to `main` branch
+- Supports manual ETL trigger via `workflow_dispatch`
+- Weekly scheduled ETL refresh (Monday 06:00 UTC)
+- Three jobs: ETL (conditional) → Build (tests + build) → Deploy (GitHub Pages)
+
+**⚠️ IMPORTANT:** For GitHub Pages to work, the repository owner must:
+1. Go to repo Settings → Pages → Source → select "GitHub Actions" (not "Deploy from a branch")
+2. Ensure `permissions: pages: write` and `id-token: write` are set (already in deploy.yml)
+
+### 12.8 — Build and test verification
+
+- All 76 tests pass ✅
+- Build passes ✅
+
