@@ -2,11 +2,15 @@
  * JewelPage — Category page for Jewels.
  *
  * Layout v2: Control panel sticky at top, mod list full width below
- * with origin-based grouping (normal → prefix/suffix within each origin).
+ * with origin-based grouping (normal/desecrated/corrupted → prefix/suffix within each origin).
  *
- * Note: Currently only loads jewel.json (normal origin). Desecrated and
- * corrupted origins exist as separate JSON files but require multi-file
- * loading which is planned for the next iteration.
+ * Loads and merges three JSON files:
+ * - jewel.json (193 normal tokens)
+ * - jewel-desecrated.json (21 desecrated tokens)
+ * - jewel-corrupted.json (10 corrupted tokens)
+ *
+ * The `groupMode="origin"` in ModList then groups them visually:
+ * Обычные → prefix/suffix, Очернённые → prefix/suffix, Осквернённые → prefix/suffix.
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
@@ -25,7 +29,10 @@ export function JewelPage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
-  } = useCategoryPage({ categoryId: 'jewel' });
+  } = useCategoryPage({
+    categoryId: 'jewel',
+    mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
+  });
 
   if (loading) {
     return (

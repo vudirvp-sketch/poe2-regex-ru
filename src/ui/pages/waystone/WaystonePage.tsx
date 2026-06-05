@@ -5,6 +5,10 @@
  * mod list full width below with two-column prefix/suffix layout
  * and sentiment sub-grouping (positive/negative/neutral).
  *
+ * Loads and merges two JSON files:
+ * - waystone.json (96 normal tokens)
+ * - waystone-desecrated.json (16 desecrated tokens)
+ *
  * Waystone-specific features:
  * - Corrupted → literal("оскверн")
  * - Uncorrupted → exclude(literal("оскверн"))
@@ -42,7 +46,7 @@ export function WaystonePage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
-  } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
+  } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
 

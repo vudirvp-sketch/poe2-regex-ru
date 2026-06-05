@@ -3,12 +3,17 @@
  *
  * Layout v2: Control panel sticky at top with tablet-specific controls
  * (type filter, rarity filter, uses remaining), mod list full width below
- * with two-column prefix/suffix layout (affix-only mode).
+ * with two-column prefix/suffix layout and tablet-type sub-grouping
+ * (Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие).
  *
  * Tablet-specific features:
  * - Type filter: Бездна / Делириум / Ритуал / Ваал (as extra AST nodes)
  * - Rarity filter: Обычный / Волшебный / Редкий
  * - Uses remaining: numeric input → RANGE node
+ *
+ * Grouping: groupMode="tablet-type" classifies mods by their content type
+ * (Ritual, Breach, Delirium, Vaal, Expedition, or Generic) within each
+ * prefix/suffix column, using text-based heuristics.
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
@@ -24,6 +29,7 @@ const TABLET_TYPES = [
   { id: 'delirium', label: 'Делириум', regex: 'делир', color: 'text-blue-400' },
   { id: 'ritual', label: 'Ритуал', regex: 'ритуал', color: 'text-red-400' },
   { id: 'vaal', label: 'Ваал', regex: 'ваал', color: 'text-orange-400' },
+  { id: 'expedition', label: 'Экспедиция', regex: 'экспедици', color: 'text-green-400' },
 ] as const;
 
 const RARITY_OPTIONS = [
@@ -221,7 +227,7 @@ export function TabletPage() {
         onAffixFilterChange={setAffixFilter}
         onOriginFilterChange={setOriginFilter}
         onClearSelections={clearSelections}
-        groupMode="affix-only"
+        groupMode="tablet-type"
       />
 
       <div className="flex flex-col gap-3">

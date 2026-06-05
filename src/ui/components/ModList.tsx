@@ -13,7 +13,7 @@
  * panel ABOVE this component (in a sticky top bar).
  */
 import React, { useMemo, useCallback } from 'react';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin } from '@shared/types';
 import { groupTokensByFamily } from '@shared/family-grouper';
 import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
 import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';

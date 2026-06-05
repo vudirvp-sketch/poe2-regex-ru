@@ -11,7 +11,7 @@
  * that are ANDed into the final regex.
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { loadCategoryData } from '@data/loader';
+import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin } from '@shared/types';
@@ -31,6 +31,12 @@ export interface CategoryPageConfig {
   round10?: boolean;
   /** Extra AST nodes to AND into the final regex (e.g., tier, state toggles) */
   extraAstNodes?: ASTNode[];
+  /**
+   * Additional category IDs to load and merge with the primary categoryId.
+   * Used for multi-origin pages (e.g., jewel loads jewel-desecrated + jewel-corrupted).
+   * All token arrays are concatenated; optimization tables are merged.
+   */
+  mergeCategories?: string[];
 }
 
 /** Filter store API exposed by useCategoryPage.
@@ -297,7 +303,7 @@ function applyRuntimeYofication(
  * Supports extraAstNodes for category-specific AST additions (e.g., waystone tier/state).
  */
 export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
-  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [] } = config;
+  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [], mergeCategories } = config;
 
   const [data, setData] = useState<CategoryData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -367,7 +373,12 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       try {
         setLoading(true);
         setError(null);
-        const categoryData = await loadCategoryData(categoryId);
+        let categoryData: CategoryData;
+        if (mergeCategories && mergeCategories.length > 0) {
+          categoryData = await loadMergedCategoryData([categoryId, ...mergeCategories]);
+        } else {
+          categoryData = await loadCategoryData(categoryId);
+        }
         if (!cancelled) {
           setData(categoryData);
         }
@@ -387,7 +398,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     return () => {
       cancelled = true;
     };
-  }, [categoryId]);
+  }, [categoryId, mergeCategories]);
 
   // Sync excludeMode/minValue/round10Enabled to filter store's extraState
   // so they are included in share URLs. Skips the first render to avoid

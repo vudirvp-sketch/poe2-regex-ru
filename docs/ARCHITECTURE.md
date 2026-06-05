@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 8.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 9.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -311,9 +311,9 @@ width for a two-column mod display:
 | Tab | `groupMode` | Sub-groups | Origin sections |
 |-----|-------------|------------|-----------------|
 | Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | Via origin filter |
-| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | — |
-| Tablet | `affix-only` | None (just prefix/suffix) | — |
-| Jewel | `origin` | Обычные/Осквернённые/Очернённые → prefix/suffix within | Built into headers |
+| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | origin filter (normal/desecrated) |
+| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
+| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
 | Relic | `affix-only` | None (just prefix/suffix) | — |
 | Vendor | N/A | Custom grid layout, not affected | — |
 
@@ -348,22 +348,72 @@ width for a two-column mod display:
 
 ### Known Limitations (Next Iteration)
 
-1. **Jewel multi-origin loading**: Currently only loads `jewel.json` (normal).
-   Need to merge `jewel-desecrated.json` and `jewel-corrupted.json` for
-   full origin-based display.
-
-2. **Tablet type grouping**: Token data doesn't include tablet type info.
-   Requires ETL changes to tag each token with its tablet type
-   (Breach/Delirium/Ritual/Vaal). Currently type filter is separate controls.
-
-3. **Origin sub-sections within columns**: Currently origins are handled
+1. **Origin sub-sections within columns**: Currently origins are handled
    via the origin filter dropdown. Visual origin sub-sections within
    each affix column (separate "Осквернённые" block) are planned.
+   This requires refactoring ModList to support nested sub-groups
+   (semantic → origin within each semantic group).
 
-4. **Waystone desecrated**: Only loads `waystone.json` (normal).
-   `waystone-desecrated.json` needs to be merged in.
-
-5. **Mobile optimization**: The two-column layout stacks on mobile
+2. **Mobile optimization**: The two-column layout stacks on mobile
    (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.
 
-6. **VendorPage**: Not updated in this iteration — layout polish deferred.
+3. **VendorPage**: Not updated in this iteration — layout polish deferred.
+
+4. **Light theme CSS**: New components (ModList, FilterChip, CategoryControlPanel)
+   may need light-theme overrides in `src/index.css`.
+
+5. **Semantic classification fine-tuning**: The text-based heuristics
+   for waystone and tablet classification should be verified against
+   all real data. Edge cases may need keyword adjustments.
+
+## 10. Iteration 2 Changes — Multi-Origin Loading + Tablet Type Grouping
+
+### Changes
+
+1. **Multi-origin data loading** (`src/data/loader.ts`):
+   - Added `loadMergedCategoryData()` — loads and merges multiple category JSON
+     files into a single `CategoryData` object
+   - Merge strategy: concatenate tokens, merge optimization tables
+     (primary takes priority for duplicate keys)
+   - Cached under composite key (e.g., "jewel+jewel-desecrated+jewel-corrupted")
+
+2. **useCategoryPage `mergeCategories` option** (`src/ui/hooks/useCategoryPage.ts`):
+   - New config option: `mergeCategories?: string[]`
+   - When provided, loads primary + merge categories via `loadMergedCategoryData`
+   - Enables multi-origin pages without changing the page component structure
+
+3. **JewelPage multi-origin loading** (`src/ui/pages/jewel/JewelPage.tsx`):
+   - Now loads: `jewel.json` (193 normal) + `jewel-desecrated.json` (21) + `jewel-corrupted.json` (10)
+   - Total: 224 tokens across 3 origins
+   - `groupMode="origin"` now shows all three groups:
+     Обычные (193) / Очернённые (21) / Осквернённые (10)
+
+4. **WaystonePage multi-origin loading** (`src/ui/pages/waystone/WaystonePage.tsx`):
+   - Now loads: `waystone.json` (96 normal) + `waystone-desecrated.json` (16)
+   - Total: 112 tokens across 2 origins (normal + desecrated)
+   - Origin filter dropdown appears automatically in ModList
+
+5. **Tablet type grouping** (`src/shared/mod-classifier.ts`):
+   - New `groupMode="tablet-type"` with `TabletTypeCategory` type
+   - Classifies tablet mods by content type: Ритуал, Бездна, Делириум, Ваал, Экспедиция, Общие
+   - Text-based heuristics: keyword matching (алтар→Ритуал, бездн→Бездна, делир→Делириум, ваал/маяк→Ваал, экспедици→Экспедиция)
+   - Updated TabletPage to use `groupMode="tablet-type"` instead of `affix-only`
+   - Added "Экспедиция" to TABLET_TYPES controls in TabletPage
+
+### Per-Tab Grouping Modes (Updated)
+
+| Tab | `groupMode` | Sub-groups | Multi-origin? |
+|-----|-------------|------------|---------------|
+| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | Already in single file |
+| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | ✅ waystone + waystone-desecrated |
+| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | Single file |
+| Jewel | `origin` | Обычные/Очернённые/Осквернённые | ✅ jewel + jewel-desecrated + jewel-corrupted |
+| Relic | `affix-only` | None (just prefix/suffix) | Single file |
+| Vendor | N/A | Custom grid layout | N/A |
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)

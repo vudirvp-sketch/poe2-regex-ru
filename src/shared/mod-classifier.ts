@@ -8,7 +8,7 @@
  * Used by ModList to create semantic sub-groups within prefix/suffix columns.
  */
 
-import type { FamilyGroup, AffixType, ModOrigin } from './types';
+import type { FamilyGroup, ModOrigin } from './types';
 import { ORIGIN_LABELS } from './constants';
 
 // ─── Semantic category types ───
@@ -150,13 +150,60 @@ export function classifyWaystoneSentiment(group: FamilyGroup): SentimentCategory
   return 'neutral';
 }
 
+// ─── Tablet type classification ───
+
+/** Tablet type categories based on which content the mod affects */
+export type TabletTypeCategory = 'ritual' | 'breach' | 'delirium' | 'vaal' | 'expedition' | 'generic';
+
+export const TABLET_TYPE_LABELS: Record<TabletTypeCategory, CategoryLabel> = {
+  ritual:     { label: 'Ритуал', colorClass: 'text-red-400' },
+  breach:     { label: 'Бездна', colorClass: 'text-purple-400' },
+  delirium:   { label: 'Делириум', colorClass: 'text-blue-400' },
+  vaal:       { label: 'Ваал', colorClass: 'text-orange-400' },
+  expedition: { label: 'Экспедиция', colorClass: 'text-green-400' },
+  generic:    { label: 'Общие', colorClass: 'text-gray-400' },
+};
+
+/** Keywords indicating a Ritual tablet mod */
+const RITUAL_KEYWORDS = /(?:ритуал|алтар|дани|жертв)/i;
+
+/** Keywords indicating a Breach tablet mod */
+const BREACH_KEYWORDS = /(?:бездн|бездн.|провал|нестабильн.*бездн)/i;
+
+/** Keywords indicating a Delirium tablet mod */
+const DELIRIUM_KEYWORDS = /(?:делириум|делириума|делириумом|зеркал|симулякр)/i;
+
+/** Keywords indicating a Vaal tablet mod */
+const VAAL_KEYWORDS = /(?:ваал|маяк)/i;
+
+/** Keywords indicating an Expedition tablet mod */
+const EXPEDITION_KEYWORDS = /(?:экспедици|руническ|взрывчатк|реликт.*экспедици|артефакт.*экспедици)/i;
+
+/**
+ * Classify a FamilyGroup into tablet type category.
+ * Based on text heuristics — tablet tokens have no tags.
+ */
+export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
+  const text = group.displayText;
+
+  // Check specific types first (more specific → less specific order)
+  if (EXPEDITION_KEYWORDS.test(text)) return 'expedition';
+  if (RITUAL_KEYWORDS.test(text)) return 'ritual';
+  if (BREACH_KEYWORDS.test(text)) return 'breach';
+  if (DELIRIUM_KEYWORDS.test(text)) return 'delirium';
+  if (VAAL_KEYWORDS.test(text)) return 'vaal';
+
+  return 'generic';
+}
+
 // ─── Unified classification ───
 
 /** Grouping mode determines how mods are sub-categorized within affix columns */
 export type ModGroupMode =
   | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (amulet, ring, belt)
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
-  | 'affix-only'        // just prefix/suffix, no sub-groups (relic, tablet)
+  | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
+  | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
   | 'origin';           // by origin: normal/desecrated/corrupted (jewel)
 
 /**
@@ -232,6 +279,27 @@ export function classifyGroups(
         key: cat,
         label: SENTIMENT_LABELS[cat].label,
         colorClass: SENTIMENT_LABELS[cat].colorClass,
+        groups: classified.get(cat)!,
+      }));
+  }
+
+  if (mode === 'tablet-type') {
+    const classified = new Map<TabletTypeCategory, FamilyGroup[]>();
+    const order: TabletTypeCategory[] = ['ritual', 'breach', 'delirium', 'vaal', 'expedition', 'generic'];
+
+    for (const group of groups) {
+      const category = classifyTabletType(group);
+      const list = classified.get(category) || [];
+      list.push(group);
+      classified.set(category, list);
+    }
+
+    return order
+      .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
+      .map(cat => ({
+        key: cat,
+        label: TABLET_TYPE_LABELS[cat].label,
+        colorClass: TABLET_TYPE_LABELS[cat].colorClass,
         groups: classified.get(cat)!,
       }));
   }
