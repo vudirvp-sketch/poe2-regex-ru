@@ -1,8 +1,17 @@
 /**
  * RegexOutput — Displays the generated regex string with copy and share buttons.
  *
- * Shows the current regex with character count and overflow warning.
- * Supports copy-to-clipboard and URL sharing functionality.
+ * Features (matching plan spec 9.2):
+ * - Visual Character Health Bar (green/yellow/red) instead of poe2.re's invisible gray text
+ * - Overflow protection: red notification + copy blocked when exceeding 250 chars
+ * - Copy-to-clipboard and URL sharing functionality
+ * - Sticky positioning so output is always visible while adjusting filters
+ *
+ * Health bar thresholds (from limits.ts):
+ * - Green: 0-200 characters
+ * - Yellow: 201-240 characters
+ * - Red: 241-250 characters (approaching limit)
+ * - Red + pulse: >250 characters (OVERFLOW — copy blocked)
  */
 import React, { useState, useCallback } from 'react';
 import { MAX_CHARS } from '@shared/constants';
@@ -16,6 +25,35 @@ interface RegexOutputProps {
     serialize: () => Record<string, unknown>;
   } | null;
 }
+
+/** Get health level for character count */
+function getHealthLevel(count: number): 'green' | 'yellow' | 'red' {
+  if (count <= 200) return 'green';
+  if (count <= 240) return 'yellow';
+  return 'red';
+}
+
+/** Health bar color map */
+const HEALTH_COLORS = {
+  green: {
+    bar: 'bg-emerald-500',
+    barBg: 'bg-emerald-900/40',
+    text: 'text-emerald-400',
+    label: 'Норма',
+  },
+  yellow: {
+    bar: 'bg-yellow-500',
+    barBg: 'bg-yellow-900/40',
+    text: 'text-yellow-400',
+    label: 'Много',
+  },
+  red: {
+    bar: 'bg-red-500',
+    barBg: 'bg-red-900/40',
+    text: 'text-red-400',
+    label: 'Критично',
+  },
+} as const;
 
 export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore }) => {
   const [copied, setCopied] = useState(false);
@@ -45,24 +83,18 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   }, [filterStore]);
 
   const charCount = regex.length;
-  const isNearLimit = charCount > MAX_CHARS * 0.8 && !isOverflow;
+  const healthLevel = isOverflow ? 'red' : getHealthLevel(charCount);
+  const healthConfig = HEALTH_COLORS[healthLevel];
+  const healthPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
 
   return (
-    <div className="regex-output">
+    <div className="regex-output sticky top-0 z-10 -mx-1 px-1 py-1 -mt-1 pt-1"
+      style={{ background: 'var(--poe-bg, #0f0f1a)' }}
+    >
+      {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-300">Регулярное выражение</h3>
         <div className="flex items-center gap-2">
-          <span
-            className={`text-xs font-mono ${
-              isOverflow
-                ? 'text-red-400'
-                : isNearLimit
-                  ? 'text-yellow-400'
-                  : 'text-gray-400'
-            }`}
-          >
-            {charCount}/{MAX_CHARS}
-          </span>
           {/* Share button */}
           {filterStore && regex && (
             <button
@@ -94,12 +126,34 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
         </div>
       </div>
 
+      {/* Character Health Bar — visual green/yellow/red indicator */}
+      <div className="mb-2">
+        <div className="flex items-center justify-between mb-1">
+          <span className={`text-xs font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
+            {isOverflow ? 'ПЕРЕПОЛНЕНИЕ!' : healthConfig.label}
+          </span>
+          <span className={`text-xs font-mono ${healthConfig.text}`}>
+            {charCount}/{MAX_CHARS}
+          </span>
+        </div>
+        <div className={`h-2 rounded-full overflow-hidden ${healthConfig.barBg}`}>
+          <div
+            className={`h-full rounded-full transition-all duration-300 ease-out ${
+              isOverflow ? 'bg-red-500 animate-pulse' : healthConfig.bar
+            }`}
+            style={{ width: `${healthPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Overflow warning */}
       {isOverflow && (
         <div className="mb-2 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-xs">
-          Превышен лимит символов! Уменьшите количество выбранных модов.
+          Строка превышает лимит 250 символов. Поиск не сработает!
         </div>
       )}
 
+      {/* Regex display area */}
       <div
         className={`p-3 rounded font-mono text-sm break-all min-h-[60px] ${
           isOverflow

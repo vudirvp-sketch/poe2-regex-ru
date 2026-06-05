@@ -1,7 +1,7 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 8.0 | **Date:** 2026-06-05
-> **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending verification and polish
+> **Version:** 9.0 | **Date:** 2026-06-05
+> **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending in-game verification
 
 ---
 
@@ -83,7 +83,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅ — see remaining items below |
+| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅ — see remaining items below |
 
 ## 7. Known Issues & Remaining Work
 
@@ -113,13 +113,17 @@ shared <- core <- strategies <- store <- data <- ui
 
 8. ~~**CI/CD**~~ — ✅ DONE in Session 10. deploy.yml now has: push to main, workflow_dispatch with ETL toggle, weekly schedule, separate ETL job with auto-commit.
 
-9. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists (e.g., @tanstack/react-virtual or react-virtuoso) for smooth scrolling. Current implementation renders all items. Not critical — works fine on modern hardware.
+9. ~~**Character Health Bar**~~ — ✅ DONE in Session 11. RegexOutput now has visual green/yellow/red progress bar instead of poe2.re's invisible gray text. Sticky positioning so output stays visible while scrolling.
 
-10. **[её] yofication in production** — Implemented but only applies when character budget allows. Could be more aggressive for short regexes.
+10. ~~**VendorPage number regex bugs**~~ — ✅ FIXED in Session 11. Replaced hand-rolled `generateVendorNumberRegex()` with core AST+compiler. Fixed 3 bugs: missing 3-digit alternatives, missing multi-digit alternatives for single-digit thresholds, and over-matching for ≥100 thresholds. Added round10 toggle.
 
-11. ~~**SEO + meta tags**~~ — ✅ DONE in Session 10. Added Open Graph, Twitter Card, canonical URL, description, keywords, theme-color.
+11. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists (e.g., @tanstack/react-virtual or react-virtuoso) for smooth scrolling. Current implementation renders all items. Not critical — works fine on modern hardware.
 
-12. ~~**Landing page polish**~~ — ✅ DONE in Session 10. Added feature cards, category stats, description paragraph, footer.
+12. **[её] yofication in production** — Implemented but only applies when character budget allows. Could be more aggressive for short regexes.
+
+13. ~~**SEO + meta tags**~~ — ✅ DONE in Session 10. Added Open Graph, Twitter Card, canonical URL, description, keywords, theme-color.
+
+14. ~~**Landing page polish**~~ — ✅ DONE in Session 10. Added feature cards, category stats, description paragraph, footer.
 
 ## 8. Tablet Type Regex Reference
 

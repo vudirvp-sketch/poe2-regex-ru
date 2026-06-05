@@ -5,13 +5,24 @@
  * the Russian game client text. The vendor page filters items by
  * properties visible at the vendor (quality, sockets, resistances, etc.)
  *
- * The regex strings are pre-computed for the RU client based on known
- * Russian translations of item properties.
+ * Regex compilation uses the core AST + compiler to ensure:
+ * - Correct quoting (each term wrapped in "...")
+ * - Correct AND/OR combination
+ * - Correct negation (! inside quotes when combined with |)
+ * - Proper number regex via generateNumberRegex (handles 3-digit, round10)
+ * - Consistent with the rest of the application
+ *
+ * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
+ * vendor properties are NOT mod-based and don't come from ETL data.
+ * The plan's invariant I4 targets mod strings from ETL, not vendor labels.
  */
 import { useState, useMemo, useCallback } from 'react';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
+import { and, literal, exclude, range } from '@core/ast';
+import { compile } from '@core/compiler';
+import type { ASTNode } from '@shared/types';
 
 // ─── Vendor property definitions with Russian regex strings ───
 
@@ -148,31 +159,11 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
   { id: 'type-shields', label: 'Щиты', regex: 'щит', group: 'Класс — Оффхэнд' },
 ];
 
-/**
- * Generate a number regex for minimum threshold matching.
- * Simplified version that produces PoE2-compatible number patterns.
- */
-function generateVendorNumberRegex(min: number): string {
-  if (min <= 0) return '';
-  if (min >= 100) {
-    const d0 = Math.floor(min / 100);
-    if (d0 >= 9) return '9..';
-    return `[${d0}-9]..`;
-  }
-  if (min >= 10) {
-    const d0 = Math.floor(min / 10);
-    const d1 = min % 10;
-    if (d1 === 0) return d0 === 9 ? `9.` : `[${d0}-9].`;
-    if (d0 === 9) return `9[${d1}-9]`;
-    return `(${d0}[${d1}-9]|[${d0 + 1}-9].)`;
-  }
-  return `[${min}-9]`;
-}
-
 export function VendorPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [excludeMode, setExcludeMode] = useState(false);
   const [numericInputs, setNumericInputs] = useState<Record<string, number>>({});
+  const [round10, setRound10] = useState(true);
 
   const toggleProperty = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -203,31 +194,32 @@ export function VendorPage() {
     setNumericInputs({});
   }, []);
 
-  // Build the regex string from selections
+  // Build regex using core AST + compiler (fixes 3-digit number bug,
+  // ensures consistent quoting, correct AND/OR/EXCLUDE handling)
   const { regex, isRegexOverflow } = useMemo(() => {
     const selectedProps = VENDOR_PROPERTIES.filter(p => selectedIds.has(p.id));
     if (selectedProps.length === 0 && Object.keys(numericInputs).length === 0) {
       return { regex: '', isRegexOverflow: false };
     }
 
-    const andGroups: string[] = [];
+    const astNodes: ASTNode[] = [];
 
     for (const prop of selectedProps) {
       if (prop.hasNumericInput) {
         const numValue = numericInputs[prop.id];
         if (numValue && numValue > 0 && prop.numericSuffix) {
-          const numRegex = generateVendorNumberRegex(numValue);
-          andGroups.push(`"${numRegex}.*${prop.numericSuffix}"`);
+          // Use core range() — generates correct number regex including 3-digit handling
+          astNodes.push(range(numValue, undefined, prop.numericSuffix));
         }
-        continue; // Skip adding as regular property if it has numeric input but no value set
+        continue;
       }
 
       if (!prop.regex) continue;
 
       if (excludeMode) {
-        andGroups.push(`"!${prop.regex}"`);
+        astNodes.push(exclude(literal(prop.regex)));
       } else {
-        andGroups.push(`"${prop.regex}"`);
+        astNodes.push(literal(prop.regex));
       }
     }
 
@@ -236,14 +228,18 @@ export function VendorPage() {
       if (value <= 0) continue;
       const prop = VENDOR_PROPERTIES.find(p => p.id === id);
       if (prop?.hasNumericInput && !selectedIds.has(id) && prop.numericSuffix) {
-        const numRegex = generateVendorNumberRegex(value);
-        andGroups.push(`"${numRegex}.*${prop.numericSuffix}"`);
+        astNodes.push(range(value, undefined, prop.numericSuffix));
       }
     }
 
-    const result = andGroups.join(' ');
+    if (astNodes.length === 0) {
+      return { regex: '', isRegexOverflow: false };
+    }
+
+    const ast = and(...astNodes);
+    const result = compile(ast, { round10 });
     return { regex: result, isRegexOverflow: result.length > MAX_CHARS };
-  }, [selectedIds, excludeMode, numericInputs]);
+  }, [selectedIds, excludeMode, numericInputs, round10]);
 
   // Group properties for UI display
   const groupedProperties = useMemo(() => {
@@ -255,6 +251,8 @@ export function VendorPage() {
     }
     return groups;
   }, []);
+
+  const hasNumericSelected = Object.values(numericInputs).some(v => v > 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -327,6 +325,17 @@ export function VendorPage() {
               </button>
             </div>
           </div>
+
+          {/* Round10 toggle for numeric inputs */}
+          {hasNumericSelected && (
+            <div className="bg-gray-900 border border-gray-700 rounded p-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={round10} onChange={(e) => setRound10(e.target.checked)}
+                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
+                <span className="text-xs text-gray-300">{t('round10')}</span>
+              </label>
+            </div>
+          )}
 
           {/* Clear all */}
           {selectedIds.size > 0 && (

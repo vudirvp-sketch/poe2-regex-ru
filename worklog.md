@@ -1024,3 +1024,82 @@ Added new translation keys:
   - Run `pnpm etl` to regenerate JSON files
 - 🟢 **Virtualized lists** for belt/ring/amulet (performance, not critical)
 - 🟢 **More aggressive yofication** for short regexes
+
+---
+
+## Session 11 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Continue Iteration 9 — Character Health Bar, VendorPage AST refactor, sticky regex output
+
+### 11.1 — Character Health Bar implemented in RegexOutput
+
+**Problem:** The plan (Section 9.2) specifies a visual green/yellow/red Character Health Bar as a key improvement over poe2.re's nearly invisible gray "length: X / 250" display. The current RegexOutput only had a text counter without any visual progress indicator.
+
+**Implementation in `src/ui/components/RegexOutput.tsx`:**
+- Added visual health bar with color-coded progress:
+  - 🟢 Green (0-200 chars): `bg-emerald-500`, label "Норма"
+  - 🟡 Yellow (201-240 chars): `bg-yellow-500`, label "Много"
+  - 🔴 Red (241-250 chars): `bg-red-500`, label "Критично"
+  - 🔴 Red + pulse (>250 chars): "ПЕРЕПОЛНЕНИЕ!" with animation
+- Progress bar fills proportionally to 250-char limit
+- Smooth width transition (`transition-all duration-300 ease-out`)
+- Overflow warning updated to plan-specified text: "Строка превышает лимит 250 символов. Поиск не сработает!"
+- Health bar background uses matching dark shade for visual depth
+
+### 11.2 — Sticky regex output
+
+**Problem:** The plan specifies "Sticky regex output" as a UX improvement over poe2.re where it scrolls away. Users need to see the regex while adjusting filters.
+
+**Implementation:** Added `sticky top-0 z-10` classes to the RegexOutput container with matching background color to prevent content bleeding through during scroll. The regex output now stays visible at the top of the right panel while scrolling through filter options.
+
+### 11.3 — VendorPage refactored to use core AST + compiler
+
+**Problem:** VendorPage had a hand-rolled `generateVendorNumberRegex()` function with three critical bugs:
+1. **Missing `\d..` alternatives for 2-digit thresholds** — Numbers ≥100 never matched for thresholds 10-99 (e.g., "Уровень предмета ≥40" wouldn't match level 100+ items)
+2. **Missing `|\d..?` for 1-digit thresholds** — Numbers ≥10 never matched for thresholds 1-9
+3. **≥100 branch over-matches** — `[1-9]..` for threshold 150 matches 100-149 below threshold
+
+Additionally, manual string building produced separate `"!A" "!B"` instead of compact `"!A|B"` for exclude mode.
+
+**Fix implemented in `src/ui/pages/vendor/VendorPage.tsx`:**
+- Deleted the entire `generateVendorNumberRegex()` function (20 lines of buggy code)
+- Replaced manual string concatenation with AST construction + `compile()`:
+  ```typescript
+  const astNodes: ASTNode[] = [];
+  // ... build AST from selections using and(), literal(), exclude(), range()
+  const ast = and(...astNodes);
+  const result = compile(ast, { round10 });
+  ```
+- Added `round10` toggle (checkbox) for numeric inputs, consistent with other category pages
+- Import `and, literal, exclude, range` from `@core/ast` and `compile` from `@core/compiler`
+- All three number regex bugs fixed automatically (core's `generateNumberRegex` handles them correctly)
+- Exclude mode now produces compact `"!A|B|C"` instead of verbose `"!A" "!B" "!C"`
+
+**Net change:** ~15 lines deleted (manual compilation + custom number regex), ~10 lines added (AST construction), 3 bugs fixed.
+
+### 11.4 — Build and test verification
+
+- All 76 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 11)
+
+**What's done this session:**
+- ✅ Character Health Bar — visual green/yellow/red indicator with progress bar (plan spec 9.2)
+- ✅ Sticky regex output — stays visible while scrolling
+- ✅ VendorPage AST refactor — 3 number regex bugs fixed, round10 toggle added
+- ✅ Overflow warning text updated to plan specification
+
+**What's NOT done yet (for next session):**
+- 🔴 **In-game verification** — Still requires manual testing by user:
+  - VendorPage: 50+ regex strings ("качеств", "гнёзд", "огню", "физическ", etc.)
+  - TabletPage: "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ"
+- 🟡 **ETL re-run** — Need to run `pnpm etl` locally (requires network access to poe2db.tw)
+  - Apply all latest code changes to data
+  - Fetch fresh data from poe2db.tw → regenerate JSON
+- 🟢 **Low priority:**
+  - Virtualized lists for belt/ring/amulet (react-virtuoso / @tanstack/react-virtual)
+  - More aggressive ёфикация [её] for short regexes
+  - CI/CD deploy.yml not tested with real GitHub Pages deployment
