@@ -4,6 +4,7 @@
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
 
 export function BeltPage() {
@@ -15,6 +16,7 @@ export function BeltPage() {
     minValue, setMinValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'belt' });
 
   if (loading) {
@@ -136,7 +138,14 @@ export function BeltPage() {
             </div>
           )}
 
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} />
+          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore} />
+
+          {/* Profile panel: save/load/delete search profiles */}
+          <ProfilePanel
+            category={categoryId}
+            currentFilterData={filterStore.serialize()}
+            onRestore={restoreFilterState}
+          />
 
           {selectedTokens.length > 0 && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">

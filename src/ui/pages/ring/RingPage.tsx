@@ -4,6 +4,7 @@
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
 
 export function RingPage() {
@@ -15,6 +16,7 @@ export function RingPage() {
     minValue, setMinValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'ring' });
 
   if (loading) {
@@ -108,7 +110,13 @@ export function RingPage() {
             </div>
           )}
 
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} />
+          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore} />
+
+          <ProfilePanel
+            category={categoryId}
+            currentFilterData={filterStore.serialize()}
+            onRestore={restoreFilterState}
+          />
 
           {selectedTokens.length > 0 && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">

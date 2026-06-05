@@ -74,6 +74,15 @@ export interface CategoryPageState {
   setOriginFilter: (filter: ModOrigin | null) => void;
   /** Clear all selections */
   clearSelections: () => void;
+  /** Category ID for this page */
+  categoryId: string;
+  /** Filter store reference (for URL sharing and profile persistence) */
+  filterStore: {
+    serialize: () => Record<string, unknown>;
+    deserialize: (data: Record<string, unknown>) => void;
+  };
+  /** Restore filter state from a serialized object (e.g., loaded profile) */
+  restoreFilterState: (data: Record<string, unknown>) => void;
 }
 
 /**
@@ -345,6 +354,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     };
   }, [data, selectedTokens, excludeMode, minValue, round10Enabled, locale, extraAstNodes]);
 
+  /** Restore filter state from a serialized object (used by ProfilePanel) */
+  const restoreFilterState = (data: Record<string, unknown>) => {
+    useStore.getState().deserialize(data);
+  };
+
   return {
     data,
     loading,
@@ -366,5 +380,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setAffixFilter,
     setOriginFilter,
     clearSelections,
+    categoryId,
+    filterStore: useStore.getState(),
+    restoreFilterState,
   };
 }

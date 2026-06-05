@@ -421,3 +421,121 @@ Each category page needs to pass its filter store reference to RegexOutput.
 - ETL re-run needed after parser fixes
 - VendorPage still a stub — requires in-game verification of RU property names
 - Mobile responsive polish
+
+---
+
+## Session 5 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Continue from Session 4 — Integrate ProfilePanel, pass filterStore, fix Waystone RU regex strings, document parser issues
+
+### 7.1 — ProfilePanel integrated into all 7 category pages
+
+ProfilePanel was created in Session 4 but never imported. Now integrated into:
+- `src/ui/pages/belt/BeltPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/ring/RingPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/amulet/AmuletPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/tablet/TabletPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/jewel/JewelPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/relic/RelicPage.tsx` — Added ProfilePanel + filterStore
+- `src/ui/pages/waystone/WaystonePage.tsx` — Added ProfilePanel + filterStore
+
+Each page now passes:
+- `category={categoryId}` — for profile filtering
+- `currentFilterData={filterStore.serialize()}` — current filter state for saving
+- `onRestore={restoreFilterState}` — callback to restore from loaded profile
+
+### 7.2 — filterStore exposed from useCategoryPage + passed to RegexOutput
+
+Enhanced: `src/ui/hooks/useCategoryPage.ts`
+- Added `categoryId: string` to return type
+- Added `filterStore: { serialize, deserialize }` to return type — exposes the Zustand store
+- Added `restoreFilterState(data)` function — calls `useStore.getState().deserialize(data)`
+- These enable both ProfilePanel (save/load) and RegexOutput (Share URL) functionality
+
+All 7 category pages now pass `filterStore={filterStore}` to `<RegexOutput>`, which enables:
+- "Поделиться" (Share) button — generates compressed URL with filter state
+- Copy shareable URL to clipboard
+
+### 7.3 — Waystone RU regex strings fixed
+
+Updated: `src/ui/pages/waystone/WaystonePage.tsx`
+- Tier suffix: `"r "` (Latin) → `"р "` (Cyrillic р + space)
+  - In RU client, tier displays as "Тир: N", so suffix "р " matches end of "тир"
+- Corrupted: `literal("corr")` → `literal("оскверн")`
+  - In RU client, corrupted items show red "Осквернено" text
+  - "оскверн" is the shortest unique substring matching "Осквернено"
+- Uncorrupted: `exclude(literal("corr"))` → `exclude(literal("оскверн"))`
+- Delirious: `literal("delir")` → `literal("делир")`
+  - In RU client, delirious waystones show "Делириум" indicator
+  - "делир" is the shortest unique substring matching "Делириум"
+- UI labels updated to show Russian regex strings in hints:
+  - "Осквернён (оскверн)" instead of "Осквернён (corr)"
+  - "Неосквернён (!оскверн)" instead of "Неосквернён (!corr)"
+  - "Делириум (делир)" instead of "Делириум (delir)"
+  - "≥5 тир → 'р ' в regex" instead of "≥5 тир в regex"
+
+**⚠️ VERIFICATION NEEDED:** These Russian regex strings are derived from game text analysis
+but have NOT been tested in-game. If they don't work, alternatives:
+- "оскверн" → try "осквер" or full "Осквернено"
+- "делир" → try "Делириу" or "Делириум"
+- "р " (Cyrillic) → try "тир" or "тир:"
+
+### 7.4 — Waystone/tablet parser "mod gluing" issue documented
+
+**Problem discovered:** 104 out of 106 waystone tokens and 9 out of 78 tablet tokens
+have their rawText GLUED together — multiple mod descriptions are concatenated into
+a single string without proper separation.
+
+Example: `waystone.mod_49wa5n` rawText is:
+```
+"Дополнительных свойств у редких монстров: 125% увеличение количества редких монстров10% увеличение количества путевых камней, находимых в области"
+```
+This is actually 3 separate mods:
+1. "Дополнительных свойств у редких монстров: 1"
+2. "25% увеличение количества редких монстров"
+3. "10% увеличение количества путевых камней, находимых в области"
+
+**Root cause:** The poe2db.tw HTML tables for waystones/tablets have multiple mod
+descriptions per table row (a row can represent a group of mods that appear together).
+The `normalize.ts` `extractTextAndRanges()` function calls `$.root().text().trim()`
+which concatenates ALL text in the description HTML into one string.
+
+**Fix needed (NOT YET IMPLEMENTED):**
+1. In `parse-tables.ts`: Split description cell content by `<br>` tags or other
+   delimiters to identify individual mod lines
+2. In `normalize.ts`: Handle multi-line descriptions by creating separate
+   NormalizedMod entries for each individual mod line
+3. Re-run ETL after fix (`pnpm etl`)
+
+This is a significant refactor that requires:
+- Understanding the exact HTML structure of poe2db.tw waystone/tablet pages
+- Modifying both the parser and normalizer
+- Re-running the entire ETL pipeline
+- Verifying the output quality
+
+### 7.5 — Type check verification
+
+- `tsc --noEmit` shows no new errors in modified files
+- Pre-existing errors remain in ETL scripts (missing @types/node) and
+  react-router-dom type definitions (unrelated to our changes)
+
+### Stopping Point (Session 5)
+
+**What's done:**
+- ProfilePanel integrated into ALL 7 category pages (was dangling component)
+- filterStore exposed from useCategoryPage and passed to RegexOutput on all pages
+- Share URL button now functional on all category pages
+- Waystone regex strings changed from English to Russian ("corr"→"оскверн", "delir"→"делир", "r "→"р ")
+- Waystone/tablet mod gluing bug documented with root cause analysis
+- Type check passes for all modified files
+
+**What's NOT done yet (for next session):**
+- **Waystone/tablet parser fix** — mod gluing issue (104/106 waystone tokens, 9/78 tablet tokens affected)
+  - Need to split multi-mod rows in parse-tables.ts
+  - Need to update normalize.ts for multi-line descriptions
+  - Need to re-run ETL after fix
+- **In-game verification** of Waystone RU regex strings ("оскверн", "делир", "р ")
+- **VendorPage** — still a stub, needs Russian property names from in-game verification
+- **ETL re-run** — after parser fixes, must run `pnpm etl` to regenerate all JSON
+- **Mobile responsive polish**

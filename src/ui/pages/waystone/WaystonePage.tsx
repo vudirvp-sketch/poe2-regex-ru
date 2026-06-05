@@ -2,16 +2,24 @@
  * WaystonePage — Full working category page for Waystones.
  *
  * Waystones have specific features:
- * - Tier filter (min tier) → RANGE(tierMin, undefined, "r ")
- * - Corrupted → literal("corr")
- * - Uncorrupted → exclude(literal("corr"))
- * - Delirious → literal("delir")
+ * - Tier filter (min tier) → RANGE(tierMin, undefined, "р ")  (Cyrillic р for RU client "Тир")
+ * - Corrupted → literal("оскверн")  (matches "Осквернено" in RU client)
+ * - Uncorrupted → exclude(literal("оскверн"))
+ * - Delirious → literal("делир")  (matches "Делириум" in RU client)
  * - Quantifiers (IIQ, IIR, Pack Size) with minimum value filters
+ *
+ * ⚠️ NOTE: The regex strings "оскверн", "делир", and suffix "р " are for the
+ * Russian game client. These were derived from game text analysis and need
+ * in-game verification. If they don't work, alternatives:
+ *   - "оскверн" → "осквер" or full "Осквернено"
+ *   - "делир" → "Делириу" or "Делириум"
+ *   - "р " (Cyrillic) → "тир" if suffix matching doesn't work
  */
 import { useState, useMemo } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
 import { literal, exclude, range } from '@core/ast';
 import type { ASTNode } from '@shared/types';
@@ -27,31 +35,31 @@ export function WaystonePage() {
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
 
-    // Tier: RANGE(tierMin, undefined, "r ")
-    // In-game, waystone tier is displayed as "Tier: N" (EN) or "Тир: N" (RU).
-    // The suffix "r " matches the end of "Tier" / "тир" (case-insensitive search).
+    // Tier: RANGE(tierMin, undefined, "р ") — Cyrillic "р" + space
+    // In the RU client, waystone tier is displayed as "Тир: N".
+    // The suffix "р " matches the end of "тир" (case-insensitive search).
     if (tierMin !== null && tierMin > 0) {
-      nodes.push(range(tierMin, undefined, 'r '));
+      nodes.push(range(tierMin, undefined, 'р '));
     }
 
-    // Corrupted → literal("corr")
-    // "corr" is the minimal unique substring for "Corrupted" / "Осквернено"
-    // (In RU client, the red "Осквернено" text at bottom of item contains enough
-    //  unique chars; "corr" works in EN; for RU use "оскверн" if needed.
-    //  Using "corr" as default — adjust after in-game verification.)
+    // Corrupted → literal("оскверн")
+    // Matches the red "Осквернено" text at the bottom of corrupted items in the RU client.
+    // "оскверн" is the shortest unique substring that distinguishes "Осквернено"
+    // from other item text. Needs in-game verification.
     if (corrupted) {
-      nodes.push(literal('corr'));
+      nodes.push(literal('оскверн'));
     }
 
-    // Uncorrupted → exclude(literal("corr"))
+    // Uncorrupted → exclude(literal("оскверн"))
     if (uncorrupted) {
-      nodes.push(exclude(literal('corr')));
+      nodes.push(exclude(literal('оскверн')));
     }
 
-    // Delirious → literal("delir")
-    // Matches "Delirious" / "Делириум" indicator on waystones
+    // Delirious → literal("делир")
+    // Matches the "Делириум" indicator on delirious waystones in the RU client.
+    // "делир" is the shortest unique substring. Needs in-game verification.
     if (delirious) {
-      nodes.push(literal('delir'));
+      nodes.push(literal('делир'));
     }
 
     return nodes;
@@ -65,6 +73,7 @@ export function WaystonePage() {
     minValue, setMinValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
 
   if (loading) {
@@ -128,7 +137,7 @@ export function WaystonePage() {
               />
               {tierMin !== null && (
                 <span className="text-[10px] text-gray-600">
-                  ≥{tierMin} тир в regex
+                  ≥{tierMin} тир → "р " в regex
                 </span>
               )}
             </div>
@@ -142,19 +151,19 @@ export function WaystonePage() {
                 <input type="checkbox" checked={corrupted}
                   onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-purple-500" />
-                <span className="text-xs text-gray-300">Осквернён <span className="text-gray-600">(corr)</span></span>
+                <span className="text-xs text-gray-300">Осквернён <span className="text-gray-600">(оскверн)</span></span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={uncorrupted}
                   onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-green-500" />
-                <span className="text-xs text-gray-300">Неосквернён <span className="text-gray-600">(!corr)</span></span>
+                <span className="text-xs text-gray-300">Неосквернён <span className="text-gray-600">(!оскверн)</span></span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={delirious}
                   onChange={(e) => setDelirious(e.target.checked)}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                <span className="text-xs text-gray-300">Делириум <span className="text-gray-600">(delir)</span></span>
+                <span className="text-xs text-gray-300">Делириум <span className="text-gray-600">(делир)</span></span>
               </label>
             </div>
           </div>
@@ -202,7 +211,13 @@ export function WaystonePage() {
             </div>
           )}
 
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} />
+          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore} />
+
+          <ProfilePanel
+            category={categoryId}
+            currentFilterData={filterStore.serialize()}
+            onRestore={restoreFilterState}
+          />
 
           {(selectedTokens.length > 0 || tierMin !== null || corrupted || uncorrupted || delirious) && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">
