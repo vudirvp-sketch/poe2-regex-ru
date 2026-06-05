@@ -11,7 +11,7 @@ export async function loadCategoryData(category: string): Promise<CategoryData> 
     return cache.get(category)!;
   }
 
-  const response = await fetch(`/poe2-regex-ru/generated/${category}.json`);
+  const response = await fetch(`${import.meta.env.BASE_URL}generated/${category}.json`);
   if (!response.ok) {
     throw new Error(`Failed to load ${category} data: ${response.statusText}`);
   }

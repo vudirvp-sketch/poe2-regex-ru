@@ -1634,3 +1634,25 @@ New file: `tests/etl/cross-validation.test.ts` — 9 tests that load actual ETL 
 - **RANGE.max in-game verification** — `generateMaxNumberRegex` is unit-tested but not verified in-game
 - **Virtualized lists** — Large categories (belt 298, ring 366, amulet 427) render all DOM elements
 - **UX improvements** — Auto-copy, keyboard shortcuts, theme toggle
+
+---
+Task ID: 1
+Agent: Super Z (Session 18)
+Task: Fix React error #185 + 404 on category pages + implement plan tasks
+
+Work Log:
+- Diagnosed React error #185: ProfilePanel.tsx uses `useProfileStore(state => state.getProfilesByCategory(category))` which creates a new array on every call, violating useSyncExternalStore's contract
+- Fixed ProfilePanel.tsx: Changed selector to `state => state.profiles` (stable reference) + useMemo for filtered list
+- Created `public/404.html` with SPA redirect script for GitHub Pages
+- Added route restoration script to `index.html` (reads sessionStorage from 404.html redirect)
+- Fixed `src/data/loader.ts`: Changed hardcoded `/poe2-regex-ru/` to `import.meta.env.BASE_URL`
+- Re-ran ETL pipeline (`pnpm etl`): All 10 categories fetched, 51 i18n overrides applied
+- All 193 tests pass, production build succeeds
+
+Stage Summary:
+- React error #185 FIXED (ProfilePanel infinite re-render loop)
+- 404 on direct URL access FIXED (SPA routing for GitHub Pages)
+- loader.ts now uses BASE_URL instead of hardcoded path
+- ETL data refreshed with latest poe2db.tw data
+- 51 i18n overrides applied successfully
+- Documentation updated (AGENT_NAVIGATION.md v15.0)

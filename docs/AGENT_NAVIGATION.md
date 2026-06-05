@@ -1,8 +1,9 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 14.0 | **Date:** 2026-06-06
+> **Version:** 15.0 | **Date:** 2026-06-06
 > **Current Iteration:** 9 (Polish + CI/CD) — COMPLETE. See новый_план.md for remaining work.
 > **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
+> **Bugfix:** Session 18 fixed critical React error #185 (ProfilePanel infinite loop) + 404.html for SPA routing + loader.ts BASE_URL fix + ETL refresh with i18n overrides (51 tokens patched).
 
 ---
 
@@ -105,7 +106,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 4. ~~**Waystone earth effect duplicates**~~ — ✅ FIXED in Session 9. ETL now deduplicates by rawText+id across all categories. Earth effects are no longer duplicated.
 
-5. **~51 tokens with English-only rawText** — ✅ FIXED in Session 17. Created `scripts/etl/i18n-overrides.json` with manual Russian translations for the 3 tokens that poe2db.tw doesn't translate. Override system is integrated into ETL pipeline (`run-etl.ts`). Now 0 English-only tokens remain.
+5. **~51 tokens with English-only rawText** — ✅ FIXED in Session 17, refreshed in Session 18. Created `scripts/etl/i18n-overrides.json` with 51 manual Russian translations for tokens that poe2db.tw doesn't translate. Override system is integrated into ETL pipeline (`run-etl.ts`). Now 0 English-only tokens remain. Session 18 re-ran ETL — 51 overrides applied successfully.
 
 6. ~~**"Регис" folder cross-validation**~~ — ✅ DONE in Session 9. Cross-validation performed: differences are expected (регис lists individual tier values, ETL groups as ranges; регис includes desecrated mods in same list, ETL separates them). No data errors found.
 
@@ -119,7 +120,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 10. ~~**VendorPage number regex bugs**~~ — ✅ FIXED in Session 11. Replaced hand-rolled `generateVendorNumberRegex()` with core AST+compiler. Fixed 3 bugs: missing 3-digit alternatives, missing multi-digit alternatives for single-digit thresholds, and over-matching for ≥100 thresholds. Added round10 toggle.
 
-11. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists (e.g., @tanstack/react-virtual or react-virtuoso) for smooth scrolling. Current implementation renders all items. Not critical — works fine on modern hardware.
+11. **Performance** — ✅ DONE in Session 12. Large categories (belt 298, ring 366, amulet 427) now use `@tanstack/react-virtual` for virtualized rendering in `ModList.tsx`. Only visible items are rendered in the DOM.
 
 12. ~~**[её] yofication in production**~~ — ✅ IMPROVED in Session 13. Now uses substring fallback when exact token regex is not found after optimizer Phase 2. Still limited by optimization table entries not tracking yofication positions, but this is acceptable (game treats е/ё as equivalent).
 
@@ -133,11 +134,21 @@ shared <- core <- strategies <- store <- data <- ui
 
 17. ~~**VendorPage Share button**~~ — ✅ DONE in Session 13. VendorPage now creates its own filter store, syncs state to it, and passes it to RegexOutput, enabling the "Поделиться" (Share) button.
 
+### 🔴 Session 18 Bugfixes
+
+22. **React error #185 (Maximum update depth exceeded)** — ✅ FIXED in Session 18. Root cause: `ProfilePanel.tsx` used `useProfileStore(state => state.getProfilesByCategory(category))` which creates a new array on every call. Zustand's `useSyncExternalStore` compares by reference (`Object.is`), causing infinite re-renders. Fix: select `state.profiles` (stable object reference) and derive filtered list in `useMemo`.
+
+23. **404 on direct URL access** — ✅ FIXED in Session 18. Added `public/404.html` with SPA redirect script. When GitHub Pages serves 404.html for non-existent paths, the script stores the path in sessionStorage and redirects to `index.html`. The `index.html` now has a route restoration script that reads sessionStorage and restores the correct SPA route before React mounts.
+
+24. **Hardcoded base path in loader.ts** — ✅ FIXED in Session 18. Changed `fetch('/poe2-regex-ru/generated/...')` to `fetch(import.meta.env.BASE_URL + 'generated/...')` so the data loader works correctly regardless of the Vite `base` config.
+
+25. **ETL data refresh** — ✅ DONE in Session 18. Re-ran `pnpm etl` — all categories fetched successfully from poe2db.tw, 51 i18n overrides applied, all 193 tests pass.
+
 ### 🔵 REMAINING — Future Work
 
 18. ~~**URL restoration on page load**~~ — ✅ DONE in Session 14. `syncFromUrl()` is now called synchronously on first render in `useCategoryPage` (via `useState` initializer) and in `VendorPage`. Restored state includes: `selectedIds`, `searchText`, `affixFilter`, `originFilter`, `extraState` (category-specific toggles), and generic state (`excludeMode`, `minValue`, `round10Enabled`). Race condition between sync/restore effects fixed using `syncReadyRef` pattern.
 
-19. **Full min+max RANGE intersection** — When both min and max are specified on a RANGE node, the current implementation uses only min. Full intersection (min ≤ x ≤ max) would require generating regex that matches numbers in a specific range, which is complex for PoE2 regex dialect.
+19. **Full min+max RANGE intersection** — When both min and max are specified on a RANGE node, the current implementation normalizes to AND(RANGE(min), RANGE(undefined, max)). Full intersection works but uses more characters. See ARCHITECTURE.md §7 for details.
 
 20. **RANGE.max in-game verification** — The `generateMaxNumberRegex` function is unit-tested (14 tests in `tests/core/max-number-regex.test.ts`, added Session 15) but hasn't been tested with actual in-game searches. The regex patterns use the same PoE2 dialect features (`.`, `[]`, `|`) as the min version.
 

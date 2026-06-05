@@ -4,7 +4,7 @@
  * Connected to profile-store for localStorage persistence.
  * Shown on each category page as a collapsible panel.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useProfileStore } from '@store/profile-store';
 
 interface ProfilePanelProps {
@@ -17,10 +17,22 @@ interface ProfilePanelProps {
 }
 
 export function ProfilePanel({ category, currentFilterData, onRestore }: ProfilePanelProps) {
-  const profiles = useProfileStore(state => state.getProfilesByCategory(category));
+  // Select the profiles record (stable reference) and derive the filtered
+  // list in useMemo. Using getProfilesByCategory directly as a selector
+  // creates a new array on every call, which violates useSyncExternalStore's
+  // contract (selector must return the same reference when data is unchanged),
+  // causing an infinite re-render loop (React error #185).
+  const allProfiles = useProfileStore(state => state.profiles);
   const saveProfile = useProfileStore(state => state.saveProfile);
   const deleteProfile = useProfileStore(state => state.deleteProfile);
   const renameProfile = useProfileStore(state => state.renameProfile);
+
+  const profiles = useMemo(
+    () => Object.values(allProfiles)
+      .filter(p => p.category === category)
+      .sort((a, b) => b.createdAt - a.createdAt),
+    [allProfiles, category]
+  );
 
   const [profileName, setProfileName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);

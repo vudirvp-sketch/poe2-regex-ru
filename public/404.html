@@ -26,20 +26,19 @@
 
     <link rel="icon" type="image/svg+xml" href="/poe2-regex-ru/favicon.svg" />
 
-    <!-- SPA route restoration: if 404.html redirected here with a path,
-         replace the URL to restore the correct SPA route before React mounts. -->
+    <!-- SPA redirect: GitHub Pages serves 404.html for non-existent paths.
+         This script redirects to index.html with the path encoded in the query
+         string, where the React app reads it and restores the correct route. -->
     <script>
-      (function() {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== '/') {
-          history.replaceState(null, null, '/poe2-regex-ru' + redirect);
-        }
-      })();
+      // Single-page app redirect script for GitHub Pages
+      // When a 404.html is served, redirect to index.html with the path
+      // stored in sessionStorage so the React app can restore the route
+      var path = window.location.pathname.slice('/poe2-regex-ru'.length);
+      sessionStorage.redirect = path;
+      window.location.replace('/poe2-regex-ru/' + window.location.search + window.location.hash);
     </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
