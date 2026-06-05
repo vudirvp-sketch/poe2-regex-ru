@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-04T22:14:45.214Z",
+  "version": "2026-06-05T05:19:13.038Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,10 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "5—8"
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
       },
       "genderForms": {
         "ru": {
@@ -52,7 +55,10 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "2)% увеличение максимума з"
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
       },
       "genderForms": {
         "ru": {
@@ -90,7 +96,10 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "6)% увеличение максимума з"
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
       },
       "genderForms": {
         "ru": {
@@ -128,7 +137,10 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "0)% увеличение максимума з"
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
       },
       "genderForms": {
         "ru": {
@@ -166,7 +178,10 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "5)% увеличение м"
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
       },
       "genderForms": {
         "ru": {
@@ -204,7 +219,10 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "2)% увеличение максимума ч"
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
       },
       "genderForms": {
         "ru": {
@@ -243,7 +261,10 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "6)% увеличение максимума ч"
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
       },
       "genderForms": {
         "ru": {
@@ -282,7 +303,10 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "20)% увеличение максимума ч"
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
       },
       "genderForms": {
         "ru": {
@@ -321,7 +345,10 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "4)% увеличение м"
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
       },
       "genderForms": {
         "ru": {
@@ -360,7 +387,10 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "5—3"
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
       },
       "genderForms": {
         "ru": {
@@ -399,7 +429,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "6—10)% увеличение в"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {
@@ -439,7 +472,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "5)% увеличение в"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {
@@ -479,7 +515,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "20)% увеличение в"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {
@@ -519,7 +558,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "4)% увеличение в"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {
@@ -559,7 +601,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "5—2"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {
@@ -599,7 +644,10 @@
         "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
       },
       "regex": {
-        "ru": "в с (5"
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -631,7 +679,10 @@
         "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
       },
       "regex": {
-        "ru": "в с (7"
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -663,7 +714,10 @@
         "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
       },
       "regex": {
-        "ru": "в с (9"
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -695,7 +749,10 @@
         "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
       },
       "regex": {
-        "ru": "в с (1"
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -727,7 +784,10 @@
         "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
       },
       "regex": {
-        "ru": "ы с (5"
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -758,7 +818,10 @@
         "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
       },
       "regex": {
-        "ru": "ы с (7"
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -789,7 +852,10 @@
         "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
       },
       "regex": {
-        "ru": "ы с (9"
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -820,7 +886,10 @@
         "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
       },
       "regex": {
-        "ru": "ы с (1"
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "genderForms": {
         "ru": {}
@@ -852,6 +921,9 @@
       },
       "regex": {
         "ru": ": (3"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
       },
       "genderForms": {
         "ru": {
@@ -891,6 +963,9 @@
       "regex": {
         "ru": ": (4"
       },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
       "genderForms": {
         "ru": {
           "ms": "Мещанский",
@@ -929,6 +1004,9 @@
       "regex": {
         "ru": "59)"
       },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
       "genderForms": {
         "ru": {
           "ms": "Купеческий",
@@ -965,7 +1043,10 @@
         "ru": "##% увеличение количества реликвий, выпадающих из монстров"
       },
       "regex": {
-        "ru": "10)% увеличение количества р"
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
       },
       "genderForms": {
         "ru": {}
@@ -998,7 +1079,10 @@
         "ru": "##% увеличение количества реликвий, выпадающих из монстров"
       },
       "regex": {
-        "ru": "5)% увеличение количества р"
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
       },
       "genderForms": {
         "ru": {}
@@ -1031,7 +1115,10 @@
         "ru": "##% увеличение количества реликвий, выпадающих из монстров"
       },
       "regex": {
-        "ru": "20)% увеличение количества р"
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
       },
       "genderForms": {
         "ru": {}
@@ -1064,7 +1151,10 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "0—29"
+        "ru": "щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
       },
       "genderForms": {
         "ru": {
@@ -1105,7 +1195,10 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "39)%"
+        "ru": "щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
       },
       "genderForms": {
         "ru": {
@@ -1146,7 +1239,10 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "49)%"
+        "ru": "щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
       },
       "genderForms": {
         "ru": {
@@ -1187,7 +1283,10 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "0—7"
+        "ru": "щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
       },
       "genderForms": {
         "ru": {
@@ -1230,6 +1329,9 @@
       "regex": {
         "ru": "7)%"
       },
+      "familyKey": {
+        "ru": "Ловушки наносят уменьшенный на #% урон"
+      },
       "genderForms": {
         "ru": {
           "ms": "Акробатический",
@@ -1269,6 +1371,9 @@
       "regex": {
         "ru": "а (8"
       },
+      "familyKey": {
+        "ru": "Ловушки наносят уменьшенный на #% урон"
+      },
       "genderForms": {
         "ru": {
           "ms": "Гибкий",
@@ -1306,7 +1411,10 @@
         "ru": "##% повышение скорости передвижения"
       },
       "regex": {
-        "ru": "(3—"
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
       },
       "genderForms": {
         "ru": {
@@ -1347,7 +1455,10 @@
         "ru": "##% повышение скорости передвижения"
       },
       "regex": {
-        "ru": "6)% п"
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
       },
       "genderForms": {
         "ru": {
@@ -1388,7 +1499,10 @@
         "ru": "##% повышение скорости передвижения"
       },
       "regex": {
-        "ru": "(7—1"
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
       },
       "genderForms": {
         "ru": {
@@ -1431,6 +1545,9 @@
       "regex": {
         "ru": ".4)"
       },
+      "familyKey": {
+        "ru": "+(0.3—0.4) м к дальности кувырка"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1455,6 +1572,9 @@
       "regex": {
         "ru": ".7)"
       },
+      "familyKey": {
+        "ru": "+(0.5—0.7) м к дальности кувырка"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1477,7 +1597,10 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "1)%"
+        "ru": "вас"
+      },
+      "familyKey": {
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "genderForms": {
         "ru": {}
@@ -1511,7 +1634,10 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "5)% о"
+        "ru": "вас"
+      },
+      "familyKey": {
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "genderForms": {
         "ru": {}
@@ -1545,7 +1671,10 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "0)% о"
+        "ru": "вас"
+      },
+      "familyKey": {
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "genderForms": {
         "ru": {}
@@ -1579,7 +1708,10 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "15)% ум"
+        "ru": "вам"
+      },
+      "familyKey": {
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
       },
       "genderForms": {
         "ru": {}
@@ -1613,7 +1745,10 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "16—1"
+        "ru": "вам"
+      },
+      "familyKey": {
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
       },
       "genderForms": {
         "ru": {}
@@ -1647,7 +1782,10 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "0—25"
+        "ru": "вам"
+      },
+      "familyKey": {
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
       },
       "genderForms": {
         "ru": {}
@@ -1681,7 +1819,10 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "+(8"
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
       },
       "genderForms": {
         "ru": {}
@@ -1713,7 +1854,10 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "3)%"
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
       },
       "genderForms": {
         "ru": {}
@@ -1745,7 +1889,10 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "(14"
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
       },
       "genderForms": {
         "ru": {}
@@ -1777,7 +1924,10 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "+(17"
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
       },
       "genderForms": {
         "ru": {}
@@ -1809,7 +1959,10 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "+(2"
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
       },
       "genderForms": {
         "ru": {}
@@ -1841,7 +1994,10 @@
         "ru": "##% увеличение количества выпадающих из монстров ключей"
       },
       "regex": {
-        "ru": "10)% увеличение количества в"
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
       },
       "genderForms": {
         "ru": {}
@@ -1874,7 +2030,10 @@
         "ru": "##% увеличение количества выпадающих из монстров ключей"
       },
       "regex": {
-        "ru": "15)% увеличение количества в"
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
       },
       "genderForms": {
         "ru": {}
@@ -1907,7 +2066,10 @@
         "ru": "##% увеличение количества выпадающих из монстров ключей"
       },
       "regex": {
-        "ru": "20)% увеличение количества в"
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
       },
       "genderForms": {
         "ru": {}
@@ -1940,7 +2102,10 @@
         "ru": "##% увеличение количества выпадающих из монстров ключей"
       },
       "regex": {
-        "ru": "25)% увеличение к"
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
       },
       "genderForms": {
         "ru": {}
@@ -1973,7 +2138,10 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "8—10)% ув"
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
       },
       "genderForms": {
         "ru": {}
@@ -1997,505 +2165,405 @@
     }
   ],
   "optimizationTable": {
-    "relic.sanctummaximumlife1:relic.sanctummovementspeed2": {
+    "relic.sanctummaximumlife1:relic.sanctummaximumlife2:relic.sanctummaximumlife3:relic.sanctummaximumlife4:relic.sanctummaximumlife5": {
       "ids": [
         "relic.sanctummaximumlife1",
-        "relic.sanctummovementspeed2"
+        "relic.sanctummaximumlife2",
+        "relic.sanctummaximumlife3",
+        "relic.sanctummaximumlife4",
+        "relic.sanctummaximumlife5"
       ],
       "regex": {
-        "ru": "ение "
+        "ru": "здоровья"
       },
-      "weight": 5,
-      "count": 2
+      "weight": 8,
+      "count": 5
     },
-    "relic.sanctummaximumhonour1:relic.sanctummaximumlife2": {
+    "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
       "ids": [
         "relic.sanctummaximumhonour1",
-        "relic.sanctummaximumlife2"
-      ],
-      "regex": {
-        "ru": "(9—12)% увеличение максимума "
-      },
-      "weight": 29,
-      "count": 2
-    },
-    "relic.sanctummaximumhonour2:relic.sanctummaximumlife3": {
-      "ids": [
         "relic.sanctummaximumhonour2",
-        "relic.sanctummaximumlife3"
-      ],
-      "regex": {
-        "ru": "(13—16)% увеличение максимума "
-      },
-      "weight": 30,
-      "count": 2
-    },
-    "relic.sanctummaximumhonour3:relic.sanctummaximumlife4": {
-      "ids": [
         "relic.sanctummaximumhonour3",
-        "relic.sanctummaximumlife4"
-      ],
-      "regex": {
-        "ru": "(17—20)% увеличение максимума "
-      },
-      "weight": 30,
-      "count": 2
-    },
-    "relic.sanctummaximumhonour4:relic.sanctummaximumlife5": {
-      "ids": [
         "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumlife5"
+        "relic.sanctummaximumhonour5"
       ],
       "regex": {
-        "ru": ")% увеличение максимума "
+        "ru": "максимума чести"
       },
-      "weight": 24,
-      "count": 2
+      "weight": 15,
+      "count": 5
     },
-    "relic.sanctummaximumlife5:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctummaximumlife5",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance4:relic.sanctummaximumlife5": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctummaximumlife5"
-      ],
-      "regex": {
-        "ru": "(21—25)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctummaximumhonour4:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctummaximumhonour4",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": "(21—24)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance4:relic.sanctummaximumhonour4": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctummaximumhonour4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance4:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "relic.sanctummaximumhonour4:relic.sanctummaximumlife5:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumlife5",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance4:relic.sanctummaximumhonour4:relic.sanctummaximumlife5": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumlife5"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance4:relic.sanctummaximumlife5:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctummaximumlife5",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance4:relic.sanctummaximumhonour4:relic.sanctumresolverecoverysmall4": {
-      "ids": [
-        "relic.sanctumkeydropchance4",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctumresolverecoverysmall4"
-      ],
-      "regex": {
-        "ru": ")% увеличение "
-      },
-      "weight": 14,
-      "count": 3
-    },
-    "relic.sanctumrelicquantity1:relic.sanctumresolverecoverysmall1": {
-      "ids": [
-        "relic.sanctumrelicquantity1",
-        "relic.sanctumresolverecoverysmall1"
-      ],
-      "regex": {
-        "ru": "(6—10)% увеличение "
-      },
-      "weight": 19,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance1:relic.sanctumresolverecoverysmall1": {
-      "ids": [
-        "relic.sanctumkeydropchance1",
-        "relic.sanctumresolverecoverysmall1"
-      ],
-      "regex": {
-        "ru": "(6—10)% увеличение "
-      },
-      "weight": 19,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance1:relic.sanctumrelicquantity1": {
-      "ids": [
-        "relic.sanctumkeydropchance1",
-        "relic.sanctumrelicquantity1"
-      ],
-      "regex": {
-        "ru": "(6—10)% увеличение количества "
-      },
-      "weight": 30,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance1:relic.sanctumrelicquantity1:relic.sanctumresolverecoverysmall1": {
-      "ids": [
-        "relic.sanctumkeydropchance1",
-        "relic.sanctumrelicquantity1",
-        "relic.sanctumresolverecoverysmall1"
-      ],
-      "regex": {
-        "ru": "(6—10)% увеличение "
-      },
-      "weight": 19,
-      "count": 3
-    },
-    "relic.sanctumrelicquantity2:relic.sanctumresolverecoverysmall2": {
-      "ids": [
-        "relic.sanctumrelicquantity2",
-        "relic.sanctumresolverecoverysmall2"
-      ],
-      "regex": {
-        "ru": "(11—15)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance2:relic.sanctumresolverecoverysmall2": {
-      "ids": [
-        "relic.sanctumkeydropchance2",
-        "relic.sanctumresolverecoverysmall2"
-      ],
-      "regex": {
-        "ru": "(11—15)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance2:relic.sanctumrelicquantity2": {
-      "ids": [
-        "relic.sanctumkeydropchance2",
-        "relic.sanctumrelicquantity2"
-      ],
-      "regex": {
-        "ru": "(11—15)% увеличение количества "
-      },
-      "weight": 31,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance2:relic.sanctumrelicquantity2:relic.sanctumresolverecoverysmall2": {
-      "ids": [
-        "relic.sanctumkeydropchance2",
-        "relic.sanctumrelicquantity2",
-        "relic.sanctumresolverecoverysmall2"
-      ],
-      "regex": {
-        "ru": "(11—15)% увеличение "
-      },
-      "weight": 20,
-      "count": 3
-    },
-    "relic.sanctumrelicquantity3:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "(16—20)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctumresolverecoverysmall3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 2
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "(16—20)% увеличение "
-      },
-      "weight": 20,
-      "count": 2
-    },
-    "relic.sanctumrelicquantity3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 2
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumrelicquantity3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumrelicquantity3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumrelicquantity3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumrelicquantity3"
-      ],
-      "regex": {
-        "ru": "(16—20)% увеличение количества "
-      },
-      "weight": 31,
-      "count": 2
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 2
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumreducedcritdamage2": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumreducedcritdamage2"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "relic.sanctumrelicquantity3:relic.sanctumresolverecoverysmall3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 3
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumrelicquantity3:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumrelicquantity3:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "(16—20)% увеличение "
-      },
-      "weight": 20,
-      "count": 3
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumresolverecoverysmall3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—"
-      },
-      "weight": 4,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumresolverecoverysmall3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumreducedcritdamage2:relic.sanctumresolverecoverysmall3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumresolverecoverysmall3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctumreducedcritdamage2:relic.sanctumrelicquantity3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—"
-      },
-      "weight": 4,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumrelicquantity3:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumrelicquantity3",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "(16—20)% "
-      },
-      "weight": 9,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumreducedcritdamage2:relic.sanctumrelicquantity3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumrelicquantity3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctumkeydropchance3:relic.sanctumreducedcritdamage2:relic.sanctumslowresistance3": {
-      "ids": [
-        "relic.sanctumkeydropchance3",
-        "relic.sanctumreducedcritdamage2",
-        "relic.sanctumslowresistance3"
-      ],
-      "regex": {
-        "ru": "ение "
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumslowresistance1": {
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
       "ids": [
         "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctumslowresistance1"
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "ение в"
+        "ru": "восстановления чести"
       },
-      "weight": 6,
+      "weight": 20,
+      "count": 6
+    },
+    "relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "weight": 38,
+      "count": 4
+    },
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4": {
+      "ids": [
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "даровать двойное количество святой воды"
+      },
+      "weight": 39,
+      "count": 4
+    },
+    "relic.sanctumstartinggold1:relic.sanctumstartinggold2:relic.sanctumstartinggold3": {
+      "ids": [
+        "relic.sanctumstartinggold1",
+        "relic.sanctumstartinggold2",
+        "relic.sanctumstartinggold3"
+      ],
+      "regex": {
+        "ru": ": (3"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
+      "ids": [
+        "relic.sanctumrelicquantity1",
+        "relic.sanctumrelicquantity2",
+        "relic.sanctumrelicquantity3"
+      ],
+      "regex": {
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "weight": 32,
+      "count": 3
+    },
+    "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4": {
+      "ids": [
+        "relic.sanctumdefences1",
+        "relic.sanctumdefences2",
+        "relic.sanctumdefences3",
+        "relic.sanctumdefences4"
+      ],
+      "regex": {
+        "ru": "щита"
+      },
+      "weight": 4,
+      "count": 4
+    },
+    "relic.sanctumreducedtrapdamage2:relic.sanctumreducedtrapdamage3": {
+      "ids": [
+        "relic.sanctumreducedtrapdamage2",
+        "relic.sanctumreducedtrapdamage3"
+      ],
+      "regex": {
+        "ru": "7)%"
+      },
+      "weight": 3,
       "count": 2
     },
-    "relic.sanctumreducedcritdamage1:relic.sanctumslowresistance2": {
+    "relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3": {
       "ids": [
-        "relic.sanctumreducedcritdamage1",
-        "relic.sanctumslowresistance2"
+        "relic.sanctummovementspeed1",
+        "relic.sanctummovementspeed2",
+        "relic.sanctummovementspeed3"
       ],
       "regex": {
-        "ru": "(12—15)% "
+        "ru": "передвижения"
       },
-      "weight": 9,
-      "count": 2
+      "weight": 12,
+      "count": 3
+    },
+    "relic.sanctumslowresistance1:relic.sanctumslowresistance2:relic.sanctumslowresistance3": {
+      "ids": [
+        "relic.sanctumslowresistance1",
+        "relic.sanctumslowresistance2",
+        "relic.sanctumslowresistance3"
+      ],
+      "regex": {
+        "ru": "вас"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "relic.sanctumreducedcritdamage1:relic.sanctumreducedcritdamage2:relic.sanctumreducedcritdamage3": {
+      "ids": [
+        "relic.sanctumreducedcritdamage1",
+        "relic.sanctumreducedcritdamage2",
+        "relic.sanctumreducedcritdamage3"
+      ],
+      "regex": {
+        "ru": "вам"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
+      "ids": [
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5"
+      ],
+      "regex": {
+        "ru": "сопротивлению чести"
+      },
+      "weight": 19,
+      "count": 5
+    },
+    "relic.sanctumkeydropchance1:relic.sanctumkeydropchance2:relic.sanctumkeydropchance3:relic.sanctumkeydropchance4": {
+      "ids": [
+        "relic.sanctumkeydropchance1",
+        "relic.sanctumkeydropchance2",
+        "relic.sanctumkeydropchance3",
+        "relic.sanctumkeydropchance4"
+      ],
+      "regex": {
+        "ru": "ключей"
+      },
+      "weight": 6,
+      "count": 4
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
+      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
+      ],
+      "regex": {
+        "ru": " чести"
+      },
+      "weight": 6,
+      "count": 11
+    },
+    "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 9
+    },
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
+      "ids": [
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4",
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 9
+    },
+    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
+      "ids": [
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5",
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5"
+      ],
+      "regex": {
+        "ru": " чести"
+      },
+      "weight": 6,
+      "count": 10
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
+      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 10
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
+      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 10
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
+      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctummovementspeed1",
+        "relic.sanctummovementspeed2",
+        "relic.sanctummovementspeed3",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 9
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
+      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
+      ],
+      "regex": {
+        "ru": " чести"
+      },
+      "weight": 6,
+      "count": 11
+    },
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "ть двойное количество святой воды"
+      },
+      "weight": 33,
+      "count": 8
+    },
+    "relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4:relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
+      "ids": [
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4",
+        "relic.sanctumrelicquantity1",
+        "relic.sanctumrelicquantity2",
+        "relic.sanctumrelicquantity3"
+      ],
+      "regex": {
+        "ru": "выпа"
+      },
+      "weight": 4,
+      "count": 7
+    },
+    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 9
+    },
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
+      "ids": [
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4",
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5"
+      ],
+      "regex": {
+        "ru": "чест"
+      },
+      "weight": 4,
+      "count": 9
     }
   }
 }

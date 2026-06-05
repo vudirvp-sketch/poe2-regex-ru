@@ -4,15 +4,16 @@
  */
 import type { Locale, GameToken, CategoryData, OptimizationEntry } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
+import type { RegexResult } from './compute-regex.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Assemble a GameToken from a NormalizedMod and its computed regex.
+ * Assemble a GameToken from a NormalizedMod and its computed regex result.
  */
 export function assembleGameToken(
   mod: NormalizedMod,
-  regex: string,
+  regexResult: RegexResult,
   locale: Locale = 'ru'
 ): GameToken {
   return {
@@ -21,7 +22,8 @@ export function assembleGameToken(
     origin: mod.origin,
     rawText: mod.rawText,
     rawTextTemplate: mod.rawTextTemplate,
-    regex: { [locale]: regex },
+    regex: { [locale]: regexResult.regex },
+    familyKey: { [locale]: regexResult.familyKey },
     genderForms: mod.genderForms,
     affix: mod.affix,
     tags: mod.tags,
@@ -39,14 +41,20 @@ export function assembleGameToken(
 export function assembleCategoryData(
   category: string,
   mods: NormalizedMod[],
-  regexResults: Map<string, { regex: string; hasYofication: boolean; yoficationPositions: number[] }>,
+  regexResults: Map<string, RegexResult>,
   optimizations: Record<string, OptimizationEntry>,
   locale: Locale = 'ru'
 ): CategoryData {
   const tokens: GameToken[] = mods.map(mod => {
     const regexResult = regexResults.get(mod.id);
-    const regex = regexResult?.regex ?? mod.rawText[locale];
-    return assembleGameToken(mod, regex, locale);
+    // Fallback: if no regex result, create a default one
+    const result: RegexResult = regexResult ?? {
+      regex: mod.rawText[locale],
+      hasYofication: false,
+      yoficationPositions: [],
+      familyKey: mod.rawTextTemplate[locale].replace(/##/g, '#'),
+    };
+    return assembleGameToken(mod, result, locale);
   });
 
   return {

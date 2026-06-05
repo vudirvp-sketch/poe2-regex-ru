@@ -16,7 +16,7 @@ import { fetchPage } from './etl/fetch-poe2db.js';
 import { parseTypeAPage } from './etl/parse-tables.js';
 import { parseTypeBPage } from './etl/parse-modifiers-calc.js';
 import { normalizeTypeA, normalizeTypeB } from './etl/normalize.js';
-import { computeMinimalUniqueSubstring } from './etl/compute-regex.js';
+import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
 import type { ModOrigin } from '../src/shared/types.js';
@@ -211,11 +211,7 @@ async function runEtl() {
 
       // Step 3: Compute regex
       console.log('  Step 3: Computing regex substrings...');
-      const regexResults = new Map<string, { regex: string; hasYofication: boolean; yoficationPositions: number[] }>();
-      for (const token of normalized) {
-        const result = computeMinimalUniqueSubstring(token, normalized, 'ru');
-        regexResults.set(token.id, result);
-      }
+      const regexResults = computeAllRegexes(normalized, 'ru');
 
       // Step 4: Compute optimizations
       console.log('  Step 4: Computing optimizations...');

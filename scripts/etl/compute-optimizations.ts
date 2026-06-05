@@ -1,84 +1,142 @@
 /**
  * Compute the optimization table for a category.
  *
- * For each combination of 2-5 tokens that share a common substring,
- * compute the savings of using the shared substring vs individual regexes.
+ * ALGORITHM v2 — Family-based grouping:
  *
- * Performance optimizations:
- * - Use DP-based longest common substring instead of enumerating all substrings
- * - Limit combinations to prefix groups with ≤ 20 tokens
- * - Skip groups larger than size 3 to avoid combinatorial explosion
- * - Use efficient Set-based lookups
+ * Instead of grouping by 3-char prefix (which misses cross-prefix families),
+ * group tokens by their familyKey (normalized rawTextTemplate).
+ *
+ * For each family with 2+ tokens, compute the shared family regex
+ * and the savings of using it vs individual regexes.
+ *
+ * The optimization table is used at runtime to replace groups of selected
+ * OR-combined tokens with a single shorter regex.
  */
 import type { Locale, OptimizationEntry } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
+import type { RegexResult } from './compute-regex.js';
 
-/** Maximum tokens per prefix group to process */
-const MAX_GROUP_SIZE = 20;
-/** Maximum combination size to try */
-const MAX_COMBO_SIZE = 3;
-/** Minimum shared substring length to consider */
-const MIN_SHARED_LEN = 3;
+/**
+ * Normalize a rawTextTemplate into a "family key".
+ * Replaces ## with # so that templates differing only in ## vs #
+ * are treated as the same family.
+ */
+function normalizeTemplate(template: string): string {
+  return template
+    .replace(/##/g, '#')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 /**
  * Compute optimizations for all tokens in a category.
  *
- * Optimization: Only consider combinations of tokens that share
- * at least 3 characters at the start of their rawText.
+ * Groups tokens by familyKey (from regex results), then for each family
+ * with 2+ tokens, creates an optimization entry with the shared family regex.
  */
 export function computeOptimizations(
   tokens: NormalizedMod[],
-  regexResults: Map<string, { regex: string }>,
+  regexResults: Map<string, RegexResult>,
   locale: Locale = 'ru'
 ): Record<string, OptimizationEntry> {
   const result: Record<string, OptimizationEntry> = {};
 
-  // Group tokens by shared prefix (first 3 chars of lowercase rawText)
-  const prefixGroups = new Map<string, NormalizedMod[]>();
+  // Group tokens by familyKey
+  const familyGroups = new Map<string, NormalizedMod[]>();
+
   for (const token of tokens) {
-    const text = token.rawText[locale].toLowerCase();
-    if (text.length < MIN_SHARED_LEN) continue;
-    const prefix = text.slice(0, 3);
-    if (!prefixGroups.has(prefix)) {
-      prefixGroups.set(prefix, []);
+    const regexResult = regexResults.get(token.id);
+    const familyKey = regexResult?.familyKey ?? normalizeTemplate(token.rawTextTemplate[locale]);
+
+    if (!familyGroups.has(familyKey)) {
+      familyGroups.set(familyKey, []);
     }
-    prefixGroups.get(prefix)!.push(token);
+    familyGroups.get(familyKey)!.push(token);
   }
 
-  // For each prefix group with 2+ tokens, compute optimizations
-  for (const [, group] of prefixGroups) {
-    if (group.length < 2) continue;
-    // Skip very large groups to avoid performance issues
-    if (group.length > MAX_GROUP_SIZE) continue;
+  // For each family with 2+ tokens, create an optimization entry
+  for (const [familyKey, familyTokens] of familyGroups) {
+    if (familyTokens.length < 2) continue;
 
-    // Try combinations of size 2..MAX_COMBO_SIZE
-    const maxSize = Math.min(MAX_COMBO_SIZE, group.length);
-    for (let size = 2; size <= maxSize; size++) {
-      for (const combo of combinations(group, size)) {
-        // Find longest common substring among all combo members using DP
-        const sharedSubstring = findLongestCommonSubstring(
-          combo.map(t => t.rawText[locale].toLowerCase())
-        );
+    // Get the shared regex for this family (all tokens in the family share the same regex)
+    const firstResult = regexResults.get(familyTokens[0].id);
+    const sharedRegex = firstResult?.regex ?? familyTokens[0].rawText[locale];
 
-        if (!sharedSubstring || sharedSubstring.length < MIN_SHARED_LEN) continue;
+    if (!sharedRegex || sharedRegex.length === 0) continue;
 
-        // Compute savings: sum of individual regex lengths - shared substring length
-        const individualLength = combo.reduce((sum, t) => {
-          const r = regexResults.get(t.id);
-          return sum + (r?.regex.length ?? t.rawText[locale].length);
-        }, 0);
+    // Compute savings: sum of individual regex lengths - shared regex length
+    // If all tokens already use the family regex, savings = 0 (no optimization needed)
+    // But if some tokens have longer individual regexes, the optimization helps
+    const individualLength = familyTokens.reduce((sum, t) => {
+      const r = regexResults.get(t.id);
+      return sum + (r?.regex.length ?? t.rawText[locale].length);
+    }, 0);
 
-        const savings = individualLength - sharedSubstring.length;
-        if (savings <= 0) continue;
+    // Savings: using one shared regex instead of N individual ones in an OR
+    // In the worst case, OR of N identical regexes is N * len + N-1 (for | separators)
+    // The optimization replaces this with just one regex
+    const orLength = familyTokens.reduce((sum, t, i) => {
+      const r = regexResults.get(t.id);
+      const len = r?.regex.length ?? t.rawText[locale].length;
+      return sum + len + (i > 0 ? 1 : 0); // +1 for | separator
+    }, 0);
 
-        const key = combo.map(t => t.id).sort().join(':');
-        result[key] = {
-          ids: combo.map(t => t.id).sort(),
-          regex: { [locale]: sharedSubstring },
-          weight: sharedSubstring.length,
-          count: combo.length,
-        };
-      }
+    const savings = orLength - sharedRegex.length;
+    if (savings <= 0) continue;
+
+    const ids = familyTokens.map(t => t.id).sort();
+    const key = ids.join(':');
+
+    result[key] = {
+      ids,
+      regex: { [locale]: sharedRegex },
+      weight: sharedRegex.length,
+      count: familyTokens.length,
+    };
+  }
+
+  // Also try cross-family optimizations: find families that share common substrings
+  // This handles cases like "к сопротивлению" shared across fire/cold/lightning res
+  const familyKeys = Array.from(familyGroups.keys());
+  for (let i = 0; i < familyKeys.length; i++) {
+    for (let j = i + 1; j < familyKeys.length; j++) {
+      const groupA = familyGroups.get(familyKeys[i])!;
+      const groupB = familyGroups.get(familyKeys[j])!;
+
+      if (groupA.length + groupB.length > 20) continue; // Skip very large combos
+
+      // Find common substring between the two families' regexes
+      const regexA = regexResults.get(groupA[0].id)?.regex ?? '';
+      const regexB = regexResults.get(groupB[0].id)?.regex ?? '';
+
+      if (!regexA || !regexB) continue;
+
+      const commonSubstring = longestCommonSubstring(regexA.toLowerCase(), regexB.toLowerCase());
+      if (commonSubstring.length < 4) continue;
+
+      // Check if using this common substring as a shared regex would save space
+      const allIds = [...groupA, ...groupB].map(t => t.id).sort();
+      const key = allIds.join(':');
+
+      // Only add if this is a genuinely new optimization (not already covered)
+      if (result[key]) continue;
+
+      // Compute savings
+      const orLength = [...groupA, ...groupB].reduce((sum, t, idx) => {
+        const r = regexResults.get(t.id);
+        const len = r?.regex.length ?? t.rawText[locale].length;
+        return sum + len + (idx > 0 ? 1 : 0);
+      }, 0);
+
+      const savings = orLength - commonSubstring.length;
+      if (savings <= 0) continue;
+
+      result[key] = {
+        ids: allIds,
+        regex: { [locale]: commonSubstring },
+        weight: commonSubstring.length,
+        count: groupA.length + groupB.length,
+      };
     }
   }
 
@@ -86,36 +144,9 @@ export function computeOptimizations(
 }
 
 /**
- * Find the longest common substring among multiple strings.
- * Uses dynamic programming for pairwise comparison, then intersects.
- *
- * For 2 strings: O(n*m) time and space
- * For K strings: pairwise reduction
+ * Find the longest common substring of two strings.
  */
-function findLongestCommonSubstring(strings: string[]): string {
-  if (strings.length === 0) return '';
-  if (strings.length === 1) return strings[0];
-
-  // Start with LCS of first two strings, then reduce
-  let common = lcsTwo(strings[0], strings[1]);
-
-  for (let i = 2; i < strings.length && common.length >= MIN_SHARED_LEN; i++) {
-    // Check if common is still a substring of strings[i]
-    if (!strings[i].includes(common)) {
-      // Recompute LCS between common candidate and this string
-      common = lcsTwo(common, strings[i]);
-    }
-  }
-
-  return common.length >= MIN_SHARED_LEN ? common : '';
-}
-
-/**
- * Find the longest common substring of two strings using DP.
- * O(n*m) time, O(min(n,m)) space.
- */
-function lcsTwo(s1: string, s2: string): string {
-  // Use shorter string for DP array to save memory
+function longestCommonSubstring(s1: string, s2: string): string {
   if (s1.length > s2.length) {
     [s1, s2] = [s2, s1];
   }
@@ -126,7 +157,6 @@ function lcsTwo(s1: string, s2: string): string {
   let maxLen = 0;
   let maxEnd = 0;
 
-  // Use rolling array for space efficiency
   let prev = new Uint16Array(n + 1);
   let curr = new Uint16Array(n + 1);
 
@@ -147,22 +177,4 @@ function lcsTwo(s1: string, s2: string): string {
   }
 
   return s1.slice(maxEnd - maxLen, maxEnd);
-}
-
-/**
- * Generate all combinations of size k from an array.
- */
-function combinations<T>(arr: T[], size: number): T[][] {
-  if (size === 0) return [[]];
-  if (arr.length < size) return [];
-  if (size === 1) return arr.map(x => [x]);
-
-  const result: T[][] = [];
-  for (let i = 0; i <= arr.length - size; i++) {
-    const rest = combinations(arr.slice(i + 1), size - 1);
-    for (const combo of rest) {
-      result.push([arr[i], ...combo]);
-    }
-  }
-  return result;
 }

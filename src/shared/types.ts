@@ -18,6 +18,8 @@ export interface GameToken {
   rawText: Record<Locale, string>;
   rawTextTemplate: Record<Locale, string>;
   regex: Record<Locale, string>;
+  /** Family key: normalized rawTextTemplate for grouping mods of the same family */
+  familyKey: Record<Locale, string>;
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];

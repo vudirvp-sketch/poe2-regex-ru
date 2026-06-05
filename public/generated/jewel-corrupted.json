@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-04T22:14:44.707Z",
+  "version": "2026-06-05T05:19:12.875Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,10 @@
         "ru": "+## к силе Характеристика"
       },
       "regex": {
-        "ru": "иле"
+        "ru": "силе Характеристика"
+      },
+      "familyKey": {
+        "ru": "+# к силе Характеристика"
       },
       "genderForms": {
         "ru": {}
@@ -48,7 +51,10 @@
         "ru": "+## к ловкости Характеристика"
       },
       "regex": {
-        "ru": "лов"
+        "ru": "ловкости Характеристика"
+      },
+      "familyKey": {
+        "ru": "+# к ловкости Характеристика"
       },
       "genderForms": {
         "ru": {}
@@ -81,7 +87,10 @@
         "ru": "+## к интеллекту Характеристика"
       },
       "regex": {
-        "ru": "кту"
+        "ru": "интеллекту Характеристика"
+      },
+      "familyKey": {
+        "ru": "+# к интеллекту Характеристика"
       },
       "genderForms": {
         "ru": {}
@@ -116,7 +125,10 @@
         "ru": "+##% к сопротивлению огню Стихийный Огонь Сопротивление"
       },
       "regex": {
-        "ru": "гню"
+        "ru": "Огонь Сопротивление"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению огню Стихийный Огонь Сопротивление"
       },
       "genderForms": {
         "ru": {}
@@ -152,7 +164,10 @@
         "ru": "+##% к сопротивлению холоду Стихийный Холод Сопротивление"
       },
       "regex": {
-        "ru": "оду"
+        "ru": "Холод Сопротивление"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению холоду Стихийный Холод Сопротивление"
       },
       "genderForms": {
         "ru": {}
@@ -188,7 +203,10 @@
         "ru": "+##% к сопротивлению молнии Стихийный Молния Сопротивление"
       },
       "regex": {
-        "ru": "нии"
+        "ru": "Молния Сопротивление"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению молнии Стихийный Молния Сопротивление"
       },
       "genderForms": {
         "ru": {}
@@ -224,7 +242,10 @@
         "ru": "+##% к сопротивлению хаосу Хаос Сопротивление"
       },
       "regex": {
-        "ru": "7)%"
+        "ru": "Хаос Сопротивление"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению хаосу Хаос Сопротивление"
       },
       "genderForms": {
         "ru": {}
@@ -261,6 +282,9 @@
       "regex": {
         "ru": "тет"
       },
+      "familyKey": {
+        "ru": "Иммунитет к увечьям"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -286,6 +310,9 @@
       },
       "regex": {
         "ru": "вас"
+      },
+      "familyKey": {
+        "ru": "На вас нельзя наложить эффект Оскверненной крови Физический Состояние"
       },
       "genderForms": {
         "ru": {}
@@ -318,6 +345,9 @@
       "regex": {
         "ru": "жет"
       },
+      "familyKey": {
+        "ru": "Не может быть ослеплён"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -334,5 +364,105 @@
       "level": 1
     }
   ],
-  "optimizationTable": {}
+  "optimizationTable": {
+    "jewel-corrupted.mod_5ig147:jewel-corrupted.mod_680wz0": {
+      "ids": [
+        "jewel-corrupted.mod_5ig147",
+        "jewel-corrupted.mod_680wz0"
+      ],
+      "regex": {
+        "ru": " характеристика"
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-corrupted.mod_680wz0:jewel-corrupted.mod_vdlpdr": {
+      "ids": [
+        "jewel-corrupted.mod_680wz0",
+        "jewel-corrupted.mod_vdlpdr"
+      ],
+      "regex": {
+        "ru": " характеристика"
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-corrupted.mod_5ig147:jewel-corrupted.mod_vdlpdr": {
+      "ids": [
+        "jewel-corrupted.mod_5ig147",
+        "jewel-corrupted.mod_vdlpdr"
+      ],
+      "regex": {
+        "ru": " характеристика"
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_jhvqvv": {
+      "ids": [
+        "jewel-corrupted.mod_d1jilc",
+        "jewel-corrupted.mod_jhvqvv"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_o3vjoj": {
+      "ids": [
+        "jewel-corrupted.mod_d1jilc",
+        "jewel-corrupted.mod_o3vjoj"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_ngd4u7": {
+      "ids": [
+        "jewel-corrupted.mod_d1jilc",
+        "jewel-corrupted.mod_ngd4u7"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-corrupted.mod_jhvqvv:jewel-corrupted.mod_o3vjoj": {
+      "ids": [
+        "jewel-corrupted.mod_jhvqvv",
+        "jewel-corrupted.mod_o3vjoj"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-corrupted.mod_jhvqvv:jewel-corrupted.mod_ngd4u7": {
+      "ids": [
+        "jewel-corrupted.mod_jhvqvv",
+        "jewel-corrupted.mod_ngd4u7"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-corrupted.mod_ngd4u7:jewel-corrupted.mod_o3vjoj": {
+      "ids": [
+        "jewel-corrupted.mod_ngd4u7",
+        "jewel-corrupted.mod_o3vjoj"
+      ],
+      "regex": {
+        "ru": " сопротивление"
+      },
+      "weight": 14,
+      "count": 2
+    }
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-04T22:14:30.183Z",
+  "version": "2026-06-05T05:19:10.499Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,10 @@
         "ru": "Монстры Бездны даруют увеличенное на ##% количество опыта"
       },
       "regex": {
-        "ru": "уют"
+        "ru": "опыта"
+      },
+      "familyKey": {
+        "ru": "Монстры Бездны даруют увеличенное на #% количество опыта"
       },
       "genderForms": {
         "ru": {
@@ -56,6 +59,9 @@
       "regex": {
         "ru": "—3)"
       },
+      "familyKey": {
+        "ru": "В области можно встретить дополнительных Бездн: #"
+      },
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -94,7 +100,10 @@
         "ru": "Бездны порождают увеличенное на ##% количество монстров"
       },
       "regex": {
-        "ru": "рож"
+        "ru": "количество монстров"
+      },
+      "familyKey": {
+        "ru": "Бездны порождают увеличенное на #% количество монстров"
       },
       "genderForms": {
         "ru": {
@@ -134,7 +143,10 @@
         "ru": "Из Бездн появляется дополнительных редких монстров: #В области можно встретить дополнительных Бездн: ##Область захвачена монстрами Бездны"
       },
       "regex": {
-        "ru": "ов:"
+        "ru": "монстрами Бездны"
+      },
+      "familyKey": {
+        "ru": "Из Бездн появляется дополнительных редких монстров: #В области можно встретить дополнительных Бездн: #Область захвачена монстрами Бездны"
       },
       "genderForms": {
         "ru": {
@@ -183,6 +195,9 @@
       "regex": {
         "ru": "ссу"
       },
+      "familyKey": {
+        "ru": "Бездны ведут к боссу Бездны"
+      },
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -217,6 +232,9 @@
       "regex": {
         "ru": "ную"
       },
+      "familyKey": {
+        "ru": "В области можно встретить дополнительную Царевну инкубатора"
+      },
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -250,7 +268,10 @@
         "ru": "#% увеличение количества волшебных монстровПровалы Бездны с ##% шансом могут породить как минимум волшебных монстровТрещины Бездны с ##% шансом могут породить как минимум волшебных монстров"
       },
       "regex": {
-        "ru": "сом"
+        "ru": "минимум волшебных монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества волшебных монстровПровалы Бездны с #% шансом могут породить как минимум волшебных монстровТрещины Бездны с #% шансом могут породить как минимум волшебных монстров"
       },
       "genderForms": {
         "ru": {
@@ -303,6 +324,9 @@
       "regex": {
         "ru": "нам"
       },
+      "familyKey": {
+        "ru": "Бездны ведут к Глубинам Бездны"
+      },
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -337,6 +361,9 @@
       "regex": {
         "ru": "них"
       },
+      "familyKey": {
+        "ru": "Сложность монстров Бездны и награды с них увеличиваются за каждый закрытый провал"
+      },
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -368,7 +395,10 @@
         "ru": "#% увеличение количества волшебных монстров#% увеличение количества редких монстровПровалы Бездны в области всегда содержат награды"
       },
       "regex": {
-        "ru": "гда"
+        "ru": "содержат награды"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества волшебных монстров#% увеличение количества редких монстровПровалы Бездны в области всегда содержат награды"
       },
       "genderForms": {
         "ru": {
@@ -412,7 +442,10 @@
         "ru": "#% увеличение количества редких монстровЕстественные редкие обитатели области обладают # дополнительным свойством Бездны"
       },
       "regex": {
-        "ru": "ным"
+        "ru": "свойством Бездны"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества редких монстровЕстественные редкие обитатели области обладают # дополнительным свойством Бездны"
       },
       "genderForms": {
         "ru": {
@@ -457,6 +490,9 @@
       "regex": {
         "ru": "уши"
       },
+      "familyKey": {
+        "ru": "Естественные редкие обитатели области пожирают души убитых в их присутствии монстровИгроки крадут поглощаемые души убитых редких монстров в области"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -484,7 +520,10 @@
         "ru": "#% увеличение количества редких монстровИгроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
       },
       "regex": {
-        "ru": "ики"
+        "ru": "каждых 10 секунд"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества редких монстровИгроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
       },
       "genderForms": {
         "ru": {}
@@ -519,7 +558,10 @@
         "ru": "Игроки имеют на #% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений"
       },
       "regex": {
-        "ru": "еют"
+        "ru": "умений"
+      },
+      "familyKey": {
+        "ru": "Игроки имеют на #% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений"
       },
       "genderForms": {
         "ru": {}
@@ -558,6 +600,9 @@
       "regex": {
         "ru": "иан"
       },
+      "familyKey": {
+        "ru": "Монстры накладывают цепких лиан при нанесении удара: #"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -585,7 +630,10 @@
         "ru": "Игроки обрекаются на смерть на # секунд(-ы)после убийства редкого или уникального монстра"
       },
       "regex": {
-        "ru": "рть"
+        "ru": "уникального монстра"
+      },
+      "familyKey": {
+        "ru": "Игроки обрекаются на смерть на # секунд(-ы)после убийства редкого или уникального монстра"
       },
       "genderForms": {
         "ru": {}
@@ -619,6 +667,9 @@
       "regex": {
         "ru": "жит"
       },
+      "familyKey": {
+        "ru": "Область содержит участки вытягивающей ману земли"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -646,6 +697,9 @@
       "regex": {
         "ru": "0% увеличение количества редких"
       },
+      "familyKey": {
+        "ru": "#% увеличение количества редких монстров"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -665,17 +719,104 @@
     }
   ],
   "optimizationTable": {
-    "waystone-desecrated.mod_af0e8g:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_xmrnsf": {
+    "waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tr8xij": {
       "ids": [
-        "waystone-desecrated.mod_af0e8g",
         "waystone-desecrated.mod_jdkriz",
-        "waystone-desecrated.mod_xmrnsf"
+        "waystone-desecrated.mod_tr8xij"
       ],
       "regex": {
-        "ru": "бездны "
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 2
+    },
+    "waystone-desecrated.mod_id9ll8:waystone-desecrated.mod_jdkriz": {
+      "ids": [
+        "waystone-desecrated.mod_id9ll8",
+        "waystone-desecrated.mod_jdkriz"
+      ],
+      "regex": {
+        "ru": " монстров"
+      },
+      "weight": 9,
+      "count": 2
+    },
+    "waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_w7wfug": {
+      "ids": [
+        "waystone-desecrated.mod_jdkriz",
+        "waystone-desecrated.mod_w7wfug"
+      ],
+      "regex": {
+        "ru": "ство"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_mfb61l": {
+      "ids": [
+        "waystone-desecrated.mod_jdkriz",
+        "waystone-desecrated.mod_mfb61l"
+      ],
+      "regex": {
+        "ru": "о монстр"
+      },
+      "weight": 8,
+      "count": 2
+    },
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_jdkriz": {
+      "ids": [
+        "waystone-desecrated.mod_c3hgc1",
+        "waystone-desecrated.mod_jdkriz"
+      ],
+      "regex": {
+        "ru": "количеств"
+      },
+      "weight": 9,
+      "count": 2
+    },
+    "waystone-desecrated.mod_id9ll8:waystone-desecrated.mod_tr8xij": {
+      "ids": [
+        "waystone-desecrated.mod_id9ll8",
+        "waystone-desecrated.mod_tr8xij"
+      ],
+      "regex": {
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 2
+    },
+    "waystone-desecrated.mod_tr8xij:waystone-desecrated.mod_w7wfug": {
+      "ids": [
+        "waystone-desecrated.mod_tr8xij",
+        "waystone-desecrated.mod_w7wfug"
+      ],
+      "regex": {
+        "ru": " бездны"
       },
       "weight": 7,
-      "count": 3
+      "count": 2
+    },
+    "waystone-desecrated.mod_mfb61l:waystone-desecrated.mod_tr8xij": {
+      "ids": [
+        "waystone-desecrated.mod_mfb61l",
+        "waystone-desecrated.mod_tr8xij"
+      ],
+      "regex": {
+        "ru": "монстра"
+      },
+      "weight": 7,
+      "count": 2
+    },
+    "waystone-desecrated.mod_id9ll8:waystone-desecrated.mod_mfb61l": {
+      "ids": [
+        "waystone-desecrated.mod_id9ll8",
+        "waystone-desecrated.mod_mfb61l"
+      ],
+      "regex": {
+        "ru": " монстр"
+      },
+      "weight": 7,
+      "count": 2
     }
   }
 }
