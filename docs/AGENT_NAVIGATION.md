@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 11.0 | **Date:** 2026-06-05
+> **Version:** 12.0 | **Date:** 2026-06-06
 > **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending in-game verification
 
 ---
@@ -83,7 +83,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅, URL sharing ✅, RANGE.max ✅, Yofication fix ✅ — see remaining items below |
+| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅, URL sharing ✅, RANGE.max ✅, Yofication fix ✅, 109 tests (33 new in Session 15) — see remaining items below |
 
 ## 7. Known Issues & Remaining Work
 
@@ -111,7 +111,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### 🟢 LOW PRIORITY — Polish & Performance
 
-8. ~~**CI/CD**~~ — ✅ DONE in Session 10. deploy.yml now has: push to main, workflow_dispatch with ETL toggle, weekly schedule, separate ETL job with auto-commit.
+8. ~~**CI/CD**~~ — ✅ DONE in Session 10. deploy.yml now has: push to main, workflow_dispatch with ETL toggle, weekly schedule, separate ETL job with auto-commit. **Updated in Session 15:** Node version 20→22, added `if: always() && needs.build.result == 'success'` to deploy job, added `packageManager` field to package.json, added step names to build job.
 
 9. ~~**Character Health Bar**~~ — ✅ DONE in Session 11. RegexOutput now has visual green/yellow/red progress bar instead of poe2.re's invisible gray text. Sticky positioning so output stays visible while scrolling.
 
@@ -137,7 +137,12 @@ shared <- core <- strategies <- store <- data <- ui
 
 19. **Full min+max RANGE intersection** — When both min and max are specified on a RANGE node, the current implementation uses only min. Full intersection (min ≤ x ≤ max) would require generating regex that matches numbers in a specific range, which is complex for PoE2 regex dialect.
 
-20. **RANGE.max in-game verification** — The `generateMaxNumberRegex` function is unit-testable but hasn't been tested with actual in-game searches. The regex patterns use the same PoE2 dialect features (`.`, `[]`, `|`) as the min version.
+20. **RANGE.max in-game verification** — The `generateMaxNumberRegex` function is unit-tested (14 tests in `tests/core/max-number-regex.test.ts`, added Session 15) but hasn't been tested with actual in-game searches. The regex patterns use the same PoE2 dialect features (`.`, `[]`, `|`) as the min version.
+
+21. **New test suites (Session 15):** Three new test files added:
+    - `tests/core/max-number-regex.test.ts` (14 tests) — focused tests for `generateMaxNumberRegex()` covering 1-digit, 2-digit, 3-digit, round10, and edge cases
+    - `tests/core/vendor-patterns.test.ts` (10 tests) — vendor-specific regex compilation patterns (single prop, OR groups, EXCLUDE(OR), mixed AND+OR+EXCLUDE, numeric+property, movement speed, resistances, item classes)
+    - `tests/etl/cross-validation.test.ts` (9 tests) — ETL vs регис cross-validation, token count ranges, data integrity checks, MIN_REGEX_LEN enforcement
 
 ## 8. Tablet Type Regex Reference
 

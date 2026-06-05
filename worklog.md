@@ -1364,3 +1364,101 @@ Reviewed `.github/workflows/deploy.yml` — it is well-structured and ready for 
 - 🟢 **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)
 - 🟢 **~51 tokens with English-only rawText** — poe2db.tw missing Russian translations
 - 🟢 **ETL re-run** — needs internet to poe2db.tw, updates JSON with all code fixes
+
+---
+
+## Session 15 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** Fix CI/CD build failure, add focused tests for generateMaxNumberRegex + vendor patterns + ETL cross-validation, update docs
+
+### 15.1 — CI/CD deploy.yml fixes
+
+**Problem:** GitHub Actions "ETL + Build + Deploy / Build (push) Failing after 15s". The build job was failing.
+
+**Fixes implemented in `.github/workflows/deploy.yml`:**
+- Changed Node.js version from 20 to 22 (for compatibility with TypeScript 6.x and latest Vite)
+- Added `if: always() && needs.build.result == 'success'` to deploy job (prevents deploy when build fails or is skipped)
+- Added descriptive step names ("Run tests", "Build") instead of bare `run:` commands
+- No other logic changes — the ETL skip/build-when-skipped flow was already correct
+
+**Fix implemented in `package.json`:**
+- Added `"packageManager": "pnpm@11.5.2"` field to pin the exact pnpm version
+- This ensures CI uses the same pnpm version as local development, preventing lockfile compatibility issues
+
+### 15.2 — generateMaxNumberRegex focused tests (14 tests)
+
+New file: `tests/core/max-number-regex.test.ts` — 14 tests covering distinct pattern classes:
+
+- **Single digit max (0-9):** 2 tests (max=5, max=9)
+- **Two-digit max:** 6 tests (max=10, max=15, max=50, max=99, max=30, max=25)
+- **Three-digit max:** 2 tests (max=100, max=200)
+- **round10:** 1 test (max=55 rounds up to 60)
+- **Edge cases:** 3 tests (0, non-numeric, negative)
+
+Key finding: `generateMaxNumberRegex('99')` produces `([0-9]|[1-8].|9[0-9])` (not `[1-9].`) — this is more precise than poe2.re's approach and correctly excludes 3-digit numbers. Also: negative input `-5` extracts digits → treats as max=5 (consistent with generateNumberRegex behavior).
+
+### 15.3 — Vendor regex compilation pattern tests (10 tests)
+
+New file: `tests/core/vendor-patterns.test.ts` — 10 tests covering distinct vendor use cases:
+
+- Single property (качеств)
+- Multiple wanted via OR (огню|холоду)
+- Multiple excluded via EXCLUDE(OR) (!огню|холоду)
+- Mixed wanted + excluded (качеств + !огню|холоду|молни|хаосу)
+- Numeric threshold with suffix (item level ≥50)
+- Numeric + property (item level AND quality)
+- Movement speed literal with .* pattern
+- All 4 resistances OR together
+- Item class OR (амулет|кольц|пояс)
+- Complex: want 2 properties, exclude 1, numeric threshold
+
+These tests verify the core AST + compiler produces correct PoE2 regex for all vendor page patterns.
+
+### 15.4 — ETL cross-validation tests (9 tests)
+
+New file: `tests/etl/cross-validation.test.ts` — 9 tests that load actual ETL JSON and регис markdown:
+
+- **Waystone cross-validation:** ETL tokens cover ≥70% of регис normal mods (coverage is not 100% because ETL groups tiers differently)
+- **Waystone token count:** 90-120 normal, 15-25 desecrated
+- **Tablet cross-validation:** ETL covers ≥75% of регис tablet mods
+- **Tablet token count:** 70-90 tokens
+- **Jewel token count:** 180-210 normal
+- **Data integrity:** All categories have valid version timestamps
+- **No empty regex:** waystone, tablet, relic, jewel have no tokens with empty regex field
+- **MIN_REGEX_LEN enforcement:** waystone, waystone-desecrated, tablet have zero tokens with regex < 5 chars
+
+### 15.5 — Documentation updated
+
+- [x] `docs/AGENT_NAVIGATION.md` — Updated to v12.0:
+  - Updated version and date
+  - Updated iteration 9 notes (109 tests, 33 new in Session 15)
+  - Updated CI/CD item with Session 15 changes
+  - Added RANGE.max test details and new test suite info
+- [x] `worklog.md` — This entry
+
+### Build and test verification
+
+- All 109 tests pass ✅ (76 existing + 33 new)
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 15)
+
+**What's done:**
+- ✅ CI/CD deploy.yml fixed: Node 20→22, deploy job guard, packageManager pinned
+- ✅ generateMaxNumberRegex focused tests (14 tests) — covers 1/2/3-digit, round10, edge cases
+- ✅ Vendor regex compilation pattern tests (10 tests) — covers OR, EXCLUDE(OR), AND+RANGE, movement speed
+- ✅ ETL cross-validation tests (9 tests) — validates ETL data vs регис, data integrity, MIN_REGEX_LEN
+- ✅ Documentation updated (AGENT_NAVIGATION.md v12.0, worklog.md)
+- ✅ Total: 109 tests, all passing
+
+**What's NOT done yet (for next session):**
+- 🔴 **In-game verification** (manual, requires user):
+  - VendorPage: 50+ Russian regex strings ("качеств", "гнёзд", "огню", "физическ", etc.)
+  - TabletPage: 8 strings ("бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ")
+- 🟡 **Full min+max RANGE intersection** — When both min and max are specified, only min is used. Full "min ≤ x ≤ max" is complex for PoE2 regex dialect.
+- 🟡 **RANGE.max in-game verification** — generateMaxNumberRegex() tested in unit tests but not verified in-game
+- 🟢 **Virtualized lists** for large categories (belt 298, ring 366, amulet 427)
+- 🟢 **~50 tokens with English-only rawText** (poe2db.tw has no RU translation)
+- 🟢 **ETL re-run** — needs internet access to poe2db.tw
