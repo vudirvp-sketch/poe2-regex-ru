@@ -754,3 +754,82 @@ in-game verification. If any string doesn't work, it should be reported for corr
 - **CI/CD** — deploy.yml exists but hasn't been tested with actual GitHub Pages deployment
 - **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from
   virtualized lists for smooth scrolling
+
+---
+
+## Session 8 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Implement Tablet-специфичные фильтры (type/rarity/uses), update documentation, create archive with changes
+
+### 10.1 — TabletPage type/rarity/uses filters implemented
+
+**Problem:** TabletPage lacked tablet-specific filters that poe2.re has:
+- No type filter (Breach/Delirium/Expedition/Ritual/Vaal)
+- No rarity filter (Normal/Magic)
+- No uses remaining filter
+
+**Implementation in `src/ui/pages/tablet/TabletPage.tsx`:**
+- Complete rewrite from basic mod selection page to full-featured tablet filter page
+- Type filter: 5 tablet types as toggle buttons
+  - Бездна (Breach) → regex "бездн"
+  - Делириум (Delirium) → regex "делир"
+  - Экспедиция (Expedition) → regex "экспед"
+  - Ритуал (Ritual) → regex "ритуал"
+  - Ваал (Vaal) → regex "ваал"
+  - Multiple selected types are OR'd together (tablet can only be one type)
+- Rarity filter: 2 options as toggle buttons
+  - Обычный (Normal) → regex "обычн"
+  - Волшебный (Magic) → regex "волшебн"
+- Uses remaining: numeric input (1-18)
+  - When set, generates RANGE(usesMin, undefined, 'исполь') AST node
+  - Suffix "исполь" estimated from "Использований" — needs verification
+- All tablet-specific filters use `extraAstNodes` pattern from WaystonePage
+- Added warning messages for unverified regex strings
+- Updated summary section to show type/rarity/uses selections
+
+**Regex strings needing in-game verification:**
+- "бездн" — Does it match tablet type name "Башня Бездны Предтеч"?
+- "делир" — Does it match "Башня Делириума Предтеч"?
+- "экспед" — Does it match "Башня Экспедиции Предтеч"?
+- "ритуал" — Does it match "Башня Ритуала Предтеч"?
+- "ваал" — Does it match "Башня Ваал Предтеч"?
+- "обычн" — Does it match "Обычный" rarity tag?
+- "волшебн" — Does it match "Волшебный" rarity tag?
+- "исполь" — Does it match "Использований" uses counter?
+
+### 10.2 — Documentation updated
+
+- [x] `docs/AGENT_NAVIGATION.md` — Major update:
+  - Version 5.0 → 6.0
+  - Current iteration: 6 (partial) → 9 (partial)
+  - Updated iteration status table (all iters 0-8 marked complete)
+  - Added Section 7: "Known Issues & Remaining Work" with priority levels
+  - Added Section 8: "Tablet Type Regex Reference" with verification tracking
+  - Added `регис/` folder to directory table
+- [x] `worklog.md` — This entry
+
+### 10.3 — Build and test verification
+
+- All 59 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 8)
+
+**What's done:**
+- ✅ TabletPage type filter (Breach/Delirium/Expedition/Ritual/Vaal)
+- ✅ TabletPage rarity filter (Normal/Magic)
+- ✅ TabletPage uses remaining filter (numeric input)
+- ✅ Documentation updated (AGENT_NAVIGATION.md v6.0, worklog.md)
+
+**What's NOT done yet (for next session):**
+- **In-game verification** of all unverified regex strings:
+  - VendorPage: 50+ strings ("качеств", "гнёзд", "огню", "физическ", etc.)
+  - TabletPage: 8 strings ("бездн", "делир", "экспед", "ритуал", "ваал", "обычн", "волшебн", "исполь")
+- **Waystone earth effect duplicates** — 4 copies each of 3 earth effects in raw data
+- **"Регис" folder cross-validation** — Manual mod lists not yet compared against ETL output
+- **CI/CD** — deploy.yml not tested with real GitHub Pages deployment
+- **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)
+- **SEO + meta tags** — Not implemented
+- **Landing page polish** — Basic home page exists
