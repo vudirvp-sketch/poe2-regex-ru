@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { computeOptimizations } from '@etl/compute-optimizations';
 import type { NormalizedMod } from '@etl/normalize';
+import type { RegexResult } from '@etl/compute-regex';
 
 function makeMod(overrides: Partial<NormalizedMod> & { id: string; rawText: Record<string, string> }): NormalizedMod {
   return {
@@ -19,6 +20,15 @@ function makeMod(overrides: Partial<NormalizedMod> & { id: string; rawText: Reco
   };
 }
 
+function makeRegexResult(overrides: Partial<RegexResult> & { regex: string }): RegexResult {
+  return {
+    hasYofication: false,
+    yoficationPositions: [],
+    familyKey: overrides.regex,
+    ...overrides,
+  };
+}
+
 describe('computeOptimizations', () => {
   it('finds optimization for tokens sharing a common substring', () => {
     const tokens: NormalizedMod[] = [
@@ -26,13 +36,13 @@ describe('computeOptimizations', () => {
       makeMod({ id: 'test.cold', rawText: { ru: 'Сопротивление холоду' } }),
     ];
 
-    const regexResults = new Map<string, { regex: string }>();
-    regexResults.set('test.fire', { regex: 'огн' });
-    regexResults.set('test.cold', { regex: 'хол' });
+    const regexResults = new Map<string, RegexResult>();
+    regexResults.set('test.fire', makeRegexResult({ regex: 'огн' }));
+    regexResults.set('test.cold', makeRegexResult({ regex: 'хол' }));
 
     const result = computeOptimizations(tokens, regexResults, 'ru');
     
-    // Should find "Соп" or similar as shared substring
+    // Should find a shared substring like "сопро" or similar
     const keys = Object.keys(result);
     if (keys.length > 0) {
       const entry = result[keys[0]];
@@ -47,12 +57,12 @@ describe('computeOptimizations', () => {
       makeMod({ id: 'test.b', rawText: { ru: 'Эффект buffalo' } }),
     ];
 
-    const regexResults = new Map<string, { regex: string }>();
-    regexResults.set('test.a', { regex: 'абр' });
-    regexResults.set('test.b', { regex: 'эфф' });
+    const regexResults = new Map<string, RegexResult>();
+    regexResults.set('test.a', makeRegexResult({ regex: 'абр' }));
+    regexResults.set('test.b', makeRegexResult({ regex: 'эфф' }));
 
     const result = computeOptimizations(tokens, regexResults, 'ru');
-    // These don't share a 3-char prefix, so should be empty
+    // These don't share a 4-char common substring, so should be empty
     expect(Object.keys(result).length).toBe(0);
   });
 

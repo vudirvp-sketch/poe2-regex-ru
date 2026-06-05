@@ -55,7 +55,7 @@ export function computeOptimizations(
   }
 
   // For each family with 2+ tokens, create an optimization entry
-  for (const [familyKey, familyTokens] of familyGroups) {
+  for (const [, familyTokens] of familyGroups) {
     if (familyTokens.length < 2) continue;
 
     // Get the shared regex for this family (all tokens in the family share the same regex)
@@ -64,13 +64,9 @@ export function computeOptimizations(
 
     if (!sharedRegex || sharedRegex.length === 0) continue;
 
-    // Compute savings: sum of individual regex lengths - shared regex length
     // If all tokens already use the family regex, savings = 0 (no optimization needed)
     // But if some tokens have longer individual regexes, the optimization helps
-    const individualLength = familyTokens.reduce((sum, t) => {
-      const r = regexResults.get(t.id);
-      return sum + (r?.regex.length ?? t.rawText[locale].length);
-    }, 0);
+    // Compute OR length to determine savings
 
     // Savings: using one shared regex instead of N individual ones in an OR
     // In the worst case, OR of N identical regexes is N * len + N-1 (for | separators)

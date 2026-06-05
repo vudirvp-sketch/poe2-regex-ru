@@ -36,7 +36,39 @@ describe('optimize', () => {
   it('handles empty optimization table', () => {
     const ast = or(literal('огн', 'waystone.fire_res'));
     const result = optimize(ast, {});
-    expect(result).toEqual(ast);
+    // Deduplication unwraps single-child OR into LITERAL
+    expect(result.type).toBe('LITERAL');
+    if (result.type === 'LITERAL') {
+      expect(result.value).toBe('огн');
+    }
+  });
+
+  it('deduplicates identical regex values in OR group', () => {
+    // Three tokens with same regex (e.g., all fire res tiers)
+    const ast = or(
+      literal('к сопротивлению огню', 'belt.fireresist1'),
+      literal('к сопротивлению огню', 'belt.fireresist2'),
+      literal('к сопротивлению огню', 'belt.fireresist3')
+    );
+    const result = optimize(ast, {});
+    // Should collapse to single LITERAL
+    expect(result.type).toBe('LITERAL');
+    if (result.type === 'LITERAL') {
+      expect(result.value).toBe('к сопротивлению огню');
+      expect(result.tokenId).toContain('dedup:');
+    }
+  });
+
+  it('keeps different regex values separate in OR group', () => {
+    const ast = or(
+      literal('к сопротивлению огню', 'belt.fireresist'),
+      literal('к сопротивлению холоду', 'belt.coldresist')
+    );
+    const result = optimize(ast, {});
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children.length).toBe(2);
+    }
   });
 
   it('preserves non-OR nodes', () => {

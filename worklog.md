@@ -221,3 +221,99 @@ Completed Iteration 3 fully + Iteration 4 (stores + components). Next steps:
 - **Iteration 4 remaining:** Wire up category pages to use filter store + components
 - **Iteration 5:** Core → UI Integration (Waystone + Tablet pages fully working)
 - **Iterations 6-9:** Relic/Jewels, Vendor, Belts/Rings/Amulets, Polish + CI/CD
+
+---
+
+## Session 3 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Iteration 5 — Core → UI Integration: connect all category pages, add optimizer dedup, min value filter, yofication
+
+### Iteration 5: Core → UI Integration
+
+**5.1 — useCategoryPage hook** (`src/ui/hooks/useCategoryPage.ts`)
+
+New reusable hook that wires together all layers:
+- Loads CategoryData via `loadCategoryData()`
+- Creates Zustand filter store per category
+- Builds AST from user selections (AND/OR/EXCLUDE/RANGE)
+- Applies optimizer (dedup + optimization table)
+- Compiles AST to regex string
+- Applies runtime yofication (е→[её]) when character budget allows
+- Returns all state + actions for category pages to use
+
+Key features:
+- `excludeMode` toggle: "Хочу" vs "Не хочу" (want vs exclude selected mods)
+- `minValue` filter: when set on ranged mods, generates `numberRegex.*suffix` instead of just suffix
+- `round10Enabled` toggle for number regex rounding
+- Runtime yofication: applies `[её]` at marked positions if under 250 char limit
+
+**5.2 — Category pages fully implemented**
+
+All 5 main category pages upgraded from stubs to fully working:
+- `src/ui/pages/belt/BeltPage.tsx` — Full working page with ModList + RegexOutput
+- `src/ui/pages/ring/RingPage.tsx` — Same pattern
+- `src/ui/pages/amulet/AmuletPage.tsx` — Same pattern
+- `src/ui/pages/waystone/WaystonePage.tsx` — With tier filter + state toggles (corrupted/delirious)
+- `src/ui/pages/tablet/TabletPage.tsx` — Basic mod selection + regex output
+
+Each page now has:
+- Search/filter for mods (text, affix, origin)
+- "Хочу / Не хочу" mode toggle
+- Minimum value filter (≥N) for ranged mods
+- Round10 toggle
+- Regex output with copy + overflow protection
+- Selected mods summary
+
+**5.3 — Optimizer deduplication** (`src/core/optimizer.ts`)
+
+Major enhancement to the optimizer:
+- **Phase 1: Deduplication** — Collapses identical regex values in OR groups
+  - When multiple tokens share the same regex (e.g., all fire res tiers → "к сопротивлению огню"),
+    their LITERAL nodes are collapsed into a single LITERAL with `dedup:` prefixed tokenId
+  - This is the most impactful optimization for belt/ring/amulet categories
+- **Phase 2: Optimization table** — Enhanced to apply MULTIPLE non-overlapping optimizations
+  - Previous version only applied the single best optimization
+  - New version greedily applies all non-overlapping optimizations sorted by savings
+
+Tests added:
+- `deduplicates identical regex values in OR group`
+- `keeps different regex values separate in OR group`
+
+**5.4 — Runtime yofication** (integrated in `useCategoryPage.ts`)
+
+Applied after compilation:
+- Scans compiled regex for token regex substrings
+- Maps yofication positions from tokens to the compiled regex
+- Applies `[её]` replacement only if character budget allows (≤250 chars)
+- Each replacement costs 3 extra characters
+
+**5.5 — Test fixes**
+
+- `tests/core/optimizer.test.ts` — Updated for deduplication behavior (single-child OR unwraps to LITERAL)
+- `tests/etl/compute-optimizations.test.ts` — Fixed type mismatch (RegexResult instead of `{regex: string}`)
+
+**Build verification:** `pnpm build` passes, `pnpm test` passes (57/57 tests)
+
+### Stopping Point (Session 3)
+
+Completed Iteration 5 (Core → UI Integration for all 5 main categories).
+
+**What's done:**
+- All 5 main category pages fully functional (Belt, Ring, Amulet, Waystone, Tablet)
+- Optimizer deduplication for identical family regexes
+- Minimum value filter (≥N) for ranged mods
+- Runtime yofication
+- All tests passing
+
+**What's NOT done yet (for next session):**
+- Relic page and Vendor page still stubs
+- Jewel page missing (no route, CATEGORY_ROUTES bug)
+- Waystone-specific AST not yet integrated (tier filter → AST RANGE, state toggles → AST LITERAL)
+  - Current WaystonePage has the UI toggles but doesn't add them to the regex yet
+- Waystone/tablet parser regex quality issues (some mods get overly short/generic regexes)
+  - The compute-regex template-suffix approach doesn't work well for complex multi-line mods
+- ETL re-run needed after any parser fixes
+- Profile UI (save/load/rename/delete) not yet connected
+- Share URL button not yet connected
+- Mobile responsive polish
