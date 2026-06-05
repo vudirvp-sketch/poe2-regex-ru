@@ -36,8 +36,16 @@ export interface RegexResult {
   familyKey: string;
 }
 
-/** Minimum regex length for meaningful matching in PoE2 search */
-const MIN_REGEX_LEN = 3;
+/** Minimum regex length for meaningful matching in PoE2 search.
+ * Waystone and tablet mods tend to have short, generic suffixes that can
+ * match unintended text in-game. Using MIN=5 for these categories
+ * forces longer, more specific regexes.
+ */
+const MIN_REGEX_LEN_DEFAULT = 3;
+const MIN_REGEX_LEN_STRICT = 5;
+
+/** Categories that require stricter minimum regex length */
+const STRICT_CATEGORIES = new Set(['waystone', 'waystone-desecrated', 'tablet']);
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -169,9 +177,10 @@ function findShortestUniqueSuffix(
   fullSuffix: string,
   targetTemplate: string,
   allTokensInCategory: NormalizedMod[],
-  locale: Locale
+  locale: Locale,
+  minLen: number = MIN_REGEX_LEN_DEFAULT
 ): string | null {
-  if (fullSuffix.length < MIN_REGEX_LEN) return null;
+  if (fullSuffix.length < minLen) return null;
 
   // First check if the full suffix is unique
   if (!isSuffixUniqueInCategory(fullSuffix, targetTemplate, allTokensInCategory, locale)) {
@@ -185,7 +194,7 @@ function findShortestUniqueSuffix(
   const words = fullSuffix.split(/\s+/);
   for (let skipWords = 1; skipWords < words.length; skipWords++) {
     const candidate = words.slice(skipWords).join(' ');
-    if (candidate.length < MIN_REGEX_LEN) break;
+    if (candidate.length < minLen) break;
 
     if (isSuffixUniqueInCategory(candidate, targetTemplate, allTokensInCategory, locale)) {
       bestSuffix = candidate;
@@ -208,11 +217,17 @@ function findShortestUniqueSuffix(
 export function computeMinimalUniqueSubstring(
   targetToken: NormalizedMod,
   allTokensInCategory: NormalizedMod[],
-  locale: Locale = 'ru'
+  locale: Locale = 'ru',
+  minRegexLen: number = MIN_REGEX_LEN_DEFAULT
 ): RegexResult {
   const rawText = targetToken.rawText[locale];
   const template = targetToken.rawTextTemplate[locale];
   const familyKey = normalizeTemplate(template);
+
+  // Determine min regex length based on category
+  const effectiveMinLen = STRICT_CATEGORIES.has(targetToken.category)
+    ? Math.max(minRegexLen, MIN_REGEX_LEN_STRICT)
+    : minRegexLen;
 
   // Edge case: empty rawText
   if (!rawText || rawText.trim().length === 0) {
@@ -224,9 +239,9 @@ export function computeMinimalUniqueSubstring(
   // ═══════════════════════════════════════════════════
   const suffix = extractTemplateSuffix(template);
 
-  if (suffix.length >= MIN_REGEX_LEN) {
+  if (suffix.length >= effectiveMinLen) {
     const bestSuffix = findShortestUniqueSuffix(
-      suffix, template, allTokensInCategory, locale
+      suffix, template, allTokensInCategory, locale, effectiveMinLen
     );
 
     if (bestSuffix) {
@@ -245,7 +260,7 @@ export function computeMinimalUniqueSubstring(
   // For tokens without placeholders, or where suffix conflicts,
   // fall back to the original substring search algorithm.
   const fallbackResult = substringSearchFallback(
-    targetToken, allTokensInCategory, locale
+    targetToken, allTokensInCategory, locale, effectiveMinLen
   );
 
   return { ...fallbackResult, familyKey };
@@ -259,7 +274,8 @@ export function computeMinimalUniqueSubstring(
 function substringSearchFallback(
   targetToken: NormalizedMod,
   allTokensInCategory: NormalizedMod[],
-  locale: Locale
+  locale: Locale,
+  minLen: number = MIN_REGEX_LEN_DEFAULT
 ): Omit<RegexResult, 'familyKey'> {
   const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
   if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
@@ -283,13 +299,13 @@ function substringSearchFallback(
   let bestScore = Infinity;
 
   // Try all substrings starting from minimum length
-  for (let length = MIN_REGEX_LEN; length <= primaryText.length; length++) {
+  for (let length = minLen; length <= primaryText.length; length++) {
     let foundForThisLength = false;
 
     for (let start = 0; start <= primaryText.length - length; start++) {
       const candidate = primaryText.substring(start, start + length);
 
-      if (candidate.trim().length < MIN_REGEX_LEN) continue;
+      if (candidate.trim().length < minLen) continue;
       if (/^\d+$/.test(candidate.trim())) continue;
 
       if (!exclusionSubstrings.has(candidate)) {
@@ -314,11 +330,11 @@ function substringSearchFallback(
     for (const formText of targetTexts.slice(1)) {
       if (formText === primaryText) continue;
       const lowerForm = formText.toLowerCase();
-      for (let length = MIN_REGEX_LEN; length <= lowerForm.length; length++) {
+      for (let length = minLen; length <= lowerForm.length; length++) {
         let found = false;
         for (let start = 0; start <= lowerForm.length - length; start++) {
           const candidate = lowerForm.substring(start, start + length);
-          if (candidate.trim().length < MIN_REGEX_LEN) continue;
+          if (candidate.trim().length < minLen) continue;
           if (/^\d+$/.test(candidate.trim())) continue;
           if (!exclusionSubstrings.has(candidate)) {
             bestCandidate = candidate;

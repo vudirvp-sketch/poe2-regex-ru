@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T07:33:24.626Z",
+  "version": "2026-06-05T08:01:17.226Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -52,7 +52,7 @@
         "ru": "На карте можно встретить дополнительный ритуальный круг"
       },
       "regex": {
-        "ru": "ый р"
+        "ru": "ный р"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный ритуальный круг"
@@ -149,7 +149,7 @@
         "ru": "На карте можно встретить дополнительную Сущность"
       },
       "regex": {
-        "ru": "ю с"
+        "ru": "ную с"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительную Сущность"
@@ -214,7 +214,7 @@
         "ru": "На карте можно встретить дополнительных редких сундуков: ##"
       },
       "regex": {
-        "ru": "—3)"
+        "ru": "уков:"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительных редких сундуков: #"
@@ -572,7 +572,7 @@
         "ru": "На карте можно встретить дополнительного духа азмири"
       },
       "regex": {
-        "ru": "уха"
+        "ru": "ьного"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительного духа азмири"
@@ -603,7 +603,7 @@
         "ru": "На карте можно встретить дополнительную Сущность"
       },
       "regex": {
-        "ru": "ю с"
+        "ru": "ную с"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительную Сущность"
@@ -634,7 +634,7 @@
         "ru": "На карте можно встретить дополнительный алтарь"
       },
       "regex": {
-        "ru": "арь"
+        "ru": "лтарь"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный алтарь"
@@ -665,7 +665,7 @@
         "ru": "На карте можно встретить дополнительный ларец"
       },
       "regex": {
-        "ru": "рец"
+        "ru": "ларец"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный ларец"
@@ -883,7 +883,7 @@
         "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
       },
       "regex": {
-        "ru": "поз"
+        "ru": "оляют"
       },
       "familyKey": {
         "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
@@ -913,7 +913,7 @@
         "ru": "Отложенные награды в адтарях Ритуала на карте появляются снова на ##% быстрее"
       },
       "regex": {
-        "ru": "отл"
+        "ru": "яются"
       },
       "familyKey": {
         "ru": "Отложенные награды в адтарях Ритуала на карте появляются снова на #% быстрее"
@@ -1434,7 +1434,7 @@
         "ru": "В два раза выше шанс получнения наград в провалах Бездны на карте"
       },
       "regex": {
-        "ru": "два"
+        "ru": "нения"
       },
       "familyKey": {
         "ru": "В два раза выше шанс получнения наград в провалах Бездны на карте"
@@ -1466,7 +1466,7 @@
         "ru": "На карте можно встретить дополнительную Бездну"
       },
       "regex": {
-        "ru": "дну"
+        "ru": "ездну"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительную Бездну"
@@ -1535,7 +1535,7 @@
         "ru": "##% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%"
       },
       "regex": {
-        "ru": "100%"
+        "ru": "до 100%"
       },
       "familyKey": {
         "ru": "#% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%"
@@ -1570,7 +1570,7 @@
         "ru": "Сложность монстров Бездны на карте и награды с них увеличиваются за каждый закрытый провал"
       },
       "regex": {
-        "ru": "них"
+        "ru": "аются"
       },
       "familyKey": {
         "ru": "Сложность монстров Бездны на карте и награды с них увеличиваются за каждый закрытый провал"
@@ -1600,7 +1600,7 @@
         "ru": "Из Бездн на карте появляется дополнительных редких монстров: ##"
       },
       "regex": {
-        "ru": "ляе"
+        "ru": "яется"
       },
       "familyKey": {
         "ru": "Из Бездн на карте появляется дополнительных редких монстров: #"
@@ -1710,7 +1710,7 @@
         "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
       },
       "regex": {
-        "ru": "ble"
+        "ru": "table"
       },
       "familyKey": {
         "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
@@ -1737,7 +1737,7 @@
         "ru": "Уникальные монстры имеют дополнительных свойств: #"
       },
       "regex": {
-        "ru": "тв:"
+        "ru": "йств:"
       },
       "familyKey": {
         "ru": "Уникальные монстры имеют дополнительных свойств: #"
@@ -2161,7 +2161,7 @@
         "ru": "Убийство редких монстров на карте останавливает таймер Зеркала Делириума на ## секунд(-ы)"
       },
       "regex": {
-        "ru": "—5)"
+        "ru": "аймер"
       },
       "familyKey": {
         "ru": "Убийство редких монстров на карте останавливает таймер Зеркала Делириума на # секунд(-ы)"
@@ -2765,9 +2765,9 @@
         "tablet.mod_vc6g4q"
       ],
       "regex": {
-        "ru": "ю с"
+        "ru": "ную с"
       },
-      "weight": 3,
+      "weight": 5,
       "count": 2
     },
     "tablet.mod_as23xk:tablet.mod_as23xk": {
@@ -3021,6 +3021,17 @@
         "ru": "карте"
       },
       "weight": 5,
+      "count": 2
+    },
+    "tablet.mod_42klst:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_42klst",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": "ный "
+      },
+      "weight": 4,
       "count": 2
     },
     "tablet.mod_m0lt68:tablet.mod_od9m77:tablet.mod_od9m77": {
@@ -4633,6 +4644,39 @@
       "weight": 4,
       "count": 2
     },
+    "tablet.mod_o60jmh:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_o60jmh",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "лтар"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_88qasy:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_88qasy",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": "лтар"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_sglt63:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.mod_sglt63",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": "лтар"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_9l6crt:tablet.mod_d3iw8o": {
       "ids": [
         "tablet.mod_9l6crt",
@@ -4886,6 +4930,17 @@
       "weight": 4,
       "count": 2
     },
+    "tablet.mod_7jrajl:tablet.mod_kbdifj": {
+      "ids": [
+        "tablet.mod_7jrajl",
+        "tablet.mod_kbdifj"
+      ],
+      "regex": {
+        "ru": "ются"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_88qasy:tablet.mod_o60jmh": {
       "ids": [
         "tablet.mod_88qasy",
@@ -5082,6 +5137,17 @@
         "ru": " карт"
       },
       "weight": 5,
+      "count": 2
+    },
+    "tablet.mod_88qasy:tablet.mod_efa81a": {
+      "ids": [
+        "tablet.mod_88qasy",
+        "tablet.mod_efa81a"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
       "count": 2
     },
     "tablet.mod_88qasy:tablet.mod_o3kmu5": {
@@ -5370,6 +5436,17 @@
       "weight": 7,
       "count": 2
     },
+    "tablet.mod_l616q8:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_l616q8",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": "ездн"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [
         "tablet.mod_iz241m",
@@ -5601,6 +5678,17 @@
       "weight": 5,
       "count": 2
     },
+    "tablet.mod_3y9nuc:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_3y9nuc",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": "ездн"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_3y9nuc:tablet.mod_iz241m": {
       "ids": [
         "tablet.mod_3y9nuc",
@@ -5733,6 +5821,17 @@
       "weight": 4,
       "count": 2
     },
+    "tablet.mod_1vman9:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_1vman9",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": "ездн"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_1vman9:tablet.mod_iz241m": {
       "ids": [
         "tablet.mod_1vman9",
@@ -5742,6 +5841,17 @@
         "ru": " бездны"
       },
       "weight": 7,
+      "count": 2
+    },
+    "tablet.mod_1vman9:tablet.mod_8rpt3p": {
+      "ids": [
+        "tablet.mod_1vman9",
+        "tablet.mod_8rpt3p"
+      ],
+      "regex": {
+        "ru": "йств"
+      },
+      "weight": 4,
       "count": 2
     },
     "tablet.mod_1vman9:tablet.mod_9lbzqh": {
@@ -5931,6 +6041,28 @@
       "weight": 5,
       "count": 2
     },
+    "tablet.mod_efa81a:tablet.mod_vx5kd7": {
+      "ids": [
+        "tablet.mod_efa81a",
+        "tablet.mod_vx5kd7"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_iz241m:tablet.mod_m17m7u": {
+      "ids": [
+        "tablet.mod_iz241m",
+        "tablet.mod_m17m7u"
+      ],
+      "regex": {
+        "ru": "ездн"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "tablet.mod_9lbzqh:tablet.mod_yvoqjl": {
       "ids": [
         "tablet.mod_9lbzqh",
@@ -6006,6 +6138,39 @@
         "ru": " монстров"
       },
       "weight": 9,
+      "count": 2
+    },
+    "tablet.mod_8rpt3p:tablet.mod_9lbzqh": {
+      "ids": [
+        "tablet.mod_8rpt3p",
+        "tablet.mod_9lbzqh"
+      ],
+      "regex": {
+        "ru": "йств"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_8rpt3p:tablet.mod_umh3r9": {
+      "ids": [
+        "tablet.mod_8rpt3p",
+        "tablet.mod_umh3r9"
+      ],
+      "regex": {
+        "ru": "йств"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "tablet.mod_8rpt3p:tablet.mod_pmw29p": {
+      "ids": [
+        "tablet.mod_8rpt3p",
+        "tablet.mod_pmw29p"
+      ],
+      "regex": {
+        "ru": "йств"
+      },
+      "weight": 4,
       "count": 2
     },
     "tablet.mod_9lbzqh:tablet.mod_umh3r9": {

@@ -633,3 +633,124 @@ Note: Optimization counts changed from Session 2 because the rawText is now corr
 - **"Регис" folder as alternative data source** — User suggested using файлы в папке регис
   instead of/in addition to poe2db.tw. Could be used to validate ETL output or as a
   manual override source.
+
+---
+
+## Session 7 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Fix regex quality (MIN_REGEX_LEN for waystone/tablet), remove broken tier filter, implement VendorPage, mobile responsive, ETL re-run
+
+### 9.1 — Regex quality improved for waystone/tablet categories
+
+**Problem:** 28/106 waystone tokens had regex ≤ 4 chars (e.g., "сво", "аны", "ивы", "огня", "ки,"). These were technically unique within the category but could match unintended text in-game.
+
+**Fix implemented in `scripts/etl/compute-regex.ts`:**
+- Added `MIN_REGEX_LEN_DEFAULT = 3` and `MIN_REGEX_LEN_STRICT = 5`
+- Added `STRICT_CATEGORIES = Set(['waystone', 'waystone-desecrated', 'tablet'])`
+- `computeMinimalUniqueSubstring()` now accepts `minRegexLen` parameter
+- When token belongs to a strict category, effective min length is max(minRegexLen, 5)
+- Both `findShortestUniqueSuffix()` and `substringSearchFallback()` now use `minLen` parameter
+- Category-specific enforcement ensures waystone/tablet regexes are always ≥5 chars
+
+**Result:** 0 waystone tokens and 0 tablet tokens have regex ≤ 4 chars (was 28/106 and some tablets).
+
+### 9.2 — WaystonePage tier filter REMOVED
+
+**Problem:** User confirmed "тир" does NOT match anything in the Russian game client. The "Тир: N" property on waystones is NOT searchable via in-game regex. Previous attempts with "р " and "тир" both failed.
+
+**Fix implemented in `src/ui/pages/waystone/WaystonePage.tsx`:**
+- Removed tier filter entirely (no `tierMin` state, no `range()` AST node)
+- Removed tier-related UI elements (input, hint text)
+- Updated doc comments: explains tier is not a searchable property
+- Verified regex strings: "оскверн" ✅ and "делир" ✅ confirmed working by user
+
+### 9.3 — VendorPage implemented with Russian property names
+
+**Problem:** VendorPage was a stub ("Страница в разработке"). Needed Russian regex strings for all vendor properties.
+
+**Implementation in `src/ui/pages/vendor/VendorPage.tsx`:**
+- Complete rewrite from stub to fully functional vendor filter page
+- 50+ vendor properties organized by groups:
+  - Свойства предмета (Качество, Гнёзда)
+  - Скорость (Скорость атаки, Скорость сотворения)
+  - Скорость передвижения (5 threshold levels: 30%, 25%, 20%, 15%, 10%)
+  - Сопротивления (огню, холоду, молниям, хаосу)
+  - Модификаторы предмета (Физический урон, Урон от чар, etc.)
+  - Модификаторы умений (+уровень умений, приспешников, ближнего боя, чар, etc.)
+  - Характеристики (Сила, Ловкость, Интеллект)
+  - Уровень (предмета/требуемый с numeric input)
+  - Редкость предмета (Редкий, Волшебный, Обычный)
+  - Классы предметов (Украшения, Оружие 1H/2H, Экипировка, Оффхэнд)
+- Russian regex strings derived from known RU client translations:
+  - "качеств" → Качество, "гнёзд" → Гнёзда, "огню" → Сопротивление огню
+  - "физическ" → Физический урон, "сотворени" → Скорость сотворения
+  - "здоровь" → Здоровье, "дух" → Дух, "редкость" → Редкость
+- Supports "Хочу / Не хочу" mode toggle
+- Numeric input for item level and character level thresholds
+- Copy + overflow protection
+- Warning banner about in-game verification needed
+
+**⚠️ NOTE:** Vendor regex strings are based on Russian translation analysis but require
+in-game verification. If any string doesn't work, it should be reported for correction.
+
+### 9.4 — ETL re-run with improved regex quality
+
+**Results:**
+
+| Category | Tokens | Optimizations | Short regexes (≤4) |
+|----------|--------|---------------|---------------------|
+| waystone | 106 | 55 | 0 (was 28) ✅ |
+| waystone-desecrated | 18 | 5 | 0 ✅ |
+| tablet | 78 | 366 | 0 ✅ |
+| jewel | 193 | 3,693 | — |
+| jewel-desecrated | 32 | 9 | — |
+| jewel-corrupted | 10 | 9 | — |
+| relic | 56 | 26 | — |
+| belt | 298 | 228 | — |
+| ring | 366 | 447 | — |
+| amulet | 427 | 367 | — |
+
+### 9.5 — Mobile responsive polish
+
+**Files modified:**
+- `src/ui/layout/Sidebar.tsx` — Complete rewrite for mobile:
+  - Hamburger menu button (visible only on small screens, md:hidden)
+  - Slide-in sidebar on mobile with overlay backdrop
+  - Fixed positioning on mobile, static on desktop
+  - Auto-close on navigation link click
+- `src/ui/layout/Layout.tsx` — Updated:
+  - Reduced padding on mobile (p-3 vs md:p-6)
+  - Added min-w-0 to prevent content overflow
+- `src/ui/layout/Header.tsx` — Updated:
+  - Added left padding for mobile hamburger button (pl-12 md:pl-4)
+  - Added missing /jewel route to title mapping
+
+### 9.6 — Build and test verification
+
+- All 59 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 7)
+
+**What's done:**
+- ✅ Regex quality: waystone/tablet now use MIN_REGEX_LEN=5, zero short regexes
+- ✅ WaystonePage: tier filter removed (confirmed not searchable in-game by user)
+- ✅ VendorPage: fully implemented with 50+ Russian property regexes
+- ✅ ETL re-run completed with improved regex quality
+- ✅ Mobile responsive: hamburger menu, slide-in sidebar, responsive padding
+
+**What's NOT done yet (for next session):**
+- **In-game verification** of VendorPage Russian regex strings (50+ strings need testing)
+- **Waystone earth effect duplicates** — tokens 72-83 have 4 copies each of "подожженной земли",
+  "замерзшей земли", "заряженной земли". The optimizer's dedup phase collapses them into
+  single LITERALs (same regex value), so functionally they work. But the raw data has duplicates
+  that could be cleaned in the ETL pipeline.
+- **"Регис" folder validation** — The manual mod lists in папка "регис" could be used to
+  cross-validate ETL output. This was not implemented yet.
+- **Tablet-specific features** — Tablet page has no type filter (Breach/Delirium/etc.) or
+  uses-remaining filter. These are needed for parity with poe2.re.
+- **CI/CD** — deploy.yml exists but hasn't been tested with actual GitHub Pages deployment
+- **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from
+  virtualized lists for smooth scrolling

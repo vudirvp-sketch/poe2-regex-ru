@@ -6,6 +6,7 @@ const routeToTitleKey: Record<string, string> = {
   '/waystone': 'waystone.title',
   '/tablet': 'tablet.title',
   '/relic': 'relic.title',
+  '/jewel': 'jewel.title',
   '/vendor': 'vendor.title',
   '/belt': 'belt.title',
   '/ring': 'ring.title',
@@ -18,7 +19,7 @@ export function Header() {
 
   return (
     <header
-      className="flex h-12 items-center border-b px-4"
+      className="flex h-12 items-center border-b px-4 pl-12 md:pl-4"
       style={{
         background: 'var(--poe-bg-secondary)',
         borderColor: 'var(--poe-border)',

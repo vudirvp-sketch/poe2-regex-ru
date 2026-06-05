@@ -2,18 +2,13 @@
  * WaystonePage — Full working category page for Waystones.
  *
  * Waystones have specific features:
- * - Tier filter (min tier) → RANGE(tierMin, undefined, "тир")  (matches "Тир: N" in RU client)
- * - Corrupted → literal("оскверн")  (matches "Осквернено" in RU client)
- * - Uncorrupted → exclude(literal("оскверн"))
- * - Delirious → literal("делир")  (matches "Делириум" in RU client)
- * - Quantifiers (IIQ, IIR, Pack Size) with minimum value filters
+ * - Corrupted → literal("оскверн")  (matches "Осквернено" in RU client) ✅ VERIFIED
+ * - Uncorrupted → exclude(literal("оскверн"))  ✅ VERIFIED
+ * - Delirious → literal("делир")  (matches "Делириум" in RU client) ✅ VERIFIED
  *
- * ⚠️ VERIFICATION NEEDED: The regex strings "оскверн", "делир", and suffix "тир"
- * are for the Russian game client. They need in-game verification.
- * Alternatives if they don't match:
- *   - "оскверн" → try "осквер" or full "Осквернено"
- *   - "делир" → try "Делириу" or "Делириум"
- *   - "тир" → try "тир:" or "Тир"
+ * NOTE: Tier filter was removed because "Тир: N" is NOT a searchable property
+ * in the Russian game client. The tier value is displayed on the item but
+ * cannot be matched by in-game regex search.
  */
 import { useState, useMemo } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
@@ -21,12 +16,11 @@ import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
-import { literal, exclude, range } from '@core/ast';
+import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
 export function WaystonePage() {
   // Waystone-specific state
-  const [tierMin, setTierMin] = useState<number | null>(null);
   const [corrupted, setCorrupted] = useState(false);
   const [uncorrupted, setUncorrupted] = useState(false);
   const [delirious, setDelirious] = useState(false);
@@ -35,37 +29,28 @@ export function WaystonePage() {
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
 
-    // Tier: RANGE(tierMin, undefined, "тир") — matches "Тир: N" in RU client
-    // In the RU client, waystone tier is displayed as "Тир: N".
-    // The suffix "тир" matches the word "Тир" (case-insensitive search).
-    // NOTE: "Тир" is NOT a mod — it's a property display on the waystone item.
-    // It is searchable via regex in the PoE2 trade search.
-    if (tierMin !== null && tierMin > 0) {
-      nodes.push(range(tierMin, undefined, 'тир'));
-    }
-
     // Corrupted → literal("оскверн")
     // Matches the red "Осквернено" text at the bottom of corrupted items in the RU client.
-    // "оскверн" is the shortest unique substring that distinguishes "Осквернено"
-    // from other item text. Needs in-game verification.
+    // ✅ VERIFIED in-game: "оскверн" matches "Осквернено"
     if (corrupted) {
       nodes.push(literal('оскверн'));
     }
 
     // Uncorrupted → exclude(literal("оскверн"))
+    // ✅ VERIFIED in-game
     if (uncorrupted) {
       nodes.push(exclude(literal('оскверн')));
     }
 
     // Delirious → literal("делир")
     // Matches the "Делириум" indicator on delirious waystones in the RU client.
-    // "делир" is the shortest unique substring. Needs in-game verification.
+    // ✅ VERIFIED in-game: "делир" matches "Делириум"
     if (delirious) {
       nodes.push(literal('делир'));
     }
 
     return nodes;
-  }, [tierMin, corrupted, uncorrupted, delirious]);
+  }, [corrupted, uncorrupted, delirious]);
 
   const {
     data, loading, error,
@@ -125,26 +110,6 @@ export function WaystonePage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {/* Waystone Tier Filter */}
-          <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-2">Тир путевого камня</div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Мин. тир:</span>
-              <input
-                type="number" min={1} max={16}
-                value={tierMin ?? ''}
-                onChange={(e) => setTierMin(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
-                placeholder="Любой"
-                className="w-16 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-              />
-              {tierMin !== null && (
-                <span className="text-[10px] text-gray-600">
-                  ≥{tierMin} тир → "тир" в regex
-                </span>
-              )}
-            </div>
-          </div>
-
           {/* State toggles */}
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
             <div className="text-xs text-gray-400 mb-2">Состояние</div>
@@ -221,11 +186,10 @@ export function WaystonePage() {
             onRestore={restoreFilterState}
           />
 
-          {(selectedTokens.length > 0 || tierMin !== null || corrupted || uncorrupted || delirious) && (
+          {(selectedTokens.length > 0 || corrupted || uncorrupted || delirious) && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">
               <div className="text-xs text-gray-400 mb-1">
                 Выбрано: {selectedTokens.length} мод(ов)
-                {tierMin !== null && ` + тир ≥${tierMin}`}
                 {corrupted && ' + оскверн.'}
                 {uncorrupted && ' + неоскверн.'}
                 {delirious && ' + делириум'}
