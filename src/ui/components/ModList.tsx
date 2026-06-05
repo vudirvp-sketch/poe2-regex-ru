@@ -1,27 +1,23 @@
 /**
- * ModList — A filterable, selectable list of mods for a category.
+ * ModList — A two-column filterable mod list with semantic grouping.
  *
- * Displays mods grouped by affix type (prefix/suffix) with
- * search filtering and origin filtering.
+ * Redesigned layout (v2):
+ * - Two columns: Prefix (left) | Suffix (right) with flex-wrap chips
+ * - Semantic sub-groups within each column (offensive/defensive/attribute/neutral,
+ *   positive/negative/neutral, or by origin — depending on groupMode)
+ * - No virtual scroll: simple rendering for <300 family groups
+ * - Search and filter controls at the top
+ * - Full-width layout (takes entire available width)
  *
- * Uses Family Pooling: tokens with the same familyKey + affix are grouped
- * into a single chip showing the combined range (e.g., "+(5—33) к силе"
- * instead of 9 separate chips for each tier).
- *
- * Uses @tanstack/react-virtual for virtualized rendering of large
- * token lists, rendering only visible items in the DOM for smooth scrolling.
+ * The parent page is responsible for placing the regex output and control
+ * panel ABOVE this component (in a sticky top bar).
  */
-import React, { useMemo, useCallback, useRef } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
 import { groupTokensByFamily } from '@shared/family-grouper';
-import { FilterChip } from './FilterChip';
 import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
-
-/** Estimated row height: ~40px for simple chips, ~56px with ranges */
-const ESTIMATED_ROW_HEIGHT = 44;
-/** Group header height */
-const GROUP_HEADER_HEIGHT = 32;
+import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';
+import { FilterChip } from './FilterChip';
 
 interface ModListProps {
   tokens: GameToken[];
@@ -29,18 +25,70 @@ interface ModListProps {
   searchText: string;
   affixFilter: AffixType | null;
   originFilter: ModOrigin | null;
-  onToggleToken: (id: string) => void;
   onToggleTokens: (ids: string[]) => void;
   onSearchChange: (text: string) => void;
   onAffixFilterChange: (filter: AffixType | null) => void;
   onOriginFilterChange: (filter: ModOrigin | null) => void;
   onClearSelections: () => void;
+  /** Grouping mode for sub-categorization within affix columns */
+  groupMode?: ModGroupMode;
 }
 
-/** A virtual row — either a group header or a family group item */
-type VirtualRow =
-  | { type: 'header'; affix: AffixType; count: number }
-  | { type: 'family'; group: FamilyGroup };
+/** Render a sub-group with its header and flex-wrap chips */
+const ModSubGroupSection: React.FC<{
+  subGroup: ModSubGroup;
+  selectedIds: Set<string>;
+  onToggleTokens: (ids: string[]) => void;
+}> = ({ subGroup, selectedIds, onToggleTokens }) => (
+  <div className="mb-2">
+    {subGroup.label && (
+      <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${subGroup.colorClass}`}>
+        ── {subGroup.label} ({subGroup.groups.length}) ──
+      </div>
+    )}
+    <div className="flex flex-wrap gap-1.5">
+      {subGroup.groups.map((group) => (
+        <FilterChip
+          key={group.familyKey}
+          group={group}
+          selectedIds={selectedIds}
+          onToggleTokens={onToggleTokens}
+        />
+      ))}
+    </div>
+  </div>
+);
+
+/** A single affix column (prefix or suffix) */
+const AffixColumn: React.FC<{
+  affix: AffixType;
+  subGroups: ModSubGroup[];
+  selectedIds: Set<string>;
+  onToggleTokens: (ids: string[]) => void;
+}> = ({ affix, subGroups, selectedIds, onToggleTokens }) => {
+  const totalCount = subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
+  if (totalCount === 0) return null;
+
+  const isPrefix = affix === 'prefix';
+  const headerColor = isPrefix ? 'text-blue-400' : 'text-orange-400';
+  const borderColor = isPrefix ? 'border-blue-800/50' : 'border-orange-800/50';
+
+  return (
+    <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
+      <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${headerColor}`}>
+        {AFFIX_LABELS[affix]} ({totalCount})
+      </h4>
+      {subGroups.map((sg) => (
+        <ModSubGroupSection
+          key={sg.key}
+          subGroup={sg}
+          selectedIds={selectedIds}
+          onToggleTokens={onToggleTokens}
+        />
+      ))}
+    </div>
+  );
+};
 
 export const ModList: React.FC<ModListProps> = ({
   tokens,
@@ -48,15 +96,13 @@ export const ModList: React.FC<ModListProps> = ({
   searchText,
   affixFilter,
   originFilter,
-  onToggleToken: _onToggleToken,
   onToggleTokens,
   onSearchChange,
   onAffixFilterChange,
   onOriginFilterChange,
   onClearSelections,
+  groupMode = 'affix-semantic',
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   // Get unique origins from tokens
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -106,37 +152,15 @@ export const ModList: React.FC<ModListProps> = ({
     [familyGroups]
   );
 
-  // Build flat virtual rows: headers + family groups interleaved
-  const virtualRows = useMemo(() => {
-    const rows: VirtualRow[] = [];
-
-    if (prefixGroups.length > 0) {
-      rows.push({ type: 'header', affix: 'prefix', count: prefixGroups.length });
-      for (const group of prefixGroups) {
-        rows.push({ type: 'family', group });
-      }
-    }
-
-    if (suffixGroups.length > 0) {
-      rows.push({ type: 'header', affix: 'suffix', count: suffixGroups.length });
-      for (const group of suffixGroups) {
-        rows.push({ type: 'family', group });
-      }
-    }
-
-    return rows;
-  }, [prefixGroups, suffixGroups]);
-
-  const virtualizer = useVirtualizer({
-    count: virtualRows.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: (index) => {
-      const row = virtualRows[index];
-      if (!row) return ESTIMATED_ROW_HEIGHT;
-      return row.type === 'header' ? GROUP_HEADER_HEIGHT : ESTIMATED_ROW_HEIGHT;
-    },
-    overscan: 10,
-  });
+  // Classify groups into sub-groups based on mode
+  const prefixSubGroups = useMemo(
+    () => classifyGroups(prefixGroups, groupMode),
+    [prefixGroups, groupMode]
+  );
+  const suffixSubGroups = useMemo(
+    () => classifyGroups(suffixGroups, groupMode),
+    [suffixGroups, groupMode]
+  );
 
   const handleAffixFilter = useCallback(
     (value: string) => {
@@ -152,38 +176,38 @@ export const ModList: React.FC<ModListProps> = ({
     [onOriginFilterChange]
   );
 
+  // Determine if we need two columns or one
+  const hasBothAffixes = prefixGroups.length > 0 && suffixGroups.length > 0;
+  // For 'origin' mode, we don't split by affix — we show all groups by origin
+  const isOriginMode = groupMode === 'origin';
+
   return (
-    <div className="mod-list flex flex-col">
-      {/* Search */}
-      <div className="mb-3">
+    <div className="mod-list flex flex-col gap-3">
+      {/* Search + Filters row */}
+      <div className="flex flex-wrap gap-2 items-center">
         <input
           type="text"
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Поиск модов..."
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
         />
-      </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-3 flex-wrap">
-        {/* Affix filter */}
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
-          className="px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+          className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
         >
           <option value="all">Все типы</option>
           <option value="prefix">{AFFIX_LABELS.prefix}</option>
           <option value="suffix">{AFFIX_LABELS.suffix}</option>
         </select>
 
-        {/* Origin filter */}
         {availableOrigins.length > 1 && (
           <select
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
-            className="px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+            className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
           >
             <option value="all">Все источники</option>
             {availableOrigins.map((origin) => (
@@ -194,11 +218,10 @@ export const ModList: React.FC<ModListProps> = ({
           </select>
         )}
 
-        {/* Clear selections */}
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600"
+            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
           >
             Очистить ({selectedIds.size})
           </button>
@@ -206,76 +229,89 @@ export const ModList: React.FC<ModListProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="text-xs text-gray-500 mb-2">
+      <div className="text-xs text-gray-500">
         Показано {familyGroups.length} семейств из {tokens.length} модов
       </div>
 
-      {/* Virtualized list area */}
-      {virtualRows.length > 0 ? (
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 280px)', minHeight: 200 }}
-        >
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const row = virtualRows[virtualItem.index];
-              if (!row) return null;
-
-              if (row.type === 'header') {
-                const isPrefix = row.affix === 'prefix';
-                return (
-                  <div
-                    key={virtualItem.key}
-                    data-index={virtualItem.index}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: `${virtualItem.size}px`,
-                      transform: `translateY(${virtualItem.start}px)`,
-                    }}
-                  >
-                    <h4 className={`text-xs font-semibold mb-2 uppercase tracking-wider ${
-                      isPrefix ? 'text-blue-400' : 'text-orange-400'
-                    }`}>
-                      {AFFIX_LABELS[row.affix]} ({row.count})
-                    </h4>
-                  </div>
-                );
-              }
-
-              // Family group row
-              return (
-                <div
-                  key={virtualItem.key}
-                  data-index={virtualItem.index}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualItem.size}px`,
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                >
-                  <FilterChip
-                    group={row.group}
-                    selectedIds={selectedIds}
-                    onToggleTokens={onToggleTokens}
-                  />
+      {/* Mod groups area */}
+      {familyGroups.length > 0 ? (
+        isOriginMode ? (
+          /* Origin mode: single column, sub-grouped by origin */
+          <div className="flex flex-col gap-2">
+            {classifyGroups(familyGroups, 'origin').map((sg) => (
+              <div key={sg.key}>
+                <div className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sg.colorClass}`}>
+                  {sg.label} ({sg.groups.length})
                 </div>
-              );
-            })}
+                {/* Within each origin, further split by affix */}
+                {(() => {
+                  const originPrefix = sg.groups.filter(g => g.affix === 'prefix');
+                  const originSuffix = sg.groups.filter(g => g.affix === 'suffix');
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-2">
+                      {originPrefix.length > 0 && (
+                        <div className="border-l-2 border-blue-800/50 pl-3">
+                          <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">Префикс ({originPrefix.length})</h5>
+                          <div className="flex flex-wrap gap-1.5">
+                            {originPrefix.map(group => (
+                              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {originSuffix.length > 0 && (
+                        <div className="border-l-2 border-orange-800/50 pl-3">
+                          <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">Суффикс ({originSuffix.length})</h5>
+                          <div className="flex flex-wrap gap-1.5">
+                            {originSuffix.map(group => (
+                              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            ))}
           </div>
-        </div>
+        ) : hasBothAffixes ? (
+          /* Two-column layout: Prefix | Suffix */
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4">
+            <AffixColumn
+              affix="prefix"
+              subGroups={prefixSubGroups}
+              selectedIds={selectedIds}
+              onToggleTokens={onToggleTokens}
+            />
+            <AffixColumn
+              affix="suffix"
+              subGroups={suffixSubGroups}
+              selectedIds={selectedIds}
+              onToggleTokens={onToggleTokens}
+            />
+          </div>
+        ) : (
+          /* Single column (only one affix type after filtering) */
+          <div className="flex flex-col gap-2">
+            {prefixGroups.length > 0 && (
+              <AffixColumn
+                affix="prefix"
+                subGroups={prefixSubGroups}
+                selectedIds={selectedIds}
+                onToggleTokens={onToggleTokens}
+              />
+            )}
+            {suffixGroups.length > 0 && (
+              <AffixColumn
+                affix="suffix"
+                subGroups={suffixSubGroups}
+                selectedIds={selectedIds}
+                onToggleTokens={onToggleTokens}
+              />
+            )}
+          </div>
+        )
       ) : (
         <div className="text-center text-gray-500 py-8">
           Моды не найдены

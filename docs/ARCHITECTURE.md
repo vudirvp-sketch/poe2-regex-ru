@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 7.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 8.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -9,7 +9,7 @@
 ```
 +------------------------------------------------------------------+
 |                        UI / Presentation                         |
-|  React 19, Vite, Tailwind, @tanstack/react-virtual, Zustand   |
+|  React 19, Vite, Tailwind, Zustand                               |
 |  Pages: Waystone, Tablet, Relic, Vendor, Belts, Rings, Amulets |
 +------------------------------------------------------------------+
 |                         Store Layer                              |
@@ -258,3 +258,112 @@ groups with ranges scoped to corrupted tokens only. Example: "+(10—15) к си
 - ETL pipeline — ZERO changes
 - AST builder / compiler / optimizer — ZERO changes
 - URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+## 9. Layout v2 — Two-Column Full-Width with Semantic Grouping
+
+### Problem (v1 layout)
+The original layout used a single-column virtual-scroll ModList on the left
+and a 320px control panel on the right. This wasted horizontal space:
+- Chip text averaged 37-66 chars (~350-550px), but the chip stretched to full column width
+- Right panel consumed 25-30% of width for controls that are used infrequently
+- Users had to scroll extensively (193 rows for jewels, 113 for amulets)
+
+### Solution: Inverted Layout
+Move the regex output and controls to a sticky top bar, freeing the full
+width for a two-column mod display:
+
+```
+┌──────────────────── Full Width ────────────────────────┐
+│ [RegexOutput + Health Bar + Copy + Share] (sticky)     │
+│ [Хочу/Не хочу] [Min ≥] [Max ≤] [Round10] [Extras]    │
+├────────────────────────────────────────────────────────┤
+│  ┌── ПРЕФИКС (N) ──┬── СУФФИКС (M) ────────────────┐ │
+│  │ [chip] [chip]    │ [chip] [chip] [chip]           │ │
+│  │  ── Атакующие ── │  ── Защитные ──               │ │
+│  │ [chip] [chip]    │ [chip] [chip] [chip]           │ │
+│  └──────────────────┴────────────────────────────────┘ │
+│ [ProfilePanel]                                         │
+└────────────────────────────────────────────────────────┘
+```
+
+### Key Changes
+
+1. **No virtual scroll**: Family Pooling reduces counts to 17-193 families.
+   Simple rendering is more reliable and allows flex-wrap layout.
+
+2. **Two-column prefix/suffix**: Uses `grid grid-cols-[2fr_3fr]` to give
+   suffixes more space (they typically outnumber prefixes ~2:1).
+
+3. **Flex-wrap chips**: Each FilterChip is `inline-flex` so multiple chips
+   pack on one line, adapting to text length naturally.
+
+4. **Semantic sub-grouping** (`src/shared/mod-classifier.ts`):
+   - Tags-based classification (preferred): uses `GameToken.tags[]`
+   - Text-based classification (fallback): regex keyword matching
+   - Per-tab mode selection via `groupMode` prop
+
+5. **Sticky control panel** (`CategoryControlPanel.tsx`):
+   - RegexOutput + mode/range/round10 controls always visible
+   - `extraControls` slot for category-specific controls
+
+### Per-Tab Grouping Modes
+
+| Tab | `groupMode` | Sub-groups | Origin sections |
+|-----|-------------|------------|-----------------|
+| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | Via origin filter |
+| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | — |
+| Tablet | `affix-only` | None (just prefix/suffix) | — |
+| Jewel | `origin` | Обычные/Осквернённые/Очернённые → prefix/suffix within | Built into headers |
+| Relic | `affix-only` | None (just prefix/suffix) | — |
+| Vendor | N/A | Custom grid layout, not affected | — |
+
+### Semantic Classification Logic
+
+**Tags-based** (for categories with tags[] — amulet, ring, belt, jewel):
+- `offensive`: damage, attack, critical, speed, caster, minion, physical, chaos, ailment
+- `defensive`: resistance, life, mana, armour, energy_shield, charm
+- `attribute`: attribute (str/dex/int)
+- `neutral`: no matching tags
+
+**Text-based** (for waystone, tablet, relic — no tags):
+- `offensive`: keywords like урон, атак, крит, скорость, сотворени, etc.
+- `defensive`: keywords like сопр, здоров, брон, уклонен, блок, дух, etc.
+- `attribute`: keywords like к силе, к ловк, к интелл
+- `neutral`: no match
+
+**Waystone sentiment**:
+- `positive`: редкость, количество, дополнительн, больше (player benefits)
+- `negative`: монстр, области, горят, ледене, отравлен (map difficulty)
+- `neutral`: everything else
+
+### Components Added/Modified
+
+| Component | Change | Description |
+|-----------|--------|-------------|
+| `ModList.tsx` | **Rewritten** | Two-column layout, flex-wrap, groupMode prop, no virtual scroll |
+| `FilterChip.tsx` | **Rewritten** | Compact inline-flex chip for flex-wrap layout |
+| `CategoryControlPanel.tsx` | **New** | Shared sticky top bar with regex + controls + extraControls slot |
+| `mod-classifier.ts` | **New** | Semantic classification logic (tags + text + sentiment) |
+| All page components | **Updated** | New layout: ControlPanel top → ModList full-width → ProfilePanel |
+
+### Known Limitations (Next Iteration)
+
+1. **Jewel multi-origin loading**: Currently only loads `jewel.json` (normal).
+   Need to merge `jewel-desecrated.json` and `jewel-corrupted.json` for
+   full origin-based display.
+
+2. **Tablet type grouping**: Token data doesn't include tablet type info.
+   Requires ETL changes to tag each token with its tablet type
+   (Breach/Delirium/Ritual/Vaal). Currently type filter is separate controls.
+
+3. **Origin sub-sections within columns**: Currently origins are handled
+   via the origin filter dropdown. Visual origin sub-sections within
+   each affix column (separate "Осквернённые" block) are planned.
+
+4. **Waystone desecrated**: Only loads `waystone.json` (normal).
+   `waystone-desecrated.json` needs to be merged in.
+
+5. **Mobile optimization**: The two-column layout stacks on mobile
+   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.
+
+6. **VendorPage**: Not updated in this iteration — layout polish deferred.

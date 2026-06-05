@@ -1,12 +1,13 @@
 /**
- * RelicPage — Full working category page for Relics (Urn + Seal combined).
+ * RelicPage — Category page for Relics (Урны + Печати).
  *
- * Relics have a smaller mod pool (56 tokens). The page follows the
- * same pattern as Belt/Ring/Amulet pages using useCategoryPage hook.
+ * Layout v2: Control panel sticky at top, mod list full width below
+ * with two-column prefix/suffix layout (affix-only mode — no sub-groups,
+ * relics have few mods and all are beneficial).
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
-import { RegexOutput } from '@ui/components/RegexOutput';
+import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
 
@@ -19,7 +20,7 @@ export function RelicPage() {
     minValue, setMinValue,
     maxValue, setMaxValue,
     selectedIds, searchText, affixFilter, originFilter,
-    toggleToken, toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'relic' });
 
@@ -48,6 +49,9 @@ export function RelicPage() {
 
   const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
   const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+  const rangedSuffixes = [...new Set(
+    selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+  )];
 
   return (
     <div className="flex flex-col gap-4">
@@ -58,114 +62,51 @@ export function RelicPage() {
         <span className="text-xs text-gray-500">{data.tokens.length} модов</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-        <div>
-          <ModList
-            tokens={data.tokens}
-            selectedIds={selectedIds}
-            searchText={searchText}
-            affixFilter={affixFilter}
-            originFilter={originFilter}
-            onToggleToken={toggleToken}
-            onToggleTokens={toggleTokens}
-            onSearchChange={setSearchText}
-            onAffixFilterChange={setAffixFilter}
-            onOriginFilterChange={setOriginFilter}
-            onClearSelections={clearSelections}
-          />
-        </div>
+      <CategoryControlPanel
+        regex={regex}
+        isOverflow={isRegexOverflow}
+        filterStore={filterStore}
+        excludeMode={excludeMode}
+        setExcludeMode={setExcludeMode}
+        hasRangedTokens={hasRangedTokens}
+        minValue={minValue}
+        setMinValue={setMinValue}
+        maxValue={maxValue}
+        setMaxValue={setMaxValue}
+        rangedSuffixes={rangedSuffixes}
+        round10Enabled={round10Enabled}
+        setRound10Enabled={setRound10Enabled}
+      />
 
-        <div className="flex flex-col gap-3">
-          {/* Mode toggle: Want / Don't Want */}
+      <ModList
+        tokens={data.tokens}
+        selectedIds={selectedIds}
+        searchText={searchText}
+        affixFilter={affixFilter}
+        originFilter={originFilter}
+        onToggleTokens={toggleTokens}
+        onSearchChange={setSearchText}
+        onAffixFilterChange={setAffixFilter}
+        onOriginFilterChange={setOriginFilter}
+        onClearSelections={clearSelections}
+        groupMode="affix-only"
+      />
+
+      <div className="flex flex-col gap-3">
+        <ProfilePanel
+          category={categoryId}
+          currentFilterData={filterStore.serialize()}
+          onRestore={restoreFilterState}
+        />
+
+        {selectedTokens.length > 0 && (
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-2">Режим выбора</div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setExcludeMode(false)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                  !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                }`}
-              >
-                Хочу эти моды
-              </button>
-              <button
-                onClick={() => setExcludeMode(true)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                  excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                }`}
-              >
-                Не хочу эти моды
-              </button>
+            <div className="text-xs text-gray-400 mb-1">Выбрано: {selectedTokens.length} мод(ов)</div>
+            <div className="text-[10px] text-gray-600">
+              {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
             </div>
           </div>
-
-          {hasRangedTokens && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-2">Диапазон значений</div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-gray-500">≥</span>
-                <input type="number" min={0} value={minValue ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setMinValue(v === '' ? null : parseInt(v, 10) || null);
-                  }}
-                  placeholder="Мин"
-                  className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-                />
-                <span className="text-xs text-gray-500">≤</span>
-                <input type="number" min={0} value={maxValue ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setMaxValue(v === '' ? null : parseInt(v, 10) || null);
-                  }}
-                  placeholder="Макс"
-                  className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <span className="text-xs text-gray-500">
-                {minValue !== null && maxValue !== null
-                  ? `${minValue} ≤ N ≤ ${maxValue} + суффикс`
-                  : minValue !== null
-                    ? `N ≥ ${minValue} + суффикс`
-                    : maxValue !== null
-                      ? `N ≤ ${maxValue} + суффикс`
-                      : 'Только суффикс (любой тир)'}
-              </span>
-            </div>
-          )}
-
-          {/* Round10 toggle */}
-          {hasRangedTokens && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={round10Enabled}
-                  onChange={(e) => setRound10Enabled(e.target.checked)}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800"
-                />
-                <span className="text-xs text-gray-300">{t('round10')}</span>
-              </label>
-            </div>
-          )}
-
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore} />
-
-          <ProfilePanel
-            category={categoryId}
-            currentFilterData={filterStore.serialize()}
-            onRestore={restoreFilterState}
-          />
-
-          {selectedTokens.length > 0 && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-1">Выбрано: {selectedTokens.length} мод(ов)</div>
-              <div className="text-[10px] text-gray-600">
-                {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

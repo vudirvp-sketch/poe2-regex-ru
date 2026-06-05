@@ -1656,3 +1656,90 @@ Stage Summary:
 - ETL data refreshed with latest poe2db.tw data
 - 51 i18n overrides applied successfully
 - Documentation updated (AGENT_NAVIGATION.md v15.0)
+
+---
+
+## Session 10 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** Layout v2 — Two-column full-width redesign with semantic grouping
+
+### 11.1 — Layout v2 redesign: Full-width two-column mod list
+
+**Problem:** The original layout used a single-column virtual-scroll ModList on the left
+and a 320px control panel on the right. This wasted horizontal space and required excessive
+scrolling (193 rows for jewels, 113 for amulets).
+
+**Solution: Inverted layout**
+- Regex output + controls → sticky top bar (always visible)
+- Mod list → full width below with two-column prefix/suffix layout
+- Flex-wrap chips pack naturally based on text length
+- Semantic sub-grouping within each column
+
+**New files created:**
+- `src/shared/mod-classifier.ts` — Semantic classification utility
+  - Tags-based classification (preferred for categories with tags[])
+  - Text-based heuristic classification (fallback for categories without tags)
+  - Waystone sentiment classification (positive/negative/neutral)
+  - Per-tab `ModGroupMode` support
+- `src/ui/components/CategoryControlPanel.tsx` — Shared sticky control panel
+  - RegexOutput + mode/range/round10 controls always visible
+  - `extraControls` slot for category-specific controls (waystone state, tablet types)
+
+**Files rewritten:**
+- `src/ui/components/ModList.tsx` — Complete rewrite
+  - Two-column layout: prefix (2fr) | suffix (3fr)
+  - Flex-wrap chips instead of vertical list
+  - No virtual scroll (simple rendering for <300 families)
+  - `groupMode` prop for per-tab sub-grouping
+  - `origin` mode: groups by origin first, then prefix/suffix within
+- `src/ui/components/FilterChip.tsx` — Complete rewrite
+  - Compact `inline-flex` chip for flex-wrap layout
+  - Single-line: text + tier badge + range info
+  - No text truncation (flex-wrap handles overflow)
+
+**All page components updated:**
+- `src/ui/pages/amulet/AmuletPage.tsx` — New layout, groupMode="affix-semantic"
+- `src/ui/pages/ring/RingPage.tsx` — New layout, groupMode="affix-semantic"
+- `src/ui/pages/belt/BeltPage.tsx` — New layout, groupMode="affix-semantic"
+- `src/ui/pages/waystone/WaystonePage.tsx` — New layout, groupMode="affix-sentiment"
+- `src/ui/pages/tablet/TabletPage.tsx` — New layout, groupMode="affix-only"
+- `src/ui/pages/jewel/JewelPage.tsx` — New layout, groupMode="origin"
+- `src/ui/pages/relic/RelicPage.tsx` — New layout, groupMode="affix-only"
+
+**Per-tab grouping modes:**
+
+| Tab | groupMode | Sub-groups |
+|-----|-----------|------------|
+| Amulet/Ring/Belt | affix-semantic | Атакующие/Защитные/Характеристики/Прочие |
+| Waystone | affix-sentiment | Позитивные/Негативные/Нейтральные |
+| Tablet | affix-only | Префикс/Суффикс (без подгрупп) |
+| Jewel | origin | Обычные/Осквернённые/Очернённые → prefix/suffix |
+| Relic | affix-only | Префикс/Суффикс (без подгрупп) |
+| Vendor | N/A | Custom grid, not affected |
+
+**Documentation updated:**
+- `docs/ARCHITECTURE.md` — Updated to v8.0 with Section 9: Layout v2
+
+**Build verification:** `tsc --noEmit` passes, `vite build` passes ✅
+
+### Stopping Point (Session 10)
+
+**What's done:**
+- ✅ Layout v2 fully implemented across all category pages
+- ✅ Two-column prefix/suffix layout with flex-wrap chips
+- ✅ Semantic sub-grouping (tags-based for jewellery, text-based for waystone)
+- ✅ Sticky control panel (regex + controls always visible)
+- ✅ CategoryControlPanel shared component (reduces duplication)
+- ✅ Mod classifier utility with extensible grouping modes
+- ✅ ARCHITECTURE.md updated to v8.0
+
+**What's NOT done yet (next iteration):**
+- **Jewel multi-origin loading**: Only loads jewel.json (normal). Need to merge
+  jewel-desecrated.json and jewel-corrupted.json for full origin display.
+- **Waystone desecrated**: Only loads waystone.json. Need waystone-desecrated.json merge.
+- **Tablet type grouping in ModList**: Token data lacks tablet type info. Requires ETL changes.
+- **Origin sub-sections within prefix/suffix columns**: Visual "Осквернённые" blocks within columns.
+- **VendorPage layout polish**: Not updated in this iteration.
+- **Mobile optimization testing**: Two-column stacks on mobile but needs testing.
+- **Light theme CSS adjustments**: New components may need light theme overrides.

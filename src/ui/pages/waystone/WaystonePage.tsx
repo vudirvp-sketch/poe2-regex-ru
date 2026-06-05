@@ -1,51 +1,34 @@
 /**
- * WaystonePage — Full working category page for Waystones.
+ * WaystonePage — Category page for Waystones.
  *
- * Waystones have specific features:
- * - Corrupted → literal("оскверн")  (matches "Осквернено" in RU client) ✅ VERIFIED
- * - Uncorrupted → exclude(literal("оскверн"))  ✅ VERIFIED
- * - Delirious → literal("делир")  (matches "Делириум" in RU client) ✅ VERIFIED
+ * Layout v2: Control panel sticky at top with waystone-specific controls,
+ * mod list full width below with two-column prefix/suffix layout
+ * and sentiment sub-grouping (positive/negative/neutral).
  *
- * URL restoration: useCategoryPage calls syncFromUrl() on mount, which
- * populates the filter store from the URL hash. The restore effect below
- * reads category-specific state (corrupted/uncorrupted/delirious) from the
- * store's extraState and applies it to React state.
- *
- * NOTE: Tier filter was removed because "Тир: N" is NOT a searchable property
- * in the Russian game client. The tier value is displayed on the item but
- * cannot be matched by in-game regex search.
+ * Waystone-specific features:
+ * - Corrupted → literal("оскверн")
+ * - Uncorrupted → exclude(literal("оскверн"))
+ * - Delirious → literal("делир")
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
-import { RegexOutput } from '@ui/components/RegexOutput';
+import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { t } from '@shared/i18n';
 import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
 export function WaystonePage() {
-  // Waystone-specific state
   const [corrupted, setCorrupted] = useState(false);
   const [uncorrupted, setUncorrupted] = useState(false);
   const [delirious, setDelirious] = useState(false);
 
-  // Build waystone-specific extra AST nodes from toggles
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
-
-    if (corrupted) {
-      nodes.push(literal('оскверн'));
-    }
-
-    if (uncorrupted) {
-      nodes.push(exclude(literal('оскверн')));
-    }
-
-    if (delirious) {
-      nodes.push(literal('делир'));
-    }
-
+    if (corrupted) nodes.push(literal('оскверн'));
+    if (uncorrupted) nodes.push(exclude(literal('оскверн')));
+    if (delirious) nodes.push(literal('делир'));
     return nodes;
   }, [corrupted, uncorrupted, delirious]);
 
@@ -57,16 +40,12 @@ export function WaystonePage() {
     minValue, setMinValue,
     maxValue, setMaxValue,
     selectedIds, searchText, affixFilter, originFilter,
-    toggleToken, toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
 
-  // Ref to skip the first sync-to-store cycle, preventing overwrite
-  // of URL-restored extraState values before the restore effect has run.
   const syncReadyRef = useRef(false);
 
-  // Restore waystone-specific state from filter store (e.g., from shared URL)
-  // This MUST run before the sync effect so URL-restored values are read first.
   useEffect(() => {
     const extra = filterStore.getExtraState('corrupted');
     if (typeof extra === 'boolean') setCorrupted(extra);
@@ -75,12 +54,9 @@ export function WaystonePage() {
     const extraD = filterStore.getExtraState('delirious');
     if (typeof extraD === 'boolean') setDelirious(extraD);
     syncReadyRef.current = true;
-  // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync waystone-specific state to filter store for URL sharing.
-  // Skips the first render to avoid overwriting URL-restored values.
   useEffect(() => {
     if (!syncReadyRef.current) return;
     filterStore.setExtraState('corrupted', corrupted);
@@ -113,6 +89,9 @@ export function WaystonePage() {
 
   const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
   const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+  const rangedSuffixes = [...new Set(
+    selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+  )];
 
   return (
     <div className="flex flex-col gap-4">
@@ -123,123 +102,80 @@ export function WaystonePage() {
         <span className="text-xs text-gray-500">{data.tokens.length} модов</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-        <div>
-          <ModList
-            tokens={data.tokens} selectedIds={selectedIds} searchText={searchText}
-            affixFilter={affixFilter} originFilter={originFilter}
-            onToggleToken={toggleToken} onToggleTokens={toggleTokens} onSearchChange={setSearchText}
-            onAffixFilterChange={setAffixFilter} onOriginFilterChange={setOriginFilter}
-            onClearSelections={clearSelections}
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {/* State toggles */}
-          <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-2">Состояние</div>
-            <div className="flex flex-col gap-1.5">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={corrupted}
-                  onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-purple-500" />
-                <span className="text-xs text-gray-300">Осквернён <span className="text-gray-600">(оскверн)</span></span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={uncorrupted}
-                  onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-green-500" />
-                <span className="text-xs text-gray-300">Неосквернён <span className="text-gray-600">(!оскверн)</span></span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={delirious}
-                  onChange={(e) => setDelirious(e.target.checked)}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                <span className="text-xs text-gray-300">Делириум <span className="text-gray-600">(делир)</span></span>
-              </label>
-            </div>
+      <CategoryControlPanel
+        regex={regex}
+        isOverflow={isRegexOverflow}
+        filterStore={filterStore}
+        excludeMode={excludeMode}
+        setExcludeMode={setExcludeMode}
+        hasRangedTokens={hasRangedTokens}
+        minValue={minValue}
+        setMinValue={setMinValue}
+        maxValue={maxValue}
+        setMaxValue={setMaxValue}
+        rangedSuffixes={rangedSuffixes}
+        round10Enabled={round10Enabled}
+        setRound10Enabled={setRound10Enabled}
+        extraControls={
+          <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-700">
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input type="checkbox" checked={corrupted}
+                onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
+                className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-purple-500" />
+              <span className="text-[10px] text-gray-300">Осквернён</span>
+            </label>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input type="checkbox" checked={uncorrupted}
+                onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
+                className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-green-500" />
+              <span className="text-[10px] text-gray-300">Неосквернён</span>
+            </label>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input type="checkbox" checked={delirious}
+                onChange={(e) => setDelirious(e.target.checked)}
+                className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500" />
+              <span className="text-[10px] text-gray-300">Делириум</span>
+            </label>
           </div>
+        }
+      />
 
-          {/* Mode toggle */}
+      <ModList
+        tokens={data.tokens}
+        selectedIds={selectedIds}
+        searchText={searchText}
+        affixFilter={affixFilter}
+        originFilter={originFilter}
+        onToggleTokens={toggleTokens}
+        onSearchChange={setSearchText}
+        onAffixFilterChange={setAffixFilter}
+        onOriginFilterChange={setOriginFilter}
+        onClearSelections={clearSelections}
+        groupMode="affix-sentiment"
+      />
+
+      <div className="flex flex-col gap-3">
+        <ProfilePanel
+          category={categoryId}
+          currentFilterData={filterStore.serialize()}
+          onRestore={restoreFilterState}
+        />
+
+        {(selectedTokens.length > 0 || corrupted || uncorrupted || delirious) && (
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-2">Режим выбора модов</div>
-            <div className="flex gap-2">
-              <button onClick={() => setExcludeMode(false)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${!excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>
-                Хочу
-              </button>
-              <button onClick={() => setExcludeMode(true)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>
-                Не хочу
-              </button>
+            <div className="text-xs text-gray-400 mb-1">
+              Выбрано: {selectedTokens.length} мод(ов)
+              {corrupted && ' + оскверн.'}
+              {uncorrupted && ' + неоскверн.'}
+              {delirious && ' + делириум'}
             </div>
+            {selectedTokens.length > 0 && (
+              <div className="text-[10px] text-gray-600">
+                {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+              </div>
+            )}
           </div>
-
-          {/* Min/Max value filter */}
-          {hasRangedTokens && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-2">Диапазон значений модов</div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-gray-500">≥</span>
-                <input type="number" min={0} value={minValue ?? ''}
-                  onChange={(e) => setMinValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
-                  placeholder="Мин"
-                  className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-                />
-                <span className="text-xs text-gray-500">≤</span>
-                <input type="number" min={0} value={maxValue ?? ''}
-                  onChange={(e) => setMaxValue(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
-                  placeholder="Макс"
-                  className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <span className="text-xs text-gray-500">
-                {minValue !== null && maxValue !== null
-                  ? `${minValue} ≤ N ≤ ${maxValue} + суффикс`
-                  : minValue !== null
-                    ? `N ≥ ${minValue} + суффикс`
-                    : maxValue !== null
-                      ? `N ≤ ${maxValue} + суффикс`
-                      : 'Только суффикс'}
-              </span>
-            </div>
-          )}
-
-          {/* Round10 */}
-          {hasRangedTokens && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={round10Enabled} onChange={(e) => setRound10Enabled(e.target.checked)}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                <span className="text-xs text-gray-300">{t('round10')}</span>
-              </label>
-            </div>
-          )}
-
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore} />
-
-          <ProfilePanel
-            category={categoryId}
-            currentFilterData={filterStore.serialize()}
-            onRestore={restoreFilterState}
-          />
-
-          {(selectedTokens.length > 0 || corrupted || uncorrupted || delirious) && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-1">
-                Выбрано: {selectedTokens.length} мод(ов)
-                {corrupted && ' + оскверн.'}
-                {uncorrupted && ' + неоскверн.'}
-                {delirious && ' + делириум'}
-              </div>
-              {selectedTokens.length > 0 && (
-                <div className="text-[10px] text-gray-600">
-                  {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
