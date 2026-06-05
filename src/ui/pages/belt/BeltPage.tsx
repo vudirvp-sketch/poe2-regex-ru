@@ -88,6 +88,7 @@ export function BeltPage() {
         onOriginFilterChange={setOriginFilter}
         onClearSelections={clearSelections}
         groupMode="affix-semantic"
+        showOriginSubSections
       />
 
       <div className="flex flex-col gap-3">

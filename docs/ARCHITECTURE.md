@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 9.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 10.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -348,23 +348,27 @@ width for a two-column mod display:
 
 ### Known Limitations (Next Iteration)
 
-1. **Origin sub-sections within columns**: Currently origins are handled
+1. ~~**Origin sub-sections within columns**: Currently origins are handled
    via the origin filter dropdown. Visual origin sub-sections within
    each affix column (separate "Осквернённые" block) are planned.
    This requires refactoring ModList to support nested sub-groups
-   (semantic → origin within each semantic group).
+   (semantic → origin within each semantic group).~~ **DONE in iteration 3.**
 
 2. **Mobile optimization**: The two-column layout stacks on mobile
    (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.
 
 3. **VendorPage**: Not updated in this iteration — layout polish deferred.
 
-4. **Light theme CSS**: New components (ModList, FilterChip, CategoryControlPanel)
-   may need light-theme overrides in `src/index.css`.
+4. ~~**Light theme CSS**: New components (ModList, FilterChip, CategoryControlPanel)
+   may need light-theme overrides in `src/index.css`.~~ **DONE in iteration 3.**
 
-5. **Semantic classification fine-tuning**: The text-based heuristics
+5. ~~**Semantic classification fine-tuning**: The text-based heuristics
    for waystone and tablet classification should be verified against
-   all real data. Edge cases may need keyword adjustments.
+   all real data. Edge cases may need keyword adjustments.~~ **DONE in iteration 3.**
+
+6. **Relic origin sections**: Relic data has 58 tokens (57 normal + 1 corrupted).
+   Origin sub-sections could show the single corrupted mod separately,
+   but the count is too small to justify the visual noise.
 
 ## 10. Iteration 2 Changes — Multi-Origin Loading + Tablet Type Grouping
 
@@ -417,3 +421,108 @@ width for a two-column mod display:
 - ETL pipeline — ZERO changes
 - AST builder / compiler / optimizer — ZERO changes
 - URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+## 11. Iteration 3 Changes — Origin Sub-Sections + Classification Fine-Tuning
+
+### Changes
+
+1. **Origin sub-sections within semantic groups** (`src/shared/family-grouper.ts` + `src/ui/components/ModList.tsx`):
+   - Added `splitGroupByOrigin()` to family-grouper — splits a FamilyGroup with members
+     from multiple origins into separate per-origin FamilyGroup objects, each with
+     its own displayText and range values scoped to that origin's members only
+   - Refactored `buildFamilyGroup()` as a shared helper (eliminated code duplication
+     between `groupTokensByFamily()` and `splitGroupByOrigin()`)
+   - Added `showOriginSubSections` prop to ModList — when enabled, each semantic
+     sub-group (e.g., "Атакующие") further splits its chips by origin with visual
+     divider lines:
+     ```
+     ── Атакующие (15) ──
+     [chip] [chip] [chip]       ← normal origin chips
+     ··· Осквернённые (3) ···   ← origin divider
+     [chip] [chip] [chip]       ← corrupted origin chips
+     ··· Очернённые (2) ···     ← origin divider
+     [chip] [chip]              ← desecrated origin chips
+     ```
+   - Enabled for Amulet, Ring, Belt pages (which have multi-origin data in single files:
+     amulet=427 tokens across normal/corrupted/desecrated/breachborn/essence origins)
+   - Origin sub-sections only appear when there are non-normal origins present
+   - Each split FamilyGroup has a unique `familyKey` with `::origin` suffix for React key uniqueness
+
+2. **Waystone sentiment classification fine-tuning** (`src/shared/mod-classifier.ts`):
+   - Fixed "больше здоровья монстров" — was POSITIVE (keyword "больше"), now NEGATIVE
+   - Fixed "Дополнительных свойств у редких монстров" — was POSITIVE, now NEGATIVE
+   - Fixed area curses ("Область проклята") — was NEUTRAL, now NEGATIVE
+   - Fixed player debuffs (reduced resistances, flask charges, speed, recovery) — now NEGATIVE
+   - Added comprehensive monster buff patterns (armoured, evasive, accuracy, bleed, poison, etc.) — now NEGATIVE
+   - Positive keywords now use specific multi-word patterns instead of broad single words:
+     "повышен.*редкост" instead of just "редкость", "увеличен.*количеств" instead of "количество"
+   - Result: 27 POSITIVE / 81 NEGATIVE / 4 NEUTRAL (down from many misclassifications)
+   - Remaining NEUTRAL (4): mostly ambiguous mods or very niche effects
+
+3. **Tags-based classification expansion** (`src/shared/mod-classifier.ts`):
+   - Added to OFFENSIVE_TAGS: `elemental`, `cold`, `fire`, `lightning`, `curse`
+   - Added to DEFENSIVE_TAGS: `evasion`
+   - These tags exist in amulet/ring/belt token data but were previously unclassified,
+     causing tokens with only these tags to fall into `neutral` instead of their
+     correct semantic category
+
+4. **Origin label consistency fix** (`src/shared/constants.ts`):
+   - Fixed `desecrated` label: was "Осквернённые" (incorrect — that's corrupted),
+     now "Очернённые" (correct — desecrated/очернённые in RU game client)
+   - Fixed `corrupted` label: was "Осквернено" (neuter singular), now "Осквернённые"
+     (plural, consistent with other origin labels)
+   - Fixed CATEGORY_LABELS: `waystone-desecrated` → "Путевые камни (Очернённые)",
+     `jewel-desecrated` → "Самоцветы (Очернённые)",
+     `jewel-corrupted` → "Самоцветы (Осквернённые)"
+
+5. **Light theme CSS additions** (`src/index.css`):
+   - Added overrides for origin sub-section label colors (purple-400, cyan-400, yellow-400)
+   - Added overrides for affix column borders (blue-800/50, orange-800/50)
+   - Added overrides for select dropdowns and input fields
+   - Added overrides for FilterChip partial selection background
+   - Added origin divider opacity adjustment
+
+### Per-Tab Grouping Modes (Updated)
+
+| Tab | `groupMode` | Sub-groups | Origin sub-sections? |
+|-----|-------------|------------|----------------------|
+| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
+| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | Via origin filter |
+| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
+| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
+| Relic | `affix-only` | None (just prefix/suffix) | — |
+| Vendor | N/A | Custom grid layout | — |
+
+### Data Origin Distribution
+
+| Category | Total tokens | Normal | Desecrated | Corrupted | Breachborn | Essence |
+|----------|-------------|--------|------------|-----------|------------|---------|
+| Amulet | 427 | 209 | 30 | 12 | 139 | 37 |
+| Ring | 366 | 203 | 22 | 12 | 95 | 34 |
+| Belt | 298 | 135 | 21 | 12 | 94 | 36 |
+| Waystone | 96+16 | 96 | 16 | — | — | — |
+| Jewel | 193+21+10 | 193 | 21 | 10 | — | — |
+| Tablet | 75 | 75 | — | — | — | — |
+| Relic | 58 | 57 | — | 1 | — | — |
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+### Remaining for Next Iteration
+
+1. **P2 — VendorPage layout polish**: Page still uses old grid layout.
+   Adapt to new style with CategoryControlPanel + compact chip layout.
+
+2. **P2 — Mobile optimization**: Two-column layout stacks on mobile
+   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs real device testing.
+   Origin sub-sections add vertical space which may cause excessive scrolling.
+
+3. **P2 — Relic origin sub-sections**: Relic data has 1 corrupted token.
+   Could add `showOriginSubSections` but visual noise may not be worth it.
+
+4. **Waystone sentiment edge cases**: 4 remaining NEUTRAL tokens.
+   May need game-specific context to classify correctly.

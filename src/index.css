@@ -251,3 +251,50 @@ body {
 [data-theme="light"] .border-slate-300 {
   border-color: #2563eb !important;
 }
+
+/* Light theme: origin sub-section labels */
+[data-theme="light"] .text-purple-400 {
+  color: #9333ea !important;
+}
+
+[data-theme="light"] .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] .text-yellow-400 {
+  color: #d97706 !important;
+}
+
+/* Light theme: affix column borders */
+[data-theme="light"] .border-blue-800\/50 {
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+[data-theme="light"] .border-orange-800\/50 {
+  border-color: rgba(194, 65, 12, 0.3) !important;
+}
+
+/* Light theme: select dropdowns */
+[data-theme="light"] select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--poe-text) !important;
+}
+
+/* Light theme: input fields */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"] {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--poe-text) !important;
+}
+
+/* Light theme: origin divider opacity */
+[data-theme="light"] .opacity-70 {
+  opacity: 0.85 !important;
+}
+
+/* Light theme: FilterChip partial selection */
+[data-theme="light"] .bg-blue-900\/20 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}

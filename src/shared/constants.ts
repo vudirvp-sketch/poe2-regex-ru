@@ -33,12 +33,12 @@ export const CATEGORY_ROUTES: Record<CategoryId, string> = {
 /** Mapping of category ID to display name (Russian) */
 export const CATEGORY_LABELS: Record<CategoryId, string> = {
   waystone: 'Путевые камни',
-  'waystone-desecrated': 'Путевые камни (Осквернённые)',
+  'waystone-desecrated': 'Путевые камни (Очернённые)',
   tablet: 'Плитки',
   relic: 'Реликвии',
   jewel: 'Самоцветы',
-  'jewel-desecrated': 'Самоцветы (Осквернённые)',
-  'jewel-corrupted': 'Самоцветы (Осквернено)',
+  'jewel-desecrated': 'Самоцветы (Очернённые)',
+  'jewel-corrupted': 'Самоцветы (Осквернённые)',
   vendor: 'Торговец',
   belt: 'Ремни',
   ring: 'Кольца',
@@ -48,8 +48,8 @@ export const CATEGORY_LABELS: Record<CategoryId, string> = {
 /** Mapping of origin to display name (Russian) */
 export const ORIGIN_LABELS: Record<string, string> = {
   normal: 'Обычные',
-  desecrated: 'Осквернённые',
-  corrupted: 'Осквернено',
+  desecrated: 'Очернённые',
+  corrupted: 'Осквернённые',
   essence: 'Сущность',
   breachborn: 'Разлом',
 };

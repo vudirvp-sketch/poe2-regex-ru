@@ -11,7 +11,7 @@
  * Display text: Takes the familyKey template and substitutes each `#` placeholder
  * with the global min—max range across all members.
  */
-import type { GameToken, AffixType, FamilyGroup } from './types';
+import type { GameToken, AffixType, FamilyGroup, ModOrigin } from './types';
 
 /**
  * Parse a rawTextTemplate to extract placeholder info.
@@ -135,82 +135,13 @@ export function groupTokensByFamily(tokens: GameToken[]): FamilyGroup[] {
     groupMap.set(key, group);
   }
 
-  // Step 2: Build FamilyGroup for each grouping
+  // Step 2: Build FamilyGroup for each grouping using shared helper
   const groups: FamilyGroup[] = [];
 
   for (const [key, members] of groupMap) {
     const [familyKey, affixStr] = key.split('::');
     const affix = affixStr as AffixType;
-
-    // Parse the familyKey to determine number of slots
-    const familyKeyPlaceholders = parseTemplatePlaceholders(familyKey);
-    const numSlots = familyKeyPlaceholders.length;
-
-    // Accumulate all numeric values per slot across all members
-    const accumulatedSlots: number[][] = Array.from({ length: numSlots }, () => []);
-
-    // Also track global min/max for single-slot convenience
-    let globalMin = Infinity;
-    let globalMax = -Infinity;
-    let hasAnyNumericValue = false;
-
-    for (const member of members) {
-      // Parse the member's own template to understand placeholder mapping
-      const memberPlaceholders = parseTemplatePlaceholders(member.rawTextTemplate.ru);
-
-      // Extract values this member contributes to each slot
-      const slotValues = extractSlotValues(member, numSlots, memberPlaceholders);
-
-      for (let slotIdx = 0; slotIdx < numSlots; slotIdx++) {
-        const vals = slotValues[slotIdx];
-        if (vals.length > 0) {
-          accumulatedSlots[slotIdx].push(...vals);
-
-          // Also update global min/max (across all slots combined)
-          const slotMin = Math.min(...vals);
-          const slotMax = Math.max(...vals);
-          if (slotMin < globalMin) globalMin = slotMin;
-          if (slotMax > globalMax) globalMax = slotMax;
-          hasAnyNumericValue = true;
-        }
-      }
-    }
-
-    // Handle tokens with no numeric values at all
-    if (!hasAnyNumericValue) {
-      globalMin = 0;
-      globalMax = 0;
-    }
-
-    // Determine if multi-placeholder
-    const hasMultiPlaceholder = numSlots > 1;
-
-    // Generate display text
-    const displayText = generateDisplayText(familyKey, accumulatedSlots);
-
-    // Build rangeSlots: for multi-placeholder, [[min1,max1],[min2,max2],...]
-    const rangeSlots: number[][] = [];
-    for (let slotIdx = 0; slotIdx < numSlots; slotIdx++) {
-      const vals = accumulatedSlots[slotIdx];
-      if (vals.length >= 2) {
-        rangeSlots.push([Math.min(...vals), Math.max(...vals)]);
-      } else if (vals.length === 1) {
-        rangeSlots.push([vals[0], vals[0]]);
-      } else {
-        rangeSlots.push([0, 0]);
-      }
-    }
-
-    groups.push({
-      familyKey,
-      affix,
-      members,
-      globalMin,
-      globalMax,
-      displayText,
-      hasMultiPlaceholder,
-      rangeSlots,
-    });
+    groups.push(buildFamilyGroup(familyKey, affix, members));
   }
 
   // Sort groups: prefixes first, then suffixes; within each group, sort by familyKey
@@ -222,4 +153,120 @@ export function groupTokensByFamily(tokens: GameToken[]): FamilyGroup[] {
   });
 
   return groups;
+}
+
+// ─── Origin splitting (for P0: origin sub-sections within semantic groups) ───
+
+/**
+ * Build a FamilyGroup from a given set of members and a known familyKey template.
+ * This is a refactored helper used by both groupTokensByFamily and splitGroupByOrigin.
+ */
+function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToken[]): FamilyGroup {
+  const familyKeyPlaceholders = parseTemplatePlaceholders(familyKey);
+  const numSlots = familyKeyPlaceholders.length;
+  const accumulatedSlots: number[][] = Array.from({ length: numSlots }, () => []);
+
+  let globalMin = Infinity;
+  let globalMax = -Infinity;
+  let hasAnyNumericValue = false;
+
+  for (const member of members) {
+    const memberPlaceholders = parseTemplatePlaceholders(member.rawTextTemplate.ru);
+    const slotValues = extractSlotValues(member, numSlots, memberPlaceholders);
+
+    for (let slotIdx = 0; slotIdx < numSlots; slotIdx++) {
+      const vals = slotValues[slotIdx];
+      if (vals.length > 0) {
+        accumulatedSlots[slotIdx].push(...vals);
+        const slotMin = Math.min(...vals);
+        const slotMax = Math.max(...vals);
+        if (slotMin < globalMin) globalMin = slotMin;
+        if (slotMax > globalMax) globalMax = slotMax;
+        hasAnyNumericValue = true;
+      }
+    }
+  }
+
+  if (!hasAnyNumericValue) {
+    globalMin = 0;
+    globalMax = 0;
+  }
+
+  const displayText = generateDisplayText(familyKey, accumulatedSlots);
+  const hasMultiPlaceholder = numSlots > 1;
+
+  const rangeSlots: number[][] = [];
+  for (let slotIdx = 0; slotIdx < numSlots; slotIdx++) {
+    const vals = accumulatedSlots[slotIdx];
+    if (vals.length >= 2) {
+      rangeSlots.push([Math.min(...vals), Math.max(...vals)]);
+    } else if (vals.length === 1) {
+      rangeSlots.push([vals[0], vals[0]]);
+    } else {
+      rangeSlots.push([0, 0]);
+    }
+  }
+
+  return {
+    familyKey,
+    affix,
+    members,
+    globalMin,
+    globalMax,
+    displayText,
+    hasMultiPlaceholder,
+    rangeSlots,
+  };
+}
+
+/**
+ * Split a FamilyGroup by origin of its members.
+ *
+ * When a family has members from multiple origins (e.g., normal + corrupted + breachborn),
+ * this creates separate per-origin FamilyGroup objects, each with its own displayText
+ * and range values scoped to that origin's members only.
+ *
+ * If the group has members from only one origin, returns an array with the original group.
+ *
+ * The resulting groups have familyKey suffixed with `::origin` for unique React keys.
+ *
+ * @param group - The FamilyGroup to split
+ * @returns Array of { origin, group } objects, ordered by origin priority
+ */
+export function splitGroupByOrigin(group: FamilyGroup): Array<{ origin: ModOrigin; group: FamilyGroup }> {
+  // Group members by origin
+  const byOrigin = new Map<ModOrigin, GameToken[]>();
+  for (const member of group.members) {
+    const list = byOrigin.get(member.origin) || [];
+    list.push(member);
+    byOrigin.set(member.origin, list);
+  }
+
+  // If only one origin, return as-is
+  if (byOrigin.size <= 1) {
+    const origin = byOrigin.keys().next().value ?? 'normal';
+    return [{ origin, group }];
+  }
+
+  // Split into per-origin FamilyGroups
+  // Use a stable origin order for consistent rendering
+  const originOrder: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
+  const results: Array<{ origin: ModOrigin; group: FamilyGroup }> = [];
+
+  for (const origin of originOrder) {
+    const members = byOrigin.get(origin);
+    if (!members) continue;
+
+    // Build a new FamilyGroup with origin-scoped members
+    // Use a unique familyKey with origin suffix for React key uniqueness
+    const splitGroup = buildFamilyGroup(
+      `${group.familyKey}::${origin}`,
+      group.affix,
+      members
+    );
+
+    results.push({ origin, group: splitGroup });
+  }
+
+  return results;
 }
