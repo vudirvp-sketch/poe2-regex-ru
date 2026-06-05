@@ -9899,13 +9899,13 @@
       "category": "ring",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(40—50)% Surpassing Chance to gain a Puppet Master stack whenever you use a Command Skill"
+        "ru": "(40—50)% превосходящий шанс получить заряд Кукловода при использовании умения-приказа"
       },
       "rawTextTemplate": {
-        "ru": "##% Surpassing Chance to gain a Puppet Master stack whenever you use a Command Skill"
+        "ru": "(##)% превосходящий шанс получить заряд Кукловода при использовании умения-приказа"
       },
       "regex": {
-        "ru": "Skill"
+        "ru": "умения-приказа"
       },
       "familyKey": {
         "ru": "#% Surpassing Chance to gain a Puppet Master stack whenever you use a Command Skill"

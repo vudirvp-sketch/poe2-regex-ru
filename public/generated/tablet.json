@@ -430,13 +430,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Delirium Fog in Map spawns (12—26)% increased MirrorShards"
+        "ru": "Туман Делириума на карте порождает на (12—26)% больше осколков зеркал"
       },
       "rawTextTemplate": {
-        "ru": "Delirium Fog in Map spawns ##% increased MirrorShards"
+        "ru": "Туман Делириума на карте порождает на (##)% больше осколков зеркал"
       },
       "regex": {
-        "ru": "MirrorShards"
+        "ru": "осколков зеркал"
       },
       "familyKey": {
         "ru": "Delirium Fog in Map spawns #% increased MirrorShards"
@@ -992,13 +992,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(30—60)% increased chance Vaal Beacon Chests are Rare in Map"
+        "ru": "(30—60)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
       },
       "rawTextTemplate": {
-        "ru": "##% increased chance Vaal Beacon Chests are Rare in Map"
+        "ru": "(##)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
       },
       "regex": {
-        "ru": "Rare in Map"
+        "ru": "окажутся редкими"
       },
       "familyKey": {
         "ru": "#% increased chance Vaal Beacon Chests are Rare in Map"
@@ -1063,13 +1063,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(10—25)% chance to add a Vaal Beacon Unique Monster to the Map"
+        "ru": "(10—25)% шанс добавить на карту уникального монстра Маяка Ваал"
       },
       "rawTextTemplate": {
-        "ru": "##% chance to add a Vaal Beacon Unique Monster to the Map"
+        "ru": "(##)% шанс добавить на карту уникального монстра Маяка Ваал"
       },
       "regex": {
-        "ru": "the Map"
+        "ru": "Маяка Ваал"
       },
       "familyKey": {
         "ru": "#% chance to add a Vaal Beacon Unique Monster to the Map"
@@ -1095,13 +1095,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(5—10)% chance to gain an additional Crystal from Vaal Beacons in Map"
+        "ru": "(5—10)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "##% chance to gain an additional Crystal from Vaal Beacons in Map"
+        "ru": "(##)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
       },
       "regex": {
-        "ru": "from Vaal Beacons in Map"
+        "ru": "с Маяков Ваал на карте"
       },
       "familyKey": {
         "ru": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
@@ -1127,13 +1127,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(25—50)% increased chance Vaal Beacons summon additional Monsters in Map"
+        "ru": "(25—50)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
       },
       "rawTextTemplate": {
-        "ru": "##% increased chance Vaal Beacons summon additional Monsters in Map"
+        "ru": "(##)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
       },
       "regex": {
-        "ru": "Monsters in Map"
+        "ru": "дополнительных монстров на карте"
       },
       "familyKey": {
         "ru": "#% increased chance Vaal Beacons summon additional Monsters in Map"
@@ -1159,13 +1159,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(30—60)% chance for an extra packs of Monsters around Vaal Beacons in Map"
+        "ru": "(30—60)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "##% chance for an extra packs of Monsters around Vaal Beacons in Map"
+        "ru": "(##)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
       },
       "regex": {
-        "ru": "packs of Monsters around Vaal Beacons in Map"
+        "ru": "дополнительных групп монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
         "ru": "#% chance for an extra packs of Monsters around Vaal Beacons in Map"
@@ -1197,7 +1197,7 @@
         "ru": "# дополнительная группа монстров вокруг Маяков Ваал на карте"
       },
       "regex": {
-        "ru": "1 доп"
+        "ru": "группа монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
         "ru": "# extra pack of Monsters around Vaal Beacons in Map"
@@ -1220,13 +1220,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(10—30)% increased Pack Size for Monsters around Vaal Beacons in Map"
+        "ru": "(10—30)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Pack Size for Monsters around Vaal Beacons in Map"
+        "ru": "(##)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
       },
       "regex": {
-        "ru": "for Monsters around Vaal Beacons in Map"
+        "ru": "размера групп монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
         "ru": "#% increased Pack Size for Monsters around Vaal Beacons in Map"

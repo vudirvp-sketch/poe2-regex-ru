@@ -12,7 +12,7 @@
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData } from '@data/loader';
-import { createFilterStore } from '@store/filter-store';
+import { createFilterStore, type FilterState, type FilterActions } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
@@ -77,16 +77,24 @@ export interface CategoryPageState {
   clearSelections: () => void;
   /** Category ID for this page */
   categoryId: string;
-  /** Filter store reference (for URL sharing and profile persistence) */
+  /** Filter store API (stable reference for URL sharing, profile persistence, and effects) */
   filterStore: {
-    serialize: () => Record<string, unknown>;
-    deserialize: (data: Record<string, unknown>) => void;
-    setExtraState: (key: string, value: unknown) => void;
-    getExtraState: (key: string) => unknown;
+    getState: () => FilterState & FilterActions;
+    subscribe: (listener: (state: FilterState & FilterActions, prevState: FilterState & FilterActions) => void) => () => void;
   };
   /** Restore filter state from a serialized object (e.g., loaded profile) */
   restoreFilterState: (data: Record<string, unknown>) => void;
 }
+
+/**
+ * Helper type for the filterStore API returned by useCategoryPage.
+ * Provides a stable reference that won't change on every render.
+ * Call .getState() to access the current store state.
+ */
+export type FilterStoreApi = {
+  getState: () => FilterState & FilterActions;
+  subscribe: (listener: (state: FilterState & FilterActions, prevState: FilterState & FilterActions) => void) => () => void;
+};
 
 /**
  * Build an AST from the user's filter selections.
@@ -458,7 +466,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setOriginFilter,
     clearSelections,
     categoryId,
-    filterStore: useStore.getState(),
+    filterStore: useStore,
     restoreFilterState,
   };
 }

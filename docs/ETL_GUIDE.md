@@ -299,9 +299,58 @@ standard ETL pipeline completes.
 3. Add an entry to `scripts/etl/i18n-overrides.json`
 4. Re-run `pnpm etl` to apply
 
-### Current Overrides (3 tokens)
-| Token ID | English Text | Russian Override | Source |
-|----------|-------------|------------------|--------|
-| `amulet.genesistreeadditionalmaximumseals_breachborn` | Sealed Skills have +1 to maximum Seals | Запечатанные умения имеют +1 к максимуму зарядов печати | регис/Амулеты моды.md |
-| `tablet.mod_lqwqxg` | 1 extra pack of Monsters around Vaal Beacons in Map | 1 дополнительная группа монстров вокруг Маяков Ваал на карте | регис/Плитки предтеч моды.md |
-| `tablet.mod_al1nsy` | Unstable Breaches in Map spawn an additional Rare Monster when Stabilised | Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации | estimated — needs verification |
+### Current Overrides (51 tokens)
+
+3 original overrides + 48 new overrides added 2026-06-06 covering all English-only breachborn and tablet tokens.
+
+**Amulet breachborn (17 tokens):**
+
+| Token ID | Russian Override | Regex |
+|----------|------------------|-------|
+| `amulet.genesistreefirespellbasecriticalchance_breachborn` | +(4—5)% к шансу критического удара чар огня | огня |
+| `amulet.minionimmobilisationbuildup1_breachborn` | Приспешники имеют (20—25)% увеличение накопления обездвиживания | обездвиживания |
+| `amulet.minionimmobilisationbuildup2_breachborn` | Приспешники имеют (26—31)% ... | обездвиживания |
+| `amulet.minionimmobilisationbuildup3-6_breachborn` | (same pattern, different ranges) | обездвиживания |
+| `amulet.spelldamageduringmanaflaskeffect1-6_breachborn` | (XX—YY)% увеличение урона чар во время действия любого флакона | урона чар во время действия любого флакона |
+| `amulet.castspeedduringmanaflaskeffect1-4_breachborn` | (XX—YY)% увеличение скорости сотворения чар во время действия любого флакона | сотворения чар во время действия любого флакона |
+
+**Belt breachborn (23 tokens):**
+
+| Token ID | Russian Override | Regex |
+|----------|------------------|-------|
+| `belt.genesistreebeltsealgainfrequency_breachborn` | Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати | печати |
+| `belt.breach_tree_2_breachborn` | (41—59)% увеличение урона от огня, если вы подобрали Огненное насыщение... | Огненное насыщение за последние 8 секунд |
+| `belt.genesistreebeltlightningdamageiflightninginfusioncollectedlast8seconds_breachborn` | ...Молниевое насыщение... | Молниевое насыщение за последние 8 секунд |
+| `belt.genesistreebeltcolddamageifcoldinfusioncollectedlast8seconds_breachborn` | ...Холодное насыщение... | Холодное насыщение за последние 8 секунд |
+| `belt.genesistreebeltspellelementalailmentmagnitude_breachborn` | (30—40)% увеличение величины элементальных недугов... | чарами |
+| `belt.genesistreebeltarchonundeathonofferinguse_breachborn` | (35—50)% шанс получить Архонта Нежити при создании подношения | подношения |
+| `belt.genesistreebeltminiondamageperdifferentcommandskillusedlast15seconds_breachborn` | (7—12)% увеличение урона приспешников за каждое... | 15 секунд |
+| `belt.minionimmobilisationbuildup1-6_breachborn` | (same as amulet) | обездвиживания |
+| `belt.spelldamageduringmanaflaskeffect1-6_breachborn` | (same as amulet) | урона чар во время действия любого флакона |
+| `belt.castspeedduringmanaflaskeffect1-4_breachborn` | (same as amulet) | сотворения чар во время действия любого флакона |
+
+**Ring breachborn (1 token):**
+
+| Token ID | Russian Override | Regex |
+|----------|------------------|-------|
+| `ring.genesistreeringminionpuppetmaster_breachborn` | (40—50)% превосходящий шанс получить заряд Кукловода при использовании умения-приказа | умения-приказа |
+
+**Tablet (7 tokens):**
+
+| Token ID | Russian Override | Regex |
+|----------|------------------|-------|
+| `tablet.mod_2pzo3q` | Туман Делириума на карте порождает на (12—26)% больше осколков зеркал | осколков зеркал |
+| `tablet.mod_jkqo0p` | (30—60)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими | окажутся редкими |
+| `tablet.mod_df7zhf` | (10—25)% шанс добавить на карту уникального монстра Маяка Ваал | Маяка Ваал |
+| `tablet.mod_v2ddkt` | (5—10)% шанс получить дополнительный кристалл с Маяков Ваал на карте | с Маяков Ваал на карте |
+| `tablet.mod_h8udqa` | (25—50)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте | дополнительных монстров на карте |
+| `tablet.mod_i7llgb` | (30—60)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте | дополнительных групп монстров вокруг Маяков Ваал на карте |
+| `tablet.mod_q7wgu2` | (10—30)% увеличение размера групп монстров вокруг Маяков Ваал на карте | размера групп монстров вокруг Маяков Ваал на карте |
+
+**Original 3 overrides:**
+
+| Token ID | Russian Override | Source |
+|----------|------------------|--------|
+| `amulet.genesistreeadditionalmaximumseals_breachborn` | Запечатанные умения имеют +1 к максимуму зарядов печати | регис/Амулеты моды.md |
+| `tablet.mod_lqwqxg` | 1 дополнительная группа монстров вокруг Маяков Ваал на карте | регис/Плитки предтеч моды.md |
+| `tablet.mod_al1nsy` | Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации | estimated — needs verification |

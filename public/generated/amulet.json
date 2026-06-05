@@ -9978,13 +9978,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "+(4—5)% to Fire Spell Critical Hit Chance"
+        "ru": "+(4—5)% к шансу критического удара чар огня"
       },
       "rawTextTemplate": {
-        "ru": "+##% to Fire Spell Critical Hit Chance"
+        "ru": "+(##)% к шансу критического удара чар огня"
       },
       "regex": {
-        "ru": "Chance"
+        "ru": "огня"
       },
       "familyKey": {
         "ru": "+#% to Fire Spell Critical Hit Chance"
@@ -12298,13 +12298,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (20—25)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (20—25)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -12332,13 +12332,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (26—31)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (26—31)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -12366,13 +12366,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (32—37)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (32—37)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -12400,13 +12400,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (38—43)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (38—43)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -12434,13 +12434,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (44—49)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (44—49)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -12468,13 +12468,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Minions have (50—55)% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (50—55)% увеличение накопления обездвиживания"
       },
       "rawTextTemplate": {
-        "ru": "Minions have ##% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (##)% увеличение накопления обездвиживания"
       },
       "regex": {
-        "ru": "buildup"
+        "ru": "обездвиживания"
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
@@ -14140,13 +14140,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(20—25)% increased Spell Damage during any Flask Effect"
+        "ru": "(20—25)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14182,13 +14182,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(26—31)% increased Spell Damage during any Flask Effect"
+        "ru": "(26—31)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14224,13 +14224,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(32—37)% increased Spell Damage during any Flask Effect"
+        "ru": "(32—37)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14266,13 +14266,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(38—43)% increased Spell Damage during any Flask Effect"
+        "ru": "(38—43)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14308,13 +14308,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(44—49)% increased Spell Damage during any Flask Effect"
+        "ru": "(44—49)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14350,13 +14350,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(50—55)% increased Spell Damage during any Flask Effect"
+        "ru": "(50—55)% увеличение урона чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Spell Damage during any Flask Effect"
+        "ru": "(##)% увеличение урона чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
@@ -14751,13 +14751,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(8—10)% increased Cast Speed during any Flask Effect"
+        "ru": "(8—10)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Cast Speed during any Flask Effect"
+        "ru": "(##)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
@@ -14786,13 +14786,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(11—13)% increased Cast Speed during any Flask Effect"
+        "ru": "(11—13)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Cast Speed during any Flask Effect"
+        "ru": "(##)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
@@ -14821,13 +14821,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(14—16)% increased Cast Speed during any Flask Effect"
+        "ru": "(14—16)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Cast Speed during any Flask Effect"
+        "ru": "(##)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
@@ -14856,13 +14856,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "(17—19)% increased Cast Speed during any Flask Effect"
+        "ru": "(17—19)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "rawTextTemplate": {
-        "ru": "##% increased Cast Speed during any Flask Effect"
+        "ru": "(##)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"

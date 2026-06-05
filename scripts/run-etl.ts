@@ -131,6 +131,28 @@ function deduplicateMods(mods: NormalizedMod[]): NormalizedMod[] {
  * Only overrides rawText.ru and rawTextTemplate.ru; regex.ru is recomputed
  * using the same minimal-unique-substring algorithm against the category's tokens.
  */
+/**
+ * Extract the "text suffix" from a rawTextTemplate (same logic as compute-regex.ts).
+ * This is the text after the last # or ## placeholder, with leading non-letters stripped.
+ */
+function extractTemplateSuffix(template: string): string {
+  const lastHashIdx = template.lastIndexOf('#');
+  if (lastHashIdx === -1) return '';
+  let suffix = template.substring(lastHashIdx + 1);
+  suffix = suffix.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
+  return suffix.trim();
+}
+
+/**
+ * Normalize a rawTextTemplate into a "family key" (same logic as compute-regex.ts).
+ */
+function normalizeTemplate(template: string): string {
+  return template
+    .replace(/##/g, '#')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function applyI18nOverrides() {
   const overridesPath = path.resolve(process.cwd(), 'scripts', 'etl', 'i18n-overrides.json');
   if (!fs.existsSync(overridesPath)) {
@@ -158,6 +180,7 @@ function applyI18nOverrides() {
     const filePath = path.join(OUTPUT_DIR, jsonFile);
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
+    // First pass: apply rawText/rawTextTemplate overrides to all tokens
     let patched = 0;
     for (const token of data.tokens) {
       const override = overrides[token.id];
@@ -167,70 +190,136 @@ function applyI18nOverrides() {
       if (override.rawTextTemplate) {
         token.rawTextTemplate.ru = override.rawTextTemplate;
       }
+      patched++;
+    }
 
-      // Recompute regex.ru: find the shortest unique substring
-      // by checking against all other tokens' rawText.ru in this category
-      const allTexts = data.tokens
-        .filter((t: any) => t.id !== token.id)
-        .map((t: any) => t.rawText.ru.toLowerCase());
+    if (patched === 0) continue;
 
-      const target = override.rawText.toLowerCase();
-      const exclusionSubs = new Set<string>();
-      for (const text of allTexts) {
-        for (let len = 1; len <= Math.min(text.length, 20); len++) {
-          for (let i = 0; i <= text.length - len; i++) {
-            exclusionSubs.add(text.substring(i, i + len));
-          }
+    // Second pass: recompute regex.ru for ALL overridden tokens
+    // using the same template-family algorithm as compute-regex.ts.
+    // Build exclusion set from all tokens' rawText (including the already-patched ones).
+    const allTokenTexts = data.tokens.map((t: any) => t.rawText.ru.toLowerCase());
+    const exclusionSubs = new Set<string>();
+    for (const text of allTokenTexts) {
+      for (let len = 1; len <= Math.min(text.length, 30); len++) {
+        for (let i = 0; i <= text.length - len; i++) {
+          exclusionSubs.add(text.substring(i, i + len));
         }
       }
+    }
 
-      // Find shortest unique substring (minimum length 5 for reliability)
-      let bestSubstring = target;
-      let found = false;
-      for (let len = 5; len <= target.length; len++) {
-        if (found) break;
-        for (let i = 0; i <= target.length - len; i++) {
-          const candidate = target.substring(i, i + len);
-          if (!exclusionSubs.has(candidate)) {
-            bestSubstring = candidate;
-            found = true;
-            break;
-          }
-        }
-      }
-      // Fallback: if no unique substring of length >= 5, try length >= 3
-      if (!found) {
-        for (let len = 3; len <= target.length; len++) {
-          if (found) break;
-          for (let i = 0; i <= target.length - len; i++) {
-            const candidate = target.substring(i, i + len);
-            if (!exclusionSubs.has(candidate)) {
-              bestSubstring = candidate;
-              found = true;
+    // Also build family-key set for same-family detection
+    const familyKeys = new Map<string, string[]>();
+    for (const token of data.tokens) {
+      const fk = normalizeTemplate(token.rawTextTemplate.ru);
+      if (!familyKeys.has(fk)) familyKeys.set(fk, []);
+      familyKeys.get(fk)!.push(token.id);
+    }
+
+    let totalPatchedInFile = 0;
+    for (const token of data.tokens) {
+      const override = overrides[token.id];
+      if (!override) continue;
+
+      const template = token.rawTextTemplate.ru;
+      const hasPlaceholder = template.includes('#');
+
+      if (hasPlaceholder) {
+        // Strategy 1: Template-family suffix (same as compute-regex.ts)
+        const fullSuffix = extractTemplateSuffix(template);
+        const familyKey = normalizeTemplate(template);
+        const sameFamily = familyKeys.get(familyKey) || [];
+
+        if (fullSuffix.length >= 3) {
+          // Try to find shortest unique suffix by trimming from the left
+          let bestSuffix: string | null = null;
+          const words = fullSuffix.split(/\s+/);
+
+          for (let skipWords = 0; skipWords < words.length; skipWords++) {
+            const candidate = words.slice(skipWords).join(' ').toLowerCase();
+            if (candidate.length < 3) break;
+
+            // Check uniqueness: candidate must NOT appear in tokens from OTHER families
+            let isUnique = true;
+            for (const otherToken of data.tokens) {
+              if (sameFamily.includes(otherToken.id)) continue;
+              // Skip compound families (same prefix pattern)
+              const otherFk = normalizeTemplate(otherToken.rawTextTemplate.ru);
+              if (familyKey.startsWith(otherFk) || otherFk.startsWith(familyKey)) continue;
+
+              if (otherToken.rawText.ru.toLowerCase().includes(candidate)) {
+                isUnique = false;
+                break;
+              }
+            }
+
+            if (isUnique) {
+              bestSuffix = words.slice(skipWords).join(' ');
+              // Keep looking for shorter versions
+            } else {
+              // Further trimming makes it non-unique — stop
               break;
             }
           }
+
+          if (bestSuffix) {
+            token.regex.ru = bestSuffix;
+          } else {
+            // Fallback: use full suffix
+            token.regex.ru = fullSuffix;
+          }
+        } else {
+          // Suffix too short — fallback to substring search on rawText
+          token.regex.ru = findShortestUniqueSubstring(override.rawText.toLowerCase(), exclusionSubs, 3);
+        }
+      } else {
+        // Strategy 2: Substring search for literal (non-ranged) tokens
+        // Need to exclude substrings from the token's own rawText
+        const ownSubs = new Set<string>();
+        const targetLower = override.rawText.toLowerCase();
+        for (let len = 1; len <= targetLower.length; len++) {
+          for (let i = 0; i <= targetLower.length - len; i++) {
+            ownSubs.add(targetLower.substring(i, i + len));
+          }
+        }
+        const effectiveExclusion = new Set([...exclusionSubs].filter(s => !ownSubs.has(s)));
+        token.regex.ru = findShortestUniqueSubstring(targetLower, effectiveExclusion, 5);
+        if (!token.regex.ru || token.regex.ru.length === 0) {
+          token.regex.ru = findShortestUniqueSubstring(targetLower, effectiveExclusion, 3);
+        }
+        if (!token.regex.ru || token.regex.ru.length === 0) {
+          token.regex.ru = targetLower;
         }
       }
 
-      token.regex.ru = bestSubstring;
-
-      // Reset yofication for overridden tokens (would need manual re-check)
+      // Reset yofication for overridden tokens
       token.hasYofication = false;
       token.yoficationPositions = [];
 
-      patched++;
       totalPatched++;
-      console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 60)}..." (regex: "${bestSubstring}")`);
+      totalPatchedInFile++;
+      console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 50)}..." (regex: "${token.regex.ru}")`);
     }
 
-    if (patched > 0) {
-      // Re-write the JSON file with patched data
+    if (totalPatchedInFile > 0) {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
     }
   }
 
   console.log(`  Total tokens patched: ${totalPatched}`);
+}
+
+/** Helper: find shortest unique substring of target that is NOT in exclusion set */
+function findShortestUniqueSubstring(target: string, exclusionSubs: Set<string>, minLen: number): string {
+  for (let len = minLen; len <= target.length; len++) {
+    for (let i = 0; i <= target.length - len; i++) {
+      const candidate = target.substring(i, i + len);
+      if (!exclusionSubs.has(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return target;
 }
 
 async function runEtl() {
