@@ -1,16 +1,8 @@
 /**
  * VendorPage — Vendor regex filter for the Russian game client.
  *
- * Based on poe2.re/vendor but with Russian regex strings that match
- * the Russian game client text. The vendor page filters items by
- * properties visible at the vendor (quality, sockets, resistances, etc.)
- *
- * Regex compilation uses the core AST + compiler to ensure:
- * - Correct quoting (each term wrapped in "...")
- * - Correct AND/OR combination
- * - Correct negation (! inside quotes when combined with |)
- * - Proper number regex via generateNumberRegex (handles 3-digit, round10)
- * - Consistent with the rest of the application
+ * Layout v2 (iteration 4): Control panel (regex + mode + round10) sticky at top,
+ * property chips in flex-wrap groups below, verification note at the bottom.
  *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.
@@ -18,6 +10,7 @@
  */
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { VendorChip } from '@ui/components/VendorChip';
 import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
 import { and, or, literal, exclude, range } from '@core/ast';
@@ -33,7 +26,7 @@ interface VendorProperty {
   label: string;
   /** The regex string that matches this property in the RU game client */
   regex: string;
-  /** Which AND group this property belongs to (for grouping in the UI) */
+  /** Which group this property belongs to (for grouping in the UI) */
   group: string;
   /** Optional: requires a numeric input for threshold filtering */
   hasNumericInput?: boolean;
@@ -78,41 +71,41 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
   { id: 'mod-cast-speed', label: 'Скорость сотворения', regex: 'сотворени', group: 'Скорость' },
 
   // ─── Movement speed (with specific % thresholds) ───
-  { id: '30ms', label: 'Скорость передвижения (30%)', regex: '30)%.*передвижени', group: 'Скорость передвижения' },
-  { id: '25ms', label: 'Скорость передвижения (25%)', regex: '25)%.*передвижени', group: 'Скорость передвижения' },
-  { id: '20ms', label: 'Скорость передвижения (20%)', regex: '20)%.*передвижени', group: 'Скорость передвижения' },
-  { id: '15ms', label: 'Скорость передвижения (15%)', regex: '15)%.*передвижени', group: 'Скорость передвижения' },
-  { id: '10ms', label: 'Скорость передвижения (10%)', regex: '10)%.*передвижени', group: 'Скорость передвижения' },
+  { id: '30ms', label: 'МС 30%', regex: '30)%.*передвижени', group: 'Скорость передвижения' },
+  { id: '25ms', label: 'МС 25%', regex: '25)%.*передвижени', group: 'Скорость передвижения' },
+  { id: '20ms', label: 'МС 20%', regex: '20)%.*передвижени', group: 'Скорость передвижения' },
+  { id: '15ms', label: 'МС 15%', regex: '15)%.*передвижени', group: 'Скорость передвижения' },
+  { id: '10ms', label: 'МС 10%', regex: '10)%.*передвижени', group: 'Скорость передвижения' },
 
   // ─── Resistances ───
-  { id: 'res-fire', label: 'Сопротивление огню', regex: 'огню', group: 'Сопротивления' },
-  { id: 'res-cold', label: 'Сопротивление холоду', regex: 'холоду', group: 'Сопротивления' },
-  { id: 'res-lightning', label: 'Сопротивление молниям', regex: 'молни', group: 'Сопротивления' },
-  { id: 'res-chaos', label: 'Сопротивление хаосу', regex: 'хаосу', group: 'Сопротивления' },
+  { id: 'res-fire', label: 'Сопр. огню', regex: 'огню', group: 'Сопротивления' },
+  { id: 'res-cold', label: 'Сопр. холоду', regex: 'холоду', group: 'Сопротивления' },
+  { id: 'res-lightning', label: 'Сопр. молниям', regex: 'молни', group: 'Сопротивления' },
+  { id: 'res-chaos', label: 'Сопр. хаосу', regex: 'хаосу', group: 'Сопротивления' },
 
   // ─── Item modifiers ───
-  { id: 'mod-physical', label: 'Физический урон', regex: 'физическ', group: 'Модификаторы предмета' },
-  { id: 'mod-spellDamage', label: 'Урон от чар', regex: 'урон от чар', group: 'Модификаторы предмета' },
-  { id: 'mod-elemental', label: 'Стихийный урон', regex: 'стихийн', group: 'Модификаторы предмета' },
-  { id: 'mod-cold', label: 'Урон от холода', regex: 'урон от холода', group: 'Модификаторы предмета' },
-  { id: 'mod-fire', label: 'Урон от огня', regex: 'урон от огня', group: 'Модификаторы предмета' },
-  { id: 'mod-lightning', label: 'Урон от молний', regex: 'урон от молни', group: 'Модификаторы предмета' },
-  { id: 'mod-chaos', label: 'Урон хаосом', regex: 'урон хаосом', group: 'Модификаторы предмета' },
-  { id: 'mod-spirit', label: '+Дух', regex: 'дух', group: 'Модификаторы предмета' },
-  { id: 'mod-rarity', label: 'Редкость предметов', regex: 'редкость', group: 'Модификаторы предмета' },
-  { id: 'mod-max-life', label: 'Максимум здоровья', regex: 'здоровь', group: 'Модификаторы предмета' },
-  { id: 'mod-max-mana', label: 'Максимум маны', regex: 'ман', group: 'Модификаторы предмета' },
+  { id: 'mod-physical', label: 'Физ. урон', regex: 'физическ', group: 'Модификаторы' },
+  { id: 'mod-spellDamage', label: 'Урон от чар', regex: 'урон от чар', group: 'Модификаторы' },
+  { id: 'mod-elemental', label: 'Стихийный урон', regex: 'стихийн', group: 'Модификаторы' },
+  { id: 'mod-cold', label: 'Урон от холода', regex: 'урон от холода', group: 'Модификаторы' },
+  { id: 'mod-fire', label: 'Урон от огня', regex: 'урон от огня', group: 'Модификаторы' },
+  { id: 'mod-lightning', label: 'Урон от молний', regex: 'урон от молни', group: 'Модификаторы' },
+  { id: 'mod-chaos', label: 'Урон хаосом', regex: 'урон хаосом', group: 'Модификаторы' },
+  { id: 'mod-spirit', label: '+Дух', regex: 'дух', group: 'Модификаторы' },
+  { id: 'mod-rarity', label: 'Редкость предм.', regex: 'редкость', group: 'Модификаторы' },
+  { id: 'mod-max-life', label: 'Макс. здоровье', regex: 'здоровь', group: 'Модификаторы' },
+  { id: 'mod-max-mana', label: 'Макс. мана', regex: 'ман', group: 'Модификаторы' },
 
   // ─── Item modifiers (skill) ───
-  { id: 'mod-skill', label: '+Уровень умений (любых)', regex: 'уровень.*умени', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-minion', label: '+Уровень умений приспешников', regex: 'приспешник.*умени', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-melee', label: '+Уровень умений ближнего боя', regex: 'ближнего боя.*умени', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-spell', label: '+Уровень умений чар', regex: 'чар.*умени', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-fire', label: '+Уровень огненных чар', regex: 'огнен.*чар', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-cold', label: '+Уровень ледяных чар', regex: 'ледян.*чар', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-lightning', label: '+Уровень молниевых чар', regex: 'молни.*чар', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-physical', label: '+Уровень физических чар', regex: 'физическ.*чар', group: 'Модификаторы (умения)' },
-  { id: 'mod-skill-projectile', label: '+Уровень снарядов', regex: 'снаряд.*умени', group: 'Модификаторы (умения)' },
+  { id: 'mod-skill', label: '+Ур. умений (любых)', regex: 'уровень.*умени', group: 'Умения' },
+  { id: 'mod-skill-minion', label: '+Ур. умений приспеш.', regex: 'приспешник.*умени', group: 'Умения' },
+  { id: 'mod-skill-melee', label: '+Ур. умений ближ. боя', regex: 'ближнего боя.*умени', group: 'Умения' },
+  { id: 'mod-skill-spell', label: '+Ур. умений чар', regex: 'чар.*умени', group: 'Умения' },
+  { id: 'mod-skill-fire', label: '+Ур. огн. чар', regex: 'огнен.*чар', group: 'Умения' },
+  { id: 'mod-skill-cold', label: '+Ур. лед. чар', regex: 'ледян.*чар', group: 'Умения' },
+  { id: 'mod-skill-lightning', label: '+Ур. молн. чар', regex: 'молни.*чар', group: 'Умения' },
+  { id: 'mod-skill-physical', label: '+Ур. физ. чар', regex: 'физическ.*чар', group: 'Умения' },
+  { id: 'mod-skill-projectile', label: '+Ур. снарядов', regex: 'снаряд.*умени', group: 'Умения' },
 
   // ─── Item modifiers (attributes) ───
   { id: 'mod-str', label: 'Сила', regex: 'силе', group: 'Характеристики' },
@@ -120,9 +113,9 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
   { id: 'mod-dex', label: 'Ловкость', regex: 'ловкост', group: 'Характеристики' },
 
   // ─── Item level ───
-  { id: 'atr-itemlevel', label: 'Уровень предмета ≥N', regex: '', group: 'Уровень',
+  { id: 'atr-itemlevel', label: 'Ур. предмета ≥N', regex: '', group: 'Уровень',
     hasNumericInput: true, numericSuffix: 'уровень предмета' },
-  { id: 'atr-charlevel', label: 'Требуемый уровень ≥N', regex: '', group: 'Уровень',
+  { id: 'atr-charlevel', label: 'Треб. уровень ≥N', regex: '', group: 'Уровень',
     hasNumericInput: true, numericSuffix: 'требуемый уровень' },
 
   // ─── Item rarity ───
@@ -137,13 +130,13 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
 
   // ─── Item class — 1H weapons ───
   { id: 'type-wands', label: 'Жезлы', regex: 'жезл', group: 'Класс — Оружие 1H' },
-  { id: 'type-1h-maces', label: 'Одноручные булавы', regex: 'одноручн.*булав', group: 'Класс — Оружие 1H' },
+  { id: 'type-1h-maces', label: '1H Булавы', regex: 'одноручн.*булав', group: 'Класс — Оружие 1H' },
   { id: 'type-sceptres', label: 'Скипетры', regex: 'скипетр', group: 'Класс — Оружие 1H' },
 
   // ─── Item class — 2H weapons ───
   { id: 'type-bows', label: 'Луки', regex: 'лук', group: 'Класс — Оружие 2H' },
   { id: 'type-staves', label: 'Посохи', regex: 'посох', group: 'Класс — Оружие 2H' },
-  { id: 'type-2h-maces', label: 'Двуручные булавы', regex: 'двуручн.*булав', group: 'Класс — Оружие 2H' },
+  { id: 'type-2h-maces', label: '2H Булавы', regex: 'двуручн.*булав', group: 'Класс — Оружие 2H' },
   { id: 'type-q-staves', label: 'Боевые посохи', regex: 'боевой посох', group: 'Класс — Оружие 2H' },
   { id: 'type-spears', label: 'Копья', regex: 'копь', group: 'Класс — Оружие 2H' },
   { id: 'type-crossbow', label: 'Арбалеты', regex: 'арбалет', group: 'Класс — Оружие 2H' },
@@ -152,7 +145,7 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
   // ─── Item class — equipment ───
   { id: 'type-gloves', label: 'Перчатки', regex: 'перчатк', group: 'Класс — Экипировка' },
   { id: 'type-boots', label: 'Обувь', regex: 'обувь', group: 'Класс — Экипировка' },
-  { id: 'type-body', label: 'Нагрудная броня', regex: 'нагрудн', group: 'Класс — Экипировка' },
+  { id: 'type-body', label: 'Нагрудн. броня', regex: 'нагрудн', group: 'Класс — Экипировка' },
   { id: 'type-helm', label: 'Шлемы', regex: 'шлем', group: 'Класс — Экипировка' },
 
   // ─── Item class — offhand ───
@@ -160,6 +153,44 @@ const VENDOR_PROPERTIES: VendorProperty[] = [
   { id: 'type-foci', label: 'Фокусы', regex: 'фокус', group: 'Класс — Оффхэнд' },
   { id: 'type-shields', label: 'Щиты', regex: 'щит', group: 'Класс — Оффхэнд' },
 ];
+
+// ─── Group order for consistent display ───
+
+const GROUP_ORDER = [
+  'Свойства предмета',
+  'Скорость',
+  'Скорость передвижения',
+  'Сопротивления',
+  'Модификаторы',
+  'Умения',
+  'Характеристики',
+  'Уровень',
+  'Редкость предмета',
+  'Класс — Украшения',
+  'Класс — Оружие 1H',
+  'Класс — Оружие 2H',
+  'Класс — Экипировка',
+  'Класс — Оффхэнд',
+];
+
+// ─── Group color config for visual differentiation ───
+
+const GROUP_COLORS: Record<string, { header: string; border: string }> = {
+  'Свойства предмета':    { header: 'text-gray-400',   border: 'border-l-gray-500' },
+  'Скорость':             { header: 'text-yellow-400',  border: 'border-l-yellow-500' },
+  'Скорость передвижения':{ header: 'text-yellow-400',  border: 'border-l-yellow-500' },
+  'Сопротивления':        { header: 'text-blue-400',    border: 'border-l-blue-500' },
+  'Модификаторы':         { header: 'text-red-400',     border: 'border-l-red-500' },
+  'Умения':               { header: 'text-purple-400',  border: 'border-l-purple-500' },
+  'Характеристики':       { header: 'text-green-400',   border: 'border-l-green-500' },
+  'Уровень':              { header: 'text-cyan-400',    border: 'border-l-cyan-500' },
+  'Редкость предмета':    { header: 'text-orange-400',  border: 'border-l-orange-500' },
+  'Класс — Украшения':    { header: 'text-amber-400',   border: 'border-l-amber-500' },
+  'Класс — Оружие 1H':   { header: 'text-red-400',     border: 'border-l-red-500' },
+  'Класс — Оружие 2H':   { header: 'text-red-400',     border: 'border-l-red-500' },
+  'Класс — Экипировка':  { header: 'text-sky-400',     border: 'border-l-sky-500' },
+  'Класс — Оффхэнд':     { header: 'text-teal-400',    border: 'border-l-teal-500' },
+};
 
 export function VendorPage() {
   // Create a filter store for URL sharing
@@ -316,7 +347,7 @@ export function VendorPage() {
     return { regex: result, isRegexOverflow: result.length > MAX_CHARS };
   }, [selectedIds, excludeMode, numericInputs, round10]);
 
-  // Group properties for UI display
+  // Group properties for UI display (ordered by GROUP_ORDER)
   const groupedProperties = useMemo(() => {
     const groups = new Map<string, VendorProperty[]>();
     for (const prop of VENDOR_PROPERTIES) {
@@ -324,13 +355,24 @@ export function VendorPage() {
       group.push(prop);
       groups.set(prop.group, group);
     }
-    return groups;
+    // Sort groups by GROUP_ORDER
+    const sorted = new Map<string, VendorProperty[]>();
+    for (const groupName of GROUP_ORDER) {
+      const props = groups.get(groupName);
+      if (props) sorted.set(groupName, props);
+    }
+    // Add any groups not in GROUP_ORDER
+    for (const [groupName, props] of groups) {
+      if (!sorted.has(groupName)) sorted.set(groupName, props);
+    }
+    return sorted;
   }, []);
 
   const hasNumericSelected = Object.values(numericInputs).some(v => v > 0);
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Page header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold" style={{ color: 'var(--poe-gold)' }}>
           {t('vendor.title')}
@@ -340,97 +382,90 @@ export function VendorPage() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-        <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from(groupedProperties.entries()).map(([groupName, props]) => (
-              <div key={groupName}>
-                <p className="text-xs font-medium text-gray-400/70 pb-2">{groupName}</p>
-                {props.map(prop => (
-                  <div key={prop.id} className="flex items-center space-x-2 p-2 pb-2">
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={selectedIds.has(prop.id)}
-                      onClick={() => toggleProperty(prop.id)}
-                      className={`peer shrink-0 rounded-sm border h-6 w-6 transition-colors ${
-                        selectedIds.has(prop.id)
-                          ? 'bg-slate-100 text-slate-900 border-slate-300'
-                          : 'bg-gray-950 border-gray-600 hover:bg-gray-800'
-                      }`}
-                    >
-                      {selectedIds.has(prop.id) && '✓'}
-                    </button>
-                    <label
-                      className="text-sm font-light cursor-pointer font-medium leading-none text-gray-300"
-                      onClick={() => toggleProperty(prop.id)}
-                    >
-                      {prop.label}
-                    </label>
-                    {prop.hasNumericInput && selectedIds.has(prop.id) && (
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        placeholder="≥N"
-                        value={numericInputs[prop.id] ?? ''}
-                        onChange={(e) => setNumericValue(prop.id, e.target.value ? parseInt(e.target.value, 10) : null)}
-                        className="w-16 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Sticky top: Regex output + controls */}
+      <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
+        style={{ background: 'var(--poe-bg, #0a0a0f)' }}
+      >
+        <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore.getState()} />
 
-        <div className="flex flex-col gap-3">
+        {/* Controls row */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
           {/* Mode toggle */}
-          <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-2">Режим</div>
-            <div className="flex gap-2">
-              <button onClick={() => setExcludeMode(false)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${!excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>
-                Хочу
-              </button>
-              <button onClick={() => setExcludeMode(true)}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>
-                Не хочу
-              </button>
-            </div>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setExcludeMode(false)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              Хочу
+            </button>
+            <button
+              onClick={() => setExcludeMode(true)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              }`}
+            >
+              Не хочу
+            </button>
           </div>
 
-          {/* Round10 toggle for numeric inputs */}
+          {/* Round10 toggle */}
           {hasNumericSelected && (
-            <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={round10} onChange={(e) => setRound10(e.target.checked)}
-                  className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                <span className="text-xs text-gray-300">{t('round10')}</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={round10}
+                onChange={(e) => setRound10(e.target.checked)}
+                className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500"
+              />
+              <span className="text-[10px] text-gray-400">{t('round10')}</span>
+            </label>
           )}
 
           {/* Clear all */}
           {selectedIds.size > 0 && (
             <button
               onClick={clearAll}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+              className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
             >
-              Очистить всё ({selectedIds.size})
+              Очистить ({selectedIds.size})
             </button>
           )}
-
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore.getState()} />
-
-          {/* Note about verification */}
-          <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80">
-            <strong>⚠️ Требуется проверка:</strong> Regex строки для свойств торговца основаны на
-            переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает,
-            сообщите об этом для исправления.
-          </div>
         </div>
+      </div>
+
+      {/* Chip-based property groups */}
+      <div className="flex flex-col gap-3">
+        {Array.from(groupedProperties.entries()).map(([groupName, props]) => {
+          const colors = GROUP_COLORS[groupName] ?? { header: 'text-gray-400', border: 'border-l-gray-500' };
+          return (
+            <div key={groupName}>
+              <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${colors.header}`}>
+                ── {groupName} ({props.length}) ──
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {props.map(prop => (
+                  <VendorChip
+                    key={prop.id}
+                    prop={prop}
+                    isSelected={selectedIds.has(prop.id)}
+                    numericValue={numericInputs[prop.id] ?? null}
+                    onToggle={toggleProperty}
+                    onNumericChange={setNumericValue}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Verification note */}
+      <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80">
+        <strong>Требуется проверка:</strong> Regex строки для свойств торговца основаны на
+        переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает,
+        сообщите об этом для исправления.
       </div>
     </div>
   );

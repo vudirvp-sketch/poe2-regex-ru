@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 10.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 11.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -310,12 +310,12 @@ width for a two-column mod display:
 
 | Tab | `groupMode` | Sub-groups | Origin sections |
 |-----|-------------|------------|-----------------|
-| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | Via origin filter |
-| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | origin filter (normal/desecrated) |
+| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
+| Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | origin filter (normal/desecrated) |
 | Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
 | Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
-| Relic | `affix-only` | None (just prefix/suffix) | — |
-| Vendor | N/A | Custom grid layout, not affected | — |
+| Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
+| Vendor | N/A | Chip groups by category | — |
 
 ### Semantic Classification Logic
 
@@ -334,7 +334,7 @@ width for a two-column mod display:
 **Waystone sentiment**:
 - `positive`: редкость, количество, дополнительн, больше (player benefits)
 - `negative`: монстр, области, горят, ледене, отравлен (map difficulty)
-- `neutral`: everything else
+- `neutral`: 0 remaining (all classified as of iteration 3)
 
 ### Components Added/Modified
 
@@ -354,10 +354,10 @@ width for a two-column mod display:
    This requires refactoring ModList to support nested sub-groups
    (semantic → origin within each semantic group).~~ **DONE in iteration 3.**
 
-2. **Mobile optimization**: The two-column layout stacks on mobile
-   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.
+2. ~~**Mobile optimization**: The two-column layout stacks on mobile
+   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.~~ **DONE in iteration 4.**
 
-3. **VendorPage**: Not updated in this iteration — layout polish deferred.
+3. ~~**VendorPage**: Not updated in this iteration — layout polish deferred.~~ **DONE in iteration 4.**
 
 4. ~~**Light theme CSS**: New components (ModList, FilterChip, CategoryControlPanel)
    may need light-theme overrides in `src/index.css`.~~ **DONE in iteration 3.**
@@ -366,9 +366,9 @@ width for a two-column mod display:
    for waystone and tablet classification should be verified against
    all real data. Edge cases may need keyword adjustments.~~ **DONE in iteration 3.**
 
-6. **Relic origin sections**: Relic data has 58 tokens (57 normal + 1 corrupted).
+6. ~~**Relic origin sections**: Relic data has 58 tokens (57 normal + 1 corrupted).
    Origin sub-sections could show the single corrupted mod separately,
-   but the count is too small to justify the visual noise.
+   but the count is too small to justify the visual noise.~~ **DONE in iteration 4.**
 
 ## 10. Iteration 2 Changes — Multi-Origin Loading + Tablet Type Grouping
 
@@ -456,8 +456,9 @@ width for a two-column mod display:
    - Added comprehensive monster buff patterns (armoured, evasive, accuracy, bleed, poison, etc.) — now NEGATIVE
    - Positive keywords now use specific multi-word patterns instead of broad single words:
      "повышен.*редкост" instead of just "редкость", "увеличен.*количеств" instead of "количество"
-   - Result: 27 POSITIVE / 81 NEGATIVE / 4 NEUTRAL (down from many misclassifications)
-   - Remaining NEUTRAL (4): mostly ambiguous mods or very niche effects
+   - Result: 27 POSITIVE / 85 NEGATIVE / 0 NEUTRAL (all classified)
+   - Note: The "4 NEUTRAL" count in earlier docs was incorrect — verification
+     against actual data confirms all waystone family groups are classified.
 
 3. **Tags-based classification expansion** (`src/shared/mod-classifier.ts`):
    - Added to OFFENSIVE_TAGS: `elemental`, `cold`, `fire`, `lightning`, `curse`
@@ -487,11 +488,11 @@ width for a two-column mod display:
 | Tab | `groupMode` | Sub-groups | Origin sub-sections? |
 |-----|-------------|------------|----------------------|
 | Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
-| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | Via origin filter |
+| Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | Via origin filter |
 | Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
 | Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
-| Relic | `affix-only` | None (just prefix/suffix) | — |
-| Vendor | N/A | Custom grid layout | — |
+| Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
+| Vendor | N/A | Chip groups by category | — |
 
 ### Data Origin Distribution
 
@@ -514,15 +515,108 @@ width for a two-column mod display:
 
 ### Remaining for Next Iteration
 
-1. **P2 — VendorPage layout polish**: Page still uses old grid layout.
-   Adapt to new style with CategoryControlPanel + compact chip layout.
+1. ~~**P2 — VendorPage layout polish**: Page still uses old grid layout.
+   Adapt to new style with CategoryControlPanel + compact chip layout.~~ **DONE in iteration 4.**
 
-2. **P2 — Mobile optimization**: Two-column layout stacks on mobile
+2. ~~**P2 — Mobile optimization**: Two-column layout stacks on mobile
    (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs real device testing.
-   Origin sub-sections add vertical space which may cause excessive scrolling.
+   Origin sub-sections add vertical space which may cause excessive scrolling.~~ **DONE in iteration 4.**
 
-3. **P2 — Relic origin sub-sections**: Relic data has 1 corrupted token.
-   Could add `showOriginSubSections` but visual noise may not be worth it.
+3. ~~**P2 — Relic origin sub-sections**: Relic data has 1 corrupted token.
+   Could add `showOriginSubSections` but visual noise may not be worth it.~~ **DONE in iteration 4.**
 
-4. **Waystone sentiment edge cases**: 4 remaining NEUTRAL tokens.
-   May need game-specific context to classify correctly.
+4. ~~**Waystone sentiment edge cases**: 4 remaining NEUTRAL tokens.
+   May need game-specific context to classify correctly.~~ **RESOLVED — actual count is 0 NEUTRAL.**
+
+## 12. Iteration 4 Changes — VendorPage Layout + Relic Origins + Mobile
+
+### Changes
+
+1. **VendorPage layout polish** (`src/ui/pages/vendor/VendorPage.tsx` + `src/ui/components/VendorChip.tsx`):
+   - Replaced old grid layout (`grid-cols-1 lg:grid-cols-[1fr_320px]`) with new Layout v2 style:
+     sticky top bar (RegexOutput + mode toggle + round10 + clear) → full-width chip groups below
+   - Created new `VendorChip` component (`src/ui/components/VendorChip.tsx`):
+     compact inline-flex chip, visually consistent with `FilterChip` but simpler
+     (no family grouping, no range slots — just toggle + optional numeric input)
+   - Chip labels shortened for compact display (e.g., "Скорость передвижения (30%)" → "МС 30%",
+     "Сопротивление огню" → "Сопр. огню", "Одноручные булавы" → "1H Булавы")
+   - Added color-coded group headers with `GROUP_COLORS` mapping:
+     Скорость → yellow, Сопротивления → blue, Модификаторы → red, Умения → purple,
+     Характеристики → green, Уровень → cyan, etc.
+   - Added `GROUP_ORDER` for consistent group display order
+   - Sticky top panel includes RegexOutput, mode toggle (Хочу/Не хочу),
+     round10 toggle (when numeric values present), and clear button
+   - Verification note moved to bottom of page
+   - Full layout now matches other category pages: header → sticky controls → chip groups → footer note
+
+2. **Relic origin sub-sections** (`src/ui/pages/relic/RelicPage.tsx`):
+   - Added `showOriginSubSections` prop to RelicPage's ModList
+   - Relic data has 58 tokens (57 normal + 1 corrupted suffix)
+   - The single corrupted token "(8—10)% увеличение восстановления чести"
+     now appears under a "··· Осквернённые (1) ···" divider within the suffix column
+   - Since there's only 1 corrupted family group, the visual noise is minimal
+
+3. **Mobile optimization** (`src/index.css`):
+   - Added `@media (max-width: 768px)` rules:
+     - Larger touch targets for filter/vendor chips (min-height: 32px, increased padding)
+     - Slightly larger chip text on mobile (0.8rem) for readability
+     - Extra padding on sticky control panel for reliable sticky behavior
+     - Reduced margin on origin sub-section dividers to save vertical space
+     - Full-width search input on mobile
+   - Added `@media (max-width: 480px)` rules:
+     - Grid overflow prevention (min-width: 0)
+     - Adjusted chip gap for very small screens
+
+4. **Light theme CSS additions for VendorChip** (`src/index.css`):
+   - Added overrides for VendorChip group header colors (red, purple, green, cyan, amber, sky, teal)
+   - Added overrides for VendorChip border-left colors (gray, yellow, red, purple, green, cyan, orange, amber, sky, teal)
+   - These ensure the new VendorPage chip groups look correct in light theme
+
+5. **Waystone sentiment verification**:
+   - Verified against actual waystone + waystone-desecrated data (112 total tokens)
+   - Result: 27 POSITIVE / 85 NEGATIVE / 0 NEUTRAL across 51 family groups
+   - The "4 NEUTRAL" count from iteration 3 docs was incorrect — all groups are classified
+   - Updated iteration 3 docs to reflect the correct count
+
+### Per-Tab Grouping Modes (Final)
+
+| Tab | `groupMode` | Sub-groups | Origin sub-sections? |
+|-----|-------------|------------|----------------------|
+| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
+| Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | Via origin filter |
+| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
+| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
+| Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
+| Vendor | N/A | Color-coded chip groups | — |
+
+### Components Added/Modified
+
+| Component | Change | Description |
+|-----------|--------|-------------|
+| `VendorPage.tsx` | **Rewritten** | New Layout v2: sticky controls → chip groups → footer note |
+| `VendorChip.tsx` | **New** | Compact inline-flex chip for vendor properties |
+| `RelicPage.tsx` | **Updated** | Added `showOriginSubSections` to ModList |
+| `index.css` | **Updated** | Mobile optimization rules + light theme VendorChip overrides |
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+### Remaining for Next Iteration
+
+1. **P3 — Real device testing**: Mobile CSS has been added but not tested on
+   actual devices. May need adjustments after real-world testing.
+
+2. **P3 — Vendor regex verification**: Vendor regex strings are still unverified
+   in-game. The verification note at the bottom of VendorPage should remain until
+   community testing confirms them.
+
+3. **P3 — Accessibility audit**: All category pages should be audited for
+   keyboard navigation, screen reader support, and ARIA attributes.
+
+4. **P3 — Performance profiling**: With 427 amulet tokens and origin sub-sections,
+   render performance should be profiled. Virtual scroll may be needed if
+   family group counts grow significantly.

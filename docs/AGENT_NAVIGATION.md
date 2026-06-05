@@ -1,7 +1,7 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 15.0 | **Date:** 2026-06-06
-> **Current Iteration:** 9 (Polish + CI/CD) — COMPLETE. See новый_план.md for remaining work.
+> **Version:** 16.0 | **Date:** 2026-06-06
+> **Current Iteration:** Layout v2, iteration 4 (VendorPage layout + Relic origins + Mobile) — COMPLETE.
 > **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
 > **Bugfix:** Session 18 fixed critical React error #185 (ProfilePanel infinite loop) + 404.html for SPA routing + loader.ts BASE_URL fix + ETL refresh with i18n overrides (51 tokens patched).
 

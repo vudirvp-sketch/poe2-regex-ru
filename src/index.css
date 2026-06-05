@@ -298,3 +298,124 @@ body {
 [data-theme="light"] .bg-blue-900\/20 {
   background-color: rgba(59, 130, 246, 0.1) !important;
 }
+
+/* Light theme: VendorChip group header colors */
+[data-theme="light"] .text-red-400 {
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .text-purple-400 {
+  color: #9333ea !important;
+}
+
+[data-theme="light"] .text-green-400 {
+  color: #16a34a !important;
+}
+
+[data-theme="light"] .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] .text-amber-400 {
+  color: #d97706 !important;
+}
+
+[data-theme="light"] .text-sky-400 {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .text-teal-400 {
+  color: #0d9488 !important;
+}
+
+/* Light theme: VendorChip border-left colors */
+[data-theme="light"] .border-l-gray-500 {
+  border-left-color: #6b7280 !important;
+}
+
+[data-theme="light"] .border-l-yellow-500 {
+  border-left-color: #eab308 !important;
+}
+
+[data-theme="light"] .border-l-red-500 {
+  border-left-color: #ef4444 !important;
+}
+
+[data-theme="light"] .border-l-purple-500 {
+  border-left-color: #a855f7 !important;
+}
+
+[data-theme="light"] .border-l-green-500 {
+  border-left-color: #22c55e !important;
+}
+
+[data-theme="light"] .border-l-cyan-500 {
+  border-left-color: #06b6d4 !important;
+}
+
+[data-theme="light"] .border-l-orange-500 {
+  border-left-color: #f97316 !important;
+}
+
+[data-theme="light"] .border-l-amber-500 {
+  border-left-color: #f59e0b !important;
+}
+
+[data-theme="light"] .border-l-sky-500 {
+  border-left-color: #0ea5e9 !important;
+}
+
+[data-theme="light"] .border-l-teal-500 {
+  border-left-color: #14b8a6 !important;
+}
+
+/* ─── Mobile optimization ─── */
+
+/* Increase touch targets for chips on small screens */
+@media (max-width: 768px) {
+  /* Larger tap area for filter chips */
+  .mod-list button[class*="inline-flex"],
+  .mod-list span[class*="inline-flex"] {
+    min-height: 32px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  /* Slightly larger chip text on mobile for readability */
+  .mod-list .text-xs {
+    font-size: 0.8rem;
+  }
+
+  /* Ensure control panel has enough padding below for sticky behavior */
+  .sticky.top-0 {
+    padding-bottom: 12px;
+  }
+
+  /* Origin sub-section dividers: less vertical space on mobile */
+  .mod-list .mt-1\.5 {
+    margin-top: 8px;
+  }
+
+  /* Search input full width on mobile */
+  .mod-list input[type="text"] {
+    min-width: 100%;
+  }
+
+  /* VendorChip larger tap targets on mobile */
+  span[class*="inline-flex"][class*="cursor-pointer"] {
+    min-height: 32px;
+  }
+}
+
+/* Prevent horizontal overflow on narrow screens */
+@media (max-width: 480px) {
+  /* Ensure grid doesn't overflow */
+  .grid {
+    min-width: 0;
+  }
+
+  /* Full-width chips on very small screens */
+  .mod-list .gap-1\.5 {
+    gap: 6px;
+  }
+}

@@ -90,6 +90,7 @@ export function RelicPage() {
         onOriginFilterChange={setOriginFilter}
         onClearSelections={clearSelections}
         groupMode="affix-only"
+        showOriginSubSections
       />
 
       <div className="flex flex-col gap-3">
