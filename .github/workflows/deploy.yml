@@ -1,4 +1,4 @@
-name: ETL + Build + Deploy
+name: Build + Deploy
 
 on:
   push:
@@ -61,7 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # If ETL ran and pushed changes, we need the latest commit
           ref: ${{ needs.etl.result == 'success' && 'refs/heads/main' || '' }}
       - uses: pnpm/action-setup@v4
         with:
@@ -73,9 +72,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Run tests
         run: pnpm test
-      - name: Build
+      - name: Build production bundle
         run: pnpm build
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
@@ -88,5 +88,6 @@ jobs:
     needs: build
     if: always() && needs.build.result == 'success'
     steps:
-      - uses: actions/deploy-pages@v4
+      - name: Deploy to Pages
+        uses: actions/deploy-pages@v4
         id: deployment

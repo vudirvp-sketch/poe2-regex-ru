@@ -1462,3 +1462,81 @@ New file: `tests/etl/cross-validation.test.ts` — 9 tests that load actual ETL 
 - 🟢 **Virtualized lists** for large categories (belt 298, ring 366, amulet 427)
 - 🟢 **~50 tokens with English-only rawText** (poe2db.tw has no RU translation)
 - 🟢 **ETL re-run** — needs internet access to poe2db.tw
+
+---
+
+## Session 16 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** Fix GitHub Pages deployment, assess project status, rewrite plan, create archive
+
+### 16.1 — GitHub Pages deployment fix
+
+**Problem:** Site doesn't deploy to GitHub Pages. Two root causes identified:
+
+1. **Missing `.nojekyll` file** — GitHub Pages uses Jekyll by default, which ignores files/directories starting with `_` or `.`. Without `.nojekyll`, asset files may not be served correctly.
+2. **deploy.yml needed cleanup** — The workflow had some issues: step naming was inconsistent, and the deploy job condition could be improved.
+
+**Fixes implemented:**
+- [x] `public/.nojekyll` — Created empty file. Vite copies `public/` to `dist/` during build, so `.nojekyll` will be included in the deployment artifact.
+- [x] `.github/workflows/deploy.yml` — Complete rewrite:
+  - Renamed workflow from "ETL + Build + Deploy" to "Build + Deploy" (clearer)
+  - Added explicit step names to build job ("Run tests", "Build production bundle", "Upload Pages artifact")
+  - Improved deploy job step name ("Deploy to Pages")
+  - Kept same 3-job structure: etl → build → deploy
+  - Node 22 + pnpm 11 (stable, compatible with lockfile)
+  - Added `if: always() && needs.build.result == 'success'` to deploy job for robustness
+
+**⚠️ IMPORTANT:** User must also configure GitHub Pages in repository settings:
+- Go to Settings → Pages → Source → Select "GitHub Actions" (NOT "Deploy from a branch")
+- This is required for the `actions/deploy-pages@v4` action to work
+
+### 16.2 — Project status assessment
+
+**What's DONE (all 15 sessions, iterations 0-9):**
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Core Engine | ✅ Complete | AST, Compiler, Optimizer, Number Regex, Limits, Yofication |
+| ETL Pipeline | ✅ Complete | 1,584 tokens across 10 categories, 4,888+ optimizations |
+| UI Pages (8) | ✅ Complete | Waystone, Tablet, Relic, Jewel, Vendor, Belt, Ring, Amulet |
+| Store Layer | ✅ Complete | filter-store, profile-store, url-sync |
+| Shared Components | ✅ Complete | RegexOutput (with Health Bar), ModList, FilterChip, ProfilePanel |
+| Mobile Responsive | ✅ Complete | Hamburger menu, slide-in sidebar |
+| SEO + Meta | ✅ Complete | Open Graph, Twitter Card, canonical URL |
+| CI/CD | ✅ Complete | deploy.yml (just fixed) |
+| URL Sharing | ✅ Complete | lz-string compression + extraState sync |
+| Tests | ✅ Complete | 109 tests across 11 test files |
+
+**What's REMAINING (prioritized):**
+
+🔴 **HIGH — Requires in-game verification by user:**
+1. VendorPage regex strings (50+) — need testing in RU client
+2. TabletPage type/rarity/uses regex strings — need testing in RU client
+3. RANGE.max in-game verification
+
+🟡 **MEDIUM — Data quality:**
+4. ~50 tokens with English-only rawText (poe2db.tw missing RU translations)
+5. Full min+max RANGE intersection (currently min-only when both specified)
+
+🟢 **LOW — Polish & performance:**
+6. Virtualized lists for large categories (belt 298, ring 366, amulet 427)
+7. ETL re-run for fresh data from poe2db.tw
+
+### 16.3 — Build verification
+
+- `pnpm build` passes ✅
+- `pnpm test` passes (109/109) ✅
+- `.nojekyll` correctly included in dist/ ✅
+
+### Stopping Point (Session 16)
+
+**What's done this session:**
+- ✅ GitHub Pages deployment fix (`.nojekyll` + deploy.yml rewrite)
+- ✅ Project status assessment (all major features complete)
+- ✅ New plan written with current priorities
+
+**What's NOT done (requires user action or next session):**
+- **GitHub Pages settings** — User must set Source to "GitHub Actions" in repo Settings → Pages
+- **In-game verification** — VendorPage + TabletPage regex strings (user must test)
+- **Plan rewrite** — See новый_план.md in the archive

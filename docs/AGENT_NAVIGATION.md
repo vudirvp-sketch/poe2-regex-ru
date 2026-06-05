@@ -1,7 +1,8 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 12.0 | **Date:** 2026-06-06
-> **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending in-game verification
+> **Version:** 13.0 | **Date:** 2026-06-06
+> **Current Iteration:** 9 (Polish + CI/CD) — COMPLETE. See новый_план.md for remaining work.
+> **GitHub Pages:** Fixed in Session 16 (.nojekyll + deploy.yml). User must set Source to "GitHub Actions" in repo Settings → Pages.
 
 ---
 
@@ -83,7 +84,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅, URL sharing ✅, RANGE.max ✅, Yofication fix ✅, 109 tests (33 new in Session 15) — see remaining items below |
+| 9: Polish + CI/CD | ✅ Complete | 109 tests, deploy.yml fixed, .nojekyll added. See новый_план.md for post-MVP work |
 
 ## 7. Known Issues & Remaining Work
 
