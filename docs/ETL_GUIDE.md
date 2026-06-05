@@ -154,6 +154,28 @@ interface RawModTier {
 
 ## 5. Normalize Step
 
+### Multi-line Description Splitting (Mod Gluing Fix)
+
+**CRITICAL:** poe2db.tw stores multiple properties in a single description cell,
+separated by `<br>` tags. Only the **first line** is the actual affix mod.
+Subsequent lines are implicit bonuses that the item gains from having that affix.
+
+Example HTML from poe2db.tw waystone page:
+```html
+<td>Дополнительных свойств у редких монстров: <span class="mod-value">1</span>
+<br><span class="mod-value">25</span>% увеличение количества редких монстров
+<br><span class="mod-value">10</span>% увеличение количества путевых камней, находимых в области</td>
+```
+
+- Line 1: "Дополнительных свойств у редких монстров: 1" — **actual affix**
+- Lines 2-3: "25% увеличение количества редких монстров" etc. — **implicit bonuses** (NOT separate affixes)
+
+The `extractTextAndRanges()` function splits by `<br>` and takes ONLY the first segment.
+This prevents "mod gluing" where all text gets concatenated into one garbage string.
+
+Without this fix, rawText would become:
+`"Дополнительных свойств у редких монстров: 125% увеличение количества редких монстров10% увеличение количества путевых камней, находимых в области"`
+
 ### Gender Inflection Template
 Russian mod names on poe2db.tw use a custom template syntax with **UPPERCASE** keys:
 ```html

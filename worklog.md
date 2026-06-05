@@ -539,3 +539,97 @@ This is a significant refactor that requires:
 - **VendorPage** — still a stub, needs Russian property names from in-game verification
 - **ETL re-run** — after parser fixes, must run `pnpm etl` to regenerate all JSON
 - **Mobile responsive polish**
+
+---
+
+## Session 6 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Fix waystone/tablet parser mod gluing bug (PRIORITY #1), fix WaystonePage tier regex, re-run ETL, verify against регис folder
+
+### 8.1 — Parser "mod gluing" bug FIXED (PRIORITY #1)
+
+**Problem:** 104/106 waystone tokens and 25/78 tablet tokens had their rawText GLUED together — multiple mod descriptions from a single poe2db.tw table cell were concatenated into one string because `extractTextAndRanges()` called `$.root().text().trim()` which merges all text including across `<br>` boundaries.
+
+**Root cause:** poe2db.tw stores the affix mod + implicit bonuses in a single `<td>` cell, separated by `<br>` tags. Only the FIRST line is the actual affix; subsequent lines are implicit bonuses that the item gains from having that affix. The parser was concatenating everything into one string.
+
+**Fix implemented in `scripts/etl/normalize.ts` — `extractTextAndRanges()`:**
+- Before: `cheerio.load(html)` → `$.root().text().trim()` (concatenates ALL text)
+- After: Split HTML by `<br>` tags → take ONLY the first segment → `cheerio.load(firstSegment)`
+- This preserves all range/value extraction logic since it operates on the first segment only
+
+**Verification:**
+- Waystone: 0 glued tokens (was 104/106) ✅
+- Tablet: 0 glued tokens (was 25/78) ✅
+- All other categories: 0 glued tokens ✅
+- Total tokens unchanged: 1,584 across all categories
+
+**Files modified:**
+- [x] `scripts/etl/normalize.ts` — `extractTextAndRanges()` now splits by `<br>` and takes first line only
+- [x] `tests/etl/normalize.test.ts` — Added 2 new tests:
+  - "takes only the first line when description has <br> tags (mod gluing fix)"
+  - "handles single-line HTML without <br> tags"
+- [x] All JSON files in `public/generated/` — Regenerated via `pnpm etl`
+
+### 8.2 — WaystonePage tier regex fixed
+
+**Problem:** Tier filter used suffix `"р "` (Cyrillic р + space) to match "Тир: N" in the RU client. This was unintuitive and potentially unreliable.
+
+**Fix implemented in `src/ui/pages/waystone/WaystonePage.tsx`:**
+- Changed `range(tierMin, undefined, 'р ')` → `range(tierMin, undefined, 'тир')`
+- Updated doc comment: explains "Тир" is NOT a mod but a property display searchable via regex
+- Updated UI hint: `≥{tierMin} тир → "тир" в regex` instead of `≥{tierMin} тир → "р " в regex`
+- Alternative suggestions if "тир" doesn't work: "тир:" or "Тир"
+
+**⚠️ VERIFICATION STILL NEEDED:** All WaystonePage regex strings need in-game testing:
+- "оскверн" → matches "Осквернено"?
+- "делир" → matches "Делириум"?
+- "тир" → matches "Тир: N"?
+
+### 8.3 — ETL re-run results
+
+| Category | Tokens | Glued | Optimizations |
+|----------|--------|-------|---------------|
+| waystone | 106 | 0 | 53 |
+| waystone-desecrated | 18 | 0 | 5 |
+| tablet | 78 | 0 | 351 |
+| jewel | 193 | 0 | 3,693 |
+| jewel-desecrated | 32 | 0 | 9 |
+| jewel-corrupted | 10 | 0 | 9 |
+| relic | 56 | 0 | 26 |
+| belt | 298 | 0 | 228 |
+| ring | 366 | 0 | 447 |
+| amulet | 427 | 0 | 367 |
+| **Total** | **1,584** | **0** | **4,888** |
+
+Note: Optimization counts changed from Session 2 because the rawText is now correct (no more glued text).
+
+### 8.4 — Documentation updated
+
+- [x] `docs/ETL_GUIDE.md` — Added section "Multi-line Description Splitting (Mod Gluing Fix)" with HTML example and explanation
+- [x] `worklog.md` — This entry
+
+**Build verification:** `pnpm build` passes, `pnpm test` passes (59/59 tests)
+
+### Stopping Point (Session 6)
+
+**What's done:**
+- ✅ Waystone/tablet parser mod gluing bug FIXED (0 glued tokens across all categories)
+- ✅ WaystonePage tier regex changed from "р " to "тир"
+- ✅ ETL re-run completed — all JSON files regenerated with clean data
+- ✅ 2 new tests for mod gluing fix (59 total tests, all passing)
+- ✅ Documentation updated (ETL_GUIDE.md, worklog.md)
+
+**What's NOT done yet (for next session):**
+- **In-game verification** of Waystone RU regex strings ("оскверн", "делир", "тир")
+- **Regex quality** — 28/106 waystone tokens have regex ≤ 4 chars (e.g., "сво", "аны", "ивы").
+  These are technically unique within the category but could match unintended text in-game.
+  Need to increase MIN_REGEX_LEN or improve the algorithm for waystone/tablet categories.
+- **Duplicate tokens** — Waystone tokens 72-83 have 4 copies each of earth effects
+  ("подожженной земли", "замерзшей земли", "заряженной земли"). Likely different levels
+  of the same mod; need deduplication or tier differentiation.
+- **VendorPage** — still a stub, needs Russian property names from in-game verification
+- **Mobile responsive polish**
+- **"Регис" folder as alternative data source** — User suggested using файлы в папке регис
+  instead of/in addition to poe2db.tw. Could be used to validate ETL output or as a
+  manual override source.

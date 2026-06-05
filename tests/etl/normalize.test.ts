@@ -27,6 +27,23 @@ describe('extractTextAndRanges', () => {
     expect(result.ranges).toEqual([]);
     expect(result.rawText).toBe('Простой текст мода без чисел');
   });
+
+  it('takes only the first line when description has <br> tags (mod gluing fix)', () => {
+    // Real poe2db.tw HTML: affix line followed by implicit bonuses separated by <br>
+    const html = 'Дополнительных свойств у редких монстров: <span class="mod-value">1</span><br><span class="mod-value">25</span>% увеличение количества редких монстров<br><span class="mod-value">10</span>% увеличение количества путевых камней, находимых в области';
+    const result = extractTextAndRanges(html);
+    // Should only extract the first affix line, not the implicit bonuses
+    expect(result.rawText).toBe('Дополнительных свойств у редких монстров: 1');
+    expect(result.rawText).not.toContain('увеличение количества');
+    expect(result.values).toEqual([1]);
+  });
+
+  it('handles single-line HTML without <br> tags', () => {
+    const html = 'Монстры бронированы';
+    const result = extractTextAndRanges(html);
+    expect(result.rawText).toBe('Монстры бронированы');
+    expect(result.ranges).toEqual([]);
+  });
 });
 
 describe('extractGenderForms', () => {

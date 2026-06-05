@@ -2,18 +2,18 @@
  * WaystonePage — Full working category page for Waystones.
  *
  * Waystones have specific features:
- * - Tier filter (min tier) → RANGE(tierMin, undefined, "р ")  (Cyrillic р for RU client "Тир")
+ * - Tier filter (min tier) → RANGE(tierMin, undefined, "тир")  (matches "Тир: N" in RU client)
  * - Corrupted → literal("оскверн")  (matches "Осквернено" in RU client)
  * - Uncorrupted → exclude(literal("оскверн"))
  * - Delirious → literal("делир")  (matches "Делириум" in RU client)
  * - Quantifiers (IIQ, IIR, Pack Size) with minimum value filters
  *
- * ⚠️ NOTE: The regex strings "оскверн", "делир", and suffix "р " are for the
- * Russian game client. These were derived from game text analysis and need
- * in-game verification. If they don't work, alternatives:
- *   - "оскверн" → "осквер" or full "Осквернено"
- *   - "делир" → "Делириу" or "Делириум"
- *   - "р " (Cyrillic) → "тир" if suffix matching doesn't work
+ * ⚠️ VERIFICATION NEEDED: The regex strings "оскверн", "делир", and suffix "тир"
+ * are for the Russian game client. They need in-game verification.
+ * Alternatives if they don't match:
+ *   - "оскверн" → try "осквер" or full "Осквернено"
+ *   - "делир" → try "Делириу" or "Делириум"
+ *   - "тир" → try "тир:" or "Тир"
  */
 import { useState, useMemo } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
@@ -35,11 +35,13 @@ export function WaystonePage() {
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
 
-    // Tier: RANGE(tierMin, undefined, "р ") — Cyrillic "р" + space
+    // Tier: RANGE(tierMin, undefined, "тир") — matches "Тир: N" in RU client
     // In the RU client, waystone tier is displayed as "Тир: N".
-    // The suffix "р " matches the end of "тир" (case-insensitive search).
+    // The suffix "тир" matches the word "Тир" (case-insensitive search).
+    // NOTE: "Тир" is NOT a mod — it's a property display on the waystone item.
+    // It is searchable via regex in the PoE2 trade search.
     if (tierMin !== null && tierMin > 0) {
-      nodes.push(range(tierMin, undefined, 'р '));
+      nodes.push(range(tierMin, undefined, 'тир'));
     }
 
     // Corrupted → literal("оскверн")
@@ -137,7 +139,7 @@ export function WaystonePage() {
               />
               {tierMin !== null && (
                 <span className="text-[10px] text-gray-600">
-                  ≥{tierMin} тир → "р " в regex
+                  ≥{tierMin} тир → "тир" в regex
                 </span>
               )}
             </div>

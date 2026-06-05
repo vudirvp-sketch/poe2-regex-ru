@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T05:19:18.454Z",
+  "version": "2026-06-05T07:33:32.102Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -6893,16 +6893,16 @@
       "category": "ring",
       "origin": "normal",
       "rawText": {
-        "ru": "(8—12)% повышение скорости регенерации маны5% увеличение радиуса обзора"
+        "ru": "(8—12)% повышение скорости регенерации маны"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "##% повышение скорости регенерации маны"
       },
       "regex": {
-        "ru": "обзора"
+        "ru": "регенерации маны"
       },
       "familyKey": {
-        "ru": "#% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "#% повышение скорости регенерации маны"
       },
       "genderForms": {
         "ru": {}
@@ -6917,16 +6917,13 @@
           12
         ]
       ],
-      "values": [
-        5
-      ],
+      "values": [],
       "hasYofication": true,
       "yoficationPositions": [
         13,
         28,
         30,
-        32,
-        52
+        32
       ],
       "level": 8
     },
@@ -6935,16 +6932,16 @@
       "category": "ring",
       "origin": "normal",
       "rawText": {
-        "ru": "(13—17)% повышение скорости регенерации маны10% увеличение радиуса обзора"
+        "ru": "(13—17)% повышение скорости регенерации маны"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "##% повышение скорости регенерации маны"
       },
       "regex": {
-        "ru": "обзора"
+        "ru": "регенерации маны"
       },
       "familyKey": {
-        "ru": "#% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "#% повышение скорости регенерации маны"
       },
       "genderForms": {
         "ru": {}
@@ -6959,16 +6956,13 @@
           17
         ]
       ],
-      "values": [
-        10
-      ],
+      "values": [],
       "hasYofication": true,
       "yoficationPositions": [
         14,
         29,
         31,
-        33,
-        54
+        33
       ],
       "level": 15
     },
@@ -6977,16 +6971,16 @@
       "category": "ring",
       "origin": "normal",
       "rawText": {
-        "ru": "(18—22)% повышение скорости регенерации маны15% увеличение радиуса обзора"
+        "ru": "(18—22)% повышение скорости регенерации маны"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "##% повышение скорости регенерации маны"
       },
       "regex": {
-        "ru": "обзора"
+        "ru": "регенерации маны"
       },
       "familyKey": {
-        "ru": "#% повышение скорости регенерации маны#% увеличение радиуса обзора"
+        "ru": "#% повышение скорости регенерации маны"
       },
       "genderForms": {
         "ru": {}
@@ -7001,16 +6995,13 @@
           22
         ]
       ],
-      "values": [
-        15
-      ],
+      "values": [],
       "hasYofication": true,
       "yoficationPositions": [
         14,
         29,
         31,
-        33,
-        54
+        33
       ],
       "level": 30
     },
@@ -15113,9 +15104,12 @@
       "weight": 15,
       "count": 9
     },
-    "ring.corruptionmanaregeneration1_corrupted:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -15128,7 +15122,7 @@
         "ru": "регенерации маны"
       },
       "weight": 16,
-      "count": 8
+      "count": 11
     },
     "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.normal_150": {
       "ids": [
@@ -15192,18 +15186,6 @@
       },
       "weight": 9,
       "count": 7
-    },
-    "ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3": {
-      "ids": [
-        "ring.lightradiusandmanaregeneration1",
-        "ring.lightradiusandmanaregeneration2",
-        "ring.lightradiusandmanaregeneration3"
-      ],
-      "regex": {
-        "ru": "обзора"
-      },
-      "weight": 6,
-      "count": 3
     },
     "ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6": {
       "ids": [
@@ -17550,9 +17532,12 @@
       "weight": 4,
       "count": 13
     },
-    "ring.corruptionmanaregeneration1_corrupted:ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.managainedfromenemydeath1",
         "ring.managainedfromenemydeath2",
         "ring.managainedfromenemydeath3",
@@ -17571,12 +17556,15 @@
         "ru": "маны"
       },
       "weight": 4,
-      "count": 14
+      "count": 17
     },
-    "ring.corruptionliferegenerationrate1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionliferegenerationrate1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionliferegenerationrate1_corrupted",
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17589,12 +17577,15 @@
         "ru": "регенерации "
       },
       "weight": 12,
-      "count": 9
+      "count": 12
     },
-    "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated:ring.corruptionmanaregeneration1_corrupted:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated:ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated",
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17607,12 +17598,15 @@
         "ru": "маны"
       },
       "weight": 4,
-      "count": 9
+      "count": 12
     },
-    "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated:ring.corruptionmanaregeneration1_corrupted:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated:ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated",
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17625,11 +17619,14 @@
         "ru": " маны"
       },
       "weight": 5,
-      "count": 9
+      "count": 12
     },
-    "ring.corruptionmanaregeneration1_corrupted:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6:ring.spellcostefficiency1_breachborn:ring.spellcostefficiency2_breachborn:ring.spellcostefficiency3_breachborn:ring.spellcostefficiency4_breachborn:ring.spellcostefficiency5_breachborn:ring.spellcostefficiency6_breachborn": {
+    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6:ring.spellcostefficiency1_breachborn:ring.spellcostefficiency2_breachborn:ring.spellcostefficiency3_breachborn:ring.spellcostefficiency4_breachborn:ring.spellcostefficiency5_breachborn:ring.spellcostefficiency6_breachborn": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17648,12 +17645,15 @@
         "ru": "маны"
       },
       "weight": 4,
-      "count": 14
+      "count": 17
     },
-    "ring.corruptionmanaregeneration1_corrupted:ring.essenceincreasedmanapercent1_essence:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionmanaregeneration1_corrupted:ring.essenceincreasedmanapercent1_essence:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
         "ring.essenceincreasedmanapercent1_essence",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17666,7 +17666,7 @@
         "ru": " маны"
       },
       "weight": 5,
-      "count": 9
+      "count": 12
     },
     "ring.lifeleech2:ring.manaleech3": {
       "ids": [

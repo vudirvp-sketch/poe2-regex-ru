@@ -103,7 +103,12 @@ export function normalizeTypeB(
  * - Numeric ranges: (5<span class="ndash">—</span>9) -> ranges[[5,9]], template uses ##
  * - Standalone numbers: values[], template uses #
  * - Gender templates: <if:MS>...</if:MS> -> extracted separately
- * - Multi-line mods separated by <br>
+ * - Multi-line mods separated by <br> — ONLY the first line is the actual affix
+ *
+ * IMPORTANT: poe2db.tw stores multiple related properties in one description cell,
+ * separated by <br>. Only the FIRST line is the actual affix mod; subsequent lines
+ * are implicit bonuses that the item gains from having that affix. Taking only the
+ * first line prevents "mod gluing" where all text gets concatenated into one string.
  */
 export function extractTextAndRanges(html: string): {
   rawText: string;
@@ -111,7 +116,16 @@ export function extractTextAndRanges(html: string): {
   ranges: number[][];
   values: number[];
 } {
-  const $ = cheerio.load(html);
+  // Split by <br> tags and take only the FIRST segment.
+  // On poe2db.tw waystone/tablet pages, the description cell often contains:
+  //   "Actual affix text<br>Implicit bonus 1<br>Implicit bonus 2"
+  // Only the first line is the affix that appears in the item's mod list.
+  // Subsequent lines are implicit properties that appear on the item tooltip
+  // but are NOT separate searchable affixes.
+  const segments = html.split(/<br\s*\/?>/i);
+  const firstSegment = segments[0];
+
+  const $ = cheerio.load(firstSegment);
   const ranges: number[][] = [];
   const values: number[] = [];
 
@@ -139,7 +153,7 @@ export function extractTextAndRanges(html: string): {
   $('span.secondary').remove();
 
   let rawText = $.root().text().trim();
-  // Normalize whitespace (multiple spaces, newlines from <br>)
+  // Normalize whitespace (multiple spaces, newlines)
   rawText = rawText.replace(/\s+/g, ' ').trim();
 
   // Build template: replace ranges with ##, single values with #
