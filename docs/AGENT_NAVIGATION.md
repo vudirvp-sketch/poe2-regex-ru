@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 10.0 | **Date:** 2026-06-05
+> **Version:** 11.0 | **Date:** 2026-06-05
 > **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending in-game verification
 
 ---
@@ -133,7 +133,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### 🔵 REMAINING — Future Work
 
-18. **URL restoration on page load** — URL sharing now includes extraState, but there's no automatic restoration on page load. Currently only the share URL is generated. Need to add `syncFromUrl()` call on page mount and wire up extraState restoration.
+18. ~~**URL restoration on page load**~~ — ✅ DONE in Session 14. `syncFromUrl()` is now called synchronously on first render in `useCategoryPage` (via `useState` initializer) and in `VendorPage`. Restored state includes: `selectedIds`, `searchText`, `affixFilter`, `originFilter`, `extraState` (category-specific toggles), and generic state (`excludeMode`, `minValue`, `round10Enabled`). Race condition between sync/restore effects fixed using `syncReadyRef` pattern.
 
 19. **Full min+max RANGE intersection** — When both min and max are specified on a RANGE node, the current implementation uses only min. Full intersection (min ≤ x ≤ max) would require generating regex that matches numbers in a specific range, which is complex for PoE2 regex dialect.
 

@@ -10,9 +10,10 @@
  * Supports extra AST nodes (e.g., Waystone tier/corrupted/delirious)
  * that are ANDed into the final regex.
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData } from '@data/loader';
 import { createFilterStore } from '@store/filter-store';
+import { syncFromUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
@@ -80,6 +81,8 @@ export interface CategoryPageState {
   filterStore: {
     serialize: () => Record<string, unknown>;
     deserialize: (data: Record<string, unknown>) => void;
+    setExtraState: (key: string, value: unknown) => void;
+    getExtraState: (key: string) => unknown;
   };
   /** Restore filter state from a serialized object (e.g., loaded profile) */
   restoreFilterState: (data: Record<string, unknown>) => void;
@@ -271,12 +274,44 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const [data, setData] = useState<CategoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [excludeMode, setExcludeMode] = useState(false);
-  const [round10Enabled, setRound10Enabled] = useState(defaultRound10);
-  const [minValue, setMinValue] = useState<number | null>(null);
 
   // Use Zustand store with inline subscription
   const useStore = useMemo(() => createFilterStore(), [categoryId]);
+
+  // Restore from URL on first render (synchronous, before any effects).
+  // syncFromUrl populates the filter store with data from the URL hash,
+  // so all useState initializers below can read the correct values.
+  const [urlRestored] = useState(() => syncFromUrl(useStore.getState()));
+
+  // Initialize React state from the filter store (which may have URL data).
+  // These are generic state values shared by ALL category pages.
+  // They are synced to extraState for inclusion in share URLs.
+  const [excludeMode, setExcludeMode] = useState(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('excludeMode');
+      if (typeof val === 'boolean') return val;
+    }
+    return false;
+  });
+  const [round10Enabled, setRound10Enabled] = useState(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('round10Enabled');
+      if (typeof val === 'boolean') return val;
+    }
+    return defaultRound10;
+  });
+  const [minValue, setMinValue] = useState<number | null>(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('minValue');
+      if (typeof val === 'number') return val;
+    }
+    return null;
+  });
+
+  // Ref to skip the first sync-to-store render cycle, preventing
+  // overwrite of URL-restored extraState values before page-level
+  // restore effects have a chance to read them.
+  const syncReadyRef = useRef(false);
 
   const selectedIds = useStore(state => state.selectedIds);
   const searchText = useStore(state => state.searchText);
@@ -317,6 +352,19 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       cancelled = true;
     };
   }, [categoryId]);
+
+  // Sync excludeMode/minValue/round10Enabled to filter store's extraState
+  // so they are included in share URLs. Skips the first render to avoid
+  // overwriting URL-restored values before page-level restore effects run.
+  useEffect(() => {
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    useStore.getState().setExtraState('excludeMode', excludeMode);
+    useStore.getState().setExtraState('round10Enabled', round10Enabled);
+    useStore.getState().setExtraState('minValue', minValue);
+  }, [excludeMode, round10Enabled, minValue, useStore]);
 
   // Build selected tokens list
   const selectedTokens = useMemo(() => {

@@ -1279,3 +1279,88 @@ Reviewed `.github/workflows/deploy.yml` — it is well-structured and ready for 
 - **Full min+max RANGE intersection** — When both min and max are specified, only min is used. Full intersection regex is complex and not yet needed by any callers.
 - **In-game verification** — VendorPage 50+ strings, TabletPage type/rarity/uses strings still need testing
 - **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)
+
+---
+
+## Session 14 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Implement URL restoration on page load (syncFromUrl + extraState restore + race condition fix)
+
+### 14.1 — URL restoration on page load implemented
+
+**Problem:** Share URLs were generated with full state (selectedIds, searchText, affixFilter, originFilter, extraState), but when a user opened a shared URL, the page loaded with default empty state. The `syncFromUrl()` function existed in `url-sync.ts` but was never called anywhere.
+
+**Implementation in `src/ui/hooks/useCategoryPage.ts`:**
+
+- Added `syncFromUrl` import from `@store/url-sync`
+- Added synchronous URL restoration on first render using `useState` initializer:
+  ```typescript
+  const [urlRestored] = useState(() => syncFromUrl(useStore.getState()));
+  ```
+  This populates the filter store BEFORE any effects or renders, so all subsequent `useState` initializers can read the correct values.
+- Changed `excludeMode`, `round10Enabled`, `minValue` initializers to read from the filter store's `extraState` when URL was restored:
+  ```typescript
+  const [excludeMode, setExcludeMode] = useState(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('excludeMode');
+      if (typeof val === 'boolean') return val;
+    }
+    return false;
+  });
+  ```
+- Added `syncReadyRef` pattern: a `useRef(false)` that skips the first sync-to-store render cycle to prevent overwriting URL-restored extraState values before page-level restore effects have a chance to read them.
+- Added `useEffect` that syncs `excludeMode`/`minValue`/`round10Enabled` to filter store's extraState for URL sharing (previously these values were NOT included in share URLs).
+- Expanded `filterStore` return type to include `setExtraState` and `getExtraState` methods (previously only `serialize`/`deserialize` were exposed).
+
+**Files modified:**
+- [x] `src/ui/hooks/useCategoryPage.ts` — Added syncFromUrl, extraState restore, syncReadyRef, excludeMode/minValue/round10 sync to extraState
+
+### 14.2 — Race condition fixed in page-level sync/restore effects
+
+**Problem:** In WaystonePage, TabletPage, and VendorPage, the sync-to-store effect was declared BEFORE the restore-from-store effect. On mount, the sync effect would overwrite the URL-restored extraState with default React state (all false/empty) before the restore effect could read the correct values.
+
+**Fix implemented using `syncReadyRef` pattern:**
+
+1. Added `const syncReadyRef = useRef(false)` in each page component
+2. Moved the restore effect BEFORE the sync effect (declaration order determines execution order in React)
+3. Restore effect reads from filterStore, sets React state, then sets `syncReadyRef.current = true`
+4. Sync effect checks `syncReadyRef.current` and skips the first render (when it's false)
+5. On subsequent renders (after restore has set the correct React state), sync effect runs normally
+
+**Files modified:**
+- [x] `src/ui/pages/waystone/WaystonePage.tsx` — Added syncReadyRef, reordered effects, updated doc comments
+- [x] `src/ui/pages/tablet/TabletPage.tsx` — Added syncReadyRef, reordered effects
+- [x] `src/ui/pages/vendor/VendorPage.tsx` — Added syncFromUrl, syncReadyRef, useState initializers from store, removed separate restore effect
+
+### 14.3 — Documentation updated
+
+- [x] `docs/AGENT_NAVIGATION.md` — Updated to v11.0:
+  - Marked "URL restoration on page load" as ✅ DONE
+  - Updated remaining work items
+- [x] `worklog.md` — This entry
+
+### Build and test verification
+
+- All 76 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 14)
+
+**What's done:**
+- ✅ URL restoration on page load — syncFromUrl called synchronously on first render
+- ✅ Generic state (excludeMode, minValue, round10Enabled) now included in share URLs and restored from them
+- ✅ Race condition fixed in WaystonePage, TabletPage, VendorPage using syncReadyRef pattern
+- ✅ filterStore type expanded to include setExtraState/getExtraState
+- ✅ All 76 tests passing, build passing
+
+**What's NOT done yet (for next session):**
+- 🔴 **In-game verification** (manual, requires user):
+  - VendorPage: 50+ Russian regex strings
+  - TabletPage: "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ"
+- 🟡 **Full min+max RANGE intersection** — When both min and max are specified, only min is used. Complex for PoE2 regex dialect, not yet needed by callers.
+- 🟡 **RANGE.max in-game verification** — generateMaxNumberRegex() not verified in-game
+- 🟢 **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)
+- 🟢 **~51 tokens with English-only rawText** — poe2db.tw missing Russian translations
+- 🟢 **ETL re-run** — needs internet to poe2db.tw, updates JSON with all code fixes

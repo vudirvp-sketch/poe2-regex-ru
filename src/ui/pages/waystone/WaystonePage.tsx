@@ -6,11 +6,16 @@
  * - Uncorrupted → exclude(literal("оскверн"))  ✅ VERIFIED
  * - Delirious → literal("делир")  (matches "Делириум" in RU client) ✅ VERIFIED
  *
+ * URL restoration: useCategoryPage calls syncFromUrl() on mount, which
+ * populates the filter store from the URL hash. The restore effect below
+ * reads category-specific state (corrupted/uncorrupted/delirious) from the
+ * store's extraState and applies it to React state.
+ *
  * NOTE: Tier filter was removed because "Тир: N" is NOT a searchable property
  * in the Russian game client. The tier value is displayed on the item but
  * cannot be matched by in-game regex search.
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -55,14 +60,12 @@ export function WaystonePage() {
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
 
-  // Sync waystone-specific state to filter store for URL sharing
-  useEffect(() => {
-    filterStore.setExtraState('corrupted', corrupted);
-    filterStore.setExtraState('uncorrupted', uncorrupted);
-    filterStore.setExtraState('delirious', delirious);
-  }, [corrupted, uncorrupted, delirious, filterStore]);
+  // Ref to skip the first sync-to-store cycle, preventing overwrite
+  // of URL-restored extraState values before the restore effect has run.
+  const syncReadyRef = useRef(false);
 
   // Restore waystone-specific state from filter store (e.g., from shared URL)
+  // This MUST run before the sync effect so URL-restored values are read first.
   useEffect(() => {
     const extra = filterStore.getExtraState?.('corrupted');
     if (typeof extra === 'boolean') setCorrupted(extra);
@@ -70,9 +73,19 @@ export function WaystonePage() {
     if (typeof extraU === 'boolean') setUncorrupted(extraU);
     const extraD = filterStore.getExtraState?.('delirious');
     if (typeof extraD === 'boolean') setDelirious(extraD);
+    syncReadyRef.current = true;
   // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Sync waystone-specific state to filter store for URL sharing.
+  // Skips the first render to avoid overwriting URL-restored values.
+  useEffect(() => {
+    if (!syncReadyRef.current) return;
+    filterStore.setExtraState('corrupted', corrupted);
+    filterStore.setExtraState('uncorrupted', uncorrupted);
+    filterStore.setExtraState('delirious', delirious);
+  }, [corrupted, uncorrupted, delirious, filterStore]);
 
   if (loading) {
     return (

@@ -29,7 +29,7 @@
  * - "Осталось использований: N" → suffix "использ" (matches "использований")
  *   ⚠️ This needs in-game verification. Alternative suffixes: "исполь", "остал"
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -120,14 +120,12 @@ export function TabletPage() {
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
 
-  // Sync tablet-specific state to filter store for URL sharing
-  useEffect(() => {
-    filterStore.setExtraState('selectedTypes', [...selectedTypes]);
-    filterStore.setExtraState('selectedRarities', [...selectedRarities]);
-    filterStore.setExtraState('usesMin', usesMin);
-  }, [selectedTypes, selectedRarities, usesMin, filterStore]);
+  // Ref to skip the first sync-to-store cycle, preventing overwrite
+  // of URL-restored extraState values before the restore effect has run.
+  const syncReadyRef = useRef(false);
 
   // Restore tablet-specific state from filter store (e.g., from shared URL)
+  // This MUST run before the sync effect so URL-restored values are read first.
   useEffect(() => {
     const extraTypes = filterStore.getExtraState?.('selectedTypes');
     if (Array.isArray(extraTypes)) setSelectedTypes(new Set(extraTypes as string[]));
@@ -135,9 +133,19 @@ export function TabletPage() {
     if (Array.isArray(extraRarities)) setSelectedRarities(new Set(extraRarities as string[]));
     const extraUses = filterStore.getExtraState?.('usesMin');
     if (typeof extraUses === 'number') setUsesMin(extraUses);
+    syncReadyRef.current = true;
   // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Sync tablet-specific state to filter store for URL sharing.
+  // Skips the first render to avoid overwriting URL-restored values.
+  useEffect(() => {
+    if (!syncReadyRef.current) return;
+    filterStore.setExtraState('selectedTypes', [...selectedTypes]);
+    filterStore.setExtraState('selectedRarities', [...selectedRarities]);
+    filterStore.setExtraState('usesMin', usesMin);
+  }, [selectedTypes, selectedRarities, usesMin, filterStore]);
 
   // Toggle helpers
   const toggleType = (typeId: string) => {
