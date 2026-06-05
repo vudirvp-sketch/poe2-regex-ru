@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T08:01:16.516Z",
+  "version": "2026-06-05T14:01:57.839Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -361,46 +361,6 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_cmq708",
-      "category": "waystone-desecrated",
-      "origin": "desecrated",
-      "rawText": {
-        "ru": "40% увеличение количества волшебных монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение количества волшебных монстров"
-      },
-      "regex": {
-        "ru": "волшебных монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение количества волшебных монстров"
-      },
-      "genderForms": {
-        "ru": {
-          "ms": "Глубинный",
-          "fs": "Глубинная",
-          "ns": "Глубинное",
-          "mp": "Глубинные",
-          "fp": "Глубинные",
-          "np": "Глубинные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        40
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        20,
-        30
-      ],
-      "level": 0
-    },
-    {
       "id": "waystone-desecrated.mod_dceifh",
       "category": "waystone-desecrated",
       "origin": "desecrated",
@@ -638,56 +598,11 @@
         35
       ],
       "level": 0
-    },
-    {
-      "id": "waystone-desecrated.mod_c3hgc1",
-      "category": "waystone-desecrated",
-      "origin": "desecrated",
-      "rawText": {
-        "ru": "50% увеличение количества редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение количества редких монстров"
-      },
-      "regex": {
-        "ru": "количества редких монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение количества редких монстров"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        50
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        20,
-        27
-      ],
-      "level": 0
     }
   ],
   "optimizationTable": {
-    "waystone-desecrated.mod_cmq708:waystone-desecrated.mod_cmq708": {
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh": {
       "ids": [
-        "waystone-desecrated.mod_cmq708",
-        "waystone-desecrated.mod_cmq708"
-      ],
-      "regex": {
-        "ru": "волшебных монстров"
-      },
-      "weight": 18,
-      "count": 2
-    },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh": {
-      "ids": [
-        "waystone-desecrated.mod_c3hgc1",
         "waystone-desecrated.mod_c3hgc1",
         "waystone-desecrated.mod_dceifh"
       ],
@@ -695,11 +610,10 @@
         "ru": "количества редких монстров"
       },
       "weight": 26,
-      "count": 3
+      "count": 2
     },
-    "waystone-desecrated.mod_cmq708:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_jdkriz": {
+    "waystone-desecrated.mod_cmq708:waystone-desecrated.mod_jdkriz": {
       "ids": [
-        "waystone-desecrated.mod_cmq708",
         "waystone-desecrated.mod_cmq708",
         "waystone-desecrated.mod_jdkriz"
       ],
@@ -707,11 +621,10 @@
         "ru": " монстров"
       },
       "weight": 9,
-      "count": 3
+      "count": 2
     },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz": {
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz": {
       "ids": [
-        "waystone-desecrated.mod_c3hgc1",
         "waystone-desecrated.mod_c3hgc1",
         "waystone-desecrated.mod_dceifh",
         "waystone-desecrated.mod_jdkriz"
@@ -720,13 +633,11 @@
         "ru": "количеств"
       },
       "weight": 9,
-      "count": 4
+      "count": 3
     },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_dceifh": {
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_dceifh": {
       "ids": [
         "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_cmq708",
         "waystone-desecrated.mod_cmq708",
         "waystone-desecrated.mod_dceifh"
       ],
@@ -734,7 +645,7 @@
         "ru": "х монстров"
       },
       "weight": 10,
-      "count": 5
+      "count": 3
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T08:01:17.226Z",
+  "version": "2026-06-05T14:01:58.802Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -69,39 +69,6 @@
         7,
         19,
         33
-      ],
-      "level": 1
-    },
-    {
-      "id": "tablet.mod_od9m77",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "familyKey": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8,
-        18,
-        41,
-        46,
-        55
       ],
       "level": 1
     },
@@ -576,37 +543,6 @@
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительного духа азмири"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33
-      ],
-      "level": 1
-    },
-    {
-      "id": "tablet.mod_vc6g4q",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте можно встретить дополнительную Сущность"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительную Сущность"
-      },
-      "regex": {
-        "ru": "ную с"
-      },
-      "familyKey": {
-        "ru": "На карте можно встретить дополнительную Сущность"
       },
       "genderForms": {
         "ru": {}
@@ -1969,38 +1905,6 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_as23xk",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "% уменьшение размера групп монстров на карте"
-      },
-      "rawTextTemplate": {
-        "ru": "% уменьшение размера групп монстров на карте"
-      },
-      "regex": {
-        "ru": "шение р"
-      },
-      "familyKey": {
-        "ru": "% уменьшение размера групп монстров на карте"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        4,
-        8,
-        17,
-        43
-      ],
-      "level": 1
-    },
-    {
       "id": "tablet.mod_swvjcv",
       "category": "tablet",
       "origin": "normal",
@@ -2748,39 +2652,6 @@
     }
   ],
   "optimizationTable": {
-    "tablet.mod_od9m77:tablet.mod_od9m77": {
-      "ids": [
-        "tablet.mod_od9m77",
-        "tablet.mod_od9m77"
-      ],
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "weight": 31,
-      "count": 2
-    },
-    "tablet.mod_vc6g4q:tablet.mod_vc6g4q": {
-      "ids": [
-        "tablet.mod_vc6g4q",
-        "tablet.mod_vc6g4q"
-      ],
-      "regex": {
-        "ru": "ную с"
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "tablet.mod_as23xk:tablet.mod_as23xk": {
-      "ids": [
-        "tablet.mod_as23xk",
-        "tablet.mod_as23xk"
-      ],
-      "regex": {
-        "ru": "шение р"
-      },
-      "weight": 7,
-      "count": 2
-    },
     "tablet.mod_5xy54:tablet.mod_m0lt68": {
       "ids": [
         "tablet.mod_5xy54",
@@ -3034,33 +2905,30 @@
       "weight": 4,
       "count": 2
     },
-    "tablet.mod_m0lt68:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_m0lt68:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_m0lt68",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "а на"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_guq13l:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_guq13l:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_guq13l",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "количества "
       },
       "weight": 11,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_od9m77:tablet.mod_od9m77:tablet.mod_yr6d7c": {
+    "tablet.mod_od9m77:tablet.mod_yr6d7c": {
       "ids": [
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77",
         "tablet.mod_yr6d7c"
       ],
@@ -3068,71 +2936,65 @@
         "ru": "увеличение "
       },
       "weight": 11,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_o60jmh:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_o60jmh:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_o60jmh",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "а на"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_88qasy:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_88qasy:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_88qasy",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "а на"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_f87zsk:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_f87zsk:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_f87zsk",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "количеств"
       },
       "weight": 9,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_1vman9:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_1vman9:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_1vman9",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "ства"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_2jjyh7:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_2jjyh7:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_2jjyh7",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "количества "
       },
       "weight": 11,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_od9m77:tablet.mod_od9m77:tablet.mod_yvoqjl": {
+    "tablet.mod_od9m77:tablet.mod_yvoqjl": {
       "ids": [
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77",
         "tablet.mod_yvoqjl"
       ],
@@ -3140,36 +3002,32 @@
         "ru": "количеств"
       },
       "weight": 9,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_as23xk:tablet.mod_as23xk:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_as23xk:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_as23xk",
-        "tablet.mod_as23xk",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "ение "
       },
       "weight": 5,
-      "count": 4
+      "count": 2
     },
-    "tablet.mod_ld06px:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_ld06px:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_ld06px",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "увеличение количества н"
       },
       "weight": 23,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_od9m77:tablet.mod_od9m77:tablet.mod_s74b0e": {
+    "tablet.mod_od9m77:tablet.mod_s74b0e": {
       "ids": [
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77",
         "tablet.mod_s74b0e"
       ],
@@ -3177,19 +3035,18 @@
         "ru": "а на"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
-    "tablet.mod_206n5:tablet.mod_od9m77:tablet.mod_od9m77": {
+    "tablet.mod_206n5:tablet.mod_od9m77": {
       "ids": [
         "tablet.mod_206n5",
-        "tablet.mod_od9m77",
         "tablet.mod_od9m77"
       ],
       "regex": {
         "ru": "ичес"
       },
       "weight": 4,
-      "count": 3
+      "count": 2
     },
     "tablet.mod_gnrsv2:tablet.mod_wrlukt": {
       "ids": [
@@ -4357,9 +4214,8 @@
       "weight": 9,
       "count": 2
     },
-    "tablet.mod_as23xk:tablet.mod_as23xk:tablet.mod_yr6d7c": {
+    "tablet.mod_as23xk:tablet.mod_yr6d7c": {
       "ids": [
-        "tablet.mod_as23xk",
         "tablet.mod_as23xk",
         "tablet.mod_yr6d7c"
       ],
@@ -4367,7 +4223,7 @@
         "ru": "ение р"
       },
       "weight": 6,
-      "count": 3
+      "count": 2
     },
     "tablet.mod_ld06px:tablet.mod_yr6d7c": {
       "ids": [
@@ -6228,9 +6084,8 @@
       "weight": 5,
       "count": 2
     },
-    "tablet.mod_as23xk:tablet.mod_as23xk:tablet.mod_ld06px": {
+    "tablet.mod_as23xk:tablet.mod_ld06px": {
       "ids": [
-        "tablet.mod_as23xk",
         "tablet.mod_as23xk",
         "tablet.mod_ld06px"
       ],
@@ -6238,7 +6093,7 @@
         "ru": "ение "
       },
       "weight": 5,
-      "count": 3
+      "count": 2
     },
     "tablet.mod_87tys9:tablet.mod_umh3r9": {
       "ids": [

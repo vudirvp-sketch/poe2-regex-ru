@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T08:01:16.454Z",
+  "version": "2026-06-05T14:01:57.763Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "tokens": [
@@ -1546,41 +1546,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2ht2hu",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры имеют (70—79)% увеличение порога состояний"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры имеют ##% увеличение порога состояний"
-      },
-      "regex": {
-        "ru": "порога состояний"
-      },
-      "familyKey": {
-        "ru": "Монстры имеют #% увеличение порога состояний"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          70,
-          79
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        29
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_3700im",
       "category": "waystone",
       "origin": "normal",
@@ -2513,93 +2478,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2195hd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "regex": {
-        "ru": "подож"
-      },
-      "familyKey": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2195hd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "regex": {
-        "ru": "подож"
-      },
-      "familyKey": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2195hd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "regex": {
-        "ru": "подож"
-      },
-      "familyKey": {
-        "ru": "В области есть участки подожженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        29
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_4nen09",
       "category": "waystone",
       "origin": "normal",
@@ -2627,189 +2505,6 @@
         10,
         25,
         29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_4nen09",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "regex": {
-        "ru": "имеет"
-      },
-      "familyKey": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        25,
-        29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_4nen09",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "regex": {
-        "ru": "имеет"
-      },
-      "familyKey": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        25,
-        29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_4nen09",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "regex": {
-        "ru": "имеет"
-      },
-      "familyKey": {
-        "ru": "Область имеет участки замерзшей земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        25,
-        29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_g88u2c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "regex": {
-        "ru": "ержит"
-      },
-      "familyKey": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        30
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_g88u2c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "regex": {
-        "ru": "ержит"
-      },
-      "familyKey": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        30
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_g88u2c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "rawTextTemplate": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "regex": {
-        "ru": "ержит"
-      },
-      "familyKey": {
-        "ru": "Область содержит участки заряженной земли"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        30
       ],
       "level": 1
     },
@@ -3786,9 +3481,8 @@
       "weight": 32,
       "count": 4
     },
-    "waystone.mod_2ht2hu:waystone.mod_2ht2hu:waystone.mod_kp15r6:waystone.mod_nx4wv2": {
+    "waystone.mod_2ht2hu:waystone.mod_kp15r6:waystone.mod_nx4wv2": {
       "ids": [
-        "waystone.mod_2ht2hu",
         "waystone.mod_2ht2hu",
         "waystone.mod_kp15r6",
         "waystone.mod_nx4wv2"
@@ -3797,7 +3491,7 @@
         "ru": "порога состояний"
       },
       "weight": 16,
-      "count": 4
+      "count": 3
     },
     "waystone.mod_3700im:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_j4aki5": {
       "ids": [
@@ -3874,45 +3568,6 @@
       },
       "weight": 5,
       "count": 2
-    },
-    "waystone.mod_2195hd:waystone.mod_2195hd:waystone.mod_2195hd:waystone.mod_2195hd": {
-      "ids": [
-        "waystone.mod_2195hd",
-        "waystone.mod_2195hd",
-        "waystone.mod_2195hd",
-        "waystone.mod_2195hd"
-      ],
-      "regex": {
-        "ru": "подож"
-      },
-      "weight": 5,
-      "count": 4
-    },
-    "waystone.mod_4nen09:waystone.mod_4nen09:waystone.mod_4nen09:waystone.mod_4nen09": {
-      "ids": [
-        "waystone.mod_4nen09",
-        "waystone.mod_4nen09",
-        "waystone.mod_4nen09",
-        "waystone.mod_4nen09"
-      ],
-      "regex": {
-        "ru": "имеет"
-      },
-      "weight": 5,
-      "count": 4
-    },
-    "waystone.mod_g88u2c:waystone.mod_g88u2c:waystone.mod_g88u2c:waystone.mod_g88u2c": {
-      "ids": [
-        "waystone.mod_g88u2c",
-        "waystone.mod_g88u2c",
-        "waystone.mod_g88u2c",
-        "waystone.mod_g88u2c"
-      ],
-      "regex": {
-        "ru": "ержит"
-      },
-      "weight": 5,
-      "count": 4
     },
     "waystone.mod_6j3xkx:waystone.mod_arwr8m:waystone.mod_q2uvfp:waystone.mod_zhrsdh": {
       "ids": [

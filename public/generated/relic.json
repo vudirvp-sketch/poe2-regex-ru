@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T08:01:19.321Z",
+  "version": "2026-06-05T14:02:02.203Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -961,7 +961,7 @@
         "ru": "Дарует святой воды в начале испытания: ##"
       },
       "regex": {
-        "ru": ": (4"
+        "ru": "святой воды в начале испытания:"
       },
       "familyKey": {
         "ru": "Дарует святой воды в начале испытания: #"
@@ -1002,7 +1002,7 @@
         "ru": "Дарует святой воды в начале испытания: ##"
       },
       "regex": {
-        "ru": "59)"
+        "ru": "святой воды в начале испытания:"
       },
       "familyKey": {
         "ru": "Дарует святой воды в начале испытания: #"
@@ -1031,6 +1031,88 @@
         26
       ],
       "level": 55
+    },
+    {
+      "id": "relic.sanctumstartinggold4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (40—49)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Дворянский",
+          "fs": "Дворянская",
+          "ns": "Дворянское",
+          "mp": "Дворянские",
+          "fp": "Дворянские",
+          "np": "Дворянские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          40,
+          49
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 67
+    },
+    {
+      "id": "relic.sanctumstartinggold5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (50—59)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "genderForms": {
+        "ru": {
+          "ms": "Королевский",
+          "fs": "Королевская",
+          "ns": "Королевское",
+          "mp": "Королевские",
+          "fp": "Королевские",
+          "np": "Королевские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          59
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 76
     },
     {
       "id": "relic.sanctumrelicquantity1",
@@ -2234,17 +2316,19 @@
       "weight": 39,
       "count": 4
     },
-    "relic.sanctumstartinggold1:relic.sanctumstartinggold2:relic.sanctumstartinggold3": {
+    "relic.sanctumstartinggold1:relic.sanctumstartinggold2:relic.sanctumstartinggold3:relic.sanctumstartinggold4:relic.sanctumstartinggold5": {
       "ids": [
         "relic.sanctumstartinggold1",
         "relic.sanctumstartinggold2",
-        "relic.sanctumstartinggold3"
+        "relic.sanctumstartinggold3",
+        "relic.sanctumstartinggold4",
+        "relic.sanctumstartinggold5"
       ],
       "regex": {
         "ru": ": (3"
       },
       "weight": 4,
-      "count": 3
+      "count": 5
     },
     "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
       "ids": [
