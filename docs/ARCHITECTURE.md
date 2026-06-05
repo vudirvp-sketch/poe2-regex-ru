@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 3.0 | **Date:** 2025-06-05 | **Language:** RU-first
+> **Version:** 4.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -24,7 +24,7 @@
 +------------------------------------------------------------------+
 |                     ETL Pipeline (build-time)                    |
 |  Cheerio scraper -> normalize -> compute-regex -> compute-opt   |
-|  -> generate JSON -> public/generated/*.json                     |
+|  -> generate JSON -> i18n overrides -> public/generated/*.json  |
 +------------------------------------------------------------------+
 |                     External Data Source                         |
 |  poe2db.tw/ru/* (server-rendered HTML, no anti-bot)             |
@@ -50,6 +50,9 @@ scripts/etl/compute-optimizations.ts
     |
     v  (assemble and write JSON)
 scripts/etl/generate-dictionary.ts
+    |
+    v  (apply i18n overrides for untranslated tokens)
+scripts/etl/i18n-overrides.json -> applied by run-etl.ts
     |
     v
 public/generated/waystone.json, tablet.json, etc.

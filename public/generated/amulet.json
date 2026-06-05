@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T15:27:04.472Z",
+  "version": "2026-06-05T17:26:59.082Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -10015,13 +10015,13 @@
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
-        "ru": "Sealed Skills have +1 to maximum Seals"
+        "ru": "Запечатанные умения имеют +1 к максимуму зарядов печати"
       },
       "rawTextTemplate": {
-        "ru": "Sealed Skills have +# to maximum Seals"
+        "ru": "Запечатанные умения имеют +1 к максимуму зарядов печати"
       },
       "regex": {
-        "ru": "Seals"
+        "ru": "запеч"
       },
       "familyKey": {
         "ru": "Sealed Skills have +# to maximum Seals"

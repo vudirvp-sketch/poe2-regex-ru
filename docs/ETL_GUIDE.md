@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 4.0 | **Date:** 2026-06-05
+> **Version:** 5.0 | **Date:** 2026-06-06
 
 ---
 
@@ -39,6 +39,12 @@ scripts/etl/generate-dictionary.ts
     |  - Assemble CategoryData objects
     |  - Write to public/generated/*.json
     |  - Validate output against TypeScript types
+    |
+    v Step 6: Apply i18n overrides
+scripts/etl/i18n-overrides.json (applied by run-etl.ts)
+    |  - Patch tokens where poe2db.tw has no Russian translation
+    |  - Override rawText.ru with manual translations
+    |  - Recompute regex.ru using minimal unique substring algorithm
     |
     v
 public/generated/waystone.json, tablet.json, etc.
@@ -253,4 +259,49 @@ If poe2db.tw adds anti-bot protection:
 
 If some mods aren't translated on poe2db.tw:
 1. Fall back to in-game observation
-2. Manual entry in a separate manual-overrides.json
+2. Add manual translations to `scripts/etl/i18n-overrides.json`
+3. Overrides are applied automatically at the end of ETL pipeline
+
+## 9. i18n Override System
+
+### Purpose
+Some tokens on poe2db.tw have English-only rawText because the site lacks Russian translations.
+The override system patches these tokens with manually verified Russian translations after the
+standard ETL pipeline completes.
+
+### Override File: `scripts/etl/i18n-overrides.json`
+
+```json
+{
+  "overrides": {
+    "token.internal_id": {
+      "rawText": "Russian translation from in-game or регис folder",
+      "rawTextTemplate": "Template with # for numeric values (optional)",
+      "source": "where this translation came from"
+    }
+  }
+}
+```
+
+### How It Works
+1. After all JSON files are generated (Step 5), the `applyI18nOverrides()` function runs
+2. It reads `i18n-overrides.json` and looks for matching token IDs in the generated files
+3. For each match, it:
+   - Overwrites `rawText.ru` with the manual translation
+   - Overwrites `rawTextTemplate.ru` if provided
+   - Recomputes `regex.ru` using the minimal unique substring algorithm (minimum length 5)
+   - Resets yofication for the token (would need manual re-check)
+4. Re-writes the patched JSON files
+
+### Adding New Overrides
+1. Identify tokens with English-only rawText (check ETL output or run cross-validation tests)
+2. Find the correct Russian translation from in-game text or the `регис/` folder
+3. Add an entry to `scripts/etl/i18n-overrides.json`
+4. Re-run `pnpm etl` to apply
+
+### Current Overrides (3 tokens)
+| Token ID | English Text | Russian Override | Source |
+|----------|-------------|------------------|--------|
+| `amulet.genesistreeadditionalmaximumseals_breachborn` | Sealed Skills have +1 to maximum Seals | Запечатанные умения имеют +1 к максимуму зарядов печати | регис/Амулеты моды.md |
+| `tablet.mod_lqwqxg` | 1 extra pack of Monsters around Vaal Beacons in Map | 1 дополнительная группа монстров вокруг Маяков Ваал на карте | регис/Плитки предтеч моды.md |
+| `tablet.mod_al1nsy` | Unstable Breaches in Map spawn an additional Rare Monster when Stabilised | Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации | estimated — needs verification |

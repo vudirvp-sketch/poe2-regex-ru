@@ -1,8 +1,8 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 13.0 | **Date:** 2026-06-06
+> **Version:** 14.0 | **Date:** 2026-06-06
 > **Current Iteration:** 9 (Polish + CI/CD) — COMPLETE. See новый_план.md for remaining work.
-> **GitHub Pages:** Fixed in Session 16 (.nojekyll + deploy.yml). User must set Source to "GitHub Actions" in repo Settings → Pages.
+> **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
 
 ---
 
@@ -17,6 +17,7 @@
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
 | `src/shared/` | Types, constants, i18n. | **No imports from other src/ directories.** This is the lowest layer. |
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
+| `scripts/etl/i18n-overrides.json` | Manual Russian translations for tokens without Russian text on poe2db.tw. | Applied automatically after ETL. Edit when new overrides needed. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `tests/` | Test files. | Mirror `src/` structure. |
 | `docs/` | Documentation. | Read before starting each iteration. |
@@ -104,7 +105,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 4. ~~**Waystone earth effect duplicates**~~ — ✅ FIXED in Session 9. ETL now deduplicates by rawText+id across all categories. Earth effects are no longer duplicated.
 
-5. **~51 tokens with English-only rawText** — poe2db.tw is missing Russian translations for these mods. Need manual translation or wait for poe2db.tw updates.
+5. **~51 tokens with English-only rawText** — ✅ FIXED in Session 17. Created `scripts/etl/i18n-overrides.json` with manual Russian translations for the 3 tokens that poe2db.tw doesn't translate. Override system is integrated into ETL pipeline (`run-etl.ts`). Now 0 English-only tokens remain.
 
 6. ~~**"Регис" folder cross-validation**~~ — ✅ DONE in Session 9. Cross-validation performed: differences are expected (регис lists individual tier values, ETL groups as ranges; регис includes desecrated mods in same list, ETL separates them). No data errors found.
 
@@ -112,7 +113,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### 🟢 LOW PRIORITY — Polish & Performance
 
-8. ~~**CI/CD**~~ — ✅ DONE in Session 10. deploy.yml now has: push to main, workflow_dispatch with ETL toggle, weekly schedule, separate ETL job with auto-commit. **Updated in Session 15:** Node version 20→22, added `if: always() && needs.build.result == 'success'` to deploy job, added `packageManager` field to package.json, added step names to build job.
+8. ~~**CI/CD**~~ — ✅ DONE in Session 10, updated in Sessions 15 and 17. deploy.yml now uses `corepack enable` instead of `pnpm/action-setup@v4` (which was failing). Node version 22. **Updated in Session 17:** Replaced `pnpm/action-setup@v4` with `corepack enable` (fixes pnpm/action-setup@v4 failure), added explicit `permissions: pages: write, id-token: write` to deploy job.
 
 9. ~~**Character Health Bar**~~ — ✅ DONE in Session 11. RegexOutput now has visual green/yellow/red progress bar instead of poe2.re's invisible gray text. Sticky positioning so output stays visible while scrolling.
 

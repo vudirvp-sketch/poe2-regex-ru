@@ -125,6 +125,114 @@ function deduplicateMods(mods: NormalizedMod[]): NormalizedMod[] {
   return result;
 }
 
+/**
+ * Apply i18n overrides from scripts/etl/i18n-overrides.json.
+ * Patches tokens in the generated JSON files where poe2db.tw has no Russian text.
+ * Only overrides rawText.ru and rawTextTemplate.ru; regex.ru is recomputed
+ * using the same minimal-unique-substring algorithm against the category's tokens.
+ */
+function applyI18nOverrides() {
+  const overridesPath = path.resolve(process.cwd(), 'scripts', 'etl', 'i18n-overrides.json');
+  if (!fs.existsSync(overridesPath)) {
+    console.log('\n  No i18n-overrides.json found, skipping override step.');
+    return;
+  }
+
+  const overridesFile = JSON.parse(fs.readFileSync(overridesPath, 'utf-8'));
+  const overrides: Record<string, { rawText: string; rawTextTemplate?: string; source?: string }> =
+    overridesFile.overrides || {};
+
+  const overrideIds = new Set(Object.keys(overrides));
+  if (overrideIds.size === 0) {
+    console.log('\n  No overrides defined in i18n-overrides.json.');
+    return;
+  }
+
+  console.log(`\n=== Applying i18n overrides (${overrideIds.size} tokens) ===`);
+
+  // Process each generated JSON file
+  const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+  let totalPatched = 0;
+
+  for (const jsonFile of jsonFiles) {
+    const filePath = path.join(OUTPUT_DIR, jsonFile);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+    let patched = 0;
+    for (const token of data.tokens) {
+      const override = overrides[token.id];
+      if (!override) continue;
+
+      token.rawText.ru = override.rawText;
+      if (override.rawTextTemplate) {
+        token.rawTextTemplate.ru = override.rawTextTemplate;
+      }
+
+      // Recompute regex.ru: find the shortest unique substring
+      // by checking against all other tokens' rawText.ru in this category
+      const allTexts = data.tokens
+        .filter((t: any) => t.id !== token.id)
+        .map((t: any) => t.rawText.ru.toLowerCase());
+
+      const target = override.rawText.toLowerCase();
+      const exclusionSubs = new Set<string>();
+      for (const text of allTexts) {
+        for (let len = 1; len <= Math.min(text.length, 20); len++) {
+          for (let i = 0; i <= text.length - len; i++) {
+            exclusionSubs.add(text.substring(i, i + len));
+          }
+        }
+      }
+
+      // Find shortest unique substring (minimum length 5 for reliability)
+      let bestSubstring = target;
+      let found = false;
+      for (let len = 5; len <= target.length; len++) {
+        if (found) break;
+        for (let i = 0; i <= target.length - len; i++) {
+          const candidate = target.substring(i, i + len);
+          if (!exclusionSubs.has(candidate)) {
+            bestSubstring = candidate;
+            found = true;
+            break;
+          }
+        }
+      }
+      // Fallback: if no unique substring of length >= 5, try length >= 3
+      if (!found) {
+        for (let len = 3; len <= target.length; len++) {
+          if (found) break;
+          for (let i = 0; i <= target.length - len; i++) {
+            const candidate = target.substring(i, i + len);
+            if (!exclusionSubs.has(candidate)) {
+              bestSubstring = candidate;
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+
+      token.regex.ru = bestSubstring;
+
+      // Reset yofication for overridden tokens (would need manual re-check)
+      token.hasYofication = false;
+      token.yoficationPositions = [];
+
+      patched++;
+      totalPatched++;
+      console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 60)}..." (regex: "${bestSubstring}")`);
+    }
+
+    if (patched > 0) {
+      // Re-write the JSON file with patched data
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+    }
+  }
+
+  console.log(`  Total tokens patched: ${totalPatched}`);
+}
+
 async function runEtl() {
   console.log('=== PoE2 Regex RU — ETL Pipeline ===\n');
   console.log(`Output directory: ${OUTPUT_DIR}\n`);
@@ -238,6 +346,9 @@ async function runEtl() {
       console.error(`  ERROR processing ${cat.name}:`, err);
     }
   }
+
+  // Step 6: Apply i18n overrides for tokens without Russian text on poe2db.tw
+  applyI18nOverrides();
 
   console.log('\n=== ETL Pipeline Complete ===');
 }

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T15:26:50.247Z",
+  "version": "2026-06-05T17:26:47.127Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -1191,13 +1191,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "1 extra pack of Monsters around Vaal Beacons in Map"
+        "ru": "1 дополнительная группа монстров вокруг Маяков Ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "# extra pack of Monsters around Vaal Beacons in Map"
+        "ru": "# дополнительная группа монстров вокруг Маяков Ваал на карте"
       },
       "regex": {
-        "ru": "pack of Monsters around Vaal Beacons in Map"
+        "ru": "1 доп"
       },
       "familyKey": {
         "ru": "# extra pack of Monsters around Vaal Beacons in Map"
@@ -1640,13 +1640,13 @@
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
+        "ru": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации"
       },
       "rawTextTemplate": {
-        "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
+        "ru": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации"
       },
       "regex": {
-        "ru": "table"
+        "ru": "неста"
       },
       "familyKey": {
         "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"

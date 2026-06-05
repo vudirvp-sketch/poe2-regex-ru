@@ -1540,3 +1540,97 @@ New file: `tests/etl/cross-validation.test.ts` — 9 tests that load actual ETL 
 - **GitHub Pages settings** — User must set Source to "GitHub Actions" in repo Settings → Pages
 - **In-game verification** — VendorPage + TabletPage regex strings (user must test)
 - **Plan rewrite** — See новый_план.md in the archive
+
+---
+
+## Session 17 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** Fix GitHub Pages deployment, update ETL data, implement i18n override system for English-only tokens, update documentation
+
+### 17.1 — GitHub Pages deployment fix (deploy.yml)
+
+**Problem:** `pnpm/action-setup@v4` with `version: 11` was failing immediately on GitHub Actions (step completed in <1s with failure). The entire CI/CD pipeline was broken, preventing deployment.
+
+**Root cause:** The `pnpm/action-setup@v4` action was failing to install pnpm. This may be due to action version deprecation, breaking changes, or compatibility issues with the specified `version: 11` parameter.
+
+**Fix implemented in `.github/workflows/deploy.yml`:**
+- Replaced `pnpm/action-setup@v4` with `corepack enable` in all jobs (etl, build)
+- `corepack` is built into Node.js 22 and reads the `packageManager` field from `package.json` to determine the correct pnpm version
+- Added explicit `permissions: pages: write, id-token: write` to the deploy job (previously relied on top-level permissions which may not cascade correctly to the deploy job's environment)
+- Removed `cache: pnpm` from `actions/setup-node` (corepack doesn't support this cache mechanism the same way)
+
+### 17.2 — ETL data refresh
+
+**Problem:** Data in `public/generated/` was from 2025-06-05. poe2db.tw may have updated mods since then.
+
+**Action:** Ran `pnpm etl` successfully. All 10 categories fetched, parsed, and generated. Token counts unchanged (1,584 total across 10 categories). ETL pipeline completed without errors.
+
+### 17.3 — i18n override system for English-only tokens
+
+**Problem:** 3 tokens had English-only rawText because poe2db.tw lacks Russian translations for these mods. They displayed as English text in the UI.
+
+**Implementation:**
+
+1. **New file: `scripts/etl/i18n-overrides.json`**
+   - Maps token IDs to manual Russian translations
+   - Each override includes: `rawText`, `rawTextTemplate` (optional), `source` (reference)
+   - 3 overrides defined:
+     - `amulet.genesistreeadditionalmaximumseals_breachborn`: "Запечатанные умения имеют +1 к максимуму зарядов печати" (from регис/Амулеты моды.md)
+     - `tablet.mod_lqwqxg`: "1 дополнительная группа монстров вокруг Маяков Ваал на карте" (from регис/Плитки предтеч моды.md)
+     - `tablet.mod_al1nsy`: "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации" (estimated — needs verification)
+
+2. **Updated `scripts/run-etl.ts`**
+   - Added `applyI18nOverrides()` function that runs as Step 6 after all JSON files are generated
+   - For each override:
+     - Patches `rawText.ru` and `rawTextTemplate.ru`
+     - Recomputes `regex.ru` using minimal unique substring algorithm (minimum length 5, fallback to 3)
+     - Resets yofication for the token
+     - Re-writes the patched JSON file
+   - Applied override results:
+     - "запеч" for the amulet token
+     - "1 доп" for the tablet Vaal beacons token
+     - "неста" for the tablet unstable Breaches token
+
+**Result:** 0 English-only tokens remain (was 3).
+
+### 17.4 — Documentation updated
+
+- `docs/ARCHITECTURE.md` — Version 3.0 → 4.0
+  - Updated ETL data flow diagram to include i18n overrides step
+  - Updated date
+- `docs/AGENT_NAVIGATION.md` — Version 13.0 → 14.0
+  - Updated GitHub Pages status (Session 17 fix)
+  - Added `scripts/etl/i18n-overrides.json` to directory table
+  - Marked "English-only rawText" issue as ✅ FIXED
+  - Updated CI/CD entry with Session 17 changes
+- `docs/ETL_GUIDE.md` — Version 4.0 → 5.0
+  - Added Step 6 (i18n overrides) to pipeline overview
+  - Added new Section 9: "i18n Override System" with full documentation
+  - Updated fallback procedures to reference i18n-overrides.json
+
+### 17.5 — Build and test verification
+
+- All 109 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 17)
+
+**What's done:**
+- ✅ GitHub Pages deployment fix (pnpm/action-setup → corepack enable)
+- ✅ ETL data refresh (all 10 categories updated)
+- ✅ i18n override system (3 English tokens now have Russian translations)
+- ✅ Documentation updated (ARCHITECTURE, AGENT_NAVIGATION, ETL_GUIDE)
+- ✅ 109 tests pass, build passes
+
+**What's NOT done yet (for next session):**
+- **GitHub Pages settings** — User must go to https://github.com/vudirvp-sketch/poe2-regex-ru/settings/pages and set Source to "GitHub Actions" (NOT "Deploy from a branch")
+- **In-game verification** of regex strings:
+  - VendorPage: ~50 strings
+  - TabletPage: "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ"
+  - Override tokens: "запеч", "1 доп", "неста" (especially "неста" — estimated, needs verification)
+- **Full min+max RANGE intersection** — When both min and max are specified, only min is used. Full range (min ≤ x ≤ max) requires complex regex generation (4-6 hours estimated)
+- **RANGE.max in-game verification** — `generateMaxNumberRegex` is unit-tested but not verified in-game
+- **Virtualized lists** — Large categories (belt 298, ring 366, amulet 427) render all DOM elements
+- **UX improvements** — Auto-copy, keyboard shortcuts, theme toggle

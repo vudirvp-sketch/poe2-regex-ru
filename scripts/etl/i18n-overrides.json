@@ -1,0 +1,21 @@
+{
+  "_comment": "Manual Russian translations for tokens where poe2db.tw has no Russian text. Applied after ETL.",
+  "_updated": "2026-06-06",
+  "overrides": {
+    "amulet.genesistreeadditionalmaximumseals_breachborn": {
+      "rawText": "Запечатанные умения имеют +1 к максимуму зарядов печати",
+      "rawTextTemplate": "Запечатанные умения имеют +1 к максимуму зарядов печати",
+      "source": "регис/Амулеты моды.md"
+    },
+    "tablet.mod_lqwqxg": {
+      "rawText": "1 дополнительная группа монстров вокруг Маяков Ваал на карте",
+      "rawTextTemplate": "# дополнительная группа монстров вокруг Маяков Ваал на карте",
+      "source": "регис/Плитки предтеч моды.md"
+    },
+    "tablet.mod_al1nsy": {
+      "rawText": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации",
+      "rawTextTemplate": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации",
+      "source": "estimated — needs in-game verification"
+    }
+  }
+}
