@@ -25,6 +25,8 @@ export interface FilterState {
 export interface FilterActions {
   /** Toggle a token's selection */
   toggleToken: (id: string) => void;
+  /** Toggle multiple tokens at once (for FamilyGroup batch toggle) */
+  toggleTokens: (ids: string[]) => void;
   /** Set multiple tokens as selected */
   setSelectedIds: (ids: Set<string>) => void;
   /** Clear all selections */
@@ -68,6 +70,23 @@ export function createFilterStore() {
           newSet.delete(id);
         } else {
           newSet.add(id);
+        }
+        return { selectedIds: newSet };
+      }),
+
+    toggleTokens: (ids: string[]) =>
+      set((state) => {
+        const newSet = new Set(state.selectedIds);
+        // If ALL ids are selected → deselect all; otherwise → select all
+        const allSelected = ids.every((id) => newSet.has(id));
+        if (allSelected) {
+          for (const id of ids) {
+            newSet.delete(id);
+          }
+        } else {
+          for (const id of ids) {
+            newSet.add(id);
+          }
         }
         return { selectedIds: newSet };
       }),

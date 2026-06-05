@@ -46,6 +46,26 @@ export interface CategoryData {
   optimizationTable: Record<string, OptimizationEntry>;
 }
 
+/** A group of GameTokens that share the same familyKey + affix (Family Pooling) */
+export interface FamilyGroup {
+  /** familyKey.ru — normalized key for grouping */
+  familyKey: string;
+  /** Affix type of the group (prefix or suffix) */
+  affix: AffixType;
+  /** All tokens in this family group (after filtering) */
+  members: GameToken[];
+  /** Minimum value across all members' ranges/values */
+  globalMin: number;
+  /** Maximum value across all members' ranges/values */
+  globalMax: number;
+  /** Display text: template with global range substituted */
+  displayText: string;
+  /** Whether the template has multiple ## placeholders */
+  hasMultiPlaceholder: boolean;
+  /** For multi-placeholder: [[min1,max1],[min2,max2],...] per slot */
+  rangeSlots: number[][];
+}
+
 export type ASTNode =
   | { type: 'AND'; children: ASTNode[] }
   | { type: 'OR'; children: ASTNode[] }

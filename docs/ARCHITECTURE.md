@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 6.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 7.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -198,3 +198,63 @@ AND(literal('огн'), RANGE(40, 80, 'm q'))
 ### URL Sharing
 Both `minValue` and `maxValue` are synced to the filter store's `extraState` and
 included in share URLs via lz-string compression.
+
+## 8. Family Pooling (Modifier Grouping)
+
+### Problem
+Each tier of a modifier was shown as a separate chip. For example, "+(5—8) к силе",
+"+(9—12) к силе", "+(13—16) к силе" — 3 separate lines that all generate the same
+regex ("к силе"). In the amulet category, 427 tokens → 110 families. Users saw
+~317 "extra" rows that added no informational value.
+
+### Solution: Group by `familyKey.ru + affix`
+All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single
+`FamilyGroup` displayed as one chip with a combined range.
+
+### Data Model (`src/shared/types.ts`)
+```typescript
+interface FamilyGroup {
+  familyKey: string;          // familyKey.ru
+  affix: AffixType;
+  members: GameToken[];       // all tier tokens in this group
+  globalMin: number;          // min across all ranges/values
+  globalMax: number;          // max across all ranges/values
+  displayText: string;        // template + substituted range
+  hasMultiPlaceholder: boolean;
+  rangeSlots: number[][];     // [[min1,max1],[min2,max2]] for multi-##
+}
+```
+
+### Grouping Logic (`src/shared/family-grouper.ts`)
+1. Group tokens by `familyKey.ru + affix`
+2. For each group, parse the familyKey template to identify `#` placeholder slots
+3. For each member, map its `ranges[]` and `values[]` to the corresponding slots
+4. Compute globalMin/globalMax per slot
+5. Generate `displayText` by substituting `(min—max)` into the template
+6. Sort: prefixes first, then suffixes; alphabetically within each group
+
+### Display Text Generation
+| familyKey Template | Slot Values | Result |
+|---|---|---|
+| `+# к силе` | [5,33] | `+(5—33) к силе` |
+| `+# к уровню всех камней умений чар` | [1,3] | `+(1—3) к уровню всех камней умений чар` |
+| `От # до # физического урона шипами` | [[1,97],[3,145]] | `От (1—97) до (3—145) физического урона шипами` |
+
+### UI Components
+- **`FilterChip`**: Accepts a `FamilyGroup` instead of a `GameToken`. Shows
+  `displayText` + tier count badge ("×9"). Click toggles ALL member IDs.
+  Visual states: full (all selected), partial (some selected), none.
+- **`ModList`**: Groups filtered tokens via `groupTokensByFamily()` before building
+  virtual rows. Header counts show number of families, not individual tokens.
+
+### Origin Filter Interaction
+The origin filter is applied **before** grouping. Filtering by "corrupted" produces
+groups with ranges scoped to corrupted tokens only. Example: "+(10—15) к силе"
+(1 corrupted member) instead of "+(5—33) к силе" (9 members across all origins).
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)

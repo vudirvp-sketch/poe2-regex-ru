@@ -57,7 +57,7 @@ export function WaystonePage() {
     minValue, setMinValue,
     maxValue, setMaxValue,
     selectedIds, searchText, affixFilter, originFilter,
-    toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    toggleToken, toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
 
@@ -128,7 +128,7 @@ export function WaystonePage() {
           <ModList
             tokens={data.tokens} selectedIds={selectedIds} searchText={searchText}
             affixFilter={affixFilter} originFilter={originFilter}
-            onToggleToken={toggleToken} onSearchChange={setSearchText}
+            onToggleToken={toggleToken} onToggleTokens={toggleTokens} onSearchChange={setSearchText}
             onAffixFilterChange={setAffixFilter} onOriginFilterChange={setOriginFilter}
             onClearSelections={clearSelections}
           />

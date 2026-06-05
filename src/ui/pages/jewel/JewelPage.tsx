@@ -19,7 +19,7 @@ export function JewelPage() {
     minValue, setMinValue,
     maxValue, setMaxValue,
     selectedIds, searchText, affixFilter, originFilter,
-    toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
+    toggleToken, toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'jewel' });
 
@@ -70,6 +70,7 @@ export function JewelPage() {
             affixFilter={affixFilter}
             originFilter={originFilter}
             onToggleToken={toggleToken}
+            onToggleTokens={toggleTokens}
             onSearchChange={setSearchText}
             onAffixFilterChange={setAffixFilter}
             onOriginFilterChange={setOriginFilter}

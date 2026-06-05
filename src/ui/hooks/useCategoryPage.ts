@@ -87,6 +87,8 @@ export interface CategoryPageState {
   originFilter: ModOrigin | null;
   /** Toggle a token's selection */
   toggleToken: (id: string) => void;
+  /** Toggle multiple tokens at once (for FamilyGroup batch toggle) */
+  toggleTokens: (ids: string[]) => void;
   /** Set search text */
   setSearchText: (text: string) => void;
   /** Set affix filter */
@@ -351,6 +353,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const affixFilter = useStore(state => state.affixFilter);
   const originFilter = useStore(state => state.originFilter);
   const toggleToken = useStore(state => state.toggleToken);
+  const toggleTokens = useStore(state => state.toggleTokens);
   const setSearchText = useStore(state => state.setSearchText);
   const setAffixFilter = useStore(state => state.setAffixFilter);
   const setOriginFilter = useStore(state => state.setOriginFilter);
@@ -501,6 +504,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     affixFilter,
     originFilter,
     toggleToken,
+    toggleTokens,
     setSearchText,
     setAffixFilter,
     setOriginFilter,

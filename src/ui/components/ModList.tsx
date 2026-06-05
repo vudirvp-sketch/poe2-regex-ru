@@ -4,13 +4,17 @@
  * Displays mods grouped by affix type (prefix/suffix) with
  * search filtering and origin filtering.
  *
+ * Uses Family Pooling: tokens with the same familyKey + affix are grouped
+ * into a single chip showing the combined range (e.g., "+(5—33) к силе"
+ * instead of 9 separate chips for each tier).
+ *
  * Uses @tanstack/react-virtual for virtualized rendering of large
- * token lists (amulet=427, ring=366, belt=298), rendering only
- * visible items in the DOM for smooth scrolling performance.
+ * token lists, rendering only visible items in the DOM for smooth scrolling.
  */
 import React, { useMemo, useCallback, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { GameToken, AffixType, ModOrigin } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
+import { groupTokensByFamily } from '@shared/family-grouper';
 import { FilterChip } from './FilterChip';
 import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
 
@@ -26,16 +30,17 @@ interface ModListProps {
   affixFilter: AffixType | null;
   originFilter: ModOrigin | null;
   onToggleToken: (id: string) => void;
+  onToggleTokens: (ids: string[]) => void;
   onSearchChange: (text: string) => void;
   onAffixFilterChange: (filter: AffixType | null) => void;
   onOriginFilterChange: (filter: ModOrigin | null) => void;
   onClearSelections: () => void;
 }
 
-/** A virtual row — either a group header or a token item */
+/** A virtual row — either a group header or a family group item */
 type VirtualRow =
   | { type: 'header'; affix: AffixType; count: number }
-  | { type: 'token'; token: GameToken };
+  | { type: 'family'; group: FamilyGroup };
 
 export const ModList: React.FC<ModListProps> = ({
   tokens,
@@ -43,7 +48,8 @@ export const ModList: React.FC<ModListProps> = ({
   searchText,
   affixFilter,
   originFilter,
-  onToggleToken,
+  onToggleToken: _onToggleToken,
+  onToggleTokens,
   onSearchChange,
   onAffixFilterChange,
   onOriginFilterChange,
@@ -60,7 +66,7 @@ export const ModList: React.FC<ModListProps> = ({
     return Array.from(origins).sort();
   }, [tokens]);
 
-  // Filter tokens
+  // Filter tokens (BEFORE grouping, per plan: origin filter applied before grouping)
   const filteredTokens = useMemo(() => {
     let result = tokens;
 
@@ -84,36 +90,42 @@ export const ModList: React.FC<ModListProps> = ({
     return result;
   }, [tokens, searchText, affixFilter, originFilter]);
 
-  // Group by affix type
-  const prefixTokens = useMemo(
-    () => filteredTokens.filter((t) => t.affix === 'prefix'),
-    [filteredTokens]
-  );
-  const suffixTokens = useMemo(
-    () => filteredTokens.filter((t) => t.affix === 'suffix'),
+  // Group filtered tokens by family
+  const familyGroups = useMemo(
+    () => groupTokensByFamily(filteredTokens),
     [filteredTokens]
   );
 
-  // Build flat virtual rows: headers + tokens interleaved
+  // Separate groups by affix type
+  const prefixGroups = useMemo(
+    () => familyGroups.filter((g) => g.affix === 'prefix'),
+    [familyGroups]
+  );
+  const suffixGroups = useMemo(
+    () => familyGroups.filter((g) => g.affix === 'suffix'),
+    [familyGroups]
+  );
+
+  // Build flat virtual rows: headers + family groups interleaved
   const virtualRows = useMemo(() => {
     const rows: VirtualRow[] = [];
 
-    if (prefixTokens.length > 0) {
-      rows.push({ type: 'header', affix: 'prefix', count: prefixTokens.length });
-      for (const token of prefixTokens) {
-        rows.push({ type: 'token', token });
+    if (prefixGroups.length > 0) {
+      rows.push({ type: 'header', affix: 'prefix', count: prefixGroups.length });
+      for (const group of prefixGroups) {
+        rows.push({ type: 'family', group });
       }
     }
 
-    if (suffixTokens.length > 0) {
-      rows.push({ type: 'header', affix: 'suffix', count: suffixTokens.length });
-      for (const token of suffixTokens) {
-        rows.push({ type: 'token', token });
+    if (suffixGroups.length > 0) {
+      rows.push({ type: 'header', affix: 'suffix', count: suffixGroups.length });
+      for (const group of suffixGroups) {
+        rows.push({ type: 'family', group });
       }
     }
 
     return rows;
-  }, [prefixTokens, suffixTokens]);
+  }, [prefixGroups, suffixGroups]);
 
   const virtualizer = useVirtualizer({
     count: virtualRows.length,
@@ -195,7 +207,7 @@ export const ModList: React.FC<ModListProps> = ({
 
       {/* Stats */}
       <div className="text-xs text-gray-500 mb-2">
-        Показано {filteredTokens.length} из {tokens.length} модов
+        Показано {familyGroups.length} семейств из {tokens.length} модов
       </div>
 
       {/* Virtualized list area */}
@@ -240,7 +252,7 @@ export const ModList: React.FC<ModListProps> = ({
                 );
               }
 
-              // Token row
+              // Family group row
               return (
                 <div
                   key={virtualItem.key}
@@ -255,9 +267,9 @@ export const ModList: React.FC<ModListProps> = ({
                   }}
                 >
                   <FilterChip
-                    token={row.token}
-                    isSelected={selectedIds.has(row.token.id)}
-                    onToggle={onToggleToken}
+                    group={row.group}
+                    selectedIds={selectedIds}
+                    onToggleTokens={onToggleTokens}
                   />
                 </div>
               );
