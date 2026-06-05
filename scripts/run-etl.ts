@@ -108,12 +108,15 @@ const categories: CategoryConfig[] = [
 
 /**
  * Deduplicate mods by their raw text (both pages may have identical mods).
+ * Also deduplicates by ID — some poe2db.tw pages output the same mod row
+ * multiple times (e.g., waystone earth effects appear 4x per effect).
  */
 function deduplicateMods(mods: NormalizedMod[]): NormalizedMod[] {
   const seen = new Set<string>();
   const result: NormalizedMod[] = [];
   for (const mod of mods) {
-    const key = mod.rawText.ru;
+    // Key combines rawText and id — if both match, it's a true duplicate
+    const key = `${mod.id}::${mod.rawText.ru}`;
     if (!seen.has(key)) {
       seen.add(key);
       result.push(mod);
@@ -167,13 +170,6 @@ async function runEtl() {
         normalized = rawMods.map(mod =>
           normalizeTypeA(mod, cat.name, mod.origin || 'normal')
         );
-
-        // Deduplicate (Urn and Seal share the same mods)
-        if (cat.deduplicate) {
-          const before = normalized.length;
-          normalized = deduplicateMods(normalized);
-          console.log(`  Deduplicated: ${before} -> ${normalized.length} mods`);
-        }
       } else {
         // Type B: parse JSON from ModsView
         const allGroups = rawHtmls.flatMap(html => parseTypeBPage(html));
@@ -200,6 +196,15 @@ async function runEtl() {
       });
       if (beforeFilter !== normalized.length) {
         console.log(`  Filtered: ${beforeFilter} -> ${normalized.length} mods (removed ${beforeFilter - normalized.length} empty)`);
+      }
+
+      // Deduplicate by rawText+id for all categories
+      // (Some poe2db.tw pages output the same mod row multiple times,
+      //  e.g., waystone earth effects appear 4x per effect)
+      const beforeDedup = normalized.length;
+      normalized = deduplicateMods(normalized);
+      if (beforeDedup !== normalized.length) {
+        console.log(`  Deduplicated: ${beforeDedup} -> ${normalized.length} mods (removed ${beforeDedup - normalized.length} duplicates)`);
       }
 
       console.log(`  Parsed ${normalized.length} valid mods`);

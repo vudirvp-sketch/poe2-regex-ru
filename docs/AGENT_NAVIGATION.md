@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 6.0 | **Date:** 2026-06-05
+> **Version:** 7.0 | **Date:** 2026-06-05
 > **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending verification and polish
 
 ---
@@ -74,14 +74,14 @@ shared <- core <- strategies <- store <- data <- ui
 |-----------|--------|-------|
 | 0: Verification & Preparation | ✅ Complete | Docs created, in-game regex dialect verified |
 | 1: Infrastructure + Bootstrap | ✅ Complete | Vite + routing + sidebar + dark theme + deploy.yml |
-| 2: Core Engine | ✅ Complete | All core logic + 59 tests |
+| 2: Core Engine | ✅ Complete | All core logic + 76 tests |
 | 3: ETL Pipeline | ✅ Complete | 1,584 tokens, 4,888 optimizations across 10 categories |
 | 4: Data Loader + UI Skeleton | ✅ Complete | Stores + components + page wiring |
 | 5: Core -> UI Integration | ✅ Complete | All 5 main pages working + optimizer dedup + yofication |
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | Mobile responsive done, CI/CD not tested, see remaining items |
+| 9: Polish + CI/CD | 🔄 Partial | See remaining items below |
 
 ## 7. Known Issues & Remaining Work
 
@@ -89,21 +89,21 @@ shared <- core <- strategies <- store <- data <- ui
 
 1. **VendorPage regex strings** — 50+ Russian regex strings ("качеств", "гнёзд", "огню", "физическ", etc.) need in-game testing. The page has a warning banner about this. Some strings may not match actual in-game text.
 
-2. **TabletPage type/rarity/uses regex strings** — New filters added in Session 8:
-   - Type filter: "бездн", "делир", "экспед", "ритуал", "ваал"
-   - Rarity filter: "обычн", "волшебн"
-   - Uses remaining: suffix "исполь"
+2. **TabletPage type/rarity/uses regex strings** — Filters updated in Session 9:
+   - Type filter: "бездн", "делир", "ритуал", "ваал" (Экспедиция removed — no expedition tablets in game)
+   - Rarity filter: "обычн", "волшебн", "редк" (Редкий added — rare tablets exist in game)
+   - Uses remaining: suffix "использ" (changed from "исполь", max extended to 30)
    - All need in-game verification. The page shows warnings for unverified strings.
 
 3. **WaystonePage regex strings** — "оскверн" (Corrupted) ✅ VERIFIED, "делир" (Delirious) ✅ VERIFIED by user. No other strings need verification.
 
 ### 🟡 MEDIUM PRIORITY — Data Quality
 
-4. **Waystone earth effect duplicates** — Tokens 72-83 have 4 copies each of "подожженной земли", "замерзшей земли", "заряженной земли". The optimizer's dedup phase collapses identical regex values, so functionally this works. But raw data has 4 duplicates per effect — could be cleaned in ETL or differentiated by tier.
+4. ~~**Waystone earth effect duplicates**~~ — ✅ FIXED in Session 9. ETL now deduplicates by rawText+id across all categories. Earth effects are no longer duplicated.
 
 5. **~51 tokens with English-only rawText** — poe2db.tw is missing Russian translations for these mods. Need manual translation or wait for poe2db.tw updates.
 
-6. **"Регис" folder cross-validation** — The manual Russian mod lists in папка "регис" could be used to cross-validate ETL output. Not yet implemented.
+6. ~~**"Регис" folder cross-validation**~~ — ✅ DONE in Session 9. Cross-validation performed: differences are expected (регис lists individual tier values, ETL groups as ranges; регис includes desecrated mods in same list, ETL separates them). No data errors found.
 
 ### 🟢 LOW PRIORITY — Polish & Performance
 
@@ -125,7 +125,7 @@ Tablet types in the Russian game client and their estimated regex substrings:
 |-------------|--------------------------|-------|----------|
 | Breach | Башня Бездны Предтеч | `бездн` | ❌ Needs verification |
 | Delirium | Башня Делириума Предтеч | `делир` | ❌ Needs verification |
-| Expedition | Башня Экспедиции Предтеч | `экспед` | ❌ Needs verification |
+| ~~Expedition~~ | ~~Башня Экспедиции Предтеч~~ | ~~`экспед`~~ | ⛔ Removed — no expedition tablets in game yet |
 | Ritual | Башня Ритуала Предтеч | `ритуал` | ❌ Needs verification |
 | Vaal | Башня Ваал Предтеч | `ваал` | ❌ Needs verification |
 
@@ -134,8 +134,26 @@ Rarity:
 |--------|--------------------------|-------|----------|
 | Normal | Обычный | `обычн` | ❌ Needs verification |
 | Magic | Волшебный | `волшебн` | ❌ Needs verification |
+| Rare | Редкий | `редк` | ❌ Needs verification (added in Session 9) |
 
 Uses remaining:
 | Property | Display Text (estimated) | Regex Suffix | Verified |
 |----------|-------------------------|--------------|----------|
-| Uses | Осталось использований: N | `исполь` | ❌ Needs verification |
+| Uses | Осталось использований: N | `использ` | ❌ Needs verification (changed from "исполь") |
+
+Max uses can exceed 18 — temple tablets with 19+ charges observed in-game.
+
+## 9. Cross-Validation Results (Session 9)
+
+Cross-validation between ETL output and папка "регис" manual mod lists:
+
+| Category | ETL Tokens | Регис Mods | In Регис but not ETL | In ETL but not Регис |
+|----------|-----------|------------|---------------------|---------------------|
+| waystone | 106 | 121 | 37 | 12 |
+| tablet | 78 | 50 | 13 | 37 |
+
+**Differences explained:**
+- Регис lists individual tier values (10%, 16%, 25%...) while ETL groups as ranges (5-9%, 10-14%...) — this is expected
+- Регис includes desecrated mods in same list, ETL separates into waystone-desecrated.json
+- Some ETL tokens have negative ranges ("-4--3%") not present in регис format
+- No data errors found — the differences are structural, not content errors

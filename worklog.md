@@ -833,3 +833,100 @@ in-game verification. If any string doesn't work, it should be reported for corr
 - **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)
 - **SEO + meta tags** — Not implemented
 - **Landing page polish** — Basic home page exists
+
+---
+
+## Session 9 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Implement user feedback for TabletPage, add tablet pattern tests, cross-validate with регис folder, fix earth effect duplicates, update docs
+
+### 10.4 — TabletPage fixes per user feedback
+
+**User corrections implemented in `src/ui/pages/tablet/TabletPage.tsx`:**
+
+1. **Removed Экспедиция** — No expedition tablets exist in game yet. Removed from TABLET_TYPES array.
+2. **Added Редкий rarity** — All three rarities exist in game (Обычный, Волшебный, Редкий). Added `{ id: 'rare', label: 'Редкий', regex: 'редк', color: 'text-yellow-300' }` to RARITY_OPTIONS.
+3. **Extended max uses >18** — Temple tablets with 19+ charges observed in-game. Changed input max from 18 to 30.
+4. **Changed suffix "исполь" → "использ"** — "использ" is a better match for "использований" in "Осталось использований: N". Updated RANGE suffix and UI hints.
+5. **Updated doc comments** — All header comments reflect current state, removed экспедиция references, added редкий rarity.
+
+### 10.5 — Tablet pattern tests
+
+New file: `tests/core/tablet-patterns.test.ts` — 17 tests:
+
+- **Tablet type regex patterns** (6 tests):
+  - Бездна → "бездн", Делириум → "делир", Ритуал → "ритуал", Ваал → "ваал"
+  - Multiple types OR together, all four types OR
+- **Tablet rarity regex patterns** (4 tests):
+  - Обычный → "обычн", Волшебный → "волшебн", Редкий → "редк"
+  - Обычный OR Волшебный (non-rare tablets)
+- **Tablet uses remaining regex patterns** (3 tests):
+  - ≥5 uses → RANGE(5, undefined, "использ") compilation
+  - ≥10 uses, ≥19 uses (temple tablets)
+- **Combined tablet filter patterns** (4 tests):
+  - Type + Rarity + Uses: Бездна AND Обычный AND ≥5 uses
+  - Type OR + Rarity: (Бездна|Делириум) AND Редкий
+  - Exclude type: NOT Бездна AND NOT Ваал
+  - Type + Uses: Ритуал AND ≥10 uses
+
+All tests include Russian-language comments explaining in-game behavior.
+
+### 10.6 — Cross-validation with "Регис" folder
+
+Performed cross-validation between ETL output and manual mod lists:
+
+| Category | ETL Tokens | Регис Mods | In Регис but not ETL | In ETL but not Регис |
+|----------|-----------|------------|---------------------|---------------------|
+| waystone | 106 | 121 | 37 | 12 |
+| tablet | 78 | 50 | 13 | 37 |
+
+**Differences explained (not bugs):**
+- Регис lists individual tier values (10%, 16%, 25%...) while ETL groups as ranges (5-9%, 10-14%...)
+- Регис includes desecrated mods in same list, ETL separates into waystone-desecrated.json
+- Some ETL tokens have negative ranges ("-4--3%") not present in регис format
+- No data errors found — differences are structural, not content errors
+
+### 10.7 — ETL deduplication for earth effect duplicates
+
+Fixed in `scripts/run-etl.ts`:
+
+- **Problem:** Waystone earth effects (подожженной земли, замерзшей земли, заряженной земли) appeared 4x each in ETL output due to poe2db.tw outputting the same mod row multiple times.
+- **Fix:** Added `deduplicateMods()` call for ALL categories (was only for relic). The dedup key now combines `id::rawText` instead of just `rawText`.
+- **Result:** Earth effects will be deduplicated on next ETL run. Optimizer already handled them at runtime, but this cleans the raw data.
+
+Note: ETL was not re-run in this session (requires network access to poe2db.tw). The dedup code is in place for next `pnpm etl` execution.
+
+### 10.8 — Documentation updated
+
+- [x] `docs/AGENT_NAVIGATION.md` — Updated to v7.0:
+  - Updated tablet type/rarity/uses regex reference (removed Экспедиция, added Редкий, changed suffix)
+  - Added Section 9: Cross-Validation Results
+  - Updated Known Issues: earth effect duplicates → FIXED, регис cross-validation → DONE
+  - Updated test count (59 → 76)
+- [x] `worklog.md` — This entry
+
+### Build and test verification
+
+- All 76 tests pass ✅ (was 59, +17 new tablet pattern tests)
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 9)
+
+**What's done:**
+- ✅ TabletPage: removed Экспедиция, added Редкий rarity, extended max uses >18, changed suffix to "использ"
+- ✅ 17 new tablet pattern tests (76 total, all passing)
+- ✅ Cross-validation with "Регис" folder — no data errors, differences explained
+- ✅ ETL deduplication for earth effect duplicates — code in place, needs `pnpm etl` run
+- ✅ Documentation updated (AGENT_NAVIGATION.md v7.0, worklog.md)
+
+**What's NOT done yet (for next session):**
+- **ETL re-run** — Need to run `pnpm etl` to regenerate JSON with deduplicated earth effects (requires network access)
+- **In-game verification** of all unverified regex strings:
+  - VendorPage: 50+ strings
+  - TabletPage: "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ"
+- **CI/CD** — deploy.yml not tested with real GitHub Pages deployment
+- **Performance** — Virtualized lists for large categories
+- **SEO + meta tags** — Not implemented
+- **Landing page polish** — Basic home page exists

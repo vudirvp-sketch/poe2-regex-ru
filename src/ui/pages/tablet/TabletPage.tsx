@@ -1,11 +1,14 @@
 /**
- * TabletPage — Full working category page for Tablets.
+ * TabletPage — Full working category page for Tablets (Башни Предтеч).
  *
  * Tablet-specific features (parity with poe2.re):
- * - Type filter: Breach / Delirium / Expedition / Ritual / Vaal
+ * - Type filter: Бездна / Делириум / Ритуал / Ваал
+ *   NOTE: Экспедиция temporarily removed — no expedition tablets in game yet.
  *   Each type adds a LITERAL matching the tablet type name in Russian.
- * - Rarity filter: Normal / Magic
+ * - Rarity filter: Обычный / Волшебный / Редкий
+ *   NOTE: All three rarities exist in game. Редкий was missing — now added.
  * - Uses remaining: numeric input → RANGE node with suffix matching uses text
+ *   Max uses can exceed 18 (e.g., temple tablets with 19+ charges observed).
  *
  * ⚠️ VERIFICATION NEEDED: The regex strings for tablet types ("бездн", "делир", etc.)
  * are based on the Russian game client translations of tablet type names.
@@ -14,13 +17,17 @@
  * Tablet type names in RU client (estimated):
  * - Башня Бездны Предтеч → "бездн"
  * - Башня Делириума Предтеч → "делир"
- * - Башня Экспедиции Предтеч → "экспед"
  * - Башня Ритуала Предтеч → "ритуал"
  * - Башня Ваал Предтеч → "ваал"
  *
+ * Rarity display in RU client:
+ * - Обычный → "обычн"
+ * - Волшебный → "волшебн"
+ * - Редкий → "редк"
+ *
  * Uses remaining display (estimated):
- * - "Осталось использований: N" → suffix "исполь" (shortest unique for "использований")
- *   ⚠️ This needs in-game verification. Alternative suffixes: "использов", "остал"
+ * - "Осталось использований: N" → suffix "использ" (matches "использований")
+ *   ⚠️ This needs in-game verification. Alternative suffixes: "исполь", "остал"
  */
 import { useState, useMemo } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
@@ -31,19 +38,21 @@ import { t } from '@shared/i18n';
 import { literal, or, range } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
-/** Tablet type definitions: label → regex substring */
+/** Tablet type definitions: label → regex substring
+ *  NOTE: Экспедиция removed — no expedition tablets in game yet.
+ */
 const TABLET_TYPES = [
   { id: 'breach', label: 'Бездна', regex: 'бездн', color: 'text-purple-400' },
   { id: 'delirium', label: 'Делириум', regex: 'делир', color: 'text-blue-400' },
-  { id: 'expedition', label: 'Экспедиция', regex: 'экспед', color: 'text-green-400' },
   { id: 'ritual', label: 'Ритуал', regex: 'ритуал', color: 'text-red-400' },
   { id: 'vaal', label: 'Ваал', regex: 'ваал', color: 'text-orange-400' },
 ] as const;
 
-/** Rarity options */
+/** Rarity options — all three rarities exist in game */
 const RARITY_OPTIONS = [
   { id: 'normal', label: 'Обычный', regex: 'обычн', color: 'text-white' },
   { id: 'magic', label: 'Волшебный', regex: 'волшебн', color: 'text-blue-300' },
+  { id: 'rare', label: 'Редкий', regex: 'редк', color: 'text-yellow-300' },
 ] as const;
 
 export function TabletPage() {
@@ -90,10 +99,11 @@ export function TabletPage() {
     }
 
     // Uses remaining: if min set, generate RANGE node
-    // ⚠️ Suffix "исполь" is estimated — needs in-game verification
-    // Alternative suffixes: "использов", "остал", or exact format may differ
+    // ⚠️ Suffix "использ" is estimated — needs in-game verification
+    // "использ" matches "использований" in "Осталось использований: N"
+    // Alternative suffixes: "исполь", "остал", or exact format may differ
     if (usesMin !== null && usesMin > 0) {
-      nodes.push(range(usesMin, undefined, 'исполь'));
+      nodes.push(range(usesMin, undefined, 'использ'));
     }
 
     return nodes;
@@ -232,18 +242,18 @@ export function TabletPage() {
             <div className="text-xs text-gray-400 mb-2">{t('tablet.uses')}</div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">Мин. ≥</span>
-              <input type="number" min={1} max={18} value={usesMin ?? ''}
+              <input type="number" min={1} max={30} value={usesMin ?? ''}
                 onChange={(e) => setUsesMin(e.target.value === '' ? null : parseInt(e.target.value, 10) || null)}
                 placeholder="Нет"
                 className="w-16 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
               {usesMin !== null && (
-                <span className="text-xs text-gray-500">исполь</span>
+                <span className="text-xs text-gray-500">использ</span>
               )}
             </div>
             {usesMin !== null && (
               <div className="text-[10px] text-yellow-700 mt-1">
-                ⚠ Суффикс "исполь" требует проверки в игре
+                {'⚠ Суффикс "использ" требует проверки в игре. Max >18 возможен (напр. храмовые плитки на 19+ зарядов)'}
               </div>
             )}
           </div>
@@ -306,9 +316,9 @@ export function TabletPage() {
             <div className="bg-gray-900 border border-gray-700 rounded p-3">
               <div className="text-xs text-gray-400 mb-1">
                 Выбрано: {selectedTokens.length} мод(ов)
-                {selectedTypes.size > 0 && ` + ${selectedTypes.size} тип(ов)`}
-                {selectedRarities.size > 0 && ` + ${selectedRarities.size} редк.`}
-                {usesMin !== null && ` + ≥${usesMin} исп.`}
+                {selectedTypes.size > 0 && ` + типы: ${[...selectedTypes].map(id => TABLET_TYPES.find(t => t.id === id)?.label).filter(Boolean).join(', ')}`}
+                {selectedRarities.size > 0 && ` + редкость: ${[...selectedRarities].map(id => RARITY_OPTIONS.find(r => r.id === id)?.label).filter(Boolean).join(', ')}`}
+                {usesMin !== null && ` + ≥${usesMin} использ.`}
               </div>
               {selectedTokens.length > 0 && (
                 <div className="text-[10px] text-gray-600">
