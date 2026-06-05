@@ -6,6 +6,7 @@ const navItems = [
   { path: '/waystone', label: 'waystone.title', icon: '💎' },
   { path: '/tablet', label: 'tablet.title', icon: '🧱' },
   { path: '/relic', label: 'relic.title', icon: '⚡' },
+  { path: '/jewel', label: 'jewel.title', icon: '💠' },
   { path: '/vendor', label: 'vendor.title', icon: '🛒' },
   { path: '/belt', label: 'belt.title', icon: '🎗️' },
   { path: '/ring', label: 'ring.title', icon: '💍' },

@@ -1,15 +1,15 @@
 /**
- * RelicPage — Full working category page for Relics (Urn + Seal combined).
+ * JewelPage — Full working category page for Jewels.
  *
- * Relics have a smaller mod pool (56 tokens). The page follows the
- * same pattern as Belt/Ring/Amulet pages using useCategoryPage hook.
+ * Jewels have three origins: normal, desecrated, corrupted.
+ * All three origins are displayed together with an origin filter.
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { t } from '@shared/i18n';
 
-export function RelicPage() {
+export function JewelPage() {
   const {
     data, loading, error,
     regex, isRegexOverflow,
@@ -18,7 +18,7 @@ export function RelicPage() {
     minValue, setMinValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
-  } = useCategoryPage({ categoryId: 'relic' });
+  } = useCategoryPage({ categoryId: 'jewel' });
 
   if (loading) {
     return (
@@ -45,12 +45,15 @@ export function RelicPage() {
 
   const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
   const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+  const rangedSuffixes = [...new Set(
+    selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+  )];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold" style={{ color: 'var(--poe-gold)' }}>
-          {t('relic.title')}
+          {t('jewel.title')}
         </h2>
         <span className="text-xs text-gray-500">{data.tokens.length} модов</span>
       </div>
@@ -115,6 +118,9 @@ export function RelicPage() {
                   {minValue !== null ? `Число ≥${minValue} + суффикс` : 'Только суффикс (любой тир)'}
                 </span>
               </div>
+              {rangedSuffixes.length > 0 && minValue !== null && (
+                <div className="text-[10px] text-gray-600 mt-1">Суффиксы: {rangedSuffixes.join(', ')}</div>
+              )}
             </div>
           )}
 

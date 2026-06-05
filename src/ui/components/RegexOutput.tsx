@@ -1,19 +1,25 @@
 /**
- * RegexOutput — Displays the generated regex string with copy button.
+ * RegexOutput — Displays the generated regex string with copy and share buttons.
  *
  * Shows the current regex with character count and overflow warning.
- * Supports copy-to-clipboard functionality.
+ * Supports copy-to-clipboard and URL sharing functionality.
  */
 import React, { useState, useCallback } from 'react';
 import { MAX_CHARS } from '@shared/constants';
+import { getShareableUrl } from '@store/url-sync';
 
 interface RegexOutputProps {
   regex: string;
   isOverflow: boolean;
+  /** Optional filter store reference for URL sharing */
+  filterStore?: {
+    serialize: () => Record<string, unknown>;
+  } | null;
 }
 
-export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow }) => {
+export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore }) => {
   const [copied, setCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
     if (!regex || isOverflow) return;
@@ -25,6 +31,18 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow }) =
       console.error('Failed to copy:', err);
     }
   }, [regex, isOverflow]);
+
+  const handleShare = useCallback(async () => {
+    if (!filterStore) return;
+    try {
+      const url = getShareableUrl(filterStore as Parameters<typeof getShareableUrl>[0]);
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy share URL:', err);
+    }
+  }, [filterStore]);
 
   const charCount = regex.length;
   const isNearLimit = charCount > MAX_CHARS * 0.8 && !isOverflow;
@@ -45,6 +63,21 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow }) =
           >
             {charCount}/{MAX_CHARS}
           </span>
+          {/* Share button */}
+          {filterStore && regex && (
+            <button
+              onClick={handleShare}
+              className={`px-2 py-1 text-xs rounded font-medium transition-colors ${
+                shareCopied
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+              }`}
+              title="Скопировать ссылку для обмена"
+            >
+              {shareCopied ? 'Ссылка скопирована!' : 'Поделиться'}
+            </button>
+          )}
+          {/* Copy button */}
           <button
             onClick={handleCopy}
             disabled={!regex || isOverflow}
@@ -63,7 +96,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow }) =
 
       {isOverflow && (
         <div className="mb-2 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-xs">
-          ⚠ Превышен лимит символов! Уменьшите количество выбранных модов.
+          Превышен лимит символов! Уменьшите количество выбранных модов.
         </div>
       )}
 

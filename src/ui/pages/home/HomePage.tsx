@@ -5,6 +5,7 @@ const categories = [
   { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: '💎' },
   { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: '🧱' },
   { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: '⚡' },
+  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: '💠' },
   { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: '🛒' },
   { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: '🎗️' },
   { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: '💍' },

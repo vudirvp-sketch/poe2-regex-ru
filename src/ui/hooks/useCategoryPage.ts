@@ -6,6 +6,9 @@
  *
  * Each category page (Belt, Ring, Amulet, Waystone, Tablet, etc.) uses this hook
  * to avoid duplicating the data loading, AST building, and regex compilation logic.
+ *
+ * Supports extra AST nodes (e.g., Waystone tier/corrupted/delirious)
+ * that are ANDed into the final regex.
  */
 import { useState, useEffect, useMemo } from 'react';
 import { loadCategoryData } from '@data/loader';
@@ -25,6 +28,8 @@ export interface CategoryPageConfig {
   locale?: Locale;
   /** Whether to use round10 for number regex (default: true) */
   round10?: boolean;
+  /** Extra AST nodes to AND into the final regex (e.g., tier, state toggles) */
+  extraAstNodes?: ASTNode[];
 }
 
 /** Return type of useCategoryPage */
@@ -220,9 +225,10 @@ function applyRuntimeYofication(
  * useCategoryPage — Main hook for category pages.
  *
  * Subscribes to filter store state using Zustand's subscribe/reselect pattern.
+ * Supports extraAstNodes for category-specific AST additions (e.g., waystone tier/state).
  */
 export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
-  const { categoryId, locale = 'ru', round10: defaultRound10 = true } = config;
+  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [] } = config;
 
   const [data, setData] = useState<CategoryData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -282,41 +288,62 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
 
   // Build AST, optimize, compile
   const { regex, isRegexOverflow } = useMemo(() => {
-    if (!data || selectedTokens.length === 0) {
+    // If no mod selections AND no extra nodes → empty regex
+    const hasModSelections = data && selectedTokens.length > 0;
+    const hasExtraNodes = extraAstNodes.length > 0;
+
+    if (!hasModSelections && !hasExtraNodes) {
       return { regex: '', isRegexOverflow: false };
     }
 
-    // 1. Build AST from selections
-    const ast = buildAstFromSelections(
-      selectedTokens,
-      excludeMode,
-      minValue,
-      round10Enabled,
-      locale
-    );
+    const andChildren: ASTNode[] = [];
 
-    if (!ast) {
+    // 1. Build AST from mod selections (if any)
+    if (hasModSelections) {
+      const modAst = buildAstFromSelections(
+        selectedTokens,
+        excludeMode,
+        minValue,
+        round10Enabled,
+        locale
+      );
+      if (modAst) {
+        andChildren.push(modAst);
+      }
+    }
+
+    // 2. Add extra AST nodes (e.g., waystone tier/state)
+    for (const node of extraAstNodes) {
+      andChildren.push(node);
+    }
+
+    if (andChildren.length === 0) {
       return { regex: '', isRegexOverflow: false };
     }
 
-    // 2. Optimize AST using optimization table
-    const optimizedAst = optimize(ast, data.optimizationTable, locale);
+    // Combine all children with AND
+    const ast = andChildren.length === 1 ? andChildren[0] : and(...andChildren);
 
-    // 3. Compile AST to regex string
+    // 3. Optimize AST using optimization table
+    const optimizedAst = optimize(ast, data?.optimizationTable ?? {}, locale);
+
+    // 4. Compile AST to regex string
     const compileOptions: CompileOptions = {
       locale,
       round10: round10Enabled,
     };
     let compiledRegex = compile(optimizedAst, compileOptions);
 
-    // 4. Apply runtime yofication if character budget allows
-    compiledRegex = applyRuntimeYofication(compiledRegex, selectedTokens, locale);
+    // 5. Apply runtime yofication if character budget allows
+    if (selectedTokens.length > 0) {
+      compiledRegex = applyRuntimeYofication(compiledRegex, selectedTokens, locale);
+    }
 
     return {
       regex: compiledRegex,
       isRegexOverflow: isOverflow(compiledRegex),
     };
-  }, [data, selectedTokens, excludeMode, minValue, round10Enabled, locale]);
+  }, [data, selectedTokens, excludeMode, minValue, round10Enabled, locale, extraAstNodes]);
 
   return {
     data,

@@ -8,6 +8,7 @@ import { VendorPage } from './ui/pages/vendor/VendorPage'
 import { BeltPage } from './ui/pages/belt/BeltPage'
 import { RingPage } from './ui/pages/ring/RingPage'
 import { AmuletPage } from './ui/pages/amulet/AmuletPage'
+import { JewelPage } from './ui/pages/jewel/JewelPage'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/waystone" element={<WaystonePage />} />
         <Route path="/tablet" element={<TabletPage />} />
         <Route path="/relic" element={<RelicPage />} />
+        <Route path="/jewel" element={<JewelPage />} />
         <Route path="/vendor" element={<VendorPage />} />
         <Route path="/belt" element={<BeltPage />} />
         <Route path="/ring" element={<RingPage />} />

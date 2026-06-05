@@ -2,17 +2,61 @@
  * WaystonePage — Full working category page for Waystones.
  *
  * Waystones have specific features:
- * - Tier filter (min tier)
- * - Corrupted / Delirious state toggles
+ * - Tier filter (min tier) → RANGE(tierMin, undefined, "r ")
+ * - Corrupted → literal("corr")
+ * - Uncorrupted → exclude(literal("corr"))
+ * - Delirious → literal("delir")
  * - Quantifiers (IIQ, IIR, Pack Size) with minimum value filters
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { t } from '@shared/i18n';
+import { literal, exclude, range } from '@core/ast';
+import type { ASTNode } from '@shared/types';
 
 export function WaystonePage() {
+  // Waystone-specific state
+  const [tierMin, setTierMin] = useState<number | null>(null);
+  const [corrupted, setCorrupted] = useState(false);
+  const [uncorrupted, setUncorrupted] = useState(false);
+  const [delirious, setDelirious] = useState(false);
+
+  // Build waystone-specific extra AST nodes from toggles
+  const extraAstNodes = useMemo<ASTNode[]>(() => {
+    const nodes: ASTNode[] = [];
+
+    // Tier: RANGE(tierMin, undefined, "r ")
+    // In-game, waystone tier is displayed as "Tier: N" (EN) or "Тир: N" (RU).
+    // The suffix "r " matches the end of "Tier" / "тир" (case-insensitive search).
+    if (tierMin !== null && tierMin > 0) {
+      nodes.push(range(tierMin, undefined, 'r '));
+    }
+
+    // Corrupted → literal("corr")
+    // "corr" is the minimal unique substring for "Corrupted" / "Осквернено"
+    // (In RU client, the red "Осквернено" text at bottom of item contains enough
+    //  unique chars; "corr" works in EN; for RU use "оскверн" if needed.
+    //  Using "corr" as default — adjust after in-game verification.)
+    if (corrupted) {
+      nodes.push(literal('corr'));
+    }
+
+    // Uncorrupted → exclude(literal("corr"))
+    if (uncorrupted) {
+      nodes.push(exclude(literal('corr')));
+    }
+
+    // Delirious → literal("delir")
+    // Matches "Delirious" / "Делириум" indicator on waystones
+    if (delirious) {
+      nodes.push(literal('delir'));
+    }
+
+    return nodes;
+  }, [tierMin, corrupted, uncorrupted, delirious]);
+
   const {
     data, loading, error,
     regex, isRegexOverflow,
@@ -21,13 +65,7 @@ export function WaystonePage() {
     minValue, setMinValue,
     selectedIds, searchText, affixFilter, originFilter,
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
-  } = useCategoryPage({ categoryId: 'waystone' });
-
-  // Waystone-specific state
-  const [tierMin, setTierMin] = useState<number | null>(null);
-  const [corrupted, setCorrupted] = useState(false);
-  const [uncorrupted, setUncorrupted] = useState(false);
-  const [delirious, setDelirious] = useState(false);
+  } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
 
   if (loading) {
     return (
@@ -52,8 +90,8 @@ export function WaystonePage() {
 
   if (!data) return <div className="p-4 text-gray-500">Нет данных</div>;
 
-  const selectedTokens = data.tokens.filter(t => selectedIds.has(t.id));
-  const hasRangedTokens = selectedTokens.some(t => t.ranges.length > 0);
+  const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
+  const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -88,6 +126,11 @@ export function WaystonePage() {
                 placeholder="Любой"
                 className="w-16 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
+              {tierMin !== null && (
+                <span className="text-[10px] text-gray-600">
+                  ≥{tierMin} тир в regex
+                </span>
+              )}
             </div>
           </div>
 
@@ -99,19 +142,19 @@ export function WaystonePage() {
                 <input type="checkbox" checked={corrupted}
                   onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-purple-500" />
-                <span className="text-xs text-gray-300">Осквернён</span>
+                <span className="text-xs text-gray-300">Осквернён <span className="text-gray-600">(corr)</span></span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={uncorrupted}
                   onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-green-500" />
-                <span className="text-xs text-gray-300">Неосквернён</span>
+                <span className="text-xs text-gray-300">Неосквернён <span className="text-gray-600">(!corr)</span></span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={delirious}
                   onChange={(e) => setDelirious(e.target.checked)}
                   className="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                <span className="text-xs text-gray-300">Делириум</span>
+                <span className="text-xs text-gray-300">Делириум <span className="text-gray-600">(delir)</span></span>
               </label>
             </div>
           </div>
@@ -161,12 +204,20 @@ export function WaystonePage() {
 
           <RegexOutput regex={regex} isOverflow={isRegexOverflow} />
 
-          {selectedTokens.length > 0 && (
+          {(selectedTokens.length > 0 || tierMin !== null || corrupted || uncorrupted || delirious) && (
             <div className="bg-gray-900 border border-gray-700 rounded p-3">
-              <div className="text-xs text-gray-400 mb-1">Выбрано: {selectedTokens.length} мод(ов)</div>
-              <div className="text-[10px] text-gray-600">
-                {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(t => t.rawText.ru.slice(0, 30)).join(', ')}
+              <div className="text-xs text-gray-400 mb-1">
+                Выбрано: {selectedTokens.length} мод(ов)
+                {tierMin !== null && ` + тир ≥${tierMin}`}
+                {corrupted && ' + оскверн.'}
+                {uncorrupted && ' + неоскверн.'}
+                {delirious && ' + делириум'}
               </div>
+              {selectedTokens.length > 0 && (
+                <div className="text-[10px] text-gray-600">
+                  {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                </div>
+              )}
             </div>
           )}
         </div>

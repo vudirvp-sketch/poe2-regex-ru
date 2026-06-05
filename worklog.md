@@ -317,3 +317,107 @@ Completed Iteration 5 (Core → UI Integration for all 5 main categories).
 - Profile UI (save/load/rename/delete) not yet connected
 - Share URL button not yet connected
 - Mobile responsive polish
+
+---
+
+## Session 4 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Iteration 6 (partial) — JewelPage, RelicPage, Waystone AST, Profile UI, Share URL
+
+### 6.1 — JewelPage created
+
+New file: `src/ui/pages/jewel/JewelPage.tsx`
+- Full working category page using useCategoryPage({ categoryId: 'jewel' })
+- Same pattern as BeltPage/RingPage/AmuletPage
+- Supports origin filter (normal/desecrated/corrupted)
+- Mode toggle, min value filter, round10, regex output
+
+Updated files:
+- `src/App.tsx` — Added `/jewel` route → JewelPage
+- `src/ui/layout/Sidebar.tsx` — Added Jewel entry (💠 icon)
+- `src/ui/pages/home/HomePage.tsx` — Added Jewel category card
+- `src/shared/i18n.ts` — Added `jewel.title` and `home.jewel_desc` translations
+
+**Bug fixed:** CATEGORY_ROUTES was correct (jewel→/jewel), but no route or page existed. Now all three are in place.
+
+### 6.2 — RelicPage connected
+
+Rewritten: `src/ui/pages/relic/RelicPage.tsx`
+- Replaced stub ("Страница в разработке") with full working page
+- Uses useCategoryPage({ categoryId: 'relic' })
+- Supports 56 relic tokens from both Urn and Seal
+
+### 6.3 — Waystone-specific AST integration
+
+Enhanced: `src/ui/hooks/useCategoryPage.ts`
+- Added `extraAstNodes` parameter to `CategoryPageConfig`
+- Extra AST nodes are ANDed into the final regex alongside mod selections
+- Works even when no mods are selected (e.g., just tier + corrupted)
+
+Rewritten: `src/ui/pages/waystone/WaystonePage.tsx`
+- Tier filter → `RANGE(tierMin, undefined, "r ")` — matches tier display in item text
+- Corrupted → `literal("corr")` — matches "Corrupted" tag
+- Uncorrupted → `exclude(literal("corr"))` — excludes corrupted items
+- Delirious → `literal("delir")` — matches "Delirious" indicator
+- All state toggles now affect the regex output in real-time
+- Added visual hints showing which regex string each toggle produces
+
+**⚠️ NOTE:** The regex strings "corr" and "delir" are English-based and may need
+adjustment for the RU client. In-game verification is needed to confirm:
+- Does "corr" match the "Осквернено" tag in RU client? If not, use "оскверн"
+- Does "delir" match "Делириум" in RU client? If not, use "делир"
+- Does "r " suffix match tier display in RU client?
+
+### 6.4 — Profile UI
+
+New component: `src/ui/components/ProfilePanel.tsx`
+- Save current filter state as a named profile
+- Load saved profiles (click to restore)
+- Delete profiles
+- Rename profiles (inline editing)
+- Collapsible panel UI
+- Connected to profile-store (localStorage persistence)
+
+**⚠️ NOT YET INTEGRATED:** ProfilePanel exists but is not imported into any category page.
+The component needs to be added to each category page's right panel with:
+```tsx
+<ProfilePanel
+  category={categoryId}
+  currentFilterData={/* serialize current state */}
+  onRestore={/* deserialize and apply */}
+/>
+```
+
+### 6.5 — Share URL button
+
+Updated: `src/ui/components/RegexOutput.tsx`
+- Added optional `filterStore` prop
+- When filterStore is provided and regex is non-empty, shows "Поделиться" button
+- Button calls getShareableUrl() from url-sync and copies to clipboard
+- Shows "Ссылка скопирована!" feedback on success
+
+**⚠️ NOT YET INTEGRATED:** The filterStore prop is not passed from category pages yet.
+Each category page needs to pass its filter store reference to RegexOutput.
+
+**Build verification:** `pnpm build` passes, `pnpm test` passes (57/57 tests)
+
+### Stopping Point (Session 4)
+
+**What's done:**
+- JewelPage fully working (route + page + sidebar + home page)
+- RelicPage fully working (was stub, now uses useCategoryPage)
+- Waystone AST integration: tier/corrupted/delirious toggles now affect regex
+- useCategoryPage supports extraAstNodes for category-specific AST additions
+- ProfilePanel component created (save/load/delete/rename)
+- Share URL button added to RegexOutput
+- All 57 tests passing, build passing
+
+**What's NOT done yet (for next session):**
+- ProfilePanel NOT integrated into category pages (component exists but not imported)
+- Share URL button in RegexOutput needs `filterStore` prop — not passed from category pages
+- Waystone state toggles use English regex strings ("corr", "delir") — needs in-game verification
+- Waystone/tablet parser regex quality issues still present
+- ETL re-run needed after parser fixes
+- VendorPage still a stub — requires in-game verification of RU property names
+- Mobile responsive polish
