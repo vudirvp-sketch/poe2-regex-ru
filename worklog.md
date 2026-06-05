@@ -930,3 +930,97 @@ Note: ETL was not re-run in this session (requires network access to poe2db.tw).
 - **Performance** — Virtualized lists for large categories
 - **SEO + meta tags** — Not implemented
 - **Landing page polish** — Basic home page exists
+
+---
+
+## Session 10 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Continue Iteration 9 — CI/CD improvement, SEO + meta tags, Landing page polish, documentation update
+
+### 9.1 — CI/CD deploy.yml improved
+
+**File modified:** `.github/workflows/deploy.yml`
+
+Enhanced from basic push-to-main workflow to full CI/CD pipeline:
+- **3 jobs:** etl → build → deploy
+- **ETL job** (conditional):
+  - Runs on weekly schedule (every Monday 06:00 UTC)
+  - Runs on workflow_dispatch when `run_etl` input is set to 'true'
+  - Fetches fresh data from poe2db.tw via `pnpm etl`
+  - Auto-commits updated JSON files to main branch with `[skip ci]`
+- **Build job:**
+  - Runs after ETL (if ETL ran) or standalone (if ETL skipped)
+  - Runs `pnpm test` before build for verification
+  - Uses `always() && (needs.etl.result == 'success' || needs.etl.result == 'skipped')` to handle conditional ETL
+  - Checks out latest commit (including ETL changes if they exist)
+- **Deploy job:** Unchanged — deploys to GitHub Pages
+- **Permissions:** Added `contents: write` for ETL auto-commit
+
+### 9.4 — SEO + meta tags implemented
+
+**File modified:** `index.html`
+
+Added comprehensive meta tags:
+- `<title>` — Descriptive Russian title with keywords
+- `<meta name="description">` — Russian description of the tool
+- `<meta name="keywords">` — PoE2, regex, русский, search terms
+- `<meta name="theme-color">` — Dark theme color (#0f0f1a)
+- **Open Graph:** og:title, og:description, og:type, og:url, og:locale
+- **Twitter Card:** twitter:card, twitter:title, twitter:description
+- **Canonical URL:** rel="canonical" to the GitHub Pages URL
+
+### 9.5 — Landing page polished
+
+**File modified:** `src/ui/pages/home/HomePage.tsx`
+
+Complete rewrite of the home page:
+- **Hero section:** Larger title, descriptive paragraph about the tool's capabilities
+- **Stats badges:** "1 584 мода", "8 категорий", "Лимит 250 символов", "Оптимизация regex"
+- **Category cards:** Added mod count tags, responsive 4-column grid, hover scale animation
+- **Feature cards:** 3 feature sections with titles and descriptions:
+  - "Данные из poe2db.tw" — auto-updated mod data
+  - "Оптимизация regex" — dedup, optimization table, yofication
+  - "Профили и обмен" — save profiles, share URL, one-click copy
+- **Footer:** Attribution and disclaimer
+
+**File modified:** `src/shared/i18n.ts`
+
+Added new translation keys:
+- `home.description_full` — Extended tool description
+- `home.feature_data_title` / `home.feature_data_desc` — Data feature card
+- `home.feature_optimize_title` / `home.feature_optimize_desc` — Optimization feature card
+- `home.feature_share_title` / `home.feature_share_desc` — Sharing feature card
+- `home.footer` — Footer text
+
+### Documentation updated
+
+- [x] `docs/AGENT_NAVIGATION.md` — Updated to v8.0:
+  - Marked CI/CD, SEO, Landing page as ✅ done
+  - Added note about belt/ring/amulet same-text duplicates (not true dupes)
+  - Added note about `pnpm etl` requiring network
+- [x] `worklog.md` — This entry
+
+### Build and test verification
+
+- All 76 tests pass ✅
+- Build passes ✅
+- No new type errors
+
+### Stopping Point (Session 10)
+
+**What's done:**
+- ✅ CI/CD: deploy.yml now has ETL job, weekly schedule, workflow_dispatch
+- ✅ SEO: meta tags, Open Graph, Twitter Card, canonical URL
+- ✅ Landing page: feature cards, stats badges, polished layout
+- ✅ Documentation updated (AGENT_NAVIGATION.md v8.0, worklog.md)
+
+**What's NOT done yet (for next session):**
+- 🔴 **In-game verification** (manual, requires user):
+  - VendorPage: 50+ Russian regex strings
+  - TabletPage: "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ"
+- 🟡 **ETL re-run** — needs network (fetch from poe2db.tw):
+  - Apply any code changes since last run
+  - Run `pnpm etl` to regenerate JSON files
+- 🟢 **Virtualized lists** for belt/ring/amulet (performance, not critical)
+- 🟢 **More aggressive yofication** for short regexes

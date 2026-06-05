@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 7.0 | **Date:** 2026-06-05
+> **Version:** 8.0 | **Date:** 2026-06-05
 > **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending verification and polish
 
 ---
@@ -29,9 +29,11 @@ pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
 pnpm test            # Run tests (Vitest)
-pnpm etl             # Run ETL pipeline
+pnpm etl             # Run ETL pipeline (requires network)
 pnpm lint            # Lint code
 ```
+
+**Important:** `pnpm etl` requires network access to fetch data from poe2db.tw. If running in CI or a sandboxed environment, skip this step and use the existing JSON files in `public/generated/`.
 
 ## 3. Agent Workflow
 
@@ -81,7 +83,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | See remaining items below |
+| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅ — see remaining items below |
 
 ## 7. Known Issues & Remaining Work
 
@@ -105,17 +107,19 @@ shared <- core <- strategies <- store <- data <- ui
 
 6. ~~**"Регис" folder cross-validation**~~ — ✅ DONE in Session 9. Cross-validation performed: differences are expected (регис lists individual tier values, ETL groups as ranges; регис includes desecrated mods in same list, ETL separates them). No data errors found.
 
+7. **Belt/ring/amulet same-text duplicates** — Some mods have identical rawText but different origins (normal vs essence). These are NOT true duplicates (they're different mods with different IDs) and the optimizer dedup handles them correctly at runtime. ETL dedup key `id::rawText` correctly keeps them separate.
+
 ### 🟢 LOW PRIORITY — Polish & Performance
 
-7. **CI/CD** — deploy.yml exists but hasn't been tested with actual GitHub Pages deployment.
+8. ~~**CI/CD**~~ — ✅ DONE in Session 10. deploy.yml now has: push to main, workflow_dispatch with ETL toggle, weekly schedule, separate ETL job with auto-commit.
 
-8. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists for smooth scrolling. Current implementation renders all items.
+9. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists (e.g., @tanstack/react-virtual or react-virtuoso) for smooth scrolling. Current implementation renders all items. Not critical — works fine on modern hardware.
 
-9. **[её] yofication in production** — Implemented but only applies when character budget allows. Could be more aggressive for short regexes.
+10. **[её] yofication in production** — Implemented but only applies when character budget allows. Could be more aggressive for short regexes.
 
-10. **SEO + meta tags** — Not implemented.
+11. ~~**SEO + meta tags**~~ — ✅ DONE in Session 10. Added Open Graph, Twitter Card, canonical URL, description, keywords, theme-color.
 
-11. **Landing page polish** — Home page exists but is basic.
+12. ~~**Landing page polish**~~ — ✅ DONE in Session 10. Added feature cards, category stats, description paragraph, footer.
 
 ## 8. Tablet Type Regex Reference
 
