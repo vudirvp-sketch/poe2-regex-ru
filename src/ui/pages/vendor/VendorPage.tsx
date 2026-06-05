@@ -16,13 +16,15 @@
  * vendor properties are NOT mod-based and don't come from ETL data.
  * The plan's invariant I4 targets mod strings from ETL, not vendor labels.
  */
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
 import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
 import type { ASTNode } from '@shared/types';
+import { createFilterStore } from '@store/filter-store';
+import type { FilterStore } from '@store/filter-store';
 
 // ─── Vendor property definitions with Russian regex strings ───
 
@@ -164,6 +166,31 @@ export function VendorPage() {
   const [excludeMode, setExcludeMode] = useState(false);
   const [numericInputs, setNumericInputs] = useState<Record<string, number>>({});
   const [round10, setRound10] = useState(true);
+
+  // Create a filter store for URL sharing
+  const filterStore = useMemo(() => createFilterStore(), []);
+
+  // Sync vendor state to filter store for URL sharing
+  useEffect(() => {
+    filterStore.getState().setExtraState('vendorSelectedIds', [...selectedIds]);
+    filterStore.getState().setExtraState('vendorExcludeMode', excludeMode);
+    filterStore.getState().setExtraState('vendorNumericInputs', numericInputs);
+    filterStore.getState().setExtraState('vendorRound10', round10);
+  }, [selectedIds, excludeMode, numericInputs, round10, filterStore]);
+
+  // Restore vendor state from filter store (e.g., from shared URL)
+  useEffect(() => {
+    const extra = filterStore.getState().getExtraState?.('vendorSelectedIds');
+    if (Array.isArray(extra)) setSelectedIds(new Set(extra as string[]));
+    const extraMode = filterStore.getState().getExtraState?.('vendorExcludeMode');
+    if (typeof extraMode === 'boolean') setExcludeMode(extraMode);
+    const extraNums = filterStore.getState().getExtraState?.('vendorNumericInputs');
+    if (extraNums && typeof extraNums === 'object') setNumericInputs(extraNums as Record<string, number>);
+    const extraR10 = filterStore.getState().getExtraState?.('vendorRound10');
+    if (typeof extraR10 === 'boolean') setRound10(extraR10);
+  // Only run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleProperty = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -372,7 +399,7 @@ export function VendorPage() {
             </button>
           )}
 
-          <RegexOutput regex={regex} isOverflow={isRegexOverflow} />
+          <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore.getState()} />
 
           {/* Note about verification */}
           <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80">

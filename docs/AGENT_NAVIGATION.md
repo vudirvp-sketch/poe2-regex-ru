@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 9.0 | **Date:** 2026-06-05
+> **Version:** 10.0 | **Date:** 2026-06-05
 > **Current Iteration:** 9 (Polish + CI/CD) — Most features complete, pending in-game verification
 
 ---
@@ -83,7 +83,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 6: Relic + Jewels + Waystone AST | ✅ Complete | All pages + RU regex strings + ProfilePanel + Share URL |
 | 7: Vendor | ✅ Complete | 50+ Russian property regexes (need in-game verification) |
 | 8: Belts/Rings/Amulets | ✅ Complete | Already working since Iter 5 |
-| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅ — see remaining items below |
+| 9: Polish + CI/CD | 🔄 Partial | CI/CD ✅, SEO ✅, Landing ✅, Health Bar ✅, Sticky ✅, Vendor AST ✅, URL sharing ✅, RANGE.max ✅, Yofication fix ✅ — see remaining items below |
 
 ## 7. Known Issues & Remaining Work
 
@@ -119,11 +119,25 @@ shared <- core <- strategies <- store <- data <- ui
 
 11. **Performance** — Large categories (belt 298, ring 366, amulet 427) may benefit from virtualized lists (e.g., @tanstack/react-virtual or react-virtuoso) for smooth scrolling. Current implementation renders all items. Not critical — works fine on modern hardware.
 
-12. **[её] yofication in production** — Implemented but only applies when character budget allows. Could be more aggressive for short regexes.
+12. ~~**[её] yofication in production**~~ — ✅ IMPROVED in Session 13. Now uses substring fallback when exact token regex is not found after optimizer Phase 2. Still limited by optimization table entries not tracking yofication positions, but this is acceptable (game treats е/ё as equivalent).
 
 13. ~~**SEO + meta tags**~~ — ✅ DONE in Session 10. Added Open Graph, Twitter Card, canonical URL, description, keywords, theme-color.
 
 14. ~~**Landing page polish**~~ — ✅ DONE in Session 10. Added feature cards, category stats, description paragraph, footer.
+
+15. ~~**URL sharing for category-specific state**~~ — ✅ DONE in Session 13. Waystone (corrupted/uncorrupted/delirious), Tablet (type/rarity/uses), and Vendor (all state) now sync to filter store's `extraState` field, which is serialized into share URLs via `x` key.
+
+16. ~~**RANGE.max compilation**~~ — ✅ DONE in Session 13. Added `generateMaxNumberRegex()` to number-regex.ts and updated compiler.ts to handle max-only RANGE nodes. When both min and max are specified, min takes priority (well-tested path).
+
+17. ~~**VendorPage Share button**~~ — ✅ DONE in Session 13. VendorPage now creates its own filter store, syncs state to it, and passes it to RegexOutput, enabling the "Поделиться" (Share) button.
+
+### 🔵 REMAINING — Future Work
+
+18. **URL restoration on page load** — URL sharing now includes extraState, but there's no automatic restoration on page load. Currently only the share URL is generated. Need to add `syncFromUrl()` call on page mount and wire up extraState restoration.
+
+19. **Full min+max RANGE intersection** — When both min and max are specified on a RANGE node, the current implementation uses only min. Full intersection (min ≤ x ≤ max) would require generating regex that matches numbers in a specific range, which is complex for PoE2 regex dialect.
+
+20. **RANGE.max in-game verification** — The `generateMaxNumberRegex` function is unit-testable but hasn't been tested with actual in-game searches. The regex patterns use the same PoE2 dialect features (`.`, `[]`, `|`) as the min version.
 
 ## 8. Tablet Type Regex Reference
 

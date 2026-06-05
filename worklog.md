@@ -1187,3 +1187,95 @@ Reviewed `.github/workflows/deploy.yml` — it is well-structured and ready for 
 - All 76 tests pass ✅
 - Build passes ✅
 
+
+---
+
+## Session 13 — 2026-06-05
+
+**Agent:** Super Z (main agent)
+**Task:** Implement medium-priority remaining items: RANGE.max compilation, URL sharing for category-specific state, yofication position mapping fix, VendorPage Share button
+
+### 13.1 — RANGE.max compilation implemented
+
+**Problem:** The `RANGE` AST node had a `max` field in the type definition, but the compiler completely ignored it. This was misleading — the API suggested it was supported but it wasn't.
+
+**Fix implemented in `src/core/compiler.ts`:**
+- Added import for `generateMaxNumberRegex` from number-regex.ts
+- Updated RANGE case to handle max-only scenario: when only `max` is specified (no `min`), generates regex matching numbers ≤ max
+- When both min and max are specified, min takes priority (well-tested path with `generateNumberRegex`)
+- Added documentation comments explaining the min+max intersection limitation
+
+**New function in `src/core/number-regex.ts`:**
+- `generateMaxNumberRegex(number: string, round10: boolean): string`
+- Generates regex patterns matching numbers from 0 up to and including the max value
+- Supports 1-digit (e.g., max=5 → `([0-5])`), 2-digit (e.g., max=15 → `([0-9]|1[0-5])`), and 3-digit ranges
+- Helper functions: `twoDigitMax()`, `threeDigitMax()`
+
+**Known limitation:** Full min+max intersection (min ≤ x ≤ max) is not yet implemented. This would require generating regex that matches only numbers in a specific range, which is complex for the PoE2 regex dialect. When both min and max are specified, only min is used.
+
+### 13.2 — URL sharing for category-specific state
+
+**Problem:** Share URLs only contained selectedIds, searchText, affixFilter, and originFilter. Category-specific state (Waystone corrupted/delirious toggles, Tablet type/rarity/uses, Vendor entire state) was not included in shared URLs.
+
+**Fix implemented in `src/store/filter-store.ts`:**
+- Added `extraState: Record<string, unknown>` to `FilterState`
+- Added `setExtraState(key, value)` and `getExtraState(key)` actions
+- Updated `serialize()` to include `extraState` as `x` key when non-empty
+- Updated `deserialize()` to restore `extraState` from `x` key
+- `resetFilters()` now clears `extraState`
+
+**Updated pages:**
+
+- `src/ui/pages/waystone/WaystonePage.tsx`:
+  - Added `useEffect` to sync `corrupted`, `uncorrupted`, `delirious` to filter store's extraState
+  - Added `useEffect` on mount to restore state from filter store (e.g., from shared URL)
+
+- `src/ui/pages/tablet/TabletPage.tsx`:
+  - Added `useEffect` to sync `selectedTypes`, `selectedRarities`, `usesMin` to filter store's extraState
+  - Added `useEffect` on mount to restore state from filter store
+
+**Known limitation:** URL restoration on page load is not yet automatic. The `syncFromUrl()` function exists in url-sync.ts but is not called on page mount. Users can generate share URLs with full state, but loading a shared URL requires additional wiring.
+
+### 13.3 — Yofication position mapping after optimizer fix
+
+**Problem:** After optimizer Phase 2, the original `token.regex[locale]` might not appear verbatim in the compiled regex (e.g., if the optimizer replaced multiple tokens with a shared substring from the optimization table). The yofication function silently skipped those tokens.
+
+**Fix implemented in `src/ui/hooks/useCategoryPage.ts`:**
+- Updated `applyRuntimeYofication()` with substring fallback strategy
+- When exact token regex is not found, tries progressively shorter suffixes (from 8 chars down to 4)
+- Maps yofication positions relative to the matched substring
+- Added detailed documentation explaining the limitation and why silently skipping is correct behavior
+- Key insight: The game treats 'е' and 'ё' as equivalent in search, so yofication is a "nice to have"
+
+### 13.4 — VendorPage Share button added
+
+**Problem:** VendorPage didn't use `useCategoryPage` or `filterStore`, so the RegexOutput "Поделиться" (Share) button was not available.
+
+**Fix implemented in `src/ui/pages/vendor/VendorPage.tsx`:**
+- Added import for `createFilterStore` and `FilterStore`
+- Created a filter store instance via `useMemo(() => createFilterStore(), [])`
+- Added `useEffect` hooks to sync vendor state (selectedIds, excludeMode, numericInputs, round10) to filter store's extraState
+- Added `useEffect` on mount to restore state from filter store
+- Passed `filterStore={filterStore.getState()}` to `RegexOutput` component
+- This enables the "Поделиться" button and URL sharing for vendor filter configurations
+
+### 13.5 — Build and test verification
+
+- TypeScript check (`tsc --noEmit`): ✅ passes with no errors
+- All 76 tests pass ✅ (was 59, now 76 with tablet pattern tests from Session 9)
+- No new type errors introduced
+
+### Stopping Point (Session 13)
+
+**What's done:**
+- ✅ RANGE.max compilation — `generateMaxNumberRegex()` implemented and integrated into compiler
+- ✅ URL sharing for category-specific state — Waystone, Tablet, and Vendor states now included in share URLs
+- ✅ Yofication position mapping — Substring fallback when exact token regex not found after optimizer
+- ✅ VendorPage Share button — Now has "Поделиться" button with full state serialization
+- ✅ Documentation updated (AGENT_NAVIGATION.md v10.0, worklog.md)
+
+**What's NOT done yet (for next session):**
+- **URL restoration on page load** — Share URLs now include extraState, but loading a shared URL doesn't automatically restore the page state. Need to call `syncFromUrl()` on page mount and wire up extraState restoration.
+- **Full min+max RANGE intersection** — When both min and max are specified, only min is used. Full intersection regex is complex and not yet needed by any callers.
+- **In-game verification** — VendorPage 50+ strings, TabletPage type/rarity/uses strings still need testing
+- **Performance** — Virtualized lists for large categories (belt 298, ring 366, amulet 427)

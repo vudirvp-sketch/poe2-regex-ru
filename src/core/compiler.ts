@@ -1,5 +1,5 @@
 import type { ASTNode, Locale } from '@shared/types';
-import { generateNumberRegex } from './number-regex';
+import { generateNumberRegex, generateMaxNumberRegex } from './number-regex';
 
 export interface CompileOptions {
   locale?: Locale;
@@ -48,11 +48,30 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
     }
     case 'RANGE': {
       if (ast.min === undefined && ast.max === undefined) return '';
-      const minStr = ast.min?.toString() ?? '0';
-      const numRegex = generateNumberRegex(minStr, round10);
-      if (!numRegex) return '';
-      if (ast.suffix) return `${numRegex}.*${ast.suffix}`;
-      return numRegex;
+
+      // Handle max-only RANGE (≤ max)
+      // NOTE: This is a basic implementation. Full min+max range (min ≤ x ≤ max)
+      // would require intersection logic which is complex for PoE2 regex.
+      // For now, min takes priority over max when both are specified,
+      // because generateNumberRegex(≥min) is well-tested and max is rarely used.
+      if (ast.min !== undefined) {
+        const minStr = ast.min.toString();
+        const numRegex = generateNumberRegex(minStr, round10);
+        if (!numRegex) return '';
+        if (ast.suffix) return `${numRegex}.*${ast.suffix}`;
+        return numRegex;
+      }
+
+      // max-only: generate regex matching numbers ≤ max
+      if (ast.max !== undefined) {
+        const maxStr = ast.max.toString();
+        const numRegex = generateMaxNumberRegex(maxStr, round10);
+        if (!numRegex) return '';
+        if (ast.suffix) return `${numRegex}.*${ast.suffix}`;
+        return numRegex;
+      }
+
+      return '';
     }
   }
 }

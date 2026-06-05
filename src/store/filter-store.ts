@@ -17,6 +17,8 @@ export interface FilterState {
   affixFilter: AffixType | null;
   /** Origin filter (null = all) */
   originFilter: ModOrigin | null;
+  /** Extra state for category-specific filters (e.g., waystone toggles, tablet types) */
+  extraState: Record<string, unknown>;
 }
 
 /** Actions for the filter store */
@@ -33,6 +35,10 @@ export interface FilterActions {
   setAffixFilter: (filter: AffixType | null) => void;
   /** Set origin filter */
   setOriginFilter: (filter: ModOrigin | null) => void;
+  /** Set extra state value for category-specific filters */
+  setExtraState: (key: string, value: unknown) => void;
+  /** Get extra state value */
+  getExtraState: (key: string) => unknown;
   /** Reset all filters */
   resetFilters: () => void;
   /** Get the current state as a serializable object (for URL sync) */
@@ -53,6 +59,7 @@ export function createFilterStore() {
     searchText: '',
     affixFilter: null,
     originFilter: null,
+    extraState: {},
 
     toggleToken: (id: string) =>
       set((state) => {
@@ -80,22 +87,33 @@ export function createFilterStore() {
     setOriginFilter: (filter: ModOrigin | null) =>
       set({ originFilter: filter }),
 
+    setExtraState: (key: string, value: unknown) =>
+      set((state) => ({ extraState: { ...state.extraState, [key]: value } })),
+
+    getExtraState: (key: string) => get().extraState[key],
+
     resetFilters: () =>
       set({
         selectedIds: new Set<string>(),
         searchText: '',
         affixFilter: null,
         originFilter: null,
+        extraState: {},
       }),
 
     serialize: () => {
       const state = get();
-      return {
+      const result: Record<string, unknown> = {
         s: Array.from(state.selectedIds),
         t: state.searchText || undefined,
         a: state.affixFilter || undefined,
         o: state.originFilter || undefined,
       };
+      // Include extraState only if non-empty (for URL sharing)
+      if (Object.keys(state.extraState).length > 0) {
+        result.x = state.extraState;
+      }
+      return result;
     },
 
     deserialize: (data: Record<string, unknown>) => {
@@ -107,6 +125,7 @@ export function createFilterStore() {
         searchText: (data.t as string) || '',
         affixFilter: (data.a as AffixType) || null,
         originFilter: (data.o as ModOrigin) || null,
+        extraState: (data.x as Record<string, unknown>) || {},
       });
     },
   }));

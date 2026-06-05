@@ -178,6 +178,18 @@ function buildAstFromSelections(
 /**
  * Apply yofication to the compiled regex string.
  * Checks character budget and applies [её] replacements where allowed.
+ *
+ * IMPORTANT: After optimizer Phase 2, the original token.regex[locale] may not
+ * appear verbatim in the compiled regex (e.g., if the optimizer replaced multiple
+ * tokens with a shared substring from the optimization table). In that case,
+ * yofication silently skips those tokens — this is correct behavior because:
+ * 1. The optimization table entries don't track yofication positions
+ * 2. The game treats 'е' and 'ё' as equivalent in search, so yofication is
+ *    a "nice to have" that improves matching accuracy but is not required
+ * 3. Silently skipping is safer than applying yofication at wrong positions
+ *
+ * To improve robustness, this function tries to find token regexes in the
+ * compiled string using both exact match and substring fallback.
  */
 function applyRuntimeYofication(
   regex: string,
@@ -195,26 +207,43 @@ function applyRuntimeYofication(
     if (!tokenRegex) continue;
 
     // Find occurrences of the token regex in the compiled regex
-    let searchFrom = 0;
-    while (true) {
-      const idx = regex.indexOf(tokenRegex, searchFrom);
-      if (idx === -1) break;
+    // Try exact match first, then try progressively shorter substrings
+    // (in case the optimizer modified the token regex)
+    const candidates = [tokenRegex];
+    // If token regex has spaces or special chars, try shorter suffixes
+    if (tokenRegex.length > 5) {
+      // Try last N chars (most likely to be unique suffix)
+      for (let len = Math.min(tokenRegex.length - 1, 8); len >= 4; len--) {
+        candidates.push(tokenRegex.slice(-len));
+      }
+    }
 
-      // Map yofication positions from token regex to compiled regex positions
-      for (const pos of token.yoficationPositions) {
-        if (pos < tokenRegex.length) {
-          const mappedPos = idx + pos;
-          // Check that the character at this position is 'е' or 'ё'
-          const ch = regex[mappedPos];
-          if (ch === 'е' || ch === 'ё' || ch === 'Е' || ch === 'Ё') {
-            if (!allPositions.includes(mappedPos)) {
-              allPositions.push(mappedPos);
+    for (const candidate of candidates) {
+      let searchFrom = 0;
+      while (true) {
+        const idx = regex.indexOf(candidate, searchFrom);
+        if (idx === -1) break;
+
+        // Map yofication positions from token regex to compiled regex positions
+        // Only apply positions that fall within the matched candidate range
+        const offsetInToken = tokenRegex.length - candidate.length;
+        for (const pos of token.yoficationPositions) {
+          // Adjust position relative to the candidate substring
+          const adjustedPos = pos - offsetInToken;
+          if (adjustedPos >= 0 && adjustedPos < candidate.length) {
+            const mappedPos = idx + adjustedPos;
+            // Check that the character at this position is 'е' or 'ё'
+            const ch = regex[mappedPos];
+            if (ch === 'е' || ch === 'ё' || ch === 'Е' || ch === 'Ё') {
+              if (!allPositions.includes(mappedPos)) {
+                allPositions.push(mappedPos);
+              }
             }
           }
         }
-      }
 
-      searchFrom = idx + 1;
+        searchFrom = idx + 1;
+      }
     }
   }
 

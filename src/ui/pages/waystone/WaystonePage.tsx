@@ -10,7 +10,7 @@
  * in the Russian game client. The tier value is displayed on the item but
  * cannot be matched by in-game regex search.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -29,22 +29,14 @@ export function WaystonePage() {
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
 
-    // Corrupted → literal("оскверн")
-    // Matches the red "Осквернено" text at the bottom of corrupted items in the RU client.
-    // ✅ VERIFIED in-game: "оскверн" matches "Осквернено"
     if (corrupted) {
       nodes.push(literal('оскверн'));
     }
 
-    // Uncorrupted → exclude(literal("оскверн"))
-    // ✅ VERIFIED in-game
     if (uncorrupted) {
       nodes.push(exclude(literal('оскверн')));
     }
 
-    // Delirious → literal("делир")
-    // Matches the "Делириум" indicator on delirious waystones in the RU client.
-    // ✅ VERIFIED in-game: "делир" matches "Делириум"
     if (delirious) {
       nodes.push(literal('делир'));
     }
@@ -62,6 +54,25 @@ export function WaystonePage() {
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes });
+
+  // Sync waystone-specific state to filter store for URL sharing
+  useEffect(() => {
+    filterStore.setExtraState('corrupted', corrupted);
+    filterStore.setExtraState('uncorrupted', uncorrupted);
+    filterStore.setExtraState('delirious', delirious);
+  }, [corrupted, uncorrupted, delirious, filterStore]);
+
+  // Restore waystone-specific state from filter store (e.g., from shared URL)
+  useEffect(() => {
+    const extra = filterStore.getExtraState?.('corrupted');
+    if (typeof extra === 'boolean') setCorrupted(extra);
+    const extraU = filterStore.getExtraState?.('uncorrupted');
+    if (typeof extraU === 'boolean') setUncorrupted(extraU);
+    const extraD = filterStore.getExtraState?.('delirious');
+    if (typeof extraD === 'boolean') setDelirious(extraD);
+  // Only run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (

@@ -29,7 +29,7 @@
  * - "Осталось использований: N" → suffix "использ" (matches "использований")
  *   ⚠️ This needs in-game verification. Alternative suffixes: "исполь", "остал"
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -119,6 +119,25 @@ export function TabletPage() {
     toggleToken, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
+
+  // Sync tablet-specific state to filter store for URL sharing
+  useEffect(() => {
+    filterStore.setExtraState('selectedTypes', [...selectedTypes]);
+    filterStore.setExtraState('selectedRarities', [...selectedRarities]);
+    filterStore.setExtraState('usesMin', usesMin);
+  }, [selectedTypes, selectedRarities, usesMin, filterStore]);
+
+  // Restore tablet-specific state from filter store (e.g., from shared URL)
+  useEffect(() => {
+    const extraTypes = filterStore.getExtraState?.('selectedTypes');
+    if (Array.isArray(extraTypes)) setSelectedTypes(new Set(extraTypes as string[]));
+    const extraRarities = filterStore.getExtraState?.('selectedRarities');
+    if (Array.isArray(extraRarities)) setSelectedRarities(new Set(extraRarities as string[]));
+    const extraUses = filterStore.getExtraState?.('usesMin');
+    if (typeof extraUses === 'number') setUsesMin(extraUses);
+  // Only run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Toggle helpers
   const toggleType = (typeId: string) => {
