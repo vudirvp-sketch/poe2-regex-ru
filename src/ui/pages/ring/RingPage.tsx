@@ -24,6 +24,7 @@ export function RingPage() {
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
+    searchLogic, setSearchLogic,
   } = useCategoryPage({ categoryId: 'ring' });
 
   return (
@@ -59,6 +60,8 @@ export function RingPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
             />
 
             <ModList

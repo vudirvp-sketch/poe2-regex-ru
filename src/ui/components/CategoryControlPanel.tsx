@@ -15,6 +15,7 @@
 import React from 'react';
 import { RegexOutput } from './RegexOutput';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
+import type { SearchLogic } from '@shared/types';
 import { t } from '@shared/i18n';
 
 interface CategoryControlPanelProps {
@@ -23,6 +24,8 @@ interface CategoryControlPanelProps {
   filterStore: FilterStoreApi;
   excludeMode: boolean;
   setExcludeMode: (v: boolean) => void;
+  searchLogic: SearchLogic;
+  setSearchLogic: (v: SearchLogic) => void;
   hasRangedTokens: boolean;
   minValue: number | null;
   setMinValue: (v: number | null) => void;
@@ -48,6 +51,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   filterStore,
   excludeMode,
   setExcludeMode,
+  searchLogic,
+  setSearchLogic,
   hasRangedTokens,
   minValue,
   setMinValue,
@@ -94,6 +99,30 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             }`}
           >
             {t('mode.dont_want')}
+          </button>
+        </div>
+
+        {/* Search logic toggle: AND/OR */}
+        <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}>
+          <button
+            onClick={() => setSearchLogic('and')}
+            role="radio"
+            aria-checked={searchLogic === 'and'}
+            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              searchLogic === 'and' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+            }`}
+          >
+            {t('logic.and')}
+          </button>
+          <button
+            onClick={() => setSearchLogic('or')}
+            role="radio"
+            aria-checked={searchLogic === 'or'}
+            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              searchLogic === 'or' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+            }`}
+          >
+            {t('logic.or')}
           </button>
         </div>
 

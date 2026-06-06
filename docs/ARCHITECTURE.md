@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 20.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 21.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -625,3 +625,78 @@ Completed: prefix + exact + compiler tests + data fixes.
 - UI changes to FilterChip for prefix display
 - Dual-number mod support
 - Fractional range support
+
+## 20. Iteration 21 — `\d` → `[0-9]` Fix + AND/OR Search Logic + Breachborn Audit
+
+### 1. P0: Replace `\d` with `[0-9]` in number-regex.ts
+
+**Problem**: The `generateNumberRegex()` function produced patterns containing `\d` (e.g., `\d..`, `\d..?`). PoE2's in-game regex engine may not support the `\d` shorthand — only the explicit character class syntax `[0-9]` is verified to work.
+
+**Change**: Replaced all 7 occurrences of `\d` in `number-regex.ts` with `[0-9]`:
+- `\d..` → `[0-9]..` (matches any 3-char sequence starting with a digit)
+- `\d..?` → `[0-9]..?` (matches digit + 1-2 any chars)
+
+**Impact**: Each replacement adds +2 characters to the regex. Maximum increase: +12 characters in worst case (all patterns active). This is an acceptable tradeoff for guaranteed compatibility.
+
+**Files modified**: `src/core/number-regex.ts`, `tests/core/number-regex.test.ts`, `tests/core/compiler.test.ts`, `tests/core/poe2-regex-matcher.test.ts`, `tests/core/vendor-patterns.test.ts`, `tests/core/tablet-patterns.test.ts`
+
+### 2. P0: Audit of Очернённые (Desecrated) mod separation
+
+**Verified**: `splitGroupByOrigin()` in `family-grouper.ts` correctly splits FamilyGroups with mixed origins into separate per-origin sub-groups. 17 mixed-origin family+affix groups exist in `amulet.json` (e.g., `+# к силе::suffix` has both normal and corrupted tokens), all correctly handled.
+
+**Found issue**: 42 breachborn tokens across amulet/ring/belt have English `familyKey.ru` values (e.g., `"#+% to Fire Spell Critical Hit Chance"` instead of Russian). This is an ETL data quality issue where poe2db.tw lacks Russian templates for some breachborn mods. Not a UI-breaking bug — breachborn mods display correctly in their origin sections, but the familyKey mismatch could cause incorrect grouping if two breachborn mods share the same English familyKey.
+
+### 3. P1: AND/OR Search Logic Toggle
+
+**Problem**: The compiler always used AND logic — each OR-group gets its own quoted group, and space between quotes means AND. This means items must have ALL selected mods simultaneously. For vendor shopping or bulk inventory evaluation, users want OR logic: highlight items with ANY of the selected mods.
+
+**Solution**: Added `SearchLogic = 'and' | 'or'` type and a toggle in CategoryControlPanel.
+
+**AND mode** (default, existing behavior):
+```
+Selected: fire res + cold res + life
+→ "к сопротивлению огню|к сопротивлению холоду" "к максимуму здоровья"
+→ Item must have (fire OR cold res) AND life
+```
+
+**OR mode** (new):
+```
+Selected: fire res + cold res + life
+→ "к сопротивлению огню|к сопротивлению холоду|к максимуму здоровья"
+→ Item must have (fire OR cold res OR life) — any one is enough
+```
+
+**Implementation**:
+1. **`types.ts`**: Added `SearchLogic = 'and' | 'or'` type
+2. **`useCategoryPage.ts`**: Added `searchLogic` state, synced to `extraState` for URL sharing. `buildAstFromSelections()` accepts `searchLogic` parameter — in OR mode, all LITERAL and RANGE nodes go into a single OR group instead of separate AND children.
+3. **`CategoryControlPanel.tsx`**: Added AND/OR toggle buttons (indigo color) between the mode toggle and range filter
+4. **`i18n.ts`**: Added 3 new keys: `logic.label`, `logic.and`, `logic.or`
+5. **All 8 page components**: Pass `searchLogic` and `setSearchLogic` to CategoryControlPanel
+
+**RANGE nodes in OR mode**: When ranged tokens have numeric filters AND OR logic is active, each RANGE node becomes an alternative within the OR group. The compiler produces a single quoted group with all alternatives.
+
+**URL sharing**: `searchLogic` is persisted in `extraState` and included in share URLs.
+
+### Files Modified (Iteration 21)
+
+| File | Change |
+|------|--------|
+| `src/shared/types.ts` | Added `SearchLogic` type |
+| `src/core/number-regex.ts` | `\d` → `[0-9]` in all 7 generated patterns |
+| `src/ui/hooks/useCategoryPage.ts` | Added `searchLogic` state, updated `buildAstFromSelections()` for OR mode |
+| `src/ui/components/CategoryControlPanel.tsx` | Added AND/OR toggle UI |
+| `src/shared/i18n.ts` | Added `logic.label`, `logic.and`, `logic.or` keys |
+| All 8 page components | Pass `searchLogic`/`setSearchLogic` to CategoryControlPanel |
+| `tests/core/number-regex.test.ts` | Updated expectations from `\d` to `[0-9]` |
+| `tests/core/compiler.test.ts` | Updated expectations from `\d` to `[0-9]` |
+| `tests/core/poe2-regex-matcher.test.ts` | Updated regex strings from `\d` to `[0-9]` |
+| `tests/core/vendor-patterns.test.ts` | Updated regex strings |
+| `tests/core/tablet-patterns.test.ts` | Updated regex strings |
+
+### Remaining (for next iteration)
+
+1. **P1 — Dual-number mods**: Mods like "От ## до ## урона" have two placeholders; RANGE currently filters by the last number. Need to filter by the first number for meaningful results.
+2. **P1 — Desecrated regex quality**: Dual-stat desecrated mods use fallback substring matching; could be improved with better prefix extraction.
+3. **P1 — `\d` in-game verification**: Test `[0-9]..` patterns in PoE2 to confirm they work. If `\d` also works, could revert for shorter regexes (saves +2 chars per occurrence).
+4. **ETL — Breachborn English familyKeys**: 42 tokens across amulet/ring/belt have English familyKey values. Need ETL fix to translate these from poe2db data or i18n overrides.
+5. **Full ETL re-run**: Regex prefix data and breachborn fixes require a full `pnpm etl` run.

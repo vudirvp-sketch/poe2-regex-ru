@@ -24,6 +24,7 @@ export function RelicPage() {
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
+    searchLogic, setSearchLogic,
   } = useCategoryPage({ categoryId: 'relic' });
 
   return (
@@ -59,6 +60,8 @@ export function RelicPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
             />
 
             <ModList

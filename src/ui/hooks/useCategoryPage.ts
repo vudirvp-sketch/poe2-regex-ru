@@ -14,7 +14,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
-import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin } from '@shared/types';
+import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize } from '@core/optimizer';
@@ -71,6 +71,10 @@ export interface CategoryPageState {
   excludeMode: boolean;
   /** Set exclude mode */
   setExcludeMode: (v: boolean) => void;
+  /** Search logic: 'and' = all conditions, 'or' = any condition */
+  searchLogic: SearchLogic;
+  /** Set search logic */
+  setSearchLogic: (v: SearchLogic) => void;
   /** Round10 toggle */
   round10Enabled: boolean;
   /** Set round10 toggle */
@@ -155,7 +159,8 @@ function buildAstFromSelections(
   maxValue: number | null,
   _round10: boolean,
   locale: Locale,
-  perTokenRanges: Record<string, TokenRangeOverride>
+  perTokenRanges: Record<string, TokenRangeOverride>,
+  searchLogic: SearchLogic = 'and'
 ): ASTNode | null {
   if (selectedTokens.length === 0) return null;
 
@@ -172,6 +177,7 @@ function buildAstFromSelections(
   }
 
   const andChildren: ASTNode[] = [];
+  const orChildren: ASTNode[] = []; // For OR logic: all items go into one OR group
 
   // Handle non-ranged tokens: group them into OR
   if (nonRangedTokens.length > 0) {
@@ -182,10 +188,14 @@ function buildAstFromSelections(
     if (excludeMode) {
       andChildren.push(exclude(or(...literals)));
     } else {
-      if (literals.length === 1) {
-        andChildren.push(literals[0]);
+      if (searchLogic === 'or') {
+        orChildren.push(...literals);
       } else {
-        andChildren.push(or(...literals));
+        if (literals.length === 1) {
+          andChildren.push(literals[0]);
+        } else {
+          andChildren.push(or(...literals));
+        }
       }
     }
   }
@@ -245,7 +255,17 @@ function buildAstFromSelections(
       // For each unique (suffix, prefix, min, max, exact) combination, create a RANGE node
       for (const [, group] of rangeGroups) {
         const rangeNode = range(group.min, group.max, group.suffix, group.prefix || undefined, group.exact || undefined);
-        andChildren.push(rangeNode);
+        if (searchLogic === 'or') {
+          // In OR mode, each RANGE node becomes part of the OR alternatives
+          // But RANGE nodes can't be OR'd with LITERALs directly in PoE2 regex.
+          // Instead, we keep them as AND children but the compiler will handle
+          // the difference: OR mode compiles ranges differently.
+          // For OR mode with ranges: each range becomes a separate alternative
+          // wrapped in its own quoted group, and they're OR'd with the other alternatives.
+          orChildren.push(rangeNode);
+        } else {
+          andChildren.push(rangeNode);
+        }
       }
     } else {
       // No effective min/max: just use the family suffix regex as LITERAL
@@ -255,11 +275,32 @@ function buildAstFromSelections(
       if (excludeMode) {
         andChildren.push(exclude(or(...literals)));
       } else {
-        if (literals.length === 1) {
-          andChildren.push(literals[0]);
+        if (searchLogic === 'or') {
+          orChildren.push(...literals);
         } else {
-          andChildren.push(or(...literals));
+          if (literals.length === 1) {
+            andChildren.push(literals[0]);
+          } else {
+            andChildren.push(or(...literals));
+          }
         }
+      }
+    }
+  }
+
+  // Combine children based on search logic
+  if (searchLogic === 'or' && orChildren.length > 0) {
+    // OR mode: all selected mods go into a single OR group
+    // This means the item only needs to match ANY ONE of the selected mods
+    // The compiler will produce a single quoted group: "A|B|C|D"
+    if (excludeMode) {
+      // In exclude mode with OR logic: exclude any of the selected mods
+      andChildren.push(exclude(or(...orChildren)));
+    } else {
+      if (orChildren.length === 1) {
+        andChildren.push(orChildren[0]);
+      } else {
+        andChildren.push(or(...orChildren));
       }
     }
   }
@@ -384,6 +425,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
     return false;
   });
+  const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('searchLogic');
+      if (val === 'and' || val === 'or') return val;
+    }
+    return 'and';
+  });
   const [round10Enabled, setRound10Enabled] = useState(() => {
     if (urlRestored) {
       const val = useStore.getState().getExtraState('round10Enabled');
@@ -469,10 +517,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       return;
     }
     useStore.getState().setExtraState('excludeMode', excludeMode);
+    useStore.getState().setExtraState('searchLogic', searchLogic);
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
     useStore.getState().setExtraState('maxValue', maxValue);
-  }, [excludeMode, round10Enabled, minValue, maxValue, useStore]);
+  }, [excludeMode, searchLogic, round10Enabled, minValue, maxValue, useStore]);
 
   // Build selected tokens list
   const selectedTokens = useMemo(() => {
@@ -501,7 +550,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
         maxValue,
         round10Enabled,
         locale,
-        perTokenRanges
+        perTokenRanges,
+        searchLogic
       );
       if (modAst) {
         andChildren.push(modAst);
@@ -539,7 +589,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       regex: compiledRegex,
       isRegexOverflow: isOverflow(compiledRegex),
     };
-  }, [data, selectedTokens, excludeMode, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
+  }, [data, selectedTokens, excludeMode, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
@@ -565,6 +615,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     isRegexOverflow,
     excludeMode,
     setExcludeMode,
+    searchLogic,
+    setSearchLogic,
     round10Enabled,
     setRound10Enabled,
     minValue,

@@ -1,6 +1,7 @@
 export type Locale = 'ru';  // Future: | 'en'
 export type AffixType = 'prefix' | 'suffix';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
+export type SearchLogic = 'and' | 'or';
 
 export interface GenderForms {
   ms?: string;  // masculine singular

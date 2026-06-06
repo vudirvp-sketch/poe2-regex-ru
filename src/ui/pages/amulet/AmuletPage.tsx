@@ -24,6 +24,7 @@ export function AmuletPage() {
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
+    searchLogic, setSearchLogic,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -59,6 +60,8 @@ export function AmuletPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
             />
 
             <ModList

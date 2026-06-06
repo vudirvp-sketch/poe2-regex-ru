@@ -48,6 +48,7 @@ export function WaystonePage() {
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
+    searchLogic, setSearchLogic,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
@@ -103,6 +104,8 @@ export function WaystonePage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
               extraControls={
                 <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-700">
                   <label className="flex items-center gap-1 cursor-pointer">

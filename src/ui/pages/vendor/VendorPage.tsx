@@ -15,7 +15,7 @@ import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
 import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
-import type { ASTNode } from '@shared/types';
+import type { ASTNode, SearchLogic } from '@shared/types';
 import { createFilterStore } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
@@ -218,6 +218,13 @@ export function VendorPage() {
     }
     return true;
   });
+  const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
+    if (urlRestored) {
+      const extraSL = useStore.getState().getExtraState('vendorSearchLogic');
+      if (extraSL === 'and' || extraSL === 'or') return extraSL;
+    }
+    return 'and';
+  });
 
   // Ref to skip the first sync-to-store cycle, preventing overwrite
   // of URL-restored extraState values before the restore effect has run.
@@ -234,7 +241,8 @@ export function VendorPage() {
     useStore.getState().setExtraState('vendorExcludeMode', excludeMode);
     useStore.getState().setExtraState('vendorNumericInputs', numericInputs);
     useStore.getState().setExtraState('vendorRound10', round10);
-  }, [selectedIds, excludeMode, numericInputs, round10, useStore]);
+    useStore.getState().setExtraState('vendorSearchLogic', searchLogic);
+  }, [selectedIds, excludeMode, numericInputs, round10, searchLogic, useStore]);
 
   const toggleProperty = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -389,6 +397,8 @@ export function VendorPage() {
         rangedSuffixes={[]}
         round10Enabled={round10}
         setRound10Enabled={setRound10}
+        searchLogic={searchLogic}
+        setSearchLogic={setSearchLogic}
         showRound10={hasNumericSelected}
         clearButton={
           selectedIds.size > 0 ? (

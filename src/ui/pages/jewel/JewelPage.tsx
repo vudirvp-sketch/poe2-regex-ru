@@ -76,6 +76,7 @@ export function JewelPage() {
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
+    searchLogic, setSearchLogic,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -134,6 +135,8 @@ export function JewelPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
               extraControls={
                 <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
                   <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
