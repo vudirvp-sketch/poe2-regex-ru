@@ -9,6 +9,7 @@
  */
 
 import type { FamilyGroup, ModOrigin } from './types';
+import { splitGroupByOrigin } from './family-grouper';
 import { t } from './i18n';
 
 // ─── Semantic category types ───
@@ -670,18 +671,21 @@ export function classifyGroups(
   }
 
   if (mode === 'origin') {
-    // Group by the dominant origin of the family group's members
+    // Split each family group by origin so that mixed-origin groups
+    // (e.g., normal + desecrated members sharing the same familyKey)
+    // produce separate sub-groups for each origin.
+    // This prevents normal mods from being classified as desecrated
+    // just because they share a familyKey with desecrated mods.
     const classified = new Map<ModOrigin, FamilyGroup[]>();
     const originOrder: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
 
     for (const group of groups) {
-      // Determine the group's origin from its members
-      const origins = new Set(group.members.map(m => m.origin));
-      // Use the first non-normal origin if any, otherwise 'normal'
-      const origin = [...origins].find(o => o !== 'normal') ?? 'normal';
-      const list = classified.get(origin) || [];
-      list.push(group);
-      classified.set(origin, list);
+      const splits = splitGroupByOrigin(group);
+      for (const { origin, group: splitGroup } of splits) {
+        const list = classified.get(origin) || [];
+        list.push(splitGroup);
+        classified.set(origin, list);
+      }
     }
 
     return originOrder

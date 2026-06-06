@@ -122,8 +122,41 @@ export function extractTextAndRanges(html: string): {
   // Only the first line is the affix that appears in the item's mod list.
   // Subsequent lines are implicit properties that appear on the item tooltip
   // but are NOT separate searchable affixes.
+  //
+  // EXCEPTION: For desecrated jewel dual-stat mods, <br> separates two parts
+  // of the SAME affix (e.g., "(5—10)% повышение брони<br>(4—8)% увеличение урона от атак").
+  // In-game, these appear as ONE mod line with a comma. Splitting them loses
+  // the second stat and causes familyKey collisions with normal mods.
+  // Detection: if multiple segments each contain numeric ranges, this is likely
+  // a dual-stat mod, not an implicit bonus. We join them with ", " instead.
   const segments = html.split(/<br\s*\/?>/i);
-  const firstSegment = segments[0];
+
+  let firstSegment: string;
+  if (segments.length > 1) {
+    // Check if multiple segments each contain numeric ranges — indicates a dual-stat mod.
+    // The range pattern needs to account for HTML tags like <span class="ndash">—</span>
+    // that break the plain-text range pattern. We detect dual-stat mods by checking
+    // that multiple segments each have their OWN <span class="mod-value"> with a ndash
+    // (range indicator). Single-value mod-value spans (like ": 1") don't count.
+    //
+    // This distinguishes:
+    // - Dual-stat: "(5—10)% повышение брони<br>(4—8)% увеличение урона от атак"
+    //   → both segments have ranges → join them
+    // - Waystone implicit: "Дополнительных свойств: 1<br>25% увеличение количества..."
+    //   → only first has mod-value, or first has single value → take only first
+    const modValueWithRangePattern = /class=['"]mod-value['"][^>]*>\([^<]*<span\s+class=["']ndash["']>/i;
+    const segmentsWithRangeValues = segments.filter(s => modValueWithRangePattern.test(s));
+
+    if (segmentsWithRangeValues.length >= 2) {
+      // Dual-stat mod: join all segments with ", " (how they appear in-game)
+      firstSegment = segments.join(', ');
+    } else {
+      // Standard case: only first segment is the actual affix
+      firstSegment = segments[0];
+    }
+  } else {
+    firstSegment = segments[0];
+  }
 
   const $ = cheerio.load(firstSegment);
   const ranges: number[][] = [];
@@ -133,18 +166,23 @@ export function extractTextAndRanges(html: string): {
   $('span.mod-value').each((_, el) => {
     const text = $(el).text().trim();
 
-    // Range pattern: (5—9) or (5-9) or (-10—20) or +(1—2)
-    const rangeMatch = text.match(/\(([+-]?\d+)\s*[—–-]\s*([+-]?\d+)\)/);
+    // Range pattern: (5—9) or (5-9) or (-10—20) or +(1—2) or (2.1—3) (fractional)
+    const rangeMatch = text.match(/\(([+-]?\d+(?:\.\d+)?)\s*[—–-]\s*([+-]?\d+(?:\.\d+)?)\)/);
     if (rangeMatch) {
-      const min = parseInt(rangeMatch[1], 10);
-      const max = parseInt(rangeMatch[2], 10);
+      const min = parseFloat(rangeMatch[1]);
+      const max = parseFloat(rangeMatch[2]);
+      // Store as integers scaled by 10 if fractional, otherwise as-is
+      // For fractional ranges like (2.1—3), store [21, 30] with a note
+      // Actually, keep as floats for now — downstream code handles integer ranges
+      // Round to avoid floating-point issues: 2.1 → 2.1, 3 → 3
       ranges.push([min, max]);
     }
 
     // Single number in mod-value (not part of a range)
-    const singleMatch = text.match(/^([+-]?\d+)$/);
+    // Also supports fractional single values like 2.5
+    const singleMatch = text.match(/^([+-]?\d+(?:\.\d+)?)$/);
     if (singleMatch && !rangeMatch) {
-      values.push(parseInt(singleMatch[1], 10));
+      values.push(parseFloat(singleMatch[1]));
     }
   });
 
@@ -171,8 +209,11 @@ export function extractTextAndRanges(html: string): {
   for (let i = ranges.length - 1; i >= 0; i--) {
     const [min, max] = ranges[i];
     // Replace the first occurrence of "(min—max)" or "(min-max)" pattern
-    const rangeStr = `(${min}—${max})`;
-    const rangeStrAlt = `(${min}-${max})`;
+    // Use the original text representation to match (handles fractional values)
+    const minStr = Number.isInteger(min) ? String(min) : String(min);
+    const maxStr = Number.isInteger(max) ? String(max) : String(max);
+    const rangeStr = `(${minStr}—${maxStr})`;
+    const rangeStrAlt = `(${minStr}-${maxStr})`;
     rawTextTemplate = rawTextTemplate.replace(rangeStr, '##').replace(rangeStrAlt, '##');
   }
 

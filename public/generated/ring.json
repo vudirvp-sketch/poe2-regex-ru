@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T09:49:28.758Z",
+  "version": "2026-06-06T10:18:21.989Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -5669,7 +5669,7 @@
         "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "я (1—"
+        "ru": "секунду"
       },
       "familyKey": {
         "ru": "Регенерация # здоровья в секунду"
@@ -5708,16 +5708,16 @@
         "ru": "Регенерация (2.1—3) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (2.1—3) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—3)"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (2.1—3) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5726,7 +5726,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          2.1,
+          3
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -5745,16 +5750,16 @@
         "ru": "Регенерация (3.1—4) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (3.1—4) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—4)"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (3.1—4) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5763,7 +5768,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          3.1,
+          4
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -5782,16 +5792,16 @@
         "ru": "Регенерация (4.1—6) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (4.1—6) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—6)"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (4.1—6) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5800,7 +5810,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          4.1,
+          6
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -5819,16 +5834,16 @@
         "ru": "Регенерация (6.1—9) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (6.1—9) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—9)"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (6.1—9) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5837,7 +5852,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          6.1,
+          9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -5856,16 +5876,16 @@
         "ru": "Регенерация (9.1—13) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (9.1—13) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "(9.1—"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (9.1—13) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5874,7 +5894,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          9.1,
+          13
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -5893,16 +5918,16 @@
         "ru": "Регенерация (13.1—18) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (13.1—18) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "1—18)"
+        "ru": "секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (13.1—18) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5911,7 +5936,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          13.1,
+          18
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6182,13 +6212,13 @@
         "ru": "(6—6.9)% физического урона от атак похищается в виде здоровья"
       },
       "rawTextTemplate": {
-        "ru": "(6—6.9)% физического урона от атак похищается в виде здоровья"
+        "ru": "##% физического урона от атак похищается в виде здоровья"
       },
       "regex": {
-        "ru": "6.9)% физического урона от атак"
+        "ru": "виде здоровья"
       },
       "familyKey": {
-        "ru": "(6—6.9)% физического урона от атак похищается в виде здоровья"
+        "ru": "#% физического урона от атак похищается в виде здоровья"
       },
       "regexPrefix": {
         "ru": ""
@@ -6202,7 +6232,12 @@
         "physical",
         "attack"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          6,
+          6.9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6219,13 +6254,13 @@
         "ru": "(7—7.9)% физического урона от атак похищается в виде здоровья"
       },
       "rawTextTemplate": {
-        "ru": "(7—7.9)% физического урона от атак похищается в виде здоровья"
+        "ru": "##% физического урона от атак похищается в виде здоровья"
       },
       "regex": {
-        "ru": "7.9)%"
+        "ru": "виде здоровья"
       },
       "familyKey": {
-        "ru": "(7—7.9)% физического урона от атак похищается в виде здоровья"
+        "ru": "#% физического урона от атак похищается в виде здоровья"
       },
       "regexPrefix": {
         "ru": ""
@@ -6239,7 +6274,12 @@
         "physical",
         "attack"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          7,
+          7.9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6256,13 +6296,13 @@
         "ru": "(5—5.9)% физического урона от атак похищается в виде маны"
       },
       "rawTextTemplate": {
-        "ru": "(5—5.9)% физического урона от атак похищается в виде маны"
+        "ru": "##% физического урона от атак похищается в виде маны"
       },
       "regex": {
-        "ru": "5.9)%"
+        "ru": "виде маны"
       },
       "familyKey": {
-        "ru": "(5—5.9)% физического урона от атак похищается в виде маны"
+        "ru": "#% физического урона от атак похищается в виде маны"
       },
       "regexPrefix": {
         "ru": ""
@@ -6276,7 +6316,12 @@
         "physical",
         "attack"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          5,
+          5.9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6293,13 +6338,13 @@
         "ru": "(6—6.9)% физического урона от атак похищается в виде маны"
       },
       "rawTextTemplate": {
-        "ru": "(6—6.9)% физического урона от атак похищается в виде маны"
+        "ru": "##% физического урона от атак похищается в виде маны"
       },
       "regex": {
-        "ru": "6.9)% физического урона от атак"
+        "ru": "виде маны"
       },
       "familyKey": {
-        "ru": "(6—6.9)% физического урона от атак похищается в виде маны"
+        "ru": "#% физического урона от атак похищается в виде маны"
       },
       "regexPrefix": {
         "ru": ""
@@ -6313,7 +6358,12 @@
         "physical",
         "attack"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          6,
+          6.9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -16202,6 +16252,22 @@
       "weight": 15,
       "count": 9
     },
+    "ring.liferegeneration1:ring.liferegeneration3:ring.liferegeneration4:ring.liferegeneration5:ring.liferegeneration6:ring.normal_129:ring.normal_134": {
+      "ids": [
+        "ring.liferegeneration1",
+        "ring.liferegeneration3",
+        "ring.liferegeneration4",
+        "ring.liferegeneration5",
+        "ring.liferegeneration6",
+        "ring.normal_129",
+        "ring.normal_134"
+      ],
+      "regex": {
+        "ru": "секунду"
+      },
+      "weight": 7,
+      "count": 7
+    },
     "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
@@ -16221,6 +16287,28 @@
       },
       "weight": 16,
       "count": 11
+    },
+    "ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": "виде здоровья"
+      },
+      "weight": 13,
+      "count": 2
+    },
+    "ring.manaleech2:ring.manaleech3": {
+      "ids": [
+        "ring.manaleech2",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": "виде маны"
+      },
+      "weight": 9,
+      "count": 2
     },
     "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.normal_150": {
       "ids": [
@@ -17472,6 +17560,27 @@
       "weight": 12,
       "count": 11
     },
+    "ring.increasedlife2_essence:ring.increasedlife3:ring.increasedlife4:ring.increasedlife6:ring.increasedlife6_essence:ring.lifeleech2:ring.lifeleech3:ring.normal_63:ring.normal_64:ring.normal_67:ring.normal_69:ring.normal_70": {
+      "ids": [
+        "ring.increasedlife2_essence",
+        "ring.increasedlife3",
+        "ring.increasedlife4",
+        "ring.increasedlife6",
+        "ring.increasedlife6_essence",
+        "ring.lifeleech2",
+        "ring.lifeleech3",
+        "ring.normal_63",
+        "ring.normal_64",
+        "ring.normal_67",
+        "ring.normal_69",
+        "ring.normal_70"
+      ],
+      "regex": {
+        "ru": " здоровья"
+      },
+      "weight": 9,
+      "count": 12
+    },
     "ring.increasedlife2_essence:ring.increasedlife3:ring.increasedlife4:ring.increasedlife6:ring.increasedlife6_essence:ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.normal_150:ring.normal_63:ring.normal_64:ring.normal_67:ring.normal_69:ring.normal_70": {
       "ids": [
         "ring.increasedlife2_essence",
@@ -17642,6 +17751,33 @@
       "weight": 8,
       "count": 11
     },
+    "ring.corruptionincreasedmana1_corrupted:ring.increasedmana1:ring.increasedmana11:ring.increasedmana12:ring.increasedmana2:ring.increasedmana3:ring.increasedmana3_essence:ring.increasedmana4:ring.increasedmana5:ring.increasedmana6:ring.increasedmana7:ring.increasedmana7_essence:ring.increasedmana8_essence:ring.manaleech2:ring.manaleech3:ring.normal_78:ring.normal_79:ring.normal_80": {
+      "ids": [
+        "ring.corruptionincreasedmana1_corrupted",
+        "ring.increasedmana1",
+        "ring.increasedmana11",
+        "ring.increasedmana12",
+        "ring.increasedmana2",
+        "ring.increasedmana3",
+        "ring.increasedmana3_essence",
+        "ring.increasedmana4",
+        "ring.increasedmana5",
+        "ring.increasedmana6",
+        "ring.increasedmana7",
+        "ring.increasedmana7_essence",
+        "ring.increasedmana8_essence",
+        "ring.manaleech2",
+        "ring.manaleech3",
+        "ring.normal_78",
+        "ring.normal_79",
+        "ring.normal_80"
+      ],
+      "regex": {
+        "ru": " маны"
+      },
+      "weight": 5,
+      "count": 18
+    },
     "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated:ring.corruptionincreasedmana1_corrupted:ring.increasedmana1:ring.increasedmana11:ring.increasedmana12:ring.increasedmana2:ring.increasedmana3:ring.increasedmana3_essence:ring.increasedmana4:ring.increasedmana5:ring.increasedmana6:ring.increasedmana7:ring.increasedmana7_essence:ring.increasedmana8_essence:ring.normal_78:ring.normal_79:ring.normal_80": {
       "ids": [
         "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated",
@@ -17800,44 +17936,6 @@
       },
       "weight": 9,
       "count": 18
-    },
-    "ring.addedphysicaldamage4:ring.addedphysicaldamage8:ring.lifeleech2:ring.normal_100:ring.normal_92:ring.normal_93:ring.normal_94:ring.normal_96:ring.normal_97:ring.normal_98": {
-      "ids": [
-        "ring.addedphysicaldamage4",
-        "ring.addedphysicaldamage8",
-        "ring.lifeleech2",
-        "ring.normal_100",
-        "ring.normal_92",
-        "ring.normal_93",
-        "ring.normal_94",
-        "ring.normal_96",
-        "ring.normal_97",
-        "ring.normal_98"
-      ],
-      "regex": {
-        "ru": "урона "
-      },
-      "weight": 6,
-      "count": 10
-    },
-    "ring.addedphysicaldamage4:ring.addedphysicaldamage8:ring.manaleech3:ring.normal_100:ring.normal_92:ring.normal_93:ring.normal_94:ring.normal_96:ring.normal_97:ring.normal_98": {
-      "ids": [
-        "ring.addedphysicaldamage4",
-        "ring.addedphysicaldamage8",
-        "ring.manaleech3",
-        "ring.normal_100",
-        "ring.normal_92",
-        "ring.normal_93",
-        "ring.normal_94",
-        "ring.normal_96",
-        "ring.normal_97",
-        "ring.normal_98"
-      ],
-      "regex": {
-        "ru": "урона "
-      },
-      "weight": 6,
-      "count": 10
     },
     "ring.addedphysicaldamage4:ring.addedphysicaldamage8:ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.normal_100:ring.normal_92:ring.normal_93:ring.normal_94:ring.normal_96:ring.normal_97:ring.normal_98": {
       "ids": [
@@ -18199,44 +18297,6 @@
       "weight": 9,
       "count": 18
     },
-    "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.lifeleech2:ring.normal_108:ring.normal_109": {
-      "ids": [
-        "ring.addedfiredamage1",
-        "ring.addedfiredamage2",
-        "ring.addedfiredamage3",
-        "ring.addedfiredamage4",
-        "ring.addedfiredamage5",
-        "ring.addedfiredamage6",
-        "ring.addedfiredamage7",
-        "ring.lifeleech2",
-        "ring.normal_108",
-        "ring.normal_109"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
-    },
-    "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.manaleech3:ring.normal_108:ring.normal_109": {
-      "ids": [
-        "ring.addedfiredamage1",
-        "ring.addedfiredamage2",
-        "ring.addedfiredamage3",
-        "ring.addedfiredamage4",
-        "ring.addedfiredamage5",
-        "ring.addedfiredamage6",
-        "ring.addedfiredamage7",
-        "ring.manaleech3",
-        "ring.normal_108",
-        "ring.normal_109"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
-    },
     "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.normal_108:ring.normal_109": {
       "ids": [
         "ring.addedfiredamage1",
@@ -18329,44 +18389,6 @@
       "weight": 9,
       "count": 18
     },
-    "ring.addedcolddamage3:ring.addedcolddamage4:ring.addedcolddamage5:ring.addedcolddamage6:ring.lifeleech2:ring.normal_110:ring.normal_111:ring.normal_116:ring.normal_117:ring.normal_118": {
-      "ids": [
-        "ring.addedcolddamage3",
-        "ring.addedcolddamage4",
-        "ring.addedcolddamage5",
-        "ring.addedcolddamage6",
-        "ring.lifeleech2",
-        "ring.normal_110",
-        "ring.normal_111",
-        "ring.normal_116",
-        "ring.normal_117",
-        "ring.normal_118"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
-    },
-    "ring.addedcolddamage3:ring.addedcolddamage4:ring.addedcolddamage5:ring.addedcolddamage6:ring.manaleech3:ring.normal_110:ring.normal_111:ring.normal_116:ring.normal_117:ring.normal_118": {
-      "ids": [
-        "ring.addedcolddamage3",
-        "ring.addedcolddamage4",
-        "ring.addedcolddamage5",
-        "ring.addedcolddamage6",
-        "ring.manaleech3",
-        "ring.normal_110",
-        "ring.normal_111",
-        "ring.normal_116",
-        "ring.normal_117",
-        "ring.normal_118"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
-    },
     "ring.addedcolddamage3:ring.addedcolddamage4:ring.addedcolddamage5:ring.addedcolddamage6:ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.normal_110:ring.normal_111:ring.normal_116:ring.normal_117:ring.normal_118:ring.normal_183:ring.normal_184": {
       "ids": [
         "ring.addedcolddamage3",
@@ -18450,44 +18472,6 @@
       },
       "weight": 4,
       "count": 13
-    },
-    "ring.addedlightningdamage2:ring.addedlightningdamage3:ring.addedlightningdamage4:ring.addedlightningdamage5:ring.addedlightningdamage6:ring.lifeleech2:ring.normal_119:ring.normal_125:ring.normal_126:ring.normal_127": {
-      "ids": [
-        "ring.addedlightningdamage2",
-        "ring.addedlightningdamage3",
-        "ring.addedlightningdamage4",
-        "ring.addedlightningdamage5",
-        "ring.addedlightningdamage6",
-        "ring.lifeleech2",
-        "ring.normal_119",
-        "ring.normal_125",
-        "ring.normal_126",
-        "ring.normal_127"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
-    },
-    "ring.addedlightningdamage2:ring.addedlightningdamage3:ring.addedlightningdamage4:ring.addedlightningdamage5:ring.addedlightningdamage6:ring.manaleech3:ring.normal_119:ring.normal_125:ring.normal_126:ring.normal_127": {
-      "ids": [
-        "ring.addedlightningdamage2",
-        "ring.addedlightningdamage3",
-        "ring.addedlightningdamage4",
-        "ring.addedlightningdamage5",
-        "ring.addedlightningdamage6",
-        "ring.manaleech3",
-        "ring.normal_119",
-        "ring.normal_125",
-        "ring.normal_126",
-        "ring.normal_127"
-      ],
-      "regex": {
-        "ru": " атак"
-      },
-      "weight": 5,
-      "count": 10
     },
     "ring.addedlightningdamage2:ring.addedlightningdamage3:ring.addedlightningdamage4:ring.addedlightningdamage5:ring.addedlightningdamage6:ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.normal_119:ring.normal_125:ring.normal_126:ring.normal_127:ring.normal_190": {
       "ids": [
@@ -18630,6 +18614,28 @@
       "weight": 4,
       "count": 13
     },
+    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaleech2:ring.manaleech3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+      "ids": [
+        "ring.corruptionmanaregeneration1_corrupted",
+        "ring.lightradiusandmanaregeneration1",
+        "ring.lightradiusandmanaregeneration2",
+        "ring.lightradiusandmanaregeneration3",
+        "ring.manaleech2",
+        "ring.manaleech3",
+        "ring.manaregeneration1",
+        "ring.manaregeneration2",
+        "ring.manaregeneration3",
+        "ring.manaregeneration4",
+        "ring.manaregeneration5",
+        "ring.manaregeneration5_essence",
+        "ring.manaregeneration6"
+      ],
+      "regex": {
+        "ru": " маны"
+      },
+      "weight": 5,
+      "count": 13
+    },
     "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
@@ -18766,359 +18772,114 @@
       "weight": 5,
       "count": 12
     },
-    "ring.lifeleech2:ring.lifeleech3": {
+    "ring.lifeleech2:ring.lifeleech3:ring.manaleech2:ring.manaleech3": {
       "ids": [
         "ring.lifeleech2",
-        "ring.lifeleech3"
-      ],
-      "regex": {
-        "ru": ".9)%"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.lifeleech2:ring.manaleech2": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.manaleech2"
-      ],
-      "regex": {
-        "ru": ".9)%"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.lifeleech2:ring.manaleech3": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "6.9)% физического урона от атак"
-      },
-      "weight": 31,
-      "count": 2
-    },
-    "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.lifeleech2:ring.normal_150": {
-      "ids": [
-        "ring.lifegainedfromenemydeath1",
-        "ring.lifegainedfromenemydeath2",
-        "ring.lifegainedfromenemydeath3",
-        "ring.lifegainedfromenemydeath4",
-        "ring.lifegainedfromenemydeath5",
-        "ring.lifeleech2",
-        "ring.normal_150"
-      ],
-      "regex": {
-        "ru": "ого у"
-      },
-      "weight": 5,
-      "count": 7
-    },
-    "ring.lifeleech2:ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.managainedfromenemydeath1",
-        "ring.managainedfromenemydeath2",
-        "ring.managainedfromenemydeath3",
-        "ring.managainedfromenemydeath4",
-        "ring.managainedfromenemydeath5",
-        "ring.managainedfromenemydeath6"
-      ],
-      "regex": {
-        "ru": "ого у"
-      },
-      "weight": 5,
-      "count": 7
-    },
-    "ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.lifeleech2": {
-      "ids": [
-        "ring.firedamagepercent1",
-        "ring.firedamagepercent2",
-        "ring.firedamagepercent3",
-        "ring.firedamagepercent4",
-        "ring.firedamagepercent5",
-        "ring.firedamagepercent6",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.lifeleech2:ring.normal_183:ring.normal_184": {
-      "ids": [
-        "ring.colddamagepercent1",
-        "ring.colddamagepercent2",
-        "ring.colddamagepercent3",
-        "ring.colddamagepercent6",
-        "ring.lifeleech2",
-        "ring.normal_183",
-        "ring.normal_184"
-      ],
-      "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.lifeleech2:ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.normal_190": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.lightningdamagepercent1",
-        "ring.lightningdamagepercent2",
-        "ring.lightningdamagepercent3",
-        "ring.lightningdamagepercent4",
-        "ring.lightningdamagepercent6",
-        "ring.normal_190"
-      ],
-      "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.lifeleech2:ring.normal_195:ring.normal_197": {
-      "ids": [
-        "ring.chaosdamagepercent1",
-        "ring.chaosdamagepercent2",
-        "ring.chaosdamagepercent3",
-        "ring.chaosdamagepercent5",
-        "ring.lifeleech2",
-        "ring.normal_195",
-        "ring.normal_197"
-      ],
-      "regex": {
-        "ru": " урона "
-      },
-      "weight": 7,
-      "count": 7
-    },
-    "ring.corruptioncriticalstrikemultiplier1_corrupted:ring.lifeleech2": {
-      "ids": [
-        "ring.corruptioncriticalstrikemultiplier1_corrupted",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.lifeleech2": {
-      "ids": [
-        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ическо"
-      },
-      "weight": 6,
-      "count": 2
-    },
-    "ring.abyssmodringamanamusuffixlifeleechamount_desecrated:ring.lifeleech2": {
-      "ids": [
-        "ring.abyssmodringamanamusuffixlifeleechamount_desecrated",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ого "
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:ring.lifeleech2": {
-      "ids": [
-        "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ичес"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.genesistreeringminionarmourbreak_breachborn:ring.lifeleech2": {
-      "ids": [
-        "ring.genesistreeringminionarmourbreak_breachborn",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": " физического урона"
-      },
-      "weight": 18,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextralightning_breachborn:ring.lifeleech2": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextralightning_breachborn",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextrafire_breachborn:ring.lifeleech2": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextrafire_breachborn",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextracold_breachborn:ring.lifeleech2": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextracold_breachborn",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextrachaos_breachborn:ring.lifeleech2": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextrachaos_breachborn",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "ого урона "
-      },
-      "weight": 10,
-      "count": 2
-    },
-    "ring.lifeleech2:ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.minionattackspeedandcastspeed1_breachborn",
-        "ring.minionattackspeedandcastspeed2_breachborn",
-        "ring.minionattackspeedandcastspeed3_breachborn",
-        "ring.minionattackspeedandcastspeed4_breachborn"
-      ],
-      "regex": {
-        "ru": "атак"
-      },
-      "weight": 4,
-      "count": 5
-    },
-    "ring.lifeleech2:ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.minioncriticalstrikemultiplierring1_breachborn",
-        "ring.minioncriticalstrikemultiplierring2_breachborn",
-        "ring.minioncriticalstrikemultiplierring3_breachborn",
-        "ring.minioncriticalstrikemultiplierring4_breachborn",
-        "ring.minioncriticalstrikemultiplierring5_breachborn",
-        "ring.minioncriticalstrikemultiplierring6_breachborn"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 7
-    },
-    "ring.lifeleech2:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.spelldamagering1_breachborn",
-        "ring.spelldamagering2_breachborn",
-        "ring.spelldamagering3_breachborn",
-        "ring.spelldamagering4_breachborn",
-        "ring.spelldamagering5_breachborn",
-        "ring.spelldamagering6_breachborn",
-        "ring.spelldamagering7_breachborn",
-        "ring.spelldamagering8_breachborn"
-      ],
-      "regex": {
-        "ru": "урона от "
-      },
-      "weight": 9,
-      "count": 9
-    },
-    "ring.lifeleech2:ring.spellcriticalstrikemultiplierring1_breachborn:ring.spellcriticalstrikemultiplierring2_breachborn:ring.spellcriticalstrikemultiplierring3_breachborn:ring.spellcriticalstrikemultiplierring4_breachborn:ring.spellcriticalstrikemultiplierring5_breachborn:ring.spellcriticalstrikemultiplierring6_breachborn": {
-      "ids": [
-        "ring.lifeleech2",
-        "ring.spellcriticalstrikemultiplierring1_breachborn",
-        "ring.spellcriticalstrikemultiplierring2_breachborn",
-        "ring.spellcriticalstrikemultiplierring3_breachborn",
-        "ring.spellcriticalstrikemultiplierring4_breachborn",
-        "ring.spellcriticalstrikemultiplierring5_breachborn",
-        "ring.spellcriticalstrikemultiplierring6_breachborn"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 7
-    },
-    "ring.alloyattackspeedring1_essence:ring.lifeleech2": {
-      "ids": [
-        "ring.alloyattackspeedring1_essence",
-        "ring.lifeleech2"
-      ],
-      "regex": {
-        "ru": "9)% "
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.lifeleech3:ring.manaleech2": {
-      "ids": [
         "ring.lifeleech3",
-        "ring.manaleech2"
-      ],
-      "regex": {
-        "ru": ".9)%"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.lifeleech3:ring.manaleech3": {
-      "ids": [
-        "ring.lifeleech3",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": ".9)%"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.manaleech2:ring.manaleech3": {
-      "ids": [
         "ring.manaleech2",
         "ring.manaleech3"
       ],
       "regex": {
-        "ru": ".9)%"
+        "ru": "виде "
       },
-      "weight": 4,
-      "count": 2
+      "weight": 5,
+      "count": 4
     },
-    "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.manaleech3:ring.normal_150": {
+    "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.lifeleech2:ring.lifeleech3:ring.normal_150": {
       "ids": [
         "ring.lifegainedfromenemydeath1",
         "ring.lifegainedfromenemydeath2",
         "ring.lifegainedfromenemydeath3",
         "ring.lifegainedfromenemydeath4",
         "ring.lifegainedfromenemydeath5",
-        "ring.manaleech3",
+        "ring.lifeleech2",
+        "ring.lifeleech3",
         "ring.normal_150"
       ],
       "regex": {
-        "ru": "ого у"
+        "ru": "здоровья"
       },
-      "weight": 5,
-      "count": 7
+      "weight": 8,
+      "count": 8
     },
-    "ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.manaleech3": {
+    "ring.corruptionliferegenerationrate1_corrupted:ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.corruptionliferegenerationrate1_corrupted",
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": " здоровья"
+      },
+      "weight": 9,
+      "count": 3
+    },
+    "ring.abyssmodringamanamusuffixlifeleechamount_desecrated:ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.abyssmodringamanamusuffixlifeleechamount_desecrated",
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": " здоровья"
+      },
+      "weight": 9,
+      "count": 3
+    },
+    "ring.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated:ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated",
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": "здоровья"
+      },
+      "weight": 8,
+      "count": 3
+    },
+    "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": "е здоровья"
+      },
+      "weight": 10,
+      "count": 3
+    },
+    "ring.genesistreeringdamagetakenfrommanabeforelife_breachborn:ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.genesistreeringdamagetakenfrommanabeforelife_breachborn",
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": " здоровья"
+      },
+      "weight": 9,
+      "count": 3
+    },
+    "ring.lifeleech2:ring.lifeleech3:ring.minionlifering1_breachborn:ring.minionlifering2_breachborn:ring.minionlifering3_breachborn:ring.minionlifering4_breachborn:ring.minionlifering5_breachborn:ring.minionlifering6_breachborn": {
+      "ids": [
+        "ring.lifeleech2",
+        "ring.lifeleech3",
+        "ring.minionlifering1_breachborn",
+        "ring.minionlifering2_breachborn",
+        "ring.minionlifering3_breachborn",
+        "ring.minionlifering4_breachborn",
+        "ring.minionlifering5_breachborn",
+        "ring.minionlifering6_breachborn"
+      ],
+      "regex": {
+        "ru": " здоровья"
+      },
+      "weight": 9,
+      "count": 8
+    },
+    "ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.manaleech2:ring.manaleech3": {
       "ids": [
         "ring.managainedfromenemydeath1",
         "ring.managainedfromenemydeath2",
@@ -19126,251 +18887,67 @@
         "ring.managainedfromenemydeath4",
         "ring.managainedfromenemydeath5",
         "ring.managainedfromenemydeath6",
+        "ring.manaleech2",
         "ring.manaleech3"
       ],
       "regex": {
-        "ru": "ого у"
+        "ru": "маны"
+      },
+      "weight": 4,
+      "count": 8
+    },
+    "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated:ring.manaleech2:ring.manaleech3": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated",
+        "ring.manaleech2",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": "маны"
+      },
+      "weight": 4,
+      "count": 3
+    },
+    "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated:ring.manaleech2:ring.manaleech3": {
+      "ids": [
+        "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated",
+        "ring.manaleech2",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": " маны"
       },
       "weight": 5,
-      "count": 7
+      "count": 3
     },
-    "ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.manaleech3": {
+    "ring.manaleech2:ring.manaleech3:ring.spellcostefficiency1_breachborn:ring.spellcostefficiency2_breachborn:ring.spellcostefficiency3_breachborn:ring.spellcostefficiency4_breachborn:ring.spellcostefficiency5_breachborn:ring.spellcostefficiency6_breachborn": {
       "ids": [
-        "ring.firedamagepercent1",
-        "ring.firedamagepercent2",
-        "ring.firedamagepercent3",
-        "ring.firedamagepercent4",
-        "ring.firedamagepercent5",
-        "ring.firedamagepercent6",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.manaleech3:ring.normal_183:ring.normal_184": {
-      "ids": [
-        "ring.colddamagepercent1",
-        "ring.colddamagepercent2",
-        "ring.colddamagepercent3",
-        "ring.colddamagepercent6",
+        "ring.manaleech2",
         "ring.manaleech3",
-        "ring.normal_183",
-        "ring.normal_184"
+        "ring.spellcostefficiency1_breachborn",
+        "ring.spellcostefficiency2_breachborn",
+        "ring.spellcostefficiency3_breachborn",
+        "ring.spellcostefficiency4_breachborn",
+        "ring.spellcostefficiency5_breachborn",
+        "ring.spellcostefficiency6_breachborn"
       ],
       "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.manaleech3:ring.normal_190": {
-      "ids": [
-        "ring.lightningdamagepercent1",
-        "ring.lightningdamagepercent2",
-        "ring.lightningdamagepercent3",
-        "ring.lightningdamagepercent4",
-        "ring.lightningdamagepercent6",
-        "ring.manaleech3",
-        "ring.normal_190"
-      ],
-      "regex": {
-        "ru": " урона от "
-      },
-      "weight": 10,
-      "count": 7
-    },
-    "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.manaleech3:ring.normal_195:ring.normal_197": {
-      "ids": [
-        "ring.chaosdamagepercent1",
-        "ring.chaosdamagepercent2",
-        "ring.chaosdamagepercent3",
-        "ring.chaosdamagepercent5",
-        "ring.manaleech3",
-        "ring.normal_195",
-        "ring.normal_197"
-      ],
-      "regex": {
-        "ru": " урона "
-      },
-      "weight": 7,
-      "count": 7
-    },
-    "ring.corruptioncriticalstrikemultiplier1_corrupted:ring.manaleech3": {
-      "ids": [
-        "ring.corruptioncriticalstrikemultiplier1_corrupted",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "урон"
+        "ru": "маны"
       },
       "weight": 4,
-      "count": 2
+      "count": 8
     },
-    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.manaleech3": {
+    "ring.essenceincreasedmanapercent1_essence:ring.manaleech2:ring.manaleech3": {
       "ids": [
-        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.essenceincreasedmanapercent1_essence",
+        "ring.manaleech2",
         "ring.manaleech3"
       ],
       "regex": {
-        "ru": "ическо"
+        "ru": " маны"
       },
-      "weight": 6,
-      "count": 2
-    },
-    "ring.abyssmodringamanamusuffixlifeleechamount_desecrated:ring.manaleech3": {
-      "ids": [
-        "ring.abyssmodringamanamusuffixlifeleechamount_desecrated",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ого "
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:ring.manaleech3": {
-      "ids": [
-        "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ичес"
-      },
-      "weight": 4,
-      "count": 2
-    },
-    "ring.genesistreeringminionarmourbreak_breachborn:ring.manaleech3": {
-      "ids": [
-        "ring.genesistreeringminionarmourbreak_breachborn",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": " физического урона"
-      },
-      "weight": 18,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextralightning_breachborn:ring.manaleech3": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextralightning_breachborn",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextrafire_breachborn:ring.manaleech3": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextrafire_breachborn",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextracold_breachborn:ring.manaleech3": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextracold_breachborn",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ого урона от "
-      },
-      "weight": 13,
-      "count": 2
-    },
-    "ring.genesistreeringspelldamageasextrachaos_breachborn:ring.manaleech3": {
-      "ids": [
-        "ring.genesistreeringspelldamageasextrachaos_breachborn",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "ого урона "
-      },
-      "weight": 10,
-      "count": 2
-    },
-    "ring.manaleech3:ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
-      "ids": [
-        "ring.manaleech3",
-        "ring.minionattackspeedandcastspeed1_breachborn",
-        "ring.minionattackspeedandcastspeed2_breachborn",
-        "ring.minionattackspeedandcastspeed3_breachborn",
-        "ring.minionattackspeedandcastspeed4_breachborn"
-      ],
-      "regex": {
-        "ru": "атак"
-      },
-      "weight": 4,
-      "count": 5
-    },
-    "ring.manaleech3:ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
-      "ids": [
-        "ring.manaleech3",
-        "ring.minioncriticalstrikemultiplierring1_breachborn",
-        "ring.minioncriticalstrikemultiplierring2_breachborn",
-        "ring.minioncriticalstrikemultiplierring3_breachborn",
-        "ring.minioncriticalstrikemultiplierring4_breachborn",
-        "ring.minioncriticalstrikemultiplierring5_breachborn",
-        "ring.minioncriticalstrikemultiplierring6_breachborn"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 7
-    },
-    "ring.manaleech3:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
-      "ids": [
-        "ring.manaleech3",
-        "ring.spelldamagering1_breachborn",
-        "ring.spelldamagering2_breachborn",
-        "ring.spelldamagering3_breachborn",
-        "ring.spelldamagering4_breachborn",
-        "ring.spelldamagering5_breachborn",
-        "ring.spelldamagering6_breachborn",
-        "ring.spelldamagering7_breachborn",
-        "ring.spelldamagering8_breachborn"
-      ],
-      "regex": {
-        "ru": "урона от "
-      },
-      "weight": 9,
-      "count": 9
-    },
-    "ring.manaleech3:ring.spellcriticalstrikemultiplierring1_breachborn:ring.spellcriticalstrikemultiplierring2_breachborn:ring.spellcriticalstrikemultiplierring3_breachborn:ring.spellcriticalstrikemultiplierring4_breachborn:ring.spellcriticalstrikemultiplierring5_breachborn:ring.spellcriticalstrikemultiplierring6_breachborn": {
-      "ids": [
-        "ring.manaleech3",
-        "ring.spellcriticalstrikemultiplierring1_breachborn",
-        "ring.spellcriticalstrikemultiplierring2_breachborn",
-        "ring.spellcriticalstrikemultiplierring3_breachborn",
-        "ring.spellcriticalstrikemultiplierring4_breachborn",
-        "ring.spellcriticalstrikemultiplierring5_breachborn",
-        "ring.spellcriticalstrikemultiplierring6_breachborn"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 7
-    },
-    "ring.alloyattackspeedring1_essence:ring.manaleech3": {
-      "ids": [
-        "ring.alloyattackspeedring1_essence",
-        "ring.manaleech3"
-      ],
-      "regex": {
-        "ru": "9)% "
-      },
-      "weight": 4,
-      "count": 2
+      "weight": 5,
+      "count": 3
     },
     "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6:ring.normal_150": {
       "ids": [

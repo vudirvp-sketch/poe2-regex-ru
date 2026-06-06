@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T09:49:22.780Z",
+  "version": "2026-06-06T10:18:17.604Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -1742,13 +1742,13 @@
         "ru": "+(0.3—0.4) м к дальности кувырка"
       },
       "rawTextTemplate": {
-        "ru": "+(0.3—0.4) м к дальности кувырка"
+        "ru": "+## м к дальности кувырка"
       },
       "regex": {
-        "ru": "—0.4)"
+        "ru": "кувырка"
       },
       "familyKey": {
-        "ru": "+(0.3—0.4) м к дальности кувырка"
+        "ru": "+# м к дальности кувырка"
       },
       "regexPrefix": {
         "ru": ""
@@ -1758,7 +1758,12 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
+      "ranges": [
+        [
+          0.3,
+          0.4
+        ]
+      ],
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
@@ -1772,13 +1777,13 @@
         "ru": "+(0.5—0.7) м к дальности кувырка"
       },
       "rawTextTemplate": {
-        "ru": "+(0.5—0.7) м к дальности кувырка"
+        "ru": "+## м к дальности кувырка"
       },
       "regex": {
-        "ru": "—0.7)"
+        "ru": "кувырка"
       },
       "familyKey": {
-        "ru": "+(0.5—0.7) м к дальности кувырка"
+        "ru": "+# м к дальности кувырка"
       },
       "regexPrefix": {
         "ru": ""
@@ -1788,7 +1793,12 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
+      "ranges": [
+        [
+          0.5,
+          0.7
+        ]
+      ],
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
@@ -2551,6 +2561,17 @@
       },
       "weight": 12,
       "count": 3
+    },
+    "relic.sanctumdodgerolldistance1:relic.sanctumdodgerolldistance2": {
+      "ids": [
+        "relic.sanctumdodgerolldistance1",
+        "relic.sanctumdodgerolldistance2"
+      ],
+      "regex": {
+        "ru": "кувырка"
+      },
+      "weight": 7,
+      "count": 2
     },
     "relic.sanctumslowresistance1:relic.sanctumslowresistance2:relic.sanctumslowresistance3": {
       "ids": [

@@ -25,6 +25,7 @@ function makeRegexResult(overrides: Partial<RegexResult> & { regex: string }): R
     hasYofication: false,
     yoficationPositions: [],
     familyKey: overrides.regex,
+    regexPrefix: '',
     ...overrides,
   };
 }

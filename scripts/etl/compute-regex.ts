@@ -79,7 +79,20 @@ function extractTemplateSuffix(template: string): string {
   // Find the last # or ## in the template
   // We look for the last occurrence and take everything after it,
   // skipping any immediately following non-letter characters (%, ), spaces)
-  const lastHashIdx = template.lastIndexOf('#');
+  //
+  // IMPORTANT: When there are multiple ## placeholders (dual-stat mods),
+  // we want the suffix AFTER the LAST ## pair, not after a single #.
+  // So we search for the last "##" first, then fall back to the last "#"
+  // only if there are no "##" pairs.
+  let lastHashIdx = template.lastIndexOf('##');
+  if (lastHashIdx !== -1) {
+    // Found ## pair — take text after the second #
+    lastHashIdx += 1; // point to the second # in the pair
+  } else {
+    // No ## pairs — look for a single #
+    lastHashIdx = template.lastIndexOf('#');
+  }
+
   if (lastHashIdx === -1) return '';
 
   // Take text after the last #, then trim leading non-letter characters
@@ -87,6 +100,48 @@ function extractTemplateSuffix(template: string): string {
 
   // Skip leading non-letter characters (like "% ", ") ", " ", etc.)
   // but keep Cyrillic and Latin letters
+  suffix = suffix.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
+
+  return suffix.trim();
+}
+
+/**
+ * Extract the "extended suffix" from a rawTextTemplate.
+ * This is the full text AFTER the first # or ## placeholder,
+ * with leading non-letter characters removed.
+ *
+ * Unlike extractTemplateSuffix (which takes text after the LAST #),
+ * this takes text after the FIRST #, effectively including
+ * any text between the number placeholder and the last suffix.
+ *
+ * This is used for suffix lengthening when the pure suffix
+ * (text after last #) is not unique within the category.
+ *
+ * Examples:
+ *   "##% увеличение урона к атакам" → "увеличение урона к атакам"
+ *   "##% увеличение урона от молнии к атакам" → "увеличение урона от молнии к атакам"
+ *   "+##% к сопротивлению огню" → "к сопротивлению огню"
+ *   "##% повышение брони" → "повышение брони" (same as extractTemplateSuffix)
+ */
+function extractExtendedSuffix(template: string): string {
+  // Find the first # or ##
+  let firstHashIdx = -1;
+  for (let i = 0; i < template.length; i++) {
+    if (template[i] === '#') {
+      firstHashIdx = i;
+      break;
+    }
+  }
+
+  if (firstHashIdx === -1) return '';
+
+  // Take text after the first # (skip consecutive # chars)
+  let idx = firstHashIdx;
+  while (idx < template.length && template[idx] === '#') idx++;
+
+  let suffix = template.substring(idx);
+
+  // Skip leading non-letter characters (like "% ", ") ", " ", etc.)
   suffix = suffix.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
 
   return suffix.trim();
@@ -315,6 +370,44 @@ export function computeMinimalUniqueSubstring(
 
       return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix };
     }
+
+    // ═══════════════════════════════════════════════════
+    // Strategy 1b: Suffix lengthening for non-unique suffixes
+    // ═══════════════════════════════════════════════════
+    // When the pure suffix (text after last #) is NOT unique within
+    // the category (e.g., "к атакам" appears in "урона к атакам",
+    // "молнии к атакам", "холода к атакам"), we need to include
+    // text BETWEEN the number placeholder and the suffix to disambiguate.
+    //
+    // We take the full text after the first # placeholder (removing the
+    // number and leading non-letter chars) and try to find a unique
+    // substring from that extended suffix.
+    const extendedSuffix = extractExtendedSuffix(template);
+    if (extendedSuffix && extendedSuffix !== suffix && extendedSuffix.length >= effectiveMinLen) {
+      // For templates with multiple ## placeholders (dual-stat mods like
+      // "##% повышение брони, ##% увеличение урона от атак"), the extended
+      // suffix may contain ## from subsequent placeholders. We need to
+      // strip those out and use only the text between/after placeholders.
+      // Replace any remaining ## or # with the actual text from rawText.
+      let cleanExtendedSuffix = extendedSuffix;
+      if (cleanExtendedSuffix.includes('#')) {
+        // Replace ## with the corresponding text from rawText
+        // Strategy: use the full rawText substring search instead
+        cleanExtendedSuffix = '';
+      }
+
+      if (cleanExtendedSuffix) {
+        const bestExtended = findShortestUniqueSuffix(
+          cleanExtendedSuffix, template, allTokensInCategory, locale, effectiveMinLen
+        );
+        if (bestExtended) {
+          const { hasYofication, yoficationPositions } = checkYofication(
+            bestExtended, targetToken, allTokensInCategory, locale
+          );
+          return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix };
+        }
+      }
+    }
   }
 
   // ═══════════════════════════════════════════════════
@@ -342,7 +435,7 @@ function substringSearchFallback(
 ): Omit<RegexResult, 'familyKey'> {
   const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
   if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
-    return { regex: '', hasYofication: false, yoficationPositions: [] };
+    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '' };
   }
 
   // Build exclusion texts: all other tokens' texts
@@ -421,7 +514,7 @@ function substringSearchFallback(
     bestCandidate, primaryText, targetToken, exclusionSubstrings
   );
 
-  return { regex: bestCandidate, hasYofication, yoficationPositions };
+  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '' };
 }
 
 /**

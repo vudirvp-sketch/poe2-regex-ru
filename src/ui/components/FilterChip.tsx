@@ -78,7 +78,13 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Whether this group has ranged tokens (supports per-chip min/max)
   const hasRanges = group.rangeSlots.length > 0;
 
-  // Whether this chip is currently selected (show numeric inputs)
+  // Whether this group has a prefix that will be used for numeric regex anchoring
+  const prefix = useMemo(() => {
+    const firstMember = group.members[0];
+    return firstMember?.regexPrefix?.ru ?? '';
+  }, [group.members]);
+
+  const hasPrefix = prefix.length > 0;
   const isSelected = selectionState !== 'none';
 
   // Get the first ranged member's current per-token range (for display in inputs)
@@ -170,6 +176,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
     >
       <span className="leading-tight">{displayText}</span>
+      {hasPrefix && isSelected && (
+        <span className="text-[9px] text-blue-400/70 shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
+          ⚓
+        </span>
+      )}
       {tierCount > 1 && (
         <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
           &times;{tierCount}

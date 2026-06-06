@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T09:49:35.184Z",
+  "version": "2026-06-06T10:18:27.018Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -5968,7 +5968,7 @@
         "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "я (1—"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
         "ru": "Регенерация # здоровья в секунду"
@@ -6007,16 +6007,16 @@
         "ru": "Регенерация (2.1—3) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (2.1—3) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—3)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (2.1—3) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6025,7 +6025,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          2.1,
+          3
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6044,16 +6049,16 @@
         "ru": "Регенерация (3.1—4) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (3.1—4) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—4)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (3.1—4) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6062,7 +6067,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          3.1,
+          4
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6081,16 +6091,16 @@
         "ru": "Регенерация (4.1—6) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (4.1—6) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—6)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (4.1—6) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6099,7 +6109,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          4.1,
+          6
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6118,16 +6133,16 @@
         "ru": "Регенерация (6.1—9) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (6.1—9) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": ".1—9)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (6.1—9) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6136,7 +6151,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          6.1,
+          9
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6155,16 +6175,16 @@
         "ru": "Регенерация (9.1—13) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (9.1—13) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "(9.1—"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (9.1—13) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6173,7 +6193,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          9.1,
+          13
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6192,16 +6217,16 @@
         "ru": "Регенерация (13.1—18) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (13.1—18) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "1—18)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (13.1—18) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6210,7 +6235,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          13.1,
+          18
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6229,16 +6259,16 @@
         "ru": "Регенерация (18.1—23) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (18.1—23) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "1—23)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (18.1—23) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6247,7 +6277,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          18.1,
+          23
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6266,16 +6301,16 @@
         "ru": "Регенерация (23.1—29) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (23.1—29) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "1—29)"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (23.1—29) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6284,7 +6319,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          23.1,
+          29
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -6303,16 +6343,16 @@
         "ru": "Регенерация (29.1—33) здоровья в секунду"
       },
       "rawTextTemplate": {
-        "ru": "Регенерация (29.1—33) здоровья в секунду"
+        "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "(29.1"
+        "ru": "здоровья в секунду"
       },
       "familyKey": {
-        "ru": "Регенерация (29.1—33) здоровья в секунду"
+        "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -6321,7 +6361,12 @@
       "tags": [
         "life"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          29.1,
+          33
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -9214,16 +9259,16 @@
         "ru": "Флаконы здоровья получают зарядов в секунду: (0.08—0.17)"
       },
       "rawTextTemplate": {
-        "ru": "Флаконы здоровья получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Флаконы здоровья получают зарядов в секунду: ##"
       },
       "regex": {
         "ru": "оны з"
       },
       "familyKey": {
-        "ru": "Флаконы здоровья получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Флаконы здоровья получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "зарядов в секунду"
       },
       "genderForms": {
         "ru": {}
@@ -9232,7 +9277,12 @@
       "tags": [
         "charm"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          0.08,
+          0.17
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -9248,16 +9298,16 @@
         "ru": "Флаконы маны получают зарядов в секунду: (0.08—0.17)"
       },
       "rawTextTemplate": {
-        "ru": "Флаконы маны получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Флаконы маны получают зарядов в секунду: ##"
       },
       "regex": {
         "ru": "оны м"
       },
       "familyKey": {
-        "ru": "Флаконы маны получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Флаконы маны получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "зарядов в секунду"
       },
       "genderForms": {
         "ru": {}
@@ -9266,7 +9316,12 @@
       "tags": [
         "charm"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          0.08,
+          0.17
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -9282,16 +9337,16 @@
         "ru": "Обереги получают зарядов в секунду: (0.08—0.17)"
       },
       "rawTextTemplate": {
-        "ru": "Обереги получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Обереги получают зарядов в секунду: ##"
       },
       "regex": {
         "ru": "ереги"
       },
       "familyKey": {
-        "ru": "Обереги получают зарядов в секунду: (0.08—0.17)"
+        "ru": "Обереги получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": ""
+        "ru": "зарядов в секунду"
       },
       "genderForms": {
         "ru": {}
@@ -9300,7 +9355,12 @@
       "tags": [
         "charm"
       ],
-      "ranges": [],
+      "ranges": [
+        [
+          0.08,
+          0.17
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -18594,6 +18654,25 @@
       "weight": 8,
       "count": 3
     },
+    "amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья в секунду"
+      },
+      "weight": 18,
+      "count": 10
+    },
     "amulet.manaregeneration1:amulet.manaregeneration2:amulet.manaregeneration3:amulet.manaregeneration4:amulet.manaregeneration5:amulet.manaregeneration6": {
       "ids": [
         "amulet.manaregeneration1",
@@ -21649,6 +21728,159 @@
       },
       "weight": 4,
       "count": 8
+    },
+    "amulet.damagetakengainedaslife1:amulet.damagetakengainedaslife2:amulet.damagetakengainedaslife3:amulet.damagetakengainedaslife4:amulet.damagetakengainedaslife4_essence:amulet.damagetakengainedaslife5:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.damagetakengainedaslife1",
+        "amulet.damagetakengainedaslife2",
+        "amulet.damagetakengainedaslife3",
+        "amulet.damagetakengainedaslife4",
+        "amulet.damagetakengainedaslife4_essence",
+        "amulet.damagetakengainedaslife5",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья"
+      },
+      "weight": 8,
+      "count": 16
+    },
+    "amulet.damagetakengainedasmana1:amulet.damagetakengainedasmana2:amulet.damagetakengainedasmana3:amulet.damagetakengainedasmana4:amulet.damagetakengainedasmana5:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.damagetakengainedasmana1",
+        "amulet.damagetakengainedasmana2",
+        "amulet.damagetakengainedasmana3",
+        "amulet.damagetakengainedasmana4",
+        "amulet.damagetakengainedasmana5",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "я в "
+      },
+      "weight": 4,
+      "count": 15
+    },
+    "amulet.corruptionlifeleech1_corrupted:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.corruptionlifeleech1_corrupted",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья"
+      },
+      "weight": 8,
+      "count": 11
+    },
+    "amulet.corruptionmanaleech1_corrupted:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.corruptionmanaleech1_corrupted",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "я в "
+      },
+      "weight": 4,
+      "count": 11
+    },
+    "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated:amulet.damageremovedfrommanabeforelife1_breachborn:amulet.damageremovedfrommanabeforelife2_breachborn:amulet.damageremovedfrommanabeforelife3_breachborn:amulet.damageremovedfrommanabeforelife4_breachborn:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated",
+        "amulet.damageremovedfrommanabeforelife1_breachborn",
+        "amulet.damageremovedfrommanabeforelife2_breachborn",
+        "amulet.damageremovedfrommanabeforelife3_breachborn",
+        "amulet.damageremovedfrommanabeforelife4_breachborn",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья"
+      },
+      "weight": 8,
+      "count": 15
+    },
+    "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья "
+      },
+      "weight": 9,
+      "count": 11
+    },
+    "amulet.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоровья"
+      },
+      "weight": 8,
+      "count": 11
     },
     "amulet.damagetakengainedasmana1:amulet.damagetakengainedasmana2:amulet.damagetakengainedasmana3:amulet.damagetakengainedasmana4:amulet.damagetakengainedasmana5:amulet.manaregeneration1:amulet.manaregeneration2:amulet.manaregeneration3:amulet.manaregeneration4:amulet.manaregeneration5:amulet.manaregeneration6": {
       "ids": [

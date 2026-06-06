@@ -233,7 +233,7 @@ function buildAstFromSelections(
         } else {
           rangeGroups.set(groupKey, {
             suffix,
-            prefix: prefix || undefined,
+            prefix: prefix,
             min: hasMin ? effective.min! : undefined,
             max: hasMax ? effective.max! : undefined,
             exact: isPerToken,  // per-token range → exact regex (no round10)

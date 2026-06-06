@@ -11,6 +11,7 @@ function makeToken(overrides: Partial<GameToken> & { id: string; affix: GameToke
     rawTextTemplate: { ru: overrides.rawTextTemplate?.ru ?? overrides.id },
     regex: { ru: overrides.regex?.ru ?? 'test' },
     familyKey: { ru: overrides.familyKey?.ru ?? overrides.id },
+    regexPrefix: { ru: '' },
     genderForms: { ru: {} },
     tags: [],
     ranges: [],

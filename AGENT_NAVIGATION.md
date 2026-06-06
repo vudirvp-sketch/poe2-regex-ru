@@ -1,8 +1,8 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 24.0 | **Date:** 2026-06-06
-> **Current Iteration:** Iteration 19 (Per-Mod Numeric Filter + Scoring Cleanup) — IN PROGRESS.
-> **Sessions 17-25 summary:** Per-mod numeric filter (perTokenRanges in store + per-chip min/max inputs in FilterChip + AST builder), 3 scoring conflict rules removed, jewel sub-grouping, tablet Экспедиция tooltip. All 204 tests pass.
+> **Version:** 25.0 | **Date:** 2026-06-06
+> **Current Iteration:** Iteration 21 (ETL Re-run + Critical Bug Fixes) — COMPLETE.
+> **Summary:** ETL re-run, fractional ranges, suffix lengthening, desecrated dual-stat <br> fix, origin classification fix, FilterChip prefix indicator. 213 tests pass.
 
 ---
 
@@ -17,13 +17,10 @@
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
 | `src/shared/` | Types, constants, i18n. | **No imports from other src/ directories.** This is the lowest layer. |
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
-| `scripts/etl/i18n-overrides.json` | Manual Russian translations for tokens without Russian text on poe2db.tw. | Applied automatically after ETL. Edit when new overrides needed. |
-| `public/icons/` | Game inventory icons (PNG). | Served as static assets. `import.meta.env.BASE_URL + 'icons/...'`. |
+| `scripts/etl/i18n-overrides.json` | Manual Russian translations + typo fixes. | Applied automatically after ETL. 55 overrides. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. |
-| `docs/` | Documentation. | Read before starting each iteration. |
-| `worklog.md` | Agent work log. | Append-only. Never overwrite. |
-| `регис/` | Manual Russian mod lists. | Reference data for cross-validation with ETL output. |
+| `tests/` | Test files. | Mirror `src/` structure. 213 tests. |
+| `регис/` | Manual Russian mod lists. | Reference data for cross-validation. |
 
 ## 2. Build Commands
 
@@ -31,12 +28,9 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-pnpm test            # Run tests (Vitest)
+pnpm test            # Run tests (213 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
-pnpm lint            # Lint code
 ```
-
-**Important:** `pnpm etl` requires network access to fetch data from poe2db.tw. If running in CI or a sandboxed environment, skip this step and use the existing JSON files in `public/generated/`.
 
 ## 3. Agent Workflow
 
@@ -48,90 +42,45 @@ pnpm lint            # Lint code
 6. Update `worklog.md` with what was done
 7. **NEVER** touch `public/generated/` manually
 
-## 4. Pre-Commit Checklist
+## 4. Iteration Status
 
-- [ ] `pnpm build` passes without errors
-- [ ] `pnpm test` passes
-- [ ] No `any` types (except merge functions)
-- [ ] No hardcoded mod strings in UI/Engine code
-- [ ] New files are in the correct directories
-- [ ] `worklog.md` is updated
+| Iteration | Status | Summary |
+|-----------|--------|---------|
+| 0-16 | ✅ Complete | Core engine, ETL, UI, vendor, CI/CD, i18n, jewel filter |
+| 17-19 | ✅ Complete | Jewel sub-groups, per-mod numeric filter, scoring cleanup |
+| 20 | ✅ Complete | Prefix anchoring (regexPrefix field) |
+| **21** | **✅ Complete** | **ETL re-run, fractional ranges, suffix lengthening, desecrated dual-stat <br> fix, origin classification fix, FilterChip prefix indicator** |
 
-## 5. Dependency Rules
+## 5. Known Issues & Remaining Work
 
-```
-shared <- core <- strategies <- store <- data <- ui
-  ^        ^        ^          ^       ^      ^
-  +--------+--------+----------+-------+------+
-  (shared can be imported by everyone, nothing imports from ui)
-```
+### 🔴 HIGH — Next Iteration
 
-## 6. Iteration Status
+1. **In-game regex verification** — Test EACH regex separately (AND vs OR confusion!)
+2. **`\d` support in PoE2** — If `\d` doesn't work in PoE2 client, replace with `[0-9]` in `number-regex.ts`
+3. **Full Очернённые audit** — Verify origin classification across ALL categories
+4. **Two-number mods** — "От ## до ## урона" should filter by FIRST number
 
-| Iterations | Status | Summary |
-|------------|--------|---------|
-| 0-9 (MVP) | ✅ Complete | Core engine, ETL, UI, vendor, CI/CD (see git history for details) |
-| 10-12 (Layout v2) | ✅ Complete | Two-column layout, family pooling, semantic grouping, accessibility, mobile CSS |
-| 13-14 (Icons + ETL Fix) | ✅ Complete | Game icons, 8 bug fixes, ETL tag cleanup, ARIA fixes |
-| 15-16 (i18n + Jewel Filter) | ✅ Complete | Full i18n, JewelPage type filter (Ruby/Emerald/Sapphire) |
-| 17 (Jewel Sub-Groups) | ✅ Complete | Jewel-type groupMode + visual sub-grouping, scoring cleanup, TabletPage refactor |
-| 18 (Current) | 🔄 In Progress | Per-mod numeric filter (perTokenRanges + per-chip min/max + AST builder), scoring conflict removal (3 rules) |
+### 🟡 MEDIUM
 
-## 7. Known Issues & Remaining Work
+5. **Desecrated regex quality** — Dual-stat mods get regex from fallback (e.g. `"и, (4—8)% увеличение урона т"`)
+6. **VendorPage regex strings** — 50+ strings need in-game testing
+7. **TabletPage regex strings** — Need in-game verification
 
-### 🔴 HIGH — Requires In-Game Verification
+### 🟢 LOW
 
-1. **VendorPage regex strings** — 50+ strings need in-game testing (page has warning banner)
-2. **TabletPage regex strings** — "бездн", "делир", "ритуал", "ваал", "обычн", "волшебн", "редк", "использ" all need verification
-3. **RANGE.max in-game** — `generateMaxNumberRegex` is unit-tested but not verified in-game
+8. **Jewel classification accuracy** — ~84% with weighted scoring
+9. **List virtualization** — belt (298), ring (366), amulet (427) tokens
 
-### 🟡 MEDIUM — Data Quality & Features
+## 6. Iteration 21 Changes Summary
 
-4. **Belt/ring/amulet same-text duplicates** — Different origins (normal vs essence) with identical rawText. NOT a bug — optimizer handles correctly.
-5. **Full min+max RANGE intersection** — Works but uses more characters. See ARCHITECTURE.md §7.
-6. **Per-mod numeric filter** — IMPLEMENTED. Each FilterChip with ranged tokens now shows per-chip min/max inputs when selected. Values stored in `perTokenRanges` in filter store, override global minValue/maxValue in `buildAstFromSelections`. Serialized in URL via `r` key. See §9 below.
-7. **SAPPHIRE generic crit rule** — RESOLVED. Narrowed to `/повышен.*шанс.*критического удара(?!.*атак)/i` to avoid conflict with Emerald attack-crit. See §10 below.
-
-### 🟢 LOW — Polish
-
-8. **Jewel classification accuracy** — ~84% with weighted scoring; 100% with static lookup. Scoring is fallback for new mods.
-9. **HomePage hardcoded mod counts** — Category cards show stale counts after data updates.
-
-## 8. Tablet Type Regex Reference
-
-| Tablet Type | Regex | Verified |
-|-------------|-------|----------|
-| Breach (Бездна) | `бездн` | ❌ |
-| Delirium (Делириум) | `делир` | ❌ |
-| Ritual (Ритуал) | `ритуал` | ❌ |
-| Vaal (Ваал) | `ваал` | ❌ |
-| Expedition (Экспедиция) | `экспед` | ⛔ Not in game yet (tooltip shown) |
-
-Rarity: `обычн` | `волшебн` | `редк` — all need verification. Uses: `использ` — needs verification.
-
-## 9. Per-Mod Numeric Filter — Implemented
-
-**Problem (solved):** The UI had a single GLOBAL `minValue`/`maxValue` pair. When set, ALL selected ranged tokens got the SAME numeric filter. Users needed per-mod thresholds (e.g., waystone: ≥80% monsters AND ≥96% experience).
-
-**Solution (Iteration 19):**
-1. **Store:** Added `perTokenRanges: Record<string, TokenRangeOverride>` to `FilterState` + `setTokenRange`/`clearTokenRange` actions. Serialized via `r` key in URL (compact array format: `[[tokenId, min, max], ...]`).
-2. **AST builder:** `buildAstFromSelections` now accepts `perTokenRanges` parameter. For each ranged token, effective range is: per-token override > global fallback. Tokens with different effective ranges get separate RANGE nodes, producing separate quoted groups in the compiled regex.
-3. **UI:** `FilterChip` shows ≥/≤ number inputs when the group is selected AND has ranged tokens. Inputs set per-token overrides via the first ranged member's ID as representative.
-4. **Fallback:** Global min/max inputs still work as fallback for tokens without per-token overrides.
-
-**PoE2 regex example:** Selecting two mods with different thresholds produces:
-```
-"([8-9].|\d..).*количество монстр" "([9-9].|\d..).*количество опыт"
-```
-Each quoted group has its own number+suffix constraint, AND ensures both match the same item.
-
-## 10. Scoring Conflicts — Resolved
-
-**SAPPHIRE generic crit (resolved in Iteration 17):** Narrowed `/повышен.*шанс.*критического удара/` → `/повышен.*шанс.*критического удара(?!.*атак)/i` to avoid conflict with Emerald attack-crit.
-
-**Cross-array conflicts removed (Iteration 19):**
-- `RUBY /присутстви/` (w=1) — appeared in both Ruby and Sapphire, no discriminative power → removed
-- `SAPPHIRE /област.*действ.*присутстви/` (w=1) — too generic, Ruby also has presence area mods → removed
-- `RUBY /сил.*Горючест/` (w=1) — Ruby and Sapphire both have combustibility mods → removed
-
-Net: 3 rules removed, zero classification accuracy loss (all were w=1 with cross-array conflicts).
+| File | Change |
+|------|--------|
+| `scripts/etl/normalize.ts` | Fractional range support (`parseFloat`), dual-stat mod `<br>` join when multiple segments have `mod-value` with ndash |
+| `scripts/etl/compute-regex.ts` | `extractExtendedSuffix()` for suffix lengthening; `extractTemplateSuffix` fixed for multiple `##`; skip extended suffix if it contains `##` |
+| `src/shared/mod-classifier.ts` | Origin mode uses `splitGroupByOrigin()` instead of first-non-normal origin |
+| `src/ui/components/FilterChip.tsx` | ⚓ prefix indicator when selected and has regexPrefix |
+| `src/ui/hooks/useCategoryPage.ts` | TS fix: `prefix: prefix` instead of `prefix || undefined` |
+| `scripts/etl/i18n-overrides.json` | Added `вамиИстощения` → `вами Истощения` typo fix (55 overrides total) |
+| `tests/etl/compute-optimizations.test.ts` | Added `regexPrefix: ''` to test helper |
+| `tests/shared/family-grouper.test.ts` | Added `regexPrefix: { ru: '' }` to test helper |
+| `public/generated/*.json` | All 10 category JSONs regenerated via ETL re-run |
