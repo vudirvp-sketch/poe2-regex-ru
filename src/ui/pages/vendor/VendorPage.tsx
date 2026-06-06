@@ -18,6 +18,7 @@ import { compile } from '@core/compiler';
 import type { ASTNode } from '@shared/types';
 import { createFilterStore } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
+import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
 
 // ─── Vendor property definitions with Russian regex strings ───
 
@@ -174,36 +175,45 @@ const GROUP_COLORS: Record<string, { header: string; border: string }> = {
 
 export function VendorPage() {
   // Create a filter store for URL sharing
-  const filterStore = useMemo(() => createFilterStore(), []);
+  const useStore = useMemo(() => createFilterStore(), []);
+
+  // Wrap Zustand store in FilterStoreApi for compatibility with CategoryControlPanel
+  const filterStore = useMemo<FilterStoreApi>(() => ({
+    getState: useStore.getState,
+    subscribe: useStore.subscribe,
+    serialize: () => useStore.getState().serialize(),
+    getExtraState: (key: string) => useStore.getState().getExtraState(key),
+    setExtraState: (key: string, value: unknown) => useStore.getState().setExtraState(key, value),
+  }), [useStore]);
 
   // Restore from URL on first render (synchronous, before any effects)
-  const [urlRestored] = useState(() => syncFromUrl(filterStore.getState()));
+  const [urlRestored] = useState(() => syncFromUrl(useStore.getState()));
 
   // Initialize vendor state from filter store (which may have URL data)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
     if (urlRestored) {
-      const extra = filterStore.getState().getExtraState('vendorSelectedIds');
+      const extra = useStore.getState().getExtraState('vendorSelectedIds');
       if (Array.isArray(extra)) return new Set(extra as string[]);
     }
     return new Set();
   });
   const [excludeMode, setExcludeMode] = useState(() => {
     if (urlRestored) {
-      const extraMode = filterStore.getState().getExtraState('vendorExcludeMode');
+      const extraMode = useStore.getState().getExtraState('vendorExcludeMode');
       if (typeof extraMode === 'boolean') return extraMode;
     }
     return false;
   });
   const [numericInputs, setNumericInputs] = useState<Record<string, number>>(() => {
     if (urlRestored) {
-      const extraNums = filterStore.getState().getExtraState('vendorNumericInputs');
+      const extraNums = useStore.getState().getExtraState('vendorNumericInputs');
       if (extraNums && typeof extraNums === 'object') return extraNums as Record<string, number>;
     }
     return {};
   });
   const [round10, setRound10] = useState(() => {
     if (urlRestored) {
-      const extraR10 = filterStore.getState().getExtraState('vendorRound10');
+      const extraR10 = useStore.getState().getExtraState('vendorRound10');
       if (typeof extraR10 === 'boolean') return extraR10;
     }
     return true;
@@ -220,11 +230,11 @@ export function VendorPage() {
       syncReadyRef.current = true;
       return;
     }
-    filterStore.getState().setExtraState('vendorSelectedIds', [...selectedIds]);
-    filterStore.getState().setExtraState('vendorExcludeMode', excludeMode);
-    filterStore.getState().setExtraState('vendorNumericInputs', numericInputs);
-    filterStore.getState().setExtraState('vendorRound10', round10);
-  }, [selectedIds, excludeMode, numericInputs, round10, filterStore]);
+    useStore.getState().setExtraState('vendorSelectedIds', [...selectedIds]);
+    useStore.getState().setExtraState('vendorExcludeMode', excludeMode);
+    useStore.getState().setExtraState('vendorNumericInputs', numericInputs);
+    useStore.getState().setExtraState('vendorRound10', round10);
+  }, [selectedIds, excludeMode, numericInputs, round10, useStore]);
 
   const toggleProperty = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -368,7 +378,7 @@ export function VendorPage() {
       <CategoryControlPanel
         regex={regex}
         isOverflow={isRegexOverflow}
-        filterStore={filterStore.getState()}
+        filterStore={filterStore}
         excludeMode={excludeMode}
         setExcludeMode={setExcludeMode}
         hasRangedTokens={false}

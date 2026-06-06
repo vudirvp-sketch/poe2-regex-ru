@@ -13,7 +13,7 @@
  * Обычные → prefix/suffix, Очернённые → prefix/suffix, Осквернённые → prefix/suffix.
  *
  * Jewel type filter: Ruby/Emerald/Sapphire/All buttons filter tokens by
- * jewel-type heuristics (text-based classification via classifyJewelType).
+ * jewel-type heuristics (weighted scoring classification via classifyJewelType).
  * "All" shows the complete list; specific types show only mods that match
  * that jewel type plus shared mods.
  */
@@ -22,6 +22,7 @@ import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
+import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { t } from '@shared/i18n';
 import { classifyJewelType, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { groupTokensByFamily } from '@shared/family-grouper';
@@ -56,8 +57,6 @@ function filterTokensByJewelType(tokens: GameToken[], jewelType: JewelTypeCatego
   }
 
   return tokens.filter(token => {
-    // Check if any family group this token belongs to matches
-    // Use familyKey from token's rawTextTemplate
     const fk = token.familyKey.ru;
     return matchingFamilyKeys.has(fk);
   });
@@ -101,110 +100,93 @@ export function JewelPage() {
     return filterTokensByJewelType(data.tokens, jewelTypeFilter);
   }, [data, jewelTypeFilter]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">
-          <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mb-2" />
-          <p className="text-sm">{t('loading')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="bg-red-900/50 border border-red-700 rounded p-3 text-red-300 text-sm">
-          {t('load_error')} {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) return <div className="p-4 text-gray-500">{t('no_data')}</div>;
-
-  const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
-  const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
-  const rangedSuffixes = [...new Set(
-    selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
-  )];
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
-          <img src={`${import.meta.env.BASE_URL}icons/jewel.png`} alt="" width={24} height={24} className="object-contain" />
-          {t('jewel.title')}
-        </h2>
-        <span className="text-xs text-gray-500">{filteredTokens.length}/{data.tokens.length} {t('mods_word')}</span>
-      </div>
+    <PageStateWrapper loading={loading} error={error} data={data}>
+      {(data) => {
+        const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
+        const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+        const rangedSuffixes = [...new Set(
+          selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+        )];
 
-      <CategoryControlPanel
-        regex={regex}
-        isOverflow={isRegexOverflow}
-        filterStore={filterStore}
-        excludeMode={excludeMode}
-        setExcludeMode={setExcludeMode}
-        hasRangedTokens={hasRangedTokens}
-        minValue={minValue}
-        setMinValue={setMinValue}
-        maxValue={maxValue}
-        setMaxValue={setMaxValue}
-        rangedSuffixes={rangedSuffixes}
-        round10Enabled={round10Enabled}
-        setRound10Enabled={setRound10Enabled}
-        extraControls={
-          <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
-            <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
-            {JEWEL_TYPE_OPTIONS.map(opt => (
-              <button key={opt.id}
-                onClick={() => setJewelTypeFilter(opt.id)}
-                className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
-                  jewelTypeFilter === opt.id
-                    ? 'bg-gray-700 border-gray-500 text-white'
-                    : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
-                }`}
-              >
-                <span className={jewelTypeFilter === opt.id ? opt.colorClass : ''}>
-                  {t(opt.labelKey)}
-                </span>
-              </button>
-            ))}
-          </div>
-        }
-      />
+        return (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+                <img src={`${import.meta.env.BASE_URL}icons/jewel.png`} alt="" width={24} height={24} className="object-contain" />
+                {t('jewel.title')}
+              </h2>
+              <span className="text-xs text-gray-500">{filteredTokens.length}/{data.tokens.length} {t('mods_word')}</span>
+            </div>
 
-      <ModList
-        tokens={filteredTokens}
-        selectedIds={selectedIds}
-        searchText={searchText}
-        affixFilter={affixFilter}
-        originFilter={originFilter}
-        onToggleTokens={toggleTokens}
-        onSearchChange={setSearchText}
-        onAffixFilterChange={setAffixFilter}
-        onOriginFilterChange={setOriginFilter}
-        onClearSelections={clearSelections}
-        groupMode="origin"
-      />
+            <CategoryControlPanel
+              regex={regex}
+              isOverflow={isRegexOverflow}
+              filterStore={filterStore}
+              excludeMode={excludeMode}
+              setExcludeMode={setExcludeMode}
+              hasRangedTokens={hasRangedTokens}
+              minValue={minValue}
+              setMinValue={setMinValue}
+              maxValue={maxValue}
+              setMaxValue={setMaxValue}
+              rangedSuffixes={rangedSuffixes}
+              round10Enabled={round10Enabled}
+              setRound10Enabled={setRound10Enabled}
+              extraControls={
+                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
+                  <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
+                  {JEWEL_TYPE_OPTIONS.map(opt => (
+                    <button key={opt.id}
+                      onClick={() => setJewelTypeFilter(opt.id)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                        jewelTypeFilter === opt.id
+                          ? 'bg-gray-700 border-gray-500 text-white'
+                          : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
+                      }`}
+                    >
+                      <span className={jewelTypeFilter === opt.id ? opt.colorClass : ''}>
+                        {t(opt.labelKey)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              }
+            />
 
-      <div className="flex flex-col gap-3">
-        <ProfilePanel
-          category={categoryId}
-          currentFilterData={filterStore.serialize()}
-          onRestore={restoreFilterState}
-        />
+            <ModList
+              tokens={filteredTokens}
+              selectedIds={selectedIds}
+              searchText={searchText}
+              affixFilter={affixFilter}
+              originFilter={originFilter}
+              onToggleTokens={toggleTokens}
+              onSearchChange={setSearchText}
+              onAffixFilterChange={setAffixFilter}
+              onOriginFilterChange={setOriginFilter}
+              onClearSelections={clearSelections}
+              groupMode="origin"
+            />
 
-        {selectedTokens.length > 0 && (
-          <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {selectedTokens.length} {t('mods_word')}</div>
-            <div className="text-[10px] text-gray-600">
-              {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+            <div className="flex flex-col gap-3">
+              <ProfilePanel
+                category={categoryId}
+                currentFilterData={filterStore.serialize()}
+                onRestore={restoreFilterState}
+              />
+
+              {selectedTokens.length > 0 && (
+                <div className="bg-gray-900 border border-gray-700 rounded p-3">
+                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {selectedTokens.length} {t('mods_word')}</div>
+                  <div className="text-[10px] text-gray-600">
+                    {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        );
+      }}
+    </PageStateWrapper>
   );
 }

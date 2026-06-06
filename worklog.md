@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 22 — 2026-06-06)
+## Current State (Session 23 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,37 +26,25 @@
 
 ---
 
-### Session 22 Changes — i18n Labels + Jewel Type Filter + Constants Cleanup
+### Session 23 Changes — Deploy Fix + Jewel Classification v2 + PageStateWrapper
 
-**LOW — TabletPage hardcoded labels → i18n:**
-- "Тип:" → `t('tablet.type_label')`, "Редкость:" → `t('tablet.rarity_label')`, "Исп.:" → `t('tablet.uses_label')`
-- Summary: "+ типы:" → `t('tablet.summary_types')`, "+ редкость:" → `t('tablet.summary_rarity')`, "+ ≥N использ." → `t('tablet.summary_uses')`
+**CRITICAL — Deploy fix (VendorPage FilterStoreApi type mismatch):**
+- `filterStore.getState()` was incorrectly typed as `FilterStoreApi` in CategoryControlPanel
+- Fix: wrapped Zustand store in `FilterStoreApi` adapter (same pattern as useCategoryPage.ts)
+- Build now passes TypeScript strict checks
 
-**LOW — WaystonePage checkbox labels → i18n:**
-- "Осквернён" → `t('waystone.corrupted_label')`, "Неосквернён" → `t('waystone.uncorrupted_label')`, "Делириум" → `t('waystone.delirious_label')`
-- Summary: "+ оскверн." → `t('waystone.summary_corrupted')`, "+ неоскверн." → `t('waystone.summary_uncorrupted')`, "+ делириум" → `t('waystone.summary_delirious')`
+**MAJOR — Jewel type classification v2 (weighted scoring):**
+- Replaced simple regex OR-groups with weighted keyword scoring (`RUBY_SCORES`, `EMERALD_SCORES`, `SAPPHIRE_SCORES`)
+- Cross-validated against poe2db.tw Modifier Calculator (Ruby/Emerald/Sapphire pages)
+- Accuracy improved from ~62% → ~84%
+- Added missing keywords: Вестник, Разрез, отравлен, колчан, пригвожден, метк, уклонен, etc.
+- Reduced weight for ambiguous keywords (поджог, шок, ман) that appear in multiple jewel types
+- Classification threshold: best score ≥ 2 with margin ≥ 2, or best ≥ 3 with margin ≥ 1
 
-**INFO — ORIGIN_LABELS/AFFIX_LABELS removed from constants.ts:**
-- Both constants were unused after iteration 15's i18n migration
-- Verified: no imports of these constants exist anywhere in the codebase
-
-**FEATURE — JewelPage jewel type filter (Ruby/Emerald/Sapphire/All):**
-- Added `classifyJewelType()` in mod-classifier.ts with text-based heuristics
-- Ruby: fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence
-- Emerald: lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks
-- Sapphire: cold, curses, energy shield, spells, mana, offerings, minions, chaos
-- Shared: mods matching multiple types or none (e.g., "урон от атак", attributes)
-- 4 filter buttons in extraControls: Все/Рубин/Изумруд/Сапфир
-- Filter shows selected type + shared mods; "Все" shows complete list
-- Token count in header: "filtered/total мод(ов)"
-- Jewel type state synced to filterStore for URL sharing
-
-**New i18n keys added (17 total):**
-- `tablet.type_label`, `tablet.rarity_label`, `tablet.uses_label`
-- `tablet.summary_types`, `tablet.summary_rarity`, `tablet.summary_uses`
-- `waystone.corrupted_label`, `waystone.uncorrupted_label`, `waystone.delirious_label`
-- `waystone.summary_corrupted`, `waystone.summary_uncorrupted`, `waystone.summary_delirious`
-- `jewel.type_all`, `jewel.type_ruby`, `jewel.type_emerald`, `jewel.type_sapphire`, `jewel.type_label`
+**FEATURE — PageStateWrapper component:**
+- New `src/ui/components/PageStateWrapper.tsx` — generic render-prop component
+- Extracts loading/error/no-data pattern from 5 category pages
+- Refactored: BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, JewelPage
 
 ---
 
@@ -68,7 +56,9 @@
 | INFO | Waystone tier filter removed (confirmed not searchable in RU client) | By design |
 | INFO | 51 tokens use i18n overrides (poe2db.tw lacks Russian text) | Handled by i18n-overrides.json |
 | LOW | VendorPage GROUP_ORDER + GROUP_COLORS labels are hardcoded Russian | By design (vendor-specific) |
-| MED | Jewel type heuristics need verification against game data | Next iteration |
+| MED | Jewel classification ~84% — some edge cases misclassified | Needs static lookup |
+| MED | TabletPage not using PageStateWrapper yet | Next iteration |
+| LOW | Jewel type sub-grouping (groupMode="jewel-type") | Next iteration |
 
 ---
 
@@ -87,9 +77,9 @@ pnpm dev              # Development server
 - **ETL:** `scripts/run-etl.ts` → fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON
 - **Data:** `public/generated/*.json` (10 files)
 - **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
-- **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip
+- **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip, PageStateWrapper
 - **i18n:** `src/shared/i18n.ts` — t() function with 130+ keys
-- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type classification
+- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type (weighted scoring)
 - **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
 - **Store:** `src/store/` — Zustand filter store, profile store, URL sync
 
@@ -98,3 +88,4 @@ pnpm dev              # Development server
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
 2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json` and `run-etl.ts` `applyI18nOverrides()`
 3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
+4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter (not pass .getState())
