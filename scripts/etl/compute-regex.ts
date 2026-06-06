@@ -41,7 +41,7 @@ export interface RegexResult {
  * match unintended text in-game. Using MIN=5 for these categories
  * forces longer, more specific regexes.
  */
-const MIN_REGEX_LEN_DEFAULT = 3;
+const MIN_REGEX_LEN_DEFAULT = 5;
 const MIN_REGEX_LEN_STRICT = 5;
 
 /** Categories that require stricter minimum regex length */

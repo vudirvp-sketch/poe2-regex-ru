@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T04:36:01.946Z",
+  "version": "2026-06-06T04:59:00.962Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -920,7 +920,7 @@
         "ru": "Дарует святой воды в начале испытания: ##"
       },
       "regex": {
-        "ru": ": (3"
+        "ru": "я: (3"
       },
       "familyKey": {
         "ru": "Дарует святой воды в начале испытания: #"
@@ -1233,7 +1233,7 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение брони, уклонения и энергетического щита"
@@ -1277,7 +1277,7 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение брони, уклонения и энергетического щита"
@@ -1321,7 +1321,7 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение брони, уклонения и энергетического щита"
@@ -1365,7 +1365,7 @@
         "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение брони, уклонения и энергетического щита"
@@ -1409,7 +1409,7 @@
         "ru": "Ловушки наносят уменьшенный на ##% урон"
       },
       "regex": {
-        "ru": "7)%"
+        "ru": "5—7)%"
       },
       "familyKey": {
         "ru": "Ловушки наносят уменьшенный на #% урон"
@@ -1451,7 +1451,7 @@
         "ru": "Ловушки наносят уменьшенный на ##% урон"
       },
       "regex": {
-        "ru": "а (8"
+        "ru": "на (8"
       },
       "familyKey": {
         "ru": "Ловушки наносят уменьшенный на #% урон"
@@ -1625,7 +1625,7 @@
         "ru": "+(0.3—0.4) м к дальности кувырка"
       },
       "regex": {
-        "ru": ".4)"
+        "ru": "—0.4)"
       },
       "familyKey": {
         "ru": "+(0.3—0.4) м к дальности кувырка"
@@ -1652,7 +1652,7 @@
         "ru": "+(0.5—0.7) м к дальности кувырка"
       },
       "regex": {
-        "ru": ".7)"
+        "ru": "—0.7)"
       },
       "familyKey": {
         "ru": "+(0.5—0.7) м к дальности кувырка"
@@ -1679,7 +1679,7 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
@@ -1716,7 +1716,7 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
@@ -1753,7 +1753,7 @@
         "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
@@ -1790,7 +1790,7 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "вам"
+        "ru": "по вам"
       },
       "familyKey": {
         "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
@@ -1827,7 +1827,7 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "вам"
+        "ru": "по вам"
       },
       "familyKey": {
         "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
@@ -1864,7 +1864,7 @@
         "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "вам"
+        "ru": "по вам"
       },
       "familyKey": {
         "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
@@ -2325,9 +2325,9 @@
         "relic.sanctumstartinggold5"
       ],
       "regex": {
-        "ru": ": (3"
+        "ru": "я: (3"
       },
-      "weight": 4,
+      "weight": 5,
       "count": 5
     },
     "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
@@ -2350,9 +2350,9 @@
         "relic.sanctumdefences4"
       ],
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
-      "weight": 4,
+      "weight": 20,
       "count": 4
     },
     "relic.sanctumreducedtrapdamage2:relic.sanctumreducedtrapdamage3": {
@@ -2361,9 +2361,9 @@
         "relic.sanctumreducedtrapdamage3"
       ],
       "regex": {
-        "ru": "7)%"
+        "ru": "5—7)%"
       },
-      "weight": 3,
+      "weight": 5,
       "count": 2
     },
     "relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3": {
@@ -2385,9 +2385,9 @@
         "relic.sanctumslowresistance3"
       ],
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
-      "weight": 3,
+      "weight": 6,
       "count": 3
     },
     "relic.sanctumreducedcritdamage1:relic.sanctumreducedcritdamage2:relic.sanctumreducedcritdamage3": {
@@ -2397,9 +2397,9 @@
         "relic.sanctumreducedcritdamage3"
       ],
       "regex": {
-        "ru": "вам"
+        "ru": "по вам"
       },
-      "weight": 3,
+      "weight": 6,
       "count": 3
     },
     "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
@@ -2613,6 +2613,23 @@
       "weight": 4,
       "count": 7
     },
+    "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctumdefences1",
+        "relic.sanctumdefences2",
+        "relic.sanctumdefences3",
+        "relic.sanctumdefences4",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "ичес"
+      },
+      "weight": 4,
+      "count": 8
+    },
     "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
       "ids": [
         "relic.sanctumhonourresistance1",
@@ -2630,6 +2647,23 @@
       },
       "weight": 4,
       "count": 9
+    },
+    "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4:relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4": {
+      "ids": [
+        "relic.sanctumdefences1",
+        "relic.sanctumdefences2",
+        "relic.sanctumdefences3",
+        "relic.sanctumdefences4",
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "ичес"
+      },
+      "weight": 4,
+      "count": 8
     },
     "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
       "ids": [

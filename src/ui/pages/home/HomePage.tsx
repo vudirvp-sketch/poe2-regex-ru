@@ -1,18 +1,60 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { t } from '@shared/i18n'
+import { loadCategoryData, loadMergedCategoryData } from '@data/loader'
 
+/** Category config for the home page — tag is now dynamically computed */
 const categories = [
-  { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: 'waystone', tag: '106 модов' },
-  { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: 'tablet', tag: '78 модов' },
-  { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: 'relic', tag: '56 модов' },
-  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: 'jewel', tag: '235 модов' },
-  { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: 'vendor', tag: '50+ свойств' },
-  { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: 'belt', tag: '298 модов' },
-  { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: 'ring', tag: '366 модов' },
-  { path: '/amulet', labelKey: 'amulet.title', descKey: 'home.amulet_desc', icon: 'amulet', tag: '427 модов' },
+  { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: 'waystone', jsonId: 'waystone' },
+  { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: 'tablet', jsonId: 'tablet' },
+  { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: 'relic', jsonId: 'relic' },
+  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: 'jewel', jsonId: 'jewel', mergeIds: ['jewel-desecrated', 'jewel-corrupted'] },
+  { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: 'vendor', jsonId: 'vendor', vendorCount: true },
+  { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: 'belt', jsonId: 'belt' },
+  { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: 'ring', jsonId: 'ring' },
+  { path: '/amulet', labelKey: 'amulet.title', descKey: 'home.amulet_desc', icon: 'amulet', jsonId: 'amulet' },
 ]
 
+/** Format a number with thin space for thousands separator (Russian style) */
+function formatCount(n: number): string {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009')
+}
+
 export function HomePage() {
+  const [counts, setCounts] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadCounts() {
+      const result: Record<string, number> = {}
+      await Promise.all(categories.map(async (cat) => {
+        try {
+          if (cat.vendorCount) {
+            // Vendor page has ~50 hardcoded properties, not from JSON
+            result[cat.jsonId] = 50
+            return
+          }
+          let data
+          if (cat.mergeIds) {
+            data = await loadMergedCategoryData([cat.jsonId, ...cat.mergeIds])
+          } else {
+            data = await loadCategoryData(cat.jsonId)
+          }
+          result[cat.jsonId] = data.tokens.length
+        } catch {
+          // If load fails, don't show count
+          result[cat.jsonId] = 0
+        }
+      }))
+      if (!cancelled) setCounts(result)
+    }
+    loadCounts()
+    return () => { cancelled = true }
+  }, [])
+
+  const totalMods = Object.values(counts).reduce((a, b) => a + b, 0)
+  const loaded = Object.keys(counts).length > 0
+
   return (
     <div className="mx-auto max-w-4xl">
       {/* Hero section */}
@@ -27,45 +69,58 @@ export function HomePage() {
           {t('home.description_full')}
         </p>
         <div className="flex flex-wrap justify-center gap-3 text-xs" style={{ color: 'var(--poe-text)', opacity: 0.5 }}>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>1 584 мода</span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>8 категорий</span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>Лимит 250 символов</span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>Оптимизация regex</span>
+          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+            {loaded ? `${formatCount(totalMods)} модов` : '...'}
+          </span>
+          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+            {t('home.category_count')}
+          </span>
+          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.limit_250')}</span>
+          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.regex_optimization')}</span>
         </div>
       </div>
 
       {/* Category cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {categories.map(cat => (
-          <Link
-            key={cat.path}
-            to={cat.path}
-            className="group relative rounded-lg border p-4 text-center transition-all hover:scale-[1.02] hover:opacity-90"
-            style={{
-              background: 'var(--poe-bg-secondary)',
-              borderColor: 'var(--poe-border)',
-            }}
-          >
-            <div className="mb-2">
-              <img
-                src={`${import.meta.env.BASE_URL}icons/${cat.icon}.png`}
-                alt=""
-                width={48}
-                height={48}
-                className="mx-auto object-contain"
-              />
-            </div>
-            <h3 className="mb-1 text-sm font-semibold" style={{ color: 'var(--poe-gold)' }}>
-              {t(cat.labelKey)}
-            </h3>
-            <p className="text-xs" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-              {t(cat.descKey)}
-            </p>
-            <span className="mt-2 inline-block rounded px-1.5 py-0.5 text-[10px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
-              {cat.tag}
-            </span>
-          </Link>
-        ))}
+        {categories.map(cat => {
+          const count = counts[cat.jsonId]
+          const tagText = cat.vendorCount
+            ? (count ? `${count}+ ${t('home.properties')}` : '50+ свойств')
+            : (count ? `${formatCount(count)} ${t('home.mods')}` : '')
+
+          return (
+            <Link
+              key={cat.path}
+              to={cat.path}
+              className="group relative rounded-lg border p-4 text-center transition-all hover:scale-[1.02] hover:opacity-90"
+              style={{
+                background: 'var(--poe-bg-secondary)',
+                borderColor: 'var(--poe-border)',
+              }}
+            >
+              <div className="mb-2">
+                <img
+                  src={`${import.meta.env.BASE_URL}icons/${cat.icon}.png`}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="mx-auto object-contain"
+                />
+              </div>
+              <h3 className="mb-1 text-sm font-semibold" style={{ color: 'var(--poe-gold)' }}>
+                {t(cat.labelKey)}
+              </h3>
+              <p className="text-xs" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+                {t(cat.descKey)}
+              </p>
+              {tagText && (
+                <span className="mt-2 inline-block rounded px-1.5 py-0.5 text-[10px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
+                  {tagText}
+                </span>
+              )}
+            </Link>
+          )
+        })}
       </div>
 
       {/* Features section */}

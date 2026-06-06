@@ -270,7 +270,10 @@ function applyI18nOverrides() {
           }
         } else {
           // Suffix too short — fallback to substring search on rawText
+          token.regex.ru = findShortestUniqueSubstring(override.rawText.toLowerCase(), exclusionSubs, 5);
+        if (!token.regex.ru || token.regex.ru.length === 0) {
           token.regex.ru = findShortestUniqueSubstring(override.rawText.toLowerCase(), exclusionSubs, 3);
+        }
         }
       } else {
         // Strategy 2: Substring search for literal (non-ranged) tokens

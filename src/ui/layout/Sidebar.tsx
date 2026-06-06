@@ -121,7 +121,7 @@ export function Sidebar() {
             PoE2 Regex
           </h1>
           <p className="text-xs" style={{ color: 'var(--poe-text)' }}>
-            Русский клиент
+            {t('sidebar.client')}
           </p>
         </div>
         <nav className="flex-1 overflow-auto p-2">
@@ -146,8 +146,8 @@ export function Sidebar() {
               <img
                 src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
                 alt=""
-                width={20}
-                height={20}
+                width={24}
+                height={24}
                 className="shrink-0 object-contain"
                 style={{ imageRendering: 'auto' }}
               />

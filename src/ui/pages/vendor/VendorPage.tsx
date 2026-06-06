@@ -395,7 +395,7 @@ export function VendorPage() {
         {/* Controls row */}
         <div className="flex flex-wrap gap-2 items-center mt-2">
           {/* Mode toggle */}
-          <div className="flex gap-1" role="radiogroup" aria-label="Режим фильтра">
+          <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}>
             <button
               onClick={() => setExcludeMode(false)}
               role="radio"
@@ -404,7 +404,7 @@ export function VendorPage() {
                 !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
               }`}
             >
-              Хочу
+              {t('mode.want')}
             </button>
             <button
               onClick={() => setExcludeMode(true)}
@@ -414,7 +414,7 @@ export function VendorPage() {
                 excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
               }`}
             >
-              Не хочу
+              {t('mode.dont_want')}
             </button>
           </div>
 
@@ -437,7 +437,7 @@ export function VendorPage() {
               onClick={clearAll}
               className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
             >
-              Очистить ({selectedIds.size})
+              {t('filter.clear')} ({selectedIds.size})
             </button>
           )}
         </div>

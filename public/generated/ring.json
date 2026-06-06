@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T04:36:08.033Z",
+  "version": "2026-06-06T04:59:06.175Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -1930,7 +1930,7 @@
         "ru": "+##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "—5)%"
+        "ru": "3—5)%"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
@@ -2094,7 +2094,7 @@
         "ru": "+##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "5—16"
+        "ru": "15—16"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
@@ -5285,7 +5285,7 @@
         "ru": "Регенерация ## здоровья в секунду"
       },
       "regex": {
-        "ru": "2) з"
+        "ru": "я (1—"
       },
       "familyKey": {
         "ru": "Регенерация # здоровья в секунду"
@@ -5324,7 +5324,7 @@
         "ru": "Регенерация (2.1—3) здоровья в секунду"
       },
       "regex": {
-        "ru": "(2."
+        "ru": ".1—3)"
       },
       "familyKey": {
         "ru": "Регенерация (2.1—3) здоровья в секунду"
@@ -5358,7 +5358,7 @@
         "ru": "Регенерация (3.1—4) здоровья в секунду"
       },
       "regex": {
-        "ru": "(3."
+        "ru": ".1—4)"
       },
       "familyKey": {
         "ru": "Регенерация (3.1—4) здоровья в секунду"
@@ -5392,7 +5392,7 @@
         "ru": "Регенерация (4.1—6) здоровья в секунду"
       },
       "regex": {
-        "ru": "(4."
+        "ru": ".1—6)"
       },
       "familyKey": {
         "ru": "Регенерация (4.1—6) здоровья в секунду"
@@ -5426,7 +5426,7 @@
         "ru": "Регенерация (6.1—9) здоровья в секунду"
       },
       "regex": {
-        "ru": "(6."
+        "ru": ".1—9)"
       },
       "familyKey": {
         "ru": "Регенерация (6.1—9) здоровья в секунду"
@@ -5460,7 +5460,7 @@
         "ru": "Регенерация (9.1—13) здоровья в секунду"
       },
       "regex": {
-        "ru": "(9."
+        "ru": "(9.1—"
       },
       "familyKey": {
         "ru": "Регенерация (9.1—13) здоровья в секунду"
@@ -5494,7 +5494,7 @@
         "ru": "Регенерация (13.1—18) здоровья в секунду"
       },
       "regex": {
-        "ru": "13."
+        "ru": "1—18)"
       },
       "familyKey": {
         "ru": "Регенерация (13.1—18) здоровья в секунду"
@@ -5796,7 +5796,7 @@
         "ru": "(7—7.9)% физического урона от атак похищается в виде здоровья"
       },
       "regex": {
-        "ru": "7—7"
+        "ru": "7.9)%"
       },
       "familyKey": {
         "ru": "(7—7.9)% физического урона от атак похищается в виде здоровья"
@@ -5830,7 +5830,7 @@
         "ru": "(5—5.9)% физического урона от атак похищается в виде маны"
       },
       "regex": {
-        "ru": "—5."
+        "ru": "5.9)%"
       },
       "familyKey": {
         "ru": "(5—5.9)% физического урона от атак похищается в виде маны"
@@ -8429,7 +8429,7 @@
         "ru": "+##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "5—10"
+        "ru": "+(5—1"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
@@ -8953,7 +8953,7 @@
         "ru": "##% увеличение урона от чар при полном энергетическом щите"
       },
       "regex": {
-        "ru": "щите"
+        "ru": "энергетическом щите"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар при полном энергетическом щите"
@@ -9536,7 +9536,7 @@
         "ru": "##% повышение скорости умений"
       },
       "regex": {
-        "ru": "(3—6"
+        "ru": "3—6)%"
       },
       "familyKey": {
         "ru": "#% повышение скорости умений"
@@ -9865,7 +9865,7 @@
         "ru": "Приспешники имеют ##% повышение скорости перезарядки"
       },
       "regex": {
-        "ru": "1—29"
+        "ru": "21—29"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости перезарядки"
@@ -10601,7 +10601,7 @@
         "ru": "Приспешники имеют ##% увеличение урона"
       },
       "regex": {
-        "ru": "31)%"
+        "ru": "—31)%"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
@@ -10647,7 +10647,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "+(7—"
+        "ru": "+(7—9"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -10691,7 +10691,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": " +(10"
+        "ru": "12)% к"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -10779,7 +10779,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "17—1"
+        "ru": "(17—1"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -10823,7 +10823,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "0—22"
+        "ru": "20—22"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -10867,7 +10867,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "3—25"
+        "ru": "+(23—"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -11119,7 +11119,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "13—2"
+        "ru": "(13—2"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -11159,7 +11159,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "28)%"
+        "ru": "—28)%"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -11199,7 +11199,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "9—3"
+        "ru": "—36)%"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -11239,7 +11239,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "—44"
+        "ru": "—44)%"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -11279,7 +11279,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "(45"
+        "ru": "—52)%"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12451,7 +12451,7 @@
         "ru": "##% усиление эффекта Колдовского выброса на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
@@ -12495,7 +12495,7 @@
         "ru": "##% усиление эффекта Колдовского выброса на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
@@ -12539,7 +12539,7 @@
         "ru": "##% усиление эффекта Колдовского выброса на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
@@ -12583,7 +12583,7 @@
         "ru": "##% усиление эффекта Колдовского выброса на вас"
       },
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
@@ -14946,9 +14946,9 @@
         "ring.corruptionallresistances1_corrupted"
       ],
       "regex": {
-        "ru": "—5)%"
+        "ru": "3—5)%"
       },
-      "weight": 4,
+      "weight": 5,
       "count": 6
     },
     "ring.chaosresist1_essence:ring.chaosresist2:ring.chaosresist2_essence:ring.chaosresist4_essence:ring.chaosresist5:ring.corruptionchaosresistance1_corrupted:ring.normal_57:ring.normal_59:ring.normal_60:ring.normal_62": {
@@ -15325,9 +15325,9 @@
         "ring.minionelementalresistance6_breachborn"
       ],
       "regex": {
-        "ru": "+(7—"
+        "ru": "+(7—9"
       },
-      "weight": 4,
+      "weight": 5,
       "count": 6
     },
     "ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
@@ -15428,9 +15428,9 @@
         "ring.arcanesurgeeffect4_breachborn"
       ],
       "regex": {
-        "ru": "вас"
+        "ru": "на вас"
       },
-      "weight": 3,
+      "weight": 6,
       "count": 4
     },
     "ring.spellcriticalstrikechancering1_breachborn:ring.spellcriticalstrikechancering2_breachborn:ring.spellcriticalstrikechancering3_breachborn:ring.spellcriticalstrikechancering4_breachborn:ring.spellcriticalstrikechancering5_breachborn:ring.spellcriticalstrikechancering6_breachborn": {
@@ -17668,6 +17668,28 @@
       "weight": 5,
       "count": 12
     },
+    "ring.lifeleech2:ring.lifeleech3": {
+      "ids": [
+        "ring.lifeleech2",
+        "ring.lifeleech3"
+      ],
+      "regex": {
+        "ru": ".9)%"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "ring.lifeleech2:ring.manaleech2": {
+      "ids": [
+        "ring.lifeleech2",
+        "ring.manaleech2"
+      ],
+      "regex": {
+        "ru": ".9)%"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "ring.lifeleech2:ring.manaleech3": {
       "ids": [
         "ring.lifeleech2",
@@ -17784,6 +17806,17 @@
         "ru": "урон"
       },
       "weight": 4,
+      "count": 2
+    },
+    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.lifeleech2": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.lifeleech2"
+      ],
+      "regex": {
+        "ru": "ическо"
+      },
+      "weight": 6,
       "count": 2
     },
     "ring.abyssmodringamanamusuffixlifeleechamount_desecrated:ring.lifeleech2": {
@@ -17938,6 +17971,39 @@
       "weight": 4,
       "count": 2
     },
+    "ring.lifeleech3:ring.manaleech2": {
+      "ids": [
+        "ring.lifeleech3",
+        "ring.manaleech2"
+      ],
+      "regex": {
+        "ru": ".9)%"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "ring.lifeleech3:ring.manaleech3": {
+      "ids": [
+        "ring.lifeleech3",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": ".9)%"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "ring.manaleech2:ring.manaleech3": {
+      "ids": [
+        "ring.manaleech2",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": ".9)%"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.manaleech3:ring.normal_150": {
       "ids": [
         "ring.lifegainedfromenemydeath1",
@@ -18043,6 +18109,17 @@
         "ru": "урон"
       },
       "weight": 4,
+      "count": 2
+    },
+    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.manaleech3": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.manaleech3"
+      ],
+      "regex": {
+        "ru": "ическо"
+      },
+      "weight": 6,
       "count": 2
     },
     "ring.abyssmodringamanamusuffixlifeleechamount_desecrated:ring.manaleech3": {
@@ -20298,6 +20375,17 @@
       "weight": 6,
       "count": 3
     },
+    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.abyssmodringkurgalprefixfreezebuildupifconsumedpowercharge_desecrated": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.abyssmodringkurgalprefixfreezebuildupifconsumedpowercharge_desecrated"
+      ],
+      "regex": {
+        "ru": "энерг"
+      },
+      "weight": 5,
+      "count": 2
+    },
     "ring.abyssmodringamuletkurgalsuffixcooldownrecoveryrate_desecrated:ring.abyssmodringkurgalprefixfreezebuildupifconsumedpowercharge_desecrated": {
       "ids": [
         "ring.abyssmodringamuletkurgalsuffixcooldownrecoveryrate_desecrated",
@@ -20361,6 +20449,28 @@
       },
       "weight": 4,
       "count": 10
+    },
+    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated"
+      ],
+      "regex": {
+        "ru": "ичес"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated:ring.genesistreeringminionarmourbreak_breachborn": {
+      "ids": [
+        "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
+        "ring.genesistreeringminionarmourbreak_breachborn"
+      ],
+      "regex": {
+        "ru": "ическо"
+      },
+      "weight": 6,
+      "count": 2
     },
     "ring.abyssmodarmourjewellerykurgalsuffixdexterityandintelligence_desecrated:ring.desecrated_5_desecrated": {
       "ids": [
@@ -21710,6 +21820,29 @@
       },
       "weight": 4,
       "count": 5
+    },
+    "ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn:ring.minionelementalresistance1_breachborn:ring.minionelementalresistance2_breachborn:ring.minionelementalresistance3_breachborn:ring.minionelementalresistance4_breachborn:ring.minionelementalresistance5_breachborn:ring.minionelementalresistance6_breachborn": {
+      "ids": [
+        "ring.miniondamage1_breachborn",
+        "ring.miniondamage2_breachborn",
+        "ring.miniondamage3_breachborn",
+        "ring.miniondamage4_breachborn",
+        "ring.miniondamage5_breachborn",
+        "ring.miniondamage6_breachborn",
+        "ring.miniondamage7_breachborn",
+        "ring.miniondamage8_breachborn",
+        "ring.minionelementalresistance1_breachborn",
+        "ring.minionelementalresistance2_breachborn",
+        "ring.minionelementalresistance3_breachborn",
+        "ring.minionelementalresistance4_breachborn",
+        "ring.minionelementalresistance5_breachborn",
+        "ring.minionelementalresistance6_breachborn"
+      ],
+      "regex": {
+        "ru": "(7—9"
+      },
+      "weight": 4,
+      "count": 14
     },
     "ring.alloyattackspeedring1_essence:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn": {
       "ids": [

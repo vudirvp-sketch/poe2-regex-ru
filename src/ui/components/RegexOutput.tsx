@@ -18,6 +18,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MAX_CHARS } from '@shared/constants';
 import { getShareableUrl, type SerializableStore } from '@store/url-sync';
+import { t } from '@shared/i18n';
 
 interface RegexOutputProps {
   regex: string;
@@ -39,19 +40,19 @@ const HEALTH_COLORS = {
     bar: 'bg-emerald-500',
     barBg: 'bg-emerald-900/40',
     text: 'text-emerald-400',
-    label: 'Норма',
+    label: t('health.green'),
   },
   yellow: {
     bar: 'bg-yellow-500',
     barBg: 'bg-yellow-900/40',
     text: 'text-yellow-400',
-    label: 'Много',
+    label: t('health.yellow'),
   },
   red: {
     bar: 'bg-red-500',
     barBg: 'bg-red-900/40',
     text: 'text-red-400',
-    label: 'Критично',
+    label: t('health.red'),
   },
 } as const;
 
@@ -128,25 +129,25 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const healthPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
 
   return (
-    <div className="regex-output sticky top-0 z-10 -mx-1 px-1 py-1 -mt-1 pt-1"
+    <div className="regex-output -mx-1 px-1 py-1"
       style={{ background: 'var(--poe-bg, #0a0a0f)' }}
       role="region"
-      aria-label="Регулярное выражение"
+      aria-label={t('regex.title')}
       aria-live="off"
     >
       {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-300">Регулярное выражение</h3>
+        <h3 className="text-sm font-medium text-gray-300">{t('regex.title')}</h3>
         <div className="flex items-center gap-2">
           {/* Auto-copy toggle */}
-          <label className="flex items-center gap-1 cursor-pointer" title="Автоматически копировать regex при изменении">
+          <label className="flex items-center gap-1 cursor-pointer" title={t('regex.auto')}>
             <input
               type="checkbox"
               checked={autoCopy}
               onChange={(e) => setAutoCopy(e.target.checked)}
               className="w-3 h-3 rounded bg-gray-700 border-gray-600 text-blue-500"
             />
-            <span className="text-[10px] text-gray-500">Авто</span>
+            <span className="text-[10px] text-gray-500">{t('regex.auto')}</span>
           </label>
           {/* Share button */}
           {filterStore && regex && (
@@ -157,9 +158,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
               }`}
-              title="Скопировать ссылку для обмена"
+              title={t('regex.share_title')}
             >
-              {shareCopied ? 'Ссылка скопирована!' : 'Поделиться'}
+              {shareCopied ? t('regex.share_copied') : t('regex.share')}
             </button>
           )}
           {/* Copy button */}
@@ -173,9 +174,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-500'
             }`}
-            title="Копировать (Ctrl+Shift+C)"
+            title={t('regex.copy_shortcut')}
           >
-            {copied ? 'Скопировано!' : 'Копировать'}
+            {copied ? t('regex.copied') : t('regex.copy')}
           </button>
         </div>
       </div>
@@ -184,7 +185,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       <div className="mb-2" role="progressbar" aria-valuenow={charCount} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
         <div className="flex items-center justify-between mb-1">
           <span className={`text-xs font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
-            {isOverflow ? 'ПЕРЕПОЛНЕНИЕ!' : healthConfig.label}
+            {isOverflow ? t('regex.overflow') : healthConfig.label}
           </span>
           <span className={`text-xs font-mono ${healthConfig.text}`}>
             {charCount}/{MAX_CHARS}
@@ -203,7 +204,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       {/* Overflow warning */}
       {isOverflow && (
         <div className="mb-2 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-xs">
-          Строка превышает лимит 250 символов. Поиск не сработает!
+          {t('regex.overflow_detail')}
         </div>
       )}
 
@@ -216,9 +217,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               ? 'bg-gray-800 border border-gray-600 text-green-300'
               : 'bg-gray-900 border border-gray-700 text-gray-500'
         }`}
-        aria-label={regex || 'Регулярное выражение не сгенерировано'}
+        aria-label={regex || t('regex.title')}
       >
-        {regex || 'Выберите моды для генерации регулярного выражения'}
+        {regex || t('regex.placeholder')}
       </div>
     </div>
   );

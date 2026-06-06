@@ -31,6 +31,11 @@ export function Header() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    // Update theme-color meta tag to match current theme
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', theme === 'light' ? '#f5f5f0' : '#0f0f1a')
+    }
     try {
       localStorage.setItem('poe2-regex-theme', theme)
     } catch {
@@ -57,7 +62,7 @@ export function Header() {
         onClick={toggleTheme}
         className="p-2 rounded text-sm transition-colors hover:opacity-80"
         style={{ color: 'var(--poe-text)' }}
-        title={theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
+        title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
         aria-label="Toggle theme"
       >
         {theme === 'dark' ? '☀️' : '🌙'}

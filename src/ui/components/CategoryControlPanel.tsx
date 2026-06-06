@@ -71,7 +71,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
-            Хочу
+            {t('mode.want')}
           </button>
           <button
             onClick={() => setExcludeMode(true)}
@@ -81,7 +81,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
-            Не хочу
+            {t('mode.dont_want')}
           </button>
         </div>
 

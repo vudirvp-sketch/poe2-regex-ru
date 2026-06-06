@@ -1,19 +1,16 @@
 /**
  * ModList — A two-column filterable mod list with semantic grouping.
  *
- * Redesigned layout (v2):
+ * Redesigned layout (v3):
  * - Two columns: Prefix (left) | Suffix (right) with flex-wrap chips
- * - Semantic sub-groups within each column (offensive/defensive/attribute/neutral,
- *   positive/negative/neutral, or by origin — depending on groupMode)
- * - Origin sub-sections: when showOriginSubSections is enabled, each semantic
- *   sub-group further splits chips by origin with visual dividers
- *   (normal chips → divider "Осквернённые" → corrupted chips)
+ * - When showOriginSubSections is enabled, each affix column groups by
+ *   origin FIRST (Обычные, Очернённые, Осквернённые, etc.), then within
+ *   each origin section groups by semantic category. This avoids duplicate
+ *   origin headers that appeared in v2.
+ * - When showOriginSubSections is false, groups purely by semantic category.
  * - No virtual scroll: simple rendering for <300 family groups
  * - Search and filter controls at the top
  * - Full-width layout (takes entire available width)
- *
- * The parent page is responsible for placing the regex output and control
- * panel ABOVE this component (in a sticky top bar).
  */
 import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
@@ -22,6 +19,7 @@ import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
 import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
+import { t } from '@shared/i18n';
 
 interface ModListProps {
   tokens: GameToken[];
@@ -36,142 +34,84 @@ interface ModListProps {
   onClearSelections: () => void;
   /** Grouping mode for sub-categorization within affix columns */
   groupMode?: ModGroupMode;
-  /** When true, split chips within each semantic sub-group by origin
-   *  with visual dividers (normal → Осквернённые → Очернённые, etc.)
-   *  Only effective for modes that have semantic sub-groups (affix-semantic, affix-sentiment, tablet-type).
-   *  Not needed for 'origin' mode (already grouped by origin). */
+  /** When true, group by origin first, then by semantic category within
+   *  each origin section. This avoids duplicate "Осквернённые" headers. */
   showOriginSubSections?: boolean;
 }
 
-/** Origin sub-section within a semantic group */
-interface OriginSubSection {
+/** Origin section within an affix column */
+interface OriginSection {
   origin: ModOrigin;
   label: string;
   colorClass: string;
-  groups: FamilyGroup[];
+  subGroups: ModSubGroup[];
 }
 
+const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
+
 /**
- * Split family groups within a semantic sub-group by their origin.
- * Returns an ordered array of origin sub-sections, with 'normal' first
- * and non-normal origins after, each with a visual divider label.
+ * Split family groups by origin, then classify each origin's groups by semantic category.
+ * Returns origin sections, each containing classified sub-groups.
  */
-function splitSubGroupByOrigin(groups: FamilyGroup[]): OriginSubSection[] {
-  const originOrder: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
-  const sections = new Map<ModOrigin, FamilyGroup[]>();
+function splitByOriginThenSemantic(
+  groups: FamilyGroup[],
+  mode: ModGroupMode
+): OriginSection[] {
+  // Step 1: Split all groups by origin
+  const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
 
   for (const group of groups) {
-    // Split each group by origin to get per-origin FamilyGroups
     const splits = splitGroupByOrigin(group);
     for (const { origin, group: splitGroup } of splits) {
-      const list = sections.get(origin) || [];
+      const list = byOrigin.get(origin) || [];
       list.push(splitGroup);
-      sections.set(origin, list);
+      byOrigin.set(origin, list);
     }
   }
 
-  // Build ordered result
-  const result: OriginSubSection[] = [];
-  for (const origin of originOrder) {
-    const groups = sections.get(origin);
-    if (!groups || groups.length === 0) continue;
+  // Step 2: Classify each origin's groups
+  const result: OriginSection[] = [];
+  for (const origin of ORIGIN_ORDER) {
+    const originGroups = byOrigin.get(origin);
+    if (!originGroups || originGroups.length === 0) continue;
 
     const labelConfig = ORIGIN_SECTION_LABELS[origin];
+    const subGroups = classifyGroups(originGroups, mode);
+
     result.push({
       origin,
       label: labelConfig?.label ?? ORIGIN_LABELS[origin] ?? origin,
       colorClass: labelConfig?.colorClass ?? 'text-gray-400',
-      groups,
+      subGroups,
     });
   }
 
   return result;
 }
 
-/** Render a sub-group with its header and flex-wrap chips (with origin sub-sections) */
+/** Render a sub-group with its header and flex-wrap chips */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
   onToggleTokens: (ids: string[]) => void;
-  showOriginSubSections: boolean;
-}> = React.memo(({ subGroup, selectedIds, onToggleTokens, showOriginSubSections }) => {
-  // If no origin splitting needed, render flat
-  if (!showOriginSubSections) {
-    return (
-      <div className="mb-2">
-        {subGroup.label && (
-          <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${subGroup.colorClass}`}>
-            ── {subGroup.label} ({subGroup.groups.length}) ──
-          </div>
-        )}
-        <div className="flex flex-wrap gap-1.5">
-          {subGroup.groups.map((group) => (
-            <FilterChip
-              key={group.familyKey}
-              group={group}
-              selectedIds={selectedIds}
-              onToggleTokens={onToggleTokens}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Split by origin within this semantic sub-group
-  const originSections = splitSubGroupByOrigin(subGroup.groups);
-
-  // If only one origin (normal), no need for sub-dividers — render flat
-  if (originSections.length <= 1) {
-    return (
-      <div className="mb-2">
-        {subGroup.label && (
-          <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${subGroup.colorClass}`}>
-            ── {subGroup.label} ({subGroup.groups.length}) ──
-          </div>
-        )}
-        <div className="flex flex-wrap gap-1.5">
-          {subGroup.groups.map((group) => (
-            <FilterChip
-              key={group.familyKey}
-              group={group}
-              selectedIds={selectedIds}
-              onToggleTokens={onToggleTokens}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Multiple origins — render with origin sub-dividers
-  const totalCount = originSections.reduce((sum, s) => sum + s.groups.length, 0);
+}> = React.memo(({ subGroup, selectedIds, onToggleTokens }) => {
   return (
     <div className="mb-2">
       {subGroup.label && (
         <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${subGroup.colorClass}`}>
-          ── {subGroup.label} ({totalCount}) ──
+          ── {subGroup.label} ({subGroup.groups.length}) ──
         </div>
       )}
-      {originSections.map((section, idx) => (
-        <div key={section.origin} className={idx > 0 ? 'mt-1.5' : ''}>
-          {idx > 0 && (
-            <div className={`text-[9px] font-semibold uppercase tracking-wider mb-0.5 ${section.colorClass} opacity-70`}>
-              ··· {section.label} ({section.groups.length}) ···
-            </div>
-          )}
-          <div className="flex flex-wrap gap-1.5">
-            {section.groups.map((group) => (
-              <FilterChip
-                key={group.familyKey}
-                group={group}
-                selectedIds={selectedIds}
-                onToggleTokens={onToggleTokens}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
+      <div className="flex flex-wrap gap-1.5">
+        {subGroup.groups.map((group) => (
+          <FilterChip
+            key={group.familyKey}
+            group={group}
+            selectedIds={selectedIds}
+            onToggleTokens={onToggleTokens}
+          />
+        ))}
+      </div>
     </div>
   );
 });
@@ -180,11 +120,15 @@ const ModSubGroupSection: React.FC<{
 const AffixColumn: React.FC<{
   affix: AffixType;
   subGroups: ModSubGroup[];
+  originSections: OriginSection[];
   selectedIds: Set<string>;
   onToggleTokens: (ids: string[]) => void;
   showOriginSubSections: boolean;
-}> = React.memo(({ affix, subGroups, selectedIds, onToggleTokens, showOriginSubSections }) => {
-  const totalCount = subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, onToggleTokens, showOriginSubSections }) => {
+  const totalCount = showOriginSubSections
+    ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
+    : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
+
   if (totalCount === 0) return null;
 
   const isPrefix = affix === 'prefix';
@@ -196,15 +140,40 @@ const AffixColumn: React.FC<{
       <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${headerColor}`}>
         {AFFIX_LABELS[affix]} ({totalCount})
       </h4>
-      {subGroups.map((sg) => (
-        <ModSubGroupSection
-          key={sg.key}
-          subGroup={sg}
-          selectedIds={selectedIds}
-          onToggleTokens={onToggleTokens}
-          showOriginSubSections={showOriginSubSections}
-        />
-      ))}
+
+      {showOriginSubSections ? (
+        /* Group by origin first, then by semantic category within each origin */
+        originSections.map((section, idx) => {
+          const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
+          return (
+            <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
+              {idx > 0 && (
+                <div className={`text-[9px] font-semibold uppercase tracking-wider mb-1 ${section.colorClass} opacity-80`}>
+                  ··· {section.label} ({sectionCount}) ···
+                </div>
+              )}
+              {section.subGroups.map((sg) => (
+                <ModSubGroupSection
+                  key={sg.key}
+                  subGroup={sg}
+                  selectedIds={selectedIds}
+                  onToggleTokens={onToggleTokens}
+                />
+              ))}
+            </div>
+          );
+        })
+      ) : (
+        /* Group purely by semantic category */
+        subGroups.map((sg) => (
+          <ModSubGroupSection
+            key={sg.key}
+            subGroup={sg}
+            selectedIds={selectedIds}
+            onToggleTokens={onToggleTokens}
+          />
+        ))
+      )}
     </div>
   );
 });
@@ -232,7 +201,7 @@ export const ModList: React.FC<ModListProps> = ({
     return Array.from(origins).sort();
   }, [tokens]);
 
-  // Filter tokens (BEFORE grouping, per plan: origin filter applied before grouping)
+  // Filter tokens (BEFORE grouping)
   const filteredTokens = useMemo(() => {
     let result = tokens;
 
@@ -282,6 +251,16 @@ export const ModList: React.FC<ModListProps> = ({
     [suffixGroups, groupMode]
   );
 
+  // When showOriginSubSections, also compute origin-then-semantic groupings
+  const prefixOriginSections = useMemo(
+    () => showOriginSubSections ? splitByOriginThenSemantic(prefixGroups, groupMode) : [],
+    [prefixGroups, groupMode, showOriginSubSections]
+  );
+  const suffixOriginSections = useMemo(
+    () => showOriginSubSections ? splitByOriginThenSemantic(suffixGroups, groupMode) : [],
+    [suffixGroups, groupMode, showOriginSubSections]
+  );
+
   const handleAffixFilter = useCallback(
     (value: string) => {
       onAffixFilterChange(value === 'all' ? null : (value as AffixType));
@@ -298,29 +277,28 @@ export const ModList: React.FC<ModListProps> = ({
 
   // Determine if we need two columns or one
   const hasBothAffixes = prefixGroups.length > 0 && suffixGroups.length > 0;
-  // For 'origin' mode, we don't split by affix — we show all groups by origin
   const isOriginMode = groupMode === 'origin';
 
   return (
-    <div className="mod-list flex flex-col gap-3" role="group" aria-label="Список модификаторов">
+    <div className="mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')}>
       {/* Search + Filters row */}
       <div className="flex flex-wrap gap-2 items-center">
         <input
           type="text"
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Поиск модов..."
-          aria-label="Поиск модификаторов"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.placeholder')}
           className="flex-1 min-w-[180px] px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
-          aria-label="Фильтр по типу аффикса"
+          aria-label={t('filter.all_types')}
           className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
         >
-          <option value="all">Все типы</option>
+          <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{AFFIX_LABELS.prefix}</option>
           <option value="suffix">{AFFIX_LABELS.suffix}</option>
         </select>
@@ -329,10 +307,10 @@ export const ModList: React.FC<ModListProps> = ({
           <select
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
-            aria-label="Фильтр по источнику"
+            aria-label={t('filter.all_origins')}
             className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            <option value="all">Все источники</option>
+            <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
               <option key={origin} value={origin}>
                 {ORIGIN_LABELS[origin] || origin}
@@ -346,14 +324,14 @@ export const ModList: React.FC<ModListProps> = ({
             onClick={onClearSelections}
             className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
           >
-            Очистить ({selectedIds.size})
+            {t('filter.clear')} ({selectedIds.size})
           </button>
         )}
       </div>
 
       {/* Stats */}
       <div className="text-xs text-gray-500">
-        Показано {familyGroups.length} семейств из {tokens.length} модов
+        {t('filter.stats').replace('{shown}', String(familyGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
       {/* Mod groups area */}
@@ -374,7 +352,7 @@ export const ModList: React.FC<ModListProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-2">
                       {originPrefix.length > 0 && (
                         <div className="border-l-2 border-blue-800/50 pl-3">
-                          <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">Префикс ({originPrefix.length})</h5>
+                          <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">{AFFIX_LABELS.prefix} ({originPrefix.length})</h5>
                           <div className="flex flex-wrap gap-1.5">
                             {originPrefix.map(group => (
                               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
@@ -384,7 +362,7 @@ export const ModList: React.FC<ModListProps> = ({
                       )}
                       {originSuffix.length > 0 && (
                         <div className="border-l-2 border-orange-800/50 pl-3">
-                          <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">Суффикс ({originSuffix.length})</h5>
+                          <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">{AFFIX_LABELS.suffix} ({originSuffix.length})</h5>
                           <div className="flex flex-wrap gap-1.5">
                             {originSuffix.map(group => (
                               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
@@ -404,6 +382,7 @@ export const ModList: React.FC<ModListProps> = ({
             <AffixColumn
               affix="prefix"
               subGroups={prefixSubGroups}
+              originSections={prefixOriginSections}
               selectedIds={selectedIds}
               onToggleTokens={onToggleTokens}
               showOriginSubSections={showOriginSubSections}
@@ -411,6 +390,7 @@ export const ModList: React.FC<ModListProps> = ({
             <AffixColumn
               affix="suffix"
               subGroups={suffixSubGroups}
+              originSections={suffixOriginSections}
               selectedIds={selectedIds}
               onToggleTokens={onToggleTokens}
               showOriginSubSections={showOriginSubSections}
@@ -423,6 +403,7 @@ export const ModList: React.FC<ModListProps> = ({
               <AffixColumn
                 affix="prefix"
                 subGroups={prefixSubGroups}
+                originSections={prefixOriginSections}
                 selectedIds={selectedIds}
                 onToggleTokens={onToggleTokens}
                 showOriginSubSections={showOriginSubSections}
@@ -432,6 +413,7 @@ export const ModList: React.FC<ModListProps> = ({
               <AffixColumn
                 affix="suffix"
                 subGroups={suffixSubGroups}
+                originSections={suffixOriginSections}
                 selectedIds={selectedIds}
                 onToggleTokens={onToggleTokens}
                 showOriginSubSections={showOriginSubSections}
@@ -441,7 +423,7 @@ export const ModList: React.FC<ModListProps> = ({
         )
       ) : (
         <div className="text-center text-gray-500 py-8">
-          Моды не найдены
+          {t('filter.no_results')}
         </div>
       )}
     </div>

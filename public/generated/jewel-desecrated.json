@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T04:36:01.705Z",
+  "version": "2026-06-06T04:59:00.763Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -148,7 +148,7 @@
         "ru": "##% увеличение максимума энергетического щита"
       },
       "regex": {
-        "ru": "щита"
+        "ru": "энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
@@ -194,7 +194,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "чар"
+        "ru": "от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -546,7 +546,7 @@
         "ru": "Компаньоны наносят увеличенный на ##% урон"
       },
       "regex": {
-        "ru": "оны"
+        "ru": "ньоны"
       },
       "familyKey": {
         "ru": "Компаньоны наносят увеличенный на #% урон"
@@ -685,7 +685,7 @@
         "ru": "##% увеличение урона от огня"
       },
       "regex": {
-        "ru": "огня"
+        "ru": "от огня"
       },
       "familyKey": {
         "ru": "#% увеличение урона от огня"
@@ -932,6 +932,17 @@
         "ru": "ения"
       },
       "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_qs13gh:jewel-desecrated.mod_vbabcw": {
+      "ids": [
+        "jewel-desecrated.mod_qs13gh",
+        "jewel-desecrated.mod_vbabcw"
+      ],
+      "regex": {
+        "ru": "ического "
+      },
+      "weight": 9,
       "count": 2
     },
     "jewel-desecrated.mod_2oddfi:jewel-desecrated.mod_vurd3w": {
