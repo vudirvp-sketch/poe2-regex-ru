@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 21 — 2026-06-06)
+## Current State (Session 22 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,48 +26,37 @@
 
 ---
 
-### Session 21 Changes — i18n Completion + VendorPage Refactor
+### Session 22 Changes — i18n Labels + Jewel Type Filter + Constants Cleanup
 
-**MEDIUM — VendorPage now uses shared CategoryControlPanel:**
-- Removed duplicated sticky wrapper, mode toggle, round10 toggle from VendorPage
-- CategoryControlPanel extended with optional props: `showRound10`, `clearButton`
-- VendorPage passes `hasRangedTokens={false}`, `showRound10={hasNumericSelected}`, `clearButton={...}`
-- Eliminates ~40 lines of duplicated UI code
+**LOW — TabletPage hardcoded labels → i18n:**
+- "Тип:" → `t('tablet.type_label')`, "Редкость:" → `t('tablet.rarity_label')`, "Исп.:" → `t('tablet.uses_label')`
+- Summary: "+ типы:" → `t('tablet.summary_types')`, "+ редкость:" → `t('tablet.summary_rarity')`, "+ ≥N использ." → `t('tablet.summary_uses')`
 
-**MEDIUM — i18n: all page components now use t() instead of hardcoded Russian:**
-- BeltPage, RingPage, AmuletPage, WaystonePage, JewelPage, RelicPage, TabletPage:
-  "Загрузка данных..." → `t('loading')`, "Ошибка загрузки:" → `t('load_error')`,
-  "Нет данных" → `t('no_data')`, "выбрано" → `t('selected')`,
-  "мод(ов)" → `t('mods_word')`, "модов" → `t('mods_word')`,
-  "Выбрано:" → `t('summary.selected')`, "Включить"/"Исключить" → `t('summary.include')`/`t('summary.exclude')`
+**LOW — WaystonePage checkbox labels → i18n:**
+- "Осквернён" → `t('waystone.corrupted_label')`, "Неосквернён" → `t('waystone.uncorrupted_label')`, "Делириум" → `t('waystone.delirious_label')`
+- Summary: "+ оскверн." → `t('waystone.summary_corrupted')`, "+ неоскверн." → `t('waystone.summary_uncorrupted')`, "+ делириум" → `t('waystone.summary_delirious')`
 
-**LOW — AFFIX_LABELS/ORIGIN_LABELS replaced with t() in ModList + mod-classifier:**
-- `AFFIX_LABELS[affix]` → `t('affix.' + affix)` in ModList (column headers, dropdowns, origin mode)
-- `ORIGIN_LABELS[origin]` → `t('origin.' + origin)` in ModList (dropdown) and mod-classifier (origin mode labels)
-- New i18n keys: `affix.prefix`, `affix.suffix`, `origin.normal/desecrated/corrupted/essence/breachborn`
+**INFO — ORIGIN_LABELS/AFFIX_LABELS removed from constants.ts:**
+- Both constants were unused after iteration 15's i18n migration
+- Verified: no imports of these constants exist anywhere in the codebase
 
-**INFO — FilterChip i18n:**
-- Replaced hardcoded "выбрано/частично выбрано/не выбрано/уровней/диапазон" with `t('chip.*')` calls
-- Keys already existed in i18n.ts, just not used
+**FEATURE — JewelPage jewel type filter (Ruby/Emerald/Sapphire/All):**
+- Added `classifyJewelType()` in mod-classifier.ts with text-based heuristics
+- Ruby: fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence
+- Emerald: lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks
+- Sapphire: cold, curses, energy shield, spells, mana, offerings, minions, chaos
+- Shared: mods matching multiple types or none (e.g., "урон от атак", attributes)
+- 4 filter buttons in extraControls: Все/Рубин/Изумруд/Сапфир
+- Filter shows selected type + shared mods; "Все" shows complete list
+- Token count in header: "filtered/total мод(ов)"
+- Jewel type state synced to filterStore for URL sharing
 
-**INFO — CategoryControlPanel i18n:**
-- "Панель управления фильтрами" → `t('control.panel')`
-- "Режим фильтра" → `t('mode.want')`
-- "Мин"/"Макс" → `t('range.min')`/`t('range.max')`
-- "Минимальное/Максимальное значение" → `t('range.min_aria')`/`t('range.max_aria')`
-- "суффиксы" → `t('suffixes.label')`
-
-**INFO — ETL automation already in place:**
-- deploy.yml has weekly cron (Monday 06:00 UTC) that runs ETL + commit + deploy
-- `workflow_dispatch` with `run_etl` parameter for manual trigger
-- `.etl-cache/` is in `.gitignore` — fresh data on each ETL run in CI
-
-**New i18n keys added (total now ~110+):**
-- `affix.prefix`, `affix.suffix`
-- `origin.normal`, `origin.desecrated`, `origin.corrupted`, `origin.essence`, `origin.breachborn`
-- `summary.selected`, `summary.include`, `summary.exclude`
-- `control.panel`, `suffixes.label`
-- `range.min`, `range.max`, `range.min_aria`, `range.max_aria`
+**New i18n keys added (17 total):**
+- `tablet.type_label`, `tablet.rarity_label`, `tablet.uses_label`
+- `tablet.summary_types`, `tablet.summary_rarity`, `tablet.summary_uses`
+- `waystone.corrupted_label`, `waystone.uncorrupted_label`, `waystone.delirious_label`
+- `waystone.summary_corrupted`, `waystone.summary_uncorrupted`, `waystone.summary_delirious`
+- `jewel.type_all`, `jewel.type_ruby`, `jewel.type_emerald`, `jewel.type_sapphire`, `jewel.type_label`
 
 ---
 
@@ -78,9 +67,8 @@
 | INFO | 1 i18n override token has regex <5 chars (amulet fire spell crit breachborn) | Acceptable |
 | INFO | Waystone tier filter removed (confirmed not searchable in RU client) | By design |
 | INFO | 51 tokens use i18n overrides (poe2db.tw lacks Russian text) | Handled by i18n-overrides.json |
-| LOW | TabletPage labels "Тип:", "Редкость:", "Исп.:" still hardcoded | Next iteration |
-| LOW | WaystonePage checkbox labels "Осквернён/Неосквернён/Делириум" still hardcoded | Next iteration |
 | LOW | VendorPage GROUP_ORDER + GROUP_COLORS labels are hardcoded Russian | By design (vendor-specific) |
+| MED | Jewel type heuristics need verification against game data | Next iteration |
 
 ---
 
@@ -100,7 +88,8 @@ pnpm dev              # Development server
 - **Data:** `public/generated/*.json` (10 files)
 - **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
 - **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip
-- **i18n:** `src/shared/i18n.ts` — t() function with 110+ keys
+- **i18n:** `src/shared/i18n.ts` — t() function with 130+ keys
+- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type classification
 - **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
 - **Store:** `src/store/` — Zustand filter store, profile store, URL sync
 

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 13.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 14.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -923,3 +923,62 @@ width for a two-column mod display:
 7. **LOW — Light theme: overly-broad opacity-70 override**: Needs scoping.
 
 8. **LOW — RegexOutput: Double sticky positioning**: Check for stacking context issues.
+
+## 16. Iteration 9 Changes — i18n Labels + Jewel Type Filter + Constants Cleanup
+
+### Changes
+
+1. **TabletPage i18n labels** (`src/ui/pages/tablet/TabletPage.tsx` + `src/shared/i18n.ts`):
+   - Replaced hardcoded "Тип:", "Редкость:", "Исп.:" in extraControls with `t('tablet.type_label')`, `t('tablet.rarity_label')`, `t('tablet.uses_label')`
+   - Replaced hardcoded "+ типы:", "+ редкость:", "+ ≥N использ." in summary with `t('tablet.summary_types')`, `t('tablet.summary_rarity')`, `t('tablet.summary_uses')`
+   - Added 6 new i18n keys to translations
+
+2. **WaystonePage i18n labels** (`src/ui/pages/waystone/WaystonePage.tsx` + `src/shared/i18n.ts`):
+   - Replaced hardcoded "Осквернён", "Неосквернён", "Делириум" checkbox labels with `t('waystone.corrupted_label')`, `t('waystone.uncorrupted_label')`, `t('waystone.delirious_label')`
+   - Replaced hardcoded "+ оскверн.", "+ неоскверн.", "+ делириум" in summary with `t('waystone.summary_corrupted')`, etc.
+   - Added 6 new i18n keys to translations
+
+3. **Constants cleanup** (`src/shared/constants.ts`):
+   - Removed unused `ORIGIN_LABELS` and `AFFIX_LABELS` exports
+   - These were replaced by `t()` calls in iteration 15 but the constants were left in place
+   - Verified: no imports of these constants exist in the codebase
+
+4. **Jewel type filter** (`src/ui/pages/jewel/JewelPage.tsx` + `src/shared/mod-classifier.ts`):
+   - Added `JewelTypeCategory` type: `'ruby' | 'emerald' | 'sapphire' | 'shared'`
+   - Added `classifyJewelType()` function in mod-classifier.ts using text-based heuristics
+   - Ruby keywords: fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence
+   - Emerald keywords: lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks
+   - Sapphire keywords: cold, curses, energy shield, spells, mana, offerings, minions, chaos
+   - Shared: mods that match multiple types or none (e.g., "урон от атак", "урон от стихий", attributes)
+   - Added 4 jewel type filter buttons (Все/Рубин/Изумруд/Сапфир) in JewelPage extraControls
+   - Filter logic: when a type is selected, shows mods classified as that type + shared mods
+   - Jewel type filter state synced to filterStore for URL sharing
+   - Token count in header shows filtered/total (e.g., "98/224 мод(ов)")
+   - Added 5 new i18n keys: `jewel.type_all`, `jewel.type_ruby`, `jewel.type_emerald`, `jewel.type_sapphire`, `jewel.type_label`
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- `public/generated/` — ZERO changes (I3, READ-ONLY)
+- ETL pipeline — ZERO changes
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+
+### Remaining for Next Iteration
+
+1. **Jewel type classification verification**: The text-based heuristics for Ruby/Emerald/Sapphire
+   classification need verification against the actual game data. Some mods may be misclassified.
+   The uploaded file "моды самоцветов.md" in `/регис/` provides reference data for cross-validation.
+
+2. **Jewel type sub-grouping**: Currently the jewel type filter hides non-matching tokens.
+   An alternative approach: add `groupMode="jewel-type"` that groups tokens by jewel type
+   within each origin section, showing all types but with visual separation.
+
+3. **PageState helper component**: The loading/error/no-data pattern repeats in 7+ pages.
+   Rule of 3 (I6) threshold has been met — abstraction is warranted. Could create
+   a `CategoryPageWrapper` or `PageState` component.
+
+4. **Jewel type filter for desecrated/corrupted tokens**: The current filter applies to all
+   tokens including desecrated and corrupted origins. Desecrated/corrupted mods are mostly
+   shared across jewel types, so the filter correctly includes them. However, some desecrated
+   mods with element-specific text (e.g., "огня", "холода", "молнии") are correctly classified
+   by the heuristics.

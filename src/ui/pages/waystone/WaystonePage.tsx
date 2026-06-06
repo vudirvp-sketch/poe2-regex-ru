@@ -127,19 +127,19 @@ export function WaystonePage() {
               <input type="checkbox" checked={corrupted}
                 onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
                 className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-purple-500" />
-              <span className="text-[10px] text-gray-300">Осквернён</span>
+              <span className="text-[10px] text-gray-300">{t('waystone.corrupted_label')}</span>
             </label>
             <label className="flex items-center gap-1 cursor-pointer">
               <input type="checkbox" checked={uncorrupted}
                 onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
                 className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-green-500" />
-              <span className="text-[10px] text-gray-300">Неосквернён</span>
+              <span className="text-[10px] text-gray-300">{t('waystone.uncorrupted_label')}</span>
             </label>
             <label className="flex items-center gap-1 cursor-pointer">
               <input type="checkbox" checked={delirious}
                 onChange={(e) => setDelirious(e.target.checked)}
                 className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500" />
-              <span className="text-[10px] text-gray-300">Делириум</span>
+              <span className="text-[10px] text-gray-300">{t('waystone.delirious_label')}</span>
             </label>
           </div>
         }
@@ -170,9 +170,9 @@ export function WaystonePage() {
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
             <div className="text-xs text-gray-400 mb-1">
               {t('summary.selected')}: {selectedTokens.length} {t('mods_word')}
-              {corrupted && ' + оскверн.'}
-              {uncorrupted && ' + неоскверн.'}
-              {delirious && ' + делириум'}
+              {corrupted && ` ${t('waystone.summary_corrupted')}`}
+              {uncorrupted && ` ${t('waystone.summary_uncorrupted')}`}
+              {delirious && ` ${t('waystone.summary_delirious')}`}
             </div>
             {selectedTokens.length > 0 && (
               <div className="text-[10px] text-gray-600">

@@ -198,6 +198,60 @@ export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
   return 'generic';
 }
 
+// ─── Jewel type classification ───
+
+/** Jewel type categories based on which jewel type the mod is associated with */
+export type JewelTypeCategory = 'ruby' | 'emerald' | 'sapphire' | 'shared';
+
+export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
+  ruby:     { label: 'Рубин', colorClass: 'text-red-400' },
+  emerald:  { label: 'Изумруд', colorClass: 'text-green-400' },
+  sapphire: { label: 'Сапфир', colorClass: 'text-blue-400' },
+  shared:   { label: 'Общие', colorClass: 'text-gray-400' },
+};
+
+/**
+ * Keywords unique to Ruby jewel mods.
+ * Ruby = fire, bleed, physical melee, maces, rage, thorns, totems, warcries, banners, presence, armour.
+ */
+const RUBY_KEYWORDS = /(?:поджог|сил[ауе].*поджог|кровотеч|сил[ауе].*кровотеч|длительн.*кровотеч|шанс.*наложить.*кровотеч|брони.*уклонен.*энерг.*щит.*щит|брон[ию]|повышен.*брон|разруш.*брон|длительн.*разруш|количеств.*разруш|булав[амии]|шанс.*блок|свирепост|максимум.*свирепост|Дарует.*свирепост|шипам|урон.*шипам|тотем|здоровь.*тотем|скорост.*установк.*тотем|боев.*крич|усилен.*положительн.*эффект.*боев.*крич|скорост.*перезарядк.*боев.*крич|скорост.*применен.*боев.*крич|знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|длительн.*знамён|присутстви|област.*действ.*присутстви|сил.*аур|урон.*огн|пробива.*сопротивлен.*огн|сопротивлен.*огн|максимальн.*сопротивлен.*огн|урон.*ближн.*бо|Ритуал|Улучшенн.*атак)/i;
+
+/**
+ * Keywords unique to Emerald jewel mods.
+ * Emerald = lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks.
+ */
+const EMERALD_KEYWORDS = /(?:меткост|повышен.*глобальн.*меткост|меткост.*лукам|молни|урон.*молни|пробива.*сопротивлен.*молни|сопротивлен.*молни|максимальн.*сопротивлен.*молни|шок|сил.*шок|шанс.*наложен.*шок|длительн.*шок|скорост.*атак|скорост.*атак.*лукам|скорост.*атак.*самострел|скорост.*атак.*посох|скорост.*атак.*копь|снаряд|скорост.*снаряд|дополнит.*снаряд.*разветвлен|шанс.*выпустить.*дополнит.*снаряд|цепи.*окруж|пронзить|шанс.*пронзить|скорост.*перезарядк.*самострел|скорост.*атак.*кинджал|лукам|самострел|боев.*посох|копь[яюей]|Парирован|длительн.*Парирован|урон.*Парирован|порог.*оглушен.*парир|оберег|длительн.*оберег|заряд.*оберег|компаньон|максимум.*здоровь.*компаньон|помехам|урон.*помехам|флакон|заряд.*флакон|длительн.*флакон|восстановлен.*здоровь.*флакон|восстановлен.*ман.*флакон|заряд.*флакон.*здоровь|заряд.*флакон.*ман|ослеплен|усилен.*ослеплен|шанс.*ослепить|Ослепля.*враг|Накладывает восприимчивость|Изнуряет)/i;
+
+/**
+ * Keywords unique to Sapphire jewel mods.
+ * Sapphire = cold, curses, energy shield, spells, mana, offerings, minions, chaos.
+ */
+const SAPPHIRE_KEYWORDS = /(?:холод|урон.*холод|пробива.*сопротивлен.*холод|сопротивлен.*холод|максимальн.*сопротивлен.*холод|охлажден|длительн.*охлажден|заморозк|скорост.*накоплен.*заморозк|порог.*заморозк|прокляти|област.*действ.*прокляти|сил.*прокляти|длительн.*прокляти|скорост.*активаци.*прокляти|энергетическ.*щит|максимум.*энергетическ.*щит|перезарядк.*энергетическ.*щит|ускорен.*начал.*перезарядк.*энергетическ.*щит|энергетическ.*щит.*фокус|дополнит.*порог.*энергетическ.*щит|чар[ыуе].*умени|урон.*чар|Срабатывающ.*чар|скорост.*сотворени.*чар|ман[аеыоу]|максимум.*ман|скорост.*регенерац.*ман|похищен.*ман|восстановлен.*ман|ман.*вместо.*здоровь|получаем.*урон.*берет.*ман|подношен|максимум.*здоровь.*подношен|длительн.*подношен|приспешник.*дополнит.*уменьшен|приспешник.*сопротивлен.*хаос|приспешник.*сопротивлен.*стихии|приспешник.*шанс.*крит|бонус.*крит.*приспешник|приспешник.*скорост.*атак.*сотворени|приспешник.*воскреш|Мета-умени|хаосом|урон.*хаосом|сопротивлен.*хаос|максимальн.*сопротивлен.*хаос|сил.*Истощен|Бездн|эффект.*восприимчивост|получен.*урон.*восполня.*здоровь|восстанавливает.*здоровь.*убийств|восстанавливает.*ман.*убийств)/i;
+
+/**
+ * Classify a FamilyGroup into jewel type category.
+ * Based on text heuristics derived from the game's jewel type pools.
+ * Mods that match multiple types or no specific type are classified as 'shared'.
+ */
+export function classifyJewelType(group: FamilyGroup): JewelTypeCategory {
+  const text = group.displayText;
+
+  const isRuby = RUBY_KEYWORDS.test(text);
+  const isEmerald = EMERALD_KEYWORDS.test(text);
+  const isSapphire = SAPPHIRE_KEYWORDS.test(text);
+
+  // If exactly one type matches, classify as that type
+  const matches = [isRuby, isEmerald, isSapphire].filter(Boolean).length;
+  if (matches === 1) {
+    if (isRuby) return 'ruby';
+    if (isEmerald) return 'emerald';
+    if (isSapphire) return 'sapphire';
+  }
+
+  // Multiple matches or no matches → shared
+  return 'shared';
+}
+
 // ─── Unified classification ───
 
 /** Grouping mode determines how mods are sub-categorized within affix columns */

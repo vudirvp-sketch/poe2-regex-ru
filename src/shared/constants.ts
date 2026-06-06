@@ -44,18 +44,3 @@ export const CATEGORY_LABELS: Record<CategoryId, string> = {
   ring: 'Кольца',
   amulet: 'Амулеты',
 };
-
-/** Mapping of origin to display name (Russian) */
-export const ORIGIN_LABELS: Record<string, string> = {
-  normal: 'Обычные',
-  desecrated: 'Очернённые',
-  corrupted: 'Осквернённые',
-  essence: 'Сущность',
-  breachborn: 'Разлом',
-};
-
-/** Mapping of affix type to display name (Russian) */
-export const AFFIX_LABELS: Record<string, string> = {
-  prefix: 'Префикс',
-  suffix: 'Суффикс',
-};

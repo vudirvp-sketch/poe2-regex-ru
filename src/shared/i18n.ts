@@ -115,6 +115,29 @@ const translations: Record<Locale, Record<string, string>> = {
     'home.belt_desc': 'Пояса — моды поясов',
     'home.ring_desc': 'Кольца — моды колец',
     'home.amulet_desc': 'Амулеты — моды амулетов',
+
+    // TabletPage extraControls labels
+    'tablet.type_label': 'Тип:',
+    'tablet.rarity_label': 'Редкость:',
+    'tablet.uses_label': 'Исп.:',
+    'tablet.summary_types': '+ типы:',
+    'tablet.summary_rarity': '+ редкость:',
+    'tablet.summary_uses': '+ ≥{n} использ.',
+
+    // WaystonePage checkbox labels
+    'waystone.corrupted_label': 'Осквернён',
+    'waystone.uncorrupted_label': 'Неосквернён',
+    'waystone.delirious_label': 'Делириум',
+    'waystone.summary_corrupted': '+ оскверн.',
+    'waystone.summary_uncorrupted': '+ неоскверн.',
+    'waystone.summary_delirious': '+ делириум',
+
+    // JewelPage type filter
+    'jewel.type_all': 'Все',
+    'jewel.type_ruby': 'Рубин',
+    'jewel.type_emerald': 'Изумруд',
+    'jewel.type_sapphire': 'Сапфир',
+    'jewel.type_label': 'Тип самоцвета:',
   },
 };
 

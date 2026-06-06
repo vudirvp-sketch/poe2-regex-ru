@@ -173,7 +173,7 @@ export function TabletPage() {
         extraControls={
           <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
             {/* Tablet type buttons */}
-            <span className="text-[10px] text-gray-500">Тип:</span>
+            <span className="text-[10px] text-gray-500">{t('tablet.type_label')}</span>
             {TABLET_TYPES.map(typeDef => (
               <button key={typeDef.id}
                 onClick={() => toggleType(typeDef.id)}
@@ -190,7 +190,7 @@ export function TabletPage() {
             ))}
 
             {/* Rarity buttons */}
-            <span className="text-[10px] text-gray-500 ml-1">Редкость:</span>
+            <span className="text-[10px] text-gray-500 ml-1">{t('tablet.rarity_label')}</span>
             {RARITY_OPTIONS.map(rarityDef => (
               <button key={rarityDef.id}
                 onClick={() => toggleRarity(rarityDef.id)}
@@ -207,7 +207,7 @@ export function TabletPage() {
             ))}
 
             {/* Uses remaining */}
-            <span className="text-[10px] text-gray-500 ml-1">Исп.:</span>
+            <span className="text-[10px] text-gray-500 ml-1">{t('tablet.uses_label')}</span>
             <input type="number" min={1} max={30} value={usesMin ?? ''}
               onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
               placeholder="≥N"
@@ -242,9 +242,9 @@ export function TabletPage() {
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
             <div className="text-xs text-gray-400 mb-1">
               {t('summary.selected')}: {selectedTokens.length} {t('mods_word')}
-              {selectedTypes.size > 0 && ` + типы: ${[...selectedTypes].map(id => TABLET_TYPES.find(tp => tp.id === id)?.label).filter(Boolean).join(', ')}`}
-              {selectedRarities.size > 0 && ` + редкость: ${[...selectedRarities].map(id => RARITY_OPTIONS.find(r => r.id === id)?.label).filter(Boolean).join(', ')}`}
-              {usesMin !== null && ` + ≥${usesMin} использ.`}
+              {selectedTypes.size > 0 && ` ${t('tablet.summary_types')} ${[...selectedTypes].map(id => TABLET_TYPES.find(tp => tp.id === id)?.label).filter(Boolean).join(', ')}`}
+              {selectedRarities.size > 0 && ` ${t('tablet.summary_rarity')} ${[...selectedRarities].map(id => RARITY_OPTIONS.find(r => r.id === id)?.label).filter(Boolean).join(', ')}`}
+              {usesMin !== null && ` ${t('tablet.summary_uses').replace('{n}', String(usesMin))}`}
             </div>
             {selectedTokens.length > 0 && (
               <div className="text-[10px] text-gray-600">
