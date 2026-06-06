@@ -263,9 +263,6 @@ const RUBY_SCORES: [RegExp, number][] = [
   // Banners (unique to Ruby)
   [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён)/i, 3],
 
-  // Presence (Ruby+Sapphire — Ruby has area, Sapphire has curse area)
-  [/присутстви/i, 1],                  // lowered — appears in both Ruby and Sapphire
-
   // Aura strength (Ruby specific)
   [/сил.*аур/i, 2],
 
@@ -311,7 +308,7 @@ const RUBY_SCORES: [RegExp, number][] = [
   // NOTE: armour break removed — subsumed by [разруш.*брон] w=3 above
 
   // Combustibility (Ruby — but Sapphire also has it)
-  [/сил.*Горючест/i, 1],   // low weight since it appears in both Ruby and Sapphire
+  // NOTE: /сил.*Горючест/ w=1 removed — appears in both Ruby and Sapphire, no discriminative power
 ];
 
 /** Keyword → weight pairs for Emerald jewel mods (lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks, poison) */
@@ -488,6 +485,8 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/повышен.*шанс.*критического удара(?!.*атак)/i, 2],
   [/увеличен.*бонус.*крит.*урон(?!.*атак)/i, 2],
 
+  // NOTE: generic /присутстви/ removed — appeared in both Ruby and Sapphire with no discriminative power
+
   // Corpse consumption (Sapphire)
   [/поглотил.*труп|поглотить.*труп/i, 2],
 
@@ -495,6 +494,8 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/скорост.*сотворени.*чар.*метк|метк.*скорост.*сотворени/i, 1],
 
   // NOTE: minion resist all removed — exact duplicate of [приспешник.*сопротивлен.*стихи] w=3 above
+
+  // NOTE: /сил.*Горючест/ removed from both Ruby and Sapphire — appeared in both arrays with w=1, no discriminative power
 
   // Area of effect for presence (Sapphire — shared with Ruby)
   [/област.*действ.*присутстви/i, 1],

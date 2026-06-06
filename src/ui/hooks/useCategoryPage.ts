@@ -12,7 +12,7 @@
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
-import { createFilterStore, type FilterState, type FilterActions } from '@store/filter-store';
+import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
@@ -83,6 +83,12 @@ export interface CategoryPageState {
   maxValue: number | null;
   /** Set maximum value for ranged mods */
   setMaxValue: (v: number | null) => void;
+  /** Per-token numeric range overrides */
+  perTokenRanges: Record<string, TokenRangeOverride>;
+  /** Set per-token numeric range override */
+  setTokenRange: (tokenId: string, range: TokenRangeOverride) => void;
+  /** Clear per-token numeric range override */
+  clearTokenRange: (tokenId: string) => void;
   /** Selected token IDs */
   selectedIds: Set<string>;
   /** Search text filter */
@@ -123,13 +129,33 @@ export interface CategoryPageState {
  *   (compiler normalizes RANGE(min,max) into AND(RANGE(min), RANGE(undefined,max)))
  * - All combined with AND
  */
+/**
+ * Get effective min/max for a token: per-token override > global fallback.
+ */
+function getEffectiveRange(
+  token: GameToken,
+  globalMin: number | null,
+  globalMax: number | null,
+  perTokenRanges: Record<string, TokenRangeOverride>
+): { min: number | null; max: number | null } {
+  const override = perTokenRanges[token.id];
+  if (override) {
+    return {
+      min: override.min ?? globalMin,
+      max: override.max ?? globalMax,
+    };
+  }
+  return { min: globalMin, max: globalMax };
+}
+
 function buildAstFromSelections(
   selectedTokens: GameToken[],
   excludeMode: boolean,
   minValue: number | null,
   maxValue: number | null,
   _round10: boolean,
-  locale: Locale
+  locale: Locale,
+  perTokenRanges: Record<string, TokenRangeOverride>
 ): ASTNode | null {
   if (selectedTokens.length === 0) return null;
 
@@ -164,34 +190,51 @@ function buildAstFromSelections(
     }
   }
 
-  // Handle ranged tokens:
-  // If min/max is set, generate numberRegex.*suffix for each
-  // Otherwise, just use the family suffix regex
+  // Handle ranged tokens with per-token or global numeric ranges
   if (rangedTokens.length > 0) {
-    const hasMin = minValue !== null && minValue > 0;
-    const hasMax = maxValue !== null && maxValue > 0;
-    if (hasMin || hasMax) {
-      // Group ranged tokens by their suffix (family)
-      const suffixGroups = new Map<string, GameToken[]>();
-      for (const token of rangedTokens) {
+    // Determine if ANY token has an effective min/max
+    const tokensWithRange = rangedTokens.map(token => ({
+      token,
+      effective: getEffectiveRange(token, minValue, maxValue, perTokenRanges),
+    }));
+
+    const anyHasRange = tokensWithRange.some(
+      ({ effective }) => (effective.min !== null && effective.min > 0) || (effective.max !== null && effective.max > 0)
+    );
+
+    if (anyHasRange) {
+      // Group ranged tokens by their suffix AND effective range
+      // Each unique (suffix, min, max) combination gets its own RANGE node
+      const rangeGroups = new Map<string, { suffix: string; min: number | undefined; max: number | undefined; tokens: GameToken[] }>();
+      for (const { token, effective } of tokensWithRange) {
         const suffix = token.regex[locale];
-        const group = suffixGroups.get(suffix) || [];
-        group.push(token);
-        suffixGroups.set(suffix, group);
+        const hasMin = effective.min !== null && effective.min > 0;
+        const hasMax = effective.max !== null && effective.max > 0;
+
+        // Create a group key that includes the effective range values
+        // This ensures tokens with different per-token ranges get separate RANGE nodes
+        const groupKey = `${suffix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}`;
+
+        const existing = rangeGroups.get(groupKey);
+        if (existing) {
+          existing.tokens.push(token);
+        } else {
+          rangeGroups.set(groupKey, {
+            suffix,
+            min: hasMin ? effective.min! : undefined,
+            max: hasMax ? effective.max! : undefined,
+            tokens: [token],
+          });
+        }
       }
 
-      // For each unique suffix, create a RANGE node
-      // When both min and max are set, compiler normalizes into AND(≥min, ≤max)
-      for (const [suffix] of suffixGroups) {
-        const rangeNode = range(
-          hasMin ? minValue! : undefined,
-          hasMax ? maxValue! : undefined,
-          suffix
-        );
+      // For each unique (suffix, min, max) combination, create a RANGE node
+      for (const [, group] of rangeGroups) {
+        const rangeNode = range(group.min, group.max, group.suffix);
         andChildren.push(rangeNode);
       }
     } else {
-      // No minimum value: just use the family suffix regex as LITERAL
+      // No effective min/max: just use the family suffix regex as LITERAL
       const uniqueSuffixes = [...new Set(rangedTokens.map(t => t.regex[locale]))];
       const literals = uniqueSuffixes.map(suffix => literal(suffix));
 
@@ -364,6 +407,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const setAffixFilter = useStore(state => state.setAffixFilter);
   const setOriginFilter = useStore(state => state.setOriginFilter);
   const clearSelections = useStore(state => state.clearSelections);
+  const perTokenRanges = useStore(state => state.perTokenRanges);
+  const setTokenRange = useStore(state => state.setTokenRange);
+  const clearTokenRange = useStore(state => state.clearTokenRange);
 
   // Load category data on mount
   useEffect(() => {
@@ -440,7 +486,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
         minValue,
         maxValue,
         round10Enabled,
-        locale
+        locale,
+        perTokenRanges
       );
       if (modAst) {
         andChildren.push(modAst);
@@ -478,7 +525,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       regex: compiledRegex,
       isRegexOverflow: isOverflow(compiledRegex),
     };
-  }, [data, selectedTokens, excludeMode, minValue, maxValue, round10Enabled, locale, extraAstNodes]);
+  }, [data, selectedTokens, excludeMode, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
@@ -510,6 +557,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setMinValue,
     maxValue,
     setMaxValue,
+    perTokenRanges,
+    setTokenRange,
+    clearTokenRange,
     selectedIds,
     searchText,
     affixFilter,

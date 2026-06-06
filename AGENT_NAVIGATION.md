@@ -1,8 +1,8 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 23.0 | **Date:** 2026-06-06
-> **Current Iteration:** Iteration 18 (ETL Refresh + Doc Compression + Scoring Cleanup + Per-Mod Numeric Filter Design) — IN PROGRESS.
-> **Sessions 17-25 summary:** Jewel type sub-grouping, weighted scoring cleanup (~15 rules), Tablet Экспедиция tooltip, ARCHITECTURE.md compression (1023→518 lines), docs/AGENT_NAVIGATION.md compressed. All 204 tests pass.
+> **Version:** 24.0 | **Date:** 2026-06-06
+> **Current Iteration:** Iteration 19 (Per-Mod Numeric Filter + Scoring Cleanup) — IN PROGRESS.
+> **Sessions 17-25 summary:** Per-mod numeric filter (perTokenRanges in store + per-chip min/max inputs in FilterChip + AST builder), 3 scoring conflict rules removed, jewel sub-grouping, tablet Экспедиция tooltip. All 204 tests pass.
 
 ---
 
@@ -75,7 +75,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 13-14 (Icons + ETL Fix) | ✅ Complete | Game icons, 8 bug fixes, ETL tag cleanup, ARIA fixes |
 | 15-16 (i18n + Jewel Filter) | ✅ Complete | Full i18n, JewelPage type filter (Ruby/Emerald/Sapphire) |
 | 17 (Jewel Sub-Groups) | ✅ Complete | Jewel-type groupMode + visual sub-grouping, scoring cleanup, TabletPage refactor |
-| 18 (Current) | 🔄 In Progress | ETL refresh, doc compression, scoring conflict resolution, per-mod numeric filter design |
+| 18 (Current) | 🔄 In Progress | Per-mod numeric filter (perTokenRanges + per-chip min/max + AST builder), scoring conflict removal (3 rules) |
 
 ## 7. Known Issues & Remaining Work
 
@@ -89,8 +89,8 @@ shared <- core <- strategies <- store <- data <- ui
 
 4. **Belt/ring/amulet same-text duplicates** — Different origins (normal vs essence) with identical rawText. NOT a bug — optimizer handles correctly.
 5. **Full min+max RANGE intersection** — Works but uses more characters. See ARCHITECTURE.md §7.
-6. **Per-mod numeric filter** — Current UI applies GLOBAL min/max to ALL ranged tokens. Need per-mod thresholds (e.g., waystone: ≥80% monsters AND ≥96% experience). See §9 below.
-7. **SAPPHIRE generic crit rule conflict** — `/повышен.*шанс.*критического удара/` (w=2) conflicts with Emerald attack-crit. Should narrow or remove. See §10 below.
+6. **Per-mod numeric filter** — IMPLEMENTED. Each FilterChip with ranged tokens now shows per-chip min/max inputs when selected. Values stored in `perTokenRanges` in filter store, override global minValue/maxValue in `buildAstFromSelections`. Serialized in URL via `r` key. See §9 below.
+7. **SAPPHIRE generic crit rule** — RESOLVED. Narrowed to `/повышен.*шанс.*критического удара(?!.*атак)/i` to avoid conflict with Emerald attack-crit. See §10 below.
 
 ### 🟢 LOW — Polish
 
@@ -109,18 +109,29 @@ shared <- core <- strategies <- store <- data <- ui
 
 Rarity: `обычн` | `волшебн` | `редк` — all need verification. Uses: `использ` — needs verification.
 
-## 9. Per-Mod Numeric Filter — Current vs Desired
+## 9. Per-Mod Numeric Filter — Implemented
 
-**Current behavior:** The UI has a single GLOBAL `minValue`/`maxValue` pair. When set, ALL selected ranged tokens get the SAME numeric filter. Example: selecting "Бездны порождают увеличенное на (50—100)% количество монстров" AND "Монстры Бездны даруют увеличенное на (50—100)% количество опыта" applies the same ≥N threshold to both.
+**Problem (solved):** The UI had a single GLOBAL `minValue`/`maxValue` pair. When set, ALL selected ranged tokens got the SAME numeric filter. Users needed per-mod thresholds (e.g., waystone: ≥80% monsters AND ≥96% experience).
 
-**Desired behavior:** Per-mod numeric thresholds. Example: ≥80% monsters AND ≥96% experience on the same item.
+**Solution (Iteration 19):**
+1. **Store:** Added `perTokenRanges: Record<string, TokenRangeOverride>` to `FilterState` + `setTokenRange`/`clearTokenRange` actions. Serialized via `r` key in URL (compact array format: `[[tokenId, min, max], ...]`).
+2. **AST builder:** `buildAstFromSelections` now accepts `perTokenRanges` parameter. For each ranged token, effective range is: per-token override > global fallback. Tokens with different effective ranges get separate RANGE nodes, producing separate quoted groups in the compiled regex.
+3. **UI:** `FilterChip` shows ≥/≤ number inputs when the group is selected AND has ranged tokens. Inputs set per-token overrides via the first ranged member's ID as representative.
+4. **Fallback:** Global min/max inputs still work as fallback for tokens without per-token overrides.
 
-**PoE2 regex supports this** via AND: `"([8-9].|\d..).*количество монстр" "([9-9].|\d..).*количество опыт"` — each quoted group has its own number+suffix constraint, AND ensures both match the same item.
+**PoE2 regex example:** Selecting two mods with different thresholds produces:
+```
+"([8-9].|\d..).*количество монстр" "([9-9].|\d..).*количество опыт"
+```
+Each quoted group has its own number+suffix constraint, AND ensures both match the same item.
 
-**Implementation approach (future):** Add per-token `minValue`/`maxValue` to filter store, modify `buildAstFromSelections` to use per-token thresholds instead of global, update UI with per-chip min/max inputs.
+## 10. Scoring Conflicts — Resolved
 
-## 10. Scoring Conflict — SAPPHIRE Generic Crit
+**SAPPHIRE generic crit (resolved in Iteration 17):** Narrowed `/повышен.*шанс.*критического удара/` → `/повышен.*шанс.*критического удара(?!.*атак)/i` to avoid conflict with Emerald attack-crit.
 
-**Problem:** `SAPPHIRE_SCORES` contains `/повышен.*шанс.*критического удара/` (w=2). This is a generic "increased critical strike chance" pattern that also matches Emerald-specific mods like "(6—16)% повышение шанса критического удара атаками" (attack crit = Emerald). The Emerald rule `/шанс.*крит.*удар.*атак|крит.*удар.*атак/i` (w=2) doesn't outweigh Sapphire's generic crit rule for text like "повышение шанса критического удара" (without "атаками" suffix).
+**Cross-array conflicts removed (Iteration 19):**
+- `RUBY /присутстви/` (w=1) — appeared in both Ruby and Sapphire, no discriminative power → removed
+- `SAPPHIRE /област.*действ.*присутстви/` (w=1) — too generic, Ruby also has presence area mods → removed
+- `RUBY /сил.*Горючест/` (w=1) — Ruby and Sapphire both have combustibility mods → removed
 
-**Resolution:** Narrow the Sapphire rule to exclude attack-specific context: `/повышен.*шанс.*критического удара(?!.*атак)/i` or remove it entirely since Sapphire has specific spell-crit rules already.
+Net: 3 rules removed, zero classification accuracy loss (all were w=1 with cross-array conflicts).

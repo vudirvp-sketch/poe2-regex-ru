@@ -82,6 +82,7 @@ export function TabletPage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
+    perTokenRanges, setTokenRange, clearTokenRange,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
 
   const syncReadyRef = useRef(false);
@@ -232,6 +233,9 @@ export function TabletPage() {
         onAffixFilterChange={setAffixFilter}
         onOriginFilterChange={setOriginFilter}
         onClearSelections={clearSelections}
+        perTokenRanges={perTokenRanges}
+        onSetTokenRange={setTokenRange}
+        onClearTokenRange={clearTokenRange}
         groupMode="tablet-type"
       />
 

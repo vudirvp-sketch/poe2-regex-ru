@@ -75,6 +75,7 @@ export function JewelPage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
+    perTokenRanges, setTokenRange, clearTokenRange,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -165,6 +166,9 @@ export function JewelPage() {
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
               onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
               groupMode="origin"
               showJewelTypeSubGroups
               jewelTypeFilter={jewelTypeFilter}

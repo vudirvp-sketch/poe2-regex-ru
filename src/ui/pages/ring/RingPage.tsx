@@ -23,6 +23,7 @@ export function RingPage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
+    perTokenRanges, setTokenRange, clearTokenRange,
   } = useCategoryPage({ categoryId: 'ring' });
 
   return (
@@ -71,6 +72,9 @@ export function RingPage() {
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
               onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
               groupMode="affix-semantic"
               showOriginSubSections
             />

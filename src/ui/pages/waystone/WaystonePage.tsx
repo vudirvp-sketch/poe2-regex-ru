@@ -47,6 +47,7 @@ export function WaystonePage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
+    perTokenRanges, setTokenRange, clearTokenRange,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
@@ -137,6 +138,9 @@ export function WaystonePage() {
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
               onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
               groupMode="affix-sentiment"
             />
 

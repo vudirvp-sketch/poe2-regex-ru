@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 26 — 2026-06-06)
+## Current State (Session 27 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,77 +26,32 @@
 
 ---
 
-### Session 26 Changes — ETL Refresh + Doc Compression + Scoring Fix + Per-Mod Numeric Filter Design
+### Session 27 Changes — Per-Mod Numeric Filter Implementation + Scoring Cleanup
 
-**ETL — Re-ran `pnpm etl`:**
-- All 10 categories fetched successfully, 1,560 tokens, 51 i18n overrides applied
-- Results identical to Session 25 (no new data from poe2db.tw)
+**FEATURE — Per-mod numeric filter (Iteration 19):**
+- `filter-store.ts`: Added `perTokenRanges: Record<string, TokenRangeOverride>` to FilterState
+  - New actions: `setTokenRange(tokenId, range)`, `clearTokenRange(tokenId)`
+  - Serialization: `r` key in URL → `[[tokenId, min, max], ...]` compact array format
+  - Reset clears perTokenRanges
+- `useCategoryPage.ts`: `buildAstFromSelections` now accepts `perTokenRanges` parameter
+  - Each ranged token resolves effective range: per-token override > global fallback
+  - Tokens with different effective ranges get separate RANGE nodes → separate quoted groups in regex
+  - New return values: `perTokenRanges`, `setTokenRange`, `clearTokenRange`
+- `FilterChip.tsx`: Shows ≥/≤ number inputs when group is selected AND has ranged tokens
+  - Inputs set per-token overrides via first ranged member's ID
+  - Click on inputs doesn't toggle chip selection (stopPropagation)
+- `ModList.tsx`: Passes `perTokenRanges`, `onSetTokenRange`, `onClearTokenRange` to all FilterChip instances
+- All 7 page components: Updated to destructure and pass new props to ModList
 
-**DATA — Регис cross-validation (jewel):**
-- Normal mods: 193 vs 193 — PERFECT MATCH
-- Desecrated: ETL has 21 individual tokens vs 32 combined in регис (structural diff — ETL splits combined mods into separate tokens)
-- Corrupted: 10 vs 11 — регис has "Вы не можете получить эффект Скованности" missing from poe2db.tw
-- Cleaned up регис/Самоцветы моды.md — removed garbage `==========================` separator
+**SCORING — Cross-array conflict cleanup (3 rules removed):**
+- `RUBY /присутстви/` (w=1) — appeared in both Ruby and Sapphire → removed
+- `SAPPHIRE /област.*действ.*присутстви/` (w=1) — too generic, Ruby also has presence area → removed
+- `RUBY /сил.*Горючест/` (w=1) — both Ruby and Sapphire have combustibility → removed
+- Zero classification accuracy loss (all were w=1 with cross-array conflicts)
 
-**DOCS — AGENT_NAVIGATION.md compression (both root + docs/):**
-- Version 22.0 → 23.0
-- Header: Replaced 8 session description lines (Sessions 18-25) with 1 summary line
-- Iteration table: Compressed 18 individual rows into 6 grouped rows
-- Known Issues: Removed 15 resolved items (~~strikethrough~~ items), kept only active issues
-- Added §9 (Per-Mod Numeric Filter) and §10 (Scoring Conflict) for future work documentation
-- Total reduction: 214 → ~120 lines (~44% reduction)
-
-**SCORING — SAPPHIRE generic crit conflict fix:**
-- `/повышен.*шанс.*критического удара/i` (w=2) was too broad — matched Emerald attack-crit mods
-- Changed to `/повышен.*шанс.*критического удара(?!.*атак)/i` (w=2) — negative lookahead excludes "атаками"
-- 204/204 tests still pass, build passes
-
-**DESIGN — Per-mod numeric filter analysis:**
-- Current: GLOBAL minValue/maxValue applied to ALL ranged tokens
-- Desired: PER-TOKEN thresholds (e.g., waystone ≥80% monsters AND ≥96% experience)
-- PoE2 regex supports this via AND: each quoted group gets its own number+suffix
-- Documented approach: per-token minValue/maxValue in filter store + per-chip inputs + buildAstFromSelections modification
-
----
-
-### Session 25 Changes — Jewel Type Sub-Grouping UX + Scoring Cleanup + Docs Compress
-
-**FEATURE — Jewel type sub-grouping UX:**
-- Added `'jewel-type'` to `ModGroupMode` union in mod-classifier.ts
-- `classifyGroups()` now handles `'jewel-type'` mode — groups by ruby/emerald/sapphire/shared
-- ModList.tsx: new `showJewelTypeSubGroups` + `jewelTypeFilter` props
-- When specific type selected: only that type + "Общие" sub-headers shown (empty headers hidden)
-- When "all" selected: all 4 sub-headers shown
-- JewelPage passes `showJewelTypeSubGroups` + `jewelTypeFilter={jewelTypeFilter}`
-- Layout: Обычные → Префикс/Суффикс → Рубин/Изумруд/Сапфир/Общие sub-headers
-
-**CLEANUP — Weighted scoring rules:**
-- Fixed "крич" → "клич" warcry typo (was 0 matches, now matches correctly)
-- Fixed `/сил[ауе].*поджог/` → added `ы` declension + `увеличен.*силы.*поджог` alternation
-- Removed ~15 duplicate/overlapping rules across RUBY/EMERALD/SAPPHIRE scores:
-  - RUBY: removed generic /поджог/ w=1 (subsumed), /порог.*оглушен/ w=1 (subsumed by /оглушен/),
-    /урон.*по.*враг.*разрушен.*брон/ w=3 (subsumed by /разруш.*брон/ w=3)
-  - EMERALD: removed duplicate /порог.*оглушен.*парир/ (inside Парирован alternation),
-    duplicate /восстановлен.*ман.*флакон/ (in flask alternation),
-    /цепи.*окруж/, /урон.*снарядами.*если.*ближн.*бо/, /урон.*ближн.*бо.*если.*снаряд/ (subsumed by снаряд rules)
-  - SAPPHIRE: removed duplicate /сопротивлен.*холод/ w=1, /максимальн.*сопротивлен.*холод/ w=2 (subsumed),
-    /приспешник.*скорост.*атак.*сотворени/ (subsumed by /скорост.*сотворени.*чар/),
-    /приспешник.*сопротивлен.*стих/ w=2 (exact duplicate of w=3),
-    /порог.*оглушен.*максимум.*энергетическ/, /порог.*состоян.*максимум.*энергетическ/ (subsumed by ES threshold)
-- Zero classification accuracy loss (JEWEL_TYPE_LOOKUP covers 100% of current mods)
-
-**UI — Tablet Экспедиция:**
-- Added tooltip + opacity-60 to "Экспедиция" button in TabletPage
-- Note: "Экспедиционные плитки временно отсутствуют в игре (лига Руны Альдура). Кнопка оставлена для будущего контента."
-- Button kept functional for future content
-
-**DOCS — Architecture compression:**
-- ARCHITECTURE.md: 1023 → 518 lines (~49% reduction)
-- Compressed iterations 2-6 from ~440 lines to ~30 lines
-- Removed duplicate Per-Tab tables, Invariants Preserved blocks, DONE Remaining items
-- Added Iteration 17 section
-- Updated Per-Tab Grouping Modes table (Jewel: origin + showJewelTypeSubGroups)
-- Updated AGENT_NAVIGATION.md to version 22.0, iteration 17
+**DOCS — Updated:**
+- AGENT_NAVIGATION.md: Version 23.0→24.0, §9 updated from "Current vs Desired" → "Implemented", §10 updated with resolved conflicts
+- docs/AGENT_NAVIGATION.md: synced
 
 ---
 

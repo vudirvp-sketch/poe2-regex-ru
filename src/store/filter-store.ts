@@ -7,6 +7,12 @@
 import { create } from 'zustand';
 import type { AffixType, ModOrigin } from '@shared/types';
 
+/** Per-token numeric range override */
+export interface TokenRangeOverride {
+  min?: number;
+  max?: number;
+}
+
 /** A single filter state for a category */
 export interface FilterState {
   /** Set of selected token IDs */
@@ -19,6 +25,10 @@ export interface FilterState {
   originFilter: ModOrigin | null;
   /** Extra state for category-specific filters (e.g., waystone toggles, tablet types) */
   extraState: Record<string, unknown>;
+  /** Per-token numeric range overrides. Key = token ID, value = {min?, max?}.
+   *  When set, takes priority over global minValue/maxValue for that token.
+   *  Stored in extraState for URL sync. */
+  perTokenRanges: Record<string, TokenRangeOverride>;
 }
 
 /** Actions for the filter store */
@@ -41,6 +51,10 @@ export interface FilterActions {
   setExtraState: (key: string, value: unknown) => void;
   /** Get extra state value */
   getExtraState: (key: string) => unknown;
+  /** Set per-token numeric range override */
+  setTokenRange: (tokenId: string, range: TokenRangeOverride) => void;
+  /** Clear per-token numeric range override */
+  clearTokenRange: (tokenId: string) => void;
   /** Reset all filters */
   resetFilters: () => void;
   /** Get the current state as a serializable object (for URL sync) */
@@ -62,6 +76,7 @@ export function createFilterStore() {
     affixFilter: null,
     originFilter: null,
     extraState: {},
+    perTokenRanges: {},
 
     toggleToken: (id: string) =>
       set((state) => {
@@ -111,6 +126,17 @@ export function createFilterStore() {
 
     getExtraState: (key: string) => get().extraState[key],
 
+    setTokenRange: (tokenId: string, range: TokenRangeOverride) =>
+      set((state) => ({
+        perTokenRanges: { ...state.perTokenRanges, [tokenId]: range },
+      })),
+
+    clearTokenRange: (tokenId: string) =>
+      set((state) => {
+        const { [tokenId]: _, ...rest } = state.perTokenRanges;
+        return { perTokenRanges: rest };
+      }),
+
     resetFilters: () =>
       set({
         selectedIds: new Set<string>(),
@@ -118,6 +144,7 @@ export function createFilterStore() {
         affixFilter: null,
         originFilter: null,
         extraState: {},
+        perTokenRanges: {},
       }),
 
     serialize: () => {
@@ -132,6 +159,13 @@ export function createFilterStore() {
       if (Object.keys(state.extraState).length > 0) {
         result.x = state.extraState;
       }
+      // Include perTokenRanges only if non-empty
+      if (Object.keys(state.perTokenRanges).length > 0) {
+        // Convert to array format for compact serialization: [[tokenId, min, max], ...]
+        result.r = Object.entries(state.perTokenRanges)
+          .filter(([, v]) => v.min !== undefined || v.max !== undefined)
+          .map(([k, v]) => [k, v.min ?? null, v.max ?? null]);
+      }
       return result;
     },
 
@@ -139,12 +173,26 @@ export function createFilterStore() {
       const selectedIds = new Set<string>(
         Array.isArray(data.s) ? data.s as string[] : []
       );
+      // Deserialize perTokenRanges from array format
+      let perTokenRanges: Record<string, TokenRangeOverride> = {};
+      if (Array.isArray(data.r)) {
+        for (const entry of data.r as [string, number | null, number | null][]) {
+          const [tokenId, min, max] = entry;
+          const override: TokenRangeOverride = {};
+          if (min !== null && min !== undefined) override.min = min;
+          if (max !== null && max !== undefined) override.max = max;
+          if (override.min !== undefined || override.max !== undefined) {
+            perTokenRanges[tokenId] = override;
+          }
+        }
+      }
       set({
         selectedIds,
         searchText: (data.t as string) || '',
         affixFilter: (data.a as AffixType) || null,
         originFilter: (data.o as ModOrigin) || null,
         extraState: (data.x as Record<string, unknown>) || {},
+        perTokenRanges,
       });
     },
   }));

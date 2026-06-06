@@ -23,6 +23,7 @@ export function AmuletPage() {
     selectedIds, searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
+    perTokenRanges, setTokenRange, clearTokenRange,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -71,6 +72,9 @@ export function AmuletPage() {
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
               onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
               groupMode="affix-semantic"
               showOriginSubSections
             />
