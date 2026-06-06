@@ -4,39 +4,33 @@
 
 ---
 
-## Current State (Session 39 — 2026-06-07)
+## Current State (Session 40 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (437/437 tests)
 **Oracle:** FP=3715, FN=0 in generated JSON files. Most FP are family-tier FP (by design).
 
-**Key Changes This Session (Phase 7 In-Game Verification):**
+**Key Changes This Session (Prefix Anchoring Simplification):**
 
-1. **CRITICAL: `.*` does NOT cross mod/implicit/property boundaries** — verified in-game.
-   - Tests 2.1, 2.4, 3.1, 7.3, 9.3 all negative — `.*` restricted to single block
-   - AND (`"X" "Y"`) DOES cross blocks — tests 2.3, 3.3 positive
+1. **Prefix anchoring simplified** — `extractTemplatePrefix()` in compute-regex.ts now returns empty string for ALL single-number mods. Only dual-number mods (templates with "до" between # placeholders) get a prefix. This is safe because `.*` does NOT cross block boundaries (verified in-game Phase 7), so cross-mod FP is impossible.
 
-2. **Block-based matching model implemented** — `matchPoE2RegexItem()` in poe2-regex-matcher.ts
-   - Each mod, implicit, property, name, type, state text = separate searchable block
-   - `getItemSearchBlocks()` returns array of blocks
-   - `matchPoE2RegexItem()` checks each quoted group against each block independently
-   - Negation `!X` is item-wide (excludes if X found in ANY block)
+2. **run-etl.ts updated** — `extractTemplatePrefixForOverride()` follows the same simplified logic.
 
-3. **Description/tooltip text is NOT indexed** — verified in-game (tests 1.6, 7.2, 12.2)
-   - Added `description` field to `GameItemText` interface
-   - Moved description text from `additional` to `description` in test items
-   - `getItemSearchBlocks()` and `getItemSearchText()` exclude `description`
+3. **Documentation updated:**
+   - ARCHITECTURE.md: Section 7 "Prefix anchoring" rewritten
+   - DATA_CONTRACTS.md: `regexPrefix` and `prefix` comments updated
+   - AGENT_NAVIGATION.md: Removed stale CRITICAL issues (H4, cross-mod FP)
+   - новый_план.md: Updated to version 8.0
 
-4. **`?` (optional) does NOT work** — verified in-game (test 13.1)
+4. **types.ts & compiler.ts** — Comments updated to reflect prefix is dual-number only
 
-5. **`(` is literal when unmatched** — verified in-game (test 10.3)
-
-6. **437 tests pass** — 28 new block-based tests + updated hypothesis expectations
+**Impact:** After ETL re-run, `regexPrefix` will be empty for ~95% of tokens, producing shorter RANGE regexes in the compiler. Dual-number mods like "От ## до ## урона" still get "От" as prefix.
 
 **NOT YET DONE:**
-- ⬜ Simplify prefix anchoring (less critical now that cross-mod FP doesn't exist)
-- ⬜ Re-run ETL with updated matcher model
-- ⬜ Fix tablet "использ" suffix in generated data (replace with "зарядов")
+- ⬜ Re-run ETL (`pnpm etl`) to regenerate JSON with simplified prefix
 - ⬜ Phase 8: Cross-family FP reduction using block-based model
+- ⬜ Integrate matchPoE2RegexItem in Oracle
+- ⬜ Remove deprecated getItemSearchText(), replace with getItemSearchBlocks()
+- ⬜ jewel-corrupted → add to STRICT_CATEGORIES
 
 ---
 

@@ -13,6 +13,9 @@ export interface CompileOptions {
  * - AND children each get their own quoted group. Space between = AND.
  * - OR children share a single quoted group, separated by |.
  * - RANGE + suffix combines with .* inside a single quoted group.
+ * - RANGE + prefix: prefix is only used for dual-number mods ("От ## до ## ...")
+ *   to anchor the number to the correct position within the same block.
+ *   Since .* does NOT cross block boundaries, prefix is not needed for single-number mods.
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
  *
@@ -120,7 +123,7 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
         if (ast.suffix) {
-          // With prefix: "prefix numRegex.*suffix" — anchors number to correct mod line
+          // With prefix: "prefix numRegex.*suffix" — anchors number within same block (dual-number only)
           if (ast.prefix) return `${ast.prefix} ${numRegex}.*${ast.suffix}`;
           return `${numRegex}.*${ast.suffix}`;
         }

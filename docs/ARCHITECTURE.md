@@ -192,14 +192,16 @@ RANGE(40, 80, 'm q')  →  "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
 ```
 When a RANGE(min,max) is a child of AND, the expansion flattens into the parent AND to avoid double-quoting.
 
-### Prefix anchoring (solves `.*` cross-boundary problem)
-When a number is NOT at the start of a mod, `.*` can match a number in a DIFFERENT mod. Prefix anchoring inserts text before the number:
+### Prefix anchoring (dual-number disambiguation only)
+Since `.*` does NOT cross block boundaries (verified in-game Phase 7), cross-mod FP is impossible. Prefix anchoring is only needed for **dual-number mods** where the template has "до" between ## placeholders (e.g., "От ## до ## урона"). The prefix "От" ensures the number regex targets the first placeholder, not the second.
+
+For single-number mods, prefix is always empty — `.*` within a single block cannot accidentally match a number from a different mod.
 ```
-Without: (2[5-9]|30).*количество монстров   ← false positive!
-With:    увеличенное на (2[5-9]|30).*количество монстров   ← anchored to correct mod
+Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to first number
+Single-number: "(numRegex).*к сопротивлению огню"  ← no prefix needed, .* stays within block
 ```
-- **When prefix NOT needed:** Number at start (nothing before it for `.*` to cross)
-- **When prefix IS critical:** Number after "на", "увеличенное на", "даруют на" etc.
+- **When prefix is needed:** Dual-number mods ("От ## до ## ...", "Добавляет от ## до ## ...")
+- **When prefix is NOT needed:** All single-number mods (.* can't cross blocks)
 - Implementation: `regexPrefix` field on GameToken, `prefix` param on RANGE AST node
 
 ### Per-token exact regex (no round10)

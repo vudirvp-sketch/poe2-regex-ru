@@ -35,9 +35,11 @@ export interface RegexResult {
   yoficationPositions: number[];
   /** Family key: normalized rawTextTemplate for grouping mods of the same family */
   familyKey: string;
-  /** Regex prefix: text before the first ##/# placeholder, used to anchor
-   *  numeric regex to the correct mod line. Prevents .* from crossing mod boundaries.
-   *  Empty string if number is at start of template or prefix is too short. */
+  /** Regex prefix: text before the first ##/# placeholder, used for disambiguation
+   *  in dual-number mods (e.g., "От ## до ## урона" → prefix="От").
+   *  Since .* does NOT cross block boundaries (verified in-game Phase 7),
+   *  prefix is only needed when a template has multiple # placeholders
+   *  separated by "до". Empty string for all other mods. */
   regexPrefix: string;
   /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat mods).
    *  Used downstream to determine correct range slot for numeric filtering. */
@@ -166,23 +168,29 @@ function extractExtendedSuffix(template: string): string {
 
 /**
  * Extract the "regex prefix" from a rawTextTemplate.
- * This is the text BEFORE the first ## or # placeholder,
- * trimmed to the last 2-3 words.
+ * ONLY used for dual-number mods (templates with "до" between ## placeholders).
  *
- * The prefix anchors the number regex to the correct mod line,
- * preventing .* from crossing mod boundaries.
+ * Since .* does NOT cross block boundaries (verified in-game Phase 7),
+ * cross-mod FP is impossible. Prefix anchoring is only needed to
+ * disambiguate which number in a dual-number mod the regex targets.
  *
- * For dual-number mods (templates with "до" between ## placeholders,
- * e.g., "От ## до ## урона"), even short prefixes like "От" are
- * preserved because they anchor the number to the correct position.
+ * For single-number mods, prefix is always empty — .* within a single
+ * block cannot accidentally match a number from a different mod.
  *
  * Examples:
- *   "Боссы карт даруют на ##% больше опыта" → "даруют на" (last 2 words before ##)
- *   "##% повышение редкости..." → "" (number at start, no prefix needed)
- *   "От ## до ## физического урона" → "От" (short but critical for dual-number)
+ *   "От ## до ## физического урона" → "От" (dual-number: anchors to first number)
  *   "Добавляет от ## до ## физического урона к атакам" → "Добавляет от"
+ *   "Боссы карт даруют на ##% больше опыта" → "" (single-number: no prefix needed)
+ *   "##% повышение редкости..." → "" (number at start, no prefix needed)
  */
 function extractTemplatePrefix(template: string): string {
+  // Detect dual-number template: contains "до" between # placeholders
+  // (Russian "from X to Y" pattern: "От/от ## до ## ...")
+  const isDualNumber = /\d*#\s*до\s*#/.test(template) || /#\s*до\s*#/.test(template);
+
+  // Single-number mods don't need prefix — .* can't cross block boundaries
+  if (!isDualNumber) return '';
+
   // Find the first ## or #
   let firstHashIdx = -1;
   for (let i = 0; i < template.length; i++) {
@@ -204,25 +212,16 @@ function extractTemplatePrefix(template: string): string {
   // Remove trailing non-letter characters (like '+', '(', etc.)
   prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
 
-  // Detect dual-number template: contains "до" between ## placeholders
-  // (Russian "from X to Y" pattern: "От/от ## до ## ...")
-  const isDualNumber = /\d*#\s*до\s*#/.test(template) || /#\s*до\s*#/.test(template);
-
-  // Minimum prefix length: 2 for dual-number mods (short prefixes like "От"
-  // are critical for anchoring), 5 for single-number mods
-  const minPrefixLen = isDualNumber ? 2 : 5;
-  if (prefix.length < minPrefixLen) return '';
+  // Minimum prefix length for dual-number mods: 2 chars ("От" is valid)
+  if (prefix.length < 2) return '';
 
   // Take the last 2-3 words to keep the prefix short
-  // This is a balance between uniqueness and regex length
   const words = prefix.split(/\s+/);
   if (words.length > 3) {
-    // Take last 3 words (but ensure minimum 5 chars)
     let result = words.slice(-3).join(' ');
-    // If still too long, try 2 words
     if (result.length > 25) {
       const twoWords = words.slice(-2).join(' ');
-      if (twoWords.length >= 5) result = twoWords;
+      if (twoWords.length >= 2) result = twoWords;
     }
     return result;
   }

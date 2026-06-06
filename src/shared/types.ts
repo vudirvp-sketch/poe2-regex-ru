@@ -22,9 +22,9 @@ export interface GameToken {
   regex: Record<Locale, string>;
   /** Family key: normalized rawTextTemplate for grouping mods of the same family */
   familyKey: Record<Locale, string>;
-  /** Regex prefix: text before the number placeholder, used to anchor number
-   *  to the correct mod line. Prevents .* from crossing mod boundaries.
-   *  Example: "даруют на" for "Боссы карт даруют на ##% больше опыта" */
+  /** Regex prefix: text before the number placeholder, used for disambiguation
+   *  in dual-number mods only (e.g., "От" for "От ## до ## урона").
+   *  Since .* does NOT cross block boundaries, prefix is empty for single-number mods. */
   regexPrefix: Record<Locale, string>;
   /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat).
    *  Used for numeric filtering: dual-number mods filter by ranges[0] (first placeholder). */
@@ -87,3 +87,4 @@ export type ASTNode =
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
   | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };
+// prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block

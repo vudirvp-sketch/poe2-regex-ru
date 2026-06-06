@@ -32,7 +32,7 @@ export interface GameToken {
   rawTextTemplate: Record<Locale, string>; // with ## for ranges, # for values
   regex: Record<Locale, string>;           // pre-computed minimal unique substring
   familyKey: Record<Locale, string>;       // normalized rawTextTemplate for grouping mods of the same family
-  regexPrefix: Record<Locale, string>;     // text before number placeholder, anchors number to correct mod line
+  regexPrefix: Record<Locale, string>;     // text before number placeholder, dual-number mods only
   hasMultiPlaceholder: boolean;            // template has multiple ##/# (dual-number or dual-stat)
   jewelType?: JewelType;                   // only for jewel category; populated by ETL from ModCalc pages
   genderForms: Record<Locale, GenderForms>;
@@ -97,7 +97,7 @@ export type ASTNode =
   | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };
 ```
 
-- `prefix`: text before number, anchors regex to correct mod line
+- `prefix`: text before number, only for dual-number mods ("От ## до ## ..."). Empty for single-number mods since .* can't cross blocks.
 - `exact`: when true, skip round10 for precise per-token numeric filter
 
 ## 6. Internal ID Schema
@@ -120,14 +120,14 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 | `EXCLUDE(OR([A,B]))` | `"!A\|B"` | `"!проклят\|сопротивлен"` | Yes |
 | `LITERAL("цепя")` | `"цепя"` | (from pre-computed regex) | Yes |
 | `RANGE(min=40, suffix="m q")` | `"([4-9].\|\d..).*m q"` | (with round10) | Yes |
-| `RANGE(min=40, suffix="m q", prefix="даруют на")` | `"даруют на ([4-9].\|\d..).*m q"` | (prefix anchored) | Yes |
+| `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9].\|\d..).*m q"` | (dual-number prefix) | Yes |
 | `AND([RANGE(...), LITERAL(...)])` | `"rangeRegex" "literal"` | | Yes |
 
 **Key rules:**
 - Each AND child gets its own quoted group. Space between groups = AND (order-independent)
 - OR children share a single quoted group, separated by `|`
-- `.*` crosses mod boundaries — do NOT use for number + specific mod text across different mods
-- `.*` is ONLY safe for number + suffix within the SAME mod
+- `.*` does NOT cross block boundaries — safe for number + suffix within the SAME mod block
+- `.*` is ONLY safe for number + suffix within the SAME block
 - `!` must be INSIDE quotes: `"!A|B"` not `!"A|B"`
 
 ## 8. JSON File Format (public/generated/*.json)

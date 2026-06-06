@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 33.0 | **Date:** 2026-06-07
+> **Version:** 34.0 | **Date:** 2026-06-07
 
 ---
 
@@ -66,29 +66,23 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
-### CRITICAL
-
-1. **Tablet "зарядов" suffix bug (H4)** — "использ" suffix matches "использовать" in description, not charges line. Actual charges word is "зарядов". Number appears AFTER word (reverse `.*` direction). Needs in-game verification.
-
 ### HIGH
 
-2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
-3. **Фаза 7: In-game верификация** — Validate hypotheses H1-H9 in PoE2 client
-4. **Cross-mod FP with number + suffix** — Number from mod A can anchor to suffix from mod B via `.*`. Prefix anchoring needed.
+1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
+2. **Cross-family regex conflicts** — ~90 true cross-family FP in amulet (most "FP" are family-tier matches by design)
 
 ### MEDIUM
 
-3. **Cross-family regex conflicts** — ~90 true cross-family FP in amulet (most "FP" are family-tier matches by design)
-4. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
-5. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
-6. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-7. **HomePage hardcoded mod counts** — Category cards show stale counts
+3. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
+4. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
+5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+6. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-8. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-9. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-10. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+9. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Data Stats
 

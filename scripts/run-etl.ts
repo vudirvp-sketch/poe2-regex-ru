@@ -157,9 +157,14 @@ function normalizeTemplate(template: string): string {
 
 /**
  * Extract the "regex prefix" from a rawTextTemplate (same logic as compute-regex.ts).
- * For dual-number mods (template contains "до" between #), min prefix = 2 chars.
+ * ONLY used for dual-number mods — single-number mods don't need prefix
+ * since .* does NOT cross block boundaries (verified in-game Phase 7).
  */
 function extractTemplatePrefixForOverride(template: string): string {
+  // Only dual-number mods need prefix
+  const isDualNumber = /\d*#\s*до\s*#/.test(template) || /#\s*до\s*#/.test(template);
+  if (!isDualNumber) return '';
+
   let firstHashIdx = -1;
   for (let i = 0; i < template.length; i++) {
     if (template[i] === '#') {
@@ -173,16 +178,14 @@ function extractTemplatePrefixForOverride(template: string): string {
   let prefix = template.substring(0, firstHashIdx).trim();
   prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
 
-  const isDualNumber = /#\s*до\s*#/.test(template);
-  const minPrefixLen = isDualNumber ? 2 : 5;
-  if (prefix.length < minPrefixLen) return '';
+  if (prefix.length < 2) return '';
 
   const words = prefix.split(/\s+/);
   if (words.length > 3) {
     let result = words.slice(-3).join(' ');
     if (result.length > 25) {
       const twoWords = words.slice(-2).join(' ');
-      if (twoWords.length >= minPrefixLen) result = twoWords;
+      if (twoWords.length >= 2) result = twoWords;
     }
     return result;
   }
