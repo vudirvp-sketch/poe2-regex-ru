@@ -2,6 +2,7 @@ export type Locale = 'ru';  // Future: | 'en'
 export type AffixType = 'prefix' | 'suffix';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
 export type SearchLogic = 'and' | 'or';
+export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 
 export interface GenderForms {
   ms?: string;  // masculine singular
@@ -28,6 +29,9 @@ export interface GameToken {
   /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat).
    *  Used for numeric filtering: dual-number mods filter by ranges[0] (first placeholder). */
   hasMultiPlaceholder: boolean;
+  /** Jewel type classification (only for jewel category). Populated by ETL from
+   *  poe2db ModCalc pages. 'shared' if mod appears on multiple jewel types or unknown. */
+  jewelType?: JewelType;
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];

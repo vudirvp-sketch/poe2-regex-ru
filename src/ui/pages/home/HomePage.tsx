@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { t } from '@shared/i18n'
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader'
+import { VENDOR_PROPERTIES } from '@data/vendor-properties'
 
 /** Category config for the home page — tag is now dynamically computed */
 const categories = [
@@ -30,8 +31,8 @@ export function HomePage() {
       await Promise.all(categories.map(async (cat) => {
         try {
           if (cat.vendorCount) {
-            // Vendor page has ~50 hardcoded properties, not from JSON
-            result[cat.jsonId] = 50
+            // Vendor properties are in @data/vendor-properties, not from JSON
+            result[cat.jsonId] = VENDOR_PROPERTIES.length
             return
           }
           let data
@@ -85,7 +86,7 @@ export function HomePage() {
         {categories.map(cat => {
           const count = counts[cat.jsonId]
           const tagText = cat.vendorCount
-            ? (count ? `${count}+ ${t('home.properties')}` : '50+ свойств')
+            ? (count ? `${count}+ ${t('home.properties')}` : `... ${t('home.properties')}`)
             : (count ? `${formatCount(count)} ${t('home.mods')}` : '')
 
           return (

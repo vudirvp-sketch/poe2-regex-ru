@@ -135,21 +135,100 @@ export interface CategoryPageState {
  */
 /**
  * Get effective min/max for a token: per-token override > global fallback.
+ * For multi-placeholder tokens (hasMultiPlaceholder), uses filterSlotIndex
+ * from the per-token override to select the correct range slot.
  */
 function getEffectiveRange(
   token: GameToken,
   globalMin: number | null,
   globalMax: number | null,
   perTokenRanges: Record<string, TokenRangeOverride>
-): { min: number | null; max: number | null } {
+): { min: number | null; max: number | null; filterSlotIndex: number } {
   const override = perTokenRanges[token.id];
+  const filterSlotIndex = override?.filterSlotIndex ?? 0;
+
   if (override) {
     return {
       min: override.min ?? globalMin,
       max: override.max ?? globalMax,
+      filterSlotIndex,
     };
   }
-  return { min: globalMin, max: globalMax };
+  return { min: globalMin, max: globalMax, filterSlotIndex: 0 };
+}
+
+/**
+ * Get the actual range values for a token considering filterSlotIndex.
+ * For single-placeholder tokens: returns token.ranges[0].
+ * For multi-placeholder tokens with filterSlotIndex: returns token.ranges[filterSlotIndex].
+ */
+function getTokenRangeForSlot(
+  token: GameToken,
+  filterSlotIndex: number
+): number[] | undefined {
+  if (token.ranges.length === 0) return undefined;
+  if (!token.hasMultiPlaceholder || filterSlotIndex >= token.ranges.length) {
+    return token.ranges[0];
+  }
+  return token.ranges[filterSlotIndex];
+}
+
+/**
+ * Get the regex prefix for a specific placeholder slot in a multi-placeholder token.
+ *
+ * For slot 0: returns the existing token.regexPrefix (text before first ##).
+ * For slot N>0: extracts the text between placeholder N-1 and N from rawTextTemplate,
+ *   trimmed to the last 2-3 words (same logic as extractTemplatePrefix in compute-regex.ts).
+ *
+ * Example: "От ## до ## урона от молнии"
+ *   slot 0 → "От" (text before first ##)
+ *   slot 1 → "до" (text between first and second ##)
+ *
+ * Example: "##% повышение брони, ##% увеличение урона от атак"
+ *   slot 0 → "" (nothing before first ##)
+ *   slot 1 → "повышение брони" (text between first and second ##)
+ */
+function getPrefixForSlot(
+  token: GameToken,
+  locale: Locale,
+  filterSlotIndex: number
+): string {
+  // Slot 0: use the precomputed prefix
+  if (filterSlotIndex === 0) {
+    return token.regexPrefix[locale] ?? '';
+  }
+
+  // For non-zero slots, extract from the template at runtime
+  if (!token.hasMultiPlaceholder) return token.regexPrefix[locale] ?? '';
+
+  const template = token.rawTextTemplate[locale];
+  if (!template) return '';
+
+  // Split template by ## or # sequences to get text segments between placeholders
+  const parts = template.split(/#+/);
+  // parts[0] = before first #, parts[1] = between 1st and 2nd #, etc.
+  // We need parts[filterSlotIndex] = text before the (filterSlotIndex+1)th placeholder
+  if (filterSlotIndex >= parts.length) return '';
+
+  let prefix = parts[filterSlotIndex].trim();
+
+  // Remove trailing non-letter characters (commas, spaces, etc.)
+  prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
+
+  // If the prefix is too short (< 2 chars), it's not useful for anchoring
+  if (prefix.length < 2) return '';
+
+  // Take the last 2-3 words for a short prefix
+  const words = prefix.split(/\s+/);
+  if (words.length > 3) {
+    prefix = words.slice(-3).join(' ');
+    if (prefix.length > 25) {
+      const twoWords = words.slice(-2).join(' ');
+      if (twoWords.length >= 2) prefix = twoWords;
+    }
+  }
+
+  return prefix;
 }
 
 function buildAstFromSelections(
@@ -226,16 +305,18 @@ function buildAstFromSelections(
       }>();
       for (const { token, effective } of tokensWithRange) {
         const suffix = token.regex[locale];
-        const prefix = token.regexPrefix?.[locale] ?? '';
+        // Use slot-specific prefix: for filterSlotIndex=0 use precomputed prefix,
+        // for filterSlotIndex>0 extract from template at runtime
+        const prefix = getPrefixForSlot(token, locale, effective.filterSlotIndex);
         const hasMin = effective.min !== null && effective.min > 0;
         const hasMax = effective.max !== null && effective.max > 0;
 
         // Per-token range override → exact (no round10); global range → not exact
         const isPerToken = !!perTokenRanges[token.id];
 
-        // Create a group key that includes prefix and whether it's per-token exact
-        // This ensures tokens with different per-token ranges or prefixes get separate RANGE nodes
-        const groupKey = `${suffix}::${prefix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}::${isPerToken}`;
+        // Create a group key that includes prefix, filterSlotIndex, and whether it's per-token exact
+        // This ensures tokens with different filterSlotIndex or prefixes get separate RANGE nodes
+        const groupKey = `${suffix}::${prefix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}::${isPerToken}::slot${effective.filterSlotIndex}`;
 
         const existing = rangeGroups.get(groupKey);
         if (existing) {

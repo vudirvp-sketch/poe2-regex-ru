@@ -2,7 +2,7 @@
  * Generate the final JSON files for public/generated/.
  * Assembles CategoryData objects from normalized mods + regex results + optimizations.
  */
-import type { Locale, GameToken, CategoryData, OptimizationEntry } from '../../src/shared/types.js';
+import type { Locale, GameToken, CategoryData, OptimizationEntry, JewelType } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
 import type { RegexResult } from './compute-regex.js';
 import * as fs from 'fs';
@@ -14,7 +14,8 @@ import * as path from 'path';
 export function assembleGameToken(
   mod: NormalizedMod,
   regexResult: RegexResult,
-  locale: Locale = 'ru'
+  locale: Locale = 'ru',
+  jewelType?: JewelType
 ): GameToken {
   return {
     id: mod.id,
@@ -26,6 +27,7 @@ export function assembleGameToken(
     familyKey: { [locale]: regexResult.familyKey },
     regexPrefix: { [locale]: regexResult.regexPrefix },
     hasMultiPlaceholder: regexResult.hasMultiPlaceholder,
+    jewelType,
     genderForms: mod.genderForms,
     affix: mod.affix,
     tags: mod.tags,
@@ -45,7 +47,8 @@ export function assembleCategoryData(
   mods: NormalizedMod[],
   regexResults: Map<string, RegexResult>,
   optimizations: Record<string, OptimizationEntry>,
-  locale: Locale = 'ru'
+  locale: Locale = 'ru',
+  jewelTypeMap?: Record<string, JewelType>
 ): CategoryData {
   const tokens: GameToken[] = mods.map(mod => {
     const regexResult = regexResults.get(mod.id);
@@ -58,7 +61,8 @@ export function assembleCategoryData(
       regexPrefix: '',
       hasMultiPlaceholder: false,
     };
-    return assembleGameToken(mod, result, locale);
+    const jType = jewelTypeMap?.[mod.id];
+    return assembleGameToken(mod, result, locale, jType);
   });
 
   return {

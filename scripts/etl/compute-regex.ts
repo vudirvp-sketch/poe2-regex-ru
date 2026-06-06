@@ -407,20 +407,35 @@ export function computeMinimalUniqueSubstring(
       // strip those out and use only the text between/after placeholders.
       let cleanExtendedSuffix = extendedSuffix;
       if (cleanExtendedSuffix.includes('#')) {
-        // Dual-stat mod: extract the text after the LAST comma+## pattern
-        // from the rawText (which has actual numbers instead of ##).
-        // Example: rawText "(5—10)% повышение брони, (4—8)% увеличение урона от атак"
-        // → extract from last comma: "увеличение урона от атак"
-        const lastCommaIdx = rawText.lastIndexOf(',');
-        if (lastCommaIdx !== -1) {
-          const afterComma = rawText.substring(lastCommaIdx + 1).trim();
-          // Remove leading number/range pattern: "(4—8)% " → "увеличение урона от атак"
-          const strippedAfterComma = afterComma.replace(/^[\d(—\-+%.)\s]+/, '').trim();
-          if (strippedAfterComma.length >= effectiveMinLen) {
-            cleanExtendedSuffix = strippedAfterComma;
-          } else {
-            // If stripped is too short, use the full after-comma text
-            cleanExtendedSuffix = afterComma;
+        // Dual-stat mod: build a TIER-AGNOSTIC extended suffix from the template.
+        // Split template by #+ sequences, take all non-empty text segments,
+        // strip leading non-letters from each, and join.
+        //
+        // Example: template "##% повышение брони, ##% увеличение урона от атак"
+        //   → segments: ["", "% повышение брони, ", "% увеличение урона от атак"]
+        //   → stripped: ["повышение брони,", "увеличение урона от атак"]
+        //   → joined: "повышение брони, увеличение урона от атак"
+        //
+        // This is tier-agnostic (no specific numbers) and more specific than
+        // just the pure suffix "увеличение урона от атак", improving uniqueness.
+        const segments = template.split(/#+/);
+        const textSegments = segments
+          .slice(1)  // skip text before first #
+          .map(seg => seg.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '').trim())
+          .filter(seg => seg.length > 0);
+        const templateSuffix = textSegments.join(' ');
+        if (templateSuffix.length >= effectiveMinLen) {
+          cleanExtendedSuffix = templateSuffix;
+        } else if (rawText.includes(',')) {
+          // Fallback: try extracting after last comma from rawText
+          // (less ideal but sometimes needed for short suffixes)
+          const lastCommaIdx = rawText.lastIndexOf(',');
+          if (lastCommaIdx !== -1) {
+            const afterComma = rawText.substring(lastCommaIdx + 1).trim();
+            const strippedAfterComma = afterComma.replace(/^[\d(—\-+%.)\s]+/, '').trim();
+            cleanExtendedSuffix = strippedAfterComma.length >= effectiveMinLen
+              ? strippedAfterComma
+              : afterComma;
           }
         } else {
           cleanExtendedSuffix = '';
@@ -444,24 +459,29 @@ export function computeMinimalUniqueSubstring(
     // Strategy 1c: Full second stat for dual-stat mods
     // ═══════════════════════════════════════════════════
     // For dual-stat desecrated mods where Strategy 1b couldn't find
-    // a unique suffix after the comma, try the ENTIRE text after
-    // the first ## placeholder from rawText (with numbers substituted).
-    // This is the most specific regex but also the longest.
+    // a unique suffix, try the template-based concatenation of all
+    // text segments (tier-agnostic, no specific numbers).
+    // This produces longer but more specific regexes that work across all tiers.
     if (hasMultiPlaceholder && rawText.includes(',')) {
-      // Extract everything after the first number+non-letter run
-      const firstNumEnd = rawText.search(/[а-яА-ЯёЁ]/);
-      if (firstNumEnd > 0) {
-        const fullSuffix = rawText.substring(firstNumEnd);
-        if (fullSuffix.length >= effectiveMinLen) {
-          const bestFull = findShortestUniqueSuffix(
-            fullSuffix, template, allTokensInCategory, locale, effectiveMinLen
+      // Build template-based suffix: same logic as Strategy 1b but
+      // with a more aggressive approach — use the full template text
+      // between/after all placeholders.
+      const segments = template.split(/#+/);
+      const textSegments = segments
+        .slice(1)
+        .map(seg => seg.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '').trim())
+        .filter(seg => seg.length > 0);
+      const templateFullSuffix = textSegments.join(' ');
+
+      if (templateFullSuffix.length >= effectiveMinLen) {
+        const bestFull = findShortestUniqueSuffix(
+          templateFullSuffix, template, allTokensInCategory, locale, effectiveMinLen
+        );
+        if (bestFull) {
+          const { hasYofication, yoficationPositions } = checkYofication(
+            bestFull, targetToken, allTokensInCategory, locale
           );
-          if (bestFull) {
-            const { hasYofication, yoficationPositions } = checkYofication(
-              bestFull, targetToken, allTokensInCategory, locale
-            );
-            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
-          }
+          return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
         }
       }
     }

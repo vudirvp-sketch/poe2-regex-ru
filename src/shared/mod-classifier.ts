@@ -8,7 +8,7 @@
  * Used by ModList to create semantic sub-groups within prefix/suffix columns.
  */
 
-import type { FamilyGroup, ModOrigin } from './types';
+import type { FamilyGroup, ModOrigin, JewelType } from './types';
 import { splitGroupByOrigin } from './family-grouper';
 import { t } from './i18n';
 
@@ -201,8 +201,9 @@ export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
 
 // ─── Jewel type classification ───
 
-/** Jewel type categories based on which jewel type the mod is associated with */
-export type JewelTypeCategory = 'ruby' | 'emerald' | 'sapphire' | 'shared';
+/** Jewel type categories based on which jewel type the mod is associated with.
+ *  Re-exported from types.ts as JewelType, aliased here for backward compatibility. */
+export type JewelTypeCategory = JewelType;
 
 export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
   ruby:     { label: 'Рубин', colorClass: 'text-red-400' },
@@ -507,16 +508,47 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
 /**
  * Classify a FamilyGroup into jewel type category.
  *
- * Uses weighted keyword scoring: each type's keyword list is tested against
- * the display text, accumulating a score. The type with the highest score
- * wins if it exceeds a minimum threshold and has a clear margin over #2.
- * Otherwise the mod is classified as 'shared'.
+ * Priority:
+ * 1. **Lookup from ETL data**: If all members have `jewelType` field populated
+ *    from the poe2db ModCalc pages, use that directly (100% accuracy).
+ * 2. **Weighted keyword scoring fallback**: If no member has `jewelType`,
+ *    fall back to the heuristic scoring system (~84% accuracy).
  *
- * This approach handles the overlap between jewel type pools better than
- * simple regex OR-groups (e.g., "поджог" appears in Ruby AND Sapphire,
- * "шок" appears in Emerald AND Sapphire, "ман" in Sapphire AND Emerald).
+ * The lookup approach replaces the heuristic for normal jewel mods where
+ * the ETL pipeline has matched modCodes against Ruby/Emerald/Sapphire
+ * ModCalc pages. The heuristic remains as fallback for mods that weren't
+ * matched (e.g., corrupted mods, or when ETL data is outdated).
  */
 export function classifyJewelType(group: FamilyGroup): JewelTypeCategory {
+  // Strategy 1: Lookup from ETL data (100% accurate)
+  // Check if members have jewelType populated from poe2db ModCalc pages
+  if (group.members.length > 0 && group.members[0].jewelType) {
+    // Use majority voting across all members
+    const typeCounts: Record<JewelTypeCategory, number> = {
+      ruby: 0, emerald: 0, sapphire: 0, shared: 0,
+    };
+    for (const member of group.members) {
+      if (member.jewelType) {
+        typeCounts[member.jewelType]++;
+      } else {
+        typeCounts.shared++;
+      }
+    }
+    // Find the most common type (excluding shared)
+    let bestType: JewelTypeCategory = 'shared';
+    let bestCount = 0;
+    for (const [type, count] of Object.entries(typeCounts)) {
+      if (type === 'shared') continue;
+      if (count > bestCount) {
+        bestCount = count;
+        bestType = type as JewelTypeCategory;
+      }
+    }
+    if (bestCount > 0) return bestType;
+    return 'shared';
+  }
+
+  // Strategy 2: Weighted keyword scoring fallback (~84% accuracy)
   const text = group.displayText;
 
   let rubyScore = 0;

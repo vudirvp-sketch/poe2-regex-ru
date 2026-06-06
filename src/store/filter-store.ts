@@ -11,6 +11,10 @@ import type { AffixType, ModOrigin } from '@shared/types';
 export interface TokenRangeOverride {
   min?: number;
   max?: number;
+  /** For multi-placeholder mods (e.g., "От ## до ## урона"), which slot to filter by.
+   *  0 = first placeholder (min damage), 1 = second placeholder (max damage).
+   *  Defaults to 0 if not specified. */
+  filterSlotIndex?: number;
 }
 
 /** A single filter state for a category */
@@ -164,7 +168,7 @@ export function createFilterStore() {
         // Convert to array format for compact serialization: [[tokenId, min, max], ...]
         result.r = Object.entries(state.perTokenRanges)
           .filter(([, v]) => v.min !== undefined || v.max !== undefined)
-          .map(([k, v]) => [k, v.min ?? null, v.max ?? null]);
+          .map(([k, v]) => [k, v.min ?? null, v.max ?? null, v.filterSlotIndex ?? null]);
       }
       return result;
     },
@@ -176,11 +180,12 @@ export function createFilterStore() {
       // Deserialize perTokenRanges from array format
       let perTokenRanges: Record<string, TokenRangeOverride> = {};
       if (Array.isArray(data.r)) {
-        for (const entry of data.r as [string, number | null, number | null][]) {
-          const [tokenId, min, max] = entry;
+        for (const entry of data.r as [string, number | null, number | null, number | null][]) {
+          const [tokenId, min, max, filterSlotIndex] = entry;
           const override: TokenRangeOverride = {};
           if (min !== null && min !== undefined) override.min = min;
           if (max !== null && max !== undefined) override.max = max;
+          if (filterSlotIndex !== null && filterSlotIndex !== undefined) override.filterSlotIndex = filterSlotIndex;
           if (override.min !== undefined || override.max !== undefined) {
             perTokenRanges[tokenId] = override;
           }

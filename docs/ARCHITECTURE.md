@@ -779,3 +779,53 @@ The pattern `[4-9].` matches single-digit numbers followed by any character (e.g
 3. **Number boundary false positives**: `[4-9].` matches `6%` (single-digit + non-digit). No PoE2 regex solution exists; document as known limitation. Prefix anchoring partially mitigates.
 4. **Fractional ranges**: Mods like "Регенерация 2.1-3 здоровья" have `ranges: []` because ETL doesn't handle fractions.
 5. **Suffix lengthening for non-unique suffixes**: Ring "урона к атакам" (physical damage) shares suffix with lightning/cold damage mods. Strategy 1b should help after ETL re-run.
+
+---
+
+## Iteration 23 — Jewel lookup, dual-number RANGE, PageStateWrapper, vendor count, desecrated regex
+
+### 1. Jewel classification — static lookup from poe2db ModCalc pages
+
+**Problem**: `classifyJewelType()` in `mod-classifier.ts` uses weighted keyword scoring (~84% accuracy). Many mods classified as "shared" or wrong type.
+
+**Fix**: ETL Step 6 fetches Ruby/Emerald/Sapphire ModCalc pages via `parseTypeBPage()`, builds `modCode→JewelType` mapping, patches jewel JSON files with `jewelType` field. Runtime `classifyJewelType()` uses lookup first (Strategy 1, 100% accuracy), falls back to heuristic (Strategy 2, ~84%).
+
+**Files**: `scripts/run-etl.ts` (buildJewelTypeMap), `scripts/etl/generate-dictionary.ts` (jewelType param), `src/shared/types.ts` (JewelType, jewelType field), `src/shared/mod-classifier.ts` (lookup-first logic)
+
+### 2. Per-token dual-number RANGE — filterSlotIndex connected
+
+**Problem**: `filterSlotIndex` was plumbed but not connected — `getTokenRangeForSlot()` was dead code, `filterSlotIndex` from `getEffectiveRange()` was computed but never used for RANGE node prefix/suffix selection.
+
+**Fix**: Added `getPrefixForSlot(token, locale, filterSlotIndex)` — runtime function that extracts prefix for N-th placeholder from `rawTextTemplate`. For slot 0 uses precomputed `regexPrefix`, for slot N>0 splits template by `##` and extracts text segment before that slot. In `buildAstFromSelections()`, RANGE group key now includes `filterSlotIndex`, and prefix is computed per-slot.
+
+**Files**: `src/ui/hooks/useCategoryPage.ts`, `src/shared/types.ts` (filterSlotIndex in FamilyGroup), `src/store/filter-store.ts` (filterSlotIndex in TokenRangeOverride + serialization)
+
+### 3. TabletPage PageStateWrapper
+
+**Problem**: TabletPage used inline loading/error/no-data instead of `PageStateWrapper`.
+
+**Fix**: Wrapped content in `<PageStateWrapper>` render-prop pattern, consistent with all other category pages.
+
+**Files**: `src/ui/pages/tablet/TabletPage.tsx`
+
+### 4. HomePage vendor count fix
+
+**Problem**: Hardcoded `VENDOR_PROPERTY_COUNT = 50` was wrong (actual count = 61).
+
+**Fix**: Extracted `VENDOR_PROPERTIES` to `src/data/vendor-properties.ts` shared data file. Both HomePage and VendorPage import from there. HomePage uses `VENDOR_PROPERTIES.length` for accurate count.
+
+**Files**: `src/data/vendor-properties.ts` (new), `src/ui/pages/home/HomePage.tsx`, `src/ui/pages/vendor/VendorPage.tsx`
+
+### 5. Desecrated regex — tier-agnostic Strategy 1b/1c
+
+**Problem**: Dual-stat desecrated mods like "##% повышение брони, ##% увеличение урона от атак" produced tier-specific regexes with raw numbers (e.g., "брони, (4—8)% увеличение урона от атак"). These only match one specific tier, not all tiers.
+
+**Fix**: Strategy 1b and 1c now construct suffixes from the TEMPLATE, not rawText. Template is split by `#+` sequences, text segments are stripped and joined, producing tier-agnostic suffixes like "повышение брони, увеличение урона от атак" that match ALL tiers.
+
+**Files**: `scripts/etl/compute-regex.ts`
+
+### Remaining (for next iteration)
+
+1. **Full ETL re-run**: All ETL changes require `pnpm etl` to regenerate JSONs with jewelType, fixed desecrated regexes, and template-based suffixes.
+2. **UI for dual-number filterSlotIndex**: FilterChip should show per-slot range selector for multi-placeholder groups.
+3. **In-game test verification**: Run IN_GAME_TESTS.md and fix any remaining regex issues.

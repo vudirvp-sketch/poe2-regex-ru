@@ -14,12 +14,12 @@
  */
 import { fetchPage } from './etl/fetch-poe2db.js';
 import { parseTypeAPage } from './etl/parse-tables.js';
-import { parseTypeBPage } from './etl/parse-modifiers-calc.js';
+import { parseTypeBPage, getModCategoryStats } from './etl/parse-modifiers-calc.js';
 import { normalizeTypeA, normalizeTypeB } from './etl/normalize.js';
 import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
-import type { ModOrigin } from '../src/shared/types.js';
+import type { ModOrigin, JewelType } from '../src/shared/types.js';
 import type { NormalizedMod } from './etl/normalize.js';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -369,6 +369,85 @@ function findShortestUniqueSubstring(target: string, exclusionSubs: Set<string>,
   return target;
 }
 
+/**
+ * Build a jewelTypeMap by fetching the poe2db ModCalc pages for Ruby/Emerald/Sapphire.
+ *
+ * Each ModCalc page is a Type B page containing JSON with all mods for that jewel type.
+ * We extract modCode from each mod and map it to the corresponding jewel type.
+ * Mods appearing on multiple pages get 'shared' type.
+ *
+ * Returns: Record<modId, JewelType> — maps token IDs to their jewel type.
+ */
+async function buildJewelTypeMap(
+  allJewelMods: NormalizedMod[]
+): Promise<Record<string, JewelType>> {
+  console.log('\n=== Building jewel type map from ModCalc pages ===');
+
+  const modCalcPages: { url: string; type: JewelType }[] = [
+    { url: 'https://poe2db.tw/ru/Ruby#ModifiersCalc', type: 'ruby' },
+    { url: 'https://poe2db.tw/ru/Emerald#ModifiersCalc', type: 'emerald' },
+    { url: 'https://poe2db.tw/ru/Sapphire#ModifiersCalc', type: 'sapphire' },
+  ];
+
+  // Collect modCode sets per jewel type from ModCalc pages
+  const modCodeToTypes = new Map<string, Set<JewelType>>();
+
+  for (const page of modCalcPages) {
+    try {
+      const html = await fetchPage(page.url);
+      const groups = parseTypeBPage(html);
+
+      for (const group of groups) {
+        for (const tier of group.tiers) {
+          if (tier.modCode) {
+            const types = modCodeToTypes.get(tier.modCode) || new Set();
+            types.add(page.type);
+            modCodeToTypes.set(tier.modCode, types);
+          }
+        }
+      }
+
+      const stats = getModCategoryStats(html);
+      const totalMods = Object.values(stats).reduce((a, b) => a + b, 0);
+      console.log(`  ${page.type}: found ${totalMods} mods from ModCalc`);
+    } catch (err) {
+      console.warn(`  WARNING: Failed to fetch ${page.url}:`, (err as Error).message);
+    }
+  }
+
+  // Build the modCode→JewelType map (shared if modCode appears on multiple types)
+  const modCodeToJewelType = new Map<string, JewelType>();
+  for (const [modCode, types] of modCodeToTypes) {
+    if (types.size > 1) {
+      modCodeToJewelType.set(modCode, 'shared');
+    } else {
+      modCodeToJewelType.set(modCode, types.values().next().value!);
+    }
+  }
+
+  // Map token IDs to jewel types using their modCode
+  const jewelTypeMap: Record<string, JewelType> = {};
+  let matched = 0;
+  let shared = 0;
+
+  for (const mod of allJewelMods) {
+    const modCode = mod.modCode;
+    if (modCode && modCodeToJewelType.has(modCode)) {
+      const jType = modCodeToJewelType.get(modCode)!;
+      jewelTypeMap[mod.id] = jType;
+      matched++;
+      if (jType === 'shared') shared++;
+    } else {
+      // No ModCalc match → shared (will be classified by heuristic at runtime)
+      jewelTypeMap[mod.id] = 'shared';
+      shared++;
+    }
+  }
+
+  console.log(`  Jewel type map: ${matched} matched, ${shared} shared/unmatched out of ${allJewelMods.length} total`);
+  return jewelTypeMap;
+}
+
 async function runEtl() {
   console.log('=== PoE2 Regex RU — ETL Pipeline ===\n');
   console.log(`Output directory: ${OUTPUT_DIR}\n`);
@@ -377,6 +456,10 @@ async function runEtl() {
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
+
+  // Collect all jewel mods across all jewel categories for building jewelTypeMap
+  const allJewelMods: NormalizedMod[] = [];
+  let jewelTypeMap: Record<string, JewelType> | undefined;
 
   for (const cat of categories) {
     console.log(`\n=== Processing ${cat.name} ===`);
@@ -458,6 +541,11 @@ async function runEtl() {
         continue;
       }
 
+      // Collect jewel mods for type mapping
+      if (cat.name === 'jewel' || cat.name === 'jewel-desecrated' || cat.name === 'jewel-corrupted') {
+        allJewelMods.push(...normalized);
+      }
+
       // Step 3: Compute regex
       console.log('  Step 3: Computing regex substrings...');
       const regexResults = computeAllRegexes(normalized, 'ru');
@@ -483,7 +571,33 @@ async function runEtl() {
     }
   }
 
-  // Step 6: Apply i18n overrides for tokens without Russian text on poe2db.tw
+  // Step 6: Build jewel type map and patch jewel JSON files
+  if (allJewelMods.length > 0) {
+    jewelTypeMap = await buildJewelTypeMap(allJewelMods);
+
+    // Patch jewel JSON files with jewelType
+    const jewelFiles = ['jewel.json', 'jewel-desecrated.json', 'jewel-corrupted.json'];
+    for (const jsonFile of jewelFiles) {
+      const filePath = path.join(OUTPUT_DIR, jsonFile);
+      if (!fs.existsSync(filePath)) continue;
+
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      let patched = 0;
+      for (const token of data.tokens) {
+        const jType = jewelTypeMap[token.id];
+        if (jType) {
+          token.jewelType = jType;
+          patched++;
+        }
+      }
+      if (patched > 0) {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+        console.log(`  Patched ${jsonFile}: ${patched} tokens with jewelType`);
+      }
+    }
+  }
+
+  // Step 7: Apply i18n overrides for tokens without Russian text on poe2db.tw
   applyI18nOverrides();
 
   console.log('\n=== ETL Pipeline Complete ===');
