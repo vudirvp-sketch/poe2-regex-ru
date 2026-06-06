@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 6.0 | **Date:** 2026-06-06
+> **Version:** 7.0 | **Date:** 2026-06-07
 
 ---
 
@@ -110,12 +110,12 @@ When a suffix is not unique within a category (e.g., "урона к атакам
 
 Some tokens have English-only rawText on poe2db.tw. The override system patches them with manually verified Russian translations after ETL.
 
-**File:** `scripts/etl/i18n-overrides.json` — currently 57 overrides covering:
+**File:** `scripts/etl/i18n-overrides.json` — currently 56 overrides covering:
 - 17 amulet breachborn tokens
 - 23 belt breachborn tokens
 - 1 ring breachborn token
-- 7 tablet tokens (typo fixes + content corrections)
-- 9 original overrides (typo fixes, missing translations)
+- 8 tablet tokens (typo fixes + content corrections + 2 explicit regex overrides)
+- 7 original overrides (typo fixes, missing translations)
 
 Override format:
 ```json
@@ -124,13 +124,16 @@ Override format:
     "token.internal_id": {
       "rawText": "Russian translation",
       "rawTextTemplate": "Template with # (optional)",
+      "regex": "explicit regex (optional — skip recomputation)",
       "source": "where this came from"
     }
   }
 }
 ```
 
-After applying overrides, `run-etl.ts` recomputes: `regex.ru`, `familyKey.ru`, `hasMultiPlaceholder`, `regexPrefix.ru`.
+If `regex` is specified, it's applied directly without recomputation. This is useful when the auto-computed regex is too short (below MIN_REGEX_LEN) or when a specific regex is known to work better in-game.
+
+After applying overrides, `run-etl.ts` recomputes: `regex.ru`, `familyKey.ru`, `hasMultiPlaceholder`, `regexPrefix.ru` (unless `regex` is explicitly provided).
 
 **To add new overrides:** Identify English-only tokens → find Russian translation from in-game text or `регис/` folder → add to `i18n-overrides.json` → re-run `pnpm etl`.
 

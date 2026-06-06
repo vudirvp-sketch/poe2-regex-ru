@@ -197,7 +197,7 @@ function applyI18nOverrides() {
   }
 
   const overridesFile = JSON.parse(fs.readFileSync(overridesPath, 'utf-8'));
-  const overrides: Record<string, { rawText: string; rawTextTemplate?: string; source?: string }> =
+  const overrides: Record<string, { rawText: string; rawTextTemplate?: string; regex?: string; source?: string }> =
     overridesFile.overrides || {};
 
   const overrideIds = new Set(Object.keys(overrides));
@@ -269,6 +269,17 @@ function applyI18nOverrides() {
 
       // Fix regexPrefix: recompute from the template
       token.regexPrefix.ru = extractTemplatePrefixForOverride(template);
+
+      // If override specifies a regex explicitly, use it (skip recomputation)
+      if (override.regex) {
+        token.regex.ru = override.regex;
+        token.hasYofication = false;
+        token.yoficationPositions = [];
+        totalPatched++;
+        totalPatchedInFile++;
+        console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 50)}..." (regex: "${token.regex.ru}" [explicit])`);
+        continue;
+      }
 
       if (hasPlaceholder) {
         // Strategy 1: Template-family suffix (same as compute-regex.ts)

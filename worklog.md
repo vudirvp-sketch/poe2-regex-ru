@@ -4,44 +4,32 @@
 
 ---
 
-## Current State (Session 36 — 2026-06-07)
+## Current State (Session 37 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (323/323 tests)
-**Oracle:** FP=7963, FN=73 in **stale** generated JSON files. Code fixes should reduce FN to ~0-4 after ETL re-run.
+**Oracle:** FP=3715, FN=0 in generated JSON files (after `pnpm optimize`). Most FP are family-tier FP (by design).
 
 **Key Changes This Session:**
 
-1. **Фаза 5: Итеративный оптимизатор** — `scripts/etl/iterative-optimizer.ts`:
-   - Strategy 1: FN-repair (broadSuffix, substring search)
-   - Strategy 2: Dialect optimization (`[её]`, `[юя]`, `ь?`)
-   - Strategy 3: FP-reduce (lengthen regex to reduce false positives)
-   - Strategy 4: Suffix-shorten (shorten regex when 0 FP)
-   - Table re-optimization via `batchDPFactorize()`
-   - Flags: `--max-iterations N`, `--dry-run`, `--verbose`
+1. **Fixed failing test** — `tablet.json` had 2 tokens with regex < MIN_REGEX_LEN=5:
+   - `tablet.mod_efa81a`: regex "два" (3 chars) → "в два раза" (10 chars)
+   - `tablet.mod_by2ufv`: regex "100%" (4 chars) → "вплоть" (6 chars)
 
-2. **Waystone FN fix** — `STRICT_CATEGORIES_MIN_LEN` replaces `STRICT_CATEGORIES`:
-   - waystone: 10 → 7 (allows paren-free regexes ≥7 chars)
-   - waystone-desecrated: 10 → 7
-   - tablet: 10 (unchanged)
-   - jewel-desecrated: 10 (unchanged)
+2. **Fixed iterative-optimizer.ts** — `trySuffixShortening()` now respects per-category MIN_REGEX_LEN:
+   - waystone/waystone-desecrated/tablet/jewel-desecrated: min 5 chars
+   - other categories: min 3 chars (unchanged)
+   - Prevents optimizer from shortening regexes below test thresholds
 
-3. **TypeScript fixes:**
-   - `compute-optimizations.ts`: unused `longestCommonSubstring` marked with `@ts-expect-error`
-   - `run-etl.ts`: unused `id` in destructuring → `[, rr]`
-   - `iterative-optimizer.ts`: new file, compiles clean
+3. **Enhanced i18n-override system** — `applyI18nOverrides()` now supports explicit `regex` field:
+   - If override includes `"regex": "..."`, it's applied directly (no recomputation)
+   - Added regex overrides for `tablet.mod_efa81a` and `tablet.mod_by2ufv`
 
-4. **New scripts in package.json:**
-   - `pnpm analyze-fn` — FN/FP analysis
-   - `pnpm optimize` — run iterative optimizer
-   - `pnpm optimize:dry` — dry-run with verbose output
-
-5. **New file:** `scripts/analyze-fn.ts` — analyzes FN/FP per category using PoE2 matcher
+4. **GitHub Actions deploy fixed** — root cause was the test failure (not YAML). YAML syntax is valid.
 
 **NOT YET DONE:**
-- ⬜ ETL re-run to regenerate JSON files with code fixes (`pnpm etl -- --validate`)
-- ⬜ Run iterative optimizer on fresh data (`pnpm optimize`)
-- ⬜ Фаза 7: Игровые тесты
-- ⬜ Фаза 8: Финальная полировка
+- ⬜ Фаза 7: Игровые тесты — validate regexes in PoE2 client (see docs/IN_GAME_TESTS.md)
+- ⬜ Фаза 8: Финальная полировка — further cross-family FP reduction, UI polish
+- ⬜ Cross-family FP analysis — 90 true cross-family FP in amulet (not family-tier FP)
 
 ---
 
@@ -54,6 +42,7 @@
 5. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
 6. **Dual-stat FN:** For multi-placeholder mods, joined template suffix may not appear in rawText because numbers interrupt segments. Use `regexMatchesRawText()` to verify.
 7. **MIN_REGEX_LEN_STRICT vs parens:** Waystone mods with `(num—num)` patterns can't have regexes ≥10 chars without parens. Lowered to 7 for waystone categories.
+8. **Optimizer suffix-shorten too aggressive:** `trySuffixShortening()` could shorten regexes below MIN_REGEX_LEN. Fixed with per-category minimum enforcement.
 
 ## Build & Run Commands
 

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 31.0 | **Date:** 2026-06-07
+> **Version:** 32.0 | **Date:** 2026-06-07
 
 ---
 
@@ -68,37 +68,37 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **ETL re-run needed** — `public/generated/*.json` are stale (pre-FN-fix). Run `pnpm etl -- --validate` then `pnpm optimize`
-2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md`
-3. **Фаза 7: Игровые тесты** — Validate regexes in PoE2 client
-4. **Фаза 8: Финальная полировка** — FP reduction, UI polish
+1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md`
+2. **Фаза 7: Игровые тесты** — Validate regexes in PoE2 client
 
 ### MEDIUM
 
-5. **Cross-category regex conflicts** — 4002 conflicts (see `регис/analysis-report.md`). Oracle validation can detect these
-6. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
-7. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
-8. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-9. **HomePage hardcoded mod counts** — Category cards show stale counts
+3. **Cross-family regex conflicts** — ~90 true cross-family FP in amulet (most "FP" are family-tier matches by design)
+4. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
+5. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
+6. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+7. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-10. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-11. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-12. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+8. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+9. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+10. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Data Stats
 
-| Category | Tokens | Optimizations | Avg Regex Len | Short (<10) | Conflicts |
-|----------|--------|---------------|---------------|-------------|-----------|
-| waystone | 97 | 52 | 12.4 | 52 | 52 |
-| waystone-desecrated | 17 | 4 | 9.7 | 12 | 14 |
-| tablet | 75 | 363 | 19.1 | 23 | 8 |
-| jewel | 193 | 1,466 | 15.7 | 49 | 72 |
-| jewel-desecrated | 32 | 3 | 19.7 | 7 | 16 |
-| jewel-corrupted | 10 | 0 | 7.4 | 8 | 8 |
-| relic | 58 | 28 | 18.3 | 20 | 16 |
-| belt | 298 | 231 | 17.6 | 54 | 236 |
-| ring | 366 | 458 | 14.7 | 94 | 293 |
-| amulet | 427 | 389 | 15.1 | 121 | 395 |
-| **Total** | **1,573** | | | **440** | |
+| Category | Tokens | FN | FP | avgLen |
+|----------|--------|----|----|--------|
+| waystone | 97 | 0 | 203 | 16.0 |
+| waystone-desecrated | 17 | 0 | 3 | 10.4 |
+| tablet | 75 | 0 | 6 | 19.7 |
+| jewel | 193 | 0 | 147 | 15.8 |
+| jewel-desecrated | 32 | 0 | 113 | 15.8 |
+| jewel-corrupted | 10 | 0 | 0 | 5.8 |
+| relic | 58 | 0 | 142 | 23.1 |
+| belt | 298 | 0 | 767 | 21.8 |
+| ring | 366 | 0 | 1023 | 20.9 |
+| amulet | 427 | 0 | 1311 | 21.0 |
+| **Total** | **1,573** | **0** | **3,715** | **19.9** |
+
+Note: Most FP are family-tier FP (same mod, different tiers sharing one regex) — this is by design.

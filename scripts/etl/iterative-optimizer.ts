@@ -105,6 +105,17 @@ function hasFN(regex: string, rawText: string): boolean {
  * Try to shorten a regex by trimming words from the left while keeping it unique.
  * Returns the shortest regex that still matches rawText and has <= maxFP false positives.
  */
+/** Per-category minimum regex length for suffix-shortening.
+ * Must not shorten below this limit to pass cross-validation tests.
+ */
+const MIN_REGEX_LEN_BY_CATEGORY: Record<string, number> = {
+  'waystone': 5,
+  'waystone-desecrated': 5,
+  'tablet': 5,
+  'jewel-desecrated': 5,
+};
+const MIN_REGEX_LEN_DEFAULT = 3;
+
 function trySuffixShortening(
   currentRegex: string,
   rawText: string,
@@ -117,12 +128,17 @@ function trySuffixShortening(
   const idx = lowerRaw.indexOf(lowerRegex);
   if (idx === -1) return null;
 
+  // Find the category for this token to determine min regex length
+  const token = allTokens.find(t => t.id === tokenId);
+  const category = token?.category ?? '';
+  const minLen = MIN_REGEX_LEN_BY_CATEGORY[category] ?? MIN_REGEX_LEN_DEFAULT;
+
   const words = currentRegex.split(/\s+/);
   if (words.length <= 1) return null;
 
   for (let skipWords = 1; skipWords < words.length; skipWords++) {
     const candidate = words.slice(skipWords).join(' ');
-    if (candidate.length < 3) break;
+    if (candidate.length < minLen) break;
 
     if (!matchQuotedGroup(candidate, rawText.toLowerCase())) continue;
 
