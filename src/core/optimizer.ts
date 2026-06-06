@@ -140,7 +140,9 @@ function getValueKey(node: ASTNode): string {
     case 'RANGE': {
       const min = node.min?.toString() ?? '';
       const suffix = node.suffix ?? '';
-      return `R:${min}:${suffix}`;
+      const prefix = node.prefix ?? '';
+      const exact = node.exact?.toString() ?? '';
+      return `R:${min}:${suffix}:${prefix}:${exact}`;
     }
     case 'OR':
       return `O:${node.children.map(getValueKey).join('|')}`;

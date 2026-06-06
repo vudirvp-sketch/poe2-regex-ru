@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T07:44:06.518Z",
+  "version": "2026-06-06T09:49:35.184Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -18,6 +18,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -55,6 +58,9 @@
       "familyKey": {
         "ru": "+# к силе"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -90,6 +96,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -127,6 +136,9 @@
       "familyKey": {
         "ru": "+# к силе"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -162,6 +174,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -199,6 +214,9 @@
       "familyKey": {
         "ru": "+# к силе"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -234,6 +252,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -271,6 +292,9 @@
       "familyKey": {
         "ru": "+# к силе"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -307,6 +331,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -340,6 +367,9 @@
       },
       "familyKey": {
         "ru": "+# к ловкости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -375,6 +405,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -408,6 +441,9 @@
       },
       "familyKey": {
         "ru": "+# к ловкости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -443,6 +479,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -476,6 +515,9 @@
       },
       "familyKey": {
         "ru": "+# к ловкости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -511,6 +553,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -545,6 +590,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -578,6 +626,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -616,6 +667,9 @@
       "familyKey": {
         "ru": "+# к интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -652,6 +706,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -690,6 +747,9 @@
       "familyKey": {
         "ru": "+# к интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -726,6 +786,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -764,6 +827,9 @@
       "familyKey": {
         "ru": "+# к интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -800,6 +866,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -838,6 +907,9 @@
       "familyKey": {
         "ru": "+# к интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -874,6 +946,9 @@
       },
       "familyKey": {
         "ru": "+# ко всем характеристикам"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -912,6 +987,9 @@
       "familyKey": {
         "ru": "+# ко всем характеристикам"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -948,6 +1026,9 @@
       },
       "familyKey": {
         "ru": "+# ко всем характеристикам"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -986,6 +1067,9 @@
       "familyKey": {
         "ru": "+# ко всем характеристикам"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1022,6 +1106,9 @@
       },
       "familyKey": {
         "ru": "+# ко всем характеристикам"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1060,6 +1147,9 @@
       "familyKey": {
         "ru": "+# ко всем характеристикам"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1096,6 +1186,9 @@
       },
       "familyKey": {
         "ru": "+# ко всем характеристикам"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1134,6 +1227,9 @@
       "familyKey": {
         "ru": "+# ко всем характеристикам"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1171,6 +1267,9 @@
       "familyKey": {
         "ru": "+# ко всем характеристикам"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1207,6 +1306,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1246,6 +1348,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1283,6 +1388,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1322,6 +1430,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1359,6 +1470,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1398,6 +1512,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1435,6 +1552,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1474,6 +1594,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1511,6 +1634,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1550,6 +1676,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1587,6 +1716,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1626,6 +1758,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1663,6 +1798,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1702,6 +1840,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1739,6 +1880,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1778,6 +1922,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1815,6 +1962,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1854,6 +2004,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1891,6 +2044,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -1930,6 +2086,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -1967,6 +2126,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2006,6 +2168,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2043,6 +2208,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2082,6 +2250,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2119,6 +2290,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2161,6 +2335,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2201,6 +2378,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2243,6 +2423,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2283,6 +2466,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2325,6 +2511,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2366,6 +2555,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2402,6 +2594,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2440,6 +2635,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2476,6 +2674,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -2514,6 +2715,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2551,6 +2755,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -2587,6 +2794,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -2629,6 +2839,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Здоровый",
@@ -2669,6 +2882,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -2711,6 +2927,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Стойкий",
@@ -2751,6 +2970,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -2793,6 +3015,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Мощный",
@@ -2833,6 +3058,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -2875,6 +3103,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Могучий",
@@ -2916,6 +3147,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Выносливый",
@@ -2956,6 +3190,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3000,6 +3237,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Оптимистичный",
@@ -3042,6 +3282,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3086,6 +3329,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Берилловый",
@@ -3126,6 +3372,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3168,6 +3417,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Лазоревый",
@@ -3208,6 +3460,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3250,6 +3505,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Лазурный",
@@ -3290,6 +3548,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3332,6 +3593,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Перламутровый",
@@ -3372,6 +3636,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3414,6 +3681,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Сидеритовый",
@@ -3454,6 +3724,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3496,6 +3769,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Синеватый",
@@ -3536,6 +3812,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3578,6 +3857,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Ультрамариновый",
@@ -3618,6 +3900,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3662,6 +3947,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Проницательный",
@@ -3705,6 +3993,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Мнемонический",
@@ -3747,6 +4038,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3792,6 +4086,9 @@
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Мерцающий",
@@ -3835,6 +4132,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3880,6 +4180,9 @@
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Яркий",
@@ -3923,6 +4226,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -3968,6 +4274,9 @@
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Пульсирующий",
@@ -4011,6 +4320,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4056,6 +4368,9 @@
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Искрящийся",
@@ -4099,6 +4414,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4144,6 +4462,9 @@
       "familyKey": {
         "ru": "+# к максимуму энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Ослепительный",
@@ -4188,6 +4509,9 @@
       "familyKey": {
         "ru": "#% повышение брони"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный",
@@ -4230,6 +4554,9 @@
       },
       "familyKey": {
         "ru": "#% повышение брони"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4274,6 +4601,9 @@
       "familyKey": {
         "ru": "#% повышение брони"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Бугристый",
@@ -4316,6 +4646,9 @@
       },
       "familyKey": {
         "ru": "#% повышение брони"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4360,6 +4693,9 @@
       "familyKey": {
         "ru": "#% повышение брони"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Утолщённый",
@@ -4402,6 +4738,9 @@
       },
       "familyKey": {
         "ru": "#% повышение брони"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4446,6 +4785,9 @@
       "familyKey": {
         "ru": "#% повышение брони"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Непробиваемый",
@@ -4488,6 +4830,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение уклонения"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4533,6 +4878,9 @@
       "familyKey": {
         "ru": "#% увеличение уклонения"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Призрачный",
@@ -4576,6 +4924,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение уклонения"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4621,6 +4972,9 @@
       "familyKey": {
         "ru": "#% увеличение уклонения"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Эфемерный",
@@ -4664,6 +5018,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение уклонения"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4709,6 +5066,9 @@
       "familyKey": {
         "ru": "#% увеличение уклонения"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Кошмарный",
@@ -4753,6 +5113,9 @@
       "familyKey": {
         "ru": "#% увеличение уклонения"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Миражный",
@@ -4796,6 +5159,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4842,6 +5208,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Волевой",
@@ -4886,6 +5255,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -4932,6 +5304,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Бесстрашный",
@@ -4976,6 +5351,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -5022,6 +5400,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Неукротимый",
@@ -5066,6 +5447,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -5112,6 +5496,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5147,6 +5534,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5184,6 +5574,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5219,6 +5612,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений приспешников"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5257,6 +5653,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5293,6 +5692,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений приспешников"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5331,6 +5733,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений ближнего боя"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5366,6 +5771,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений ближнего боя"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5403,6 +5811,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений ближнего боя"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5438,6 +5849,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений снарядов"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5477,6 +5891,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений снарядов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5515,6 +5932,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений снарядов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5552,6 +5972,9 @@
       },
       "familyKey": {
         "ru": "Регенерация # здоровья в секунду"
+      },
+      "regexPrefix": {
+        "ru": "Регенерация"
       },
       "genderForms": {
         "ru": {}
@@ -5592,6 +6015,9 @@
       "familyKey": {
         "ru": "Регенерация (2.1—3) здоровья в секунду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5625,6 +6051,9 @@
       },
       "familyKey": {
         "ru": "Регенерация (3.1—4) здоровья в секунду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5660,6 +6089,9 @@
       "familyKey": {
         "ru": "Регенерация (4.1—6) здоровья в секунду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5693,6 +6125,9 @@
       },
       "familyKey": {
         "ru": "Регенерация (6.1—9) здоровья в секунду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5728,6 +6163,9 @@
       "familyKey": {
         "ru": "Регенерация (9.1—13) здоровья в секунду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5761,6 +6199,9 @@
       },
       "familyKey": {
         "ru": "Регенерация (13.1—18) здоровья в секунду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5796,6 +6237,9 @@
       "familyKey": {
         "ru": "Регенерация (18.1—23) здоровья в секунду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5829,6 +6273,9 @@
       },
       "familyKey": {
         "ru": "Регенерация (23.1—29) здоровья в секунду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5864,6 +6311,9 @@
       "familyKey": {
         "ru": "Регенерация (29.1—33) здоровья в секунду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5897,6 +6347,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -5937,6 +6390,9 @@
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -5975,6 +6431,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6015,6 +6474,9 @@
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6053,6 +6515,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6093,6 +6558,9 @@
       "familyKey": {
         "ru": "#% повышение скорости регенерации маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6131,6 +6599,9 @@
       },
       "familyKey": {
         "ru": "+# к меткости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -6175,6 +6646,9 @@
       "familyKey": {
         "ru": "+# к меткости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Надёжный",
@@ -6217,6 +6691,9 @@
       },
       "familyKey": {
         "ru": "+# к меткости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -6261,6 +6738,9 @@
       "familyKey": {
         "ru": "+# к меткости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Тщательный",
@@ -6303,6 +6783,9 @@
       },
       "familyKey": {
         "ru": "+# к меткости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -6347,6 +6830,9 @@
       "familyKey": {
         "ru": "+# к меткости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Размеренный",
@@ -6389,6 +6875,9 @@
       },
       "familyKey": {
         "ru": "+# к меткости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -6433,6 +6922,9 @@
       "familyKey": {
         "ru": "+# к меткости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Егерский",
@@ -6476,6 +6968,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6512,6 +7007,9 @@
       },
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6550,6 +7048,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6586,6 +7087,9 @@
       },
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6624,6 +7128,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6661,6 +7168,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6697,6 +7207,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6736,6 +7249,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6773,6 +7289,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6812,6 +7331,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6849,6 +7371,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6888,6 +7413,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -6925,6 +7453,9 @@
       },
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -6964,6 +7495,9 @@
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7002,6 +7536,9 @@
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7039,6 +7576,9 @@
       },
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7085,6 +7625,9 @@
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Редкий",
@@ -7129,6 +7672,9 @@
       },
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7175,6 +7721,9 @@
       "familyKey": {
         "ru": "+# к духу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Вельможеский",
@@ -7213,6 +7762,9 @@
       },
       "familyKey": {
         "ru": "+# к духу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7253,6 +7805,9 @@
       "familyKey": {
         "ru": "+# к духу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Виконтский",
@@ -7291,6 +7846,9 @@
       },
       "familyKey": {
         "ru": "+# к духу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7331,6 +7889,9 @@
       "familyKey": {
         "ru": "+# к духу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Графский",
@@ -7370,6 +7931,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7406,6 +7970,9 @@
       },
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -7444,6 +8011,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7480,6 +8050,9 @@
       },
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -7518,6 +8091,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7554,6 +8130,9 @@
       },
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -7593,6 +8172,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7630,6 +8212,9 @@
       },
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -7669,6 +8254,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7707,6 +8295,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -7744,6 +8335,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7789,6 +8383,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Заколдованный",
@@ -7832,6 +8429,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7877,6 +8477,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Профессорский",
@@ -7920,6 +8523,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -7965,6 +8571,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Чернокнижный",
@@ -8009,6 +8618,9 @@
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8046,6 +8658,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8085,6 +8700,9 @@
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8122,6 +8740,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8161,6 +8782,9 @@
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8198,6 +8822,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8237,6 +8864,9 @@
       "familyKey": {
         "ru": "#% физического урона от атак похищается в виде здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8273,6 +8903,9 @@
       "familyKey": {
         "ru": "#% физического урона от атак похищается в виде маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8308,6 +8941,9 @@
       },
       "familyKey": {
         "ru": "+#% к максимуму сопротивлений всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8346,6 +8982,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8388,6 +9027,9 @@
       "familyKey": {
         "ru": "#% повышение редкости найденных предметов"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8426,6 +9068,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8460,6 +9105,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8497,6 +9145,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8530,6 +9181,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8568,6 +9222,9 @@
       "familyKey": {
         "ru": "Флаконы здоровья получают зарядов в секунду: (0.08—0.17)"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8599,6 +9256,9 @@
       "familyKey": {
         "ru": "Флаконы маны получают зарядов в секунду: (0.08—0.17)"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -8629,6 +9289,9 @@
       },
       "familyKey": {
         "ru": "Обереги получают зарядов в секунду: (0.08—0.17)"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -8662,6 +9325,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение глобальной брони, уклонения и энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -8709,6 +9375,9 @@
       "familyKey": {
         "ru": "#% усиление эффекта создаваемых вами сгустков"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -8751,6 +9420,9 @@
       },
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон, если недавно вы наносили удар"
+      },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
       },
       "genderForms": {
         "ru": {
@@ -8799,6 +9471,9 @@
       "familyKey": {
         "ru": "#% увеличение брони от надетого нательного доспеха"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -8845,6 +9520,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар при полном энергетическом щите"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -8894,6 +9572,9 @@
       "familyKey": {
         "ru": "Вызываемые чары с #% шансом могут поглотить всего половину энергии"
       },
+      "regexPrefix": {
+        "ru": "Вызываемые чары с"
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный Каргалом",
@@ -8938,6 +9619,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение энергетического щита от надетого нательного доспеха"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -8988,6 +9672,9 @@
       "familyKey": {
         "ru": "+# к силе и интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9027,6 +9714,9 @@
       "familyKey": {
         "ru": "+# к силе и ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9063,6 +9753,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение длительности эффекта умения"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9102,6 +9795,9 @@
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
+      "regexPrefix": {
+        "ru": "собрать с на"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9137,6 +9833,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлениям огню и хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9178,6 +9877,9 @@
       "familyKey": {
         "ru": "#% увеличение силы умений аур"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9214,6 +9916,9 @@
       },
       "familyKey": {
         "ru": "#% уменьшение требований к характеристикам у снаряжения и камней умений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9257,6 +9962,9 @@
       "familyKey": {
         "ru": "Восстанавливает #% маны при убийстве"
       },
+      "regexPrefix": {
+        "ru": "Восстанавливает"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9291,6 +9999,9 @@
       },
       "familyKey": {
         "ru": "#% усиление эффекта восприимчивости"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9332,6 +10043,9 @@
       "familyKey": {
         "ru": "#% повышение скорости перезарядки умений"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9370,6 +10084,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлениям холоду и хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9411,6 +10128,9 @@
       "familyKey": {
         "ru": "+# к ловкости и интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9448,6 +10168,9 @@
       },
       "familyKey": {
         "ru": "+#% к качеству всех умений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9488,6 +10211,9 @@
       "familyKey": {
         "ru": "#% от получаемого урона берется сначала из маны вместо здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9527,6 +10253,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости перезарядки"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -9569,6 +10298,9 @@
       "familyKey": {
         "ru": "#% повышение скорости умений"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9607,6 +10339,9 @@
       "familyKey": {
         "ru": "Восстанавливает #% здоровья при убийстве"
       },
+      "regexPrefix": {
+        "ru": "Восстанавливает"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9641,6 +10376,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлениям молнии и хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -9682,6 +10420,9 @@
       "familyKey": {
         "ru": "#% увеличение эффективности удержания ресурсов умениями вестниками"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -9720,6 +10461,9 @@
       },
       "familyKey": {
         "ru": "#% шанс сохранить 40% Славы при использовании умений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -9763,6 +10507,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение уклонения от вашего нательного доспеха"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -9812,6 +10559,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от атак при малом количестве здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уламаном",
@@ -9855,6 +10605,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение отклонения ударов"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -9900,6 +10653,9 @@
       },
       "familyKey": {
         "ru": "Дарует #% от физического урона в виде дополнительного урона от холода"
+      },
+      "regexPrefix": {
+        "ru": "Дарует"
       },
       "genderForms": {
         "ru": {
@@ -9949,6 +10705,9 @@
       "familyKey": {
         "ru": "Накладывает Анемию при нанесении удара"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уул-Нетол",
@@ -9989,6 +10748,9 @@
       "familyKey": {
         "ru": "+#% to Fire Spell Critical Hit Chance"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10026,6 +10788,9 @@
       "familyKey": {
         "ru": "Sealed Skills have +# to maximum Seals"
       },
+      "regexPrefix": {
+        "ru": "Sealed Skills have"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10054,6 +10819,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -10101,6 +10869,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Потворщицкий",
@@ -10146,6 +10917,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -10193,6 +10967,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Заговорщицкий",
@@ -10238,6 +11015,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -10285,6 +11065,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Эксплуататорский",
@@ -10330,6 +11113,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -10377,6 +11163,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Кукловодческий",
@@ -10423,6 +11212,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10464,6 +11256,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости передвижения"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -10507,6 +11302,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10549,6 +11347,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10590,6 +11391,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -10635,6 +11439,9 @@
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10678,6 +11485,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -10723,6 +11533,9 @@
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10766,6 +11579,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -10811,6 +11627,9 @@
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10855,6 +11674,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10896,6 +11718,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -10939,6 +11764,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -10980,6 +11808,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -11023,6 +11854,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11062,6 +11896,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -11103,6 +11940,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11142,6 +11982,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -11183,6 +12026,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11222,6 +12068,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -11263,6 +12112,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11302,6 +12154,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -11343,6 +12198,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11382,6 +12240,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -11423,6 +12284,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11463,6 +12327,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -11502,6 +12369,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -11549,6 +12419,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Cкрепляющий",
@@ -11594,6 +12467,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -11641,6 +12517,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Усиливающий",
@@ -11686,6 +12565,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {
@@ -11733,6 +12615,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {
           "ms": "Укрепляющий",
@@ -11779,6 +12664,9 @@
       "familyKey": {
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
+      "regexPrefix": {
+        "ru": "Приспешники воскрешаются на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Тормошащий",
@@ -11823,6 +12711,9 @@
       },
       "familyKey": {
         "ru": "Приспешники воскрешаются на #% быстрее"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники воскрешаются на"
       },
       "genderForms": {
         "ru": {
@@ -11869,6 +12760,9 @@
       "familyKey": {
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
+      "regexPrefix": {
+        "ru": "Приспешники воскрешаются на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Будящий",
@@ -11914,6 +12808,9 @@
       "familyKey": {
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
+      "regexPrefix": {
+        "ru": "Приспешники воскрешаются на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Беспокойный",
@@ -11958,6 +12855,9 @@
       },
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
+      },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
       },
       "genderForms": {
         "ru": {
@@ -12005,6 +12905,9 @@
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Дозорный",
@@ -12050,6 +12953,9 @@
       },
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
+      },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
       },
       "genderForms": {
         "ru": {
@@ -12097,6 +13003,9 @@
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Караульный",
@@ -12142,6 +13051,9 @@
       },
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
+      },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
       },
       "genderForms": {
         "ru": {
@@ -12189,6 +13101,9 @@
       "familyKey": {
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
+      "regexPrefix": {
+        "ru": "наносят увеличенный на"
+      },
       "genderForms": {
         "ru": {
           "ms": "Блюстительный",
@@ -12235,6 +13150,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений приспешников"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12271,6 +13189,9 @@
       },
       "familyKey": {
         "ru": "+# к уровню всех камней умений приспешников"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -12309,6 +13230,9 @@
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
       },
+      "regexPrefix": {
+        "ru": "Minions have"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12342,6 +13266,9 @@
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
+      },
+      "regexPrefix": {
+        "ru": "Minions have"
       },
       "genderForms": {
         "ru": {}
@@ -12377,6 +13304,9 @@
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
       },
+      "regexPrefix": {
+        "ru": "Minions have"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12410,6 +13340,9 @@
       },
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
+      },
+      "regexPrefix": {
+        "ru": "Minions have"
       },
       "genderForms": {
         "ru": {}
@@ -12445,6 +13378,9 @@
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
       },
+      "regexPrefix": {
+        "ru": "Minions have"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12479,6 +13415,9 @@
       "familyKey": {
         "ru": "Minions have #% increased Immobilisation buildup"
       },
+      "regexPrefix": {
+        "ru": "Minions have"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12512,6 +13451,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение длительности умений подношений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -12552,6 +13494,9 @@
       "familyKey": {
         "ru": "#% увеличение длительности умений подношений"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12590,6 +13535,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение длительности умений подношений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -12630,6 +13578,9 @@
       "familyKey": {
         "ru": "#% увеличение длительности умений подношений"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12668,6 +13619,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение длительности умений подношений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -12708,6 +13662,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12746,6 +13703,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -12786,6 +13746,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12824,6 +13787,9 @@
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
+      },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
       },
       "genderForms": {
         "ru": {}
@@ -12864,6 +13830,9 @@
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
       },
+      "regexPrefix": {
+        "ru": "Приспешники имеют"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -12902,6 +13871,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -12947,6 +13919,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Заколдованный",
@@ -12990,6 +13965,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13035,6 +14013,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Профессорский",
@@ -13078,6 +14059,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13123,6 +14107,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Чернокнижный",
@@ -13166,6 +14153,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13211,6 +14201,9 @@
       "familyKey": {
         "ru": "#% увеличение урона от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Рунический",
@@ -13254,6 +14247,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13299,6 +14295,9 @@
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Рассудительный",
@@ -13342,6 +14341,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13387,6 +14389,9 @@
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Прозорливый",
@@ -13430,6 +14435,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13475,6 +14483,9 @@
       "familyKey": {
         "ru": "#% увеличение эффективности расхода маны чарами"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Расчётливый",
@@ -13518,6 +14529,9 @@
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13563,6 +14577,9 @@
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Увлечённый",
@@ -13606,6 +14623,9 @@
       },
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -13651,6 +14671,9 @@
       "familyKey": {
         "ru": "#% усиление эффекта Колдовского выброса на вас"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Рьяный",
@@ -13695,6 +14718,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -13732,6 +14758,9 @@
       },
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -13771,6 +14800,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -13808,6 +14840,9 @@
       },
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -13847,6 +14882,9 @@
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -13884,6 +14922,9 @@
       },
       "familyKey": {
         "ru": "#% повышение шанса критического удара для чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -13923,6 +14964,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -13960,6 +15004,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -13999,6 +15046,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14036,6 +15086,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -14075,6 +15128,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14113,6 +15169,9 @@
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону от чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14150,6 +15209,9 @@
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14193,6 +15255,9 @@
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Стимулирующий",
@@ -14234,6 +15299,9 @@
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14277,6 +15345,9 @@
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Возвышающий",
@@ -14318,6 +15389,9 @@
       },
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14361,6 +15435,9 @@
       "familyKey": {
         "ru": "#% increased Spell Damage during any Flask Effect"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Будоражащий",
@@ -14402,6 +15479,9 @@
       },
       "familyKey": {
         "ru": "#% от получаемого урона берется сначала из маны вместо здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14449,6 +15529,9 @@
       "familyKey": {
         "ru": "#% от получаемого урона берется сначала из маны вместо здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Истощающий",
@@ -14494,6 +15577,9 @@
       },
       "familyKey": {
         "ru": "#% от получаемого урона берется сначала из маны вместо здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14541,6 +15627,9 @@
       "familyKey": {
         "ru": "#% от получаемого урона берется сначала из маны вместо здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Изматывающий",
@@ -14587,6 +15676,9 @@
       "familyKey": {
         "ru": "#% шанс при подборе вами сгустков засчитать подбор дополнительного сгустка"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14621,6 +15713,9 @@
       },
       "familyKey": {
         "ru": "#% шанс при подборе вами сгустков засчитать подбор дополнительного сгустка"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -14657,6 +15752,9 @@
       "familyKey": {
         "ru": "#% шанс при подборе вами сгустков засчитать подбор дополнительного сгустка"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14691,6 +15789,9 @@
       },
       "familyKey": {
         "ru": "#% шанс при подборе вами сгустков засчитать подбор дополнительного сгустка"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -14727,6 +15828,9 @@
       "familyKey": {
         "ru": "#% шанс при подборе вами сгустков засчитать подбор дополнительного сгустка"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14761,6 +15865,9 @@
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -14797,6 +15904,9 @@
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14831,6 +15941,9 @@
       },
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -14867,6 +15980,9 @@
       "familyKey": {
         "ru": "#% increased Cast Speed during any Flask Effect"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -14901,6 +16017,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение силы проклятий"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -14946,6 +16065,9 @@
       "familyKey": {
         "ru": "#% увеличение силы проклятий"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Осуждающий",
@@ -14989,6 +16111,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение силы проклятий"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -15034,6 +16159,9 @@
       "familyKey": {
         "ru": "#% увеличение силы проклятий"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Обрекающий",
@@ -15078,6 +16206,9 @@
       "familyKey": {
         "ru": "+# к уровню всех камней умений чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15113,6 +16244,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение области действия умений чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15152,6 +16286,9 @@
       "familyKey": {
         "ru": "#% увеличение области действия умений чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15189,6 +16326,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение области действия умений чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15228,6 +16368,9 @@
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
+      "regexPrefix": {
+        "ru": "собрать с на"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15261,6 +16404,9 @@
       },
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
+      },
+      "regexPrefix": {
+        "ru": "собрать с на"
       },
       "genderForms": {
         "ru": {}
@@ -15296,6 +16442,9 @@
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
+      "regexPrefix": {
+        "ru": "собрать с на"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15329,6 +16478,9 @@
       },
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
+      },
+      "regexPrefix": {
+        "ru": "собрать с на"
       },
       "genderForms": {
         "ru": {}
@@ -15364,6 +16516,9 @@
       "familyKey": {
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
+      "regexPrefix": {
+        "ru": "собрать с на"
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15397,6 +16552,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости перезарядки чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -15443,6 +16601,9 @@
       "familyKey": {
         "ru": "#% повышение скорости перезарядки чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Изобретательный",
@@ -15487,6 +16648,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости перезарядки чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -15533,6 +16697,9 @@
       "familyKey": {
         "ru": "#% повышение скорости перезарядки чар"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {
           "ms": "Первопроходческий",
@@ -15577,6 +16744,9 @@
       },
       "familyKey": {
         "ru": "#% повышение скорости перезарядки чар"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {
@@ -15623,6 +16793,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15656,6 +16829,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15691,6 +16867,9 @@
       "familyKey": {
         "ru": "+# к максимуму здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15724,6 +16903,9 @@
       },
       "familyKey": {
         "ru": "+# к максимуму маны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15759,6 +16941,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15793,6 +16978,9 @@
       "familyKey": {
         "ru": "+# к максимуму маны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15826,6 +17014,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15864,6 +17055,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15901,6 +17095,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -15937,6 +17134,9 @@
       },
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -15976,6 +17176,9 @@
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16013,6 +17216,9 @@
       },
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16052,6 +17258,9 @@
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16089,6 +17298,9 @@
       },
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16128,6 +17340,9 @@
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16165,6 +17380,9 @@
       },
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16204,6 +17422,9 @@
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16241,6 +17462,9 @@
       },
       "familyKey": {
         "ru": "+# к силе, ловкости или интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16280,6 +17504,9 @@
       "familyKey": {
         "ru": "#% полученного урона восполняется в виде здоровья"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16317,6 +17544,9 @@
       "familyKey": {
         "ru": "Знак повелителя Бездны"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16346,6 +17576,9 @@
       },
       "familyKey": {
         "ru": "Знак повелителя Бездны"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16377,6 +17610,9 @@
       "familyKey": {
         "ru": "+#% к максимальному качеству"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16407,6 +17643,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16446,6 +17685,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16483,6 +17725,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16522,6 +17767,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16559,6 +17807,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16598,6 +17849,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16635,6 +17889,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16674,6 +17931,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16711,6 +17971,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16750,6 +18013,9 @@
       "familyKey": {
         "ru": "#% увеличение максимума рунического барьера"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16784,6 +18050,9 @@
       },
       "familyKey": {
         "ru": "#% повышение значений добавленных свойств сопротивлений"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16822,6 +18091,9 @@
       "familyKey": {
         "ru": "#% увеличение глобальной брони, уклонения и энергетического щита"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16858,6 +18130,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение силы, ловкости или интеллекта"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -16897,6 +18172,9 @@
       "familyKey": {
         "ru": "#% увеличение силы, ловкости или интеллекта"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -16934,6 +18212,9 @@
       },
       "familyKey": {
         "ru": "#% увеличение силы, ловкости или интеллекта"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}

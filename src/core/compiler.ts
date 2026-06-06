@@ -58,13 +58,14 @@ function normalizeAst(node: ASTNode): ASTNode {
       return { ...node, child: normalizeAst(node.child) };
     case 'RANGE': {
       if (node.min !== undefined && node.max !== undefined) {
-        // Expand RANGE(min, max, suffix) → AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix))
+        // Expand RANGE(min, max, suffix, prefix, exact) →
+        // AND(RANGE(min, ∅, suffix, prefix, exact), RANGE(∅, max, suffix, prefix, exact))
         // This AND will be flattened into the parent AND during normalization
         return {
           type: 'AND',
           children: [
-            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix },
-            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix },
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact },
           ],
         };
       }
@@ -107,21 +108,37 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
     case 'RANGE': {
       if (ast.min === undefined && ast.max === undefined) return '';
 
+      // Per-RANGE exact flag overrides global round10:
+      // - exact=true  → never round (precise regex for per-token ranges)
+      // - exact=false → use global round10 (for global ranges)
+      // - exact=undefined → use global round10 (default behavior)
+      const useRound10 = ast.exact === true ? false : round10;
+
       // ≥ min: generate regex matching numbers ≥ min
       if (ast.min !== undefined) {
         const minStr = ast.min.toString();
-        const numRegex = generateNumberRegex(minStr, round10);
+        const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
-        if (ast.suffix) return `${numRegex}.*${ast.suffix}`;
+        if (ast.suffix) {
+          // With prefix: "prefix numRegex.*suffix" — anchors number to correct mod line
+          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${ast.suffix}`;
+          return `${numRegex}.*${ast.suffix}`;
+        }
+        // No suffix: just prefix + numRegex or numRegex alone
+        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
         return numRegex;
       }
 
       // ≤ max: generate regex matching numbers ≤ max
       if (ast.max !== undefined) {
         const maxStr = ast.max.toString();
-        const numRegex = generateMaxNumberRegex(maxStr, round10);
+        const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
-        if (ast.suffix) return `${numRegex}.*${ast.suffix}`;
+        if (ast.suffix) {
+          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${ast.suffix}`;
+          return `${numRegex}.*${ast.suffix}`;
+        }
+        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
         return numRegex;
       }
 

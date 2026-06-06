@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 17.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 20.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -514,5 +514,114 @@ Key components: `Sidebar.tsx`, `HomePage.tsx`, all page components, `FilterChip.
 
 1. **Jewel classification accuracy**: ~84% accuracy on cross-validation. Could be improved with a static lookup table from poe2db data instead of heuristics.
 2. **TabletPage PageStateWrapper**: Still has inline loading/error/no-data pattern.
-3. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run.
+3. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run. **Regex prefix data requires full ETL re-run to populate `regexPrefix` field in generated JSONs.**
 4. **HomePage hardcoded mod counts**: Category cards show stale counts after data updates.
+5. **Suffix lengthening for non-unique suffixes**: Ring "урона к атакам" (physical damage) shares suffix with lightning/cold damage mods. ETL needs to detect non-unique suffixes and extend them with inter-placeholder text.
+6. **Dual-number mods filter**: Mods like "От ## до ## урона" have two number placeholders; current RANGE only filters by the second number.
+7. **Fractional ranges**: Mods like "Регенерация 2.1-3 здоровья" have `ranges: []` because ETL doesn't handle fractions.
+
+## 19. Iteration 20 — Prefix Anchoring + Per-Token Exact Regex + Data Fixes
+
+### Problem: `.*` crosses mod boundaries
+
+PoE2 regex engine's `.*` operator matches across mod line boundaries. When a mod like
+`"(2[5-9]|30).*количество монстров"` is used, the number `25-30` can match a number in
+a DIFFERENT mod on the same item, and `.*` then jumps to "количество монстров" in the
+target mod. This produces false positives: a tablet with both Abyss (24% monsters) and
+Ritual (2 circles, number 25-30) mods would incorrectly match `≥25 количество монстров`.
+
+### Solution 1: Prefix in RANGE nodes
+
+Insert text from the mod template BEFORE the number in the regex. Instead of:
+```
+(2[5-9]|30).*количество монстров
+```
+produce:
+```
+увеличенное на (2[5-9]|30).*количество монстров
+```
+
+The prefix "увеличенное на" anchors the number to the correct mod line because this
+phrase only appears in the Abyss mod, not in Ritual mods.
+
+**When prefix is NOT needed:** Number at the start of the mod (e.g., `##% повышение редкости...`).
+There is nothing before the number for `.*` to cross, so no false positives.
+
+**When prefix IS critical:** Number in the middle of the mod, especially after `на` /
+`увеличенное на` / `даруют на`, and when the item can have multiple numeric mods
+(tablets, waystones).
+
+#### Implementation
+
+1. **`types.ts`**: Added `prefix?: string` and `exact?: boolean` to RANGE ASTNode;
+   added `regexPrefix: Record<Locale, string>` to GameToken.
+
+2. **`ast.ts`**: Updated `range()` builder to accept `prefix` and `exact` parameters.
+
+3. **`compiler.ts`**: RANGE compilation now produces:
+   - With prefix + suffix: `"prefix numRegex.*suffix"`
+   - With prefix, no suffix: `"prefix numRegex"`
+   - Without prefix (original): `"numRegex.*suffix"` or `"numRegex"`
+   - Normalization preserves prefix and exact across RANGE(min,max) expansion.
+
+4. **`optimizer.ts`**: `getValueKey()` for RANGE now includes prefix and exact in
+   deduplication key.
+
+5. **`compute-regex.ts`** (ETL): New `extractTemplatePrefix()` function extracts
+   text before the first `##/#`, trimmed to last 2-3 words (minimum 5 chars).
+   Returns empty string if number is at start or prefix is too short.
+   Added `regexPrefix` field to `RegexResult`.
+
+6. **`generate-dictionary.ts`** (ETL): Passes `regexPrefix` through to GameToken JSON.
+
+7. **`useCategoryPage.ts`**: `buildAstFromSelections()` now reads `token.regexPrefix`
+   and passes it to RANGE nodes. Grouping key includes prefix for correct separation.
+
+### Solution 2: Per-token exact regex (no round10)
+
+When a user sets a per-token numeric range (e.g., ≥25 on a specific mod), the intent
+is precise: they want exactly ≥25, not ≥20 (which round10 would produce). Global
+ranges can still use round10 for brevity.
+
+**Implementation**: Added `exact?: boolean` flag to RANGE ASTNode. In compiler:
+- `exact=true` → `useRound10=false` (precise regex)
+- `exact=false` or `undefined` → use global `round10` option
+
+In `buildAstFromSelections()`, per-token overrides set `exact=true`, global ranges
+use default (no exact flag → uses global round10).
+
+### Data Fixes (Cross-Validation)
+
+Cross-validated `tablet.json` against `регис/Плитки предтеч моды.md`. Found and
+added i18n overrides for:
+- **Typo** `адтарях` → `алтарях` (2 mods: `tablet.mod_ldczbk`, `tablet.mod_kbdifj`)
+- **Typo** `получнения` → `получения` (1 mod: `tablet.mod_efa81a`)
+- **Content error** `Бездны` → `Разломы` (1 mod: `tablet.mod_al1nsy` — this is a
+  Breach mod, not Abyss)
+
+All 7 Vaal Beacon mods verified correct — no in-game text mismatch found.
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/shared/types.ts` | Added `prefix`, `exact` to RANGE; added `regexPrefix` to GameToken |
+| `src/core/ast.ts` | Updated `range()` builder signature |
+| `src/core/compiler.ts` | RANGE compilation with prefix + exact; normalization preserves them |
+| `src/core/optimizer.ts` | `getValueKey()` includes prefix and exact |
+| `scripts/etl/compute-regex.ts` | New `extractTemplatePrefix()`; `regexPrefix` in RegexResult |
+| `scripts/etl/generate-dictionary.ts` | Pass `regexPrefix` to GameToken |
+| `scripts/etl/i18n-overrides.json` | 4 tablet typo/content fixes |
+| `src/ui/hooks/useCategoryPage.ts` | Pass prefix and exact to RANGE nodes |
+| `tests/core/compiler.test.ts` | 9 new tests for prefix and exact |
+
+### Stop Criteria for This Iteration
+
+Completed: prefix + exact + compiler tests + data fixes.
+
+**NOT done (next iteration):**
+- Full ETL re-run to populate `regexPrefix` in generated JSONs
+- Suffix lengthening for non-unique suffixes (ring `урона к атакам`)
+- UI changes to FilterChip for prefix display
+- Dual-number mod support
+- Fractional range support

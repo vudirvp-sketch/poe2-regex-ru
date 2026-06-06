@@ -34,6 +34,10 @@ export interface RegexResult {
   yoficationPositions: number[];
   /** Family key: normalized rawTextTemplate for grouping mods of the same family */
   familyKey: string;
+  /** Regex prefix: text before the first ##/# placeholder, used to anchor
+   *  numeric regex to the correct mod line. Prevents .* from crossing mod boundaries.
+   *  Empty string if number is at start of template or prefix is too short (< 5 chars). */
+  regexPrefix: string;
 }
 
 /** Minimum regex length for meaningful matching in PoE2 search.
@@ -86,6 +90,62 @@ function extractTemplateSuffix(template: string): string {
   suffix = suffix.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
 
   return suffix.trim();
+}
+
+/**
+ * Extract the "regex prefix" from a rawTextTemplate.
+ * This is the text BEFORE the first ## or # placeholder,
+ * trimmed to the last 2-3 words (minimum 5 chars).
+ *
+ * The prefix anchors the number regex to the correct mod line,
+ * preventing .* from crossing mod boundaries.
+ *
+ * Examples:
+ *   "Боссы карт даруют на ##% больше опыта" → "даруют на" (last 2 words before ##)
+ *   "##% повышение редкости..." → "" (number at start, no prefix needed)
+ *   "От ## до ## физического урона" → "От" (text before first ##, but we use
+ *     "до" for the second number in the future)
+ */
+function extractTemplatePrefix(template: string): string {
+  // Find the first ## or #
+  let firstHashIdx = -1;
+  for (let i = 0; i < template.length; i++) {
+    if (template[i] === '#') {
+      firstHashIdx = i;
+      break;
+    }
+  }
+
+  // No placeholder → no prefix
+  if (firstHashIdx === -1) return '';
+
+  // If placeholder is at the start → no prefix needed
+  if (firstHashIdx === 0) return '';
+
+  // Extract text before the first placeholder
+  let prefix = template.substring(0, firstHashIdx).trim();
+
+  // Remove trailing non-letter characters (like '+', '(', etc.)
+  prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
+
+  // Minimum 5 characters for the prefix to be meaningful
+  if (prefix.length < 5) return '';
+
+  // Take the last 2-3 words to keep the prefix short
+  // This is a balance between uniqueness and regex length
+  const words = prefix.split(/\s+/);
+  if (words.length > 3) {
+    // Take last 3 words (but ensure minimum 5 chars)
+    let result = words.slice(-3).join(' ');
+    // If still too long, try 2 words
+    if (result.length > 25) {
+      const twoWords = words.slice(-2).join(' ');
+      if (twoWords.length >= 5) result = twoWords;
+    }
+    return result;
+  }
+
+  return prefix;
 }
 
 /**
@@ -231,13 +291,16 @@ export function computeMinimalUniqueSubstring(
 
   // Edge case: empty rawText
   if (!rawText || rawText.trim().length === 0) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey };
+    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '' };
   }
 
   // ═══════════════════════════════════════════════════
   // Strategy 1: Template-family suffix
   // ═══════════════════════════════════════════════════
   const suffix = extractTemplateSuffix(template);
+
+  // Extract prefix for numeric RANGE nodes (text before first ##/#)
+  const regexPrefix = extractTemplatePrefix(template);
 
   if (suffix.length >= effectiveMinLen) {
     const bestSuffix = findShortestUniqueSuffix(
@@ -250,7 +313,7 @@ export function computeMinimalUniqueSubstring(
         bestSuffix, targetToken, allTokensInCategory, locale
       );
 
-      return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey };
+      return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix };
     }
   }
 
@@ -263,7 +326,7 @@ export function computeMinimalUniqueSubstring(
     targetToken, allTokensInCategory, locale, effectiveMinLen
   );
 
-  return { ...fallbackResult, familyKey };
+  return { ...fallbackResult, familyKey, regexPrefix };
 }
 
 /**

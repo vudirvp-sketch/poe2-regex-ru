@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T07:43:55.639Z",
+  "version": "2026-06-06T09:49:22.554Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
@@ -18,6 +18,9 @@
       },
       "familyKey": {
         "ru": "+# к силе"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -55,6 +58,9 @@
       "familyKey": {
         "ru": "+# к ловкости"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -88,6 +94,9 @@
       },
       "familyKey": {
         "ru": "+# к интеллекту"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -125,6 +134,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению огню"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -164,6 +176,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению холоду"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -201,6 +216,9 @@
       },
       "familyKey": {
         "ru": "+#% к сопротивлению молнии"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -240,6 +258,9 @@
       "familyKey": {
         "ru": "+#% к сопротивлению хаосу"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -277,6 +298,9 @@
       "familyKey": {
         "ru": "Иммунитет к увечьям"
       },
+      "regexPrefix": {
+        "ru": ""
+      },
       "genderForms": {
         "ru": {}
       },
@@ -305,6 +329,9 @@
       },
       "familyKey": {
         "ru": "На вас нельзя наложить эффект Оскверненной крови"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}
@@ -338,6 +365,9 @@
       },
       "familyKey": {
         "ru": "Не может быть ослеплён"
+      },
+      "regexPrefix": {
+        "ru": ""
       },
       "genderForms": {
         "ru": {}

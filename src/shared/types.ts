@@ -20,6 +20,10 @@ export interface GameToken {
   regex: Record<Locale, string>;
   /** Family key: normalized rawTextTemplate for grouping mods of the same family */
   familyKey: Record<Locale, string>;
+  /** Regex prefix: text before the number placeholder, used to anchor number
+   *  to the correct mod line. Prevents .* from crossing mod boundaries.
+   *  Example: "даруют на" for "Боссы карт даруют на ##% больше опыта" */
+  regexPrefix: Record<Locale, string>;
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];
@@ -71,4 +75,4 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };

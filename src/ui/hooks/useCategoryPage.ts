@@ -203,17 +203,29 @@ function buildAstFromSelections(
     );
 
     if (anyHasRange) {
-      // Group ranged tokens by their suffix AND effective range
-      // Each unique (suffix, min, max) combination gets its own RANGE node
-      const rangeGroups = new Map<string, { suffix: string; min: number | undefined; max: number | undefined; tokens: GameToken[] }>();
+      // Group ranged tokens by suffix + prefix + effective range
+      // Each unique (suffix, prefix, min, max, isPerToken) combination gets its own RANGE node
+      // Per-token range → exact=true (no round10), global range → exact=false (use round10)
+      const rangeGroups = new Map<string, {
+        suffix: string;
+        prefix: string;
+        min: number | undefined;
+        max: number | undefined;
+        exact: boolean;
+        tokens: GameToken[];
+      }>();
       for (const { token, effective } of tokensWithRange) {
         const suffix = token.regex[locale];
+        const prefix = token.regexPrefix?.[locale] ?? '';
         const hasMin = effective.min !== null && effective.min > 0;
         const hasMax = effective.max !== null && effective.max > 0;
 
-        // Create a group key that includes the effective range values
-        // This ensures tokens with different per-token ranges get separate RANGE nodes
-        const groupKey = `${suffix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}`;
+        // Per-token range override → exact (no round10); global range → not exact
+        const isPerToken = !!perTokenRanges[token.id];
+
+        // Create a group key that includes prefix and whether it's per-token exact
+        // This ensures tokens with different per-token ranges or prefixes get separate RANGE nodes
+        const groupKey = `${suffix}::${prefix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}::${isPerToken}`;
 
         const existing = rangeGroups.get(groupKey);
         if (existing) {
@@ -221,16 +233,18 @@ function buildAstFromSelections(
         } else {
           rangeGroups.set(groupKey, {
             suffix,
+            prefix: prefix || undefined,
             min: hasMin ? effective.min! : undefined,
             max: hasMax ? effective.max! : undefined,
+            exact: isPerToken,  // per-token range → exact regex (no round10)
             tokens: [token],
           });
         }
       }
 
-      // For each unique (suffix, min, max) combination, create a RANGE node
+      // For each unique (suffix, prefix, min, max, exact) combination, create a RANGE node
       for (const [, group] of rangeGroups) {
-        const rangeNode = range(group.min, group.max, group.suffix);
+        const rangeNode = range(group.min, group.max, group.suffix, group.prefix || undefined, group.exact || undefined);
         andChildren.push(rangeNode);
       }
     } else {
