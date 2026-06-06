@@ -104,6 +104,20 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     return perTokenRanges[firstRangedMember.id] ?? {};
   }, [firstRangedMember, perTokenRanges]);
 
+  // Current filterSlotIndex for this group (from perTokenRanges or default 0)
+  const currentSlotIndex = groupRange.filterSlotIndex ?? 0;
+
+  // Handle slot toggle for multi-placeholder groups
+  const handleSlotToggle = useCallback(() => {
+    if (!firstRangedMember || !onSetTokenRange) return;
+    const newSlot = currentSlotIndex === 0 ? 1 : 0;
+    const newRange: TokenRangeOverride = {
+      ...groupRange,
+      filterSlotIndex: newSlot,
+    };
+    onSetTokenRange(firstRangedMember.id, newRange);
+  }, [firstRangedMember, onSetTokenRange, groupRange, currentSlotIndex]);
+
   // Handle min input change for this group
   const handleMinChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!firstRangedMember || !onSetTokenRange) return;
@@ -112,8 +126,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       ...groupRange,
       min: e.target.value === '' || isNaN(v) ? undefined : v,
     };
-    // If both min and max are undefined, clear the override
-    if (newRange.min === undefined && newRange.max === undefined) {
+    // If both min and max are undefined and no slot override, clear the override
+    if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
       onClearTokenRange?.(firstRangedMember.id);
     } else {
       onSetTokenRange(firstRangedMember.id, newRange);
@@ -128,8 +142,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       ...groupRange,
       max: e.target.value === '' || isNaN(v) ? undefined : v,
     };
-    // If both min and max are undefined, clear the override
-    if (newRange.min === undefined && newRange.max === undefined) {
+    // If both min and max are undefined and no slot override, clear the override
+    if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
       onClearTokenRange?.(firstRangedMember.id);
     } else {
       onSetTokenRange(firstRangedMember.id, newRange);
@@ -207,13 +221,19 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         </span>
       )}
       {/* Per-chip numeric range inputs — shown when group is selected and has ranges */}
-      {/* For dual-number mods: filter applies to first placeholder (filterSlotIndex) */}
+      {/* For dual-number mods: slot toggle (1е/2е) switches which placeholder to filter by */}
       {hasRanges && isSelected && onSetTokenRange && (
         <div className="flex items-center gap-1 text-xs" onClick={stopPropagation}>
           {group.hasMultiPlaceholder && (
-            <span className="text-[9px] text-amber-400/60 shrink-0" title={t('chip.dual_number_filter_note')}>
-              {t('chip.dual_number_slot_label')}
-            </span>
+            <button
+              type="button"
+              className="px-1 py-0.5 bg-amber-900/40 border border-amber-600/50 rounded text-[9px] text-amber-300 hover:bg-amber-800/50 transition-colors shrink-0 cursor-pointer"
+              title={currentSlotIndex === 0 ? t('chip.slot_switch_to_second') : t('chip.slot_switch_to_first')}
+              aria-label={currentSlotIndex === 0 ? t('chip.slot_switch_to_second') : t('chip.slot_switch_to_first')}
+              onClick={handleSlotToggle}
+            >
+              {currentSlotIndex === 0 ? '1е' : '2е'}
+            </button>
           )}
           <span className="text-gray-500">&ge;</span>
           <input

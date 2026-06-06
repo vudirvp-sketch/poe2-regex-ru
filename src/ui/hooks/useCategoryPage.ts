@@ -158,22 +158,6 @@ function getEffectiveRange(
 }
 
 /**
- * Get the actual range values for a token considering filterSlotIndex.
- * For single-placeholder tokens: returns token.ranges[0].
- * For multi-placeholder tokens with filterSlotIndex: returns token.ranges[filterSlotIndex].
- */
-function getTokenRangeForSlot(
-  token: GameToken,
-  filterSlotIndex: number
-): number[] | undefined {
-  if (token.ranges.length === 0) return undefined;
-  if (!token.hasMultiPlaceholder || filterSlotIndex >= token.ranges.length) {
-    return token.ranges[0];
-  }
-  return token.ranges[filterSlotIndex];
-}
-
-/**
  * Get the regex prefix for a specific placeholder slot in a multi-placeholder token.
  *
  * For slot 0: returns the existing token.regexPrefix (text before first ##).

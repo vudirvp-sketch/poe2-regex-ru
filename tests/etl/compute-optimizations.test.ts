@@ -26,6 +26,7 @@ function makeRegexResult(overrides: Partial<RegexResult> & { regex: string }): R
     yoficationPositions: [],
     familyKey: overrides.regex,
     regexPrefix: '',
+    hasMultiPlaceholder: false,
     ...overrides,
   };
 }

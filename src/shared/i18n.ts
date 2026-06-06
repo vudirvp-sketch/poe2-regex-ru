@@ -96,6 +96,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.dual_number_tooltip': 'Мод содержит два числа (например "От X до Y"). Фильтр применяется к первому числу.',
     'chip.dual_number_filter_note': 'Фильтр по первому числу (мин. урон/значение)',
     'chip.dual_number_slot_label': '1е:',
+    'chip.slot_switch_to_second': 'Переключить на фильтр по второму числу (макс. урон/значение)',
+    'chip.slot_switch_to_first': 'Переключить на фильтр по первому числу (мин. урон/значение)',
     'vendor.verification': 'Требуется проверка: Regex строки для свойств торговца основаны на переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает, сообщите об этом для исправления.',
     'vendor.selected': 'выбрано',
     'affix.prefix': 'Префикс',

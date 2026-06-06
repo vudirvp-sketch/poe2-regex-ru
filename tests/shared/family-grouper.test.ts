@@ -18,6 +18,7 @@ function makeToken(overrides: Partial<GameToken> & { id: string; affix: GameToke
     values: [],
     hasYofication: false,
     yoficationPositions: [],
+    hasMultiPlaceholder: false,
     level: 1,
     ...overrides,
   };

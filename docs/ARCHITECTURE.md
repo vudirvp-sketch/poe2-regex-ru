@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 23.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 24.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -829,3 +829,61 @@ The pattern `[4-9].` matches single-digit numbers followed by any character (e.g
 1. **Full ETL re-run**: All ETL changes require `pnpm etl` to regenerate JSONs with jewelType, fixed desecrated regexes, and template-based suffixes.
 2. **UI for dual-number filterSlotIndex**: FilterChip should show per-slot range selector for multi-placeholder groups.
 3. **In-game test verification**: Run IN_GAME_TESTS.md and fix any remaining regex issues.
+
+## 22. Iteration 23 — GitHub Actions Build Fix + filterSlotIndex UI + In-Game Tests
+
+### 1. P0: Fix TypeScript compilation errors blocking GitHub Actions
+
+4 TS errors were preventing `pnpm build` from passing in CI:
+
+1. `compute-regex.ts`: `substringSearchFallback()` return type `Omit<RegexResult, 'familyKey'>` was missing `hasMultiPlaceholder` in both early-return and final-return statements. Added `hasMultiPlaceholder: false` to both.
+
+2. `useCategoryPage.ts`: `getTokenRangeForSlot()` was declared but never used (TS6133). Removed — logic is already handled by `getEffectiveRange()` which reads `filterSlotIndex` from `perTokenRanges`.
+
+3. `compute-optimizations.test.ts`: `makeRegexResult()` helper didn't include `hasMultiPlaceholder`, making it `boolean | undefined`. Added `hasMultiPlaceholder: false`.
+
+4. `family-grouper.test.ts`: `makeToken()` helper didn't include `hasMultiPlaceholder`. Added `hasMultiPlaceholder: false`.
+
+### 2. P2: filterSlotIndex toggle UI (1е/2е button in FilterChip)
+
+**Problem**: Dual-number mods (hasMultiPlaceholder) showed a static "1е:" label but had no way to switch which placeholder's range to filter by. `filterSlotIndex` was hardcoded to 0 in `FamilyGroup`.
+
+**Solution**: Replaced the static label with an interactive toggle button:
+
+- **Button**: Shows "1е" (slot 0) or "2е" (slot 1), amber-styled, with tooltip
+- **Behavior**: Clicking toggles `filterSlotIndex` (0↔1) in `perTokenRanges` for the first ranged member
+- **Data flow**: `filterSlotIndex` is persisted in `perTokenRanges` via `TokenRangeOverride`, synced to URL
+- **AST impact**: `getEffectiveRange()` reads `filterSlotIndex` → `getPrefixForSlot()` selects correct prefix → compiler produces correct regex
+- **Cleanup logic**: When min/max are both undefined AND no filterSlotIndex override, the per-token range is cleared
+
+**i18n**: Added `chip.slot_switch_to_second` and `chip.slot_switch_to_first` keys.
+
+### 3. In-game test cases updated (IN_GAME_TESTS.md)
+
+Added tests 16-22 based on actual items from "моды для теста.md":
+
+- Test 16: filterSlotIndex — slot 0 (first number) vs slot 1 (second number)
+- Tests 17-22: Waystone/jewel mods from player inventory (приспешники молнии, порог состояний, Уязвимость к стихиям, etc.)
+- Updated quick-check table with "Ожидание" column
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `scripts/etl/compute-regex.ts` | Added `hasMultiPlaceholder: false` to `substringSearchFallback` returns |
+| `src/ui/hooks/useCategoryPage.ts` | Removed unused `getTokenRangeForSlot()` |
+| `src/ui/components/FilterChip.tsx` | Added slot toggle button (1е/2е) for multi-placeholder groups |
+| `src/shared/i18n.ts` | Added 2 i18n keys for slot toggle |
+| `tests/etl/compute-optimizations.test.ts` | Added `hasMultiPlaceholder: false` to `makeRegexResult()` |
+| `tests/shared/family-grouper.test.ts` | Added `hasMultiPlaceholder: false` to `makeToken()` |
+| `docs/IN_GAME_TESTS.md` | Added tests 16-22 with player inventory data |
+| `docs/ARCHITECTURE.md` | Version bump + iteration 23 section |
+| `новый_план.md` | Updated to v3.0 with iteration 23 status |
+
+### Remaining
+
+1. **P0 — Push to main**: Local TS fixes not yet pushed → CI still fails. Run `git add && git commit && git push`.
+2. **P0 — In-game regex verification**: Run IN_GAME_TESTS.md tests 1-22. If `\d` doesn't work → revert to `[0-9]`.
+3. **P0 — jewelType all "shared"**: Type A parser doesn't extract `modCode` → `buildJewelTypeMap()` can't match. Need to extract modCode from jewel HTML tables or match by rawText.
+4. **P1 — Desecrated regex quality**: Dual-stat mods still get fallback substring regexes.
+5. **P1 — Origin separation audit**: Verify normal/desecrated/corrupted split across all categories.

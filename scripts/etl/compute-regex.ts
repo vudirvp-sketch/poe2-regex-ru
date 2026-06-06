@@ -512,7 +512,7 @@ function substringSearchFallback(
 ): Omit<RegexResult, 'familyKey'> {
   const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
   if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '' };
+    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false };
   }
 
   // Build exclusion texts: all other tokens' texts
@@ -591,7 +591,7 @@ function substringSearchFallback(
     bestCandidate, primaryText, targetToken, exclusionSubstrings
   );
 
-  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '' };
+  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
 }
 
 /**
