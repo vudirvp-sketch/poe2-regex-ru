@@ -19,6 +19,7 @@ import { normalizeTypeA, normalizeTypeB, extractTextAndRanges } from './etl/norm
 import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
+import { validateRegex } from '../src/core/regex-oracle.js';
 import type { ModOrigin, JewelType } from '../src/shared/types.js';
 import type { NormalizedMod } from './etl/normalize.js';
 import * as path from 'path';
@@ -647,7 +648,88 @@ async function runEtl() {
   // Step 7: Apply i18n overrides for tokens without Russian text on poe2db.tw
   applyI18nOverrides();
 
+  // Step 8: Validate generated regexes (if --validate flag is provided)
+  if (process.argv.includes('--validate')) {
+    validateGeneratedRegexes();
+  }
+
   console.log('\n=== ETL Pipeline Complete ===');
+}
+
+/**
+ * Validate all generated regexes using the Regex Oracle.
+ * Reads each JSON file from public/generated/, then for each token's regex
+ * checks that it matches the token's own rawText and does not match any
+ * OTHER token's rawText in the same category.
+ *
+ * Reports: false positives (FP) and false negatives (FN) per category.
+ */
+function validateGeneratedRegexes(): void {
+  console.log('\n=== Validating regexes with Oracle ===');
+
+  const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+  let totalFP = 0;
+  let totalFN = 0;
+
+  for (const jsonFile of jsonFiles) {
+    const filePath = path.join(OUTPUT_DIR, jsonFile);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const tokens = data.tokens;
+    if (!tokens || tokens.length === 0) continue;
+
+    const category = data.category || jsonFile.replace('.json', '');
+    const allModTexts = tokens.map((t: any) => t.rawText?.ru ?? '').filter((t: string) => t.length > 0);
+    const allModTextsLower = allModTexts.map((t: string) => t.toLowerCase());
+
+    let catFP = 0;
+    let catFN = 0;
+    const problemTokens: string[] = [];
+
+    for (const token of tokens) {
+      const regex = token.regex?.ru;
+      const rawText = token.rawText?.ru;
+      if (!regex || !rawText) continue;
+
+      // Skip regexes that contain number patterns — these use prefix anchoring
+      // and the Oracle can't validate them against rawText alone (needs game text)
+      // We validate only LITERAL regexes (no .* or number patterns)
+      if (regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')) continue;
+
+      const targetTexts = [rawText.toLowerCase()];
+      const result = validateRegex(regex, targetTexts, [], allModTextsLower);
+
+      if (result.falseNegatives.length > 0) {
+        catFN++;
+        problemTokens.push(`FN: ${token.id} — regex "${regex}" doesn't match "${rawText}"`);
+      }
+      if (result.falsePositives.length > 0) {
+        catFP++;
+        // Report first 3 FP for this token
+        const fpSamples = result.falsePositives.slice(0, 3).map(fp => fp.substring(0, 40));
+        problemTokens.push(`FP: ${token.id} — regex "${regex}" also matches: ${fpSamples.join(', ')}`);
+      }
+    }
+
+    if (catFP > 0 || catFN > 0) {
+      console.log(`  ${category}: ${catFP} FP, ${catFN} FN`);
+      for (const msg of problemTokens.slice(0, 10)) {
+        console.log(`    ${msg}`);
+      }
+      if (problemTokens.length > 10) {
+        console.log(`    ... and ${problemTokens.length - 10} more`);
+      }
+    } else {
+      console.log(`  ${category}: all literal regexes valid`);
+    }
+
+    totalFP += catFP;
+    totalFN += catFN;
+  }
+
+  console.log(`\n  Total: ${totalFP} FP, ${totalFN} FN across ${jsonFiles.length} categories`);
+  if (totalFP === 0 && totalFN === 0) {
+    console.log('  All literal regexes pass Oracle validation!');
+  }
 }
 
 runEtl().catch(err => {
