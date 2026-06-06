@@ -109,13 +109,13 @@ export function Sidebar() {
         role="navigation"
         aria-label="Основная навигация"
       >
-        <div className="p-4 text-center" style={{ borderBottom: '1px solid var(--poe-border)' }}>
+        <div className="p-4 text-left" style={{ borderBottom: '1px solid var(--poe-border)' }}>
           <img
             src={`${import.meta.env.BASE_URL}icons/logo.png`}
             alt="PoE2 Regex"
-            width={40}
-            height={40}
-            className="mx-auto mb-1 object-contain"
+            width={52}
+            height={52}
+            className="mb-1 object-contain"
           />
           <h1 className="text-lg font-bold" style={{ color: 'var(--poe-gold)' }}>
             PoE2 Regex
@@ -146,8 +146,8 @@ export function Sidebar() {
               <img
                 src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
                 alt=""
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 className="shrink-0 object-contain"
                 style={{ imageRendering: 'auto' }}
               />

@@ -15,7 +15,7 @@
 import { fetchPage } from './etl/fetch-poe2db.js';
 import { parseTypeAPage } from './etl/parse-tables.js';
 import { parseTypeBPage, getModCategoryStats } from './etl/parse-modifiers-calc.js';
-import { normalizeTypeA, normalizeTypeB } from './etl/normalize.js';
+import { normalizeTypeA, normalizeTypeB, extractTextAndRanges } from './etl/normalize.js';
 import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
@@ -370,11 +370,34 @@ function findShortestUniqueSubstring(target: string, exclusionSubs: Set<string>,
 }
 
 /**
+ * Normalize rawText for matching: strip numbers/ranges, normalize whitespace,
+ * lowercase. Used to match Type A jewel mods with Type B ModCalc data
+ * when modCode is not available in the Type A HTML.
+ */
+function normalizeRawTextForMatching(text: string): string {
+  return text
+    // Replace numeric ranges like (5—10) or (5-10) with placeholder
+    .replace(/\([+-]?\d+(?:\.\d+)?\s*[—–\-]\s*[+-]?\d+(?:\.\d+)?\)/g, '##')
+    // Replace standalone numbers (with optional + or -)
+    .replace(/([+-]?\d+(?:\.\d+)?)/g, '#')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/**
  * Build a jewelTypeMap by fetching the poe2db ModCalc pages for Ruby/Emerald/Sapphire.
  *
  * Each ModCalc page is a Type B page containing JSON with all mods for that jewel type.
  * We extract modCode from each mod and map it to the corresponding jewel type.
  * Mods appearing on multiple pages get 'shared' type.
+ *
+ * STRATEGY: Type A jewel tables (JewelMods tab) do NOT contain modCode in their HTML.
+ * So we use a two-pass approach:
+ *   1. Parse ModCalc pages → build modCode→JewelType map
+ *   2. Parse ModCalc tiers' rawText → build normalizedText→modCode map
+ *   3. For each jewel mod, try matching by modCode first, then by normalizedText
  *
  * Returns: Record<modId, JewelType> — maps token IDs to their jewel type.
  */
@@ -391,6 +414,8 @@ async function buildJewelTypeMap(
 
   // Collect modCode sets per jewel type from ModCalc pages
   const modCodeToTypes = new Map<string, Set<JewelType>>();
+  // Also build normalizedText→modCode map for matching without modCode
+  const normalizedTextToModCode = new Map<string, string>();
 
   for (const page of modCalcPages) {
     try {
@@ -403,13 +428,21 @@ async function buildJewelTypeMap(
             const types = modCodeToTypes.get(tier.modCode) || new Set();
             types.add(page.type);
             modCodeToTypes.set(tier.modCode, types);
+
+            // Also map normalized description text → modCode
+            // This allows matching Type A jewel mods (which lack modCode) by their text
+            const { rawTextTemplate } = extractTextAndRanges(tier.descriptionHtml);
+            const normalizedKey = normalizeRawTextForMatching(rawTextTemplate);
+            if (normalizedKey && !normalizedTextToModCode.has(normalizedKey)) {
+              normalizedTextToModCode.set(normalizedKey, tier.modCode);
+            }
           }
         }
       }
 
       const stats = getModCategoryStats(html);
       const totalMods = Object.values(stats).reduce((a, b) => a + b, 0);
-      console.log(`  ${page.type}: found ${totalMods} mods from ModCalc`);
+      console.log(`  ${page.type}: found ${totalMods} mods from ModCalc, ${normalizedTextToModCode.size} text mappings`);
     } catch (err) {
       console.warn(`  WARNING: Failed to fetch ${page.url}:`, (err as Error).message);
     }
@@ -425,26 +458,40 @@ async function buildJewelTypeMap(
     }
   }
 
-  // Map token IDs to jewel types using their modCode
+  // Map token IDs to jewel types
   const jewelTypeMap: Record<string, JewelType> = {};
-  let matched = 0;
+  let matchedByCode = 0;
+  let matchedByText = 0;
   let shared = 0;
 
   for (const mod of allJewelMods) {
+    // Try matching by modCode first (if available)
     const modCode = mod.modCode;
     if (modCode && modCodeToJewelType.has(modCode)) {
       const jType = modCodeToJewelType.get(modCode)!;
       jewelTypeMap[mod.id] = jType;
-      matched++;
+      matchedByCode++;
       if (jType === 'shared') shared++;
-    } else {
-      // No ModCalc match → shared (will be classified by heuristic at runtime)
-      jewelTypeMap[mod.id] = 'shared';
-      shared++;
+      continue;
     }
+
+    // Fallback: match by normalized rawTextTemplate against ModCalc data
+    const normalizedKey = normalizeRawTextForMatching(mod.rawTextTemplate.ru);
+    const matchedModCode = normalizedTextToModCode.get(normalizedKey);
+    if (matchedModCode && modCodeToJewelType.has(matchedModCode)) {
+      const jType = modCodeToJewelType.get(matchedModCode)!;
+      jewelTypeMap[mod.id] = jType;
+      matchedByText++;
+      if (jType === 'shared') shared++;
+      continue;
+    }
+
+    // No match → shared (will be classified by heuristic at runtime)
+    jewelTypeMap[mod.id] = 'shared';
+    shared++;
   }
 
-  console.log(`  Jewel type map: ${matched} matched, ${shared} shared/unmatched out of ${allJewelMods.length} total`);
+  console.log(`  Jewel type map: ${matchedByCode} by modCode, ${matchedByText} by text, ${shared} shared/unmatched out of ${allJewelMods.length} total`);
   return jewelTypeMap;
 }
 
