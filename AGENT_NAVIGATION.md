@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 32.0 | **Date:** 2026-06-07
+> **Version:** 33.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 323 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 409 tests (323 original + 86 hypothesis). |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,7 +28,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (323 tests, Vitest)
+npx vitest run --root . # Run tests (409 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate   # Run ETL + Oracle validation
 pnpm analyze-fn      # Analyze FN/FP per category
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (323 tests)
+- [ ] `npx vitest run --root .` passes (409 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -66,10 +66,15 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
+### CRITICAL
+
+1. **Tablet "зарядов" suffix bug (H4)** — "использ" suffix matches "использовать" in description, not charges line. Actual charges word is "зарядов". Number appears AFTER word (reverse `.*` direction). Needs in-game verification.
+
 ### HIGH
 
-1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md`
-2. **Фаза 7: Игровые тесты** — Validate regexes in PoE2 client
+2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
+3. **Фаза 7: In-game верификация** — Validate hypotheses H1-H9 in PoE2 client
+4. **Cross-mod FP with number + suffix** — Number from mod A can anchor to suffix from mod B via `.*`. Prefix anchoring needed.
 
 ### MEDIUM
 

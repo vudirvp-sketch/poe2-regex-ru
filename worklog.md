@@ -4,52 +4,52 @@
 
 ---
 
-## Current State (Session 37 — 2026-06-07)
+## Current State (Session 38 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (323/323 tests)
-**Oracle:** FP=3715, FN=0 in generated JSON files (after `pnpm optimize`). Most FP are family-tier FP (by design).
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (409/409 tests)
+**Oracle:** FP=3715, FN=0 in generated JSON files. Most FP are family-tier FP (by design).
 
 **Key Changes This Session:**
 
-1. **Fixed failing test** — `tablet.json` had 2 tokens with regex < MIN_REGEX_LEN=5:
-   - `tablet.mod_efa81a`: regex "два" (3 chars) → "в два раза" (10 chars)
-   - `tablet.mod_by2ufv`: regex "100%" (4 chars) → "вплоть" (6 chars)
+1. **Phase 7: Hypothesis-driven test suite** — 86 new tests in `tests/core/hypothesis-patterns.test.ts`
+   - H1: Fractional numbers (decimal point ambiguity) — ✅ all pass
+   - H2: Negative values in mod text — ✅ all pass
+   - H3: Cross-line single mod (Разрушительный) — ✅ all pass
+   - H4: Tablet "зарядов" vs "использ" — ⚠️ CRITICAL FINDING
+   - H5: Implicit property searchability — ✅ all pass (needs in-game verification)
+   - H6: Prefix/suffix name non-searchability — ✅ all pass
+   - H7: "всем стихиям" vs individual resistances — ✅ all pass
+   - H8: Inverted number ranges (50→40) — ✅ all pass
+   - H9: Full tooltip searchability — ✅ all pass (needs in-game verification)
+   - Bonus: Dual-number mods, cross-item AND search, edge cases
 
-2. **Fixed iterative-optimizer.ts** — `trySuffixShortening()` now respects per-category MIN_REGEX_LEN:
-   - waystone/waystone-desecrated/tablet/jewel-desecrated: min 5 chars
-   - other categories: min 3 chars (unchanged)
-   - Prevents optimizer from shortening regexes below test thresholds
+2. **Critical finding (H4):** "использ" as tablet uses suffix matches "использовать" in item DESCRIPTION, not the charges line. Also, the charges number appears AFTER the word "зарядов", creating a directional `.*` problem. Needs in-game verification.
 
-3. **Enhanced i18n-override system** — `applyI18nOverrides()` now supports explicit `regex` field:
-   - If override includes `"regex": "..."`, it's applied directly (no recomputation)
-   - Added regex overrides for `tablet.mod_efa81a` and `tablet.mod_by2ufv`
-
-4. **GitHub Actions deploy fixed** — root cause was the test failure (not YAML). YAML syntax is valid.
+3. **Updated docs/IN_GAME_TESTS.md** — restructured with groups A-L, prioritized by criticality.
 
 **NOT YET DONE:**
-- ⬜ Фаза 7: Игровые тесты — validate regexes in PoE2 client (see docs/IN_GAME_TESTS.md)
-- ⬜ Фаза 8: Финальная полировка — further cross-family FP reduction, UI polish
-- ⬜ Cross-family FP analysis — 90 true cross-family FP in amulet (not family-tier FP)
+- ⬜ In-game verification of all H-group hypotheses (G-L in IN_GAME_TESTS.md)
+- ⬜ Fix tablet "зарядов" suffix if confirmed in-game
+- ⬜ Фаза 8: Cross-family FP reduction
 
 ---
 
 ## Frequent Bugs
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
-2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping, not literal parens. Use `regexMatchesRawText()` to verify.
-3. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes — `##` doesn't exist in rawText. Use template exclusion in substring search.
-4. **Number regex `.` bug:** FIXED — `.` was matching any char, now `[0-9]`
-5. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
-6. **Dual-stat FN:** For multi-placeholder mods, joined template suffix may not appear in rawText because numbers interrupt segments. Use `regexMatchesRawText()` to verify.
-7. **MIN_REGEX_LEN_STRICT vs parens:** Waystone mods with `(num—num)` patterns can't have regexes ≥10 chars without parens. Lowered to 7 for waystone categories.
-8. **Optimizer suffix-shorten too aggressive:** `trySuffixShortening()` could shorten regexes below MIN_REGEX_LEN. Fixed with per-category minimum enforcement.
+2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping, not literal parens.
+3. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes.
+4. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
+5. **MIN_REGEX_LEN_STRICT vs parens:** Waystone mods with `(num—num)` patterns can't have regexes ≥10 chars without parens.
+6. **Optimizer suffix-shorten too aggressive:** Fixed with per-category minimum enforcement.
+7. **"использ" matches description, not charges:** Tablet uses suffix "использ" matches "использовать" in description text. Actual charges word is "зарядов". Needs in-game verification.
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (323)
+npx vitest run --root .          # Run all tests (409)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL with Oracle validation
 pnpm analyze-fn                  # Analyze FN cases per category
