@@ -32,6 +32,9 @@ const TABLET_TYPES = [
   { id: 'expedition', label: 'Экспедиция', regex: 'экспедици', color: 'text-green-400' },
 ] as const;
 
+/** Note about expedition tablets — currently not in game, kept for future content */
+const EXPEDITION_NOTE = 'Экспедиционные плитки временно отсутствуют в игре (лига Руны Альдура). Кнопка оставлена для будущего контента.';
+
 const RARITY_OPTIONS = [
   { id: 'normal', label: 'Обычный', regex: 'обычн', color: 'text-white' },
   { id: 'magic', label: 'Волшебный', regex: 'волшебн', color: 'text-blue-300' },
@@ -177,11 +180,12 @@ export function TabletPage() {
             {TABLET_TYPES.map(typeDef => (
               <button key={typeDef.id}
                 onClick={() => toggleType(typeDef.id)}
+                title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
                 className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                   selectedTypes.has(typeDef.id)
                     ? 'bg-gray-700 border-gray-500 text-white'
                     : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
-                }`}
+                } ${typeDef.id === 'expedition' ? 'opacity-60' : ''}`}
               >
                 <span className={selectedTypes.has(typeDef.id) ? typeDef.color : ''}>
                   {typeDef.label}

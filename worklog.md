@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 24 — 2026-06-06)
+## Current State (Session 25 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,30 +26,44 @@
 
 ---
 
-### Session 24 Changes — Jewel Type Sub-Grouping + Classification Accuracy + TabletPage Refactor
+### Session 25 Changes — Jewel Type Sub-Grouping UX + Scoring Cleanup + Docs Compress
 
-**FEATURE — Jewel type sub-grouping (groupMode="jewel-type"):**
+**FEATURE — Jewel type sub-grouping UX:**
 - Added `'jewel-type'` to `ModGroupMode` union in mod-classifier.ts
 - `classifyGroups()` now handles `'jewel-type'` mode — groups by ruby/emerald/sapphire/shared
-- ModList.tsx: new `showJewelTypeSubGroups` prop — when true, within each origin section,
-  affix columns further sub-group by jewel type (Рубин/Изумруд/Сапфир/Общие)
-- JewelPage now uses `showJewelTypeSubGroups` — visual sub-grouping instead of hiding mods
-- Layout: Обычные → Префикс/Суффикс → within each: Рубин/Изумруд/Сапфир/Общие sub-headers
+- ModList.tsx: new `showJewelTypeSubGroups` + `jewelTypeFilter` props
+- When specific type selected: only that type + "Общие" sub-headers shown (empty headers hidden)
+- When "all" selected: all 4 sub-headers shown
+- JewelPage passes `showJewelTypeSubGroups` + `jewelTypeFilter={jewelTypeFilter}`
+- Layout: Обычные → Префикс/Суффикс → Рубин/Изумруд/Сапфир/Общие sub-headers
 
-**MAJOR — Static lookup table for jewel classification:**
-- Added `JEWEL_TYPE_LOOKUP` — ~210 poe2db-verified familyKey → JewelTypeCategory mappings
-- `classifyJewelType()` now checks lookup FIRST, falls back to weighted scoring
-- Accuracy: ~80% (heuristics only) → 100% (lookup + fallback)
-- Key fixes from lookup: resistance mods → shared (not type-specific), weapon damage
-  (swords→emerald, axes→ruby), warcries→ruby, generic crit→shared, etc.
+**CLEANUP — Weighted scoring rules:**
+- Fixed "крич" → "клич" warcry typo (was 0 matches, now matches correctly)
+- Fixed `/сил[ауе].*поджог/` → added `ы` declension + `увеличен.*силы.*поджог` alternation
+- Removed ~15 duplicate/overlapping rules across RUBY/EMERALD/SAPPHIRE scores:
+  - RUBY: removed generic /поджог/ w=1 (subsumed), /порог.*оглушен/ w=1 (subsumed by /оглушен/),
+    /урон.*по.*враг.*разрушен.*брон/ w=3 (subsumed by /разруш.*брон/ w=3)
+  - EMERALD: removed duplicate /порог.*оглушен.*парир/ (inside Парирован alternation),
+    duplicate /восстановлен.*ман.*флакон/ (in flask alternation),
+    /цепи.*окруж/, /урон.*снарядами.*если.*ближн.*бо/, /урон.*ближн.*бо.*если.*снаряд/ (subsumed by снаряд rules)
+  - SAPPHIRE: removed duplicate /сопротивлен.*холод/ w=1, /максимальн.*сопротивлен.*холод/ w=2 (subsumed),
+    /приспешник.*скорост.*атак.*сотворени/ (subsumed by /скорост.*сотворени.*чар/),
+    /приспешник.*сопротивлен.*стих/ w=2 (exact duplicate of w=3),
+    /порог.*оглушен.*максимум.*энергетическ/, /порог.*состоян.*максимум.*энергетическ/ (subsumed by ES threshold)
+- Zero classification accuracy loss (JEWEL_TYPE_LOOKUP covers 100% of current mods)
 
-**REFACTOR — TabletPage PageStateWrapper:**
-- Removed inline loading/error/no-data blocks from TabletPage.tsx
-- Wrapped content in `<PageStateWrapper>` (same pattern as JewelPage and other pages)
-- Cleaner code, consistent UX across all category pages
+**UI — Tablet Экспедиция:**
+- Added tooltip + opacity-60 to "Экспедиция" button in TabletPage
+- Note: "Экспедиционные плитки временно отсутствуют в игре (лига Руны Альдура). Кнопка оставлена для будущего контента."
+- Button kept functional for future content
 
-**ETL re-run:**
-- `pnpm etl` executed successfully — all categories fetched, 51 i18n overrides applied
+**DOCS — Architecture compression:**
+- ARCHITECTURE.md: 1023 → 518 lines (~49% reduction)
+- Compressed iterations 2-6 from ~440 lines to ~30 lines
+- Removed duplicate Per-Tab tables, Invariants Preserved blocks, DONE Remaining items
+- Added Iteration 17 section
+- Updated Per-Tab Grouping Modes table (Jewel: origin + showJewelTypeSubGroups)
+- Updated AGENT_NAVIGATION.md to version 22.0, iteration 17
 
 ---
 

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 15.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 17.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -252,13 +252,6 @@ The origin filter is applied **before** grouping. Filtering by "corrupted" produ
 groups with ranges scoped to corrupted tokens only. Example: "+(10—15) к силе"
 (1 corrupted member) instead of "+(5—33) к силе" (9 members across all origins).
 
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
 ## 9. Layout v2 — Two-Column Full-Width with Semantic Grouping
 
 ### Problem (v1 layout)
@@ -313,7 +306,7 @@ width for a two-column mod display:
 | Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
 | Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | origin filter (normal/desecrated) |
 | Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
-| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
+| Jewel | `origin + showJewelTypeSubGroups` | Обычные/Очернённые/Осквернённые → prefix/suffix → Рубин/Изумруд/Сапфир/Общие | Built into headers |
 | Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
 | Vendor | N/A | Chip groups by category | — |
 
@@ -346,486 +339,37 @@ width for a two-column mod display:
 | `mod-classifier.ts` | **New** | Semantic classification logic (tags + text + sentiment) |
 | All page components | **Updated** | New layout: ControlPanel top → ModList full-width → ProfilePanel |
 
-### Known Limitations (Next Iteration)
+## 10. Iteration 2 — Multi-Origin Loading + Tablet Type Grouping
 
-1. ~~**Origin sub-sections within columns**: Currently origins are handled
-   via the origin filter dropdown. Visual origin sub-sections within
-   each affix column (separate "Осквернённые" block) are planned.
-   This requires refactoring ModList to support nested sub-groups
-   (semantic → origin within each semantic group).~~ **DONE in iteration 3.**
+Added multi-origin data loading via `loadMergedCategoryData()` in `src/data/loader.ts` with composite-key caching and `mergeCategories` option in `useCategoryPage`. JewelPage loads jewel + jewel-desecrated + jewel-corrupted (224 tokens across 3 origins). WaystonePage loads waystone + waystone-desecrated (112 tokens). Added `groupMode="tablet-type"` for TabletPage with text-based heuristics (алтар→Ритуал, бездн→Бездна, делир→Делириум, ваал/маяк→Ваал, экспедици→Экспедиция).
 
-2. ~~**Mobile optimization**: The two-column layout stacks on mobile
-   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs testing.~~ **DONE in iteration 4.**
+Key components: `loader.ts`, `useCategoryPage.ts`, `JewelPage.tsx`, `WaystonePage.tsx`, `mod-classifier.ts`, `TabletPage.tsx`.
 
-3. ~~**VendorPage**: Not updated in this iteration — layout polish deferred.~~ **DONE in iteration 4.**
+## 11. Iteration 3 — Origin Sub-Sections + Classification Fine-Tuning
 
-4. ~~**Light theme CSS**: New components (ModList, FilterChip, CategoryControlPanel)
-   may need light-theme overrides in `src/index.css`.~~ **DONE in iteration 3.**
+Added origin sub-sections within semantic groups: `splitGroupByOrigin()` in family-grouper splits FamilyGroups by origin with visual dividers (··· Осквернённые ···). Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop. Fine-tuned waystone sentiment classification (0 NEUTRAL, 27 POS / 85 NEG). Expanded OFFENSIVE_TAGS (elemental, cold, fire, lightning, curse) and DEFENSIVE_TAGS (evasion). Fixed origin labels: desecrated→"Очернённые", corrupted→"Осквернённые". Light theme CSS additions for origin sub-sections, affix borders, FilterChip.
 
-5. ~~**Semantic classification fine-tuning**: The text-based heuristics
-   for waystone and tablet classification should be verified against
-   all real data. Edge cases may need keyword adjustments.~~ **DONE in iteration 3.**
+Key components: `family-grouper.ts`, `ModList.tsx`, `mod-classifier.ts`, `constants.ts`, `index.css`.
 
-6. ~~**Relic origin sections**: Relic data has 58 tokens (57 normal + 1 corrupted).
-   Origin sub-sections could show the single corrupted mod separately,
-   but the count is too small to justify the visual noise.~~ **DONE in iteration 4.**
+## 12. Iteration 4 — VendorPage Layout + Relic Origins + Mobile
 
-## 10. Iteration 2 Changes — Multi-Origin Loading + Tablet Type Grouping
+Rewrote VendorPage to Layout v2 with new `VendorChip` component (compact inline-flex, color-coded group headers, shortened labels). Added `showOriginSubSections` to RelicPage (1 corrupted suffix shown under "··· Осквернённые ···" divider). Mobile CSS optimization (768px + 480px breakpoints: larger touch targets, full-width search, grid overflow prevention). Light theme VendorChip overrides. Verified waystone sentiment: 27 POS / 85 NEG / 0 NEUTRAL.
 
-### Changes
+Key components: `VendorPage.tsx`, `VendorChip.tsx`, `RelicPage.tsx`, `index.css`.
 
-1. **Multi-origin data loading** (`src/data/loader.ts`):
-   - Added `loadMergedCategoryData()` — loads and merges multiple category JSON
-     files into a single `CategoryData` object
-   - Merge strategy: concatenate tokens, merge optimization tables
-     (primary takes priority for duplicate keys)
-   - Cached under composite key (e.g., "jewel+jewel-desecrated+jewel-corrupted")
+## 13. Iteration 5 — Accessibility + Keyboard Navigation + Performance
 
-2. **useCategoryPage `mergeCategories` option** (`src/ui/hooks/useCategoryPage.ts`):
-   - New config option: `mergeCategories?: string[]`
-   - When provided, loads primary + merge categories via `loadMergedCategoryData`
-   - Enables multi-origin pages without changing the page component structure
+Full accessibility audit: ARIA attributes on all interactive components (role="switch" on chips, role="progressbar" on health bar, radiogroup/radio on mode toggle, aria-live on RegexOutput, aria-expanded on ProfilePanel, role="alert" on VendorPage warning). Keyboard navigation via `focus-visible` outlines (2px solid blue, 2px offset). Skip-to-content link in Layout. `.sr-only` utility class. Performance review: React.memo on sub-components, useMemo/useCallback throughout, family pooling keeps counts well below virtual scroll threshold.
 
-3. **JewelPage multi-origin loading** (`src/ui/pages/jewel/JewelPage.tsx`):
-   - Now loads: `jewel.json` (193 normal) + `jewel-desecrated.json` (21) + `jewel-corrupted.json` (10)
-   - Total: 224 tokens across 3 origins
-   - `groupMode="origin"` now shows all three groups:
-     Обычные (193) / Очернённые (21) / Осквернённые (10)
+Key components: `FilterChip.tsx`, `VendorChip.tsx`, `RegexOutput.tsx`, `CategoryControlPanel.tsx`, `ModList.tsx`, `ProfilePanel.tsx`, `VendorPage.tsx`, `Layout.tsx`, `index.css`.
 
-4. **WaystonePage multi-origin loading** (`src/ui/pages/waystone/WaystonePage.tsx`):
-   - Now loads: `waystone.json` (96 normal) + `waystone-desecrated.json` (16)
-   - Total: 112 tokens across 2 origins (normal + desecrated)
-   - Origin filter dropdown appears automatically in ModList
+## 14. Iteration 6 — Game Icons Integration + Bug Fixes
 
-5. **Tablet type grouping** (`src/shared/mod-classifier.ts`):
-   - New `groupMode="tablet-type"` with `TabletTypeCategory` type
-   - Classifies tablet mods by content type: Ритуал, Бездна, Делириум, Ваал, Экспедиция, Общие
-   - Text-based heuristics: keyword matching (алтар→Ритуал, бездн→Бездна, делир→Делириум, ваал/маяк→Ваал, экспедици→Экспедиция)
-   - Updated TabletPage to use `groupMode="tablet-type"` instead of `affix-only`
-   - Added "Экспедиция" to TABLET_TYPES controls in TabletPage
+Replaced all emoji icons with game inventory images (`public/icons/`, logo resized 1024→256). Bug fixes: belt label "Ремни"→"Пояса", FilterChip aria-pressed→aria-checked (true/false/mixed), sidebar hamburger missing aria-expanded, parseInt||null swallowing 0, VendorPage clearAll not resetting excludeMode, RegexOutput fallback color #0f0f1a→#0a0a0f. Light theme CSS fixes (scrollbar hover, green button state).
 
-### Per-Tab Grouping Modes (Updated)
+Key components: `Sidebar.tsx`, `HomePage.tsx`, all page components, `FilterChip.tsx`, `CategoryControlPanel.tsx`, `index.css`.
 
-| Tab | `groupMode` | Sub-groups | Multi-origin? |
-|-----|-------------|------------|---------------|
-| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | Already in single file |
-| Waystone | `affix-sentiment` | Позитивные/Негативные/Нейтральные | ✅ waystone + waystone-desecrated |
-| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | Single file |
-| Jewel | `origin` | Обычные/Очернённые/Осквернённые | ✅ jewel + jewel-desecrated + jewel-corrupted |
-| Relic | `affix-only` | None (just prefix/suffix) | Single file |
-| Vendor | N/A | Custom grid layout | N/A |
-
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
-## 11. Iteration 3 Changes — Origin Sub-Sections + Classification Fine-Tuning
-
-### Changes
-
-1. **Origin sub-sections within semantic groups** (`src/shared/family-grouper.ts` + `src/ui/components/ModList.tsx`):
-   - Added `splitGroupByOrigin()` to family-grouper — splits a FamilyGroup with members
-     from multiple origins into separate per-origin FamilyGroup objects, each with
-     its own displayText and range values scoped to that origin's members only
-   - Refactored `buildFamilyGroup()` as a shared helper (eliminated code duplication
-     between `groupTokensByFamily()` and `splitGroupByOrigin()`)
-   - Added `showOriginSubSections` prop to ModList — when enabled, each semantic
-     sub-group (e.g., "Атакующие") further splits its chips by origin with visual
-     divider lines:
-     ```
-     ── Атакующие (15) ──
-     [chip] [chip] [chip]       ← normal origin chips
-     ··· Осквернённые (3) ···   ← origin divider
-     [chip] [chip] [chip]       ← corrupted origin chips
-     ··· Очернённые (2) ···     ← origin divider
-     [chip] [chip]              ← desecrated origin chips
-     ```
-   - Enabled for Amulet, Ring, Belt pages (which have multi-origin data in single files:
-     amulet=427 tokens across normal/corrupted/desecrated/breachborn/essence origins)
-   - Origin sub-sections only appear when there are non-normal origins present
-   - Each split FamilyGroup has a unique `familyKey` with `::origin` suffix for React key uniqueness
-
-2. **Waystone sentiment classification fine-tuning** (`src/shared/mod-classifier.ts`):
-   - Fixed "больше здоровья монстров" — was POSITIVE (keyword "больше"), now NEGATIVE
-   - Fixed "Дополнительных свойств у редких монстров" — was POSITIVE, now NEGATIVE
-   - Fixed area curses ("Область проклята") — was NEUTRAL, now NEGATIVE
-   - Fixed player debuffs (reduced resistances, flask charges, speed, recovery) — now NEGATIVE
-   - Added comprehensive monster buff patterns (armoured, evasive, accuracy, bleed, poison, etc.) — now NEGATIVE
-   - Positive keywords now use specific multi-word patterns instead of broad single words:
-     "повышен.*редкост" instead of just "редкость", "увеличен.*количеств" instead of "количество"
-   - Result: 27 POSITIVE / 85 NEGATIVE / 0 NEUTRAL (all classified)
-   - Note: The "4 NEUTRAL" count in earlier docs was incorrect — verification
-     against actual data confirms all waystone family groups are classified.
-
-3. **Tags-based classification expansion** (`src/shared/mod-classifier.ts`):
-   - Added to OFFENSIVE_TAGS: `elemental`, `cold`, `fire`, `lightning`, `curse`
-   - Added to DEFENSIVE_TAGS: `evasion`
-   - These tags exist in amulet/ring/belt token data but were previously unclassified,
-     causing tokens with only these tags to fall into `neutral` instead of their
-     correct semantic category
-
-4. **Origin label consistency fix** (`src/shared/constants.ts`):
-   - Fixed `desecrated` label: was "Осквернённые" (incorrect — that's corrupted),
-     now "Очернённые" (correct — desecrated/очернённые in RU game client)
-   - Fixed `corrupted` label: was "Осквернено" (neuter singular), now "Осквернённые"
-     (plural, consistent with other origin labels)
-   - Fixed CATEGORY_LABELS: `waystone-desecrated` → "Путевые камни (Очернённые)",
-     `jewel-desecrated` → "Самоцветы (Очернённые)",
-     `jewel-corrupted` → "Самоцветы (Осквернённые)"
-
-5. **Light theme CSS additions** (`src/index.css`):
-   - Added overrides for origin sub-section label colors (purple-400, cyan-400, yellow-400)
-   - Added overrides for affix column borders (blue-800/50, orange-800/50)
-   - Added overrides for select dropdowns and input fields
-   - Added overrides for FilterChip partial selection background
-   - Added origin divider opacity adjustment
-
-### Per-Tab Grouping Modes (Updated)
-
-| Tab | `groupMode` | Sub-groups | Origin sub-sections? |
-|-----|-------------|------------|----------------------|
-| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
-| Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | Via origin filter |
-| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
-| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
-| Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
-| Vendor | N/A | Chip groups by category | — |
-
-### Data Origin Distribution
-
-| Category | Total tokens | Normal | Desecrated | Corrupted | Breachborn | Essence |
-|----------|-------------|--------|------------|-----------|------------|---------|
-| Amulet | 427 | 209 | 30 | 12 | 139 | 37 |
-| Ring | 366 | 203 | 22 | 12 | 95 | 34 |
-| Belt | 298 | 135 | 21 | 12 | 94 | 36 |
-| Waystone | 96+16 | 96 | 16 | — | — | — |
-| Jewel | 193+21+10 | 193 | 21 | 10 | — | — |
-| Tablet | 75 | 75 | — | — | — | — |
-| Relic | 58 | 57 | — | 1 | — | — |
-
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
-### Remaining for Next Iteration
-
-1. ~~**P2 — VendorPage layout polish**: Page still uses old grid layout.
-   Adapt to new style with CategoryControlPanel + compact chip layout.~~ **DONE in iteration 4.**
-
-2. ~~**P2 — Mobile optimization**: Two-column layout stacks on mobile
-   (`grid-cols-1 md:grid-cols-[2fr_3fr]`), but needs real device testing.
-   Origin sub-sections add vertical space which may cause excessive scrolling.~~ **DONE in iteration 4.**
-
-3. ~~**P2 — Relic origin sub-sections**: Relic data has 1 corrupted token.
-   Could add `showOriginSubSections` but visual noise may not be worth it.~~ **DONE in iteration 4.**
-
-4. ~~**Waystone sentiment edge cases**: 4 remaining NEUTRAL tokens.
-   May need game-specific context to classify correctly.~~ **RESOLVED — actual count is 0 NEUTRAL.**
-
-## 12. Iteration 4 Changes — VendorPage Layout + Relic Origins + Mobile
-
-### Changes
-
-1. **VendorPage layout polish** (`src/ui/pages/vendor/VendorPage.tsx` + `src/ui/components/VendorChip.tsx`):
-   - Replaced old grid layout (`grid-cols-1 lg:grid-cols-[1fr_320px]`) with new Layout v2 style:
-     sticky top bar (RegexOutput + mode toggle + round10 + clear) → full-width chip groups below
-   - Created new `VendorChip` component (`src/ui/components/VendorChip.tsx`):
-     compact inline-flex chip, visually consistent with `FilterChip` but simpler
-     (no family grouping, no range slots — just toggle + optional numeric input)
-   - Chip labels shortened for compact display (e.g., "Скорость передвижения (30%)" → "МС 30%",
-     "Сопротивление огню" → "Сопр. огню", "Одноручные булавы" → "1H Булавы")
-   - Added color-coded group headers with `GROUP_COLORS` mapping:
-     Скорость → yellow, Сопротивления → blue, Модификаторы → red, Умения → purple,
-     Характеристики → green, Уровень → cyan, etc.
-   - Added `GROUP_ORDER` for consistent group display order
-   - Sticky top panel includes RegexOutput, mode toggle (Хочу/Не хочу),
-     round10 toggle (when numeric values present), and clear button
-   - Verification note moved to bottom of page
-   - Full layout now matches other category pages: header → sticky controls → chip groups → footer note
-
-2. **Relic origin sub-sections** (`src/ui/pages/relic/RelicPage.tsx`):
-   - Added `showOriginSubSections` prop to RelicPage's ModList
-   - Relic data has 58 tokens (57 normal + 1 corrupted suffix)
-   - The single corrupted token "(8—10)% увеличение восстановления чести"
-     now appears under a "··· Осквернённые (1) ···" divider within the suffix column
-   - Since there's only 1 corrupted family group, the visual noise is minimal
-
-3. **Mobile optimization** (`src/index.css`):
-   - Added `@media (max-width: 768px)` rules:
-     - Larger touch targets for filter/vendor chips (min-height: 32px, increased padding)
-     - Slightly larger chip text on mobile (0.8rem) for readability
-     - Extra padding on sticky control panel for reliable sticky behavior
-     - Reduced margin on origin sub-section dividers to save vertical space
-     - Full-width search input on mobile
-   - Added `@media (max-width: 480px)` rules:
-     - Grid overflow prevention (min-width: 0)
-     - Adjusted chip gap for very small screens
-
-4. **Light theme CSS additions for VendorChip** (`src/index.css`):
-   - Added overrides for VendorChip group header colors (red, purple, green, cyan, amber, sky, teal)
-   - Added overrides for VendorChip border-left colors (gray, yellow, red, purple, green, cyan, orange, amber, sky, teal)
-   - These ensure the new VendorPage chip groups look correct in light theme
-
-5. **Waystone sentiment verification**:
-   - Verified against actual waystone + waystone-desecrated data (112 total tokens)
-   - Result: 27 POSITIVE / 85 NEGATIVE / 0 NEUTRAL across 51 family groups
-   - The "4 NEUTRAL" count from iteration 3 docs was incorrect — all groups are classified
-   - Updated iteration 3 docs to reflect the correct count
-
-### Per-Tab Grouping Modes (Final)
-
-| Tab | `groupMode` | Sub-groups | Origin sub-sections? |
-|-----|-------------|------------|----------------------|
-| Amulet/Ring/Belt | `affix-semantic` | Атакующие/Защитные/Характеристики/Прочие | ✅ `showOriginSubSections` |
-| Waystone | `affix-sentiment` | Позитивные/Негативные (0 NEUTRAL) | Via origin filter |
-| Tablet | `tablet-type` | Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие | — |
-| Jewel | `origin` | Обычные/Очернённые/Осквернённые → prefix/suffix within | Built into headers |
-| Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
-| Vendor | N/A | Color-coded chip groups | — |
-
-### Components Added/Modified
-
-| Component | Change | Description |
-|-----------|--------|-------------|
-| `VendorPage.tsx` | **Rewritten** | New Layout v2: sticky controls → chip groups → footer note |
-| `VendorChip.tsx` | **New** | Compact inline-flex chip for vendor properties |
-| `RelicPage.tsx` | **Updated** | Added `showOriginSubSections` to ModList |
-| `index.css` | **Updated** | Mobile optimization rules + light theme VendorChip overrides |
-
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
-### Remaining for Next Iteration
-
-1. **P3 — Real device testing**: Mobile CSS has been added but not tested on
-   actual devices. May need adjustments after real-world testing.
-
-2. **P3 — Vendor regex verification**: Vendor regex strings are still unverified
-   in-game. The verification note at the bottom of VendorPage should remain until
-   community testing confirms them.
-
-3. **P3 — Accessibility audit**: All category pages should be audited for
-   keyboard navigation, screen reader support, and ARIA attributes.
-
-4. **P3 — Performance profiling**: With 427 amulet tokens and origin sub-sections,
-   render performance should be profiled. Virtual scroll may be needed if
-   family group counts grow significantly.
-
-## 13. Iteration 5 Changes — Accessibility + Keyboard Navigation + Performance
-
-### Changes
-
-1. **Accessibility audit — ARIA attributes** (all interactive components):
-   - `FilterChip.tsx`: Added `role="switch"`, `aria-pressed`, `aria-label` (Russian,
-     includes selection state + tier count + range), `aria-hidden` on decorative badges
-   - `VendorChip.tsx`: Added `role="switch"`, `aria-checked`, `aria-label`, `tabIndex={0}`,
-     keyboard handler (Enter/Space), `aria-label` on numeric input
-   - `RegexOutput.tsx`: Added `role="region"`, `aria-label`, `aria-live="polite"` for
-     live updates, `role="progressbar"` with `aria-valuenow/valuemin/valuemax/aria-label`
-     on health bar, `aria-label` on regex display area
-   - `CategoryControlPanel.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"`
-     + `role="radio"` + `aria-checked` on mode toggle buttons, `aria-label` on numeric inputs
-   - `ModList.tsx`: Added `role="group"`, `aria-label`, `aria-label` on search input,
-     affix filter select, origin filter select
-   - `ProfilePanel.tsx`: Added `aria-expanded`, `aria-controls` on toggle button,
-     `id="profile-panel-content"` on expandable section, `aria-hidden` on decorative arrow,
-     `aria-label` on profile name input
-   - `VendorPage.tsx`: Added `role="toolbar"`, `aria-label`, `role="radiogroup"` + `role="radio"`
-     on mode toggle, `role="alert"` on verification warning
-
-2. **Keyboard navigation** (`src/index.css`):
-   - Added `focus-visible` outline styles (2px solid blue, 2px offset) for all
-     interactive elements: buttons, selects, inputs, [role="switch"], [role="radio"], links
-   - Added light theme override for darker focus ring contrast
-   - Added `focus:not(:focus-visible)` rule to remove outline for mouse clicks
-   - This ensures keyboard-only users get visible focus indicators without
-     visual noise for mouse users
-
-3. **Skip-to-content link** (`src/ui/layout/Layout.tsx` + `src/index.css`):
-   - Added `<a href="#main-content" className="skip-link">` at the top of Layout
-   - Skip link is visually hidden (`top: -40px`) until focused (keyboard Tab)
-   - Jumps focus to `<main id="main-content" tabIndex={-1}>` when activated
-   - Allows screen reader and keyboard users to bypass sidebar navigation
-
-4. **Screen reader utility class** (`src/index.css`):
-   - Added `.sr-only` utility class for visually hidden but accessible text
-   - Standard clip/rect pattern for screen reader compatibility
-
-5. **Performance review**:
-   - `ModSubGroupSection` and `AffixColumn` already wrapped with `React.memo`
-   - `useMemo` and `useCallback` properly used throughout all components
-   - Family pooling reduces 427 amulet tokens to ~110 families — no virtual
-     scroll needed at current scale
-   - Assessment: virtual scroll would only be needed if family group counts
-     exceed ~500, which is unlikely given current PoE2 mod pool sizes
-
-### Components Modified
-
-| Component | Change | Description |
-|-----------|--------|-------------|
-| `FilterChip.tsx` | **Updated** | ARIA: role=switch, aria-pressed, aria-label, aria-hidden on badges |
-| `VendorChip.tsx` | **Updated** | ARIA: role=switch, aria-checked, aria-label, tabIndex, keyboard handler |
-| `RegexOutput.tsx` | **Updated** | ARIA: role=region, aria-live, progressbar with aria attributes |
-| `CategoryControlPanel.tsx` | **Updated** | ARIA: role=toolbar, radiogroup/radio for mode toggle, aria-labels on inputs |
-| `ModList.tsx` | **Updated** | ARIA: role=group, aria-labels on search/filter controls |
-| `ProfilePanel.tsx` | **Updated** | ARIA: aria-expanded, aria-controls, id on content panel |
-| `VendorPage.tsx` | **Updated** | ARIA: role=toolbar, radiogroup, role=alert on warning |
-| `Layout.tsx` | **Updated** | Skip-to-content link + main content landmark |
-| `index.css` | **Updated** | focus-visible outlines, skip-link styles, .sr-only utility |
-
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
-### Remaining for Next Iteration
-
-1. **P3 — Real device testing**: Mobile CSS + focus-visible outlines need testing
-   on actual iOS/Android devices. Touch behavior may differ from desktop emulation.
-
-2. **P3 — Vendor regex verification**: Vendor regex strings are still unverified
-   in-game. The verification note at the bottom of VendorPage now has `role="alert"`
-   for screen readers. Should remain until community testing confirms them.
-
-3. **P3 — Accessibility deep testing**: ARIA attributes are added but not tested
-   with actual screen readers (NVDA, JAWS, VoiceOver). Manual testing recommended.
-
-4. **P3 — Performance profiling with large datasets**: Current family group counts
-   (17-193) are well within simple rendering limits. If PoE2 adds significantly
-   more mods, re-evaluate virtual scroll.
-
-## 14. Iteration 6 Changes — Game Icons Integration + Bug Fixes
-
-### Changes
-
-1. **Game icons integration** (`public/icons/` + multiple components):
-   - Copied game inventory icons from `icon/` folder to `public/icons/` with clean filenames:
-     `waystone.png`, `tablet.png`, `relic.png`, `jewel.png`, `vendor.png`, `belt.png`,
-     `ring.png`, `amulet.png`, `logo.png`
-   - Logo resized from 1024×1024 (2.2MB) to 256×256 (89KB) for web performance
-   - **Sidebar.tsx**: Replaced all emoji icons (💎🧱⚡💠🛒🎗️💍📿🏠) with `<img>` tags
-     referencing `public/icons/`. Added logo image above "PoE2 Regex" title.
-   - **HomePage.tsx**: Replaced all emoji icons in category cards with `<img>` tags (48×48px)
-   - **All category pages** (Waystone, Tablet, Relic, Jewel, Vendor, Belt, Ring, Amulet):
-     Added game icon (24×24px) next to page title using `<img>` with `flex items-center gap-2`
-   - Icons served via `import.meta.env.BASE_URL + 'icons/...'` for correct GitHub Pages deployment
-
-2. **Bug fix: CATEGORY_LABELS belt label** (`src/shared/constants.ts`):
-   - Fixed `belt: 'Ремни'` → `belt: 'Пояса'` — "Пояса" is the correct Russian game term,
-     matching the i18n translation (`belt.title: 'Пояса'`)
-
-3. **Bug fix: FilterChip ARIA conflict** (`src/ui/components/FilterChip.tsx`):
-   - Replaced `aria-pressed` (boolean) with `aria-checked` (true/false/mixed) to match `role="switch"`
-   - Now correctly communicates three selection states to screen readers:
-     full → "true", partial → "mixed", none → "false"
-
-4. **Bug fix: Sidebar hamburger missing aria-expanded** (`src/ui/layout/Sidebar.tsx`):
-   - Added `aria-expanded={mobileOpen}` to the hamburger toggle button
-   - Screen readers now announce whether the mobile menu is open or closed
-
-5. **Bug fix: parseInt || null swallows 0** (`CategoryControlPanel.tsx`, `TabletPage.tsx`):
-   - Changed `parseInt(e.target.value, 10) || null` to proper NaN check:
-     `const v = parseInt(e.target.value, 10); setValue(e.target.value === '' ? null : isNaN(v) ? null : v)`
-   - Typing "0" in range/uses inputs no longer silently clears the field
-
-6. **Bug fix: VendorPage clearAll doesn't reset excludeMode** (`src/ui/pages/vendor/VendorPage.tsx`):
-   - Added `setExcludeMode(false)` to `clearAll` function
-   - Users expect "Clear" to reset all state, not just selections
-
-7. **Bug fix: RegexOutput fallback color mismatch** (`src/ui/components/RegexOutput.tsx`):
-   - Changed `var(--poe-bg, #0f0f1a)` → `var(--poe-bg, #0a0a0f)` to match actual CSS variable value
-
-8. **Light theme CSS fixes** (`src/index.css`):
-   - Added scrollbar hover color override for light theme: `#b0b0ab`
-   - Added `bg-green-600` override for light theme (copied/share button state):
-     `background-color: #16a34a; color: #ffffff`
-
-### Icon File Mapping
-
-| Source (icon/) | Target (public/icons/) | Category | Dimensions |
-|----------------|----------------------|----------|------------|
-| `Waystone_(Tier_15)_inventory_icon.png` | `waystone.png` | Путевые камни | 108×108 |
-| `Irradiated_Tablet_inventory_icon.png` | `tablet.png` | Башни Предтеч | 108×108 |
-| `Relic.png` | `relic.png` | Реликвии | 80×156 |
-| `Diamond_inventory_icon.png` | `jewel.png` | Самоцветы | 108×108 |
-| `Vendor.png` | `vendor.png` | Торговец | 331×270 |
-| `Plate_Belt_inventory_icon.png` | `belt.png` | Пояса | 212×108 |
-| `Iron_Ring_inventory_icon.png` | `ring.png` | Кольца | 108×108 |
-| `Gold_Amulet_inventory_icon.png` | `amulet.png` | Амулеты | 108×108 |
-| `gpt-image-1-mini_a_создай_логотип_path_.png` | `logo.png` | Логотип (sidebar) | 256×256 (resized) |
-
-### Components Modified
-
-| Component | Change | Description |
-|-----------|--------|-------------|
-| `Sidebar.tsx` | **Updated** | Emoji → game icons in nav + logo in header + aria-expanded |
-| `HomePage.tsx` | **Updated** | Emoji → game icons in category cards |
-| `WaystonePage.tsx` | **Updated** | Game icon in page header |
-| `TabletPage.tsx` | **Updated** | Game icon in page header + parseInt fix |
-| `RelicPage.tsx` | **Updated** | Game icon in page header |
-| `JewelPage.tsx` | **Updated** | Game icon in page header |
-| `VendorPage.tsx` | **Updated** | Game icon in page header + clearAll fix |
-| `BeltPage.tsx` | **Updated** | Game icon in page header |
-| `RingPage.tsx` | **Updated** | Game icon in page header |
-| `AmuletPage.tsx` | **Updated** | Game icon in page header |
-| `FilterChip.tsx` | **Updated** | aria-pressed → aria-checked (true/false/mixed) |
-| `CategoryControlPanel.tsx` | **Updated** | parseInt || null → isNaN check |
-| `RegexOutput.tsx` | **Updated** | Fallback color #0f0f1a → #0a0a0f |
-| `constants.ts` | **Updated** | belt label "Ремни" → "Пояса" |
-| `index.css` | **Updated** | Light theme scrollbar hover + bg-green-600 override |
-
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-
-### Remaining for Next Iteration (UI Audit — 29 issues found)
-
-**HIGH priority:**
-1. **VendorChip: Interactive input inside role="switch"** — Numeric `<input>` nested inside
-   `<span role="switch">` creates invalid ARIA tree. Restructure as siblings.
-
-**MEDIUM priority:**
-2. **Sidebar: Focus trap when mobile menu open** — Tab key escapes overlay into hidden page content
-3. **Sidebar: Focus not returned to hamburger after close** — Keyboard users lose position
-4. **RegexOutput: aria-live="polite" too chatty** — Announces full regex string on every change
-5. **ProfilePanel: Tiny touch targets for rename/delete** — Below WCAG 44×44px minimum
-6. **Light theme: Over-broad opacity-70 override** — Affects all elements with opacity-70 class
-7. **HomePage: Hardcoded mod counts** — Will drift as ETL data updates
-8. **HomePage: Hardcoded hero stats ("1 584 мода")** — Should compute from data
-9. **VendorProperty interface duplicated** — In both VendorPage.tsx and VendorChip.tsx
-10. **VendorChip numeric max={100} too low** — PoE2 item levels exceed 100
-11. **VendorPage: Duplicated control panel layout** — Should use CategoryControlPanel
-12. **Many UI strings bypass i18n system** — Hardcoded Russian in components
-13. **VendorPage regex: Short substrings may cause false positives** — "дух", "ман", "силе" too short
-14. **index.html: theme-color hardcoded to dark** — Should update on theme toggle
-
-**LOW priority:**
-15. CategoryControlPanel radio buttons missing name attribute
-16. Light theme scrollbar thumb hover hardcoded
-17. Global `* { border-color }` overly broad
-18. RegexOutput double-sticky positioning redundant
-19. i18n: `home.description` key defined but unused
-20. Header: Theme not synced across browser tabs
-21. VendorPage group headers too small on mobile
-22. Sidebar: No max-height/scroll indication on mobile
-23. Auto-copy may silently fail without feedback
-
-## 15. Iteration 7 Changes — ETL Tag Cleanup + ARIA Fix + Layout Balance + Accessibility
+## 15. Iteration 7 — ETL Tag Cleanup + ARIA Fix + Layout Balance + Accessibility
 
 ### Changes
 
@@ -849,7 +393,6 @@ width for a two-column mod display:
      `::normal`, `::corrupted` etc. to appear in chip display text.
    - Fix: Pass the clean `group.familyKey` (without `::origin`) to `buildFamilyGroup()`,
      then override `splitGroup.familyKey` with the `::origin` suffix for React key uniqueness.
-   - This keeps displayText clean while maintaining unique React keys.
 
 3. **VendorChip ARIA restructuring** (`src/ui/components/VendorChip.tsx`):
    - Root cause: `<input type="number">` was nested inside `<span role="switch">`,
@@ -858,15 +401,12 @@ width for a two-column mod display:
      and `<input>` as siblings. Also increased `max={100}` → `max={1000}` for item levels > 100.
 
 4. **FilterChip layout balance** (`src/ui/components/FilterChip.tsx`):
-   - Root cause: Short chips (e.g., `+(0.3—0.4) м к дальности кувырка`) wrapped inline
-     while long chips took full width, creating visual inconsistency.
    - Fix: Added `min-w-[45%]` to FilterChip className, ensuring chips either fill ~half
      width (2 per row) or full width, eliminating single short chip on a line.
 
 5. **RegexOutput aria-live reduction** (`src/ui/components/RegexOutput.tsx`):
    - Changed `aria-live="polite"` → `aria-live="off"` to prevent screen reader from
-     announcing the entire regex string on every change. Users can still read the
-     regex value via the aria-label on the display area.
+     announcing the entire regex string on every change.
 
 6. **Sidebar focus trap for mobile menu** (`src/ui/layout/Sidebar.tsx`):
    - Added keyboard event handler that traps Tab/Shift+Tab focus within the sidebar
@@ -874,150 +414,105 @@ width for a two-column mod display:
    - Added Escape key to close the mobile menu.
    - Auto-focuses first nav link when sidebar opens.
    - Added `role="navigation"` and `aria-label` to aside element.
-   - Added `aria-hidden="true"` to overlay div.
 
-### Components Modified
+### Remaining
 
-| Component | Change | Description |
-|-----------|--------|-------------|
-| `normalize.ts` | **Updated** | Remove `[data-tag]` and `badge[class*="crafting"]` before text extraction |
-| `family-grouper.ts` | **Updated** | Pass clean familyKey to buildFamilyGroup, override with ::origin after |
-| `VendorChip.tsx` | **Rewritten** | Restructured: div > span[role=switch] + input siblings; max=1000 |
-| `FilterChip.tsx` | **Updated** | Added min-w-[45%] for layout balance |
-| `RegexOutput.tsx` | **Updated** | aria-live="polite" → aria-live="off" |
-| `Sidebar.tsx` | **Rewritten** | Focus trap + Escape close + auto-focus + ARIA navigation role |
-| `jewel.json` | **Patched** | Removed 132 tag contaminations, recomputed 17 empty regexes |
-| `jewel-desecrated.json` | **Patched** | Removed 1 tag contamination, recomputed 1 empty regex |
-| `jewel-corrupted.json` | **Patched** | Removed 5 tag contaminations, recomputed 4 empty regexes |
+1. **HIGH — Full ETL re-run**: Jewel JSON hot-patches should be replaced with a full ETL re-run.
+2. **HIGH — Regex quality audit for jewels**: Recomputed regexes via simplified Python algorithm should be audited against the full TypeScript compute-regex.
+3. **MEDIUM — HomePage: Hardcoded mod counts**: Category cards show mod counts that will become stale.
+4. **MEDIUM — i18n: Russian strings bypassing t()**: Multiple components still contain hardcoded Russian strings.
+5. **MEDIUM — VendorPage: Duplicated layout controls**: Duplicates some CategoryControlPanel functionality.
+6. **LOW — index.html: Hardcoded theme-color** / Light theme overly-broad opacity-70 override / RegexOutput double sticky.
 
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- ETL pipeline — normalize.ts updated (future ETL runs will produce clean data automatically)
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
-- 204 tests pass, build succeeds
-
-### Remaining for Next Iteration
-
-1. **HIGH — Full ETL re-run**: The jewel JSON hot-patches should be replaced with a full
-   ETL re-run (`pnpm etl`) to ensure regex computation is consistent across all categories.
-   The normalize.ts fix ensures future runs are clean, but the manual Python patches for
-   jewel JSON may have slight differences from the TypeScript regex algorithm.
-
-2. **HIGH — Regex quality audit for jewels**: After the tag cleanup, 17+ regexes were
-   recomputed via a simplified Python algorithm. These should be audited against the full
-   TypeScript compute-regex algorithm (which handles compound families, yofication, etc.).
-   Some regexes may be suboptimal (too long or too short).
-
-3. **MEDIUM — HomePage: Hardcoded mod counts**: The HomePage category cards show mod
-   counts that are hardcoded and will become stale when ETL data is updated.
-
-4. **MEDIUM — i18n: Russian strings bypassing t()**: Multiple components still contain
-   hardcoded Russian strings that should go through the i18n system.
-
-5. **MEDIUM — VendorPage: Duplicated layout controls**: VendorPage duplicates some
-   CategoryControlPanel functionality instead of reusing the shared component.
-
-6. **LOW — index.html: Hardcoded theme-color**: Meta tag is hardcoded for dark theme.
-
-7. **LOW — Light theme: overly-broad opacity-70 override**: Needs scoping.
-
-8. **LOW — RegexOutput: Double sticky positioning**: Check for stacking context issues.
-
-## 16. Iteration 9 Changes — i18n Labels + Jewel Type Filter + Constants Cleanup
+## 16. Iteration 9 — i18n Labels + Jewel Type Filter + Constants Cleanup
 
 ### Changes
 
 1. **TabletPage i18n labels** (`src/ui/pages/tablet/TabletPage.tsx` + `src/shared/i18n.ts`):
-   - Replaced hardcoded "Тип:", "Редкость:", "Исп.:" in extraControls with `t('tablet.type_label')`, `t('tablet.rarity_label')`, `t('tablet.uses_label')`
-   - Replaced hardcoded "+ типы:", "+ редкость:", "+ ≥N использ." in summary with `t('tablet.summary_types')`, `t('tablet.summary_rarity')`, `t('tablet.summary_uses')`
-   - Added 6 new i18n keys to translations
+   - Replaced hardcoded "Тип:", "Редкость:", "Исп.:" and summary strings with `t()` calls.
+   - Added 6 new i18n keys.
 
 2. **WaystonePage i18n labels** (`src/ui/pages/waystone/WaystonePage.tsx` + `src/shared/i18n.ts`):
-   - Replaced hardcoded "Осквернён", "Неосквернён", "Делириум" checkbox labels with `t('waystone.corrupted_label')`, `t('waystone.uncorrupted_label')`, `t('waystone.delirious_label')`
-   - Replaced hardcoded "+ оскверн.", "+ неоскверн.", "+ делириум" in summary with `t('waystone.summary_corrupted')`, etc.
-   - Added 6 new i18n keys to translations
+   - Replaced hardcoded "Осквернён", "Неосквернён", "Делириум" labels and summary strings with `t()` calls.
+   - Added 6 new i18n keys.
 
 3. **Constants cleanup** (`src/shared/constants.ts`):
-   - Removed unused `ORIGIN_LABELS` and `AFFIX_LABELS` exports
-   - These were replaced by `t()` calls in iteration 15 but the constants were left in place
-   - Verified: no imports of these constants exist in the codebase
+   - Removed unused `ORIGIN_LABELS` and `AFFIX_LABELS` exports (replaced by `t()` calls in iteration 15).
 
 4. **Jewel type filter** (`src/ui/pages/jewel/JewelPage.tsx` + `src/shared/mod-classifier.ts`):
    - Added `JewelTypeCategory` type: `'ruby' | 'emerald' | 'sapphire' | 'shared'`
-   - Added `classifyJewelType()` function in mod-classifier.ts using text-based heuristics
-   - Ruby keywords: fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence
-   - Emerald keywords: lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks
-   - Sapphire keywords: cold, curses, energy shield, spells, mana, offerings, minions, chaos
-   - Shared: mods that match multiple types or none (e.g., "урон от атак", "урон от стихий", attributes)
-   - Added 4 jewel type filter buttons (Все/Рубин/Изумруд/Сапфир) in JewelPage extraControls
-   - Filter logic: when a type is selected, shows mods classified as that type + shared mods
-   - Jewel type filter state synced to filterStore for URL sharing
-   - Token count in header shows filtered/total (e.g., "98/224 мод(ов)")
-   - Added 5 new i18n keys: `jewel.type_all`, `jewel.type_ruby`, `jewel.type_emerald`, `jewel.type_sapphire`, `jewel.type_label`
+   - Added `classifyJewelType()` using text-based heuristics:
+     Ruby (fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence),
+     Emerald (lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks),
+     Sapphire (cold, curses, energy shield, spells, mana, offerings, minions, chaos).
+   - Shared: mods matching multiple types or none.
+   - Added 4 jewel type filter buttons (Все/Рубин/Изумруд/Сапфир) in JewelPage extraControls.
+   - Filter shows selected type + shared mods; state synced to filterStore for URL sharing.
+   - Added 5 new i18n keys.
 
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+### Remaining
 
-### Remaining for Next Iteration
+1. **Jewel type classification verification**: Text-based heuristics need cross-validation against game data.
+2. **Jewel type sub-grouping**: Add `groupMode="jewel-type"` that groups tokens by jewel type within each origin section with visual separation instead of hiding non-matching mods. **→ DONE in iteration 17.**
+3. **Jewel type filter for desecrated/corrupted tokens**: Current filter applies to all origins; desecrated/corrupted mods are mostly shared across types.
 
-1. **Jewel type classification verification**: The text-based heuristics for Ruby/Emerald/Sapphire
-   classification need verification against the actual game data. Some mods may be misclassified.
-   The uploaded file "моды самоцветов.md" in `/регис/` provides reference data for cross-validation.
-
-2. **Jewel type sub-grouping**: Currently the jewel type filter hides non-matching tokens.
-   An alternative approach: add `groupMode="jewel-type"` that groups tokens by jewel type
-   within each origin section, showing all types but with visual separation.
-
-3. **PageState helper component**: ~~The loading/error/no-data pattern repeats in 7+ pages.~~ **DONE (iter 10)** — `PageStateWrapper` component created, 5 pages refactored.
-
-4. **Jewel type filter for desecrated/corrupted tokens**: The current filter applies to all tokens including desecrated and corrupted origins. Desecrated/corrupted mods are mostly shared across jewel types, so the filter correctly includes them. However, some desecrated mods with element-specific text (e.g., "огня", "холода", "молнии") are correctly classified by the heuristics.
-
-## 17. Iteration 10 Changes — Deploy Fix + Jewel Classification v2 + PageStateWrapper
+## 17. Iteration 10 — Deploy Fix + Jewel Classification v2 + PageStateWrapper
 
 ### Changes
 
 1. **Deploy fix — VendorPage FilterStoreApi type mismatch** (`src/ui/pages/vendor/VendorPage.tsx`):
-   - Root cause: `filterStore.getState()` was passed as `FilterStoreApi` to `CategoryControlPanel`, but `FilterStoreApi` requires `getState`, `subscribe`, `serialize` methods
-   - Fix: Wrapped Zustand store in `FilterStoreApi` adapter (same pattern as `useCategoryPage.ts`)
-   - Renamed internal variable to `useStore` for clarity, created `filterStore` wrapper via `useMemo<FilterStoreApi>`
+   - Root cause: `filterStore.getState()` was passed as `FilterStoreApi` to `CategoryControlPanel`, but `FilterStoreApi` requires `getState`, `subscribe`, `serialize` methods.
+   - Fix: Wrapped Zustand store in `FilterStoreApi` adapter (same pattern as `useCategoryPage.ts`).
 
 2. **Jewel type classification v2 — weighted scoring** (`src/shared/mod-classifier.ts`):
-   - Replaced simple regex OR-groups with weighted keyword scoring system
-   - Each jewel type has `[RegExp, weight][]` arrays: `RUBY_SCORES`, `EMERALD_SCORES`, `SAPPHIRE_SCORES`
-   - Classification picks the type with highest score, requiring margin ≥ 2 over second-best (or ≥ 1 if best ≥ 3)
-   - Cross-validated against poe2db.tw Modifier Calculator pages (Ruby/Emerald/Sapphire)
-   - Improved accuracy from ~62% (simple regex) to ~84% (weighted scoring)
-   - Key fixes: added missing keywords (Вестник, Разрез, отравлен, колчан, пригвожден, метк, etc.)
-   - Reduced weight for ambiguous keywords (поджог, шок, ман) that appear in multiple types
-   - Added new Ruby keywords: физическ урон, похищен здоровье, оглушение, Разрез, скорость перезарядки кличей
-   - Added new Emerald keywords: Вестник, отравлен, яд, колчан, уклонение, пригвожден, метки, крит атак, скорость передвижения
-   - Added new Sapphire keywords: крит шанс, крит урон, порог оглушения от ЭЩ, похищен мана (не из флаконов)
+   - Replaced simple regex OR-groups with weighted keyword scoring system.
+   - Each jewel type has `[RegExp, weight][]` arrays: `RUBY_SCORES`, `EMERALD_SCORES`, `SAPPHIRE_SCORES`.
+   - Classification picks the type with highest score, requiring margin ≥ 2 over second-best (or ≥ 1 if best ≥ 3).
+   - Cross-validated against poe2db.tw Modifier Calculator pages (Ruby/Emerald/Sapphire).
+   - Improved accuracy from ~62% (simple regex) to ~84% (weighted scoring).
+   - Key improvements: added missing keywords (Вестник, Разрез, отравлен, колчан, пригвожден, метк, etc.),
+     reduced weight for ambiguous keywords (поджог, шок, ман).
 
 3. **PageStateWrapper component** (`src/ui/components/PageStateWrapper.tsx`):
-   - New reusable component extracting loading/error/no-data pattern
+   - New reusable component extracting loading/error/no-data pattern.
    - Generic type `<T>` with render-prop pattern: `<PageStateWrapper>{(data) => ...}</PageStateWrapper>`
-   - Refactored 5 pages: BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, JewelPage
-   - TabletPage uses PageStateWrapper internally via its own pattern (left for next iteration)
+   - Refactored 5 pages: BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, JewelPage.
 
-### Invariants Preserved
-- `src/core/` — ZERO changes (I2)
-- `public/generated/` — ZERO changes (I3, READ-ONLY)
-- ETL pipeline — ZERO changes
-- AST builder / compiler / optimizer — ZERO changes
-- URL sync / Profile persistence — works unchanged
-- 204 tests pass, build succeeds
+### Remaining
 
-### Remaining for Next Iteration
+1. **Jewel type sub-grouping**: Add `groupMode="jewel-type"` with visual separation instead of hiding. **→ DONE in iteration 17.**
+2. **Jewel classification accuracy**: ~84% accuracy; could be improved with a static lookup table from poe2db data instead of heuristics.
+3. **TabletPage PageStateWrapper**: Still has inline loading/error/no-data pattern.
+4. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run.
 
-1. **Jewel type sub-grouping**: Add `groupMode="jewel-type"` that groups tokens by jewel type within each origin section, showing all types but with visual separation (instead of hiding non-matching mods).
+## 18. Iteration 17 — Jewel Type Sub-Grouping + Weighted Scoring Cleanup + Tablet Экспедиция
 
-2. **Jewel classification accuracy**: ~84% accuracy on cross-validation. Remaining mismatches are mostly edge cases where mods appear in one poe2db type but have keywords matching another (e.g., resistance mods appearing in all three types, mana-related mods shared between Emerald and Sapphire). Could be improved with a static lookup table from poe2db data instead of heuristics.
+### Changes
 
-3. **TabletPage PageStateWrapper**: TabletPage still has inline loading/error/no-data pattern. Should be refactored to use PageStateWrapper.
+1. **Jewel type sub-grouping** (`src/shared/mod-classifier.ts` + `src/ui/components/ModList.tsx` + `src/ui/pages/jewel/JewelPage.tsx`):
+   - Added `'jewel-type'` to `ModGroupMode` union type.
+   - `classifyGroups()` now handles `jewel-type` mode: within each origin section, tokens are further grouped into Рубин/Изумруд/Сапфир/Общие sub-headers.
+   - Added `showJewelTypeSubGroups` prop to ModList — enables jewel-type sub-grouping within each origin group.
+   - Added `jewelTypeFilter` prop to ModList — when a specific type is selected, only that type's sub-header + "Общие" sub-header are shown (other types hidden, not just visually collapsed).
+   - JewelPage uses both props: `showJewelTypeSubGroups` always on, `jewelTypeFilter` driven by type filter buttons.
+   - This replaces the previous approach of hiding non-matching tokens entirely; all types are now visible with visual separation when no filter is active.
 
-4. **Full ETL re-run**: Jewel JSON hot-patches from iteration 8 should be replaced with a full `pnpm etl` run.
+2. **Weighted scoring cleanup** (`src/shared/mod-classifier.ts`):
+   - Fixed "крич"→"клич" warcry typo in RUBY_SCORES (was matching wrong keyword root).
+   - Removed duplicate/overlapping rules that were subsumed by higher-weight or more-specific entries:
+     - **RUBY**: removed subsumed поджог (covered by fire keywords), оглушен (covered by оглушение), armour break (covered by armour keywords).
+     - **EMERALD**: removed duplicate parry (appeared twice), mana-flask (overlap with flask), melee↔projectile (contradictory classification).
+     - **SAPPHIRE**: removed duplicate minion-resist (subsumed by minion keyword), cold-resist (subsumed by cold keyword), ES-threshold (subsumed by energy_shield keyword).
+   - Net result: ~15 rules removed, zero classification accuracy loss (all cross-validation results unchanged).
+
+3. **Tablet Экспедиция tooltip** (`src/ui/pages/tablet/TabletPage.tsx`):
+   - Added tooltip to "Экспедиция" button in TABLET_TYPES controls noting temporary absence in the current league (лига Руны Альдура).
+   - Button shown with `opacity-60` to indicate inactive state.
+   - Kept in UI for future content when Экспедиция returns.
+
+### Remaining
+
+1. **Jewel classification accuracy**: ~84% accuracy on cross-validation. Could be improved with a static lookup table from poe2db data instead of heuristics.
+2. **TabletPage PageStateWrapper**: Still has inline loading/error/no-data pattern.
+3. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run.
+4. **HomePage hardcoded mod counts**: Category cards show stale counts after data updates.

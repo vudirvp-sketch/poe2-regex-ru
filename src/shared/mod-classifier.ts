@@ -230,11 +230,9 @@ const RUBY_SCORES: [RegExp, number][] = [
   [/(?:урон.*огн|пробива.*сопротивлен.*огн)/i, 3],
   [/сопротивлен.*огн/i, 1],           // also appears in other types via shared resist mods
   [/максимальн.*сопротивлен.*огн/i, 2],
-  [/сил[ауе].*поджог/i, 3],           // ignite strength — Ruby specific
+  [/сил[ауеы].*поджог|увеличен.*силы.*поджог/i, 3],  // ignite strength — Ruby specific
   [/длительн.*поджог/i, 2],           // ignite duration — Ruby+Sapphire, lower weight
-  [/поджог/i, 1],                      // generic ignite mention
-
-  // Bleed (unique to Ruby)
+  // Bleed (unique to Ruby)  // NOTE: generic /поджог/ w=1 removed — subsumed by [длительн.*поджог] w=2 and [сил.*поджог] w=3
   [/(?:сил[ауе].*кровотеч|длительн.*кровотеч|шанс.*наложить.*кровотеч)/i, 3],
   [/кровотеч/i, 1],
 
@@ -259,8 +257,8 @@ const RUBY_SCORES: [RegExp, number][] = [
   [/(?:тотем|здоровь.*тотем|скорост.*установк.*тотем)/i, 3],
 
   // Warcries (unique to Ruby)
-  [/(?:боев.*крич|усилен.*положительн.*эффект.*боев.*крич|скорост.*перезарядк.*боев.*крич|скорость.*перезарядк.*боев.*крич|скорост.*применен.*боев.*крич|скорость.*применен.*боев.*крич|урон.*боев.*крич)/i, 3],
-  [/боев.*крич/i, 2],
+  [/(?:боев.*клич|усилен.*положительн.*эффект.*боев.*клич|скорост.*перезарядк.*боев.*клич|скорость.*перезарядк.*боев.*клич|скорост.*применен.*боев.*клич|скорость.*применен.*боев.*клич|урон.*боев.*клич)/i, 3],
+  [/боев.*клич/i, 2],
 
   // Banners (unique to Ruby)
   [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён)/i, 3],
@@ -279,8 +277,7 @@ const RUBY_SCORES: [RegExp, number][] = [
 
   // Stun (unique to Ruby — but Emerald has parry stun threshold)
   [/(?:скорост.*накоплен.*шкалы.*оглушен|скорость.*накоплен.*шкалы.*оглушен)/i, 3],
-  [/порог.*оглушен/i, 1],   // shared with Emerald (parry stun threshold)
-  [/оглушен/i, 1],          // very generic
+  [/оглушен/i, 1],          // generic — covers stun threshold + stun speed + parry stun
 
   // Leech health (unique to Ruby)
   [/(?:похищен.*здоровь|количеств.*похищен.*здоровь)/i, 2],
@@ -311,8 +308,7 @@ const RUBY_SCORES: [RegExp, number][] = [
   // Bleed strength (Ruby specific — not just "кровотеч" but "силы кровотечения")
   [/сил[ауе].*накладываем.*кровотеч|увеличен.*силы.*кровотеч/i, 3],
 
-  // Armour break (Ruby specific)
-  [/урон.*по.*враг.*разрушен.*брон/i, 3],
+  // NOTE: armour break removed — subsumed by [разруш.*брон] w=3 above
 
   // Combustibility (Ruby — but Sapphire also has it)
   [/сил.*Горючест/i, 1],   // low weight since it appears in both Ruby and Sapphire
@@ -417,8 +413,7 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Stun threshold if not stunned (Emerald)
   [/порог.*оглушен.*недавно.*не.*были.*оглушен/i, 3],
 
-  // Stun threshold at parry (Emerald specific — but "оглушен" triggers Ruby)
-  [/порог.*оглушен.*парир/i, 3],
+  // NOTE: stun threshold at parry removed — already inside Парирован alternation above
 
   // Mana from flasks (Emerald — but "ман" triggers Sapphire)
   [/восстановлен.*ман.*флакон|количеств.*похищен.*ман/i, 3],
@@ -426,20 +421,14 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Vulnerability / Expose (Emerald+Ruby combo mod)
   [/Накладывает восприимчивость|Изнуряет/i, 2],
 
-  // Damage if recently hit in melee then projectiles (Emerald)
-  [/урон.*снарядами.*если.*ближн.*бо/i, 2],
-  [/урон.*ближн.*бо.*если.*снаряд/i, 2],
-
-  // Mana from flasks (Emerald)
-  [/восстановлен.*ман.*флакон/i, 2],
+  // NOTE: conditional melee↔projectile damage removed — subsumed by снаряд rules above
 ];
 
 /** Keyword → weight pairs for Sapphire jewel mods (cold, curses, energy shield, spells, mana, offerings, minions, chaos) */
 const SAPPHIRE_SCORES: [RegExp, number][] = [
   // Cold (unique to Sapphire)
   [/(?:холод|урон.*холод|пробива.*сопротивлен.*холод)/i, 3],
-  [/сопротивлен.*холод/i, 1],
-  [/максимальн.*сопротивлен.*холод/i, 2],
+  // NOTE: generic cold resist removed — subsumed by [холод|урон.*холод|пробива.*сопротивлен.*холод] w=3
 
   // Chill/Freeze (unique to Sapphire)
   [/(?:охлажден|длительн.*охлажден|заморозк|скорост.*накоплен.*заморозк|порог.*заморозк)/i, 3],
@@ -466,7 +455,6 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/приспешник.*сопротивлен.*стихи/i, 3],
   [/приспешник.*шанс.*крит/i, 2],
   [/бонус.*крит.*приспешник|крит.*урон.*приспешник/i, 2],
-  [/приспешник.*скорост.*атак.*сотворени/i, 2],
   [/приспешник.*воскреш/i, 3],
   [/приспешник.*урон/i, 2],
   [/приспешник.*максимум.*здоровь/i, 1],   // shared with Ruby
@@ -495,7 +483,7 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/шанс.*крит.*удар.*чар|крит.*удар.*чар/i, 2],
   [/бонус.*крит.*урон.*чар/i, 2],
 
-  // Generic crit (Sapphire)
+  // Generic crit (Sapphire — catches mods without weapon-specific suffix)
   [/повышен.*шанс.*критического удара/i, 2],
   [/увеличен.*бонус.*крит.*урон(?!.*атак)/i, 2],
 
@@ -505,15 +493,12 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   // Spell cast speed for marks (Sapphire shares with Emerald)
   [/скорост.*сотворени.*чар.*метк|метк.*скорост.*сотворени/i, 1],
 
-  // Minion resist all (Sapphire)
-  [/приспешник.*сопротивлен.*стих/i, 2],
+  // NOTE: minion resist all removed — exact duplicate of [приспешник.*сопротивлен.*стихи] w=3 above
 
   // Area of effect for presence (Sapphire — shared with Ruby)
   [/област.*действ.*присутстви/i, 1],
 
-  // Stun threshold from energy shield (Sapphire)
-  [/порог.*оглушен.*максимум.*энергетическ/i, 3],
-  [/порог.*состоян.*максимум.*энергетическ/i, 3],
+  // NOTE: stun/state threshold from ES removed — subsumed by [дополнит.*порог.*энергетическ.*щит] w=3 above
 ];
 
 /**
@@ -581,7 +566,8 @@ export type ModGroupMode =
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
   | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
-  | 'origin';           // by origin: normal/desecrated/corrupted (jewel)
+  | 'origin'            // by origin: normal/desecrated/corrupted (jewel)
+  | 'jewel-type';       // by jewel type: ruby/emerald/sapphire/shared (within jewel origin sections)
 
 /**
  * Sub-group within an affix column.
@@ -703,6 +689,28 @@ export function classifyGroups(
         label: ORIGIN_SECTION_LABELS[origin]?.label ?? t('origin.' + origin),
         colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-gray-400',
         groups: classified.get(origin)!,
+      }));
+  }
+
+  if (mode === 'jewel-type') {
+    // Group by jewel type category (ruby/emerald/sapphire/shared)
+    const classified = new Map<JewelTypeCategory, FamilyGroup[]>();
+    const order: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 'shared'];
+
+    for (const group of groups) {
+      const category = classifyJewelType(group);
+      const list = classified.get(category) || [];
+      list.push(group);
+      classified.set(category, list);
+    }
+
+    return order
+      .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
+      .map(cat => ({
+        key: cat,
+        label: JEWEL_TYPE_LABELS[cat].label,
+        colorClass: JEWEL_TYPE_LABELS[cat].colorClass,
+        groups: classified.get(cat)!,
       }));
   }
 

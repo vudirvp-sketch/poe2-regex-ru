@@ -166,6 +166,8 @@ export function JewelPage() {
               onOriginFilterChange={setOriginFilter}
               onClearSelections={clearSelections}
               groupMode="origin"
+              showJewelTypeSubGroups
+              jewelTypeFilter={jewelTypeFilter}
             />
 
             <div className="flex flex-col gap-3">

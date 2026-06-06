@@ -1,13 +1,13 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 21.0 | **Date:** 2026-06-06
-> **Current Iteration:** Iteration 16 (i18n Labels + Jewel Type Filter) — COMPLETE.
+> **Version:** 22.0 | **Date:** 2026-06-06
+> **Current Iteration:** Iteration 17 (Jewel Type Sub-Grouping + Weighted Scoring Cleanup) — COMPLETE.
 > **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
 > **Bugfix:** Session 18 fixed critical React error #185 (ProfilePanel infinite loop) + 404.html for SPA routing + loader.ts BASE_URL fix + ETL refresh with i18n overrides (51 tokens patched).
 > **Session 19:** Game icons from `icon/` folder integrated into `public/icons/`. Replaced all emoji icons (sidebar, home, page headers). Fixed 8 bugs (belt label, ARIA conflict, parseInt, clearAll, fallback color, light theme CSS). Full UI audit: 29 issues catalogued in ARCHITECTURE.md §14.
 > **Session 20:** ETL tag cleanup (132+6 jewel tokens cleaned from crafting tag contamination), family-grouper ::origin displayText fix, VendorChip ARIA restructuring (input no longer inside switch), FilterChip min-w-[45%] layout balance, RegexOutput aria-live=off, Sidebar focus trap, VendorChip max=1000. See ARCHITECTURE.md §15.
 > **Session 21:** i18n completion (all page components + FilterChip + CategoryControlPanel use t()), VendorPage refactored to use shared CategoryControlPanel, AFFIX_LABELS/ORIGIN_LABELS replaced with t() in ModList + mod-classifier. ETL automation already in deploy.yml (weekly cron + manual trigger).
-> **Session 22:** TabletPage/WaystonePage hardcoded labels→i18n keys, ORIGIN_LABELS/AFFIX_LABELS removed from constants.ts (unused after iteration 15), JewelPage jewel type filter (Ruby/Emerald/Sapphire/All) with text-based heuristics via classifyJewelType in mod-classifier.ts.
+> **Session 25:** Jewel type sub-grouping (showJewelTypeSubGroups + jewelTypeFilter in ModList, jewel-type groupMode in classifier). Weighted scoring cleanup (~15 duplicate/overlapping rules removed, крич→клич typo fix). Tablet Экспедиция tooltip for future content. ARCHITECTURE.md compressed (1023→518 lines).
 
 ---
 
@@ -98,7 +98,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 13: Icons + Bug Fixes | ✅ Complete | Game icons integration (sidebar, home, page headers), 8 bug fixes (see ARCHITECTURE.md §14), full UI audit (29 issues catalogued) |
 | 14: ETL Tag Cleanup + Accessibility | ✅ Complete | ETL tag removal from jewel mods, family-grouper ::origin fix, VendorChip ARIA restructuring, FilterChip layout balance, RegexOutput aria-live, Sidebar focus trap (see ARCHITECTURE.md §15) |
 | 15: i18n Completion + VendorPage Refactor | ✅ Complete | All page components use t(), FilterChip i18n, CategoryControlPanel i18n, VendorPage uses shared CategoryControlPanel, AFFIX/ORIGIN_LABELS→t() |
-| 16: i18n Labels + Jewel Type Filter | ✅ Complete | TabletPage/WaystonePage hardcoded labels→i18n, ORIGIN_LABELS/AFFIX_LABELS removed from constants.ts, JewelPage jewel type filter (Ruby/Emerald/Sapphire/All) |
+| 17: Jewel Type Sub-Grouping + Scoring Cleanup | ✅ Complete | showJewelTypeSubGroups, jewel-type groupMode, scoring cleanup (~15 rules), Tablet Экспедиция tooltip |
 
 ## 7. Known Issues & Remaining Work
 
@@ -177,7 +177,7 @@ Tablet types in the Russian game client and their estimated regex substrings:
 |-------------|--------------------------|-------|----------|
 | Breach | Башня Бездны Предтеч | `бездн` | ❌ Needs verification |
 | Delirium | Башня Делириума Предтеч | `делир` | ❌ Needs verification |
-| ~~Expedition~~ | ~~Башня Экспедиции Предтеч~~ | ~~`экспед`~~ | ⛔ Removed — no expedition tablets in game yet |
+| ~~Expedition~~ | ~~Башня Экспедиции Предтеч~~ | ~~`экспед`~~ | ⛔ Not in game yet — button kept with tooltip for future content (лига Руны Альдура) |
 | Ritual | Башня Ритуала Предтеч | `ритуал` | ❌ Needs verification |
 | Vaal | Башня Ваал Предтеч | `ваал` | ❌ Needs verification |
 

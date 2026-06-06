@@ -15,7 +15,7 @@
 import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
-import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';
+import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { t } from '@shared/i18n';
@@ -36,6 +36,12 @@ interface ModListProps {
   /** When true, group by origin first, then by semantic category within
    *  each origin section. This avoids duplicate "Осквернённые" headers. */
   showOriginSubSections?: boolean;
+  /** When true, within each origin section in origin mode, further sub-group
+   *  by jewel type (Рубин/Изумруд/Сапфир/Общие). Used by JewelPage. */
+  showJewelTypeSubGroups?: boolean;
+  /** Active jewel type filter — when set, only show sub-headers for this type + shared.
+   *  When 'all', show all sub-headers. */
+  jewelTypeFilter?: JewelTypeCategory | 'all';
 }
 
 /** Origin section within an affix column */
@@ -190,6 +196,8 @@ export const ModList: React.FC<ModListProps> = ({
   onClearSelections,
   groupMode = 'affix-semantic',
   showOriginSubSections = false,
+  showJewelTypeSubGroups = false,
+  jewelTypeFilter = 'all',
 }) => {
   // Get unique origins from tokens
   const availableOrigins = useMemo(() => {
@@ -278,6 +286,31 @@ export const ModList: React.FC<ModListProps> = ({
   const hasBothAffixes = prefixGroups.length > 0 && suffixGroups.length > 0;
   const isOriginMode = groupMode === 'origin';
 
+  /** Render jewel type sub-groups within an affix column of an origin section */
+  const renderJewelTypeSubGroups = (groups: FamilyGroup[]) => {
+    const jewelSubGroups = classifyGroups(groups, 'jewel-type');
+    return jewelSubGroups
+      .filter(sg => {
+        // When a specific type is selected, only show that type + shared
+        if (jewelTypeFilter !== 'all') {
+          return sg.key === jewelTypeFilter || sg.key === 'shared';
+        }
+        return true;
+      })
+      .map(sg => (
+        <div key={sg.key} className="mb-1.5">
+          <div className={`text-[9px] font-semibold uppercase tracking-wider mb-0.5 ${sg.colorClass}`}>
+            ── {sg.label} ({sg.groups.length}) ──
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {sg.groups.map(group => (
+              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
+            ))}
+          </div>
+        </div>
+      ));
+  };
+
   return (
     <div className="mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')}>
       {/* Search + Filters row */}
@@ -352,21 +385,27 @@ export const ModList: React.FC<ModListProps> = ({
                       {originPrefix.length > 0 && (
                         <div className="border-l-2 border-blue-800/50 pl-3">
                           <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">{t('affix.prefix')} ({originPrefix.length})</h5>
-                          <div className="flex flex-wrap gap-1.5">
-                            {originPrefix.map(group => (
-                              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
-                            ))}
-                          </div>
+                          {showJewelTypeSubGroups
+                            ? renderJewelTypeSubGroups(originPrefix)
+                            : <div className="flex flex-wrap gap-1.5">
+                                {originPrefix.map(group => (
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
+                                ))}
+                              </div>
+                          }
                         </div>
                       )}
                       {originSuffix.length > 0 && (
                         <div className="border-l-2 border-orange-800/50 pl-3">
                           <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">{t('affix.suffix')} ({originSuffix.length})</h5>
-                          <div className="flex flex-wrap gap-1.5">
-                            {originSuffix.map(group => (
-                              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
-                            ))}
-                          </div>
+                          {showJewelTypeSubGroups
+                            ? renderJewelTypeSubGroups(originSuffix)
+                            : <div className="flex flex-wrap gap-1.5">
+                                {originSuffix.map(group => (
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
+                                ))}
+                              </div>
+                          }
                         </div>
                       )}
                     </div>
