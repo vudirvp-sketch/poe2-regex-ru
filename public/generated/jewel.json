@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T21:18:11.078Z",
+  "version": "2026-06-06T21:59:24.608Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -850,7 +850,7 @@
         "ru": "Урон пробивает #% сопротивления холоду"
       },
       "regexPrefix": {
-        "ru": "Урон пробивает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1299,7 +1299,7 @@
         "ru": "Улучшенные атаки наносят увеличенный на #% урон"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1602,7 +1602,7 @@
         "ru": "Урон пробивает #% сопротивления огню"
       },
       "regexPrefix": {
-        "ru": "Урон пробивает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1752,7 +1752,7 @@
         "ru": "Умения Вестников наносят увеличенный на #% урон"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1902,7 +1902,7 @@
         "ru": "Урон пробивает #% сопротивления молнии"
       },
       "regexPrefix": {
-        "ru": "Урон пробивает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -2196,7 +2196,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -2247,7 +2247,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -2298,7 +2298,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -3173,7 +3173,7 @@
         "ru": "Срабатывающие чары наносят увеличенный на #% урон от чар"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -3563,7 +3563,7 @@
         "ru": "Компаньоны наносят увеличенный на #% урон"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -3710,7 +3710,7 @@
         "ru": "Удары атаками с #% шансом могут наложить Разрез"
       },
       "regexPrefix": {
-        "ru": "Удары атаками с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -4538,7 +4538,7 @@
         "ru": "Снаряды с #% шансом могут ударить по цепи при столкновении с окружающей средой"
       },
       "regexPrefix": {
-        "ru": "Снаряды с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -5270,7 +5270,7 @@
         "ru": "Отрицательные эффекты на вас заканчиваются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "вас заканчиваются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -5357,7 +5357,7 @@
         "ru": "Мета-умения получают увеличенное на #% количество энергии"
       },
       "regexPrefix": {
-        "ru": "получают увеличенное на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -5400,7 +5400,7 @@
         "ru": "Наносящие урон состояния наносят урон на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "наносят урон на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -5566,7 +5566,7 @@
         "ru": "Снаряды имеют #% шанс выпустить дополнительный снаряд при разветвлении"
       },
       "regexPrefix": {
-        "ru": "Снаряды имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -5987,7 +5987,7 @@
         "ru": "Восстанавливает #% здоровья при убийстве"
       },
       "regexPrefix": {
-        "ru": "Восстанавливает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6287,7 +6287,7 @@
         "ru": "Восстанавливает #% маны при убийстве"
       },
       "regexPrefix": {
-        "ru": "Восстанавливает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6370,7 +6370,7 @@
         "ru": "Умения метки имеют #% повышение скорости сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Умения метки имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6415,7 +6415,7 @@
         "ru": "Умения меток имеют #% увеличение длительности эффекта умения"
       },
       "regexPrefix": {
-        "ru": "Умения меток имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6579,7 +6579,7 @@
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6626,7 +6626,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению хаосу"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6671,7 +6671,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6761,7 +6761,7 @@
         "ru": "Приспешники имеют #% дополнительного уменьшения получаемого физического урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6808,7 +6808,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6857,7 +6857,7 @@
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "Приспешники воскрешаются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -7237,7 +7237,7 @@
         "ru": "Дарует # свирепости при нанесении удара в ближнем бою"
       },
       "regexPrefix": {
-        "ru": "Дарует"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -7278,7 +7278,7 @@
         "ru": "Дарует # свирепости при получении удара от врага"
       },
       "regexPrefix": {
-        "ru": "Дарует"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -7657,7 +7657,7 @@
         "ru": "Дарует дополнительный порог оглушения в размере #% от максимума энергетического щита"
       },
       "regexPrefix": {
-        "ru": "оглушения в размере"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -7701,7 +7701,7 @@
         "ru": "Дарует дополнительный порог состояний в размере #% от максимума энергетического щита"
       },
       "regexPrefix": {
-        "ru": "состояний в размере"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -8329,7 +8329,7 @@
         "ru": "Значимые пассивные умения в радиусе также дают: +#% к сопротивлению огню"
       },
       "regexPrefix": {
-        "ru": "радиусе также дают"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -8374,7 +8374,7 @@
         "ru": "Значимые пассивные умения в радиусе также дают: +#% к сопротивлению холоду"
       },
       "regexPrefix": {
-        "ru": "радиусе также дают"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -8419,7 +8419,7 @@
         "ru": "Значимые пассивные умения в радиусе также дают: +#% к сопротивлению молнии"
       },
       "regexPrefix": {
-        "ru": "радиусе также дают"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -8464,7 +8464,7 @@
         "ru": "Значимые пассивные умения в радиусе также дают: +#% к сопротивлению хаосу"
       },
       "regexPrefix": {
-        "ru": "радиусе также дают"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 28.0 | **Date:** 2026-06-07 | **Language:** RU-first
+> **Version:** 29.0 | **Date:** 2026-06-07 | **Language:** RU-first
 
 ---
 
@@ -270,3 +270,30 @@ All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single 
 - WaystonePage: waystone + waystone-desecrated (112 tokens)
 
 Origin sub-sections (`splitGroupByOrigin()` in family-grouper) split FamilyGroups by origin with visual dividers (··· Осквернённые ···). Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop.
+
+## 11. Oracle API — Regex Validation (Phase 8)
+
+The Oracle (`src/core/regex-oracle.ts`) validates regex patterns against sets of mod texts.
+
+### Two validation modes
+
+| Function | Matching | Use case |
+|----------|----------|----------|
+| `validateRegex()` | Flat-text (`matchQuotedGroup`) | ETL single-mod validation |
+| `validateRegexItem()` | Block-based (`matchPoE2RegexItem`) | In-game behavior simulation |
+| `batchValidate()` | Flat-text, batch | ETL `--validate` |
+| `batchValidateItem()` | Block-based, batch | Accurate FP analysis |
+
+### FP Categorization (Phase 8)
+
+Oracle results distinguish two types of false positives:
+
+- **Family-tier FP** (`OracleResult.familyTierFP`): Regex for token A matches token B's text, and A and B share the same `familyKey`. This is "by design" — when a user clicks "fire resistance", they want ALL tiers, so a regex like "к сопротивлению огню" matching both tier1 and tier2 is intentional.
+
+- **Cross-family FP** (`OracleResult.crossFamilyFP`): Regex for token A matches token B's text, and A and B have DIFFERENT `familyKey`. This is a real bug — the regex is too broad and matches unintended mod families.
+
+**`valid = true`** when there are NO cross-family FP and no false negatives. Family-tier FP are acceptable and don't invalidate the regex.
+
+### Waystone implicits note
+
+Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.

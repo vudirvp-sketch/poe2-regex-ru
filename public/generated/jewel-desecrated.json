@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T21:18:11.146Z",
+  "version": "2026-06-06T21:59:24.676Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -1277,7 +1277,7 @@
         "ru": "Компаньоны наносят увеличенный на #% урон, #% увеличение максимума здоровья компаньонов"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": true,
       "genderForms": {
@@ -1553,7 +1553,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {

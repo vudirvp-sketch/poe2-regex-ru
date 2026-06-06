@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T21:18:29.028Z",
+  "version": "2026-06-06T21:59:38.222Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -6114,7 +6114,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6157,7 +6157,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6200,7 +6200,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6243,7 +6243,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6286,7 +6286,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6329,7 +6329,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6372,7 +6372,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6415,7 +6415,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6458,7 +6458,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -6501,7 +6501,7 @@
         "ru": "Регенерация # здоровья в секунду"
       },
       "regexPrefix": {
-        "ru": "Регенерация"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -9486,7 +9486,7 @@
         "ru": "Флаконы здоровья получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": "зарядов в секунду"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -9526,7 +9526,7 @@
         "ru": "Флаконы маны получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": "зарядов в секунду"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -9566,7 +9566,7 @@
         "ru": "Обереги получают зарядов в секунду: #"
       },
       "regexPrefix": {
-        "ru": "зарядов в секунду"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -9705,7 +9705,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон, если недавно вы наносили удар"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -9859,7 +9859,7 @@
         "ru": "Вызываемые чары с #% шансом могут поглотить всего половину энергии"
       },
       "regexPrefix": {
-        "ru": "Вызываемые чары с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -10087,7 +10087,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -10258,7 +10258,7 @@
         "ru": "Восстанавливает #% маны при убийстве"
       },
       "regexPrefix": {
-        "ru": "Восстанавливает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -10557,7 +10557,7 @@
         "ru": "Приспешники имеют #% повышение скорости перезарядки"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -10644,7 +10644,7 @@
         "ru": "Восстанавливает #% здоровья при убийстве"
       },
       "regexPrefix": {
-        "ru": "Восстанавливает"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -10966,7 +10966,7 @@
         "ru": "Дарует #% от физического урона в виде дополнительного урона от холода"
       },
       "regexPrefix": {
-        "ru": "Дарует"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11136,7 +11136,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11186,7 +11186,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11236,7 +11236,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11286,7 +11286,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11336,7 +11336,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11386,7 +11386,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11436,7 +11436,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11486,7 +11486,7 @@
         "ru": "Приспешники имеют #% увеличение урона"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11536,7 +11536,7 @@
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11582,7 +11582,7 @@
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11628,7 +11628,7 @@
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11674,7 +11674,7 @@
         "ru": "Приспешники имеют #% повышение скорости передвижения"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11720,7 +11720,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11768,7 +11768,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11816,7 +11816,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11864,7 +11864,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11912,7 +11912,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -11960,7 +11960,7 @@
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12008,7 +12008,7 @@
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12054,7 +12054,7 @@
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12100,7 +12100,7 @@
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12146,7 +12146,7 @@
         "ru": "Приспешники имеют #% повышение скорости атаки и сотворения чар"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12192,7 +12192,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12236,7 +12236,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12280,7 +12280,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12324,7 +12324,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12368,7 +12368,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12412,7 +12412,7 @@
         "ru": "Приспешники имеют #% повышение шанса критического удара"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12720,7 +12720,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12770,7 +12770,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12820,7 +12820,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12870,7 +12870,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12920,7 +12920,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -12970,7 +12970,7 @@
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13020,7 +13020,7 @@
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "Приспешники воскрешаются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13069,7 +13069,7 @@
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "Приспешники воскрешаются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13118,7 +13118,7 @@
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "Приспешники воскрешаются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13167,7 +13167,7 @@
         "ru": "Приспешники воскрешаются на #% быстрее"
       },
       "regexPrefix": {
-        "ru": "Приспешники воскрешаются на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13216,7 +13216,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13266,7 +13266,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13316,7 +13316,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13366,7 +13366,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13416,7 +13416,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13466,7 +13466,7 @@
         "ru": "Приспешники наносят увеличенный на #% урон умениями-приказами"
       },
       "regexPrefix": {
-        "ru": "наносят увеличенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13598,7 +13598,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13636,7 +13636,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13674,7 +13674,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13712,7 +13712,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13750,7 +13750,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -13788,7 +13788,7 @@
         "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -14041,7 +14041,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -14084,7 +14084,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -14127,7 +14127,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -14170,7 +14170,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -14213,7 +14213,7 @@
         "ru": "Приспешники имеют #% увеличение области действия"
       },
       "regexPrefix": {
-        "ru": "Приспешники имеют"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -16809,7 +16809,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -16847,7 +16847,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -16885,7 +16885,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -16923,7 +16923,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -16961,7 +16961,7 @@
         "ru": "Сгустки можно собрать с на #% большего расстояния"
       },
       "regexPrefix": {
-        "ru": "собрать с на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {

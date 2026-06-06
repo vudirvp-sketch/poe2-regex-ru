@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T21:18:07.520Z",
+  "version": "2026-06-06T21:59:21.975Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -20,7 +20,7 @@
         "ru": "Монстры Бездны даруют увеличенное на #% количество опыта"
       },
       "regexPrefix": {
-        "ru": "даруют увеличенное на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -67,7 +67,7 @@
         "ru": "В области можно встретить дополнительных Бездн: #"
       },
       "regexPrefix": {
-        "ru": "дополнительных Бездн"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -114,7 +114,7 @@
         "ru": "Бездны порождают увеличенное на #% количество монстров"
       },
       "regexPrefix": {
-        "ru": "порождают увеличенное на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -161,7 +161,7 @@
         "ru": "Из Бездн появляется дополнительных редких монстров: #"
       },
       "regexPrefix": {
-        "ru": "редких монстров"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -587,7 +587,7 @@
         "ru": "Игроки имеют на #% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений"
       },
       "regexPrefix": {
-        "ru": "Игроки имеют на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -631,7 +631,7 @@
         "ru": "Монстры накладывают цепких лиан при нанесении удара: #"
       },
       "regexPrefix": {
-        "ru": "при нанесении удара"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -667,7 +667,7 @@
         "ru": "Игроки обрекаются на смерть на # секунд(-ы)"
       },
       "regexPrefix": {
-        "ru": "на смерть на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {

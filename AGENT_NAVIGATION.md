@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 34.0 | **Date:** 2026-06-07
+> **Version:** 35.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 409 tests (323 original + 86 hypothesis). |
+| `tests/` | Test files. | Mirror `src/` structure. 452 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,7 +28,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (409 tests, Vitest)
+npx vitest run --root . # Run tests (452 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate   # Run ETL + Oracle validation
 pnpm analyze-fn      # Analyze FN/FP per category
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (409 tests)
+- [ ] `npx vitest run --root .` passes (452 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -69,14 +69,14 @@ shared <- core <- strategies <- store <- data <- ui
 ### HIGH
 
 1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
-2. **Cross-family regex conflicts** — ~90 true cross-family FP in amulet (most "FP" are family-tier matches by design)
+2. **Remove deprecated getItemSearchText()** — ~90 calls in tests (hypothesis-patterns.test.ts, poe2-regex-matcher.test.ts). Replace with `getItemSearchBlocks() + matchPoE2RegexItem()`.
 
 ### MEDIUM
 
-3. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
-4. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
-5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-6. **HomePage hardcoded mod counts** — Category cards show stale counts
+3. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
+4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+5. **HomePage hardcoded mod counts** — Category cards show stale counts
+6. **Re-run ETL** — After adding jewel-corrupted to STRICT_CATEGORIES, need ETL re-run to regenerate JSON with longer regexes
 
 ### LOW
 
@@ -100,4 +100,20 @@ shared <- core <- strategies <- store <- data <- ui
 | amulet | 427 | 0 | 1311 | 21.0 |
 | **Total** | **1,573** | **0** | **3,715** | **19.9** |
 
-Note: Most FP are family-tier FP (same mod, different tiers sharing one regex) — this is by design.
+Note: Most FP are family-tier FP (same mod, different tiers sharing one regex) — this is by design. Phase 8 Oracle now distinguishes family-tier FP from cross-family FP in `OracleResult.familyTierFP` / `OracleResult.crossFamilyFP`.
+
+## 8. Oracle API (Phase 8)
+
+Two validation modes in `src/core/regex-oracle.ts`:
+
+| Function | Matching | Use case |
+|----------|----------|----------|
+| `validateRegex()` | Flat-text (`matchQuotedGroup`) | ETL single-mod validation |
+| `validateRegexItem()` | Block-based (`matchPoE2RegexItem`) | In-game behavior simulation |
+| `batchValidate()` | Flat-text, batch | ETL --validate |
+| `batchValidateItem()` | Block-based, batch | Accurate FP analysis |
+
+FP categorization (all functions):
+- `OracleResult.familyTierFP` — FP from same familyKey (by design)
+- `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
+- `valid = true` when NO cross-family FP and no FN

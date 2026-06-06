@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T21:18:12.737Z",
+  "version": "2026-06-06T21:59:24.926Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -710,7 +710,7 @@
         "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Из монстров с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -749,7 +749,7 @@
         "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Из монстров с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -788,7 +788,7 @@
         "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Из монстров с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -827,7 +827,7 @@
         "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Из монстров с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -866,7 +866,7 @@
         "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Фонтаны с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -904,7 +904,7 @@
         "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Фонтаны с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -942,7 +942,7 @@
         "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Фонтаны с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -980,7 +980,7 @@
         "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
       },
       "regexPrefix": {
-        "ru": "Фонтаны с"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1018,7 +1018,7 @@
         "ru": "Дарует святой воды в начале испытания: #"
       },
       "regexPrefix": {
-        "ru": "в начале испытания"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1063,7 +1063,7 @@
         "ru": "Дарует святой воды в начале испытания: #"
       },
       "regexPrefix": {
-        "ru": "в начале испытания"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1108,7 +1108,7 @@
         "ru": "Дарует святой воды в начале испытания: #"
       },
       "regexPrefix": {
-        "ru": "в начале испытания"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1153,7 +1153,7 @@
         "ru": "Дарует святой воды в начале испытания: #"
       },
       "regexPrefix": {
-        "ru": "в начале испытания"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1198,7 +1198,7 @@
         "ru": "Дарует святой воды в начале испытания: #"
       },
       "regexPrefix": {
-        "ru": "в начале испытания"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1555,7 +1555,7 @@
         "ru": "Ловушки наносят уменьшенный на #% урон"
       },
       "regexPrefix": {
-        "ru": "наносят уменьшенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
@@ -1601,7 +1601,7 @@
         "ru": "Ловушки наносят уменьшенный на #% урон"
       },
       "regexPrefix": {
-        "ru": "наносят уменьшенный на"
+        "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {

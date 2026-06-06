@@ -68,6 +68,7 @@ const STRICT_CATEGORIES_MIN_LEN: Record<string, number> = {
   'waystone-desecrated': 7,
   'tablet': 10,
   'jewel-desecrated': 10,
+  'jewel-corrupted': 7,
 };
 
 /**
