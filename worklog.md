@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 23 — 2026-06-06)
+## Current State (Session 24 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,25 +26,30 @@
 
 ---
 
-### Session 23 Changes — Deploy Fix + Jewel Classification v2 + PageStateWrapper
+### Session 24 Changes — Jewel Type Sub-Grouping + Classification Accuracy + TabletPage Refactor
 
-**CRITICAL — Deploy fix (VendorPage FilterStoreApi type mismatch):**
-- `filterStore.getState()` was incorrectly typed as `FilterStoreApi` in CategoryControlPanel
-- Fix: wrapped Zustand store in `FilterStoreApi` adapter (same pattern as useCategoryPage.ts)
-- Build now passes TypeScript strict checks
+**FEATURE — Jewel type sub-grouping (groupMode="jewel-type"):**
+- Added `'jewel-type'` to `ModGroupMode` union in mod-classifier.ts
+- `classifyGroups()` now handles `'jewel-type'` mode — groups by ruby/emerald/sapphire/shared
+- ModList.tsx: new `showJewelTypeSubGroups` prop — when true, within each origin section,
+  affix columns further sub-group by jewel type (Рубин/Изумруд/Сапфир/Общие)
+- JewelPage now uses `showJewelTypeSubGroups` — visual sub-grouping instead of hiding mods
+- Layout: Обычные → Префикс/Суффикс → within each: Рубин/Изумруд/Сапфир/Общие sub-headers
 
-**MAJOR — Jewel type classification v2 (weighted scoring):**
-- Replaced simple regex OR-groups with weighted keyword scoring (`RUBY_SCORES`, `EMERALD_SCORES`, `SAPPHIRE_SCORES`)
-- Cross-validated against poe2db.tw Modifier Calculator (Ruby/Emerald/Sapphire pages)
-- Accuracy improved from ~62% → ~84%
-- Added missing keywords: Вестник, Разрез, отравлен, колчан, пригвожден, метк, уклонен, etc.
-- Reduced weight for ambiguous keywords (поджог, шок, ман) that appear in multiple jewel types
-- Classification threshold: best score ≥ 2 with margin ≥ 2, or best ≥ 3 with margin ≥ 1
+**MAJOR — Static lookup table for jewel classification:**
+- Added `JEWEL_TYPE_LOOKUP` — ~210 poe2db-verified familyKey → JewelTypeCategory mappings
+- `classifyJewelType()` now checks lookup FIRST, falls back to weighted scoring
+- Accuracy: ~80% (heuristics only) → 100% (lookup + fallback)
+- Key fixes from lookup: resistance mods → shared (not type-specific), weapon damage
+  (swords→emerald, axes→ruby), warcries→ruby, generic crit→shared, etc.
 
-**FEATURE — PageStateWrapper component:**
-- New `src/ui/components/PageStateWrapper.tsx` — generic render-prop component
-- Extracts loading/error/no-data pattern from 5 category pages
-- Refactored: BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, JewelPage
+**REFACTOR — TabletPage PageStateWrapper:**
+- Removed inline loading/error/no-data blocks from TabletPage.tsx
+- Wrapped content in `<PageStateWrapper>` (same pattern as JewelPage and other pages)
+- Cleaner code, consistent UX across all category pages
+
+**ETL re-run:**
+- `pnpm etl` executed successfully — all categories fetched, 51 i18n overrides applied
 
 ---
 
@@ -53,12 +58,9 @@
 | Priority | Issue | Status |
 |----------|-------|--------|
 | INFO | 1 i18n override token has regex <5 chars (amulet fire spell crit breachborn) | Acceptable |
-| INFO | Waystone tier filter removed (confirmed not searchable in RU client) | By design |
 | INFO | 51 tokens use i18n overrides (poe2db.tw lacks Russian text) | Handled by i18n-overrides.json |
 | LOW | VendorPage GROUP_ORDER + GROUP_COLORS labels are hardcoded Russian | By design (vendor-specific) |
-| MED | Jewel classification ~84% — some edge cases misclassified | Needs static lookup |
-| MED | TabletPage not using PageStateWrapper yet | Next iteration |
-| LOW | Jewel type sub-grouping (groupMode="jewel-type") | Next iteration |
+| LOW | Remaining pages that might still use inline loading/error: none left | All refactored |
 
 ---
 
@@ -79,7 +81,7 @@ pnpm dev              # Development server
 - **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
 - **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip, PageStateWrapper
 - **i18n:** `src/shared/i18n.ts` — t() function with 130+ keys
-- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type (weighted scoring)
+- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type (static lookup + weighted scoring fallback)
 - **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
 - **Store:** `src/store/` — Zustand filter store, profile store, URL sync
 
