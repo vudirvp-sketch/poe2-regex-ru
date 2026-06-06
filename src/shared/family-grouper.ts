@@ -257,13 +257,16 @@ export function splitGroupByOrigin(group: FamilyGroup): Array<{ origin: ModOrigi
     const members = byOrigin.get(origin);
     if (!members) continue;
 
-    // Build a new FamilyGroup with origin-scoped members
-    // Use a unique familyKey with origin suffix for React key uniqueness
+    // Build a new FamilyGroup with origin-scoped members.
+    // Use the ORIGINAL familyKey (without ::origin) for displayText generation,
+    // then override familyKey with the ::origin suffix for React key uniqueness.
     const splitGroup = buildFamilyGroup(
-      `${group.familyKey}::${origin}`,
+      group.familyKey,  // clean template — no ::origin
       group.affix,
       members
     );
+    // Override familyKey to include origin suffix for unique React keys
+    splitGroup.familyKey = `${group.familyKey}::${origin}`;
 
     results.push({ origin, group: splitGroup });
   }

@@ -132,7 +132,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       style={{ background: 'var(--poe-bg, #0a0a0f)' }}
       role="region"
       aria-label="Регулярное выражение"
-      aria-live="polite"
+      aria-live="off"
     >
       {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">

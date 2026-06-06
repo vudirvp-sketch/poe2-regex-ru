@@ -151,6 +151,14 @@ export function extractTextAndRanges(html: string): {
   // Build raw text by getting all text content
   // First, remove secondary spans (internal stat identifiers)
   $('span.secondary').remove();
+  // Remove crafting tag badges — they contain labels like "Броня", "Атака",
+  // "Урон Стихийный" etc. that are NOT part of the mod text.
+  // These appear as <span class="badge" data-tag="armour">Броня</span>
+  // or similar elements with data-tag attributes.
+  $('[data-tag]').remove();
+  // Also remove badge elements without data-tag (some pages use
+  // <span class="badge bg-primary craftingfire">Огонь</span>)
+  $('span.badge[class*="crafting"]').remove();
 
   let rawText = $.root().text().trim();
   // Normalize whitespace (multiple spaces, newlines)

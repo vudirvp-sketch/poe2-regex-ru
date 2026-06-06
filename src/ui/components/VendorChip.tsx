@@ -7,6 +7,10 @@
  * Selection states:
  * - Full: property is selected (highlighted)
  * - None: property is not selected
+ *
+ * ARIA fix (iteration 7): Restructured so that the numeric <input> is a SIBLING
+ * of the role="switch" element, not a child. This avoids invalid ARIA tree where
+ * an interactive input is nested inside a switch role.
  */
 import React from 'react';
 
@@ -48,21 +52,23 @@ export const VendorChip: React.FC<VendorChipProps> = ({
     : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50';
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer ${bgClass} ${borderClass}`}
-      onClick={handleClick}
-      role="switch"
-      aria-checked={isSelected}
-      aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-    >
-      <span className="leading-tight">{prop.label}</span>
+    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors ${bgClass} ${borderClass}`}>
+      <span
+        className="leading-tight cursor-pointer"
+        onClick={handleClick}
+        role="switch"
+        aria-checked={isSelected}
+        aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      >
+        {prop.label}
+      </span>
       {prop.hasNumericInput && isSelected && (
         <input
           type="number"
           min={0}
-          max={100}
+          max={1000}
           placeholder="≥N"
           value={numericValue ?? ''}
           onClick={(e) => e.stopPropagation()}
@@ -71,6 +77,6 @@ export const VendorChip: React.FC<VendorChipProps> = ({
           className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[10px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
         />
       )}
-    </span>
+    </div>
   );
 };

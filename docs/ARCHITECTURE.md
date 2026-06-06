@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 12.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 13.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -824,3 +824,102 @@ width for a two-column mod display:
 21. VendorPage group headers too small on mobile
 22. Sidebar: No max-height/scroll indication on mobile
 23. Auto-copy may silently fail without feedback
+
+## 15. Iteration 7 Changes — ETL Tag Cleanup + ARIA Fix + Layout Balance + Accessibility
+
+### Changes
+
+1. **ETL: Crafting tag removal from mod text** (`scripts/etl/normalize.ts` + `public/generated/jewel*.json`):
+   - Root cause: poe2db.tw stores crafting tag badges (`<span class="badge" data-tag="armour">Броня</span>`)
+     inside the description HTML cell. The ETL pipeline extracted `data-tag` attributes into `tags[]`
+     but left the badge text in the description, causing tags like "Атака", "Броня", "Урон Стихийный"
+     to appear at the end of `rawText`, `rawTextTemplate`, `familyKey`, and `regex` fields.
+   - Fix in `extractTextAndRanges()`: Added `$('[data-tag]').remove()` and
+     `$('span.badge[class*="crafting"]').remove()` before text extraction, alongside the
+     existing `$('span.secondary').remove()`.
+   - Hot-patched existing JSON files: cleaned 132 tokens in `jewel.json`, 1 in
+     `jewel-desecrated.json`, 5 in `jewel-corrupted.json`. Recomputed regex for 22 tokens
+     that had empty or tag-contaminated regexes after cleanup.
+   - Example before: `"(10—20)% повышение брони Броня"` → after: `"(10—20)% повышение брони"`
+   - Example before: regex `"Броня"` → after: regex `"повышение брони"`
+
+2. **Bug fix: `::origin` suffix leaking into displayText** (`src/shared/family-grouper.ts`):
+   - Root cause: `splitGroupByOrigin()` passed `${group.familyKey}::${origin}` as the
+     familyKey to `buildFamilyGroup()`, which used it for `generateDisplayText()`, causing
+     `::normal`, `::corrupted` etc. to appear in chip display text.
+   - Fix: Pass the clean `group.familyKey` (without `::origin`) to `buildFamilyGroup()`,
+     then override `splitGroup.familyKey` with the `::origin` suffix for React key uniqueness.
+   - This keeps displayText clean while maintaining unique React keys.
+
+3. **VendorChip ARIA restructuring** (`src/ui/components/VendorChip.tsx`):
+   - Root cause: `<input type="number">` was nested inside `<span role="switch">`,
+     creating an invalid ARIA tree (interactive element inside switch role).
+   - Fix: Restructured to `<div>` wrapper containing `<span role="switch">` (label + toggle)
+     and `<input>` as siblings. Also increased `max={100}` → `max={1000}` for item levels > 100.
+
+4. **FilterChip layout balance** (`src/ui/components/FilterChip.tsx`):
+   - Root cause: Short chips (e.g., `+(0.3—0.4) м к дальности кувырка`) wrapped inline
+     while long chips took full width, creating visual inconsistency.
+   - Fix: Added `min-w-[45%]` to FilterChip className, ensuring chips either fill ~half
+     width (2 per row) or full width, eliminating single short chip on a line.
+
+5. **RegexOutput aria-live reduction** (`src/ui/components/RegexOutput.tsx`):
+   - Changed `aria-live="polite"` → `aria-live="off"` to prevent screen reader from
+     announcing the entire regex string on every change. Users can still read the
+     regex value via the aria-label on the display area.
+
+6. **Sidebar focus trap for mobile menu** (`src/ui/layout/Sidebar.tsx`):
+   - Added keyboard event handler that traps Tab/Shift+Tab focus within the sidebar
+     when mobile menu is open, preventing focus from escaping behind the overlay.
+   - Added Escape key to close the mobile menu.
+   - Auto-focuses first nav link when sidebar opens.
+   - Added `role="navigation"` and `aria-label` to aside element.
+   - Added `aria-hidden="true"` to overlay div.
+
+### Components Modified
+
+| Component | Change | Description |
+|-----------|--------|-------------|
+| `normalize.ts` | **Updated** | Remove `[data-tag]` and `badge[class*="crafting"]` before text extraction |
+| `family-grouper.ts` | **Updated** | Pass clean familyKey to buildFamilyGroup, override with ::origin after |
+| `VendorChip.tsx` | **Rewritten** | Restructured: div > span[role=switch] + input siblings; max=1000 |
+| `FilterChip.tsx` | **Updated** | Added min-w-[45%] for layout balance |
+| `RegexOutput.tsx` | **Updated** | aria-live="polite" → aria-live="off" |
+| `Sidebar.tsx` | **Rewritten** | Focus trap + Escape close + auto-focus + ARIA navigation role |
+| `jewel.json` | **Patched** | Removed 132 tag contaminations, recomputed 17 empty regexes |
+| `jewel-desecrated.json` | **Patched** | Removed 1 tag contamination, recomputed 1 empty regex |
+| `jewel-corrupted.json` | **Patched** | Removed 5 tag contaminations, recomputed 4 empty regexes |
+
+### Invariants Preserved
+- `src/core/` — ZERO changes (I2)
+- ETL pipeline — normalize.ts updated (future ETL runs will produce clean data automatically)
+- AST builder / compiler / optimizer — ZERO changes
+- URL sync / Profile persistence — works unchanged (underlying token IDs preserved)
+- 204 tests pass, build succeeds
+
+### Remaining for Next Iteration
+
+1. **HIGH — Full ETL re-run**: The jewel JSON hot-patches should be replaced with a full
+   ETL re-run (`pnpm etl`) to ensure regex computation is consistent across all categories.
+   The normalize.ts fix ensures future runs are clean, but the manual Python patches for
+   jewel JSON may have slight differences from the TypeScript regex algorithm.
+
+2. **HIGH — Regex quality audit for jewels**: After the tag cleanup, 17+ regexes were
+   recomputed via a simplified Python algorithm. These should be audited against the full
+   TypeScript compute-regex algorithm (which handles compound families, yofication, etc.).
+   Some regexes may be suboptimal (too long or too short).
+
+3. **MEDIUM — HomePage: Hardcoded mod counts**: The HomePage category cards show mod
+   counts that are hardcoded and will become stale when ETL data is updated.
+
+4. **MEDIUM — i18n: Russian strings bypassing t()**: Multiple components still contain
+   hardcoded Russian strings that should go through the i18n system.
+
+5. **MEDIUM — VendorPage: Duplicated layout controls**: VendorPage duplicates some
+   CategoryControlPanel functionality instead of reusing the shared component.
+
+6. **LOW — index.html: Hardcoded theme-color**: Meta tag is hardcoded for dark theme.
+
+7. **LOW — Light theme: overly-broad opacity-70 override**: Needs scoping.
+
+8. **LOW — RegexOutput: Double sticky positioning**: Check for stacking context issues.

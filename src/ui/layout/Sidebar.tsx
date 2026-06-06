@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { t } from '@shared/i18n'
 
 const navItems = [
@@ -16,6 +16,55 @@ const navItems = [
 
 export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const asideRef = useRef<HTMLElement>(null)
+
+  // Focus trap: when mobile sidebar is open, Tab cycles within sidebar
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!mobileOpen) return
+    if (e.key === 'Escape') {
+      setMobileOpen(false)
+      return
+    }
+    if (e.key !== 'Tab') return
+
+    const aside = asideRef.current
+    if (!aside) return
+
+    const focusable = aside.querySelectorAll<HTMLElement>(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (focusable.length === 0) return
+
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  }, [mobileOpen])
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+      // Focus the first nav link when sidebar opens
+      const aside = asideRef.current
+      if (aside) {
+        const firstLink = aside.querySelector<HTMLElement>('a[href]')
+        firstLink?.focus()
+      }
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [mobileOpen, handleKeyDown])
 
   return (
     <>
@@ -39,11 +88,13 @@ export function Sidebar() {
         <div
           className="fixed inset-0 z-30 bg-black/60 md:hidden"
           onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar — desktop: always visible, mobile: slide-in */}
       <aside
+        ref={asideRef}
         className={`
           z-40 flex h-full w-56 flex-col border-r shrink-0
           transition-transform duration-200
@@ -55,6 +106,8 @@ export function Sidebar() {
           background: 'var(--poe-bg-secondary)',
           borderColor: 'var(--poe-border)',
         }}
+        role="navigation"
+        aria-label="Основная навигация"
       >
         <div className="p-4 text-center" style={{ borderBottom: '1px solid var(--poe-border)' }}>
           <img

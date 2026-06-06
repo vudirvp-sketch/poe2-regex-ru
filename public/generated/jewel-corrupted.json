@@ -1,23 +1,93 @@
 {
-  "version": "2026-06-05T20:46:32.664Z",
+  "version": "2026-06-06T04:36:01.730Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
     {
-      "id": "jewel-corrupted.mod_680wz0",
+      "id": "jewel-corrupted.mod_2n1idl",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "+(4—6) к силе Характеристика"
+        "ru": "+(4—6) к силе"
       },
       "rawTextTemplate": {
-        "ru": "+## к силе Характеристика"
+        "ru": "+## к силе"
       },
       "regex": {
-        "ru": "силе Характеристика"
+        "ru": "силе"
       },
       "familyKey": {
-        "ru": "+# к силе Характеристика"
+        "ru": "+# к силе"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "attribute"
+      ],
+      "ranges": [
+        [
+          4,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12
+      ],
+      "level": 1
+    },
+    {
+      "id": "jewel-corrupted.mod_hbgahi",
+      "category": "jewel-corrupted",
+      "origin": "corrupted",
+      "rawText": {
+        "ru": "+(4—6) к ловкости"
+      },
+      "rawTextTemplate": {
+        "ru": "+## к ловкости"
+      },
+      "regex": {
+        "ru": "ловкости"
+      },
+      "familyKey": {
+        "ru": "+# к ловкости"
+      },
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "attribute"
+      ],
+      "ranges": [
+        [
+          4,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "jewel-corrupted.mod_tzz8ec",
+      "category": "jewel-corrupted",
+      "origin": "corrupted",
+      "rawText": {
+        "ru": "+(4—6) к интеллекту"
+      },
+      "rawTextTemplate": {
+        "ru": "+## к интеллекту"
+      },
+      "regex": {
+        "ru": "интеллекту"
+      },
+      "familyKey": {
+        "ru": "+# к интеллекту"
       },
       "genderForms": {
         "ru": {}
@@ -36,99 +106,25 @@
       "hasYofication": true,
       "yoficationPositions": [
         12,
-        20
+        15
       ],
       "level": 1
     },
     {
-      "id": "jewel-corrupted.mod_5ig147",
+      "id": "jewel-corrupted.mod_m7831k",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "+(4—6) к ловкости Характеристика"
+        "ru": "+(5—10)% к сопротивлению огню"
       },
       "rawTextTemplate": {
-        "ru": "+## к ловкости Характеристика"
+        "ru": "+##% к сопротивлению огню"
       },
       "regex": {
-        "ru": "ловкости Характеристика"
+        "ru": "огню"
       },
       "familyKey": {
-        "ru": "+# к ловкости Характеристика"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [
-        "attribute"
-      ],
-      "ranges": [
-        [
-          4,
-          6
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        24
-      ],
-      "level": 1
-    },
-    {
-      "id": "jewel-corrupted.mod_vdlpdr",
-      "category": "jewel-corrupted",
-      "origin": "corrupted",
-      "rawText": {
-        "ru": "+(4—6) к интеллекту Характеристика"
-      },
-      "rawTextTemplate": {
-        "ru": "+## к интеллекту Характеристика"
-      },
-      "regex": {
-        "ru": "интеллекту Характеристика"
-      },
-      "familyKey": {
-        "ru": "+# к интеллекту Характеристика"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [
-        "attribute"
-      ],
-      "ranges": [
-        [
-          4,
-          6
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        26
-      ],
-      "level": 1
-    },
-    {
-      "id": "jewel-corrupted.mod_d1jilc",
-      "category": "jewel-corrupted",
-      "origin": "corrupted",
-      "rawText": {
-        "ru": "+(5—10)% к сопротивлению огню Стихийный Огонь Сопротивление"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению огню Стихийный Огонь Сопротивление"
-      },
-      "regex": {
-        "ru": "Огонь Сопротивление"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению огню Стихийный Огонь Сопротивление"
+        "ru": "+#% к сопротивлению огню"
       },
       "genderForms": {
         "ru": {}
@@ -148,26 +144,25 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        20,
-        55
+        20
       ],
       "level": 1
     },
     {
-      "id": "jewel-corrupted.mod_jhvqvv",
+      "id": "jewel-corrupted.mod_d5gez1",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "+(5—10)% к сопротивлению холоду Стихийный Холод Сопротивление"
+        "ru": "+(5—10)% к сопротивлению холоду"
       },
       "rawTextTemplate": {
-        "ru": "+##% к сопротивлению холоду Стихийный Холод Сопротивление"
+        "ru": "+##% к сопротивлению холоду"
       },
       "regex": {
-        "ru": "Холод Сопротивление"
+        "ru": "холоду"
       },
       "familyKey": {
-        "ru": "+#% к сопротивлению холоду Стихийный Холод Сопротивление"
+        "ru": "+#% к сопротивлению холоду"
       },
       "genderForms": {
         "ru": {}
@@ -187,26 +182,25 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        20,
-        57
+        20
       ],
       "level": 1
     },
     {
-      "id": "jewel-corrupted.mod_o3vjoj",
+      "id": "jewel-corrupted.mod_38y3za",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "+(5—10)% к сопротивлению молнии Стихийный Молния Сопротивление"
+        "ru": "+(5—10)% к сопротивлению молнии"
       },
       "rawTextTemplate": {
-        "ru": "+##% к сопротивлению молнии Стихийный Молния Сопротивление"
+        "ru": "+##% к сопротивлению молнии"
       },
       "regex": {
-        "ru": "Молния Сопротивление"
+        "ru": "молнии"
       },
       "familyKey": {
-        "ru": "+#% к сопротивлению молнии Стихийный Молния Сопротивление"
+        "ru": "+#% к сопротивлению молнии"
       },
       "genderForms": {
         "ru": {}
@@ -226,26 +220,25 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        20,
-        58
+        20
       ],
       "level": 1
     },
     {
-      "id": "jewel-corrupted.mod_ngd4u7",
+      "id": "jewel-corrupted.mod_9yfwgf",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "+(3—7)% к сопротивлению хаосу Хаос Сопротивление"
+        "ru": "+(3—7)% к сопротивлению хаосу"
       },
       "rawTextTemplate": {
-        "ru": "+##% к сопротивлению хаосу Хаос Сопротивление"
+        "ru": "+##% к сопротивлению хаосу"
       },
       "regex": {
-        "ru": "Хаос Сопротивление"
+        "ru": "хаосу"
       },
       "familyKey": {
-        "ru": "+#% к сопротивлению хаосу Хаос Сопротивление"
+        "ru": "+#% к сопротивлению хаосу"
       },
       "genderForms": {
         "ru": {}
@@ -264,8 +257,7 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        19,
-        44
+        19
       ],
       "level": 1
     },
@@ -299,20 +291,20 @@
       "level": 1
     },
     {
-      "id": "jewel-corrupted.mod_7d3a7u",
+      "id": "jewel-corrupted.mod_ac18xa",
       "category": "jewel-corrupted",
       "origin": "corrupted",
       "rawText": {
-        "ru": "На вас нельзя наложить эффект Оскверненной крови Физический Состояние"
+        "ru": "На вас нельзя наложить эффект Оскверненной крови"
       },
       "rawTextTemplate": {
-        "ru": "На вас нельзя наложить эффект Оскверненной крови Физический Состояние"
+        "ru": "На вас нельзя наложить эффект Оскверненной крови"
       },
       "regex": {
         "ru": "вас"
       },
       "familyKey": {
-        "ru": "На вас нельзя наложить эффект Оскверненной крови Физический Состояние"
+        "ru": "На вас нельзя наложить эффект Оскверненной крови"
       },
       "genderForms": {
         "ru": {}
@@ -327,8 +319,7 @@
       "hasYofication": true,
       "yoficationPositions": [
         8,
-        37,
-        54
+        37
       ],
       "level": 1
     },
@@ -364,105 +355,5 @@
       "level": 1
     }
   ],
-  "optimizationTable": {
-    "jewel-corrupted.mod_5ig147:jewel-corrupted.mod_680wz0": {
-      "ids": [
-        "jewel-corrupted.mod_5ig147",
-        "jewel-corrupted.mod_680wz0"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
-      "count": 2
-    },
-    "jewel-corrupted.mod_680wz0:jewel-corrupted.mod_vdlpdr": {
-      "ids": [
-        "jewel-corrupted.mod_680wz0",
-        "jewel-corrupted.mod_vdlpdr"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
-      "count": 2
-    },
-    "jewel-corrupted.mod_5ig147:jewel-corrupted.mod_vdlpdr": {
-      "ids": [
-        "jewel-corrupted.mod_5ig147",
-        "jewel-corrupted.mod_vdlpdr"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
-      "count": 2
-    },
-    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_jhvqvv": {
-      "ids": [
-        "jewel-corrupted.mod_d1jilc",
-        "jewel-corrupted.mod_jhvqvv"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_o3vjoj": {
-      "ids": [
-        "jewel-corrupted.mod_d1jilc",
-        "jewel-corrupted.mod_o3vjoj"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "jewel-corrupted.mod_d1jilc:jewel-corrupted.mod_ngd4u7": {
-      "ids": [
-        "jewel-corrupted.mod_d1jilc",
-        "jewel-corrupted.mod_ngd4u7"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "jewel-corrupted.mod_jhvqvv:jewel-corrupted.mod_o3vjoj": {
-      "ids": [
-        "jewel-corrupted.mod_jhvqvv",
-        "jewel-corrupted.mod_o3vjoj"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "jewel-corrupted.mod_jhvqvv:jewel-corrupted.mod_ngd4u7": {
-      "ids": [
-        "jewel-corrupted.mod_jhvqvv",
-        "jewel-corrupted.mod_ngd4u7"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    },
-    "jewel-corrupted.mod_ngd4u7:jewel-corrupted.mod_o3vjoj": {
-      "ids": [
-        "jewel-corrupted.mod_ngd4u7",
-        "jewel-corrupted.mod_o3vjoj"
-      ],
-      "regex": {
-        "ru": " сопротивление"
-      },
-      "weight": 14,
-      "count": 2
-    }
-  }
+  "optimizationTable": {}
 }

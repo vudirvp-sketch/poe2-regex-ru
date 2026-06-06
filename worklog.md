@@ -1888,3 +1888,29 @@ All catalogued in ARCHITECTURE.md §14 with priority levels.
 10. i18n: Move hardcoded Russian strings to t() function calls
 11. VendorPage regex: Verify short substrings for false positives
 12. index.html: Dynamic theme-color meta tag
+
+---
+Task ID: 1
+Agent: Main Agent (Super Z)
+Task: Iteration 7 — ETL Tag Cleanup + ARIA Fix + Layout Balance + Accessibility
+
+Work Log:
+- Analyzed repository structure, identified 3 critical bugs and multiple MEDIUM issues
+- Fixed ETL normalize.ts: Added `$('[data-tag]').remove()` and `$('span.badge[class*="crafting"]').remove()` to strip crafting tag badges before text extraction
+- Hot-patched jewel.json (132 tokens), jewel-desecrated.json (1 token), jewel-corrupted.json (5 tokens) to remove tag contamination from rawText, rawTextTemplate, familyKey, and regex fields
+- Recomputed 22 empty/broken regexes in jewel JSONs using simplified Python algorithm
+- Fixed family-grouper.ts: Pass clean familyKey to buildFamilyGroup(), then override with ::origin suffix for React key uniqueness
+- Restructured VendorChip.tsx: Moved input outside of role="switch" (now siblings inside a div wrapper); increased max from 100 to 1000
+- Added min-w-[45%] to FilterChip.tsx for layout balance in flex-wrap containers
+- Changed RegexOutput.tsx aria-live from "polite" to "off"
+- Rewrote Sidebar.tsx: Added focus trap for mobile menu (Tab/Shift+Tab cycling, Escape to close, auto-focus first link)
+- Updated ARCHITECTURE.md §15 (version 13.0) and AGENT_NAVIGATION.md (version 19.0)
+- All 204 tests pass, build succeeds
+
+Stage Summary:
+- ETL pipeline fix ensures future runs produce clean data (no crafting tags in mod text)
+- Jewel JSON files hot-patched with clean data (NOTE: should do full ETL re-run when network available)
+- 3 HIGH bugs fixed: tag contamination, ::origin display leak, VendorChip ARIA invalid tree
+- 3 MEDIUM issues fixed: RegexOutput aria-live, VendorChip max=1000, Sidebar focus trap
+- Layout balance improved with min-w-[45%] on FilterChip
+- Remaining for next iteration: full ETL re-run, regex quality audit for jewels, hardcoded mod counts, i18n strings

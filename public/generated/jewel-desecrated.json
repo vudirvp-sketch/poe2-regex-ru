@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-05T20:46:32.644Z",
+  "version": "2026-06-06T04:36:01.705Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -591,7 +591,7 @@
         "ru": "##% увеличение урона от стихий"
       },
       "regex": {
-        "ru": "от стихий"
+        "ru": "стихий"
       },
       "familyKey": {
         "ru": "#% увеличение урона от стихий"
@@ -629,20 +629,20 @@
       "level": 1
     },
     {
-      "id": "jewel-desecrated.mod_pkhu7l",
+      "id": "jewel-desecrated.mod_2oddfi",
       "category": "jewel-desecrated",
       "origin": "desecrated",
       "rawText": {
-        "ru": "(4—8)% усиление эффекта восприимчивости Стихийный Огонь Холод Молния"
+        "ru": "(4—8)% усиление эффекта восприимчивости"
       },
       "rawTextTemplate": {
-        "ru": "##% усиление эффекта восприимчивости Стихийный Огонь Холод Молния"
+        "ru": "##% усиление эффекта восприимчивости"
       },
       "regex": {
-        "ru": "Молния"
+        "ru": "восприимчивости"
       },
       "familyKey": {
-        "ru": "#% усиление эффекта восприимчивости Стихийный Огонь Холод Молния"
+        "ru": "#% усиление эффекта восприимчивости"
       },
       "genderForms": {
         "ru": {
@@ -812,20 +812,20 @@
       "level": 1
     },
     {
-      "id": "jewel-desecrated.mod_znxtl",
+      "id": "jewel-desecrated.mod_vurd3w",
       "category": "jewel-desecrated",
       "origin": "desecrated",
       "rawText": {
-        "ru": "(1—2)% повышение ловкости Характеристика"
+        "ru": "(1—2)% повышение ловкости"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение ловкости Характеристика"
+        "ru": "##% повышение ловкости"
       },
       "regex": {
-        "ru": "ловкости Характеристика"
+        "ru": "ловкости"
       },
       "familyKey": {
-        "ru": "#% повышение ловкости Характеристика"
+        "ru": "#% повышение ловкости"
       },
       "genderForms": {
         "ru": {}
@@ -843,26 +843,25 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        12,
-        32
+        12
       ],
       "level": 1
     },
     {
-      "id": "jewel-desecrated.mod_5sagzk",
+      "id": "jewel-desecrated.mod_4swy0t",
       "category": "jewel-desecrated",
       "origin": "desecrated",
       "rawText": {
-        "ru": "(1—2)% повышение интеллекта Характеристика"
+        "ru": "(1—2)% повышение интеллекта"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение интеллекта Характеристика"
+        "ru": "##% повышение интеллекта"
       },
       "regex": {
-        "ru": "интеллекта Характеристика"
+        "ru": "интеллекта"
       },
       "familyKey": {
-        "ru": "#% повышение интеллекта Характеристика"
+        "ru": "#% повышение интеллекта"
       },
       "genderForms": {
         "ru": {}
@@ -882,26 +881,25 @@
       "yoficationPositions": [
         12,
         20,
-        23,
-        34
+        23
       ],
       "level": 1
     },
     {
-      "id": "jewel-desecrated.mod_omh2g4",
+      "id": "jewel-desecrated.mod_y69s0v",
       "category": "jewel-desecrated",
       "origin": "desecrated",
       "rawText": {
-        "ru": "(1—2)% повышение силы Характеристика"
+        "ru": "(1—2)% повышение силы"
       },
       "rawTextTemplate": {
-        "ru": "##% повышение силы Характеристика"
+        "ru": "##% повышение силы"
       },
       "regex": {
-        "ru": "силы Характеристика"
+        "ru": "повышение силы"
       },
       "familyKey": {
-        "ru": "#% повышение силы Характеристика"
+        "ru": "#% повышение силы"
       },
       "genderForms": {
         "ru": {}
@@ -919,8 +917,7 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        12,
-        28
+        12
       ],
       "level": 1
     }
@@ -937,48 +934,15 @@
       "weight": 4,
       "count": 2
     },
-    "jewel-desecrated.mod_pkhu7l:jewel-desecrated.mod_xur8rl": {
+    "jewel-desecrated.mod_2oddfi:jewel-desecrated.mod_vurd3w": {
       "ids": [
-        "jewel-desecrated.mod_pkhu7l",
-        "jewel-desecrated.mod_xur8rl"
+        "jewel-desecrated.mod_2oddfi",
+        "jewel-desecrated.mod_vurd3w"
       ],
       "regex": {
-        "ru": "молни"
+        "ru": "ости"
       },
-      "weight": 5,
-      "count": 2
-    },
-    "jewel-desecrated.mod_5sagzk:jewel-desecrated.mod_znxtl": {
-      "ids": [
-        "jewel-desecrated.mod_5sagzk",
-        "jewel-desecrated.mod_znxtl"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
-      "count": 2
-    },
-    "jewel-desecrated.mod_omh2g4:jewel-desecrated.mod_znxtl": {
-      "ids": [
-        "jewel-desecrated.mod_omh2g4",
-        "jewel-desecrated.mod_znxtl"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
-      "count": 2
-    },
-    "jewel-desecrated.mod_5sagzk:jewel-desecrated.mod_omh2g4": {
-      "ids": [
-        "jewel-desecrated.mod_5sagzk",
-        "jewel-desecrated.mod_omh2g4"
-      ],
-      "regex": {
-        "ru": " характеристика"
-      },
-      "weight": 15,
+      "weight": 4,
       "count": 2
     }
   }
