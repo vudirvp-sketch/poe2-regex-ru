@@ -56,7 +56,8 @@ export function RelicPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold" style={{ color: 'var(--poe-gold)' }}>
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+          <img src={`${import.meta.env.BASE_URL}icons/relic.png`} alt="" width={24} height={24} className="object-contain" />
           {t('relic.title')}
         </h2>
         <span className="text-xs text-gray-500">{data.tokens.length} модов</span>

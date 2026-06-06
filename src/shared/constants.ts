@@ -40,7 +40,7 @@ export const CATEGORY_LABELS: Record<CategoryId, string> = {
   'jewel-desecrated': 'Самоцветы (Очернённые)',
   'jewel-corrupted': 'Самоцветы (Осквернённые)',
   vendor: 'Торговец',
-  belt: 'Ремни',
+  belt: 'Пояса',
   ring: 'Кольца',
   amulet: 'Амулеты',
 };

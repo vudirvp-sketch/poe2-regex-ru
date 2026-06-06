@@ -129,7 +129,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
 
   return (
     <div className="regex-output sticky top-0 z-10 -mx-1 px-1 py-1 -mt-1 pt-1"
-      style={{ background: 'var(--poe-bg, #0f0f1a)' }}
+      style={{ background: 'var(--poe-bg, #0a0a0f)' }}
       role="region"
       aria-label="Регулярное выражение"
       aria-live="polite"

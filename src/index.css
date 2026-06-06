@@ -79,6 +79,17 @@ body {
   background: #3a3a4a;
 }
 
+/* Light theme: scrollbar hover */
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #b0b0ab;
+}
+
+/* Light theme: copied button state */
+[data-theme="light"] .bg-green-600 {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+}
+
 /* ─── Theme-aware component overrides ─── */
 
 /* Light theme: fix Tailwind bg-gray-* classes */

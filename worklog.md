@@ -1826,3 +1826,65 @@ scrolling (193 rows for jewels, 113 for amulets).
 - **P3 — Vendor regex verification**: 50+ regex strings still unverified in-game. Warning with role=alert remains
 - **P3 — Accessibility deep testing**: ARIA attributes not tested with real screen readers (NVDA, JAWS, VoiceOver)
 - **P3 — Performance profiling with large datasets**: Current counts (17-193 families) well within limits. Re-evaluate if PoE2 adds more mods
+
+---
+
+## Session 19 — 2026-06-06
+
+**Agent:** Super Z (main agent)
+**Task:** Integrate game icons from `icon/` folder, fix UI bugs, audit for issues
+
+### 14.1 — Game icons integrated
+
+- [x] Copied 9 icon files from `icon/` to `public/icons/` with clean filenames
+- [x] Logo resized from 1024×1024 (2.2MB) → 256×256 (89KB)
+- [x] Sidebar.tsx: All emoji → `<img>` game icons + logo in header
+- [x] HomePage.tsx: All emoji → `<img>` game icons in category cards
+- [x] All 8 category pages: Added game icon (24×24px) next to title
+
+### 14.2 — Bug fixes
+
+- [x] CATEGORY_LABELS belt: "Ремни" → "Пояса" (matching i18n.ts)
+- [x] FilterChip ARIA: `aria-pressed` → `aria-checked` (true/false/mixed)
+- [x] Sidebar hamburger: Added `aria-expanded={mobileOpen}`
+- [x] parseInt || null → isNaN check (CategoryControlPanel, TabletPage)
+- [x] VendorPage clearAll: Now resets excludeMode
+- [x] RegexOutput fallback: #0f0f1a → #0a0a0f
+- [x] Light theme: scrollbar hover + bg-green-600 override
+
+### 14.3 — Full UI audit
+
+29 issues found across accessibility, CSS, data consistency, functional, and mobile categories.
+All catalogued in ARCHITECTURE.md §14 with priority levels.
+
+### Build & test verification
+
+- TypeScript: 0 errors ✅
+- Vite build: passes ✅
+- 204 tests: all passing ✅
+
+### Stopping Point (Session 19)
+
+**What's done:**
+- ✅ Game icons integrated into sidebar, home page, and all category page headers
+- ✅ 8 bug fixes applied (belt label, ARIA, parseInt, clearAll, CSS, fallback color)
+- ✅ Full UI audit: 29 issues catalogued for next iteration
+- ✅ Documentation updated (ARCHITECTURE.md §14, AGENT_NAVIGATION.md v18, worklog.md)
+
+**What's NOT done yet (prioritized for next iteration):**
+
+**HIGH:**
+1. VendorChip: Restructure to fix invalid ARIA tree (input inside role="switch")
+
+**MEDIUM:**
+2. Sidebar: Focus trap + focus return for mobile menu
+3. RegexOutput: Move aria-live to summary element only
+4. ProfilePanel: Increase touch targets for rename/delete buttons
+5. Light theme: Scope opacity-70 override more precisely
+6. HomePage: Dynamic mod counts instead of hardcoded values
+7. VendorProperty interface: Move to shared types
+8. VendorChip: Remove max={100} constraint for item level
+9. VendorPage: Refactor to use CategoryControlPanel
+10. i18n: Move hardcoded Russian strings to t() function calls
+11. VendorPage regex: Verify short substrings for false positives
+12. index.html: Dynamic theme-color meta tag

@@ -1,9 +1,10 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 17.0 | **Date:** 2026-06-06
-> **Current Iteration:** Layout v2, iteration 5 (Accessibility + Keyboard Navigation + Performance) — COMPLETE.
+> **Version:** 18.0 | **Date:** 2026-06-06
+> **Current Iteration:** Layout v2, iteration 6 (Game Icons Integration + Bug Fixes) — COMPLETE.
 > **GitHub Pages:** Fixed in Session 17. Replaced pnpm/action-setup with corepack enable. User must set Source to "GitHub Actions" in repo Settings -> Pages.
 > **Bugfix:** Session 18 fixed critical React error #185 (ProfilePanel infinite loop) + 404.html for SPA routing + loader.ts BASE_URL fix + ETL refresh with i18n overrides (51 tokens patched).
+> **Session 19:** Game icons from `icon/` folder integrated into `public/icons/`. Replaced all emoji icons (sidebar, home, page headers). Fixed 8 bugs (belt label, ARIA conflict, parseInt, clearAll, fallback color, light theme CSS). Full UI audit: 29 issues catalogued in ARCHITECTURE.md §14.
 
 ---
 
@@ -19,6 +20,7 @@
 | `src/shared/` | Types, constants, i18n. | **No imports from other src/ directories.** This is the lowest layer. |
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/etl/i18n-overrides.json` | Manual Russian translations for tokens without Russian text on poe2db.tw. | Applied automatically after ETL. Edit when new overrides needed. |
+| `public/icons/` | Game inventory icons (PNG). | Served as static assets. `import.meta.env.BASE_URL + 'icons/...'`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `tests/` | Test files. | Mirror `src/` structure. |
 | `docs/` | Documentation. | Read before starting each iteration. |
@@ -90,6 +92,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 10: Layout v2 | ✅ Complete | Two-column layout, family pooling, semantic grouping (iteration 1-3) |
 | 11: Layout v2 | ✅ Complete | VendorPage layout, Relic origins, Mobile CSS (iteration 4) |
 | 12: Layout v2 | ✅ Complete | Accessibility audit, ARIA attributes, keyboard navigation, focus-visible outlines (iteration 5) |
+| 13: Icons + Bug Fixes | ✅ Complete | Game icons integration (sidebar, home, page headers), 8 bug fixes (see ARCHITECTURE.md §14), full UI audit (29 issues catalogued) |
 
 ## 7. Known Issues & Remaining Work
 

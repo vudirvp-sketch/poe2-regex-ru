@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom'
 import { t } from '@shared/i18n'
 
 const categories = [
-  { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: '💎', tag: '106 модов' },
-  { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: '🧱', tag: '78 модов' },
-  { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: '⚡', tag: '56 модов' },
-  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: '💠', tag: '235 модов' },
-  { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: '🛒', tag: '50+ свойств' },
-  { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: '🎗️', tag: '298 модов' },
-  { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: '💍', tag: '366 модов' },
-  { path: '/amulet', labelKey: 'amulet.title', descKey: 'home.amulet_desc', icon: '📿', tag: '427 модов' },
+  { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: 'waystone', tag: '106 модов' },
+  { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: 'tablet', tag: '78 модов' },
+  { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: 'relic', tag: '56 модов' },
+  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: 'jewel', tag: '235 модов' },
+  { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: 'vendor', tag: '50+ свойств' },
+  { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: 'belt', tag: '298 модов' },
+  { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: 'ring', tag: '366 модов' },
+  { path: '/amulet', labelKey: 'amulet.title', descKey: 'home.amulet_desc', icon: 'amulet', tag: '427 модов' },
 ]
 
 export function HomePage() {
@@ -46,7 +46,15 @@ export function HomePage() {
               borderColor: 'var(--poe-border)',
             }}
           >
-            <div className="mb-2 text-3xl">{cat.icon}</div>
+            <div className="mb-2">
+              <img
+                src={`${import.meta.env.BASE_URL}icons/${cat.icon}.png`}
+                alt=""
+                width={48}
+                height={48}
+                className="mx-auto object-contain"
+              />
+            </div>
             <h3 className="mb-1 text-sm font-semibold" style={{ color: 'var(--poe-gold)' }}>
               {t(cat.labelKey)}
             </h3>

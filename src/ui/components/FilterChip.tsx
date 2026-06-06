@@ -88,7 +88,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({ group, selectedIds, onTo
       onClick={handleClick}
       title={tooltip}
       aria-label={ariaLabel}
-      aria-pressed={selectionState === 'full'}
+      aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
       role="switch"
       className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer ${bgClass}`}
     >

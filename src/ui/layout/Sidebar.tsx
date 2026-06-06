@@ -3,16 +3,16 @@ import { useState } from 'react'
 import { t } from '@shared/i18n'
 
 const navItems = [
-  { path: '/', label: 'home.title', icon: '🏠' },
-  { path: '/waystone', label: 'waystone.title', icon: '💎' },
-  { path: '/tablet', label: 'tablet.title', icon: '🧱' },
-  { path: '/relic', label: 'relic.title', icon: '⚡' },
-  { path: '/jewel', label: 'jewel.title', icon: '💠' },
-  { path: '/vendor', label: 'vendor.title', icon: '🛒' },
-  { path: '/belt', label: 'belt.title', icon: '🎗️' },
-  { path: '/ring', label: 'ring.title', icon: '💍' },
-  { path: '/amulet', label: 'amulet.title', icon: '📿' },
-]
+  { path: '/', label: 'home.title', icon: 'logo' },
+  { path: '/waystone', label: 'waystone.title', icon: 'waystone' },
+  { path: '/tablet', label: 'tablet.title', icon: 'tablet' },
+  { path: '/relic', label: 'relic.title', icon: 'relic' },
+  { path: '/jewel', label: 'jewel.title', icon: 'jewel' },
+  { path: '/vendor', label: 'vendor.title', icon: 'vendor' },
+  { path: '/belt', label: 'belt.title', icon: 'belt' },
+  { path: '/ring', label: 'ring.title', icon: 'ring' },
+  { path: '/amulet', label: 'amulet.title', icon: 'amulet' },
+] as const
 
 export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -24,6 +24,7 @@ export function Sidebar() {
         className="fixed top-3 left-3 z-50 md:hidden p-2 rounded bg-gray-800 border border-gray-700 text-gray-300"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle navigation"
+        aria-expanded={mobileOpen}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
           fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,6 +57,13 @@ export function Sidebar() {
         }}
       >
         <div className="p-4 text-center" style={{ borderBottom: '1px solid var(--poe-border)' }}>
+          <img
+            src={`${import.meta.env.BASE_URL}icons/logo.png`}
+            alt="PoE2 Regex"
+            width={40}
+            height={40}
+            className="mx-auto mb-1 object-contain"
+          />
           <h1 className="text-lg font-bold" style={{ color: 'var(--poe-gold)' }}>
             PoE2 Regex
           </h1>
@@ -82,7 +90,14 @@ export function Sidebar() {
                 background: isActive ? 'var(--poe-bg-tertiary)' : 'transparent',
               })}
             >
-              <span>{item.icon}</span>
+              <img
+                src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
+                alt=""
+                width={20}
+                height={20}
+                className="shrink-0 object-contain"
+                style={{ imageRendering: 'auto' }}
+              />
               <span>{t(item.label)}</span>
             </NavLink>
           ))}
