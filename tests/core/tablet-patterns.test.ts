@@ -89,9 +89,9 @@ describe('Tablet uses remaining regex patterns', () => {
   it('≥5 uses → RANGE(5, undefined, "использ") compiles to number regex + suffix', () => {
     // "Осталось использований: 5" → need ≥5
     // RANGE node: min=5, suffix="использ"
-    // generateNumberRegex(5, false) → ([5-9]|\d..?) — matches 5-9 or 10+
+    // generateNumberRegex(5, false) → ([5-9]|[0-9]..?) — matches 5-9 or 10+
     const result = compile(range(5, undefined, 'использ'), { round10: false });
-    expect(result).toBe('"([5-9]|\\d..?).*использ"');
+    expect(result).toBe('"([5-9]|[0-9]..?).*использ"');
   });
 
   it('≥10 uses → RANGE(10, undefined, "использ") compiles correctly', () => {

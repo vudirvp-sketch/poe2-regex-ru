@@ -1,8 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 27.0 | **Date:** 2026-06-06
-> **Current Iteration:** 24 (JewelType Fix + UI Improvements) — IN PROGRESS.
-> **Status:** 213 tests pass, build passes locally. GitHub Actions needs push.
+> **Version:** 28.0 | **Date:** 2026-06-06
 
 ---
 
@@ -15,12 +13,12 @@
 | `src/ui/` | React components. | Each file < 250 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
-| `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** Lowest layer. |
+| `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
-| `scripts/etl/i18n-overrides.json` | Manual Russian translations + typo fixes. | 57 overrides. Applied automatically after ETL. |
+| `scripts/analyze-regexes.ts` | Regex quality analysis. | Run via `npx tsx scripts/analyze-regexes.ts`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `tests/` | Test files. | Mirror `src/` structure. 213 tests. |
-| `регис/` | Manual Russian mod lists. | Reference data for cross-validation. |
+| `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
 
@@ -28,8 +26,9 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-pnpm test            # Run tests (213 tests, Vitest)
+npx vitest run --root . # Run tests (213 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
+npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
 ```
 
 ## 3. Agent Workflow
@@ -38,14 +37,14 @@ pnpm etl             # Run ETL pipeline (requires network)
 2. Read `worklog.md` to understand what's already done
 3. Execute the current iteration's tasks
 4. Write tests for new code
-5. Run `pnpm test` and `pnpm build` — both must pass
+5. Run `npx vitest run --root .` and `pnpm build` — both must pass
 6. Update `worklog.md` with what was done
 7. **NEVER** touch `public/generated/` manually
 
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `pnpm test` passes
+- [ ] `npx vitest run --root .` passes (213 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -62,38 +61,37 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
-### 🔴 HIGH — Next Iteration
+### HIGH
 
 1. **Push fixes to GitHub** — Local TS fixes not pushed to main → CI broken
-2. **In-game regex verification** — Test EACH regex separately (AND vs OR!). See `docs/IN_GAME_TESTS.md` tests 1-22
-3. **`\d` in-game verification** — If `\d` doesn't work in PoE2, replace with `[0-9]` in `number-regex.ts` (currently uses `\d`, was verified once)
+2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` (rewritten with hypothesis-based tests)
+3. **Re-run ETL** — jewel-desecrated now in STRICT_CATEGORIES with MIN=10, need `pnpm etl` to regenerate JSON
 
-### 🟡 MEDIUM
+### MEDIUM
 
-4. **Desecrated regex quality** — Some dual-stat desecrated mods get short regexes (e.g. "молнии", "холоду") that may match other mods in-game. Strategy 1c in `compute-regex.ts` works but minimum length may need raising
-5. **Full Очернённые audit** — Verify origin classification across ALL categories
-6. **HomePage hardcoded mod counts** — Category cards show stale counts after data updates
+4. **Cross-category regex conflicts** — 4002 conflicts found (see `регис/analysis-report.md`). Most are benign (amulet/ring/belt share mod types) but short regexes like "молнии" (6 chars) are problematic
+5. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
+6. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding than others
 7. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-8. **Icon proportions** — Some category icons (relic, vendor, belt) have more transparent padding than others in their PNG files, making them appear smaller. Consider re-cropping source images
+8. **HomePage hardcoded mod counts** — Category cards show stale counts
 
-### 🟢 LOW
+### LOW
 
-9. **Jewel classification accuracy** — ETL lookup now works for normal jewels; heuristic fallback (~84%) still used for desecrated/corrupted without modCode match
+9. **Jewel classification accuracy** — ETL lookup works for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
 10. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-11. **TabletPage PageStateWrapper** — Still has inline loading/error/no-data pattern
 
 ## 7. Data Stats
 
-| Category | Tokens | Optimizations |
-|----------|--------|---------------|
-| waystone | 96 | 52 |
-| waystone-desecrated | 16 | 4 |
-| tablet | 75 | 363 |
-| jewel | 193 | 1,466 |
-| jewel-desecrated | 21 | 3 |
-| jewel-corrupted | 10 | 0 |
-| relic | 58 | 28 |
-| belt | 298 | 231 |
-| ring | 366 | 458 |
-| amulet | 427 | 389 |
-| **Total** | **1,560** | |
+| Category | Tokens | Optimizations | Avg Regex Len | Short (<10) | Conflicts |
+|----------|--------|---------------|---------------|-------------|-----------|
+| waystone | 96 | 52 | 12.4 | 52 | 52 |
+| waystone-desecrated | 16 | 4 | 9.7 | 12 | 14 |
+| tablet | 75 | 363 | 19.1 | 23 | 8 |
+| jewel | 193 | 1,466 | 15.7 | 49 | 72 |
+| jewel-desecrated | 21 | 3 | 19.7 | 7 | 16 |
+| jewel-corrupted | 10 | 0 | 7.4 | 8 | 8 |
+| relic | 58 | 28 | 18.3 | 20 | 16 |
+| belt | 298 | 231 | 17.6 | 54 | 236 |
+| ring | 366 | 458 | 14.7 | 94 | 293 |
+| amulet | 427 | 389 | 15.1 | 121 | 395 |
+| **Total** | **1,560** | | | **440** | |

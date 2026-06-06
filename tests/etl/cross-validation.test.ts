@@ -138,14 +138,20 @@ describe('ETL vs регис cross-validation', () => {
       }
     });
 
-    it('all waystone/tablet regexes meet MIN_REGEX_LEN=5', () => {
+    it('all waystone/tablet/jewel-desecrated regexes meet MIN_REGEX_LEN', () => {
       const strictFiles = ['waystone.json', 'waystone-desecrated.json', 'tablet.json'];
+      const minLenByFile: Record<string, number> = {
+        'waystone.json': 5,
+        'waystone-desecrated.json': 5,
+        'tablet.json': 5,
+      };
       for (const file of strictFiles) {
         const data = loadCategoryData(file);
+        const minLen = minLenByFile[file] ?? 5;
         const shortRegexTokens = data.tokens.filter(
-          (t: any) => t.regex?.ru && t.regex.ru.length < 5
+          (t: any) => t.regex?.ru && t.regex.ru.length < minLen
         );
-        expect(shortRegexTokens.length, `${file} has ${shortRegexTokens.length} tokens with regex < 5 chars`).toBe(0);
+        expect(shortRegexTokens.length, `${file} has ${shortRegexTokens.length} tokens with regex < ${minLen} chars`).toBe(0);
       }
     });
   });

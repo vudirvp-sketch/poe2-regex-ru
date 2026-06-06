@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T14:37:05.163Z",
+  "version": "2026-06-06T15:11:27.010Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -69,7 +69,7 @@
         "ru": "##% усиление положительного эффекта боевого клича, ##% увеличение урона боевыми кличами"
       },
       "regex": {
-        "ru": "кличами"
+        "ru": "боевыми кличами"
       },
       "familyKey": {
         "ru": "#% усиление положительного эффекта боевого клича, #% увеличение урона боевыми кличами"
@@ -624,7 +624,7 @@
         "ru": "#% увеличение шанса отравить"
       },
       "regex": {
-        "ru": "отравить"
+        "ru": "шанса отравить"
       },
       "familyKey": {
         "ru": "#% увеличение шанса отравить"
@@ -844,7 +844,7 @@
         "ru": "##% увеличение урона от молнии, Урон пробивает ##% сопротивления молнии"
       },
       "regex": {
-        "ru": "молнии"
+        "ru": "сопротивления молнии"
       },
       "familyKey": {
         "ru": "#% увеличение урона от молнии, Урон пробивает #% сопротивления молнии"
@@ -1216,7 +1216,7 @@
         "ru": "##% увеличение урона от холода, Урон пробивает ##% сопротивления холоду"
       },
       "regex": {
-        "ru": "холоду"
+        "ru": "сопротивления холоду"
       },
       "familyKey": {
         "ru": "#% увеличение урона от холода, Урон пробивает #% сопротивления холоду"
@@ -1326,7 +1326,7 @@
         "ru": "##% увеличение урона от стихий, ##% увеличение силы накладываемых вами состояний"
       },
       "regex": {
-        "ru": "состояний"
+        "ru": "вами состояний"
       },
       "familyKey": {
         "ru": "#% увеличение урона от стихий, #% увеличение силы накладываемых вами состояний"
@@ -1598,7 +1598,7 @@
         "ru": "##% повышение ловкости"
       },
       "regex": {
-        "ru": "ловкости"
+        "ru": "повышение ловкости"
       },
       "familyKey": {
         "ru": "#% повышение ловкости"
@@ -1813,6 +1813,17 @@
       "weight": 5,
       "count": 2
     },
+    "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_t1xcyw": {
+      "ids": [
+        "jewel-desecrated.mod_g8420s",
+        "jewel-desecrated.mod_t1xcyw"
+      ],
+      "regex": {
+        "ru": "а от"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_g8420s": {
       "ids": [
         "jewel-desecrated.mod_cenwfe",
@@ -1899,6 +1910,17 @@
         "ru": " увеличение "
       },
       "weight": 12,
+      "count": 2
+    },
+    "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_g8420s",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
       "count": 2
     },
     "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_y69s0v": {
@@ -2033,6 +2055,28 @@
       "weight": 17,
       "count": 2
     },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_d9b2ud": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_d9b2ud"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_d9b2ud": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_d9b2ud"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_d9b2ud",
@@ -2077,6 +2121,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_d9b2ud",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_d9b2ud": {
       "ids": [
         "jewel-desecrated.mod_6xy8hs",
@@ -2097,6 +2152,17 @@
         "ru": " увеличение "
       },
       "weight": 12,
+      "count": 2
+    },
+    "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_d9b2ud",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
       "count": 2
     },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_y69s0v": {
@@ -2264,6 +2330,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_4qfum9",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_4qfum9",
@@ -2429,6 +2506,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_wk8php": {
+      "ids": [
+        "jewel-desecrated.mod_vurd3w",
+        "jewel-desecrated.mod_wk8php"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_wk8php:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_wk8php",
@@ -2528,6 +2616,28 @@
       "weight": 17,
       "count": 2
     },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_cjvsm3": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_cjvsm3"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_3yl2ru": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_3yl2ru"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_22l2u1",
@@ -2572,6 +2682,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_6xy8hs": {
       "ids": [
         "jewel-desecrated.mod_22l2u1",
@@ -2592,6 +2713,17 @@
         "ru": " увеличение "
       },
       "weight": 12,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_y69s0v": {
@@ -2726,6 +2858,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_ejpzup:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_ejpzup",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_ejpzup:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_ejpzup",
@@ -2858,6 +3001,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_nbe1td:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_nbe1td",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_nbe1td:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_nbe1td",
@@ -2924,6 +3078,28 @@
       "weight": 13,
       "count": 2
     },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_dfjfh3": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_dfjfh3"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_dfjfh3": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_dfjfh3"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_dfjfh3",
@@ -2968,6 +3144,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_dfjfh3",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_dfjfh3": {
       "ids": [
         "jewel-desecrated.mod_6xy8hs",
@@ -2988,6 +3175,17 @@
         "ru": " увеличение "
       },
       "weight": 12,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_dfjfh3",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
       "count": 2
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_y69s0v": {
@@ -3089,6 +3287,17 @@
       "weight": 13,
       "count": 2
     },
+    "jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_y6u0e9": {
+      "ids": [
+        "jewel-desecrated.mod_vurd3w",
+        "jewel-desecrated.mod_y6u0e9"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_y69s0v:jewel-desecrated.mod_y6u0e9": {
       "ids": [
         "jewel-desecrated.mod_y69s0v",
@@ -3177,6 +3386,17 @@
       "weight": 5,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "повышение "
+      },
+      "weight": 10,
+      "count": 2
+    },
     "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_1pn52r",
@@ -3186,6 +3406,28 @@
         "ru": "повышение "
       },
       "weight": 10,
+      "count": 2
+    },
+    "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_t1xcyw": {
+      "ids": [
+        "jewel-desecrated.mod_hibfue",
+        "jewel-desecrated.mod_t1xcyw"
+      ],
+      "regex": {
+        "ru": "а от"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_t1xcyw:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_t1xcyw",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "а от"
+      },
+      "weight": 4,
       "count": 2
     },
     "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_vvwqkc": {
@@ -3254,6 +3496,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_cenwfe",
@@ -3320,6 +3573,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_vurd3w",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_vvwqkc:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_vvwqkc",
@@ -3375,6 +3639,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_dy3s2a",
@@ -3382,6 +3657,138 @@
       ],
       "regex": {
         "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_cjvsm3": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_cjvsm3"
+      ],
+      "regex": {
+        "ru": "ения "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_izhaok": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_izhaok"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cjvsm3:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_cjvsm3",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "сопротивления "
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_cjvsm3": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_cjvsm3"
+      ],
+      "regex": {
+        "ru": "сопротивления "
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_izhaok": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_izhaok"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "истощения"
+      },
+      "weight": 9,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "ения "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_jfkx8z": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_jfkx8z"
+      ],
+      "regex": {
+        "ru": "вами"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_6xy8hs": {
+      "ids": [
+        "jewel-desecrated.mod_3yl2ru",
+        "jewel-desecrated.mod_6xy8hs"
+      ],
+      "regex": {
+        "ru": "ения "
       },
       "weight": 5,
       "count": 2
@@ -3419,6 +3826,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_hibfue",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_hibfue",
@@ -3452,6 +3870,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_qkka46:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_qkka46",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_zi2db0": {
       "ids": [
         "jewel-desecrated.mod_6xy8hs",
@@ -3474,6 +3903,17 @@
       "weight": 12,
       "count": 2
     },
+    "jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_vurd3w",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_y69s0v:jewel-desecrated.mod_zi2db0": {
       "ids": [
         "jewel-desecrated.mod_y69s0v",
@@ -3489,6 +3929,17 @@
       "ids": [
         "jewel-desecrated.mod_izhaok",
         "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_izhaok:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_izhaok",
+        "jewel-desecrated.mod_qkka46"
       ],
       "regex": {
         "ru": "ения"
@@ -3518,6 +3969,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_obl7vt:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_obl7vt",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_obl7vt": {
       "ids": [
         "jewel-desecrated.mod_6xy8hs",
@@ -3540,6 +4002,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_qkka46": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_qkka46"
+      ],
+      "regex": {
+        "ru": "сопротивления "
+      },
+      "weight": 14,
+      "count": 2
+    },
     "jewel-desecrated.mod_2oddfi:jewel-desecrated.mod_vurd3w": {
       "ids": [
         "jewel-desecrated.mod_2oddfi",
@@ -3551,6 +4024,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_vurd3w": {
+      "ids": [
+        "jewel-desecrated.mod_7owzgr",
+        "jewel-desecrated.mod_vurd3w"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_y69s0v": {
       "ids": [
         "jewel-desecrated.mod_7owzgr",
@@ -3560,6 +4044,17 @@
         "ru": "ение "
       },
       "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_y69s0v": {
+      "ids": [
+        "jewel-desecrated.mod_vurd3w",
+        "jewel-desecrated.mod_y69s0v"
+      ],
+      "regex": {
+        "ru": "повышение "
+      },
+      "weight": 10,
       "count": 2
     }
   }

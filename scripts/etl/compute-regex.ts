@@ -49,10 +49,16 @@ export interface RegexResult {
  * forces longer, more specific regexes.
  */
 const MIN_REGEX_LEN_DEFAULT = 5;
-const MIN_REGEX_LEN_STRICT = 5;
+const MIN_REGEX_LEN_STRICT = 10;
 
-/** Categories that require stricter minimum regex length */
-const STRICT_CATEGORIES = new Set(['waystone', 'waystone-desecrated', 'tablet']);
+/** Categories that require stricter minimum regex length.
+ * Waystone/tablet mods have short, generic suffixes that match unintended
+ * text in-game. jewel-desecrated has the same problem — dual-stat mods
+ * produce very short unique suffixes like "молнии" (6), "холоду" (6),
+ * "Бездны" (6) which match many unrelated mods across all categories.
+ * Raising MIN_REGEX_LEN_STRICT to 10 forces longer, more specific regexes.
+ */
+const STRICT_CATEGORIES = new Set(['waystone', 'waystone-desecrated', 'tablet', 'jewel-desecrated']);
 
 /**
  * Normalize a rawTextTemplate into a "family key".

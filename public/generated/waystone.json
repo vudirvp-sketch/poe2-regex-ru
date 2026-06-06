@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T14:37:02.653Z",
+  "version": "2026-06-06T15:11:24.589Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,7 @@
         "ru": "Дополнительных свойств у редких монстров: #"
       },
       "regex": {
-        "ru": "ойств"
+        "ru": "ых свойств"
       },
       "familyKey": {
         "ru": "Дополнительных свойств у редких монстров: #"
@@ -50,7 +50,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от огня"
       },
       "regex": {
-        "ru": "от огня"
+        "ru": "урона от огня"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от огня"
@@ -90,7 +90,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от огня"
       },
       "regex": {
-        "ru": "от огня"
+        "ru": "урона от огня"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от огня"
@@ -130,7 +130,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от огня"
       },
       "regex": {
-        "ru": "от огня"
+        "ru": "урона от огня"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от огня"
@@ -170,7 +170,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от огня"
       },
       "regex": {
-        "ru": "от огня"
+        "ru": "урона от огня"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от огня"
@@ -210,7 +210,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от холода"
       },
       "regex": {
-        "ru": "холода"
+        "ru": "урона от холода"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от холода"
@@ -250,7 +250,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от холода"
       },
       "regex": {
-        "ru": "холода"
+        "ru": "урона от холода"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от холода"
@@ -290,7 +290,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от холода"
       },
       "regex": {
-        "ru": "холода"
+        "ru": "урона от холода"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от холода"
@@ -330,7 +330,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от холода"
       },
       "regex": {
-        "ru": "холода"
+        "ru": "урона от холода"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от холода"
@@ -370,7 +370,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от молнии"
       },
       "regex": {
-        "ru": "молнии"
+        "ru": "урона от молнии"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от молнии"
@@ -410,7 +410,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от молнии"
       },
       "regex": {
-        "ru": "молнии"
+        "ru": "урона от молнии"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от молнии"
@@ -450,7 +450,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от молнии"
       },
       "regex": {
-        "ru": "молнии"
+        "ru": "урона от молнии"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от молнии"
@@ -490,7 +490,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона от молнии"
       },
       "regex": {
-        "ru": "молнии"
+        "ru": "урона от молнии"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона от молнии"
@@ -682,7 +682,7 @@
         "ru": "Скорость атаки, сотворения чар и передвижения монстров повышена на ##%"
       },
       "regex": {
-        "ru": "таки,"
+        "ru": "сотворения"
       },
       "familyKey": {
         "ru": "Скорость атаки, сотворения чар и передвижения монстров повышена на #%"
@@ -1188,7 +1188,7 @@
         "ru": "Монстры бронированы"
       },
       "regex": {
-        "ru": "ованы"
+        "ru": "ронированы"
       },
       "familyKey": {
         "ru": "Монстры бронированы"
@@ -1219,7 +1219,7 @@
         "ru": "Монстры уклончивы"
       },
       "regex": {
-        "ru": "нчивы"
+        "ru": "монстры ук"
       },
       "familyKey": {
         "ru": "Монстры уклончивы"
@@ -1615,7 +1615,7 @@
         "ru": "Монстры имеют ##% увеличение порога состояний, Монстры имеют ##% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
       },
       "regex": {
-        "ru": "камней"
+        "ru": "путевых камней"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога состояний, Монстры имеют #% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
@@ -1668,7 +1668,7 @@
         "ru": "Монстры имеют ##% увеличение порога состояний, Монстры имеют ##% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
       },
       "regex": {
-        "ru": "камней"
+        "ru": "путевых камней"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога состояний, Монстры имеют #% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
@@ -1721,7 +1721,7 @@
         "ru": "Монстры имеют ##% увеличение порога состояний, Монстры имеют ##% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
       },
       "regex": {
-        "ru": "камней"
+        "ru": "путевых камней"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога состояний, Монстры имеют #% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
@@ -1774,7 +1774,7 @@
         "ru": "Монстры имеют ##% увеличение порога состояний, Монстры имеют ##% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
       },
       "regex": {
-        "ru": "камней"
+        "ru": "путевых камней"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога состояний, Монстры имеют #% увеличение порога оглушения, На #% больше эффективности монстров, На #% больше находимых в области путевых камней"
@@ -1995,7 +1995,7 @@
         "ru": "Меткость монстров повышена на ##%"
       },
       "regex": {
-        "ru": "(10—2"
+        "ru": "а (10—20)%"
       },
       "familyKey": {
         "ru": "Меткость монстров повышена на #%"
@@ -2034,7 +2034,7 @@
         "ru": "Меткость монстров повышена на ##%"
       },
       "regex": {
-        "ru": "ена на (2"
+        "ru": "шена на (2"
       },
       "familyKey": {
         "ru": "Меткость монстров повышена на #%"
@@ -2073,7 +2073,7 @@
         "ru": "Меткость монстров повышена на ##%"
       },
       "regex": {
-        "ru": "ена на (3"
+        "ru": "шена на (3"
       },
       "familyKey": {
         "ru": "Меткость монстров повышена на #%"
@@ -2112,7 +2112,7 @@
         "ru": "Меткость монстров повышена на ##%"
       },
       "regex": {
-        "ru": " на (4"
+        "ru": "шена на (4"
       },
       "familyKey": {
         "ru": "Меткость монстров повышена на #%"
@@ -2151,7 +2151,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона хаосом"
       },
       "regex": {
-        "ru": "хаосом"
+        "ru": "урона хаосом"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона хаосом"
@@ -2191,7 +2191,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона хаосом"
       },
       "regex": {
-        "ru": "хаосом"
+        "ru": "урона хаосом"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона хаосом"
@@ -2231,7 +2231,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона хаосом"
       },
       "regex": {
-        "ru": "хаосом"
+        "ru": "урона хаосом"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона хаосом"
@@ -2271,7 +2271,7 @@
         "ru": "приспешники наносят ##% от их урона в виде дополнительного урона хаосом"
       },
       "regex": {
-        "ru": "хаосом"
+        "ru": "урона хаосом"
       },
       "familyKey": {
         "ru": "приспешники наносят #% от их урона в виде дополнительного урона хаосом"
@@ -2631,7 +2631,7 @@
         "ru": "Монстры выпускают дополнительных снарядов: #"
       },
       "regex": {
-        "ru": "ов: 2"
+        "ru": "нарядов: 2"
       },
       "familyKey": {
         "ru": "Монстры выпускают дополнительных снарядов: #"
@@ -2666,7 +2666,7 @@
         "ru": "Монстры выпускают дополнительных снарядов: #"
       },
       "regex": {
-        "ru": "ов: 3"
+        "ru": "нарядов: 3"
       },
       "familyKey": {
         "ru": "Монстры выпускают дополнительных снарядов: #"
@@ -2701,7 +2701,7 @@
         "ru": "Монстры имеют #% увеличение области действия"
       },
       "regex": {
-        "ru": "действия"
+        "ru": "области действия"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение области действия"
@@ -2738,7 +2738,7 @@
         "ru": "Область проклята Слабостью"
       },
       "regex": {
-        "ru": "слабо"
+        "ru": "проклята с"
       },
       "familyKey": {
         "ru": "Область проклята Слабостью"
@@ -2769,7 +2769,7 @@
         "ru": "Область проклята Путами времени"
       },
       "regex": {
-        "ru": "утами"
+        "ru": "ята путами"
       },
       "familyKey": {
         "ru": "Область проклята Путами времени"
@@ -2803,7 +2803,7 @@
         "ru": "Область проклята Уязвимостью к стихиям"
       },
       "regex": {
-        "ru": "уязви"
+        "ru": "язвимостью"
       },
       "familyKey": {
         "ru": "Область проклята Уязвимостью к стихиям"
@@ -2834,7 +2834,7 @@
         "ru": "В области есть участки подожженной земли"
       },
       "regex": {
-        "ru": "подож"
+        "ru": "одожженной"
       },
       "familyKey": {
         "ru": "В области есть участки подожженной земли"
@@ -2867,7 +2867,7 @@
         "ru": "Область имеет участки замерзшей земли"
       },
       "regex": {
-        "ru": "имеет"
+        "ru": "асть имеет"
       },
       "familyKey": {
         "ru": "Область имеет участки замерзшей земли"
@@ -2902,7 +2902,7 @@
         "ru": "Область содержит участки заряженной земли"
       },
       "regex": {
-        "ru": "ержит"
+        "ru": "заряженной"
       },
       "familyKey": {
         "ru": "Область содержит участки заряженной земли"
@@ -3240,7 +3240,7 @@
         "ru": "Игроки получают уменьшение зарядов флакона на ##%"
       },
       "regex": {
-        "ru": "а (20—24"
+        "ru": "а (20—24)%"
       },
       "familyKey": {
         "ru": "Игроки получают уменьшение зарядов флакона на #%"
@@ -3279,7 +3279,7 @@
         "ru": "Игроки получают уменьшение зарядов флакона на ##%"
       },
       "regex": {
-        "ru": " (25—2"
+        "ru": "а (25—29)%"
       },
       "familyKey": {
         "ru": "Игроки получают уменьшение зарядов флакона на #%"
@@ -3318,7 +3318,7 @@
         "ru": "Игроки получают уменьшение зарядов флакона на ##%"
       },
       "regex": {
-        "ru": "она на (3"
+        "ru": "кона на (3"
       },
       "familyKey": {
         "ru": "Игроки получают уменьшение зарядов флакона на #%"
@@ -3357,7 +3357,7 @@
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на ##% меньше"
       },
       "regex": {
-        "ru": "20—29"
+        "ru": "а (20—29)%"
       },
       "familyKey": {
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на #% меньше"
@@ -3399,7 +3399,7 @@
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на ##% меньше"
       },
       "regex": {
-        "ru": "—35)% "
+        "ru": "ков на (30"
       },
       "familyKey": {
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на #% меньше"
@@ -3441,7 +3441,7 @@
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на ##% меньше"
       },
       "regex": {
-        "ru": "(36—4"
+        "ru": "а (36—40)%"
       },
       "familyKey": {
         "ru": "Скорость восстановления здоровья и энергетического щита игроков на #% меньше"
@@ -3483,7 +3483,7 @@
         "ru": "Игроки имеют на ##% меньше скорости перезарядки умений"
       },
       "regex": {
-        "ru": "умений"
+        "ru": "перезарядки умений"
       },
       "familyKey": {
         "ru": "Игроки имеют на #% меньше скорости перезарядки умений"
@@ -3526,7 +3526,7 @@
         "ru": "Игроки имеют на ##% меньше скорости перезарядки умений"
       },
       "regex": {
-        "ru": "умений"
+        "ru": "перезарядки умений"
       },
       "familyKey": {
         "ru": "Игроки имеют на #% меньше скорости перезарядки умений"
@@ -3569,7 +3569,7 @@
         "ru": "Игроки имеют на ##% меньше скорости перезарядки умений"
       },
       "regex": {
-        "ru": "умений"
+        "ru": "перезарядки умений"
       },
       "familyKey": {
         "ru": "Игроки имеют на #% меньше скорости перезарядки умений"
@@ -3612,7 +3612,7 @@
         "ru": "Монстры получают ##% уменьшение дополнительного урона от критических ударов"
       },
       "regex": {
-        "ru": "ударов"
+        "ru": "критических ударов"
       },
       "familyKey": {
         "ru": "Монстры получают #% уменьшение дополнительного урона от критических ударов"
@@ -3653,7 +3653,7 @@
         "ru": "Монстры получают ##% уменьшение дополнительного урона от критических ударов"
       },
       "regex": {
-        "ru": "ударов"
+        "ru": "критических ударов"
       },
       "familyKey": {
         "ru": "Монстры получают #% уменьшение дополнительного урона от критических ударов"
@@ -3694,7 +3694,7 @@
         "ru": "Монстры получают ##% уменьшение дополнительного урона от критических ударов"
       },
       "regex": {
-        "ru": "ударов"
+        "ru": "критических ударов"
       },
       "familyKey": {
         "ru": "Монстры получают #% уменьшение дополнительного урона от критических ударов"
@@ -3735,7 +3735,7 @@
         "ru": "На ##% меньше эффекта проклятий на монстрах"
       },
       "regex": {
-        "ru": "монстрах"
+        "ru": "на монстрах"
       },
       "familyKey": {
         "ru": "На #% меньше эффекта проклятий на монстрах"
@@ -3774,7 +3774,7 @@
         "ru": "На ##% меньше эффекта проклятий на монстрах"
       },
       "regex": {
-        "ru": "монстрах"
+        "ru": "на монстрах"
       },
       "familyKey": {
         "ru": "На #% меньше эффекта проклятий на монстрах"
@@ -3813,7 +3813,7 @@
         "ru": "На ##% меньше эффекта проклятий на монстрах"
       },
       "regex": {
-        "ru": "монстрах"
+        "ru": "на монстрах"
       },
       "familyKey": {
         "ru": "На #% меньше эффекта проклятий на монстрах"
@@ -3851,9 +3851,9 @@
         "waystone.mod_v7b3by"
       ],
       "regex": {
-        "ru": "от огня"
+        "ru": "урона от огня"
       },
-      "weight": 7,
+      "weight": 13,
       "count": 4
     },
     "waystone.mod_9v0l0z:waystone.mod_l91d8v:waystone.mod_t2n4fj:waystone.mod_xmq641": {
@@ -3864,9 +3864,9 @@
         "waystone.mod_xmq641"
       ],
       "regex": {
-        "ru": "холода"
+        "ru": "урона от холода"
       },
-      "weight": 6,
+      "weight": 15,
       "count": 4
     },
     "waystone.mod_5dk06z:waystone.mod_d75rdn:waystone.mod_liwit7:waystone.mod_pqhy2v": {
@@ -3877,9 +3877,9 @@
         "waystone.mod_pqhy2v"
       ],
       "regex": {
-        "ru": "молнии"
+        "ru": "урона от молнии"
       },
-      "weight": 6,
+      "weight": 15,
       "count": 4
     },
     "waystone.mod_453bd0:waystone.mod_9svl5o:waystone.mod_i1gkuy:waystone.mod_phffvg": {
@@ -3968,9 +3968,9 @@
         "waystone.mod_n81h8i"
       ],
       "regex": {
-        "ru": "камней"
+        "ru": "путевых камней"
       },
-      "weight": 6,
+      "weight": 14,
       "count": 4
     },
     "waystone.mod_3700im:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_j4aki5": {
@@ -3994,9 +3994,9 @@
         "waystone.mod_x11dv3"
       ],
       "regex": {
-        "ru": "(10—2"
+        "ru": "а (10—20)%"
       },
-      "weight": 5,
+      "weight": 10,
       "count": 4
     },
     "waystone.mod_6qjped:waystone.mod_iivvbf:waystone.mod_o10rnx:waystone.mod_yqotx1": {
@@ -4007,9 +4007,9 @@
         "waystone.mod_yqotx1"
       ],
       "regex": {
-        "ru": "хаосом"
+        "ru": "урона хаосом"
       },
-      "weight": 6,
+      "weight": 12,
       "count": 4
     },
     "waystone.mod_goqcn2:waystone.mod_l7rwtj:waystone.mod_omospl:waystone.mod_u6ht6b": {
@@ -4044,9 +4044,9 @@
         "waystone.mod_uh9m9i"
       ],
       "regex": {
-        "ru": "ов: 2"
+        "ru": "нарядов: 2"
       },
-      "weight": 5,
+      "weight": 10,
       "count": 2
     },
     "waystone.mod_6j3xkx:waystone.mod_arwr8m:waystone.mod_q2uvfp:waystone.mod_zhrsdh": {
@@ -4082,9 +4082,9 @@
         "waystone.mod_o33ait"
       ],
       "regex": {
-        "ru": "а (20—24"
+        "ru": "а (20—24)%"
       },
-      "weight": 8,
+      "weight": 10,
       "count": 3
     },
     "waystone.mod_dsfj18:waystone.mod_hp5nbc:waystone.mod_qfi1os": {
@@ -4094,9 +4094,9 @@
         "waystone.mod_qfi1os"
       ],
       "regex": {
-        "ru": "20—29"
+        "ru": "а (20—29)%"
       },
-      "weight": 5,
+      "weight": 10,
       "count": 3
     },
     "waystone.mod_2d2vey:waystone.mod_e7qzo5:waystone.mod_m28f6y": {
@@ -4106,9 +4106,9 @@
         "waystone.mod_m28f6y"
       ],
       "regex": {
-        "ru": "умений"
+        "ru": "перезарядки умений"
       },
-      "weight": 6,
+      "weight": 18,
       "count": 3
     },
     "waystone.mod_ags7hd:waystone.mod_eebmyy:waystone.mod_klpqrv": {
@@ -4118,9 +4118,9 @@
         "waystone.mod_klpqrv"
       ],
       "regex": {
-        "ru": "ударов"
+        "ru": "критических ударов"
       },
-      "weight": 6,
+      "weight": 18,
       "count": 3
     },
     "waystone.mod_c387me:waystone.mod_mophca:waystone.mod_o5y5e2": {
@@ -4130,9 +4130,9 @@
         "waystone.mod_o5y5e2"
       ],
       "regex": {
-        "ru": "монстрах"
+        "ru": "на монстрах"
       },
-      "weight": 8,
+      "weight": 11,
       "count": 3
     },
     "waystone.mod_jlc6j9:waystone.mod_khqk4q": {
@@ -4145,6 +4145,176 @@
       },
       "weight": 4,
       "count": 2
+    },
+    "waystone.mod_69f90c:waystone.mod_9v0l0z:waystone.mod_l91d8v:waystone.mod_makhsy:waystone.mod_o2qq9u:waystone.mod_t2n4fj:waystone.mod_v7b3by:waystone.mod_xmq641": {
+      "ids": [
+        "waystone.mod_69f90c",
+        "waystone.mod_9v0l0z",
+        "waystone.mod_l91d8v",
+        "waystone.mod_makhsy",
+        "waystone.mod_o2qq9u",
+        "waystone.mod_t2n4fj",
+        "waystone.mod_v7b3by",
+        "waystone.mod_xmq641"
+      ],
+      "regex": {
+        "ru": "урона от "
+      },
+      "weight": 9,
+      "count": 8
+    },
+    "waystone.mod_5dk06z:waystone.mod_69f90c:waystone.mod_d75rdn:waystone.mod_liwit7:waystone.mod_makhsy:waystone.mod_o2qq9u:waystone.mod_pqhy2v:waystone.mod_v7b3by": {
+      "ids": [
+        "waystone.mod_5dk06z",
+        "waystone.mod_69f90c",
+        "waystone.mod_d75rdn",
+        "waystone.mod_liwit7",
+        "waystone.mod_makhsy",
+        "waystone.mod_o2qq9u",
+        "waystone.mod_pqhy2v",
+        "waystone.mod_v7b3by"
+      ],
+      "regex": {
+        "ru": "урона от "
+      },
+      "weight": 9,
+      "count": 8
+    },
+    "waystone.mod_453bd0:waystone.mod_69f90c:waystone.mod_9svl5o:waystone.mod_i1gkuy:waystone.mod_makhsy:waystone.mod_o2qq9u:waystone.mod_phffvg:waystone.mod_v7b3by": {
+      "ids": [
+        "waystone.mod_453bd0",
+        "waystone.mod_69f90c",
+        "waystone.mod_9svl5o",
+        "waystone.mod_i1gkuy",
+        "waystone.mod_makhsy",
+        "waystone.mod_o2qq9u",
+        "waystone.mod_phffvg",
+        "waystone.mod_v7b3by"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
+    },
+    "waystone.mod_3700im:waystone.mod_69f90c:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_j4aki5:waystone.mod_makhsy:waystone.mod_o2qq9u:waystone.mod_v7b3by": {
+      "ids": [
+        "waystone.mod_3700im",
+        "waystone.mod_69f90c",
+        "waystone.mod_cgdb7m",
+        "waystone.mod_htl5cc",
+        "waystone.mod_j4aki5",
+        "waystone.mod_makhsy",
+        "waystone.mod_o2qq9u",
+        "waystone.mod_v7b3by"
+      ],
+      "regex": {
+        "ru": "урона"
+      },
+      "weight": 5,
+      "count": 8
+    },
+    "waystone.mod_69f90c:waystone.mod_6qjped:waystone.mod_iivvbf:waystone.mod_makhsy:waystone.mod_o10rnx:waystone.mod_o2qq9u:waystone.mod_v7b3by:waystone.mod_yqotx1": {
+      "ids": [
+        "waystone.mod_69f90c",
+        "waystone.mod_6qjped",
+        "waystone.mod_iivvbf",
+        "waystone.mod_makhsy",
+        "waystone.mod_o10rnx",
+        "waystone.mod_o2qq9u",
+        "waystone.mod_v7b3by",
+        "waystone.mod_yqotx1"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
+    },
+    "waystone.mod_5dk06z:waystone.mod_9v0l0z:waystone.mod_d75rdn:waystone.mod_l91d8v:waystone.mod_liwit7:waystone.mod_pqhy2v:waystone.mod_t2n4fj:waystone.mod_xmq641": {
+      "ids": [
+        "waystone.mod_5dk06z",
+        "waystone.mod_9v0l0z",
+        "waystone.mod_d75rdn",
+        "waystone.mod_l91d8v",
+        "waystone.mod_liwit7",
+        "waystone.mod_pqhy2v",
+        "waystone.mod_t2n4fj",
+        "waystone.mod_xmq641"
+      ],
+      "regex": {
+        "ru": "урона от "
+      },
+      "weight": 9,
+      "count": 8
+    },
+    "waystone.mod_453bd0:waystone.mod_9svl5o:waystone.mod_9v0l0z:waystone.mod_i1gkuy:waystone.mod_l91d8v:waystone.mod_phffvg:waystone.mod_t2n4fj:waystone.mod_xmq641": {
+      "ids": [
+        "waystone.mod_453bd0",
+        "waystone.mod_9svl5o",
+        "waystone.mod_9v0l0z",
+        "waystone.mod_i1gkuy",
+        "waystone.mod_l91d8v",
+        "waystone.mod_phffvg",
+        "waystone.mod_t2n4fj",
+        "waystone.mod_xmq641"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
+    },
+    "waystone.mod_3700im:waystone.mod_9v0l0z:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_j4aki5:waystone.mod_l91d8v:waystone.mod_t2n4fj:waystone.mod_xmq641": {
+      "ids": [
+        "waystone.mod_3700im",
+        "waystone.mod_9v0l0z",
+        "waystone.mod_cgdb7m",
+        "waystone.mod_htl5cc",
+        "waystone.mod_j4aki5",
+        "waystone.mod_l91d8v",
+        "waystone.mod_t2n4fj",
+        "waystone.mod_xmq641"
+      ],
+      "regex": {
+        "ru": "урона"
+      },
+      "weight": 5,
+      "count": 8
+    },
+    "waystone.mod_6qjped:waystone.mod_9v0l0z:waystone.mod_iivvbf:waystone.mod_l91d8v:waystone.mod_o10rnx:waystone.mod_t2n4fj:waystone.mod_xmq641:waystone.mod_yqotx1": {
+      "ids": [
+        "waystone.mod_6qjped",
+        "waystone.mod_9v0l0z",
+        "waystone.mod_iivvbf",
+        "waystone.mod_l91d8v",
+        "waystone.mod_o10rnx",
+        "waystone.mod_t2n4fj",
+        "waystone.mod_xmq641",
+        "waystone.mod_yqotx1"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
+    },
+    "waystone.mod_453bd0:waystone.mod_5dk06z:waystone.mod_9svl5o:waystone.mod_d75rdn:waystone.mod_i1gkuy:waystone.mod_liwit7:waystone.mod_phffvg:waystone.mod_pqhy2v": {
+      "ids": [
+        "waystone.mod_453bd0",
+        "waystone.mod_5dk06z",
+        "waystone.mod_9svl5o",
+        "waystone.mod_d75rdn",
+        "waystone.mod_i1gkuy",
+        "waystone.mod_liwit7",
+        "waystone.mod_phffvg",
+        "waystone.mod_pqhy2v"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
     },
     "waystone.mod_5dk06z:waystone.mod_7j1vfk:waystone.mod_d75rdn:waystone.mod_liwit7:waystone.mod_pqhy2v": {
       "ids": [
@@ -4159,6 +4329,40 @@
       },
       "weight": 4,
       "count": 5
+    },
+    "waystone.mod_3700im:waystone.mod_5dk06z:waystone.mod_cgdb7m:waystone.mod_d75rdn:waystone.mod_htl5cc:waystone.mod_j4aki5:waystone.mod_liwit7:waystone.mod_pqhy2v": {
+      "ids": [
+        "waystone.mod_3700im",
+        "waystone.mod_5dk06z",
+        "waystone.mod_cgdb7m",
+        "waystone.mod_d75rdn",
+        "waystone.mod_htl5cc",
+        "waystone.mod_j4aki5",
+        "waystone.mod_liwit7",
+        "waystone.mod_pqhy2v"
+      ],
+      "regex": {
+        "ru": "урона"
+      },
+      "weight": 5,
+      "count": 8
+    },
+    "waystone.mod_5dk06z:waystone.mod_6qjped:waystone.mod_d75rdn:waystone.mod_iivvbf:waystone.mod_liwit7:waystone.mod_o10rnx:waystone.mod_pqhy2v:waystone.mod_yqotx1": {
+      "ids": [
+        "waystone.mod_5dk06z",
+        "waystone.mod_6qjped",
+        "waystone.mod_d75rdn",
+        "waystone.mod_iivvbf",
+        "waystone.mod_liwit7",
+        "waystone.mod_o10rnx",
+        "waystone.mod_pqhy2v",
+        "waystone.mod_yqotx1"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
+      "count": 8
     },
     "waystone.mod_453bd0:waystone.mod_62dygh:waystone.mod_9svl5o:waystone.mod_chnob5:waystone.mod_i1gkuy:waystone.mod_k10uf8:waystone.mod_phffvg:waystone.mod_vkdkr4": {
       "ids": [
@@ -4194,6 +4398,20 @@
       "weight": 8,
       "count": 8
     },
+    "waystone.mod_453bd0:waystone.mod_9svl5o:waystone.mod_dz26j3:waystone.mod_i1gkuy:waystone.mod_phffvg": {
+      "ids": [
+        "waystone.mod_453bd0",
+        "waystone.mod_9svl5o",
+        "waystone.mod_dz26j3",
+        "waystone.mod_i1gkuy",
+        "waystone.mod_phffvg"
+      ],
+      "regex": {
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 5
+    },
     "waystone.mod_3700im:waystone.mod_453bd0:waystone.mod_9svl5o:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_i1gkuy:waystone.mod_j4aki5:waystone.mod_phffvg": {
       "ids": [
         "waystone.mod_3700im",
@@ -4209,6 +4427,23 @@
         "ru": "урона"
       },
       "weight": 5,
+      "count": 8
+    },
+    "waystone.mod_453bd0:waystone.mod_6qjped:waystone.mod_9svl5o:waystone.mod_i1gkuy:waystone.mod_iivvbf:waystone.mod_o10rnx:waystone.mod_phffvg:waystone.mod_yqotx1": {
+      "ids": [
+        "waystone.mod_453bd0",
+        "waystone.mod_6qjped",
+        "waystone.mod_9svl5o",
+        "waystone.mod_i1gkuy",
+        "waystone.mod_iivvbf",
+        "waystone.mod_o10rnx",
+        "waystone.mod_phffvg",
+        "waystone.mod_yqotx1"
+      ],
+      "regex": {
+        "ru": "урона "
+      },
+      "weight": 6,
       "count": 8
     },
     "waystone.mod_453bd0:waystone.mod_9svl5o:waystone.mod_byn019:waystone.mod_i1gkuy:waystone.mod_j15ym2:waystone.mod_kggkhy:waystone.mod_mfedkw:waystone.mod_phffvg": {
@@ -4239,10 +4474,24 @@
         "waystone.mod_phffvg"
       ],
       "regex": {
-        "ru": "монстр"
+        "ru": "на монстр"
       },
-      "weight": 6,
+      "weight": 9,
       "count": 7
+    },
+    "waystone.mod_goqcn2:waystone.mod_l7rwtj:waystone.mod_omospl:waystone.mod_u6ht6b:waystone.mod_zbjr94": {
+      "ids": [
+        "waystone.mod_goqcn2",
+        "waystone.mod_l7rwtj",
+        "waystone.mod_omospl",
+        "waystone.mod_u6ht6b",
+        "waystone.mod_zbjr94"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 5
     },
     "waystone.mod_7j1vfk:waystone.mod_dv8kwa:waystone.mod_eokrsq:waystone.mod_uns37d:waystone.mod_y4nnlv": {
       "ids": [
@@ -4320,9 +4569,9 @@
         "waystone.mod_y4nnlv"
       ],
       "regex": {
-        "ru": "удар"
+        "ru": "критическ"
       },
-      "weight": 4,
+      "weight": 9,
       "count": 7
     },
     "waystone.mod_62dygh:waystone.mod_chnob5:waystone.mod_k10uf8:waystone.mod_o2lima:waystone.mod_pmwgig:waystone.mod_v6fsrm:waystone.mod_vb57mm:waystone.mod_vkdkr4": {
@@ -4341,6 +4590,20 @@
       },
       "weight": 8,
       "count": 8
+    },
+    "waystone.mod_62dygh:waystone.mod_chnob5:waystone.mod_dz26j3:waystone.mod_k10uf8:waystone.mod_vkdkr4": {
+      "ids": [
+        "waystone.mod_62dygh",
+        "waystone.mod_chnob5",
+        "waystone.mod_dz26j3",
+        "waystone.mod_k10uf8",
+        "waystone.mod_vkdkr4"
+      ],
+      "regex": {
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 5
     },
     "waystone.mod_62dygh:waystone.mod_byn019:waystone.mod_chnob5:waystone.mod_j15ym2:waystone.mod_k10uf8:waystone.mod_kggkhy:waystone.mod_mfedkw:waystone.mod_vkdkr4": {
       "ids": [
@@ -4370,10 +4633,24 @@
         "waystone.mod_vkdkr4"
       ],
       "regex": {
+        "ru": " монстр"
+      },
+      "weight": 7,
+      "count": 7
+    },
+    "waystone.mod_dz26j3:waystone.mod_o2lima:waystone.mod_pmwgig:waystone.mod_v6fsrm:waystone.mod_vb57mm": {
+      "ids": [
+        "waystone.mod_dz26j3",
+        "waystone.mod_o2lima",
+        "waystone.mod_pmwgig",
+        "waystone.mod_v6fsrm",
+        "waystone.mod_vb57mm"
+      ],
+      "regex": {
         "ru": "монстр"
       },
       "weight": 6,
-      "count": 7
+      "count": 5
     },
     "waystone.mod_byn019:waystone.mod_j15ym2:waystone.mod_kggkhy:waystone.mod_mfedkw:waystone.mod_o2lima:waystone.mod_pmwgig:waystone.mod_v6fsrm:waystone.mod_vb57mm": {
       "ids": [
@@ -4425,6 +4702,33 @@
       "weight": 6,
       "count": 7
     },
+    "waystone.mod_byn019:waystone.mod_dz26j3:waystone.mod_j15ym2:waystone.mod_kggkhy:waystone.mod_mfedkw": {
+      "ids": [
+        "waystone.mod_byn019",
+        "waystone.mod_dz26j3",
+        "waystone.mod_j15ym2",
+        "waystone.mod_kggkhy",
+        "waystone.mod_mfedkw"
+      ],
+      "regex": {
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 5
+    },
+    "waystone.mod_c387me:waystone.mod_dz26j3:waystone.mod_mophca:waystone.mod_o5y5e2": {
+      "ids": [
+        "waystone.mod_c387me",
+        "waystone.mod_dz26j3",
+        "waystone.mod_mophca",
+        "waystone.mod_o5y5e2"
+      ],
+      "regex": {
+        "ru": "монстр"
+      },
+      "weight": 6,
+      "count": 4
+    },
     "waystone.mod_3700im:waystone.mod_7j1vfk:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_j4aki5": {
       "ids": [
         "waystone.mod_3700im",
@@ -4438,6 +4742,19 @@
       },
       "weight": 9,
       "count": 5
+    },
+    "waystone.mod_7j1vfk:waystone.mod_ags7hd:waystone.mod_eebmyy:waystone.mod_klpqrv": {
+      "ids": [
+        "waystone.mod_7j1vfk",
+        "waystone.mod_ags7hd",
+        "waystone.mod_eebmyy",
+        "waystone.mod_klpqrv"
+      ],
+      "regex": {
+        "ru": "тическ"
+      },
+      "weight": 6,
+      "count": 4
     },
     "waystone.mod_2368r0:waystone.mod_2xv8m4:waystone.mod_39zmx7:waystone.mod_5j3ahj:waystone.mod_6tqcw0:waystone.mod_b6htj4:waystone.mod_la7tcb:waystone.mod_ux3o8n": {
       "ids": [
@@ -4501,9 +4818,9 @@
         "waystone.mod_la7tcb"
       ],
       "regex": {
-        "ru": "удар"
+        "ru": " удар"
       },
-      "weight": 4,
+      "weight": 5,
       "count": 7
     },
     "waystone.mod_2368r0:waystone.mod_2xv8m4:waystone.mod_5j3ahj:waystone.mod_ags7hd:waystone.mod_eebmyy:waystone.mod_klpqrv:waystone.mod_ux3o8n": {
@@ -4517,9 +4834,42 @@
         "waystone.mod_ux3o8n"
       ],
       "regex": {
-        "ru": "удар"
+        "ru": " удар"
       },
-      "weight": 4,
+      "weight": 5,
+      "count": 7
+    },
+    "waystone.mod_3700im:waystone.mod_6qjped:waystone.mod_cgdb7m:waystone.mod_htl5cc:waystone.mod_iivvbf:waystone.mod_j4aki5:waystone.mod_o10rnx:waystone.mod_yqotx1": {
+      "ids": [
+        "waystone.mod_3700im",
+        "waystone.mod_6qjped",
+        "waystone.mod_cgdb7m",
+        "waystone.mod_htl5cc",
+        "waystone.mod_iivvbf",
+        "waystone.mod_j4aki5",
+        "waystone.mod_o10rnx",
+        "waystone.mod_yqotx1"
+      ],
+      "regex": {
+        "ru": "урона"
+      },
+      "weight": 5,
+      "count": 8
+    },
+    "waystone.mod_3700im:waystone.mod_ags7hd:waystone.mod_cgdb7m:waystone.mod_eebmyy:waystone.mod_htl5cc:waystone.mod_j4aki5:waystone.mod_klpqrv": {
+      "ids": [
+        "waystone.mod_3700im",
+        "waystone.mod_ags7hd",
+        "waystone.mod_cgdb7m",
+        "waystone.mod_eebmyy",
+        "waystone.mod_htl5cc",
+        "waystone.mod_j4aki5",
+        "waystone.mod_klpqrv"
+      ],
+      "regex": {
+        "ru": "ическ"
+      },
+      "weight": 5,
       "count": 7
     },
     "waystone.mod_byn019:waystone.mod_c387me:waystone.mod_j15ym2:waystone.mod_kggkhy:waystone.mod_mfedkw:waystone.mod_mophca:waystone.mod_o5y5e2": {
@@ -4533,10 +4883,59 @@
         "waystone.mod_o5y5e2"
       ],
       "regex": {
-        "ru": "монстр"
+        "ru": " монстр"
+      },
+      "weight": 7,
+      "count": 7
+    },
+    "waystone.mod_2d2vey:waystone.mod_bq7ynf:waystone.mod_e7qzo5:waystone.mod_m28f6y:waystone.mod_uh9m9i": {
+      "ids": [
+        "waystone.mod_2d2vey",
+        "waystone.mod_bq7ynf",
+        "waystone.mod_e7qzo5",
+        "waystone.mod_m28f6y",
+        "waystone.mod_uh9m9i"
+      ],
+      "regex": {
+        "ru": "аряд"
+      },
+      "weight": 4,
+      "count": 5
+    },
+    "waystone.mod_vgw675:waystone.mod_vrb77a": {
+      "ids": [
+        "waystone.mod_vgw675",
+        "waystone.mod_vrb77a"
+      ],
+      "regex": {
+        "ru": "ята "
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "waystone.mod_2195hd:waystone.mod_g88u2c": {
+      "ids": [
+        "waystone.mod_2195hd",
+        "waystone.mod_g88u2c"
+      ],
+      "regex": {
+        "ru": "женной"
       },
       "weight": 6,
-      "count": 7
+      "count": 2
+    },
+    "waystone.mod_2d2vey:waystone.mod_e7qzo5:waystone.mod_g88u2c:waystone.mod_m28f6y": {
+      "ids": [
+        "waystone.mod_2d2vey",
+        "waystone.mod_e7qzo5",
+        "waystone.mod_g88u2c",
+        "waystone.mod_m28f6y"
+      ],
+      "regex": {
+        "ru": "заря"
+      },
+      "weight": 4,
+      "count": 4
     },
     "waystone.mod_1kh81h:waystone.mod_6j3xkx:waystone.mod_6ozv78:waystone.mod_8bvhdx:waystone.mod_arwr8m:waystone.mod_k6xeoc:waystone.mod_q2uvfp:waystone.mod_zhrsdh": {
       "ids": [
@@ -4597,9 +4996,9 @@
         "waystone.mod_qfi1os"
       ],
       "regex": {
-        "ru": "20—2"
+        "ru": "а (20—2"
       },
-      "weight": 4,
+      "weight": 7,
       "count": 6
     }
   }

@@ -1,7 +1,8 @@
 /**
  * Generate a PoE2 regex pattern that matches numbers >= the given threshold.
  * Ported from poe2.re's GenerateNumberRegex.ts.
- * Uses \d because PoE2's in-game search confirmed supports it (verified 2026-06-06).
+ * Uses [0-9] instead of \d for maximum compatibility — \d was verified once
+ * in PoE2 but [0-9] is guaranteed to work in the PoE2 regex dialect.
  * Language-independent: operates on digit strings only.
  */
 export function generateNumberRegex(number: string, round10: boolean): string {
@@ -26,17 +27,17 @@ export function generateNumberRegex(number: string, round10: boolean): string {
 
     if (D0 === 9) {
       // 90-99: use 9[d1-9] pattern instead of [9-9].
-      if (d1 === '0') return `(9[0-9]|\\d..)`;
-      if (D1 === 9) return `(99|\\d..)`;
-      return `(9[${d1}-9]|\\d..)`;
+      if (d1 === '0') return `(9[0-9]|[0-9]..)`;
+      if (D1 === 9) return `(99|[0-9]..)`;
+      return `(9[${d1}-9]|[0-9]..)`;
     }
-    if (d1 === '0') return `([${d0}-9].|\\d..)`;
-    return `(${d0}[${d1}-9]|[${D0 + 1}-9].|\\d..)`;
+    if (d1 === '0') return `([${d0}-9].|[0-9]..)`;
+    return `(${d0}[${d1}-9]|[${D0 + 1}-9].|[0-9]..)`;
   }
 
   if (quant <= 9) {
-    if (quant === 9) return `([9]|\\d..?)`;
-    return `([${quant}-9]|\\d..?)`;
+    if (quant === 9) return `([9]|[0-9]..?)`;
+    return `([${quant}-9]|[0-9]..?)`;
   }
   return number;
 }

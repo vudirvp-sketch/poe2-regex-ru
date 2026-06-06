@@ -4,87 +4,38 @@
 
 ---
 
-## Current State (Session 30 — 2026-06-06)
+## Current State (Session 31 — 2026-06-06)
 
-**Build:** `npx vite build` passes, `npx vitest run` passes (213/213 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (213/213 tests)
 
-**ETL Results:**
+**Key Changes This Session:**
 
-| Category | Tokens | Optimizations |
-|----------|--------|---------------|
-| waystone | 96 | 52 |
-| waystone-desecrated | 16 | 4 |
-| tablet | 75 | 363 |
-| jewel | 193 | 1,466 |
-| jewel-desecrated | 21 | 3 |
-| jewel-corrupted | 10 | 0 |
-| relic | 58 | 28 |
-| belt | 298 | 231 |
-| ring | 366 | 458 |
-| amulet | 427 | 389 |
-| **Total** | **1,560** | |
+1. **`\d` → `[0-9]`** in `src/core/number-regex.ts` — Safer PoE2 regex output. All 213 tests updated.
+2. **jewel-desecrated added to STRICT_CATEGORIES** in `scripts/etl/compute-regex.ts` — MIN_REGEX_LEN_STRICT raised from 5 to 10. Short regexes like "молнии" (6), "холоду" (6), "Бездны" (6) will get longer, more specific alternatives after ETL re-run.
+3. **Regex analysis script** `scripts/analyze-regexes.ts` — Finds 440 short regexes (<10 chars), 4002 cross-category conflicts, 1 within-category ambiguity. Report saved to `регис/analysis-report.md`.
+4. **IN_GAME_TESTS.md rewritten** — Now hypothesis-based tests (Groups A-F) instead of random "does this word match" tests.
+5. **Documentation cleaned** — AGENT_NAVIGATION.md v28, worklog.md trimmed, новый_план.md updated.
+
+**NOT YET DONE (needs ETL re-run):** The `public/generated/jewel-desecrated.json` still has old short regexes. After `pnpm etl` (needs network), they'll be regenerated with MIN=10 constraint.
 
 ---
-
-### Session 30 — JewelType Fix + UI Improvements
-
-**Goal:** Fix P0 jewelType "shared" bug and improve UI layout.
-
-**Changes:**
-
-- **FIXED `scripts/run-etl.ts`** — `buildJewelTypeMap()` now matches Type A jewel mods by normalized rawTextTemplate against ModCalc data (not just by modCode which is absent from Type A HTML tables). Added `normalizeRawTextForMatching()` helper and `normalizedTextToModCode` lookup map. After re-running ETL, jewel tokens will get proper `jewelType` (ruby/emerald/sapphire/shared) instead of all "shared".
-- **FIXED `src/ui/layout/Sidebar.tsx`** — Logo block: changed from `text-center` + `mx-auto` to `text-left`, increased logo from 40x40 to 52x52. Nav icons: increased from 24x24 to 32x32.
-- **FIXED `src/ui/pages/home/HomePage.tsx`** — Category card icons: increased from 48x48 to 56x56, added fixed-height container (`height: 56`) with flexbox centering to normalize visual alignment for icons with different padding.
-- **Updated `AGENT_NAVIGATION.md`** — v27.0, reflects jewelType fix done, updated known issues.
-- **Updated `worklog.md`** — this entry.
-
-**NOTE:** ETL pipeline has NOT been re-run yet (needs network access to poe2db.tw). The `public/generated/jewel*.json` files still have `jewelType: "shared"` for all tokens. After pushing, re-run ETL to populate proper jewel types.
-
----
-
-## Known Issues (Remaining)
-
-| Priority | Issue | Status |
-|----------|-------|--------|
-| HIGH | Push fixes to GitHub (TS fixes not in main) | `git push` needed |
-| HIGH | In-game regex verification (tests 1-22) | Manual testing |
-| HIGH | Re-run ETL after jewelType fix | `pnpm etl` needed |
-| MEDIUM | Number boundary false positives: `[4-9].` matches `6%` | PoE2 limitation, use prefix anchoring |
-| MEDIUM | Desecrated dual-stat regex quality (short regexes) | `compute-regex.ts` Strategy 1c works but min length may need raising |
-| MEDIUM | HomePage hardcoded mod counts | Stale after data updates |
-| MEDIUM | Icon proportions (relic/vendor/belt PNG padding) | Source images need re-cropping |
-| INFO | 57 i18n overrides applied | `i18n-overrides.json` |
-| LOW | VendorPage GROUP_ORDER hardcoded Russian | By design |
-| LOW | TabletPage inline loading/error | Needs PageStateWrapper |
-
----
-
-## Build & Run Commands
-
-```bash
-pnpm install          # Install dependencies
-pnpm build            # Production build
-pnpm test             # Run all tests (213)
-pnpm etl              # Run ETL pipeline (needs network or .etl-cache/)
-pnpm dev              # Development server
-```
-
-## Key Architecture
-
-- **ETL:** `scripts/run-etl.ts` → fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON → i18n overrides
-- **Data:** `public/generated/*.json` (10 files)
-- **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
-- **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip, PageStateWrapper
-- **i18n:** `src/shared/i18n.ts` — t() function with 150+ keys
-- **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type (ETL lookup + weighted scoring fallback)
-- **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
-- **Store:** `src/store/` — Zustand filter store, profile store, URL sync
 
 ## Frequent Bugs
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
-2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json` and `run-etl.ts` `applyI18nOverrides()`
+2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json`
 3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
-4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter (not pass .getState())
-5. **Number boundary:** `[4-9].` matches `6%` in PoE2 — known limitation, use prefix anchoring to mitigate
+4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter
+5. **Number boundary:** `[4-9].` matches `6%` in PoE2 — known limitation, use prefix anchoring
 6. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
+
+## Build & Run Commands
+
+```bash
+pnpm install                     # Install dependencies
+pnpm build                       # Production build
+npx vitest run --root .          # Run all tests (213)
+pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
+npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
+pnpm dev                         # Development server
+```
