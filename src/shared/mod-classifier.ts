@@ -483,8 +483,9 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/шанс.*крит.*удар.*чар|крит.*удар.*чар/i, 2],
   [/бонус.*крит.*урон.*чар/i, 2],
 
-  // Generic crit (Sapphire — catches mods without weapon-specific suffix)
-  [/повышен.*шанс.*критического удара/i, 2],
+  // Generic crit (Sapphire — only for mods WITHOUT weapon-specific suffix like "атаками")
+  // Narrowed from /повышен.*шанс.*критического удара/ to avoid conflict with Emerald attack-crit
+  [/повышен.*шанс.*критического удара(?!.*атак)/i, 2],
   [/увеличен.*бонус.*крит.*урон(?!.*атак)/i, 2],
 
   // Corpse consumption (Sapphire)

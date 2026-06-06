@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 25 — 2026-06-06)
+## Current State (Session 26 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -23,6 +23,39 @@
 | ring | 366 | 458 | 0 |
 | amulet | 427 | 389 | 1 (i18n override) |
 | **Total** | **1,560** | | |
+
+---
+
+### Session 26 Changes — ETL Refresh + Doc Compression + Scoring Fix + Per-Mod Numeric Filter Design
+
+**ETL — Re-ran `pnpm etl`:**
+- All 10 categories fetched successfully, 1,560 tokens, 51 i18n overrides applied
+- Results identical to Session 25 (no new data from poe2db.tw)
+
+**DATA — Регис cross-validation (jewel):**
+- Normal mods: 193 vs 193 — PERFECT MATCH
+- Desecrated: ETL has 21 individual tokens vs 32 combined in регис (structural diff — ETL splits combined mods into separate tokens)
+- Corrupted: 10 vs 11 — регис has "Вы не можете получить эффект Скованности" missing from poe2db.tw
+- Cleaned up регис/Самоцветы моды.md — removed garbage `==========================` separator
+
+**DOCS — AGENT_NAVIGATION.md compression (both root + docs/):**
+- Version 22.0 → 23.0
+- Header: Replaced 8 session description lines (Sessions 18-25) with 1 summary line
+- Iteration table: Compressed 18 individual rows into 6 grouped rows
+- Known Issues: Removed 15 resolved items (~~strikethrough~~ items), kept only active issues
+- Added §9 (Per-Mod Numeric Filter) and §10 (Scoring Conflict) for future work documentation
+- Total reduction: 214 → ~120 lines (~44% reduction)
+
+**SCORING — SAPPHIRE generic crit conflict fix:**
+- `/повышен.*шанс.*критического удара/i` (w=2) was too broad — matched Emerald attack-crit mods
+- Changed to `/повышен.*шанс.*критического удара(?!.*атак)/i` (w=2) — negative lookahead excludes "атаками"
+- 204/204 tests still pass, build passes
+
+**DESIGN — Per-mod numeric filter analysis:**
+- Current: GLOBAL minValue/maxValue applied to ALL ranged tokens
+- Desired: PER-TOKEN thresholds (e.g., waystone ≥80% monsters AND ≥96% experience)
+- PoE2 regex supports this via AND: each quoted group gets its own number+suffix
+- Documented approach: per-token minValue/maxValue in filter store + per-chip inputs + buildAstFromSelections modification
 
 ---
 
