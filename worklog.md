@@ -4,11 +4,11 @@
 
 ---
 
-## Current State (Session 27 — 2026-06-06)
+## Current State (Session 28 — 2026-06-06)
 
-**Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
+**Build:** `npx vite build` passes, `npx vitest run` passes (213/213 tests)
 
-**ETL Results (latest run):**
+**ETL Results (latest run — Session 27 data, needs re-run):**
 
 | Category | Tokens | Optimizations | Short regex (<5) |
 |----------|--------|---------------|-------------------|
@@ -26,32 +26,26 @@
 
 ---
 
-### Session 27 Changes — Per-Mod Numeric Filter Implementation + Scoring Cleanup
+### Session 28 Changes — Iteration 22
 
-**FEATURE — Per-mod numeric filter (Iteration 19):**
-- `filter-store.ts`: Added `perTokenRanges: Record<string, TokenRangeOverride>` to FilterState
-  - New actions: `setTokenRange(tokenId, range)`, `clearTokenRange(tokenId)`
-  - Serialization: `r` key in URL → `[[tokenId, min, max], ...]` compact array format
-  - Reset clears perTokenRanges
-- `useCategoryPage.ts`: `buildAstFromSelections` now accepts `perTokenRanges` parameter
-  - Each ranged token resolves effective range: per-token override > global fallback
-  - Tokens with different effective ranges get separate RANGE nodes → separate quoted groups in regex
-  - New return values: `perTokenRanges`, `setTokenRange`, `clearTokenRange`
-- `FilterChip.tsx`: Shows ≥/≤ number inputs when group is selected AND has ranged tokens
-  - Inputs set per-token overrides via first ranged member's ID
-  - Click on inputs doesn't toggle chip selection (stopPropagation)
-- `ModList.tsx`: Passes `perTokenRanges`, `onSetTokenRange`, `onClearTokenRange` to all FilterChip instances
-- All 7 page components: Updated to destructure and pass new props to ModList
+**`\d` revert (VERIFIED IN-GAME):**
+- `number-regex.ts`: Reverted `[0-9]` → `\d` (saves 2 chars × 7 occurrences = 14 chars)
+- In-game test confirmed `\d` works in PoE2 search engine
 
-**SCORING — Cross-array conflict cleanup (3 rules removed):**
-- `RUBY /присутстви/` (w=1) — appeared in both Ruby and Sapphire → removed
-- `SAPPHIRE /област.*действ.*присутстви/` (w=1) — too generic, Ruby also has presence area → removed
-- `RUBY /сил.*Горючест/` (w=1) — both Ruby and Sapphire have combustibility → removed
-- Zero classification accuracy loss (all were w=1 with cross-array conflicts)
+**Dual-number mod ETL:**
+- `compute-regex.ts`: `extractTemplatePrefix()` min prefix = 2 for dual-number templates ("до" pattern)
+- New field `hasMultiPlaceholder` in `RegexResult`, `GameToken`, `FamilyGroup`
+- New field `filterSlotIndex` in `FamilyGroup` (always 0 = first placeholder)
+- `generate-dictionary.ts`: passes `hasMultiPlaceholder` to GameToken
 
-**DOCS — Updated:**
-- AGENT_NAVIGATION.md: Version 23.0→24.0, §9 updated from "Current vs Desired" → "Implemented", §10 updated with resolved conflicts
-- docs/AGENT_NAVIGATION.md: synced
+**Desecrated dual-stat regex:**
+- `compute-regex.ts` Strategy 1b: Extract text after comma from rawText, strip leading numbers
+- Strategy 1c: Full second stat fallback for dual-stat mods
+- Prevents garbage regexes like `"и, (4—8)% увеличение урона о"`
+
+**Breachborn familyKey fix:**
+- `run-etl.ts`: Recompute `familyKey.ru`, `hasMultiPlaceholder`, `regexPrefix.ru` in `applyI18nOverrides()`
+- Fixes 42 tokens with English familyKey in amulet/ring/belt
 
 ---
 
@@ -59,10 +53,12 @@
 
 | Priority | Issue | Status |
 |----------|-------|--------|
-| INFO | 1 i18n override token has regex <5 chars (amulet fire spell crit breachborn) | Acceptable |
-| INFO | 51 tokens use i18n overrides (poe2db.tw lacks Russian text) | Handled by i18n-overrides.json |
-| LOW | VendorPage GROUP_ORDER + GROUP_COLORS labels are hardcoded Russian | By design (vendor-specific) |
-| LOW | Remaining pages that might still use inline loading/error: none left | All refactored |
+| HIGH | Full ETL re-run needed to populate `regexPrefix`, `hasMultiPlaceholder`, fix `familyKey` in JSONs | Run `pnpm etl` locally |
+| MEDIUM | Number boundary false positives: `[4-9].` matches `6%` (single-digit + non-digit) | PoE2 regex limitation, no fix |
+| MEDIUM | UI for dual-number mods: `hasMultiPlaceholder`/`filterSlotIndex` not yet in UI | Next iteration |
+| INFO | 1 i18n override token has regex <5 chars | Acceptable |
+| INFO | 51 tokens use i18n overrides | Handled by i18n-overrides.json |
+| LOW | VendorPage GROUP_ORDER + GROUP_COLORS hardcoded Russian | By design |
 
 ---
 
@@ -71,14 +67,14 @@
 ```bash
 pnpm install          # Install dependencies
 pnpm build            # Production build
-pnpm test             # Run all tests (204)
+pnpm test             # Run all tests (213)
 pnpm etl              # Run ETL pipeline (needs network or .etl-cache/)
 pnpm dev              # Development server
 ```
 
 ## Key Architecture
 
-- **ETL:** `scripts/run-etl.ts` → fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON
+- **ETL:** `scripts/run-etl.ts` → fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON → i18n overrides
 - **Data:** `public/generated/*.json` (10 files)
 - **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
 - **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip, PageStateWrapper
@@ -93,3 +89,4 @@ pnpm dev              # Development server
 2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json` and `run-etl.ts` `applyI18nOverrides()`
 3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
 4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter (not pass .getState())
+5. **Number boundary:** `[4-9].` matches `6%` in PoE2 — known limitation, use prefix anchoring to mitigate

@@ -36,8 +36,11 @@ export interface RegexResult {
   familyKey: string;
   /** Regex prefix: text before the first ##/# placeholder, used to anchor
    *  numeric regex to the correct mod line. Prevents .* from crossing mod boundaries.
-   *  Empty string if number is at start of template or prefix is too short (< 5 chars). */
+   *  Empty string if number is at start of template or prefix is too short. */
   regexPrefix: string;
+  /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat mods).
+   *  Used downstream to determine correct range slot for numeric filtering. */
+  hasMultiPlaceholder: boolean;
 }
 
 /** Minimum regex length for meaningful matching in PoE2 search.
@@ -150,16 +153,20 @@ function extractExtendedSuffix(template: string): string {
 /**
  * Extract the "regex prefix" from a rawTextTemplate.
  * This is the text BEFORE the first ## or # placeholder,
- * trimmed to the last 2-3 words (minimum 5 chars).
+ * trimmed to the last 2-3 words.
  *
  * The prefix anchors the number regex to the correct mod line,
  * preventing .* from crossing mod boundaries.
  *
+ * For dual-number mods (templates with "до" between ## placeholders,
+ * e.g., "От ## до ## урона"), even short prefixes like "От" are
+ * preserved because they anchor the number to the correct position.
+ *
  * Examples:
  *   "Боссы карт даруют на ##% больше опыта" → "даруют на" (last 2 words before ##)
  *   "##% повышение редкости..." → "" (number at start, no prefix needed)
- *   "От ## до ## физического урона" → "От" (text before first ##, but we use
- *     "до" for the second number in the future)
+ *   "От ## до ## физического урона" → "От" (short but critical for dual-number)
+ *   "Добавляет от ## до ## физического урона к атакам" → "Добавляет от"
  */
 function extractTemplatePrefix(template: string): string {
   // Find the first ## or #
@@ -183,8 +190,14 @@ function extractTemplatePrefix(template: string): string {
   // Remove trailing non-letter characters (like '+', '(', etc.)
   prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
 
-  // Minimum 5 characters for the prefix to be meaningful
-  if (prefix.length < 5) return '';
+  // Detect dual-number template: contains "до" between ## placeholders
+  // (Russian "from X to Y" pattern: "От/от ## до ## ...")
+  const isDualNumber = /\d*#\s*до\s*#/.test(template) || /#\s*до\s*#/.test(template);
+
+  // Minimum prefix length: 2 for dual-number mods (short prefixes like "От"
+  // are critical for anchoring), 5 for single-number mods
+  const minPrefixLen = isDualNumber ? 2 : 5;
+  if (prefix.length < minPrefixLen) return '';
 
   // Take the last 2-3 words to keep the prefix short
   // This is a balance between uniqueness and regex length
@@ -346,8 +359,12 @@ export function computeMinimalUniqueSubstring(
 
   // Edge case: empty rawText
   if (!rawText || rawText.trim().length === 0) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '' };
+    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '', hasMultiPlaceholder: false };
   }
+
+  // Detect multi-placeholder template (dual-number or dual-stat mods)
+  const placeholderCount = (template.match(/#+/g) || []).length;
+  const hasMultiPlaceholder = placeholderCount >= 2;
 
   // ═══════════════════════════════════════════════════
   // Strategy 1: Template-family suffix
@@ -368,7 +385,7 @@ export function computeMinimalUniqueSubstring(
         bestSuffix, targetToken, allTokensInCategory, locale
       );
 
-      return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix };
+      return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
     }
 
     // ═══════════════════════════════════════════════════
@@ -388,12 +405,26 @@ export function computeMinimalUniqueSubstring(
       // "##% повышение брони, ##% увеличение урона от атак"), the extended
       // suffix may contain ## from subsequent placeholders. We need to
       // strip those out and use only the text between/after placeholders.
-      // Replace any remaining ## or # with the actual text from rawText.
       let cleanExtendedSuffix = extendedSuffix;
       if (cleanExtendedSuffix.includes('#')) {
-        // Replace ## with the corresponding text from rawText
-        // Strategy: use the full rawText substring search instead
-        cleanExtendedSuffix = '';
+        // Dual-stat mod: extract the text after the LAST comma+## pattern
+        // from the rawText (which has actual numbers instead of ##).
+        // Example: rawText "(5—10)% повышение брони, (4—8)% увеличение урона от атак"
+        // → extract from last comma: "увеличение урона от атак"
+        const lastCommaIdx = rawText.lastIndexOf(',');
+        if (lastCommaIdx !== -1) {
+          const afterComma = rawText.substring(lastCommaIdx + 1).trim();
+          // Remove leading number/range pattern: "(4—8)% " → "увеличение урона от атак"
+          const strippedAfterComma = afterComma.replace(/^[\d(—\-+%.)\s]+/, '').trim();
+          if (strippedAfterComma.length >= effectiveMinLen) {
+            cleanExtendedSuffix = strippedAfterComma;
+          } else {
+            // If stripped is too short, use the full after-comma text
+            cleanExtendedSuffix = afterComma;
+          }
+        } else {
+          cleanExtendedSuffix = '';
+        }
       }
 
       if (cleanExtendedSuffix) {
@@ -404,7 +435,33 @@ export function computeMinimalUniqueSubstring(
           const { hasYofication, yoficationPositions } = checkYofication(
             bestExtended, targetToken, allTokensInCategory, locale
           );
-          return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix };
+          return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+        }
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Strategy 1c: Full second stat for dual-stat mods
+    // ═══════════════════════════════════════════════════
+    // For dual-stat desecrated mods where Strategy 1b couldn't find
+    // a unique suffix after the comma, try the ENTIRE text after
+    // the first ## placeholder from rawText (with numbers substituted).
+    // This is the most specific regex but also the longest.
+    if (hasMultiPlaceholder && rawText.includes(',')) {
+      // Extract everything after the first number+non-letter run
+      const firstNumEnd = rawText.search(/[а-яА-ЯёЁ]/);
+      if (firstNumEnd > 0) {
+        const fullSuffix = rawText.substring(firstNumEnd);
+        if (fullSuffix.length >= effectiveMinLen) {
+          const bestFull = findShortestUniqueSuffix(
+            fullSuffix, template, allTokensInCategory, locale, effectiveMinLen
+          );
+          if (bestFull) {
+            const { hasYofication, yoficationPositions } = checkYofication(
+              bestFull, targetToken, allTokensInCategory, locale
+            );
+            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          }
         }
       }
     }
@@ -419,7 +476,7 @@ export function computeMinimalUniqueSubstring(
     targetToken, allTokensInCategory, locale, effectiveMinLen
   );
 
-  return { ...fallbackResult, familyKey, regexPrefix };
+  return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder };
 }
 
 /**

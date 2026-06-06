@@ -25,6 +25,7 @@ export function assembleGameToken(
     regex: { [locale]: regexResult.regex },
     familyKey: { [locale]: regexResult.familyKey },
     regexPrefix: { [locale]: regexResult.regexPrefix },
+    hasMultiPlaceholder: regexResult.hasMultiPlaceholder,
     genderForms: mod.genderForms,
     affix: mod.affix,
     tags: mod.tags,
@@ -55,6 +56,7 @@ export function assembleCategoryData(
       yoficationPositions: [],
       familyKey: mod.rawTextTemplate[locale].replace(/##/g, '#'),
       regexPrefix: '',
+      hasMultiPlaceholder: false,
     };
     return assembleGameToken(mod, result, locale);
   });

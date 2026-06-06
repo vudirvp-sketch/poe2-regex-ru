@@ -216,6 +216,7 @@ function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToke
     displayText,
     hasMultiPlaceholder,
     rangeSlots,
+    filterSlotIndex: 0, // Always filter by first placeholder (min damage, min value, etc.)
   };
 }
 

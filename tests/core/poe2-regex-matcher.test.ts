@@ -2,7 +2,7 @@
  * PoE2 Regex Matcher Tests — Systematic validation of regex patterns.
  *
  * KEY INSIGHT: PoE2 number regex patterns are HEURISTICS, not precise filters.
- * For example, `[0-9]..` matches any 3-char sequence starting with a digit,
+ * For example, `\d..` matches any 3-char sequence starting with a digit,
  * not just 3-digit numbers. In practice, the suffix constraint (`.*suffix`)
  * makes these patterns work well for game items. This matcher faithfully
  * simulates the game's permissive matching behavior.
@@ -171,13 +171,13 @@ describe('PoE2 Regex Dialect: Optional quantifier ?', () => {
     expect(matchPoE2Regex('"аб.?в"', 'абXXв')).toBe(false);
   });
 
-  it('\[0-9]..? matches digit + 1-2 any chars', () => {
-    // This is how number regex works: [0-9]..? = digit + at least 1 char + optional char
+  it('\\d..? matches digit + 1-2 any chars', () => {
+    // This is how number regex works: \d..? = digit + at least 1 char + optional char
     // "5" → NO (need at least 1 char after digit)
     // "55" → YES (digit=5, .=5, .?=nothing)
     // "555" → YES (digit=5, .=5, .?=5)
-    expect(matchQuotedGroup('\[0-9]..?', '55')).toBe(true);
-    expect(matchQuotedGroup('\[0-9]..?', '555')).toBe(true);
+    expect(matchQuotedGroup('\\d..?', '55')).toBe(true);
+    expect(matchQuotedGroup('\\d..?', '555')).toBe(true);
   });
 });
 
@@ -185,36 +185,36 @@ describe('PoE2 Regex Dialect: Optional quantifier ?', () => {
 // SECTION 2: NUMBER REGEX
 //
 // IMPORTANT: PoE2 number regex patterns are HEURISTICS.
-// - `[0-9]..` matches ANY 3-char sequence starting with a digit
+// - `\d..` matches ANY 3-char sequence starting with a digit
 // - `[4-9].` matches any 2-char sequence where the first char is 4-9
 // - The suffix constraint (.*suffix) is what makes them practical
 // - These patterns may match unintended text in edge cases
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Number regex: ≥N with realistic game text', () => {
-  it('≥5 with suffix: "([5-9]|\[0-9]..?).*к силе"', () => {
+  it('≥5 with suffix: "([5-9]|\\d..?).*к силе"', () => {
     // Realistic game text: "+(5—8) к силе"
     // The number regex must find a number ≥5 AND "к силе" on the same item
-    const regex = '"([5-9]|\[0-9]..?).*к силе"';
+    const regex = '"([5-9]|\\d..?).*к силе"';
     expect(matchPoE2Regex(regex, '+(5—8) к силе')).toBe(true);
     expect(matchPoE2Regex(regex, '+(9—15) к силе')).toBe(true);
     expect(matchPoE2Regex(regex, '+(12—20) к силе')).toBe(true);
-    // NOTE: [0-9]..? is HEURISTIC — it matches any digit + 1-2 chars.
-    // On "+(4—8) к силе", [0-9]..? matches "4—" → then .*к силе matches.
+    // NOTE: \d..? is HEURISTIC — it matches any digit + 1-2 chars.
+    // On "+(4—8) к силе", \d..? matches "4—" → then .*к силе matches.
     // This is a KNOWN LIMITATION of PoE2 number regex — not a bug in our matcher.
     // In practice, game items rarely have edge cases that cause false matches.
-    expect(matchPoE2Regex(regex, '+(4—8) к силе')).toBe(true); // heuristic: matches because [0-9]..? finds "4—"
+    expect(matchPoE2Regex(regex, '+(4—8) к силе')).toBe(true); // heuristic: matches because \d..? finds "4—"
   });
 
-  it('≥40 with round10: "([4-9].|\[0-9]..).*m q" on realistic text', () => {
-    const regex = '"([4-9].|\[0-9]..).*m q"';
+  it('≥40 with round10: "([4-9].|\\d..).*m q" on realistic text', () => {
+    const regex = '"([4-9].|\\d..).*m q"';
     // In-game, the mod text would be like "(40—80)% увеличение ... m q"
     // The pattern finds a ≥40 number + suffix
     expect(matchPoE2Regex(regex, '(40—80)% увеличение m q')).toBe(true);
     expect(matchPoE2Regex(regex, '(55—90)% увеличение m q')).toBe(true);
     expect(matchPoE2Regex(regex, '(100—150)% увеличение m q')).toBe(true);
     // With realistic text, 39 would be in "(39—80)..." — [4-9]. would try "39" (fail),
-    // but [0-9].. could match "39 " — however the suffix constraint helps
+    // but \d.. could match "39 " — however the suffix constraint helps
   });
 
   it('≥50 with round10 and Russian suffix', () => {
@@ -222,7 +222,7 @@ describe('Number regex: ≥N with realistic game text', () => {
     // "Уровень предмета: 50" has the number AFTER the colon, not before.
     // In-game, the mod text would be formatted differently.
     // Let's test with number BEFORE suffix:
-    const regex = '"([5-9].|\[0-9]..).*уровень"';
+    const regex = '"([5-9].|\\d..).*уровень"';
     expect(matchPoE2Regex(regex, '50 уровень')).toBe(true);
     expect(matchPoE2Regex(regex, '80 уровень')).toBe(true);
     // With "Уровень предмета: 50", [5-9]. tries to match at pos of '5' in ": 50"
@@ -261,10 +261,10 @@ describe('Number regex: ≤N with realistic game text', () => {
 
 describe('Number regex: Min+Max range', () => {
   it('40 ≤ N ≤ 80 with realistic game text', () => {
-    // Our compiler: "([4-9].|[0-9]..).*m q" "([0-9]|[1-7].|80).*m q"
+    // Our compiler: "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
     // Both AND groups must match — effectively constraining to [40,80]
     // NOTE: Due to heuristic nature, exact boundary behavior depends on text format
-    const regex = '"([4-9].|\[0-9]..).*m q" "([0-9]|[1-7].|80).*m q"';
+    const regex = '"([4-9].|\\d..).*m q" "([0-9]|[1-7].|80).*m q"';
     expect(matchPoE2Regex(regex, '(40—80)% увеличение m q')).toBe(true);
     expect(matchPoE2Regex(regex, '(55—75)% увеличение m q')).toBe(true);
   });
@@ -426,10 +426,10 @@ describe('Tablet regex: Uses remaining pattern', () => {
   });
 
   it('≥5 uses with number regex', () => {
-    // RANGE(5, undefined, 'использ') → "([5-9]|[0-9]..?).*использ"
+    // RANGE(5, undefined, 'использ') → "([5-9]|\d..?).*использ"
     // The number must appear BEFORE "использ" (directional .*)
     // In game text, format is typically: "5 использует" or similar
-    const regex = '"([5-9]|\[0-9]..?).*использ"';
+    const regex = '"([5-9]|\\d..?).*использ"';
     expect(matchPoE2Regex(regex, '5 использует')).toBe(true);
     expect(matchPoE2Regex(regex, '10 использует')).toBe(true);
     expect(matchPoE2Regex(regex, '3 использует')).toBe(false);
@@ -437,7 +437,7 @@ describe('Tablet regex: Uses remaining pattern', () => {
 
   it('combined: type + rarity + uses', () => {
     // Note: number must appear before "использ" in the text for .* to work
-    const regex = '"бездн" "обычн" "([5-9]|\[0-9]..?).*использ"';
+    const regex = '"бездн" "обычн" "([5-9]|\\d..?).*использ"';
     const matching = 'Башня Бездны Предтеч\nОбычный\n5 использует';
     const noMatch1 = 'Башня Бездны Предтеч\nРедкий\n5 использует';
     const noMatch2 = 'Башня Делириума Предтеч\nОбычный\n5 использует';

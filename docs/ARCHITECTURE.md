@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 21.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 22.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -700,3 +700,82 @@ Selected: fire res + cold res + life
 3. **P1 — `\d` in-game verification**: Test `[0-9]..` patterns in PoE2 to confirm they work. If `\d` also works, could revert for shorter regexes (saves +2 chars per occurrence).
 4. **ETL — Breachborn English familyKeys**: 42 tokens across amulet/ring/belt have English familyKey values. Need ETL fix to translate these from poe2db data or i18n overrides.
 5. **Full ETL re-run**: Regex prefix data and breachborn fixes require a full `pnpm etl` run.
+
+## 21. Iteration 22 — `\d` Revert + Dual-Number ETL + Desecrated Regex + Breachborn familyKey
+
+### 1. P0: Revert `[0-9]` → `\d` in number-regex.ts (VERIFIED IN-GAME)
+
+**In-game test result**: `\d` works in PoE2's search engine. Test 3 confirmed:
+- `"([4-9].|\d..).*к сопротивлению огню"` produces identical results to `"([4-9].|[0-9]..).*к сопротивлению огню"`
+- **Savings**: 2 characters per occurrence × 7 occurrences = 14 characters saved
+
+**Change**: Reverted all `[0-9]..` and `[0-9]..?` back to `\d..` and `\d..?` in `number-regex.ts`.
+
+**IMPORTANT — Number boundary limitation (Test 1 FAILED)**:
+The pattern `[4-9].` matches single-digit numbers followed by any character (e.g., `6%` = digit `6` + `%`). This means `≥40` regexes can false-positive on single-digit values like `+(6%)`. This is a **fundamental limitation** of PoE2 regex — there is no word boundary (`\b`) support. Prefix anchoring (e.g., `"От" (≥N).*suffix`) partially mitigates this by positioning the number after a known text anchor, but cannot fully prevent the `.` wildcard from matching `%`, `—`, or other non-digit characters after a single digit.
+
+### 2. P1: Dual-number mod ETL improvements
+
+**Problem**: Mods like "От ## до ## урона шипами" have two `##` placeholders. The `regexPrefix` was empty for short prefixes ("От" = 2 chars < 5 char minimum), and there was no way to distinguish single-number from dual-number mods in the data model.
+
+**Changes**:
+
+1. **`extractTemplatePrefix()` in `compute-regex.ts`**: For dual-number templates (containing "до" between `#` placeholders), the minimum prefix length is now 2 characters instead of 5. This preserves critical short prefixes like "От" that anchor the number regex to the correct position in the mod text.
+
+2. **`hasMultiPlaceholder` field**: Added to `RegexResult`, `GameToken`, and `FamilyGroup`. Computed from template placeholder count (`placeholderCount >= 2`). Marks dual-number and dual-stat mods for downstream filtering logic.
+
+3. **`filterSlotIndex` field**: Added to `FamilyGroup`. Always 0 (first placeholder) — indicates which range slot to use for numeric filtering. For "От ## до ## урона", filtering by `ranges[0]` (min damage) is more meaningful than `ranges[1]` (max damage).
+
+4. **`rangeSlotIndex` not added to AST**: RANGE nodes remain unchanged. The `minValue`/`maxValue` from UI apply uniformly; `hasMultiPlaceholder` allows future UI to show per-slot range info.
+
+**Files modified**: `scripts/etl/compute-regex.ts`, `scripts/etl/generate-dictionary.ts`, `src/shared/types.ts`, `src/shared/family-grouper.ts`
+
+### 3. P1: Desecrated dual-stat regex quality
+
+**Problem**: 24 desecrated jewel mods with dual-stat patterns (e.g., `"(5—10)% повышение брони, (4—8)% увеличение урона от атак"`) used fallback substring matching, producing garbage regexes like `"и, (4—8)% увеличение урона о"`.
+
+**Root cause**: `extractExtendedSuffix()` returned text containing `##` from the second placeholder, and the old code set `cleanExtendedSuffix = ''` when `#` was found, falling through to Strategy 2 (substring search on rawText which picks up tier-specific numbers).
+
+**Fix — Strategy 1b improvement**: When `cleanExtendedSuffix` contains `#`, extract the text after the LAST comma from `rawText` (which has actual numbers instead of `##`). Strip the leading number/range pattern to get the clean stat name:
+- Input: `"(5—10)% повышение брони, (4—8)% увеличение урона от атак"`
+- After comma: `"(4—8)% увеличение урона от атак"`
+- After stripping number: `"увеличение урона от атак"`
+
+**Fix — Strategy 1c (new)**: For dual-stat mods where Strategy 1b couldn't find a unique suffix after the comma, try the ENTIRE text after the first `##` placeholder from `rawText`. This produces longer but more specific regexes like `"повышение брони, увеличение урона от атак"`.
+
+**Files modified**: `scripts/etl/compute-regex.ts`
+
+### 4. Breachborn English familyKey fix
+
+**Problem**: 42 tokens across amulet/ring/belt had English `familyKey.ru` values (e.g., `"#+% to Fire Spell Critical Hit Chance"` instead of Russian). This happened because `computeMinimalUniqueSubstring()` runs BEFORE `applyI18nOverrides()`, so familyKey was computed from the English template.
+
+**Fix**: In `applyI18nOverrides()` in `run-etl.ts`, added recomputation of:
+- `token.familyKey.ru` — from the (now-Russian) `rawTextTemplate.ru`
+- `token.hasMultiPlaceholder` — from the template placeholder count
+- `token.regexPrefix.ru` — using the same `extractTemplatePrefixForOverride()` logic (with dual-number `min=2` support)
+
+**Files modified**: `scripts/run-etl.ts`
+
+### Files Modified (Iteration 22)
+
+| File | Change |
+|------|--------|
+| `src/core/number-regex.ts` | `[0-9]` → `\d` (reverted, in-game verified) |
+| `scripts/etl/compute-regex.ts` | Dual-number prefix min=2; Strategy 1b/1c for dual-stat; `hasMultiPlaceholder` |
+| `scripts/etl/generate-dictionary.ts` | Pass `hasMultiPlaceholder` to GameToken |
+| `scripts/run-etl.ts` | Recompute `familyKey`, `hasMultiPlaceholder`, `regexPrefix` in overrides |
+| `src/shared/types.ts` | Added `hasMultiPlaceholder`, `filterSlotIndex` |
+| `src/shared/family-grouper.ts` | Added `filterSlotIndex: 0` to FamilyGroup |
+| `tests/core/number-regex.test.ts` | Updated expectations from `[0-9]` to `\d` |
+| `tests/core/compiler.test.ts` | Updated expectations |
+| `tests/core/poe2-regex-matcher.test.ts` | Updated expectations |
+| `tests/core/vendor-patterns.test.ts` | Updated expectations |
+| `tests/core/tablet-patterns.test.ts` | Updated expectations |
+
+### Remaining (for next iteration)
+
+1. **Full ETL re-run**: All ETL changes require a full `pnpm etl` run to populate `regexPrefix`, `hasMultiPlaceholder`, and fix `familyKey` in generated JSONs. The generated JSONs currently still have old data.
+2. **UI for dual-number mods**: `hasMultiPlaceholder` and `filterSlotIndex` are in the data model but not yet used in UI. FilterChip should show per-slot range info and indicate which slot is being filtered.
+3. **Number boundary false positives**: `[4-9].` matches `6%` (single-digit + non-digit). No PoE2 regex solution exists; document as known limitation. Prefix anchoring partially mitigates.
+4. **Fractional ranges**: Mods like "Регенерация 2.1-3 здоровья" have `ranges: []` because ETL doesn't handle fractions.
+5. **Suffix lengthening for non-unique suffixes**: Ring "урона к атакам" (physical damage) shares suffix with lightning/cold damage mods. Strategy 1b should help after ETL re-run.

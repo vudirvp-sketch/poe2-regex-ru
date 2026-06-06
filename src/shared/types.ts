@@ -25,6 +25,9 @@ export interface GameToken {
    *  to the correct mod line. Prevents .* from crossing mod boundaries.
    *  Example: "даруют на" for "Боссы карт даруют на ##% больше опыта" */
   regexPrefix: Record<Locale, string>;
+  /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat).
+   *  Used for numeric filtering: dual-number mods filter by ranges[0] (first placeholder). */
+  hasMultiPlaceholder: boolean;
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];
@@ -69,6 +72,9 @@ export interface FamilyGroup {
   hasMultiPlaceholder: boolean;
   /** For multi-placeholder: [[min1,max1],[min2,max2],...] per slot */
   rangeSlots: number[][];
+  /** Index of the range slot used for numeric filtering (0 = first placeholder).
+   *  For dual-number mods like "От ## до ## урона", this is 0 (filter by min damage). */
+  filterSlotIndex: number;
 }
 
 export type ASTNode =

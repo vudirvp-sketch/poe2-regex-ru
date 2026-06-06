@@ -89,14 +89,14 @@ describe('Tablet uses remaining regex patterns', () => {
   it('≥5 uses → RANGE(5, undefined, "использ") compiles to number regex + suffix', () => {
     // "Осталось использований: 5" → need ≥5
     // RANGE node: min=5, suffix="использ"
-    // generateNumberRegex(5, false) → ([5-9]|[0-9]..?) — matches 5-9 or 10+
+    // generateNumberRegex(5, false) → ([5-9]|\d..?) — matches 5-9 or 10+
     const result = compile(range(5, undefined, 'использ'), { round10: false });
-    expect(result).toBe('"([5-9]|\[0-9]..?).*использ"');
+    expect(result).toBe('"([5-9]|\\d..?).*использ"');
   });
 
   it('≥10 uses → RANGE(10, undefined, "использ") compiles correctly', () => {
     const result = compile(range(10, undefined, 'использ'), { round10: false });
-    // Two-digit: 10 → (1[0-9]|[2-9].|[0-9]..) — matches 10-99 or 100+
+    // Two-digit: 10 → (1[0-9]|[2-9].|\d..) — matches 10-99 or 100+
     expect(result).toContain('использ"');
     expect(result.length).toBeLessThan(250); // Must fit in 250 char limit
   });
@@ -125,7 +125,7 @@ describe('Combined tablet filter patterns', () => {
     expect(result).toContain('бездн');
     expect(result).toContain('обычн');
     expect(result).toContain('использ');
-    // Result format: "бездн" "обычн" "([5-9]|[0-9]..).*использ"
+    // Result format: "бездн" "обычн" "([5-9]|\d..).*использ"
     expect(result).toMatch(/"бездн"\s+"обычн"\s+".*использ"/);
   });
 

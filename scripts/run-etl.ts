@@ -153,6 +153,40 @@ function normalizeTemplate(template: string): string {
     .trim();
 }
 
+/**
+ * Extract the "regex prefix" from a rawTextTemplate (same logic as compute-regex.ts).
+ * For dual-number mods (template contains "до" between #), min prefix = 2 chars.
+ */
+function extractTemplatePrefixForOverride(template: string): string {
+  let firstHashIdx = -1;
+  for (let i = 0; i < template.length; i++) {
+    if (template[i] === '#') {
+      firstHashIdx = i;
+      break;
+    }
+  }
+  if (firstHashIdx === -1) return '';
+  if (firstHashIdx === 0) return '';
+
+  let prefix = template.substring(0, firstHashIdx).trim();
+  prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
+
+  const isDualNumber = /#\s*до\s*#/.test(template);
+  const minPrefixLen = isDualNumber ? 2 : 5;
+  if (prefix.length < minPrefixLen) return '';
+
+  const words = prefix.split(/\s+/);
+  if (words.length > 3) {
+    let result = words.slice(-3).join(' ');
+    if (result.length > 25) {
+      const twoWords = words.slice(-2).join(' ');
+      if (twoWords.length >= minPrefixLen) result = twoWords;
+    }
+    return result;
+  }
+  return prefix;
+}
+
 function applyI18nOverrides() {
   const overridesPath = path.resolve(process.cwd(), 'scripts', 'etl', 'i18n-overrides.json');
   if (!fs.existsSync(overridesPath)) {
@@ -223,6 +257,16 @@ function applyI18nOverrides() {
 
       const template = token.rawTextTemplate.ru;
       const hasPlaceholder = template.includes('#');
+
+      // Fix familyKey.ru: recompute from the (now-Russian) template
+      token.familyKey.ru = normalizeTemplate(template);
+
+      // Fix hasMultiPlaceholder: recompute from the template
+      const placeholderCount = (template.match(/#+/g) || []).length;
+      token.hasMultiPlaceholder = placeholderCount >= 2;
+
+      // Fix regexPrefix: recompute from the template
+      token.regexPrefix.ru = extractTemplatePrefixForOverride(template);
 
       if (hasPlaceholder) {
         // Strategy 1: Template-family suffix (same as compute-regex.ts)
