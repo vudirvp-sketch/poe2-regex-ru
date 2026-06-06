@@ -4,60 +4,51 @@
 
 ---
 
-## Current State (Session 34 — 2026-06-07)
+## Current State (Session 35 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (318/318 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (323/323 tests)
+**Oracle:** FP=1119, FN=4 (was FN=73 at start of session)
 
 **Key Changes This Session:**
 
-1. **Фаза 3: DP на Trie** — `src/core/dp-factorizer.ts` создан:
-   - `dpFactorize()` — главная точка входа, пробует prefix/suffix/combined стратегии
-   - `dpFactorizeByPrefix()` / `dpFactorizeBySuffix()` / `dpFactorizeCombined()` — три стратегии DP
-   - `dpFactorizeGroup()` — рекурсивная факторизация внутри групп
-   - `batchDPFactorize()` — пакетная факторизация по категориям
-   - `estimateDPCost()` — быстрая оценка стоимости без построения регекса
-   - Стоимость: `()` = 2, `|` = 1, `[]` = 2, `?` = 1
+1. **Фаза 4+6: Интеграция DP/диалект в ETL** — `compute-optimizations.ts` v3:
+   - Phase A: Family-based grouping (unchanged)
+   - Phase B: `batchDPFactorize()` replaces cross-family LCS algorithm
+   - Phase C: `applyDialectOptimizations()` applied to all optimization entries
+   - `run-etl.ts` Step 3b: `applyDialectOptimizations()` on individual regexes
 
-2. **Фаза 4 (частично): Диалектные оптимизации** — внутри dp-factorizer.ts:
-   - `applyDialectOptimizations()` — ёфикация, окончания, top-level merging
-   - Level 1: Within-group `(е|ё)` → `[её]`, `(ю|я)` → `[юя]`
-   - Level 2: Top-level `тест|тёст` → `т[её]ст`, `молнию|молния` → `молни[юя]`
-   - Dialect pairs: [её], [юя], [ая], [ые], [ие], [ов]
-
-3. **40 новых тестов** — `tests/core/dp-factorizer.test.ts`:
-   - Basic DP, prefix/suffix/combined strategies
-   - PoE2 dialect optimizations (6 тестов)
-   - Batch factorization, cost estimation
-   - PoE2 integration scenarios
-   - DP vs greedy comparison
+2. **FN Bug Fixes (73 → 4):**
+   - `regexMatchesRawText()` — validates regex via PoE2 engine (`matchQuotedGroup`), catches `()` grouping and `##` template artifacts
+   - `substringSearchAvoidingParens()` — finds unique substrings avoiding `(...)` which PoE2 treats as grouping
+   - Broad suffix fallback — uses template suffix even if not unique (broad match that WORKS > specific match that DOESN'T)
+   - Template exclusion — `getAllTexts` template excluded from substring search fallback (prevents `##` in regexes)
+   - 5 new tests in `compute-optimizations.test.ts` (3 → 8)
 
 **NOT YET DONE:**
-- Фаза 4 (доп): Интеграция `applyDialectOptimizations()` в ETL пайплайн
 - Фаза 5: Итеративный цикл оптимизации
-- Фаза 6: Интеграция Trie/DP-факторизации в ETL пайплайн (заменить/дополнить compute-optimizations.ts)
-- In-game тесты групп A-G из `docs/IN_GAME_TESTS.md`
-- Исправление FN багов (73 false negatives в Oracle-валидации)
+- Фаза 7: Игровые тесты
+- 4 remaining waystone FN (strict category — all unique substrings contain `(num—num)`)
 
 ---
 
 ## Frequent Bugs
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
-2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json`
-3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
-4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter
-5. **Number regex `.` bug:** FIXED — `.` was matching any char, now `[0-9]` matches only digits
+2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping, not literal parens. Use `regexMatchesRawText()` to verify.
+3. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes — `##` doesn't exist in rawText. Use template exclusion in substring search.
+4. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
+5. **Number regex `.` bug:** FIXED — `.` was matching any char, now `[0-9]`
 6. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
-7. **Oracle FN in jewel-desecrated:** Regex suffix missing prefix parts (e.g., "брони, увеличение урона от атак" doesn't match "(5—10)% повышение брони, (4—8)% увеличение урона от атак")
+7. **Dual-stat FN:** For multi-placeholder mods, joined template suffix may not appear in rawText because numbers interrupt segments. Use `regexMatchesRawText()` to verify.
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (318)
+npx vitest run --root .          # Run all tests (323)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL with Oracle validation
-npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
+npx tsx scripts/analyze-fn.ts    # Analyze FN cases per category
 pnpm dev                         # Development server
 ```

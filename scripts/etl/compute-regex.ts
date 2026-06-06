@@ -27,6 +27,7 @@
  */
 import type { Locale } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
+import { matchQuotedGroup } from '../../src/core/poe2-regex-matcher.js';
 
 export interface RegexResult {
   regex: string;
@@ -342,6 +343,19 @@ function findShortestUniqueSuffix(
 }
 
 /**
+ * Verify that a candidate regex actually matches the rawText using PoE2's
+ * regex engine. This catches cases where the regex contains `()` that PoE2
+ * interprets as grouping (not literal parens), or other regex metacharacters
+ * that cause the match to fail even though the substring exists.
+ *
+ * For example, "(2—4)% повышение" contains `()` which PoE2 treats as a group,
+ * so it matches "2—4" inside parens but NOT the literal "(2—4)".
+ */
+function regexMatchesRawText(regex: string, rawText: string): boolean {
+  return matchQuotedGroup(regex, rawText.toLowerCase());
+}
+
+/**
  * NEW ALGORITHM v2: Compute minimal unique substring for a target token.
  *
  * Priority:
@@ -386,12 +400,19 @@ export function computeMinimalUniqueSubstring(
     );
 
     if (bestSuffix) {
-      // Check yofication on the suffix
-      const { hasYofication, yoficationPositions } = checkYofication(
-        bestSuffix, targetToken, allTokensInCategory, locale
-      );
+      // Verify the suffix actually matches the rawText via PoE2 regex engine.
+      // For multi-placeholder (dual-stat) mods, the template-joined suffix
+      // may not appear in rawText because numbers interrupt the segments.
+      // Also catches regexes with `()` that PoE2 interprets as grouping.
+      if (regexMatchesRawText(bestSuffix, rawText)) {
+        // Check yofication on the suffix
+        const { hasYofication, yoficationPositions } = checkYofication(
+          bestSuffix, targetToken, allTokensInCategory, locale
+        );
 
-      return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+        return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+      }
+      // Pure suffix not in rawText — fall through to Strategy 1b/1c
     }
 
     // ═══════════════════════════════════════════════════
@@ -453,10 +474,34 @@ export function computeMinimalUniqueSubstring(
           cleanExtendedSuffix, template, allTokensInCategory, locale, effectiveMinLen
         );
         if (bestExtended) {
+          // Verify the regex actually matches the rawText via PoE2 engine.
+          // For dual-stat mods, the joined template suffix may not match
+          // because numbers interrupt the segments, or `()` causes grouping.
+          if (regexMatchesRawText(bestExtended, rawText)) {
+            const { hasYofication, yoficationPositions } = checkYofication(
+              bestExtended, targetToken, allTokensInCategory, locale
+            );
+            return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          }
+          // Joined suffix not in rawText — try individual last segment
+        }
+      }
+
+      // ─── Strategy 1b-alt: Last segment only for multi-placeholder mods ───
+      // For dual-stat mods, when the joined suffix doesn't appear in rawText,
+      // try using only the LAST text segment (after the last ##).
+      // This always appears in rawText because it's the pure suffix.
+      if (hasMultiPlaceholder) {
+        const segments = template.split(/#+/);
+        const lastSegment = segments[segments.length - 1]
+          .replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '').trim();
+        if (lastSegment && lastSegment.length >= effectiveMinLen) {
+          // This is a broad match, but it WORKS against rawText.
+          // The user can combine with other filters to narrow down.
           const { hasYofication, yoficationPositions } = checkYofication(
-            bestExtended, targetToken, allTokensInCategory, locale
+            lastSegment, targetToken, allTokensInCategory, locale
           );
-          return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          return { regex: lastSegment, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
         }
       }
     }
@@ -484,10 +529,14 @@ export function computeMinimalUniqueSubstring(
           templateFullSuffix, template, allTokensInCategory, locale, effectiveMinLen
         );
         if (bestFull) {
-          const { hasYofication, yoficationPositions } = checkYofication(
-            bestFull, targetToken, allTokensInCategory, locale
-          );
-          return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          // Verify the regex actually matches rawText via PoE2 engine
+          if (regexMatchesRawText(bestFull, rawText)) {
+            const { hasYofication, yoficationPositions } = checkYofication(
+              bestFull, targetToken, allTokensInCategory, locale
+            );
+            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          }
+          // Not in rawText — skip this strategy
         }
       }
     }
@@ -498,9 +547,37 @@ export function computeMinimalUniqueSubstring(
   // ═══════════════════════════════════════════════════
   // For tokens without placeholders, or where suffix conflicts,
   // fall back to the original substring search algorithm.
-  const fallbackResult = substringSearchFallback(
+  let fallbackResult = substringSearchFallback(
     targetToken, allTokensInCategory, locale, effectiveMinLen
   );
+
+  // Final validation: verify the regex matches rawText via PoE2 engine.
+  // This catches regexes containing `(...)` which PoE2 interprets as grouping
+  // instead of literal parentheses (e.g., "(5—10)% повышение" → PoE2 reads
+  // group "5—10" then "% повышение", which doesn't match the rawText).
+  if (fallbackResult.regex && !regexMatchesRawText(fallbackResult.regex, rawText)) {
+    // Try substring search that avoids `(...)` number ranges
+    const safeResult = substringSearchAvoidingParens(
+      targetToken, allTokensInCategory, locale, effectiveMinLen
+    );
+    if (safeResult.regex && regexMatchesRawText(safeResult.regex, rawText)) {
+      fallbackResult = safeResult;
+    } else {
+      // Last resort: use the template suffix even if not unique.
+      // A broad match that WORKS is better than a specific match that DOESN'T.
+      // For tokens where the suffix appears in multiple families,
+      // the user can combine with other filters to narrow down.
+      const broadSuffix = extractTemplateSuffix(template);
+      if (broadSuffix && broadSuffix.length >= 3 && regexMatchesRawText(broadSuffix, rawText)) {
+        const { hasYofication, yoficationPositions } = checkYofication(
+          broadSuffix, targetToken, allTokensInCategory, locale
+        );
+        fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
+      }
+      // If even the broad suffix doesn't match, keep the fallback result
+      // (it will be an FN in Oracle but at least it's a best-effort regex)
+    }
+  }
 
   return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder };
 }
@@ -564,10 +641,12 @@ function substringSearchFallback(
     if (foundForThisLength && bestCandidate) break;
   }
 
-  // Try gender form texts if no result
+  // Try gender form texts if no result (but NOT the template — it contains ## placeholders)
   if (!bestCandidate) {
     for (const formText of targetTexts.slice(1)) {
       if (formText === primaryText) continue;
+      // Skip template (last element) — it contains ## which don't appear in rawText
+      if (formText.includes('#')) continue;
       const lowerForm = formText.toLowerCase();
       for (let length = minLen; length <= lowerForm.length; length++) {
         let found = false;
@@ -590,6 +669,112 @@ function substringSearchFallback(
   // Fallback: full rawText
   if (!bestCandidate) {
     bestCandidate = primaryText;
+  }
+
+  // Check yofication
+  const { hasYofication, yoficationPositions } = checkYoficationLegacy(
+    bestCandidate, primaryText, targetToken, exclusionSubstrings
+  );
+
+  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
+}
+
+/**
+ * Substring search that avoids candidates containing `(...)` patterns.
+ * PoE2 interprets `()` as grouping, so regexes like "(5—10)% повышение"
+ * don't match the rawText because PoE2 reads the parens as a group.
+ *
+ * Strategy: find the shortest unique substring of rawText that does NOT
+ * contain `(` or `)` characters. This ensures PoE2 treats it as a literal.
+ */
+function substringSearchAvoidingParens(
+  targetToken: NormalizedMod,
+  allTokensInCategory: NormalizedMod[],
+  locale: Locale,
+  minLen: number = MIN_REGEX_LEN_DEFAULT
+): Omit<RegexResult, 'familyKey'> {
+  const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
+  if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
+    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false };
+  }
+
+  // Build exclusion texts: all other tokens' texts
+  const exclusionTexts: string[] = [];
+  for (const token of allTokensInCategory) {
+    if (token.id === targetToken.id) continue;
+    const texts = getAllTexts(token, locale).map(t => t.toLowerCase());
+    exclusionTexts.push(...texts);
+  }
+
+  const exclusionSubstrings = buildSubstringSet(exclusionTexts, 30);
+  const primaryText = targetToken.rawText[locale].toLowerCase();
+
+  // Find a unique substring that doesn't contain `(` or `)`
+  let bestCandidate = '';
+  let bestScore = Infinity;
+
+  for (let length = minLen; length <= primaryText.length; length++) {
+    let foundForThisLength = false;
+
+    for (let start = 0; start <= primaryText.length - length; start++) {
+      const candidate = primaryText.substring(start, start + length);
+
+      // Skip candidates containing `(` or `)` — PoE2 treats these as grouping
+      if (candidate.includes('(') || candidate.includes(')')) continue;
+
+      if (candidate.trim().length < minLen) continue;
+      if (/^\d+$/.test(candidate.trim())) continue;
+
+      if (!exclusionSubstrings.has(candidate)) {
+        const isEndOfWord = (start + length === primaryText.length) ||
+                           primaryText[start + length] === ' ';
+        const hasSpaces = candidate.includes(' ');
+        const score = length * 10 + (hasSpaces ? 5 : 0) + (isEndOfWord ? 0 : 3);
+
+        if (score < bestScore) {
+          bestCandidate = candidate;
+          bestScore = score;
+        }
+        foundForThisLength = true;
+      }
+    }
+
+    if (foundForThisLength && bestCandidate) break;
+  }
+
+  // Try gender form texts if no result
+  if (!bestCandidate) {
+    for (const formText of targetTexts.slice(1)) {
+      if (formText === primaryText) continue;
+      const lowerForm = formText.toLowerCase();
+      for (let length = minLen; length <= lowerForm.length; length++) {
+        let found = false;
+        for (let start = 0; start <= lowerForm.length - length; start++) {
+          const candidate = lowerForm.substring(start, start + length);
+          if (candidate.includes('(') || candidate.includes(')')) continue;
+          if (candidate.trim().length < minLen) continue;
+          if (/^\d+$/.test(candidate.trim())) continue;
+          if (!exclusionSubstrings.has(candidate)) {
+            bestCandidate = candidate;
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+      if (bestCandidate) break;
+    }
+  }
+
+  // Fallback: try to find ANY substring without parens, even if not unique
+  if (!bestCandidate) {
+    // Remove number ranges from rawText and try again
+    const cleanedText = primaryText.replace(/\([^)]+\)/g, '').replace(/\s+/g, ' ').trim();
+    if (cleanedText.length >= minLen) {
+      bestCandidate = cleanedText;
+    } else {
+      bestCandidate = primaryText;
+    }
   }
 
   // Check yofication

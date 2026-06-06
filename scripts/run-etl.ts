@@ -18,6 +18,7 @@ import { parseTypeBPage, getModCategoryStats } from './etl/parse-modifiers-calc.
 import { normalizeTypeA, normalizeTypeB, extractTextAndRanges } from './etl/normalize.js';
 import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
+import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
 import { validateRegex } from '../src/core/regex-oracle.js';
 import type { ModOrigin, JewelType } from '../src/shared/types.js';
@@ -598,7 +599,21 @@ async function runEtl() {
       console.log('  Step 3: Computing regex substrings...');
       const regexResults = computeAllRegexes(normalized, 'ru');
 
-      // Step 4: Compute optimizations
+      // Step 3b: Apply dialect optimizations to individual regexes
+      // This saves 2-5 chars per regex for mods with е/ё and endings
+      let dialectOptCount = 0;
+      for (const [id, rr] of regexResults) {
+        const optimized = applyDialectOptimizations(rr.regex);
+        if (optimized !== rr.regex) {
+          rr.regex = optimized;
+          dialectOptCount++;
+        }
+      }
+      if (dialectOptCount > 0) {
+        console.log(`  Step 3b: Dialect optimizations applied to ${dialectOptCount} regexes`);
+      }
+
+      // Step 4: Compute optimizations (includes DP factorization + dialect optimizations)
       console.log('  Step 4: Computing optimizations...');
       const optimizations = computeOptimizations(normalized, regexResults, 'ru');
 

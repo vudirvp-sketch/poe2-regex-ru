@@ -1,20 +1,22 @@
 /**
  * Compute the optimization table for a category.
  *
- * ALGORITHM v2 — Family-based grouping:
+ * ALGORITHM v3 — Family-based grouping + DP factorization + dialect optimizations:
  *
- * Instead of grouping by 3-char prefix (which misses cross-prefix families),
- * group tokens by their familyKey (normalized rawTextTemplate).
+ * 1. Group tokens by familyKey, create optimization entries for families with 2+ tokens
+ * 2. Use batchDPFactorize() for cross-family factorization (replaces naive LCS)
+ * 3. Apply applyDialectOptimizations() to all optimization regexes
  *
- * For each family with 2+ tokens, compute the shared family regex
- * and the savings of using it vs individual regexes.
- *
- * The optimization table is used at runtime to replace groups of selected
- * OR-combined tokens with a single shorter regex.
+ * Phase 4+6 integration: dialect optimizations ([её], [юя], ь?) and DP
+ * factorization are now part of the ETL pipeline.
  */
 import type { Locale, OptimizationEntry } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
 import type { RegexResult } from './compute-regex.js';
+import {
+  batchDPFactorize,
+  applyDialectOptimizations,
+} from '../../src/core/dp-factorizer.js';
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -31,8 +33,10 @@ function normalizeTemplate(template: string): string {
 /**
  * Compute optimizations for all tokens in a category.
  *
- * Groups tokens by familyKey (from regex results), then for each family
- * with 2+ tokens, creates an optimization entry with the shared family regex.
+ * Three-phase approach:
+ *   Phase A: Family-based grouping — tokens sharing a familyKey get one shared regex
+ *   Phase B: DP factorization — cross-family groups factorized via batchDPFactorize()
+ *   Phase C: Dialect optimization — [её], [юя], ь? applied to all regexes
  */
 export function computeOptimizations(
   tokens: NormalizedMod[],
@@ -41,7 +45,7 @@ export function computeOptimizations(
 ): Record<string, OptimizationEntry> {
   const result: Record<string, OptimizationEntry> = {};
 
-  // Group tokens by familyKey
+  // ─── Phase A: Family-based grouping ───
   const familyGroups = new Map<string, NormalizedMod[]>();
 
   for (const token of tokens) {
@@ -64,17 +68,11 @@ export function computeOptimizations(
 
     if (!sharedRegex || sharedRegex.length === 0) continue;
 
-    // If all tokens already use the family regex, savings = 0 (no optimization needed)
-    // But if some tokens have longer individual regexes, the optimization helps
-    // Compute OR length to determine savings
-
     // Savings: using one shared regex instead of N individual ones in an OR
-    // In the worst case, OR of N identical regexes is N * len + N-1 (for | separators)
-    // The optimization replaces this with just one regex
     const orLength = familyTokens.reduce((sum, t, i) => {
       const r = regexResults.get(t.id);
       const len = r?.regex.length ?? t.rawText[locale].length;
-      return sum + len + (i > 0 ? 1 : 0); // +1 for | separator
+      return sum + len + (i > 0 ? 1 : 0);
     }, 0);
 
     const savings = orLength - sharedRegex.length;
@@ -91,48 +89,73 @@ export function computeOptimizations(
     };
   }
 
-  // Also try cross-family optimizations: find families that share common substrings
-  // This handles cases like "к сопротивлению" shared across fire/cold/lightning res
-  const familyKeys = Array.from(familyGroups.keys());
-  for (let i = 0; i < familyKeys.length; i++) {
-    for (let j = i + 1; j < familyKeys.length; j++) {
-      const groupA = familyGroups.get(familyKeys[i])!;
-      const groupB = familyGroups.get(familyKeys[j])!;
+  // ─── Phase B: DP factorization for cross-family optimizations ───
+  // Collect all unique regexes from the category
+  const allRegexes: string[] = [];
+  const regexToTokenIds = new Map<string, string[]>();
 
-      if (groupA.length + groupB.length > 20) continue; // Skip very large combos
+  for (const token of tokens) {
+    const r = regexResults.get(token.id);
+    const regex = r?.regex ?? token.rawText[locale];
+    if (!regex) continue;
 
-      // Find common substring between the two families' regexes
-      const regexA = regexResults.get(groupA[0].id)?.regex ?? '';
-      const regexB = regexResults.get(groupB[0].id)?.regex ?? '';
+    if (!regexToTokenIds.has(regex)) {
+      regexToTokenIds.set(regex, []);
+      allRegexes.push(regex);
+    }
+    regexToTokenIds.get(regex)!.push(token.id);
+  }
 
-      if (!regexA || !regexB) continue;
+  // Run DP factorization on all regexes in the category
+  const dpEntries = batchDPFactorize(allRegexes);
 
-      const commonSubstring = longestCommonSubstring(regexA.toLowerCase(), regexB.toLowerCase());
-      if (commonSubstring.length < 4) continue;
+  for (const entry of dpEntries) {
+    // Map the factorized words back to token IDs
+    const involvedIds: string[] = [];
+    for (const word of entry.words) {
+      const tokenIds = regexToTokenIds.get(word);
+      if (tokenIds) {
+        involvedIds.push(...tokenIds);
+      }
+    }
 
-      // Check if using this common substring as a shared regex would save space
-      const allIds = [...groupA, ...groupB].map(t => t.id).sort();
-      const key = allIds.join(':');
+    if (involvedIds.length < 2) continue;
 
-      // Only add if this is a genuinely new optimization (not already covered)
-      if (result[key]) continue;
+    const ids = [...new Set(involvedIds)].sort();
+    const key = ids.join(':');
 
-      // Compute savings
-      const orLength = [...groupA, ...groupB].reduce((sum, t, idx) => {
-        const r = regexResults.get(t.id);
-        const len = r?.regex.length ?? t.rawText[locale].length;
-        return sum + len + (idx > 0 ? 1 : 0);
-      }, 0);
+    // Skip if already covered by a family-based optimization (same or superset)
+    if (result[key]) continue;
 
-      const savings = orLength - commonSubstring.length;
-      if (savings <= 0) continue;
+    // Compute the OR length for savings
+    const orLength = ids.reduce((sum, id, i) => {
+      const r = regexResults.get(id);
+      const len = r?.regex.length ?? 0;
+      return sum + len + (i > 0 ? 1 : 0);
+    }, 0);
 
-      result[key] = {
-        ids: allIds,
-        regex: { [locale]: commonSubstring },
-        weight: commonSubstring.length,
-        count: groupA.length + groupB.length,
-      };
+    const optimizedRegex = entry.result.regex;
+    const savings = orLength - optimizedRegex.length;
+    if (savings <= 0) continue;
+
+    result[key] = {
+      ids,
+      regex: { [locale]: optimizedRegex },
+      weight: optimizedRegex.length,
+      count: ids.length,
+    };
+  }
+
+  // ─── Phase C: Dialect optimizations ───
+  // Apply [её], [юя], ь? optimizations to all optimization entry regexes
+  for (const key of Object.keys(result)) {
+    const entry = result[key];
+    const originalRegex = entry.regex[locale];
+    const optimizedRegex = applyDialectOptimizations(originalRegex);
+
+    if (optimizedRegex !== originalRegex) {
+      entry.regex[locale] = optimizedRegex;
+      entry.weight = optimizedRegex.length;
     }
   }
 
@@ -141,6 +164,7 @@ export function computeOptimizations(
 
 /**
  * Find the longest common substring of two strings.
+ * Kept as utility for potential future use.
  */
 function longestCommonSubstring(s1: string, s2: string): string {
   if (s1.length > s2.length) {
