@@ -23,7 +23,6 @@ import { describe, it, expect } from 'vitest';
 import {
   matchPoE2Regex,
   matchQuotedGroup,
-  getItemSearchText,
   getItemSearchBlocks,
   matchPoE2RegexItem,
   testRegex,
@@ -299,62 +298,62 @@ describe('Vendor regex: Property strings', () => {
   };
 
   it('"качеств" matches items with Качество', () => {
-    expect(matchPoE2Regex('"качеств"', getItemSearchText(vendorItems.quality))).toBe(true);
-    expect(matchPoE2Regex('"качеств"', getItemSearchText(vendorItems.fireRes))).toBe(false);
+    expect(matchPoE2RegexItem('"качеств"', vendorItems.quality)).toBe(true);
+    expect(matchPoE2RegexItem('"качеств"', vendorItems.fireRes)).toBe(false);
   });
 
   it('"гнёзд" matches items with Гнёзда', () => {
-    expect(matchPoE2Regex('"гнёзд"', getItemSearchText(vendorItems.sockets))).toBe(true);
-    expect(matchPoE2Regex('"гнёзд"', getItemSearchText(vendorItems.quality))).toBe(false);
+    expect(matchPoE2RegexItem('"гнёзд"', vendorItems.sockets)).toBe(true);
+    expect(matchPoE2RegexItem('"гнёзд"', vendorItems.quality)).toBe(false);
   });
 
   it('"огню" matches fire resistance', () => {
-    expect(matchPoE2Regex('"огню"', getItemSearchText(vendorItems.fireRes))).toBe(true);
-    expect(matchPoE2Regex('"огню"', getItemSearchText(vendorItems.coldRes))).toBe(false);
+    expect(matchPoE2RegexItem('"огню"', vendorItems.fireRes)).toBe(true);
+    expect(matchPoE2RegexItem('"огню"', vendorItems.coldRes)).toBe(false);
   });
 
   it('"холоду" matches cold resistance', () => {
-    expect(matchPoE2Regex('"холоду"', getItemSearchText(vendorItems.coldRes))).toBe(true);
-    expect(matchPoE2Regex('"холоду"', getItemSearchText(vendorItems.fireRes))).toBe(false);
+    expect(matchPoE2RegexItem('"холоду"', vendorItems.coldRes)).toBe(true);
+    expect(matchPoE2RegexItem('"холоду"', vendorItems.fireRes)).toBe(false);
   });
 
   it('"молни" matches lightning resistance', () => {
-    expect(matchPoE2Regex('"молни"', getItemSearchText(vendorItems.lightningRes))).toBe(true);
-    expect(matchPoE2Regex('"молни"', getItemSearchText(vendorItems.coldRes))).toBe(false);
+    expect(matchPoE2RegexItem('"молни"', vendorItems.lightningRes)).toBe(true);
+    expect(matchPoE2RegexItem('"молни"', vendorItems.coldRes)).toBe(false);
   });
 
   it('"хаосу" matches chaos resistance', () => {
-    expect(matchPoE2Regex('"хаосу"', getItemSearchText(vendorItems.chaosRes))).toBe(true);
-    expect(matchPoE2Regex('"хаосу"', getItemSearchText(vendorItems.fireRes))).toBe(false);
+    expect(matchPoE2RegexItem('"хаосу"', vendorItems.chaosRes)).toBe(true);
+    expect(matchPoE2RegexItem('"хаосу"', vendorItems.fireRes)).toBe(false);
   });
 
   it('"физическ" matches physical damage', () => {
-    expect(matchPoE2Regex('"физическ"', getItemSearchText(vendorItems.physDmg))).toBe(true);
-    expect(matchPoE2Regex('"физическ"', getItemSearchText(vendorItems.spellDmg))).toBe(false);
+    expect(matchPoE2RegexItem('"физическ"', vendorItems.physDmg)).toBe(true);
+    expect(matchPoE2RegexItem('"физическ"', vendorItems.spellDmg)).toBe(false);
   });
 
   it('"сотворени" matches cast speed', () => {
-    expect(matchPoE2Regex('"сотворени"', getItemSearchText(vendorItems.castSpeed))).toBe(true);
-    expect(matchPoE2Regex('"сотворени"', getItemSearchText(vendorItems.atkSpeed))).toBe(false);
+    expect(matchPoE2RegexItem('"сотворени"', vendorItems.castSpeed)).toBe(true);
+    expect(matchPoE2RegexItem('"сотворени"', vendorItems.atkSpeed)).toBe(false);
   });
 
   it('"дух" matches spirit', () => {
-    expect(matchPoE2Regex('"дух"', getItemSearchText(vendorItems.spirit))).toBe(true);
-    expect(matchPoE2Regex('"дух"', getItemSearchText(vendorItems.health))).toBe(false);
+    expect(matchPoE2RegexItem('"дух"', vendorItems.spirit)).toBe(true);
+    expect(matchPoE2RegexItem('"дух"', vendorItems.health)).toBe(false);
   });
 
   it('"здоровь" matches health', () => {
-    expect(matchPoE2Regex('"здоровь"', getItemSearchText(vendorItems.health))).toBe(true);
-    expect(matchPoE2Regex('"здоровь"', getItemSearchText(vendorItems.mana))).toBe(false);
+    expect(matchPoE2RegexItem('"здоровь"', vendorItems.health)).toBe(true);
+    expect(matchPoE2RegexItem('"здоровь"', vendorItems.mana)).toBe(false);
   });
 
   it('"ман" matches mana', () => {
-    expect(matchPoE2Regex('"ман"', getItemSearchText(vendorItems.mana))).toBe(true);
-    expect(matchPoE2Regex('"ман"', getItemSearchText(vendorItems.health))).toBe(false);
+    expect(matchPoE2RegexItem('"ман"', vendorItems.mana)).toBe(true);
+    expect(matchPoE2RegexItem('"ман"', vendorItems.health)).toBe(false);
   });
 
   it('movement speed pattern: "30)%.*передвижени"', () => {
-    expect(matchPoE2Regex('"30)%.*передвижени"', getItemSearchText(vendorItems.moveSpeed))).toBe(true);
+    expect(matchPoE2RegexItem('"30)%.*передвижени"', vendorItems.moveSpeed)).toBe(true);
   });
 });
 

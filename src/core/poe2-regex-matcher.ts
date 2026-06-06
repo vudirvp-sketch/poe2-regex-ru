@@ -485,15 +485,6 @@ export function getItemSearchBlocks(item: GameItemText): string[] {
   return blocks;
 }
 
-/** Get the full searchable text for a game item (concatenated).
- * @deprecated Use getItemSearchBlocks() + matchPoE2RegexItem() for accurate
- * in-game behavior simulation. This function concatenates all blocks into
- * one string, allowing .* to cross block boundaries (which does NOT happen in-game).
- */
-export function getItemSearchText(item: GameItemText): string {
-  return getItemSearchBlocks(item).join('\n');
-}
-
 /**
  * Parse a full PoE2 regex string into its quoted groups.
  * Handles nested quotes and spaces correctly.

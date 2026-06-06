@@ -28,14 +28,11 @@ import { describe, it, expect } from 'vitest';
 import {
   matchPoE2Regex,
   matchPoE2RegexItem,
-  getItemSearchText,
   getItemSearchBlocks,
-  matchQuotedGroup,
-  testRegex,
 } from '@core/poe2-regex-matcher';
 import type { GameItemText } from '@core/poe2-regex-matcher';
 import { compile } from '@core/compiler';
-import { and, or, exclude, literal, range } from '@core/ast';
+import { range } from '@core/ast';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // REAL GAME ITEMS — from предметы для теста с аффиксами имплиситами.md
@@ -239,7 +236,9 @@ const amulet1: GameItemText = {
   ],
 };
 
-/** Amulet 2: "Крутящий горжет" — Лазурный амулет */
+/** Amulet 2: "Крутящий горжет" — Лазурный амулет
+ *  Used for cross-validation in ETL tests. Kept for reference. */
+// @ts-expect-error — kept for cross-validation reference
 const amulet2: GameItemText = {
   name: 'Крутящий горжет',
   type: 'Лазурный амулет',
@@ -281,26 +280,22 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
   it('regex `.` (wildcard) matches literal `.` in "15.9"', () => {
     // In PoE2 regex, `.` matches ANY single character, including literal period
     // So "15.9" in regex matches "15.9" in text (dot matches dot)
-    const text = getItemSearchText(ring3);
-    expect(matchPoE2Regex('"15.9"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"15.9"', ring3)).toBe(true);
   });
 
   it('"159" (no dot) does NOT match "15.9" in text', () => {
     // "159" is NOT a substring of "15.9" — the period is a real character
-    const text = getItemSearchText(ring3);
-    expect(matchPoE2Regex('"159"', text)).toBe(false);
+    expect(matchPoE2RegexItem('"159"', ring3)).toBe(false);
   });
 
   it('"15[.]9" uses char class to match literal period', () => {
     // In PoE2 regex, [.] is a character class containing ONLY the period char
     // This should match "15.9" literally
-    const text = getItemSearchText(ring3);
-    expect(matchPoE2Regex('"15[.]9"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"15[.]9"', ring3)).toBe(true);
   });
 
   it('fractional number in amulet: "30.9" matches', () => {
-    const text = getItemSearchText(amulet3);
-    expect(matchPoE2Regex('"30.9"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"30.9"', amulet3)).toBe(true);
   });
 
   it('wildcard also matches: "30.9" matches "30X9" where X is any char', () => {
@@ -311,8 +306,8 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
 
   it('"Регенерация.*здоровья в секунду" crosses fractional number', () => {
     // .* can cross from "Регенерация" through "15.9(13.1-18)" to "здоровья в секунду"
-    const text = getItemSearchText(ring3);
-    expect(matchPoE2Regex('"Регенерация.*здоровья в секунду"', text)).toBe(true);
+    // All within the same mod block
+    expect(matchPoE2RegexItem('"Регенерация.*здоровья в секунду"', ring3)).toBe(true);
   });
 
   it('number regex with suffix on fractional mod: ≥15 with suffix "здоровья"', () => {
@@ -322,18 +317,16 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
     const regex = compile(ast, { round10: true });
     expect(regex).toBeTruthy();
     // The compiled regex should find "15" before "здоровья" in "15.9(13.1-18) здоровья"
-    const text = getItemSearchText(ring3);
-    expect(matchPoE2Regex(regex, text)).toBe(true);
+    expect(matchPoE2RegexItem(regex, ring3)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: fractional numbers work as expected', () => {
     // Phase 7 results: "30.9" ✅, "309" ❌, "30[.]9" ✅
     // The `.` matches literal period, [.] works for exact match
     // Period is a real character separator — "309" ≠ "30.9"
-    const text = getItemSearchText(amulet3);
-    expect(matchPoE2Regex('"30.9"', text)).toBe(true);
-    expect(matchPoE2Regex('"309"', text)).toBe(false);
-    expect(matchPoE2Regex('"30[.]9"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"30.9"', amulet3)).toBe(true);
+    expect(matchPoE2RegexItem('"309"', amulet3)).toBe(false);
+    expect(matchPoE2RegexItem('"30[.]9"', amulet3)).toBe(true);
   });
 });
 
@@ -343,46 +336,40 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
 
 describe('H2: Negative values — minus sign in mod text', () => {
   it('"-11" matches literal negative number in text', () => {
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"-11"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"-11"', waystone1)).toBe(true);
   });
 
   it('"11" also matches (substring of "-11")', () => {
     // "11" is a substring of "-11" — it will match
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"11"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"11"', waystone1)).toBe(true);
   });
 
   it('"(-8" matches the lower bound in negative range', () => {
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"(-8"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"(-8"', waystone1)).toBe(true);
   });
 
   it('double-hyphen "--" in text is searchable as literal', () => {
     // The text "-8--6" contains "--" (double hyphen)
     // Searching for "--6" should match
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"--6"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"--6"', waystone1)).toBe(true);
   });
 
   it('"максимум сопротивлений" matches negative mod suffix', () => {
     // The suffix "максимум сопротивлений" appears after the negative number
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"максимум сопротивлений"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"максимум сопротивлений"', waystone1)).toBe(true);
   });
 
   it('negative number with suffix anchor: "-11.*максимум сопротивлений"', () => {
     // This tests that .* can bridge from "-11" to "максимум сопротивлений"
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"-11.*максимум сопротивлений"', text)).toBe(true);
+    // Both are within the same mod block
+    expect(matchPoE2RegexItem('"-11.*максимум сопротивлений"', waystone1)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: negative values work correctly', () => {
     // Phase 7 results: "-11" ✅, "11" matches as substring ✅, "--6" ✅
     // Minus is a literal, double-hyphen is searchable
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"-11"', text)).toBe(true);
-    expect(matchPoE2Regex('"--6"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"-11"', waystone1)).toBe(true);
+    expect(matchPoE2RegexItem('"--6"', waystone1)).toBe(true);
   });
 });
 
@@ -394,39 +381,33 @@ describe('H3: Cross-line single mod — Разрушительный two-line mo
   it('AND search matches both sub-lines of Разрушительный mod', () => {
     // "критического удара" is on line 1, "бонусу критического" is on line 2
     // Both should be found by AND search (order-independent)
-    const text1 = getItemSearchText(waystone1);
-    const text2 = getItemSearchText(waystone2);
-    const text3 = getItemSearchText(waystone3);
-
-    expect(matchPoE2Regex('"критического удара" "бонусу критического"', text1)).toBe(true);
-    expect(matchPoE2Regex('"критического удара" "бонусу критического"', text2)).toBe(true);
-    expect(matchPoE2Regex('"критического удара" "бонусу критического"', text3)).toBe(true);
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone1)).toBe(true);
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone2)).toBe(true);
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone3)).toBe(true);
   });
 
   it('".*" does NOT cross sub-line boundaries within multi-line mod (VERIFIED IN-GAME)', () => {
     // In-game Phase 7: "повышение шанса критического удара.*бонусу" does NOT match
     // Each sub-line of a multi-line mod (like Разрушительный) is a separate block.
     // Use AND instead: "критического удара" "бонусу критического"
-    // NOTE: must use matchPoE2RegexItem for block-based matching.
-    // getItemSearchText() + matchPoE2Regex concatenates blocks, allowing .* to cross.
+    // Block-based matching: .* does NOT cross block boundaries.
     expect(matchPoE2RegexItem('"повышение шанса критического удара.*бонусу"', waystone1)).toBe(false);
   });
 
   it('".*" is directional — reversed order fails', () => {
     // "бонусу" appears AFTER "критического удара" — so searching in reverse fails
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"бонусу.*повышение шанса критического"', text)).toBe(false);
+    // Both "бонусу" and "повышение шанса критического" are in the same mod line,
+    // but "бонусу" comes after "повышение шанса критического" so reverse .* fails
+    expect(matchPoE2RegexItem('"бонусу.*повышение шанса критического"', waystone1)).toBe(false);
   });
 
   it('AND is order-independent — reversed AND also works', () => {
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"бонусу критического" "критического удара"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"бонусу критического" "критического удара"', waystone1)).toBe(true);
   });
 
   it('specific number search on Разрушительный: 276 matches', () => {
     // The rolled value "276" appears on the first sub-line
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"276"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"276"', waystone1)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: multi-line mod sub-lines are separate blocks', () => {
@@ -445,16 +426,15 @@ describe('H3: Cross-line single mod — Разрушительный two-line mo
 describe('H4: Tablet suffix — "зарядов" vs "использ" (BUG DETECTION)', () => {
   it('"зарядов" matches tablet implicit text', () => {
     // The actual game text: "Осталось зарядов - 10"
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"зарядов"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов"', tablet1)).toBe(true);
   });
 
   it('"использ" does NOT match tablet (description not indexed, VERIFIED IN-GAME)', () => {
     // In-game Phase 7: "использ" does NOT highlight tablets — description text is not indexed
     // The word "использовать" is in the description, NOT in the search index
     // "зарядов" IS in the implicit and IS indexed
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"использ"', text)).toBe(false);
+    expect(matchPoE2RegexItem('"использ"', tablet1)).toBe(false);
+    const text = getItemSearchBlocks(tablet1).join('\n');
     expect(text).toContain('зарядов');
     expect(text).not.toContain('использовать'); // description excluded
   });
@@ -462,26 +442,23 @@ describe('H4: Tablet suffix — "зарядов" vs "использ" (BUG DETECT
   it('number regex with "зарядов" suffix: cross-mod .* does NOT work (VERIFIED IN-GAME)', () => {
     // In-game Phase 7: "39.*зарядов" does NOT match — .* does not cross block boundaries
     // "39" is in a mod block, "зарядов" is in an implicit block — separate blocks
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"([1-9][0-9]|[0-9][0-9][0-9]).*зарядов"', text)).toBe(true);
-    // Note: above still matches via concatenated text (getItemSearchText joins blocks)
-    // but in-game it does NOT. Use matchPoE2RegexItem for accurate behavior.
+    // In block-based matching, .* does NOT cross from mod block to implicit block
+    expect(matchPoE2RegexItem('"([1-9][0-9]|[0-9][0-9][0-9]).*зарядов"', tablet1)).toBe(false);
     // Within the same implicit block: "зарядов.*10" works because both are in the same block
-    expect(matchPoE2Regex('"зарядов.*10"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов.*10"', tablet1)).toBe(true);
   });
 
   it('prefix-anchored number regex for "зарядов" — requires number AFTER word', () => {
     // The text is "зарядов - 10" — number is AFTER the word
     // PoE2 regex doesn't support lookbehind, so we can't anchor "number AFTER word"
     // The only way is to use the word before the number: "зарядов.*10"
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"зарядов.*10"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов.*10"', tablet1)).toBe(true);
   });
 
   it('all three tablets have "зарядов" implicit', () => {
-    expect(matchPoE2Regex('"зарядов"', getItemSearchText(tablet1))).toBe(true);
-    expect(matchPoE2Regex('"зарядов"', getItemSearchText(tablet2))).toBe(true);
-    expect(matchPoE2Regex('"зарядов"', getItemSearchText(tablet3))).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов"', tablet1)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов"', tablet2)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов"', tablet3)).toBe(true);
   });
 
   it('IN-GAME VERIFICATION NEEDED: what is the exact text for tablet charges?', () => {
@@ -501,33 +478,28 @@ describe('H4: Tablet suffix — "зарядов" vs "использ" (BUG DETECT
 describe('H5: Implicit property searchability', () => {
   it('ring implicit "качеств" matches in our matcher (includes implicits)', () => {
     // All Кольца Разлома have implicit "Максимальное качество равно 40%"
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"качеств"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"качеств"', ring1)).toBe(true);
   });
 
   it('amulet implicit "регенерации маны" matches in our matcher', () => {
     // Лазурный амулет has implicit "% повышение скорости регенерации маны"
-    const text = getItemSearchText(amulet1);
-    expect(matchPoE2Regex('"регенерации маны"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"регенерации маны"', amulet1)).toBe(true);
   });
 
   it('tablet implicit "Заражение" matches in our matcher', () => {
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"Заражение"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"Заражение"', tablet1)).toBe(true);
   });
 
   it('"!качеств" excludes rings with quality implicit', () => {
     // If implicits are searchable, "!качеств" should hide all rings with the quality implicit
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"!качеств"', text)).toBe(false);
+    expect(matchPoE2RegexItem('"!качеств"', ring1)).toBe(false);
   });
 
   it('implicit number filtering: "регенерации маны" AND ≥25%', () => {
     // Amulet 1 has implicit "28(20-30)% повышение скорости регенерации маны"
     // Testing: can we filter by number on an implicit?
-    const text = getItemSearchText(amulet1);
-    // "28" appears before "регенерации маны" in the implicit text
-    expect(matchPoE2Regex('"28.*регенерации маны"', text)).toBe(true);
+    // "28" appears before "регенерации маны" in the implicit text — same block
+    expect(matchPoE2RegexItem('"28.*регенерации маны"', amulet1)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: implicits ARE indexed by PoE2 search', () => {
@@ -548,9 +520,9 @@ describe('H6: Prefix/suffix name searchability', () => {
   // These are UI labels, NOT part of the mod text that PoE2 search indexes.
 
   it('our matcher does NOT include prefix/suffix names in searchable text', () => {
-    // Our getItemSearchText() concatenates: name, type, rarity, properties, implicits, mods, additional
+    // Our getItemSearchBlocks() returns: name, type, rarity, properties, implicits, mods, additional
     // It does NOT include the { Префикс "Сильное" } labels
-    const text = getItemSearchText(ring1);
+    const text = getItemSearchBlocks(ring1).join('\n');
     // "Сильное" is the prefix name for +66 к максимуму здоровья
     // It should NOT appear in the searchable text because our model excludes it
     expect(text).not.toContain('Сильное');
@@ -560,18 +532,16 @@ describe('H6: Prefix/suffix name searchability', () => {
   });
 
   it('mod EFFECT text IS searchable even when prefix name is not', () => {
-    const text = getItemSearchText(ring1);
     // The mod EFFECT text IS included:
-    expect(matchPoE2Regex('"к максимуму здоровья"', text)).toBe(true);
-    expect(matchPoE2Regex('"к силе"', text)).toBe(true);
-    expect(matchPoE2Regex('"к сопротивлению молнии"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"к максимуму здоровья"', ring1)).toBe(true);
+    expect(matchPoE2RegexItem('"к силе"', ring1)).toBe(true);
+    expect(matchPoE2RegexItem('"к сопротивлению молнии"', ring1)).toBe(true);
   });
 
   it('waystone prefix name "Льдистый" — mod effect is searchable', () => {
-    const text = getItemSearchText(waystone2);
     // "Льдистый" is the suffix name for "Область имеет участки замерзшей земли"
     // The EFFECT "замерзшей земли" should be searchable
-    expect(matchPoE2Regex('"замерзшей земли"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"замерзшей земли"', waystone2)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: affix names are NOT searchable (model correct)', () => {
@@ -581,34 +551,29 @@ describe('H6: Prefix/suffix name searchability', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// H7: "к сопротивлению всем стихиям" vs individual resistances
+// H7: "к сопротивлению всем стихиям" vs individual element resistances
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('H7: "всем стихиям" resistance — cross-element pattern', () => {
   it('"к сопротивлению всем стихиям" matches Ring 2', () => {
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"к сопротивлению всем стихиям"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"к сопротивлению всем стихиям"', ring2)).toBe(true);
   });
 
   it('"сопротивлению" matches ALL resistance mods (fire, cold, lightning, chaos, all)', () => {
     // The word "сопротивлению" is a shared substring across ALL resistance types
-    const ring1Text = getItemSearchText(ring1);
-    const ring2Text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"сопротивлению"', ring1Text)).toBe(true); // lightning
-    expect(matchPoE2Regex('"сопротивлению"', ring2Text)).toBe(true); // all elements
+    expect(matchPoE2RegexItem('"сопротивлению"', ring1)).toBe(true); // lightning
+    expect(matchPoE2RegexItem('"сопротивлению"', ring2)).toBe(true); // all elements
   });
 
   it('"всем стихиям" does NOT match individual element resistance', () => {
-    const ring1Text = getItemSearchText(ring1);
     // Ring 1 has "+35% к сопротивлению молнии" — NOT "всем стихиям"
-    expect(matchPoE2Regex('"всем стихиям"', ring1Text)).toBe(false);
+    expect(matchPoE2RegexItem('"всем стихиям"', ring1)).toBe(false);
   });
 
   it('combined search: want "всем стихиям" AND NOT specific element', () => {
     // User wants "all res" mod but NOT "fire res" or "lightning res" separately
     // This tests cross-family FP: "сопротивлению" matches both families
-    const ring2Text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"всем стихиям"', ring2Text)).toBe(true);
+    expect(matchPoE2RegexItem('"всем стихиям"', ring2)).toBe(true);
     // But this would also match items that have BOTH individual and all-res:
     // "+13% к сопротивлению всем стихиям" has "всем стихиям" → match
   });
@@ -619,17 +584,16 @@ describe('H7: "всем стихиям" resistance — cross-element pattern', (
     const ast = range(12, undefined, 'всем стихиям');
     const regex = compile(ast, { round10: false });
     expect(regex).toBeTruthy();
-    const text = getItemSearchText(ring2);
     // "13" appears before "всем стихиям" → should match
-    expect(matchPoE2Regex(regex, text)).toBe(true);
+    expect(matchPoE2RegexItem(regex, ring2)).toBe(true);
   });
 
   it('cross-family FP detection: "к сопротивлению" matches both individual and all-res', () => {
     // This is the FP problem: "к сопротивлению" matches ANY resistance mod
     // It matches fire, cold, lightning, chaos, AND all-res
     // This is "by design" for family-tier FP, but cross-family for different element families
-    const allRings = [ring1, ring2, ring3].map(r => getItemSearchText(r));
-    const matchCount = allRings.filter(t => matchPoE2Regex('"к сопротивлению"', t)).length;
+    const allRings = [ring1, ring2, ring3];
+    const matchCount = allRings.filter(r => matchPoE2RegexItem('"к сопротивлению"', r)).length;
     // Ring 1 has lightning res, Ring 2 has all res → both match
     expect(matchCount).toBeGreaterThanOrEqual(2);
   });
@@ -641,13 +605,11 @@ describe('H7: "всем стихиям" resistance — cross-element pattern', (
 
 describe('H8: Inverted number ranges — (50→40) decreasing', () => {
   it('inverted range text is searchable: "50(50-40)"', () => {
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"50-40"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"50-40"', waystone2)).toBe(true);
   });
 
   it('"меньше эффекта проклятий" is searchable as suffix', () => {
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"меньше эффекта"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"меньше эффекта"', waystone2)).toBe(true);
   });
 
   it('number before "меньше эффекта": ≥40 with suffix', () => {
@@ -656,21 +618,18 @@ describe('H8: Inverted number ranges — (50→40) decreasing', () => {
     // RANGE(40, undefined, 'меньше эффекта') should match because 50 ≥ 40
     const ast = range(40, undefined, 'меньше эффекта');
     const regex = compile(ast, { round10: true });
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex(regex, text)).toBe(true);
+    expect(matchPoE2RegexItem(regex, waystone2)).toBe(true);
   });
 
   it('inverted range does NOT break substring search for suffix', () => {
     // Even though the range is (50-40) instead of (40-50),
     // the suffix "меньше эффекта" is still searchable
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"меньше эффекта проклятий"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"меньше эффекта проклятий"', waystone2)).toBe(true);
   });
 
   it('another inverted range: "34(35-30)%" for flask charges', () => {
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"35-30"', text)).toBe(true);
-    expect(matchPoE2Regex('"зарядов флакона"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"35-30"', waystone2)).toBe(true);
+    expect(matchPoE2RegexItem('"зарядов флакона"', waystone2)).toBe(true);
   });
 
   it('VERIFIED IN-GAME: inverted ranges work correctly', () => {
@@ -687,40 +646,33 @@ describe('H8: Inverted number ranges — (50→40) decreasing', () => {
 describe('H9: Full tooltip searchability — text outside mod section (VERIFIED IN-GAME)', () => {
   it('"Осквернено" matches waystones (in additional/state text — indexed)', () => {
     // VERIFIED IN-GAME: "оскверн" highlights corrupted items
-    const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"оскверн"', text1)).toBe(true);
+    expect(matchPoE2RegexItem('"оскверн"', waystone1)).toBe(true);
   });
 
   it('"картоходца" does NOT match (description NOT indexed, VERIFIED IN-GAME)', () => {
     // VERIFIED IN-GAME Phase 7: "картоходца" does NOT highlight any items
     // Description/tooltip text is NOT part of the search index
-    const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"картоходца"', text1)).toBe(false);
+    expect(matchPoE2RegexItem('"картоходца"', waystone1)).toBe(false);
   });
 
   it('"одноразовые" does NOT match (description NOT indexed)', () => {
-    const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"одноразовые"', text1)).toBe(false);
+    expect(matchPoE2RegexItem('"одноразовые"', waystone1)).toBe(false);
   });
 
   it('"Машине" does NOT match (description NOT indexed)', () => {
-    const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"Машине"', text1)).toBe(false);
+    expect(matchPoE2RegexItem('"Машине"', waystone1)).toBe(false);
   });
 
   it('tablet description: "картоходца" does NOT match', () => {
-    const text1 = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"картоходца"', text1)).toBe(false);
+    expect(matchPoE2RegexItem('"картоходца"', tablet1)).toBe(false);
   });
 
   it('"!оскверн" would exclude all corrupted waystones', () => {
-    const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"!оскверн"', text1)).toBe(false);
+    expect(matchPoE2RegexItem('"!оскверн"', waystone1)).toBe(false);
   });
 
   it('ring without "Осквернено" matches "!оскверн"', () => {
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"!оскверн"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"!оскверн"', ring1)).toBe(true);
   });
 });
 
@@ -730,20 +682,18 @@ describe('H9: Full tooltip searchability — text outside mod section (VERIFIED 
 
 describe('BONUS: Dual-number mods — "От X до Y" pattern', () => {
   it('Ring 2: "Добавляет от 17 до 30 урона от огня к атакам" is fully searchable', () => {
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"урона от огня к атакам"', text)).toBe(true);
-    expect(matchPoE2Regex('"Добавляет от"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"урона от огня к атакам"', ring2)).toBe(true);
+    expect(matchPoE2RegexItem('"Добавляет от"', ring2)).toBe(true);
   });
 
   it('first number in dual-number mod: "17" appears before "урона от огня"', () => {
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"17.*урона от огня"', text)).toBe(true);
+    // Both "17" and "урона от огня" are in the same mod block
+    expect(matchPoE2RegexItem('"17.*урона от огня"', ring2)).toBe(true);
   });
 
   it('second number in dual-number mod: "30" appears before "урона от огня"', () => {
-    // "30" also appears before "урона от огня к атакам" in the same line
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"30.*урона от огня"', text)).toBe(true);
+    // "30" also appears before "урона от огня к атакам" in the same mod block
+    expect(matchPoE2RegexItem('"30.*урона от огня"', ring2)).toBe(true);
   });
 
   it('number filter for first placeholder (min damage ≥10): RANGE on "урона от огня к атакам"', () => {
@@ -752,14 +702,12 @@ describe('BONUS: Dual-number mods — "От X до Y" pattern', () => {
     // With prefix anchoring: "от" before the number
     const ast = range(10, undefined, 'урона от огня к атакам', 'от');
     const regex = compile(ast, { round10: true });
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex(regex, text)).toBe(true);
+    expect(matchPoE2RegexItem(regex, ring2)).toBe(true);
   });
 
   it('physical damage dual-number: "Добавляет от 6 до 12 физического урона к атакам"', () => {
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"физического урона к атакам"', text)).toBe(true);
-    expect(matchPoE2Regex('"6.*физического урона"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"физического урона к атакам"', ring2)).toBe(true);
+    expect(matchPoE2RegexItem('"6.*физического урона"', ring2)).toBe(true);
   });
 
   it('IN-GAME VERIFICATION NEEDED: dual-number mod filtering', () => {
@@ -777,20 +725,17 @@ describe('BONUS: Dual-number mods — "От X до Y" pattern', () => {
 
 describe('BONUS: Waystone-specific patterns', () => {
   it('"Путами времени" matches waystone 2 curse', () => {
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"Путами времени"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"Путами времени"', waystone2)).toBe(true);
   });
 
   it('"Неизменяемое значение" matches waystone 2 immutable suffix', () => {
-    const text = getItemSearchText(waystone2);
-    expect(matchPoE2Regex('"Неизменяемое значение"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"Неизменяемое значение"', waystone2)).toBe(true);
   });
 
   it('"порога состояний" vs "порога оглушения" — different mods', () => {
-    const text = getItemSearchText(waystone1);
     // Waystone 1 has BOTH: "увеличение порога состояний" AND "увеличение порога оглушения"
-    expect(matchPoE2Regex('"порога состояний"', text)).toBe(true);
-    expect(matchPoE2Regex('"порога оглушения"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"порога состояний"', waystone1)).toBe(true);
+    expect(matchPoE2RegexItem('"порога оглушения"', waystone1)).toBe(true);
   });
 
   it('"порога состояний" does NOT match "порога оглушения" alone', () => {
@@ -800,19 +745,17 @@ describe('BONUS: Waystone-specific patterns', () => {
   });
 
   it('"пробивает.*сопротивлений стихиям" matches waystone 3', () => {
-    const text = getItemSearchText(waystone3);
-    expect(matchPoE2Regex('"пробивает.*сопротивлений стихиям"', text)).toBe(true);
+    // Both "пробивает" and "сопротивлений стихиям" are in the same mod block
+    expect(matchPoE2RegexItem('"пробивает.*сопротивлений стихиям"', waystone3)).toBe(true);
   });
 
   it('"дополнительных снарядов" matches waystone 3', () => {
-    const text = getItemSearchText(waystone3);
-    expect(matchPoE2Regex('"дополнительных снарядов"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"дополнительных снарядов"', waystone3)).toBe(true);
   });
 
   it('waystone properties text is searchable: "возрождений"', () => {
     // Properties section: "Доступно возрождений: 0 (augmented)"
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"возрождений"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"возрождений"', waystone1)).toBe(true);
   });
 
   it('IN-GAME VERIFICATION NEEDED: are waystone properties searchable?', () => {
@@ -828,55 +771,49 @@ describe('BONUS: Waystone-specific patterns', () => {
 
 describe('BONUS: Cross-item AND search — filtering by multiple criteria', () => {
   it('ring search: "к силе" AND "к сопротивлению молнии" — both on Ring 1', () => {
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"к силе" "к сопротивлению молнии"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"к силе" "к сопротивлению молнии"', ring1)).toBe(true);
   });
 
   it('ring search: "к силе" AND "к сопротивлению молнии" — NOT on Ring 2 (no lightning res)', () => {
-    const text = getItemSearchText(ring2);
     // Ring 2 has "к силе" and "к сопротивлению всем стихиям" but NOT "к сопротивлению молнии"
-    expect(matchPoE2Regex('"к силе" "к сопротивлению молнии"', text)).toBe(false);
+    expect(matchPoE2RegexItem('"к силе" "к сопротивлению молнии"', ring2)).toBe(false);
   });
 
   it('amulet search: "к интеллекту" AND "к сопротивлению холоду" — Amulet 1', () => {
-    const text = getItemSearchText(amulet1);
-    expect(matchPoE2Regex('"к интеллекту" "к сопротивлению холоду"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"к интеллекту" "к сопротивлению холоду"', amulet1)).toBe(true);
   });
 
   it('amulet search: "к интеллекту" AND NOT "к сопротивлению молнии"', () => {
     // Amulet 1 has cold res, NOT lightning res — this should match
-    const text = getItemSearchText(amulet1);
-    expect(matchPoE2Regex('"к интеллекту" "!к сопротивлению молнии"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"к интеллекту" "!к сопротивлению молнии"', amulet1)).toBe(true);
   });
 
   it('amulet search: "к интеллекту" AND NOT "к сопротивлению холоду" — Amulet 1 fails', () => {
     // Amulet 1 HAS cold res, so "!к сопротивлению холоду" should exclude it
-    const text = getItemSearchText(amulet1);
-    expect(matchPoE2Regex('"к интеллекту" "!к сопротивлению холоду"', text)).toBe(false);
+    expect(matchPoE2RegexItem('"к интеллекту" "!к сопротивлению холоду"', amulet1)).toBe(false);
   });
 
   it('tablet search: "редких монстров" AND "путевых камней" — Tablet 1', () => {
-    const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"редких монстров" "путевых камней"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"редких монстров" "путевых камней"', tablet1)).toBe(true);
   });
 
   it('tablet search: "золота" — only Tablet 2', () => {
-    expect(matchPoE2Regex('"золота"', getItemSearchText(tablet1))).toBe(false);
-    expect(matchPoE2Regex('"золота"', getItemSearchText(tablet2))).toBe(true);
-    expect(matchPoE2Regex('"золота"', getItemSearchText(tablet3))).toBe(false);
+    expect(matchPoE2RegexItem('"золота"', tablet1)).toBe(false);
+    expect(matchPoE2RegexItem('"золота"', tablet2)).toBe(true);
+    expect(matchPoE2RegexItem('"золота"', tablet3)).toBe(false);
   });
 
   it('waystone: "отравление" AND "кровотечение" — only Waystone 1', () => {
-    expect(matchPoE2Regex('"отравление" "кровотечение"', getItemSearchText(waystone1))).toBe(true);
-    expect(matchPoE2Regex('"отравление" "кровотечение"', getItemSearchText(waystone2))).toBe(false);
-    expect(matchPoE2Regex('"отравление" "кровотечение"', getItemSearchText(waystone3))).toBe(false);
+    expect(matchPoE2RegexItem('"отравление" "кровотечение"', waystone1)).toBe(true);
+    expect(matchPoE2RegexItem('"отравление" "кровотечение"', waystone2)).toBe(false);
+    expect(matchPoE2RegexItem('"отравление" "кровотечение"', waystone3)).toBe(false);
   });
 
   it('waystone: "отравление" AND NOT "кровотечение" — Waystone 3', () => {
     // Waystone 3 has отравление but NOT кровотечение
-    expect(matchPoE2Regex('"отравление" "!кровотечение"', getItemSearchText(waystone3))).toBe(true);
+    expect(matchPoE2RegexItem('"отравление" "!кровотечение"', waystone3)).toBe(true);
     // Waystone 1 has BOTH → excluded
-    expect(matchPoE2Regex('"отравление" "!кровотечение"', getItemSearchText(waystone1))).toBe(false);
+    expect(matchPoE2RegexItem('"отравление" "!кровотечение"', waystone1)).toBe(false);
   });
 });
 
@@ -888,13 +825,11 @@ describe('BONUS: Edge cases with real game text', () => {
   it('"+" literal character in mod text is searchable', () => {
     // Many mods start with "+" — like "+66 к максимуму здоровья"
     // In PoE2 regex, "+" is NOT a special character (only |, !, ., [], (), ?, ^, $ are)
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"+"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"+"', ring1)).toBe(true);
   });
 
   it('"%" literal character in mod text is searchable', () => {
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"%"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"%"', ring1)).toBe(true);
   });
 
   it('"()" parentheses in mod text — PoE2 treats as grouping, NOT literal', () => {
@@ -903,35 +838,31 @@ describe('BONUS: Edge cases with real game text', () => {
     // So searching for "(60-69)" would NOT match the literal text "(60-69)"
     // because PoE2 interprets it as a group containing "60-69"
     // This is a KNOWN limitation documented in the worklog
-    const text = getItemSearchText(ring1);
     // PoE2 treats "()" as grouping, so "(60-69)" would try to match "60-69"
-    // as a group, which as a literal sequence would match "(60-69)" only if
-    // the parens are grouping operators around "60-69" literal
+    // as a group, which as a literal sequence would match "60-69" within the text
     // Actually: "(60-69)" in PoE2 regex = group containing "60-69" which
     // as a literal substring would match "60-69" within the text
     // So this SHOULD match because "60-69" is a substring of the text
-    expect(matchPoE2Regex('"60-69"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"60-69"', ring1)).toBe(true);
   });
 
   it('large number in amulet: "+380 к меткости" — three digits', () => {
-    const text = getItemSearchText(amulet1);
-    expect(matchPoE2Regex('"380"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"380"', amulet1)).toBe(true);
     // Number regex for ≥300: "[3-9][0-9][0-9]" matches 380
-    expect(matchPoE2Regex('"[3-9][0-9][0-9].*меткости"', text)).toBe(true);
+    // Both the number and "меткости" are in the same mod block
+    expect(matchPoE2RegexItem('"[3-9][0-9][0-9].*меткости"', amulet1)).toBe(true);
   });
 
   it('exact phrase "Дарует" matches specific mod on Ring 1', () => {
-    const text = getItemSearchText(ring1);
-    expect(matchPoE2Regex('"Дарует"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"Дарует"', ring1)).toBe(true);
     // Other rings don't have "Дарует"
-    expect(matchPoE2Regex('"Дарует"', getItemSearchText(ring2))).toBe(false);
-    expect(matchPoE2Regex('"Дарует"', getItemSearchText(ring3))).toBe(false);
+    expect(matchPoE2RegexItem('"Дарует"', ring2)).toBe(false);
+    expect(matchPoE2RegexItem('"Дарует"', ring3)).toBe(false);
   });
 
   it('"увеличение радиуса обзора" is a fixed-value mod (no range)', () => {
     // Ring 2: "15% увеличение радиуса обзора" — no (min-max) because it's a fixed value
-    const text = getItemSearchText(ring2);
-    expect(matchPoE2Regex('"увеличение радиуса обзора"', text)).toBe(true);
+    expect(matchPoE2RegexItem('"увеличение радиуса обзора"', ring2)).toBe(true);
   });
 });
 

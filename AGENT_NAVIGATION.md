@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 35.0 | **Date:** 2026-06-07
+> **Version:** 36.0 | **Date:** 2026-06-07
 
 ---
 
@@ -69,20 +69,19 @@ shared <- core <- strategies <- store <- data <- ui
 ### HIGH
 
 1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
-2. **Remove deprecated getItemSearchText()** — ~90 calls in tests (hypothesis-patterns.test.ts, poe2-regex-matcher.test.ts). Replace with `getItemSearchBlocks() + matchPoE2RegexItem()`.
 
 ### MEDIUM
 
-3. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
-4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-5. **HomePage hardcoded mod counts** — Category cards show stale counts
-6. **Re-run ETL** — After adding jewel-corrupted to STRICT_CATEGORIES, need ETL re-run to regenerate JSON with longer regexes
+2. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
+3. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+4. **HomePage hardcoded mod counts** — Category cards show stale counts
+5. **Re-run ETL** — After adding jewel-corrupted to STRICT_CATEGORIES, need ETL re-run to regenerate JSON with longer regexes
 
 ### LOW
 
-7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-9. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+8. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Data Stats
 
