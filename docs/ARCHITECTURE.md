@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 24.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 26.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 
@@ -42,7 +42,7 @@ scripts/etl/fetch-poe2db.ts
     v  (normalize, extract ranges/values)
 scripts/etl/normalize.ts
     |
-    v  (compute minimal unique substrings)
+    v  (compute minimal unique substrings + prefix + suffix lengthening)
 scripts/etl/compute-regex.ts
     |
     v  (compute optimization table)
@@ -82,7 +82,6 @@ Regex string displayed in UI -> copied to clipboard -> pasted in PoE2 search
 I1. Character limit = 250 (str.length, NOT TextEncoder)
 I2. Core Layer (src/core/) — ZERO dependencies. No React, DOM, or Zustand imports.
 I3. public/generated/ — READ-ONLY artifact. Created ONLY by ETL scripts.
-    Manual editing or runtime modification is FORBIDDEN.
 I4. No hardcoded mod strings in UI or Engine code. Only internal_id references
     and i18n lookups from loaded data.
 I5. pnpm is the ONLY package manager. Never use npm or yarn.
@@ -110,40 +109,28 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 
 ## 5. PoE2 Regex Dialect (NOT Standard PCRE) — VERIFIED IN-GAME (RU Client)
 
-All features below were tested and confirmed in the Russian game client on 2025-06-05.
-
 | Syntax | Meaning | Example | Verified |
 |--------|---------|---------|----------|
 | `substring` | Simple substring match | `Бездн` matches all with "Бездн" | Yes |
-| `\|` | OR (alternation) | `Бездн\|Делир` matches either | Yes - CRITICAL |
+| `\|` | OR (alternation) | `Бездн\|Делир` matches either | Yes |
 | `!` | NOT (negation) | `!Бездн` excludes items with "Бездн" | Yes |
-| `""` | Phrase grouping + AND separator | `"Бездн" "карт"` requires both | Yes - CRITICAL |
+| `""` | Phrase grouping + AND separator | `"Бездн" "карт"` requires both | Yes |
 | `.` | Any single character (wildcard) | `Б.здн` matches "Бездн" | Yes |
 | `.*` | Any sequence (crosses mod boundaries!) | `Бездн.*монстр` matches across mods | Yes |
-| `[]` | Character class | `Делири[уф]` matches "Делириу" or "Делириф" | Yes |
+| `[]` | Character class | `Делири[уф]` matches either | Yes |
 | `^` / `$` | Anchors (start/end) | `огня$` matches end of line | Yes |
-| `()` | Grouping | `([5-9]\|\\d..)` | Yes |
-| space between `""` | AND separator | `"огня" "приспеш"` = both must be on item | Yes |
+| `()` | Grouping | `([5-9]\|\d..)` | Yes |
+| `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes |
 
 **Critical syntax rules:**
 
 1. **`!` must be INSIDE quotes when combined with `|`:**
-   - CORRECT: `"!проклят|сопротивлен"` — excludes items with either word
-   - WRONG: `!"проклят|сопротивлен"` — does NOT work
-   - Also works without quotes: `!проклят` (simple negation)
-
-2. **`.*` crosses mod boundaries:** The pattern `"([2-9].|\\d..).*увеличение"` can match
-   a number in one mod and "увеличение" in a different mod on the same item.
-   This means `.*` is NOT safe for combining number + specific mod. Use AND instead.
-
-3. **`.*` is directional:** `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш"
-   in the text. For bidirectional matching, use AND: `"огня" "приспеш"`.
-
-4. **AND via space between quoted groups is order-independent:** `"огня" "приспеш"` matches
-   regardless of which word appears first on the item.
-
-**NOT supported:** Negative lookahead, non-greedy quantifiers, backreferences.
-**Case insensitive:** The in-game search is case-insensitive. Verified with Cyrillic text.
+   - CORRECT: `"!проклят|сопротивлен"` — WRONG: `!"проклят|сопротивлен"`
+2. **`.*` crosses mod boundaries** — NOT safe for combining number + specific mod. Use AND instead.
+3. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш". For bidirectional, use AND: `"огня" "приспеш"`.
+4. **AND via space between quoted groups is order-independent.**
+5. **Case insensitive** — verified with Cyrillic text.
+6. **NOT supported:** Negative lookahead, non-greedy quantifiers, backreferences.
 
 ## 6. Dependency Rules
 
@@ -161,143 +148,57 @@ shared <- core <- strategies <- store <- data <- ui
 - `data` -> imports from `shared`
 - `ui` -> imports from everyone
 
-## 7. Compiler: Min+Max RANGE Support
+## 7. Compiler: Min+Max RANGE + Prefix Anchoring
 
-### Problem
-When both `min` and `max` are specified in a RANGE node (e.g., "match numbers between 40 and 80"),
-the PoE2 regex dialect cannot express a single "range intersection" pattern. The dialect supports
-`≥N` (via `generateNumberRegex`) and `≤N` (via `generateMaxNumberRegex`) independently, but not
-their intersection in a single pattern.
-
-### Solution: AST Normalization
-The compiler uses a **normalization step** that expands `RANGE(min, max, suffix)` into
-`AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix))` before compilation.
-This produces two AND-joined quoted groups in the output:
-
+### RANGE normalization
+When both `min` and `max` are specified, the compiler expands `RANGE(min, max, suffix)` into `AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix))`, producing two AND-joined quoted groups:
 ```
 RANGE(40, 80, 'm q')  →  "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
 ```
+When a RANGE(min,max) is a child of AND, the expansion flattens into the parent AND to avoid double-quoting.
 
-Both conditions must match on the item, effectively constraining the number to [40, 80].
-
-### Theoretical Limitation
-There is an edge case where two different numbers on the same item could satisfy the
-conditions independently (e.g., one mod has value ≥40, another has value ≤80). However,
-this is extremely rare in practice because the suffix constraint ensures both patterns
-match against the same mod text. This approach matches what poe2.re uses.
-
-### Flattening
-When a RANGE(min, max) is a child of an AND node, the normalization step **flattens**
-the expanded AND into the parent AND, avoiding double-quoting:
+### Prefix anchoring (solves `.*` cross-boundary problem)
+When a number is NOT at the start of a mod, `.*` can match a number in a DIFFERENT mod. Prefix anchoring inserts text before the number:
 ```
-AND(literal('огн'), RANGE(40, 80, 'm q'))
-→ AND(literal('огн'), RANGE(40, ∅, 'm q'), RANGE(∅, 80, 'm q'))
-→ "огн" "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
+Without: (2[5-9]|30).*количество монстров   ← false positive!
+With:    увеличенное на (2[5-9]|30).*количество монстров   ← anchored to correct mod
 ```
+- **When prefix NOT needed:** Number at start (nothing before it for `.*` to cross)
+- **When prefix IS critical:** Number after "на", "увеличенное на", "даруют на" etc.
+- Implementation: `regexPrefix` field on GameToken, `prefix` param on RANGE AST node
 
-### URL Sharing
-Both `minValue` and `maxValue` are synced to the filter store's `extraState` and
-included in share URLs via lz-string compression.
+### Per-token exact regex (no round10)
+Per-token numeric overrides set `exact=true` on the RANGE node, producing precise regex without rounding. Global ranges use the `round10` option.
+
+### AND/OR Search Logic
+- **AND mode** (default): Each OR-group gets its own quoted group. Space between quotes = AND. Item must have ALL selected mods.
+- **OR mode**: All LITERAL and RANGE nodes go into a single OR group. Item needs ANY selected mod.
 
 ## 8. Family Pooling (Modifier Grouping)
 
-### Problem
-Each tier of a modifier was shown as a separate chip. For example, "+(5—8) к силе",
-"+(9—12) к силе", "+(13—16) к силе" — 3 separate lines that all generate the same
-regex ("к силе"). In the amulet category, 427 tokens → 110 families. Users saw
-~317 "extra" rows that added no informational value.
+All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single `FamilyGroup` displayed as one chip with a combined range. See `DATA_CONTRACTS.md` for the `FamilyGroup` interface.
 
-### Solution: Group by `familyKey.ru + affix`
-All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single
-`FamilyGroup` displayed as one chip with a combined range.
-
-### Data Model (`src/shared/types.ts`)
-```typescript
-interface FamilyGroup {
-  familyKey: string;          // familyKey.ru
-  affix: AffixType;
-  members: GameToken[];       // all tier tokens in this group
-  globalMin: number;          // min across all ranges/values
-  globalMax: number;          // max across all ranges/values
-  displayText: string;        // template + substituted range
-  hasMultiPlaceholder: boolean;
-  rangeSlots: number[][];     // [[min1,max1],[min2,max2]] for multi-##
-}
-```
-
-### Grouping Logic (`src/shared/family-grouper.ts`)
-1. Group tokens by `familyKey.ru + affix`
-2. For each group, parse the familyKey template to identify `#` placeholder slots
-3. For each member, map its `ranges[]` and `values[]` to the corresponding slots
-4. Compute globalMin/globalMax per slot
-5. Generate `displayText` by substituting `(min—max)` into the template
-6. Sort: prefixes first, then suffixes; alphabetically within each group
-
-### Display Text Generation
-| familyKey Template | Slot Values | Result |
-|---|---|---|
-| `+# к силе` | [5,33] | `+(5—33) к силе` |
-| `+# к уровню всех камней умений чар` | [1,3] | `+(1—3) к уровню всех камней умений чар` |
-| `От # до # физического урона шипами` | [[1,97],[3,145]] | `От (1—97) до (3—145) физического урона шипами` |
-
-### UI Components
-- **`FilterChip`**: Accepts a `FamilyGroup` instead of a `GameToken`. Shows
-  `displayText` + tier count badge ("×9"). Click toggles ALL member IDs.
-  Visual states: full (all selected), partial (some selected), none.
-- **`ModList`**: Groups filtered tokens via `groupTokensByFamily()` before building
-  virtual rows. Header counts show number of families, not individual tokens.
-
-### Origin Filter Interaction
-The origin filter is applied **before** grouping. Filtering by "corrupted" produces
-groups with ranges scoped to corrupted tokens only. Example: "+(10—15) к силе"
-(1 corrupted member) instead of "+(5—33) к силе" (9 members across all origins).
+- FilterChip shows `displayText` + tier count badge ("×9")
+- Origin filter is applied **before** grouping — filtering by "corrupted" produces groups with ranges scoped to corrupted tokens only
+- Dual-number mods (`hasMultiPlaceholder=true`) show "2x" badge and 1е/2е slot switcher
 
 ## 9. Layout v2 — Two-Column Full-Width with Semantic Grouping
 
-### Problem (v1 layout)
-The original layout used a single-column virtual-scroll ModList on the left
-and a 320px control panel on the right. This wasted horizontal space:
-- Chip text averaged 37-66 chars (~350-550px), but the chip stretched to full column width
-- Right panel consumed 25-30% of width for controls that are used infrequently
-- Users had to scroll extensively (193 rows for jewels, 113 for amulets)
-
-### Solution: Inverted Layout
-Move the regex output and controls to a sticky top bar, freeing the full
-width for a two-column mod display:
-
 ```
-┌──────────────────── Full Width ────────────────────────┐
-│ [RegexOutput + Health Bar + Copy + Share] (sticky)     │
-│ [Хочу/Не хочу] [Min ≥] [Max ≤] [Round10] [Extras]    │
-├────────────────────────────────────────────────────────┤
-│  ┌── ПРЕФИКС (N) ──┬── СУФФИКС (M) ────────────────┐ │
-│  │ [chip] [chip]    │ [chip] [chip] [chip]           │ │
-│  │  ── Атакующие ── │  ── Защитные ──               │ │
-│  │ [chip] [chip]    │ [chip] [chip] [chip]           │ │
-│  └──────────────────┴────────────────────────────────┘ │
-│ [ProfilePanel]                                         │
-└────────────────────────────────────────────────────────┘
++--------------------------------------------------------------+
+| [RegexOutput + Health Bar + Copy + Share] (sticky)          |
+| [Хочу/Не хочу] [AND/OR] [Min ≥] [Max ≤] [Round10] [Extras] |
++--------------------------------------------------------------+
+|  +-- ПРЕФИКС (N) --+-- СУФФИКС (M) --------------------+   |
+|  | [chip] [chip]    | [chip] [chip] [chip]              |   |
+|  |  -- Атакующие -- |  -- Защитные --                   |   |
+|  | [chip] [chip]    | [chip] [chip] [chip]              |   |
+|  +------------------+------------------------------------+   |
+| [ProfilePanel]                                               |
++--------------------------------------------------------------+
 ```
 
-### Key Changes
-
-1. **No virtual scroll**: Family Pooling reduces counts to 17-193 families.
-   Simple rendering is more reliable and allows flex-wrap layout.
-
-2. **Two-column prefix/suffix**: Uses `grid grid-cols-[2fr_3fr]` to give
-   suffixes more space (they typically outnumber prefixes ~2:1).
-
-3. **Flex-wrap chips**: Each FilterChip is `inline-flex` so multiple chips
-   pack on one line, adapting to text length naturally.
-
-4. **Semantic sub-grouping** (`src/shared/mod-classifier.ts`):
-   - Tags-based classification (preferred): uses `GameToken.tags[]`
-   - Text-based classification (fallback): regex keyword matching
-   - Per-tab mode selection via `groupMode` prop
-
-5. **Sticky control panel** (`CategoryControlPanel.tsx`):
-   - RegexOutput + mode/range/round10 controls always visible
-   - `extraControls` slot for category-specific controls
+**Key:** No virtual scroll (family pooling keeps counts manageable). Two-column prefix/suffix grid `grid-cols-[2fr_3fr]`. Flex-wrap inline-flex chips. Sticky CategoryControlPanel with `extraControls` slot.
 
 ### Per-Tab Grouping Modes
 
@@ -310,580 +211,25 @@ width for a two-column mod display:
 | Relic | `affix-only` | None (just prefix/suffix) | ✅ `showOriginSubSections` |
 | Vendor | N/A | Chip groups by category | — |
 
-### Semantic Classification Logic
+### Semantic Classification
 
-**Tags-based** (for categories with tags[] — amulet, ring, belt, jewel):
-- `offensive`: damage, attack, critical, speed, caster, minion, physical, chaos, ailment
-- `defensive`: resistance, life, mana, armour, energy_shield, charm
-- `attribute`: attribute (str/dex/int)
+**Tags-based** (amulet, ring, belt, jewel — have `tags[]`):
+- `offensive`: damage, attack, critical, speed, caster, minion, physical, chaos, ailment, elemental, cold, fire, lightning, curse
+- `defensive`: resistance, life, mana, armour, energy_shield, charm, evasion
+- `attribute`: attribute
 - `neutral`: no matching tags
 
-**Text-based** (for waystone, tablet, relic — no tags):
-- `offensive`: keywords like урон, атак, крит, скорость, сотворени, etc.
-- `defensive`: keywords like сопр, здоров, брон, уклонен, блок, дух, etc.
-- `attribute`: keywords like к силе, к ловк, к интелл
-- `neutral`: no match
+**Text-based** (waystone, tablet, relic — no tags):
+- Keywords: урон/атак/крит → offensive; сопр/здоров/брон → defensive; к силе/к ловк → attribute
 
-**Waystone sentiment**:
-- `positive`: редкость, количество, дополнительн, больше (player benefits)
-- `negative`: монстр, области, горят, ледене, отравлен (map difficulty)
-- `neutral`: 0 remaining (all classified as of iteration 3)
+**Waystone sentiment**: positive (редкость, количество, опыт), negative (монстр, проклят, уменьшен), 0 neutral
 
-### Components Added/Modified
+**Jewel type**: ETL lookup (100% when available) → weighted keyword scoring fallback (~84%). Currently all "shared" because Type A parser doesn't extract modCode.
 
-| Component | Change | Description |
-|-----------|--------|-------------|
-| `ModList.tsx` | **Rewritten** | Two-column layout, flex-wrap, groupMode prop, no virtual scroll |
-| `FilterChip.tsx` | **Rewritten** | Compact inline-flex chip for flex-wrap layout |
-| `CategoryControlPanel.tsx` | **New** | Shared sticky top bar with regex + controls + extraControls slot |
-| `mod-classifier.ts` | **New** | Semantic classification logic (tags + text + sentiment) |
-| All page components | **Updated** | New layout: ControlPanel top → ModList full-width → ProfilePanel |
+## 10. Multi-Origin Loading
 
-## 10. Iteration 2 — Multi-Origin Loading + Tablet Type Grouping
+`loadMergedCategoryData()` in `src/data/loader.ts` loads multiple JSONs per page:
+- JewelPage: jewel + jewel-desecrated + jewel-corrupted (224 tokens)
+- WaystonePage: waystone + waystone-desecrated (112 tokens)
 
-Added multi-origin data loading via `loadMergedCategoryData()` in `src/data/loader.ts` with composite-key caching and `mergeCategories` option in `useCategoryPage`. JewelPage loads jewel + jewel-desecrated + jewel-corrupted (224 tokens across 3 origins). WaystonePage loads waystone + waystone-desecrated (112 tokens). Added `groupMode="tablet-type"` for TabletPage with text-based heuristics (алтар→Ритуал, бездн→Бездна, делир→Делириум, ваал/маяк→Ваал, экспедици→Экспедиция).
-
-Key components: `loader.ts`, `useCategoryPage.ts`, `JewelPage.tsx`, `WaystonePage.tsx`, `mod-classifier.ts`, `TabletPage.tsx`.
-
-## 11. Iteration 3 — Origin Sub-Sections + Classification Fine-Tuning
-
-Added origin sub-sections within semantic groups: `splitGroupByOrigin()` in family-grouper splits FamilyGroups by origin with visual dividers (··· Осквернённые ···). Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop. Fine-tuned waystone sentiment classification (0 NEUTRAL, 27 POS / 85 NEG). Expanded OFFENSIVE_TAGS (elemental, cold, fire, lightning, curse) and DEFENSIVE_TAGS (evasion). Fixed origin labels: desecrated→"Очернённые", corrupted→"Осквернённые". Light theme CSS additions for origin sub-sections, affix borders, FilterChip.
-
-Key components: `family-grouper.ts`, `ModList.tsx`, `mod-classifier.ts`, `constants.ts`, `index.css`.
-
-## 12. Iteration 4 — VendorPage Layout + Relic Origins + Mobile
-
-Rewrote VendorPage to Layout v2 with new `VendorChip` component (compact inline-flex, color-coded group headers, shortened labels). Added `showOriginSubSections` to RelicPage (1 corrupted suffix shown under "··· Осквернённые ···" divider). Mobile CSS optimization (768px + 480px breakpoints: larger touch targets, full-width search, grid overflow prevention). Light theme VendorChip overrides. Verified waystone sentiment: 27 POS / 85 NEG / 0 NEUTRAL.
-
-Key components: `VendorPage.tsx`, `VendorChip.tsx`, `RelicPage.tsx`, `index.css`.
-
-## 13. Iteration 5 — Accessibility + Keyboard Navigation + Performance
-
-Full accessibility audit: ARIA attributes on all interactive components (role="switch" on chips, role="progressbar" on health bar, radiogroup/radio on mode toggle, aria-live on RegexOutput, aria-expanded on ProfilePanel, role="alert" on VendorPage warning). Keyboard navigation via `focus-visible` outlines (2px solid blue, 2px offset). Skip-to-content link in Layout. `.sr-only` utility class. Performance review: React.memo on sub-components, useMemo/useCallback throughout, family pooling keeps counts well below virtual scroll threshold.
-
-Key components: `FilterChip.tsx`, `VendorChip.tsx`, `RegexOutput.tsx`, `CategoryControlPanel.tsx`, `ModList.tsx`, `ProfilePanel.tsx`, `VendorPage.tsx`, `Layout.tsx`, `index.css`.
-
-## 14. Iteration 6 — Game Icons Integration + Bug Fixes
-
-Replaced all emoji icons with game inventory images (`public/icons/`, logo resized 1024→256). Bug fixes: belt label "Ремни"→"Пояса", FilterChip aria-pressed→aria-checked (true/false/mixed), sidebar hamburger missing aria-expanded, parseInt||null swallowing 0, VendorPage clearAll not resetting excludeMode, RegexOutput fallback color #0f0f1a→#0a0a0f. Light theme CSS fixes (scrollbar hover, green button state).
-
-Key components: `Sidebar.tsx`, `HomePage.tsx`, all page components, `FilterChip.tsx`, `CategoryControlPanel.tsx`, `index.css`.
-
-## 15. Iteration 7 — ETL Tag Cleanup + ARIA Fix + Layout Balance + Accessibility
-
-### Changes
-
-1. **ETL: Crafting tag removal from mod text** (`scripts/etl/normalize.ts` + `public/generated/jewel*.json`):
-   - Root cause: poe2db.tw stores crafting tag badges (`<span class="badge" data-tag="armour">Броня</span>`)
-     inside the description HTML cell. The ETL pipeline extracted `data-tag` attributes into `tags[]`
-     but left the badge text in the description, causing tags like "Атака", "Броня", "Урон Стихийный"
-     to appear at the end of `rawText`, `rawTextTemplate`, `familyKey`, and `regex` fields.
-   - Fix in `extractTextAndRanges()`: Added `$('[data-tag]').remove()` and
-     `$('span.badge[class*="crafting"]').remove()` before text extraction, alongside the
-     existing `$('span.secondary').remove()`.
-   - Hot-patched existing JSON files: cleaned 132 tokens in `jewel.json`, 1 in
-     `jewel-desecrated.json`, 5 in `jewel-corrupted.json`. Recomputed regex for 22 tokens
-     that had empty or tag-contaminated regexes after cleanup.
-   - Example before: `"(10—20)% повышение брони Броня"` → after: `"(10—20)% повышение брони"`
-   - Example before: regex `"Броня"` → after: regex `"повышение брони"`
-
-2. **Bug fix: `::origin` suffix leaking into displayText** (`src/shared/family-grouper.ts`):
-   - Root cause: `splitGroupByOrigin()` passed `${group.familyKey}::${origin}` as the
-     familyKey to `buildFamilyGroup()`, which used it for `generateDisplayText()`, causing
-     `::normal`, `::corrupted` etc. to appear in chip display text.
-   - Fix: Pass the clean `group.familyKey` (without `::origin`) to `buildFamilyGroup()`,
-     then override `splitGroup.familyKey` with the `::origin` suffix for React key uniqueness.
-
-3. **VendorChip ARIA restructuring** (`src/ui/components/VendorChip.tsx`):
-   - Root cause: `<input type="number">` was nested inside `<span role="switch">`,
-     creating an invalid ARIA tree (interactive element inside switch role).
-   - Fix: Restructured to `<div>` wrapper containing `<span role="switch">` (label + toggle)
-     and `<input>` as siblings. Also increased `max={100}` → `max={1000}` for item levels > 100.
-
-4. **FilterChip layout balance** (`src/ui/components/FilterChip.tsx`):
-   - Fix: Added `min-w-[45%]` to FilterChip className, ensuring chips either fill ~half
-     width (2 per row) or full width, eliminating single short chip on a line.
-
-5. **RegexOutput aria-live reduction** (`src/ui/components/RegexOutput.tsx`):
-   - Changed `aria-live="polite"` → `aria-live="off"` to prevent screen reader from
-     announcing the entire regex string on every change.
-
-6. **Sidebar focus trap for mobile menu** (`src/ui/layout/Sidebar.tsx`):
-   - Added keyboard event handler that traps Tab/Shift+Tab focus within the sidebar
-     when mobile menu is open, preventing focus from escaping behind the overlay.
-   - Added Escape key to close the mobile menu.
-   - Auto-focuses first nav link when sidebar opens.
-   - Added `role="navigation"` and `aria-label` to aside element.
-
-### Remaining
-
-1. **HIGH — Full ETL re-run**: Jewel JSON hot-patches should be replaced with a full ETL re-run.
-2. **HIGH — Regex quality audit for jewels**: Recomputed regexes via simplified Python algorithm should be audited against the full TypeScript compute-regex.
-3. **MEDIUM — HomePage: Hardcoded mod counts**: Category cards show mod counts that will become stale.
-4. **MEDIUM — i18n: Russian strings bypassing t()**: Multiple components still contain hardcoded Russian strings.
-5. **MEDIUM — VendorPage: Duplicated layout controls**: Duplicates some CategoryControlPanel functionality.
-6. **LOW — index.html: Hardcoded theme-color** / Light theme overly-broad opacity-70 override / RegexOutput double sticky.
-
-## 16. Iteration 9 — i18n Labels + Jewel Type Filter + Constants Cleanup
-
-### Changes
-
-1. **TabletPage i18n labels** (`src/ui/pages/tablet/TabletPage.tsx` + `src/shared/i18n.ts`):
-   - Replaced hardcoded "Тип:", "Редкость:", "Исп.:" and summary strings with `t()` calls.
-   - Added 6 new i18n keys.
-
-2. **WaystonePage i18n labels** (`src/ui/pages/waystone/WaystonePage.tsx` + `src/shared/i18n.ts`):
-   - Replaced hardcoded "Осквернён", "Неосквернён", "Делириум" labels and summary strings with `t()` calls.
-   - Added 6 new i18n keys.
-
-3. **Constants cleanup** (`src/shared/constants.ts`):
-   - Removed unused `ORIGIN_LABELS` and `AFFIX_LABELS` exports (replaced by `t()` calls in iteration 15).
-
-4. **Jewel type filter** (`src/ui/pages/jewel/JewelPage.tsx` + `src/shared/mod-classifier.ts`):
-   - Added `JewelTypeCategory` type: `'ruby' | 'emerald' | 'sapphire' | 'shared'`
-   - Added `classifyJewelType()` using text-based heuristics:
-     Ruby (fire, bleed, armour, maces, rage, thorns, totems, warcries, banners, presence),
-     Emerald (lightning, accuracy, attack speed, projectiles, bows/crossbows/staves/spears, parry, sentinel, flasks),
-     Sapphire (cold, curses, energy shield, spells, mana, offerings, minions, chaos).
-   - Shared: mods matching multiple types or none.
-   - Added 4 jewel type filter buttons (Все/Рубин/Изумруд/Сапфир) in JewelPage extraControls.
-   - Filter shows selected type + shared mods; state synced to filterStore for URL sharing.
-   - Added 5 new i18n keys.
-
-### Remaining
-
-1. **Jewel type classification verification**: Text-based heuristics need cross-validation against game data.
-2. **Jewel type sub-grouping**: Add `groupMode="jewel-type"` that groups tokens by jewel type within each origin section with visual separation instead of hiding non-matching mods. **→ DONE in iteration 17.**
-3. **Jewel type filter for desecrated/corrupted tokens**: Current filter applies to all origins; desecrated/corrupted mods are mostly shared across types.
-
-## 17. Iteration 10 — Deploy Fix + Jewel Classification v2 + PageStateWrapper
-
-### Changes
-
-1. **Deploy fix — VendorPage FilterStoreApi type mismatch** (`src/ui/pages/vendor/VendorPage.tsx`):
-   - Root cause: `filterStore.getState()` was passed as `FilterStoreApi` to `CategoryControlPanel`, but `FilterStoreApi` requires `getState`, `subscribe`, `serialize` methods.
-   - Fix: Wrapped Zustand store in `FilterStoreApi` adapter (same pattern as `useCategoryPage.ts`).
-
-2. **Jewel type classification v2 — weighted scoring** (`src/shared/mod-classifier.ts`):
-   - Replaced simple regex OR-groups with weighted keyword scoring system.
-   - Each jewel type has `[RegExp, weight][]` arrays: `RUBY_SCORES`, `EMERALD_SCORES`, `SAPPHIRE_SCORES`.
-   - Classification picks the type with highest score, requiring margin ≥ 2 over second-best (or ≥ 1 if best ≥ 3).
-   - Cross-validated against poe2db.tw Modifier Calculator pages (Ruby/Emerald/Sapphire).
-   - Improved accuracy from ~62% (simple regex) to ~84% (weighted scoring).
-   - Key improvements: added missing keywords (Вестник, Разрез, отравлен, колчан, пригвожден, метк, etc.),
-     reduced weight for ambiguous keywords (поджог, шок, ман).
-
-3. **PageStateWrapper component** (`src/ui/components/PageStateWrapper.tsx`):
-   - New reusable component extracting loading/error/no-data pattern.
-   - Generic type `<T>` with render-prop pattern: `<PageStateWrapper>{(data) => ...}</PageStateWrapper>`
-   - Refactored 5 pages: BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, JewelPage.
-
-### Remaining
-
-1. **Jewel type sub-grouping**: Add `groupMode="jewel-type"` with visual separation instead of hiding. **→ DONE in iteration 17.**
-2. **Jewel classification accuracy**: ~84% accuracy; could be improved with a static lookup table from poe2db data instead of heuristics.
-3. **TabletPage PageStateWrapper**: Still has inline loading/error/no-data pattern.
-4. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run.
-
-## 18. Iteration 17 — Jewel Type Sub-Grouping + Weighted Scoring Cleanup + Tablet Экспедиция
-
-### Changes
-
-1. **Jewel type sub-grouping** (`src/shared/mod-classifier.ts` + `src/ui/components/ModList.tsx` + `src/ui/pages/jewel/JewelPage.tsx`):
-   - Added `'jewel-type'` to `ModGroupMode` union type.
-   - `classifyGroups()` now handles `jewel-type` mode: within each origin section, tokens are further grouped into Рубин/Изумруд/Сапфир/Общие sub-headers.
-   - Added `showJewelTypeSubGroups` prop to ModList — enables jewel-type sub-grouping within each origin group.
-   - Added `jewelTypeFilter` prop to ModList — when a specific type is selected, only that type's sub-header + "Общие" sub-header are shown (other types hidden, not just visually collapsed).
-   - JewelPage uses both props: `showJewelTypeSubGroups` always on, `jewelTypeFilter` driven by type filter buttons.
-   - This replaces the previous approach of hiding non-matching tokens entirely; all types are now visible with visual separation when no filter is active.
-
-2. **Weighted scoring cleanup** (`src/shared/mod-classifier.ts`):
-   - Fixed "крич"→"клич" warcry typo in RUBY_SCORES (was matching wrong keyword root).
-   - Removed duplicate/overlapping rules that were subsumed by higher-weight or more-specific entries:
-     - **RUBY**: removed subsumed поджог (covered by fire keywords), оглушен (covered by оглушение), armour break (covered by armour keywords).
-     - **EMERALD**: removed duplicate parry (appeared twice), mana-flask (overlap with flask), melee↔projectile (contradictory classification).
-     - **SAPPHIRE**: removed duplicate minion-resist (subsumed by minion keyword), cold-resist (subsumed by cold keyword), ES-threshold (subsumed by energy_shield keyword).
-   - Net result: ~15 rules removed, zero classification accuracy loss (all cross-validation results unchanged).
-
-3. **Tablet Экспедиция tooltip** (`src/ui/pages/tablet/TabletPage.tsx`):
-   - Added tooltip to "Экспедиция" button in TABLET_TYPES controls noting temporary absence in the current league (лига Руны Альдура).
-   - Button shown with `opacity-60` to indicate inactive state.
-   - Kept in UI for future content when Экспедиция returns.
-
-### Remaining
-
-1. **Jewel classification accuracy**: ~84% accuracy on cross-validation. Could be improved with a static lookup table from poe2db data instead of heuristics.
-2. **TabletPage PageStateWrapper**: Still has inline loading/error/no-data pattern.
-3. **Full ETL re-run**: Jewel JSON hot-patches from iteration 7 should be replaced with a full `pnpm etl` run. **Regex prefix data requires full ETL re-run to populate `regexPrefix` field in generated JSONs.**
-4. **HomePage hardcoded mod counts**: Category cards show stale counts after data updates.
-5. **Suffix lengthening for non-unique suffixes**: Ring "урона к атакам" (physical damage) shares suffix with lightning/cold damage mods. ETL needs to detect non-unique suffixes and extend them with inter-placeholder text.
-6. **Dual-number mods filter**: Mods like "От ## до ## урона" have two number placeholders; current RANGE only filters by the second number.
-7. **Fractional ranges**: Mods like "Регенерация 2.1-3 здоровья" have `ranges: []` because ETL doesn't handle fractions.
-
-## 19. Iteration 20 — Prefix Anchoring + Per-Token Exact Regex + Data Fixes
-
-### Problem: `.*` crosses mod boundaries
-
-PoE2 regex engine's `.*` operator matches across mod line boundaries. When a mod like
-`"(2[5-9]|30).*количество монстров"` is used, the number `25-30` can match a number in
-a DIFFERENT mod on the same item, and `.*` then jumps to "количество монстров" in the
-target mod. This produces false positives: a tablet with both Abyss (24% monsters) and
-Ritual (2 circles, number 25-30) mods would incorrectly match `≥25 количество монстров`.
-
-### Solution 1: Prefix in RANGE nodes
-
-Insert text from the mod template BEFORE the number in the regex. Instead of:
-```
-(2[5-9]|30).*количество монстров
-```
-produce:
-```
-увеличенное на (2[5-9]|30).*количество монстров
-```
-
-The prefix "увеличенное на" anchors the number to the correct mod line because this
-phrase only appears in the Abyss mod, not in Ritual mods.
-
-**When prefix is NOT needed:** Number at the start of the mod (e.g., `##% повышение редкости...`).
-There is nothing before the number for `.*` to cross, so no false positives.
-
-**When prefix IS critical:** Number in the middle of the mod, especially after `на` /
-`увеличенное на` / `даруют на`, and when the item can have multiple numeric mods
-(tablets, waystones).
-
-#### Implementation
-
-1. **`types.ts`**: Added `prefix?: string` and `exact?: boolean` to RANGE ASTNode;
-   added `regexPrefix: Record<Locale, string>` to GameToken.
-
-2. **`ast.ts`**: Updated `range()` builder to accept `prefix` and `exact` parameters.
-
-3. **`compiler.ts`**: RANGE compilation now produces:
-   - With prefix + suffix: `"prefix numRegex.*suffix"`
-   - With prefix, no suffix: `"prefix numRegex"`
-   - Without prefix (original): `"numRegex.*suffix"` or `"numRegex"`
-   - Normalization preserves prefix and exact across RANGE(min,max) expansion.
-
-4. **`optimizer.ts`**: `getValueKey()` for RANGE now includes prefix and exact in
-   deduplication key.
-
-5. **`compute-regex.ts`** (ETL): New `extractTemplatePrefix()` function extracts
-   text before the first `##/#`, trimmed to last 2-3 words (minimum 5 chars).
-   Returns empty string if number is at start or prefix is too short.
-   Added `regexPrefix` field to `RegexResult`.
-
-6. **`generate-dictionary.ts`** (ETL): Passes `regexPrefix` through to GameToken JSON.
-
-7. **`useCategoryPage.ts`**: `buildAstFromSelections()` now reads `token.regexPrefix`
-   and passes it to RANGE nodes. Grouping key includes prefix for correct separation.
-
-### Solution 2: Per-token exact regex (no round10)
-
-When a user sets a per-token numeric range (e.g., ≥25 on a specific mod), the intent
-is precise: they want exactly ≥25, not ≥20 (which round10 would produce). Global
-ranges can still use round10 for brevity.
-
-**Implementation**: Added `exact?: boolean` flag to RANGE ASTNode. In compiler:
-- `exact=true` → `useRound10=false` (precise regex)
-- `exact=false` or `undefined` → use global `round10` option
-
-In `buildAstFromSelections()`, per-token overrides set `exact=true`, global ranges
-use default (no exact flag → uses global round10).
-
-### Data Fixes (Cross-Validation)
-
-Cross-validated `tablet.json` against `регис/Плитки предтеч моды.md`. Found and
-added i18n overrides for:
-- **Typo** `адтарях` → `алтарях` (2 mods: `tablet.mod_ldczbk`, `tablet.mod_kbdifj`)
-- **Typo** `получнения` → `получения` (1 mod: `tablet.mod_efa81a`)
-- **Content error** `Бездны` → `Разломы` (1 mod: `tablet.mod_al1nsy` — this is a
-  Breach mod, not Abyss)
-
-All 7 Vaal Beacon mods verified correct — no in-game text mismatch found.
-
-### Files Modified
-
-| File | Change |
-|------|--------|
-| `src/shared/types.ts` | Added `prefix`, `exact` to RANGE; added `regexPrefix` to GameToken |
-| `src/core/ast.ts` | Updated `range()` builder signature |
-| `src/core/compiler.ts` | RANGE compilation with prefix + exact; normalization preserves them |
-| `src/core/optimizer.ts` | `getValueKey()` includes prefix and exact |
-| `scripts/etl/compute-regex.ts` | New `extractTemplatePrefix()`; `regexPrefix` in RegexResult |
-| `scripts/etl/generate-dictionary.ts` | Pass `regexPrefix` to GameToken |
-| `scripts/etl/i18n-overrides.json` | 4 tablet typo/content fixes |
-| `src/ui/hooks/useCategoryPage.ts` | Pass prefix and exact to RANGE nodes |
-| `tests/core/compiler.test.ts` | 9 new tests for prefix and exact |
-
-### Stop Criteria for This Iteration
-
-Completed: prefix + exact + compiler tests + data fixes.
-
-**NOT done (next iteration):**
-- Full ETL re-run to populate `regexPrefix` in generated JSONs
-- Suffix lengthening for non-unique suffixes (ring `урона к атакам`)
-- UI changes to FilterChip for prefix display
-- Dual-number mod support
-- Fractional range support
-
-## 20. Iteration 21 — `\d` → `[0-9]` Fix + AND/OR Search Logic + Breachborn Audit
-
-### 1. P0: Replace `\d` with `[0-9]` in number-regex.ts
-
-**Problem**: The `generateNumberRegex()` function produced patterns containing `\d` (e.g., `\d..`, `\d..?`). PoE2's in-game regex engine may not support the `\d` shorthand — only the explicit character class syntax `[0-9]` is verified to work.
-
-**Change**: Replaced all 7 occurrences of `\d` in `number-regex.ts` with `[0-9]`:
-- `\d..` → `[0-9]..` (matches any 3-char sequence starting with a digit)
-- `\d..?` → `[0-9]..?` (matches digit + 1-2 any chars)
-
-**Impact**: Each replacement adds +2 characters to the regex. Maximum increase: +12 characters in worst case (all patterns active). This is an acceptable tradeoff for guaranteed compatibility.
-
-**Files modified**: `src/core/number-regex.ts`, `tests/core/number-regex.test.ts`, `tests/core/compiler.test.ts`, `tests/core/poe2-regex-matcher.test.ts`, `tests/core/vendor-patterns.test.ts`, `tests/core/tablet-patterns.test.ts`
-
-### 2. P0: Audit of Очернённые (Desecrated) mod separation
-
-**Verified**: `splitGroupByOrigin()` in `family-grouper.ts` correctly splits FamilyGroups with mixed origins into separate per-origin sub-groups. 17 mixed-origin family+affix groups exist in `amulet.json` (e.g., `+# к силе::suffix` has both normal and corrupted tokens), all correctly handled.
-
-**Found issue**: 42 breachborn tokens across amulet/ring/belt have English `familyKey.ru` values (e.g., `"#+% to Fire Spell Critical Hit Chance"` instead of Russian). This is an ETL data quality issue where poe2db.tw lacks Russian templates for some breachborn mods. Not a UI-breaking bug — breachborn mods display correctly in their origin sections, but the familyKey mismatch could cause incorrect grouping if two breachborn mods share the same English familyKey.
-
-### 3. P1: AND/OR Search Logic Toggle
-
-**Problem**: The compiler always used AND logic — each OR-group gets its own quoted group, and space between quotes means AND. This means items must have ALL selected mods simultaneously. For vendor shopping or bulk inventory evaluation, users want OR logic: highlight items with ANY of the selected mods.
-
-**Solution**: Added `SearchLogic = 'and' | 'or'` type and a toggle in CategoryControlPanel.
-
-**AND mode** (default, existing behavior):
-```
-Selected: fire res + cold res + life
-→ "к сопротивлению огню|к сопротивлению холоду" "к максимуму здоровья"
-→ Item must have (fire OR cold res) AND life
-```
-
-**OR mode** (new):
-```
-Selected: fire res + cold res + life
-→ "к сопротивлению огню|к сопротивлению холоду|к максимуму здоровья"
-→ Item must have (fire OR cold res OR life) — any one is enough
-```
-
-**Implementation**:
-1. **`types.ts`**: Added `SearchLogic = 'and' | 'or'` type
-2. **`useCategoryPage.ts`**: Added `searchLogic` state, synced to `extraState` for URL sharing. `buildAstFromSelections()` accepts `searchLogic` parameter — in OR mode, all LITERAL and RANGE nodes go into a single OR group instead of separate AND children.
-3. **`CategoryControlPanel.tsx`**: Added AND/OR toggle buttons (indigo color) between the mode toggle and range filter
-4. **`i18n.ts`**: Added 3 new keys: `logic.label`, `logic.and`, `logic.or`
-5. **All 8 page components**: Pass `searchLogic` and `setSearchLogic` to CategoryControlPanel
-
-**RANGE nodes in OR mode**: When ranged tokens have numeric filters AND OR logic is active, each RANGE node becomes an alternative within the OR group. The compiler produces a single quoted group with all alternatives.
-
-**URL sharing**: `searchLogic` is persisted in `extraState` and included in share URLs.
-
-### Files Modified (Iteration 21)
-
-| File | Change |
-|------|--------|
-| `src/shared/types.ts` | Added `SearchLogic` type |
-| `src/core/number-regex.ts` | `\d` → `[0-9]` in all 7 generated patterns |
-| `src/ui/hooks/useCategoryPage.ts` | Added `searchLogic` state, updated `buildAstFromSelections()` for OR mode |
-| `src/ui/components/CategoryControlPanel.tsx` | Added AND/OR toggle UI |
-| `src/shared/i18n.ts` | Added `logic.label`, `logic.and`, `logic.or` keys |
-| All 8 page components | Pass `searchLogic`/`setSearchLogic` to CategoryControlPanel |
-| `tests/core/number-regex.test.ts` | Updated expectations from `\d` to `[0-9]` |
-| `tests/core/compiler.test.ts` | Updated expectations from `\d` to `[0-9]` |
-| `tests/core/poe2-regex-matcher.test.ts` | Updated regex strings from `\d` to `[0-9]` |
-| `tests/core/vendor-patterns.test.ts` | Updated regex strings |
-| `tests/core/tablet-patterns.test.ts` | Updated regex strings |
-
-### Remaining (for next iteration)
-
-1. **P1 — Dual-number mods**: Mods like "От ## до ## урона" have two placeholders; RANGE currently filters by the last number. Need to filter by the first number for meaningful results.
-2. **P1 — Desecrated regex quality**: Dual-stat desecrated mods use fallback substring matching; could be improved with better prefix extraction.
-3. **P1 — `\d` in-game verification**: Test `[0-9]..` patterns in PoE2 to confirm they work. If `\d` also works, could revert for shorter regexes (saves +2 chars per occurrence).
-4. **ETL — Breachborn English familyKeys**: 42 tokens across amulet/ring/belt have English familyKey values. Need ETL fix to translate these from poe2db data or i18n overrides.
-5. **Full ETL re-run**: Regex prefix data and breachborn fixes require a full `pnpm etl` run.
-
-## 21. Iteration 22 — `\d` Revert + Dual-Number ETL + Desecrated Regex + Breachborn familyKey
-
-### 1. P0: Revert `[0-9]` → `\d` in number-regex.ts (VERIFIED IN-GAME)
-
-**In-game test result**: `\d` works in PoE2's search engine. Test 3 confirmed:
-- `"([4-9].|\d..).*к сопротивлению огню"` produces identical results to `"([4-9].|[0-9]..).*к сопротивлению огню"`
-- **Savings**: 2 characters per occurrence × 7 occurrences = 14 characters saved
-
-**Change**: Reverted all `[0-9]..` and `[0-9]..?` back to `\d..` and `\d..?` in `number-regex.ts`.
-
-**IMPORTANT — Number boundary limitation (Test 1 FAILED)**:
-The pattern `[4-9].` matches single-digit numbers followed by any character (e.g., `6%` = digit `6` + `%`). This means `≥40` regexes can false-positive on single-digit values like `+(6%)`. This is a **fundamental limitation** of PoE2 regex — there is no word boundary (`\b`) support. Prefix anchoring (e.g., `"От" (≥N).*suffix`) partially mitigates this by positioning the number after a known text anchor, but cannot fully prevent the `.` wildcard from matching `%`, `—`, or other non-digit characters after a single digit.
-
-### 2. P1: Dual-number mod ETL improvements
-
-**Problem**: Mods like "От ## до ## урона шипами" have two `##` placeholders. The `regexPrefix` was empty for short prefixes ("От" = 2 chars < 5 char minimum), and there was no way to distinguish single-number from dual-number mods in the data model.
-
-**Changes**:
-
-1. **`extractTemplatePrefix()` in `compute-regex.ts`**: For dual-number templates (containing "до" between `#` placeholders), the minimum prefix length is now 2 characters instead of 5. This preserves critical short prefixes like "От" that anchor the number regex to the correct position in the mod text.
-
-2. **`hasMultiPlaceholder` field**: Added to `RegexResult`, `GameToken`, and `FamilyGroup`. Computed from template placeholder count (`placeholderCount >= 2`). Marks dual-number and dual-stat mods for downstream filtering logic.
-
-3. **`filterSlotIndex` field**: Added to `FamilyGroup`. Always 0 (first placeholder) — indicates which range slot to use for numeric filtering. For "От ## до ## урона", filtering by `ranges[0]` (min damage) is more meaningful than `ranges[1]` (max damage).
-
-4. **`rangeSlotIndex` not added to AST**: RANGE nodes remain unchanged. The `minValue`/`maxValue` from UI apply uniformly; `hasMultiPlaceholder` allows future UI to show per-slot range info.
-
-**Files modified**: `scripts/etl/compute-regex.ts`, `scripts/etl/generate-dictionary.ts`, `src/shared/types.ts`, `src/shared/family-grouper.ts`
-
-### 3. P1: Desecrated dual-stat regex quality
-
-**Problem**: 24 desecrated jewel mods with dual-stat patterns (e.g., `"(5—10)% повышение брони, (4—8)% увеличение урона от атак"`) used fallback substring matching, producing garbage regexes like `"и, (4—8)% увеличение урона о"`.
-
-**Root cause**: `extractExtendedSuffix()` returned text containing `##` from the second placeholder, and the old code set `cleanExtendedSuffix = ''` when `#` was found, falling through to Strategy 2 (substring search on rawText which picks up tier-specific numbers).
-
-**Fix — Strategy 1b improvement**: When `cleanExtendedSuffix` contains `#`, extract the text after the LAST comma from `rawText` (which has actual numbers instead of `##`). Strip the leading number/range pattern to get the clean stat name:
-- Input: `"(5—10)% повышение брони, (4—8)% увеличение урона от атак"`
-- After comma: `"(4—8)% увеличение урона от атак"`
-- After stripping number: `"увеличение урона от атак"`
-
-**Fix — Strategy 1c (new)**: For dual-stat mods where Strategy 1b couldn't find a unique suffix after the comma, try the ENTIRE text after the first `##` placeholder from `rawText`. This produces longer but more specific regexes like `"повышение брони, увеличение урона от атак"`.
-
-**Files modified**: `scripts/etl/compute-regex.ts`
-
-### 4. Breachborn English familyKey fix
-
-**Problem**: 42 tokens across amulet/ring/belt had English `familyKey.ru` values (e.g., `"#+% to Fire Spell Critical Hit Chance"` instead of Russian). This happened because `computeMinimalUniqueSubstring()` runs BEFORE `applyI18nOverrides()`, so familyKey was computed from the English template.
-
-**Fix**: In `applyI18nOverrides()` in `run-etl.ts`, added recomputation of:
-- `token.familyKey.ru` — from the (now-Russian) `rawTextTemplate.ru`
-- `token.hasMultiPlaceholder` — from the template placeholder count
-- `token.regexPrefix.ru` — using the same `extractTemplatePrefixForOverride()` logic (with dual-number `min=2` support)
-
-**Files modified**: `scripts/run-etl.ts`
-
-### Files Modified (Iteration 22)
-
-| File | Change |
-|------|--------|
-| `src/core/number-regex.ts` | `[0-9]` → `\d` (reverted, in-game verified) |
-| `scripts/etl/compute-regex.ts` | Dual-number prefix min=2; Strategy 1b/1c for dual-stat; `hasMultiPlaceholder` |
-| `scripts/etl/generate-dictionary.ts` | Pass `hasMultiPlaceholder` to GameToken |
-| `scripts/run-etl.ts` | Recompute `familyKey`, `hasMultiPlaceholder`, `regexPrefix` in overrides |
-| `src/shared/types.ts` | Added `hasMultiPlaceholder`, `filterSlotIndex` |
-| `src/shared/family-grouper.ts` | Added `filterSlotIndex: 0` to FamilyGroup |
-| `tests/core/number-regex.test.ts` | Updated expectations from `[0-9]` to `\d` |
-| `tests/core/compiler.test.ts` | Updated expectations |
-| `tests/core/poe2-regex-matcher.test.ts` | Updated expectations |
-| `tests/core/vendor-patterns.test.ts` | Updated expectations |
-| `tests/core/tablet-patterns.test.ts` | Updated expectations |
-
-### Remaining (for next iteration)
-
-1. **Full ETL re-run**: All ETL changes require a full `pnpm etl` run to populate `regexPrefix`, `hasMultiPlaceholder`, and fix `familyKey` in generated JSONs. The generated JSONs currently still have old data.
-2. **UI for dual-number mods**: `hasMultiPlaceholder` and `filterSlotIndex` are in the data model but not yet used in UI. FilterChip should show per-slot range info and indicate which slot is being filtered.
-3. **Number boundary false positives**: `[4-9].` matches `6%` (single-digit + non-digit). No PoE2 regex solution exists; document as known limitation. Prefix anchoring partially mitigates.
-4. **Fractional ranges**: Mods like "Регенерация 2.1-3 здоровья" have `ranges: []` because ETL doesn't handle fractions.
-5. **Suffix lengthening for non-unique suffixes**: Ring "урона к атакам" (physical damage) shares suffix with lightning/cold damage mods. Strategy 1b should help after ETL re-run.
-
----
-
-## Iteration 23 — Jewel lookup, dual-number RANGE, PageStateWrapper, vendor count, desecrated regex
-
-### 1. Jewel classification — static lookup from poe2db ModCalc pages
-
-**Problem**: `classifyJewelType()` in `mod-classifier.ts` uses weighted keyword scoring (~84% accuracy). Many mods classified as "shared" or wrong type.
-
-**Fix**: ETL Step 6 fetches Ruby/Emerald/Sapphire ModCalc pages via `parseTypeBPage()`, builds `modCode→JewelType` mapping, patches jewel JSON files with `jewelType` field. Runtime `classifyJewelType()` uses lookup first (Strategy 1, 100% accuracy), falls back to heuristic (Strategy 2, ~84%).
-
-**Files**: `scripts/run-etl.ts` (buildJewelTypeMap), `scripts/etl/generate-dictionary.ts` (jewelType param), `src/shared/types.ts` (JewelType, jewelType field), `src/shared/mod-classifier.ts` (lookup-first logic)
-
-### 2. Per-token dual-number RANGE — filterSlotIndex connected
-
-**Problem**: `filterSlotIndex` was plumbed but not connected — `getTokenRangeForSlot()` was dead code, `filterSlotIndex` from `getEffectiveRange()` was computed but never used for RANGE node prefix/suffix selection.
-
-**Fix**: Added `getPrefixForSlot(token, locale, filterSlotIndex)` — runtime function that extracts prefix for N-th placeholder from `rawTextTemplate`. For slot 0 uses precomputed `regexPrefix`, for slot N>0 splits template by `##` and extracts text segment before that slot. In `buildAstFromSelections()`, RANGE group key now includes `filterSlotIndex`, and prefix is computed per-slot.
-
-**Files**: `src/ui/hooks/useCategoryPage.ts`, `src/shared/types.ts` (filterSlotIndex in FamilyGroup), `src/store/filter-store.ts` (filterSlotIndex in TokenRangeOverride + serialization)
-
-### 3. TabletPage PageStateWrapper
-
-**Problem**: TabletPage used inline loading/error/no-data instead of `PageStateWrapper`.
-
-**Fix**: Wrapped content in `<PageStateWrapper>` render-prop pattern, consistent with all other category pages.
-
-**Files**: `src/ui/pages/tablet/TabletPage.tsx`
-
-### 4. HomePage vendor count fix
-
-**Problem**: Hardcoded `VENDOR_PROPERTY_COUNT = 50` was wrong (actual count = 61).
-
-**Fix**: Extracted `VENDOR_PROPERTIES` to `src/data/vendor-properties.ts` shared data file. Both HomePage and VendorPage import from there. HomePage uses `VENDOR_PROPERTIES.length` for accurate count.
-
-**Files**: `src/data/vendor-properties.ts` (new), `src/ui/pages/home/HomePage.tsx`, `src/ui/pages/vendor/VendorPage.tsx`
-
-### 5. Desecrated regex — tier-agnostic Strategy 1b/1c
-
-**Problem**: Dual-stat desecrated mods like "##% повышение брони, ##% увеличение урона от атак" produced tier-specific regexes with raw numbers (e.g., "брони, (4—8)% увеличение урона от атак"). These only match one specific tier, not all tiers.
-
-**Fix**: Strategy 1b and 1c now construct suffixes from the TEMPLATE, not rawText. Template is split by `#+` sequences, text segments are stripped and joined, producing tier-agnostic suffixes like "повышение брони, увеличение урона от атак" that match ALL tiers.
-
-**Files**: `scripts/etl/compute-regex.ts`
-
-### Remaining (for next iteration)
-
-1. **Full ETL re-run**: All ETL changes require `pnpm etl` to regenerate JSONs with jewelType, fixed desecrated regexes, and template-based suffixes.
-2. **UI for dual-number filterSlotIndex**: FilterChip should show per-slot range selector for multi-placeholder groups.
-3. **In-game test verification**: Run IN_GAME_TESTS.md and fix any remaining regex issues.
-
-## 22. Iteration 23 — GitHub Actions Build Fix + filterSlotIndex UI + In-Game Tests
-
-### 1. P0: Fix TypeScript compilation errors blocking GitHub Actions
-
-4 TS errors were preventing `pnpm build` from passing in CI:
-
-1. `compute-regex.ts`: `substringSearchFallback()` return type `Omit<RegexResult, 'familyKey'>` was missing `hasMultiPlaceholder` in both early-return and final-return statements. Added `hasMultiPlaceholder: false` to both.
-
-2. `useCategoryPage.ts`: `getTokenRangeForSlot()` was declared but never used (TS6133). Removed — logic is already handled by `getEffectiveRange()` which reads `filterSlotIndex` from `perTokenRanges`.
-
-3. `compute-optimizations.test.ts`: `makeRegexResult()` helper didn't include `hasMultiPlaceholder`, making it `boolean | undefined`. Added `hasMultiPlaceholder: false`.
-
-4. `family-grouper.test.ts`: `makeToken()` helper didn't include `hasMultiPlaceholder`. Added `hasMultiPlaceholder: false`.
-
-### 2. P2: filterSlotIndex toggle UI (1е/2е button in FilterChip)
-
-**Problem**: Dual-number mods (hasMultiPlaceholder) showed a static "1е:" label but had no way to switch which placeholder's range to filter by. `filterSlotIndex` was hardcoded to 0 in `FamilyGroup`.
-
-**Solution**: Replaced the static label with an interactive toggle button:
-
-- **Button**: Shows "1е" (slot 0) or "2е" (slot 1), amber-styled, with tooltip
-- **Behavior**: Clicking toggles `filterSlotIndex` (0↔1) in `perTokenRanges` for the first ranged member
-- **Data flow**: `filterSlotIndex` is persisted in `perTokenRanges` via `TokenRangeOverride`, synced to URL
-- **AST impact**: `getEffectiveRange()` reads `filterSlotIndex` → `getPrefixForSlot()` selects correct prefix → compiler produces correct regex
-- **Cleanup logic**: When min/max are both undefined AND no filterSlotIndex override, the per-token range is cleared
-
-**i18n**: Added `chip.slot_switch_to_second` and `chip.slot_switch_to_first` keys.
-
-### 3. In-game test cases updated (IN_GAME_TESTS.md)
-
-Added tests 16-22 based on actual items from "моды для теста.md":
-
-- Test 16: filterSlotIndex — slot 0 (first number) vs slot 1 (second number)
-- Tests 17-22: Waystone/jewel mods from player inventory (приспешники молнии, порог состояний, Уязвимость к стихиям, etc.)
-- Updated quick-check table with "Ожидание" column
-
-### Files Modified
-
-| File | Change |
-|------|--------|
-| `scripts/etl/compute-regex.ts` | Added `hasMultiPlaceholder: false` to `substringSearchFallback` returns |
-| `src/ui/hooks/useCategoryPage.ts` | Removed unused `getTokenRangeForSlot()` |
-| `src/ui/components/FilterChip.tsx` | Added slot toggle button (1е/2е) for multi-placeholder groups |
-| `src/shared/i18n.ts` | Added 2 i18n keys for slot toggle |
-| `tests/etl/compute-optimizations.test.ts` | Added `hasMultiPlaceholder: false` to `makeRegexResult()` |
-| `tests/shared/family-grouper.test.ts` | Added `hasMultiPlaceholder: false` to `makeToken()` |
-| `docs/IN_GAME_TESTS.md` | Added tests 16-22 with player inventory data |
-| `docs/ARCHITECTURE.md` | Version bump + iteration 23 section |
-| `новый_план.md` | Updated to v3.0 with iteration 23 status |
-
-### Remaining
-
-1. **P0 — Push to main**: Local TS fixes not yet pushed → CI still fails. Run `git add && git commit && git push`.
-2. **P0 — In-game regex verification**: Run IN_GAME_TESTS.md tests 1-22. If `\d` doesn't work → revert to `[0-9]`.
-3. **P0 — jewelType all "shared"**: Type A parser doesn't extract `modCode` → `buildJewelTypeMap()` can't match. Need to extract modCode from jewel HTML tables or match by rawText.
-4. **P1 — Desecrated regex quality**: Dual-stat mods still get fallback substring regexes.
-5. **P1 — Origin separation audit**: Verify normal/desecrated/corrupted split across all categories.
+Origin sub-sections (`splitGroupByOrigin()` in family-grouper) split FamilyGroups by origin with visual dividers (··· Осквернённые ···). Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop.

@@ -4,48 +4,40 @@
 
 ---
 
-## Current State (Session 28 — 2026-06-06)
+## Current State (Session 29 — 2026-06-06)
 
 **Build:** `npx vite build` passes, `npx vitest run` passes (213/213 tests)
 
-**ETL Results (latest run — Session 27 data, needs re-run):**
+**ETL Results:**
 
-| Category | Tokens | Optimizations | Short regex (<5) |
-|----------|--------|---------------|-------------------|
-| waystone | 96 | 52 | 0 |
-| waystone-desecrated | 16 | 4 | 0 |
-| tablet | 75 | 363 | 0 |
-| jewel | 193 | 1,466 | 0 |
-| jewel-desecrated | 21 | 3 | 0 |
-| jewel-corrupted | 10 | 0 | 0 |
-| relic | 58 | 28 | 0 |
-| belt | 298 | 231 | 0 |
-| ring | 366 | 458 | 0 |
-| amulet | 427 | 389 | 1 (i18n override) |
-| **Total** | **1,560** | | |
+| Category | Tokens | Optimizations |
+|----------|--------|---------------|
+| waystone | 96 | 52 |
+| waystone-desecrated | 16 | 4 |
+| tablet | 75 | 363 |
+| jewel | 193 | 1,466 |
+| jewel-desecrated | 21 | 3 |
+| jewel-corrupted | 10 | 0 |
+| relic | 58 | 28 |
+| belt | 298 | 231 |
+| ring | 366 | 458 |
+| amulet | 427 | 389 |
+| **Total** | **1,560** | |
 
 ---
 
-### Session 28 Changes — Iteration 22
+### Session 29 — Documentation Cleanup
 
-**`\d` revert (VERIFIED IN-GAME):**
-- `number-regex.ts`: Reverted `[0-9]` → `\d` (saves 2 chars × 7 occurrences = 14 chars)
-- In-game test confirmed `\d` works in PoE2 search engine
+**Goal:** Remove bloat from documentation files for LLM/agent consumption.
 
-**Dual-number mod ETL:**
-- `compute-regex.ts`: `extractTemplatePrefix()` min prefix = 2 for dual-number templates ("до" pattern)
-- New field `hasMultiPlaceholder` in `RegexResult`, `GameToken`, `FamilyGroup`
-- New field `filterSlotIndex` in `FamilyGroup` (always 0 = first placeholder)
-- `generate-dictionary.ts`: passes `hasMultiPlaceholder` to GameToken
-
-**Desecrated dual-stat regex:**
-- `compute-regex.ts` Strategy 1b: Extract text after comma from rawText, strip leading numbers
-- Strategy 1c: Full second stat fallback for dual-stat mods
-- Prevents garbage regexes like `"и, (4—8)% увеличение урона о"`
-
-**Breachborn familyKey fix:**
-- `run-etl.ts`: Recompute `familyKey.ru`, `hasMultiPlaceholder`, `regexPrefix.ru` in `applyI18nOverrides()`
-- Fixes 42 tokens with English familyKey in amulet/ring/belt
+- **Deleted** `docs/AGENT_NAVIGATION.md` (outdated duplicate, v24 vs root v25)
+- **Deleted** `docs/CHANGELOG-23.md` (redundant — data in git history + worklog)
+- **Rewrote** `AGENT_NAVIGATION.md` (root) — v26.0, concise, current to iteration 23, removed iteration history
+- **Rewrote** `docs/ARCHITECTURE.md` — v26.0, removed 12 sections of iteration-by-iteration history (§10-21+), kept only current architecture. ~700 lines → ~180 lines
+- **Updated** `docs/DATA_CONTRACTS.md` — v4.0, added missing fields: `SearchLogic`, `JewelType`, `familyKey`, `regexPrefix`, `hasMultiPlaceholder`, `filterSlotIndex`, `prefix`/`exact` on RANGE
+- **Trimmed** `docs/ETL_GUIDE.md` — v6.0, condensed i18n override table from ~50 lines of individual tokens to summary, added prefix extraction and suffix lengthening docs
+- **Updated** `новый_план.md` — v4.0, current status
+- **Updated** `worklog.md` — this entry
 
 ---
 
@@ -53,12 +45,15 @@
 
 | Priority | Issue | Status |
 |----------|-------|--------|
-| HIGH | Full ETL re-run needed to populate `regexPrefix`, `hasMultiPlaceholder`, fix `familyKey` in JSONs | Run `pnpm etl` locally |
-| MEDIUM | Number boundary false positives: `[4-9].` matches `6%` (single-digit + non-digit) | PoE2 regex limitation, no fix |
-| MEDIUM | UI for dual-number mods: `hasMultiPlaceholder`/`filterSlotIndex` not yet in UI | Next iteration |
-| INFO | 1 i18n override token has regex <5 chars | Acceptable |
-| INFO | 51 tokens use i18n overrides | Handled by i18n-overrides.json |
-| LOW | VendorPage GROUP_ORDER + GROUP_COLORS hardcoded Russian | By design |
+| HIGH | Push fixes to GitHub (TS fixes not in main) | `git push` needed |
+| HIGH | In-game regex verification (tests 1-22) | Manual testing |
+| HIGH | jewelType all "shared" (Type A parser missing modCode) | `parse-tables.ts` fix needed |
+| MEDIUM | Number boundary false positives: `[4-9].` matches `6%` | PoE2 limitation, use prefix anchoring |
+| MEDIUM | Desecrated dual-stat regex quality | `compute-regex.ts` Strategy 1c |
+| MEDIUM | HomePage hardcoded mod counts | Stale after data updates |
+| INFO | 57 i18n overrides applied | `i18n-overrides.json` |
+| LOW | VendorPage GROUP_ORDER hardcoded Russian | By design |
+| LOW | TabletPage inline loading/error | Needs PageStateWrapper |
 
 ---
 
@@ -78,7 +73,7 @@ pnpm dev              # Development server
 - **Data:** `public/generated/*.json` (10 files)
 - **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
 - **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip, PageStateWrapper
-- **i18n:** `src/shared/i18n.ts` — t() function with 130+ keys
+- **i18n:** `src/shared/i18n.ts` — t() function with 150+ keys
 - **Classifier:** `src/shared/mod-classifier.ts` — semantic, sentiment, tablet-type, jewel-type (static lookup + weighted scoring fallback)
 - **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
 - **Store:** `src/store/` — Zustand filter store, profile store, URL sync
@@ -90,3 +85,4 @@ pnpm dev              # Development server
 3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`
 4. **FilterStoreApi type mismatch:** VendorPage must wrap Zustand store in FilterStoreApi adapter (not pass .getState())
 5. **Number boundary:** `[4-9].` matches `6%` in PoE2 — known limitation, use prefix anchoring to mitigate
+6. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers

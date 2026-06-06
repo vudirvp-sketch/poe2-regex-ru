@@ -1,8 +1,8 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 25.0 | **Date:** 2026-06-06
-> **Current Iteration:** Iteration 21 (ETL Re-run + Critical Bug Fixes) — COMPLETE.
-> **Summary:** ETL re-run, fractional ranges, suffix lengthening, desecrated dual-stat <br> fix, origin classification fix, FilterChip prefix indicator. 213 tests pass.
+> **Version:** 26.0 | **Date:** 2026-06-06
+> **Current Iteration:** 23 (ETL Re-run + Dual-Number UI + Number Boundary Warning) — COMPLETE.
+> **Status:** 213 tests pass, build passes locally. GitHub Actions needs push.
 
 ---
 
@@ -15,9 +15,9 @@
 | `src/ui/` | React components. | Each file < 250 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
-| `src/shared/` | Types, constants, i18n. | **No imports from other src/ directories.** This is the lowest layer. |
+| `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** Lowest layer. |
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
-| `scripts/etl/i18n-overrides.json` | Manual Russian translations + typo fixes. | Applied automatically after ETL. 55 overrides. |
+| `scripts/etl/i18n-overrides.json` | Manual Russian translations + typo fixes. | 57 overrides. Applied automatically after ETL. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `tests/` | Test files. | Mirror `src/` structure. 213 tests. |
 | `регис/` | Manual Russian mod lists. | Reference data for cross-validation. |
@@ -42,45 +42,58 @@ pnpm etl             # Run ETL pipeline (requires network)
 6. Update `worklog.md` with what was done
 7. **NEVER** touch `public/generated/` manually
 
-## 4. Iteration Status
+## 4. Pre-Commit Checklist
 
-| Iteration | Status | Summary |
-|-----------|--------|---------|
-| 0-16 | ✅ Complete | Core engine, ETL, UI, vendor, CI/CD, i18n, jewel filter |
-| 17-19 | ✅ Complete | Jewel sub-groups, per-mod numeric filter, scoring cleanup |
-| 20 | ✅ Complete | Prefix anchoring (regexPrefix field) |
-| **21** | **✅ Complete** | **ETL re-run, fractional ranges, suffix lengthening, desecrated dual-stat <br> fix, origin classification fix, FilterChip prefix indicator** |
+- [ ] `pnpm build` passes without errors
+- [ ] `pnpm test` passes
+- [ ] No `any` types (except merge functions)
+- [ ] No hardcoded mod strings in UI/Engine code
+- [ ] New files are in the correct directories
+- [ ] `worklog.md` is updated
 
-## 5. Known Issues & Remaining Work
+## 5. Dependency Rules
+
+```
+shared <- core <- strategies <- store <- data <- ui
+  ^        ^        ^          ^       ^      ^
+  +--------+--------+----------+-------+------+
+  (shared can be imported by everyone, nothing imports from ui)
+```
+
+## 6. Known Issues & Remaining Work
 
 ### 🔴 HIGH — Next Iteration
 
-1. **In-game regex verification** — Test EACH regex separately (AND vs OR confusion!)
-2. **`\d` support in PoE2** — If `\d` doesn't work in PoE2 client, replace with `[0-9]` in `number-regex.ts`
-3. **Full Очернённые audit** — Verify origin classification across ALL categories
-4. **Two-number mods** — "От ## до ## урона" should filter by FIRST number
+1. **Push fixes to GitHub** — Local TS fixes not pushed to main → CI broken
+2. **In-game regex verification** — Test EACH regex separately (AND vs OR!). See `docs/IN_GAME_TESTS.md` tests 1-22
+3. **`\d` in-game verification** — If `\d` doesn't work in PoE2, replace with `[0-9]` in `number-regex.ts` (currently uses `\d`, was verified once)
+4. **jewelType — all "shared"** — Type A parser (jewels) doesn't extract modCode → `buildJewelTypeMap()` can't match. All 193 jewel tokens get `jewelType: "shared"`. Fix: extract modCode from Type A HTML tables or match by rawText
 
 ### 🟡 MEDIUM
 
 5. **Desecrated regex quality** — Dual-stat mods get regex from fallback (e.g. `"и, (4—8)% увеличение урона т"`)
-6. **VendorPage regex strings** — 50+ strings need in-game testing
-7. **TabletPage regex strings** — Need in-game verification
+6. **Full Очернённые audit** — Verify origin classification across ALL categories
+7. **HomePage hardcoded mod counts** — Category cards show stale counts after data updates
+8. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
 
 ### 🟢 LOW
 
-8. **Jewel classification accuracy** — ~84% with weighted scoring
-9. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+9. **Jewel classification accuracy** — ~84% with weighted scoring; could be improved with static lookup table
+10. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+11. **TabletPage PageStateWrapper** — Still has inline loading/error/no-data pattern
 
-## 6. Iteration 21 Changes Summary
+## 7. Data Stats
 
-| File | Change |
-|------|--------|
-| `scripts/etl/normalize.ts` | Fractional range support (`parseFloat`), dual-stat mod `<br>` join when multiple segments have `mod-value` with ndash |
-| `scripts/etl/compute-regex.ts` | `extractExtendedSuffix()` for suffix lengthening; `extractTemplateSuffix` fixed for multiple `##`; skip extended suffix if it contains `##` |
-| `src/shared/mod-classifier.ts` | Origin mode uses `splitGroupByOrigin()` instead of first-non-normal origin |
-| `src/ui/components/FilterChip.tsx` | ⚓ prefix indicator when selected and has regexPrefix |
-| `src/ui/hooks/useCategoryPage.ts` | TS fix: `prefix: prefix` instead of `prefix || undefined` |
-| `scripts/etl/i18n-overrides.json` | Added `вамиИстощения` → `вами Истощения` typo fix (55 overrides total) |
-| `tests/etl/compute-optimizations.test.ts` | Added `regexPrefix: ''` to test helper |
-| `tests/shared/family-grouper.test.ts` | Added `regexPrefix: { ru: '' }` to test helper |
-| `public/generated/*.json` | All 10 category JSONs regenerated via ETL re-run |
+| Category | Tokens | Optimizations |
+|----------|--------|---------------|
+| waystone | 96 | 52 |
+| waystone-desecrated | 16 | 4 |
+| tablet | 75 | 363 |
+| jewel | 193 | 1,466 |
+| jewel-desecrated | 21 | 3 |
+| jewel-corrupted | 10 | 0 |
+| relic | 58 | 28 |
+| belt | 298 | 231 |
+| ring | 366 | 458 |
+| amulet | 427 | 389 |
+| **Total** | **1,560** | |

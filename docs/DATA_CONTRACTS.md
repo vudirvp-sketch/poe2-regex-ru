@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 3.0 | **Date:** 2025-06-05
+> **Version:** 4.0 | **Date:** 2026-06-06
 
 ---
 
@@ -12,6 +12,8 @@
 export type Locale = 'ru';  // Future: | 'en'
 export type AffixType = 'prefix' | 'suffix';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
+export type SearchLogic = 'and' | 'or';
+export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 
 export interface GenderForms {
   ms?: string;  // masculine singular
@@ -25,23 +27,43 @@ export interface GenderForms {
 export interface GameToken {
   id: string;                              // "waystone.temporal_chains"
   category: string;                        // "waystone" | "tablet" | "relic" | ...
-  origin: ModOrigin;                       // "normal" | "desecrated" | "corrupted"
+  origin: ModOrigin;                       // "normal" | "desecrated" | "corrupted" | "essence" | "breachborn"
   rawText: Record<Locale, string>;         // RU text as it appears in game
   rawTextTemplate: Record<Locale, string>; // with ## for ranges, # for values
   regex: Record<Locale, string>;           // pre-computed minimal unique substring
-  genderForms: Record<Locale, GenderForms>; // gender inflection variants (for RU mods)
+  familyKey: Record<Locale, string>;       // normalized rawTextTemplate for grouping mods of the same family
+  regexPrefix: Record<Locale, string>;     // text before number placeholder, anchors number to correct mod line
+  hasMultiPlaceholder: boolean;            // template has multiple ##/# (dual-number or dual-stat)
+  jewelType?: JewelType;                   // only for jewel category; populated by ETL from ModCalc pages
+  genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];                          // ["curse", "slow", "life"]
-  ranges: number[][];                      // [[5, 20]] — numeric ranges
+  ranges: number[][];                      // [[5, 20]] — numeric ranges; [[2.1, 3]] for fractional
   values: number[];                        // fixed values
   hasYofication: boolean;                  // contains E in root morpheme
-  yoficationPositions: number[];           // character positions where e->[ee] applies
+  yoficationPositions: number[];           // character positions where e->[её] applies
   level: number;                           // required item level (0 if N/A)
   tradeStatId?: string;                    // "explicit.stat_XXXX" for trade link
 }
 ```
 
-## 2. OptimizationEntry
+## 2. FamilyGroup
+
+```typescript
+export interface FamilyGroup {
+  familyKey: string;          // familyKey.ru — normalized key for grouping
+  affix: AffixType;
+  members: GameToken[];       // all tier tokens in this group
+  globalMin: number;          // min across all ranges/values
+  globalMax: number;          // max across all ranges/values
+  displayText: string;        // template with substituted range
+  hasMultiPlaceholder: boolean;
+  rangeSlots: number[][];     // [[min1,max1],[min2,max2]] for multi-##
+  filterSlotIndex: number;    // which slot is used for numeric filtering (0=first placeholder)
+}
+```
+
+## 3. OptimizationEntry
 
 ```typescript
 export interface OptimizationEntry {
@@ -52,7 +74,7 @@ export interface OptimizationEntry {
 }
 ```
 
-## 3. CategoryData
+## 4. CategoryData
 
 ```typescript
 export interface CategoryData {
@@ -64,34 +86,31 @@ export interface CategoryData {
 }
 ```
 
-## 4. ASTNode
+## 5. ASTNode
 
 ```typescript
 export type ASTNode =
   | { type: 'AND'; children: ASTNode[] }
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
-  | { type: 'LITERAL'; value: string; tokenId?: string }  // pre-computed regex from token
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string };
+  | { type: 'LITERAL'; value: string; tokenId?: string }
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };
 ```
 
-## 5. Internal ID Schema
+- `prefix`: text before number, anchors regex to correct mod line
+- `exact`: when true, skip round10 for precise per-token numeric filter
+
+## 6. Internal ID Schema
 
 ```
 {category}.{short_english_description}
 ```
 
-Examples:
-- `waystone.temporal_chains`
-- `waystone.monsters_extra_chaos`
-- `tablet.breach_pack_size`
-- `relic.urn.increased_defences`
-- `vendor.fire_resistance`
-- `belt.increased_life`
+Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.increased_defences`, `belt.increased_life`
 
-**ID generation rule:** Use the English description from poe2db.tw (the `data-code` attribute or the mod's canonical English name), converted to snake_case. This ensures IDs are stable across ETL re-runs and language-independent.
+**Rule:** Use English description from poe2db.tw (`data-code` or canonical English name) in snake_case. Stable across ETL re-runs.
 
-## 6. AST -> Regex Compilation Rules — VERIFIED IN-GAME
+## 7. AST → Regex Compilation Rules — VERIFIED IN-GAME
 
 | AST Node | Compilation Output | Example | Verified |
 |----------|-------------------|---------|----------|
@@ -100,70 +119,34 @@ Examples:
 | `EXCLUDE(LITERAL(A))` | `"!A"` | `"!проклят"` | Yes |
 | `EXCLUDE(OR([A,B]))` | `"!A\|B"` | `"!проклят\|сопротивлен"` | Yes |
 | `LITERAL("цепя")` | `"цепя"` | (from pre-computed regex) | Yes |
-| `RANGE(min=40, suffix="m q")` | `"([4-9].\|\\d..).*m q"` | (with round10) | Yes |
-| `AND([RANGE(40, "m q"), LITERAL("corr")])` | `"([4-9].\|\\d..).*m q" "corr"` | | Yes |
+| `RANGE(min=40, suffix="m q")` | `"([4-9].\|\d..).*m q"` | (with round10) | Yes |
+| `RANGE(min=40, suffix="m q", prefix="даруют на")` | `"даруют на ([4-9].\|\d..).*m q"` | (prefix anchored) | Yes |
+| `AND([RANGE(...), LITERAL(...)])` | `"rangeRegex" "literal"` | | Yes |
 
-**Key rules (verified by in-game testing):**
-- Each AND child gets its own quoted group. Space between groups = AND.
-- OR children share a single quoted group, separated by `|`.
-- RANGE + suffix combines with `.*` inside a single quoted group.
-- EXCLUDE prefix `!` must be INSIDE the quoted group: `"!A"` not `!"A"`.
-- `EXCLUDE(OR([...]))` compiles to `"!A|B|C"` — negation of any of the alternatives.
-- AND between quoted groups is order-independent (unlike `.*` which is directional).
-- `.*` crosses mod boundaries — do NOT use `.*` to combine number + specific mod text
-  across different mods. Use AND (separate quoted groups) instead.
-- `.*` is ONLY safe for number + suffix within the SAME mod (e.g., `"([4-9].|\\d..).*путев"`)
+**Key rules:**
+- Each AND child gets its own quoted group. Space between groups = AND (order-independent)
+- OR children share a single quoted group, separated by `|`
+- `.*` crosses mod boundaries — do NOT use for number + specific mod text across different mods
+- `.*` is ONLY safe for number + suffix within the SAME mod
+- `!` must be INSIDE quotes: `"!A|B"` not `!"A|B"`
 
-## 7. JSON File Format (public/generated/*.json)
+## 8. JSON File Format (public/generated/*.json)
 
 ```json
 {
   "version": "2025-06-05T12:00:00Z",
   "category": "waystone",
   "source": "poe2db.tw",
-  "tokens": [
-    {
-      "id": "waystone.temporal_chains",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Игроки периодически прокляты Замедляющими цепями"
-      },
-      "rawTextTemplate": {
-        "ru": "Игроки периодически прокляты Замедляющими цепями"
-      },
-      "regex": {
-        "ru": "цепя"
-      },
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": ["curse", "slow"],
-      "ranges": [],
-      "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 1,
-      "tradeStatId": "explicit.stat_map_players_cursed_with_temporal_chains"
-    }
-  ],
+  "tokens": [ { ... GameToken ... } ],
   "optimizationTable": {
-    "waystone.temporal_chains:waystone.enfeeble:waystone.elemental_weakness": {
-      "ids": ["waystone.temporal_chains", "waystone.enfeeble", "waystone.elemental_weakness"],
+    "waystone.temporal_chains:waystone.enfeeble": {
+      "ids": ["waystone.temporal_chains", "waystone.enfeeble"],
       "regex": { "ru": "проклят" },
       "weight": 7,
-      "count": 3
+      "count": 2
     }
   }
 }
 ```
 
-## 8. Optimization Table Key Format
-
-The key is colon-joined sorted token IDs:
-```
-"waystone.temporal_chains:waystone.enfeeble:waystone.elemental_weakness"
-```
-
-This allows O(1) lookup when checking if a combination of selected tokens has an optimization entry.
+Optimization table key: colon-joined sorted token IDs → O(1) lookup for combination checks.
