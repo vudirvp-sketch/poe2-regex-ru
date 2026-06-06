@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 27.0 | **Date:** 2026-06-07 | **Language:** RU-first
+> **Version:** 28.0 | **Date:** 2026-06-07 | **Language:** RU-first
 
 ---
 
@@ -90,7 +90,7 @@ I6. Rule of 3: Do not create an abstraction until the same logic has been
 I7. Locale type is 'ru' now. The type system must support extension to
     Locale = 'ru' | 'en' | ... but only 'ru' is implemented.
 I8. PoE2 regex dialect: . (wildcard), | (OR), ! (NOT), "" (grouping),
-    [] (char class), ^/$ (anchors), ? (optional). NOT standard PCRE.
+    [] (char class), ^/$ (anchors), () (grouping). NOT standard PCRE.
 ```
 
 ## 4. Principles
@@ -107,7 +107,7 @@ P8. Test the Core                     -> every core function has unit tests
 P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game search
 ```
 
-## 5. PoE2 Regex Dialect (NOT Standard PCRE) — VERIFIED IN-GAME (RU Client)
+## 5. PoE2 Regex Dialect (NOT Standard PCRE) — VERIFIED IN-GAME (RU Client, Phase 7)
 
 | Syntax | Meaning | Example | Verified |
 |--------|---------|---------|----------|
@@ -116,21 +116,56 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 | `!` | NOT (negation) | `!Бездн` excludes items with "Бездн" | Yes |
 | `""` | Phrase grouping + AND separator | `"Бездн" "карт"` requires both | Yes |
 | `.` | Any single character (wildcard) | `Б.здн` matches "Бездн" | Yes |
-| `.*` | Any sequence (crosses mod boundaries!) | `Бездн.*монстр` matches across mods | Yes |
+| `.*` | Any sequence WITHIN a single block | `"Бездн.*монстр"` within one mod | Yes |
 | `[]` | Character class | `Делири[уф]` matches either | Yes |
 | `^` / `$` | Anchors (start/end) | `огня$` matches end of line | Yes |
 | `()` | Grouping | `([5-9]\|\d..)` | Yes |
 | `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes |
+| `%` / `+` | Literals (not special) | `"+66"`, `"% к сопротивлению"` | Yes |
+| `(` unmatched | Literal (when not paired) | `"(60"` matches literal "(60" | Yes |
+
+**NOT supported (verified in-game, Phase 7):**
+
+| Syntax | Status | Note |
+|--------|--------|------|
+| `?` (optional) | ❌ Does NOT work | No PoE2 regex support |
+| `.*` across blocks | ❌ Does NOT cross | Mods/implicits/properties are separate searchable blocks |
+| Description text | ❌ NOT indexed | "Можно использовать в Машине картоходца..." not searchable |
 
 **Critical syntax rules:**
 
 1. **`!` must be INSIDE quotes when combined with `|`:**
    - CORRECT: `"!проклят|сопротивлен"` — WRONG: `!"проклят|сопротивлен"`
-2. **`.*` crosses mod boundaries** — NOT safe for combining number + specific mod. Use AND instead.
-3. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш". For bidirectional, use AND: `"огня" "приспеш"`.
-4. **AND via space between quoted groups is order-independent.**
+2. **`.*` does NOT cross block boundaries** — each mod, implicit, property, name, type, and state text ("Осквернено") is a separate searchable block. Use AND (`"X" "Y"`) to search across blocks.
+3. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш" WITHIN the same block. For bidirectional, use AND: `"огня" "приспеш"`.
+4. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
 5. **Case insensitive** — verified with Cyrillic text.
-6. **NOT supported:** Negative lookahead, non-greedy quantifiers, backreferences.
+6. **NOT supported:** Negative lookahead, non-greedy quantifiers, backreferences, `?` optional.
+7. **Negation `!X` is item-wide** — excludes the entire item if X appears in ANY block, not just one block.
+8. **Description/tooltip text is NOT indexed** — "Можно использовать в Машине картоходца...", "Путевые камни одноразовые" etc. are not searchable.
+9. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
+
+## 5.1 Block-Based Matching Model (Phase 7 — verified in-game)
+
+PoE2 search is **block-based**: each piece of item text is an independent searchable block.
+
+**Searchable blocks:**
+- Item name
+- Item type
+- Item rarity
+- Each property line ("Требуется: Уровень 60", "Уровень предмета: 82")
+- Each implicit line
+- Each mod line (for multi-line mods like Разрушительный, each sub-line is a separate block)
+- Each additional state entry ("Осквернено")
+
+**NOT indexed (not searchable):**
+- Description/tooltip text ("Можно использовать в Машине картоходца...")
+
+**Matching rules:**
+- `.*` works ONLY within a single block
+- AND (`"X" "Y"`) works ACROSS blocks — each group independently matches at least one block
+- `!X` is item-wide — if X appears in ANY block, the item is excluded
+- Positive group `X` — must find at least one block where X matches
 
 ## 6. Dependency Rules
 

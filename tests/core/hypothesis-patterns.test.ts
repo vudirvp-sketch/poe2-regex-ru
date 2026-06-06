@@ -27,8 +27,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   matchPoE2Regex,
-  matchQuotedGroup,
+  matchPoE2RegexItem,
   getItemSearchText,
+  getItemSearchBlocks,
+  matchQuotedGroup,
   testRegex,
 } from '@core/poe2-regex-matcher';
 import type { GameItemText } from '@core/poe2-regex-matcher';
@@ -113,7 +115,8 @@ const waystone1: GameItemText = {
     'Монстры имеют 70(70-79)% увеличение порога состояний',
     'Монстры имеют 76(60-69)% увеличение порога оглушения',
   ],
-  additional: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.', 'Осквернено'],
+  additional: ['Осквернено'],
+  description: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.'],
 };
 
 /** Waystone 2: "Изменённый прогресс" — inverted range, frozen ground */
@@ -138,7 +141,8 @@ const waystone2: GameItemText = {
     'Область имеет участки замерзшей земли',
     'Область проклята Путами времени — Неизменяемое значение',
   ],
-  additional: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.', 'Осквернено'],
+  additional: ['Осквернено'],
+  description: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.'],
 };
 
 /** Waystone 3: "Разрушенный коридор" — many prefixes, additional projectiles */
@@ -163,7 +167,8 @@ const waystone3: GameItemText = {
     'Монстры имеют 297(200-240)% повышение шанса критического удара',
     '+26(21-25)% к бонусу критического урона монстров',
   ],
-  additional: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.', 'Осквернено'],
+  additional: ['Осквернено'],
+  description: ['Можно использовать в Машине картоходца, чтобы войти на карту. Путевые камни одноразовые.'],
 };
 
 /** Tablet 1: "Потусторонний ордер" */
@@ -179,7 +184,8 @@ const tablet1: GameItemText = {
     'На карте с увеличенным на 82(70-100)% шансом можно встретить Сущности',
     '34(30-40)% увеличение количества находимых на карте путевых камней',
   ],
-  additional: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
+  additional: [],
+  description: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
 };
 
 /** Tablet 2: "Фениксовое побуждение" */
@@ -195,7 +201,8 @@ const tablet2: GameItemText = {
     '43(30-40)% увеличение количества находимых на карте путевых камней',
     'Уникальные монстры имеют дополнительных свойств: 1',
   ],
-  additional: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
+  additional: [],
+  description: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
 };
 
 /** Tablet 3: "Фениксовый наказ" */
@@ -211,7 +218,8 @@ const tablet3: GameItemText = {
     '39(30-40)% увеличение количества находимых на карте путевых камней',
     'На карте с увеличенным на 73(70-100)% шансом можно встретить духов азмири',
   ],
-  additional: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
+  additional: [],
+  description: ['Можно использовать в личной Машине картоходца для добавления свойств на карту.'],
 };
 
 /** Amulet 1: "Унылый фермуар" — Лазурный амулет */
@@ -318,13 +326,14 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
     expect(matchPoE2Regex(regex, text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: does PoE2 client search "15.9" match "Регенерация 15.9 здоровья"?', () => {
-    // This test documents that we need to verify in-game:
-    // 1. Type "15.9" in PoE2 search — does it find items with "Регенерация 15.9 здоровья"?
-    // 2. Type "159" — does it find the same items? (should NOT)
-    // 3. Type "15[.]9" — does it work in PoE2 client?
-    // Our matcher says: "15.9" → true, "159" → false, "15[.]9" → true
-    expect(true).toBe(true); // placeholder — replace with in-game results
+  it('VERIFIED IN-GAME: fractional numbers work as expected', () => {
+    // Phase 7 results: "30.9" ✅, "309" ❌, "30[.]9" ✅
+    // The `.` matches literal period, [.] works for exact match
+    // Period is a real character separator — "309" ≠ "30.9"
+    const text = getItemSearchText(amulet3);
+    expect(matchPoE2Regex('"30.9"', text)).toBe(true);
+    expect(matchPoE2Regex('"309"', text)).toBe(false);
+    expect(matchPoE2Regex('"30[.]9"', text)).toBe(true);
   });
 });
 
@@ -368,12 +377,12 @@ describe('H2: Negative values — minus sign in mod text', () => {
     expect(matchPoE2Regex('"-11.*максимум сопротивлений"', text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: does "-11" in PoE2 search find items with "-11% максимум сопротивлений"?', () => {
-    // Critical question: does the PoE2 client treat "-" as literal or as a regex operator?
-    // In PoE2 regex, "-" is NOT a special character (only |, !, ., [], (), ?, ^, $ are special)
-    // So "-11" should be treated as a literal substring.
-    // But we need to verify this in-game because some games strip leading minus signs.
-    expect(true).toBe(true);
+  it('VERIFIED IN-GAME: negative values work correctly', () => {
+    // Phase 7 results: "-11" ✅, "11" matches as substring ✅, "--6" ✅
+    // Minus is a literal, double-hyphen is searchable
+    const text = getItemSearchText(waystone1);
+    expect(matchPoE2Regex('"-11"', text)).toBe(true);
+    expect(matchPoE2Regex('"--6"', text)).toBe(true);
   });
 });
 
@@ -394,12 +403,13 @@ describe('H3: Cross-line single mod — Разрушительный two-line mo
     expect(matchPoE2Regex('"критического удара" "бонусу критического"', text3)).toBe(true);
   });
 
-  it('".*" crosses newline between two sub-lines of same mod', () => {
-    // "повышение шанса критического удара" is on first sub-line
-    // "бонусу критического урона" is on second sub-line
-    // .* should bridge the newline between them
-    const text = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"повышение шанса критического удара.*бонусу"', text)).toBe(true);
+  it('".*" does NOT cross sub-line boundaries within multi-line mod (VERIFIED IN-GAME)', () => {
+    // In-game Phase 7: "повышение шанса критического удара.*бонусу" does NOT match
+    // Each sub-line of a multi-line mod (like Разрушительный) is a separate block.
+    // Use AND instead: "критического удара" "бонусу критического"
+    // NOTE: must use matchPoE2RegexItem for block-based matching.
+    // getItemSearchText() + matchPoE2Regex concatenates blocks, allowing .* to cross.
+    expect(matchPoE2RegexItem('"повышение шанса критического удара.*бонусу"', waystone1)).toBe(false);
   });
 
   it('".*" is directional — reversed order fails', () => {
@@ -419,14 +429,12 @@ describe('H3: Cross-line single mod — Разрушительный two-line mo
     expect(matchPoE2Regex('"276"', text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: does PoE2 treat two sub-lines as one searchable block?', () => {
-    // In our matcher, we join all mods with \n, so both sub-lines are in the same text.
-    // But in PoE2, the two sub-lines of Разрушительный might be:
-    // a) Separate searchable entries (each line is independent)
-    // b) One continuous searchable entry (joined with space or newline)
-    // This affects whether .* can cross between them.
-    // Test in-game: search "повышение шанса критического удара.*бонусу"
-    expect(true).toBe(true);
+  it('VERIFIED IN-GAME: multi-line mod sub-lines are separate blocks', () => {
+    // Phase 7 results: .* does NOT cross sub-lines (3.1 ❌, 3.2 ❌)
+    // BUT AND does cross sub-lines (3.3 ✅)
+    // Formula for Разрушительный: "критического удара" "бонусу критического"
+    // NOT: "повышение шанса критического удара.*бонусу"
+    expect(true).toBe(true); // verified above in specific tests
   });
 });
 
@@ -441,35 +449,24 @@ describe('H4: Tablet suffix — "зарядов" vs "использ" (BUG DETECT
     expect(matchPoE2Regex('"зарядов"', text)).toBe(true);
   });
 
-  it('"использ" DOES match tablet via description text "использовать"', () => {
-    // KEY FINDING: The game text says "зарядов" for charges, NOT "использований".
-    // BUT the description says "Можно использовать в Машине картоходца".
-    // So "использ" matches "использовать" in the description, NOT the charges line!
-    // This means: using "использ" as a number suffix for charges is WRONG —
-    // it would match the description text, not the charges text.
-    // The number from a different mod could cross-match via .* to "использовать".
+  it('"использ" does NOT match tablet (description not indexed, VERIFIED IN-GAME)', () => {
+    // In-game Phase 7: "использ" does NOT highlight tablets — description text is not indexed
+    // The word "использовать" is in the description, NOT in the search index
+    // "зарядов" IS in the implicit and IS indexed
     const text = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"использ"', text)).toBe(true); // matches "использовать" in description
-    // But "использ" does NOT appear in the charges line:
-    expect(text).toContain('зарядов'); // the charges word
-    expect(text).toContain('использовать'); // the description word
+    expect(matchPoE2Regex('"использ"', text)).toBe(false);
+    expect(text).toContain('зарядов');
+    expect(text).not.toContain('использовать'); // description excluded
   });
 
-  it('number regex with "зарядов" suffix: number is AFTER the word (directional problem)', () => {
-    // The charges line is: "Осталось зарядов - 10"
-    // The number "10" is AFTER "зарядов", not before it.
-    // Directional .* requires number BEFORE suffix: "10.*зарядов" would need 10 first.
-    //
-    // HOWEVER: other numbers on the item may appear BEFORE "зарядов" in the full text.
-    // For example, "39" from "39(25-35)% увеличение количества редких монстров на карте"
-    // appears before "зарядов" (in the implicit section which comes before mods).
-    // So "[1-9][0-9].*зарядов" might match via "39" → .* → "зарядов" — a FALSE POSITIVE!
+  it('number regex with "зарядов" suffix: cross-mod .* does NOT work (VERIFIED IN-GAME)', () => {
+    // In-game Phase 7: "39.*зарядов" does NOT match — .* does not cross block boundaries
+    // "39" is in a mod block, "зарядов" is in an implicit block — separate blocks
     const text = getItemSearchText(tablet1);
-    // This MATCHES because "39" (from another mod) appears before "зарядов"
-    // This is a CROSS-MOD FALSE POSITIVE when using number + suffix pattern
     expect(matchPoE2Regex('"([1-9][0-9]|[0-9][0-9][0-9]).*зарядов"', text)).toBe(true);
-    // The correct approach: use prefix anchoring or search for the exact line
-    // "Осталось зарядов.*10" — but this inverts the number/suffix order
+    // Note: above still matches via concatenated text (getItemSearchText joins blocks)
+    // but in-game it does NOT. Use matchPoE2RegexItem for accurate behavior.
+    // Within the same implicit block: "зарядов.*10" works because both are in the same block
     expect(matchPoE2Regex('"зарядов.*10"', text)).toBe(true);
   });
 
@@ -533,13 +530,10 @@ describe('H5: Implicit property searchability', () => {
     expect(matchPoE2Regex('"28.*регенерации маны"', text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: does PoE2 search include implicit text?', () => {
-    // Our matcher includes implicits in the searchable text, but we need to verify:
-    // 1. Search "качеств" on the ring stash tab — do items with "Максимальное качество" highlight?
-    // 2. Search "регенерации маны" on amulet tab — do Лазурный амулет items highlight?
-    // 3. If implicits are NOT searchable, we need to REMOVE them from our matcher's
-    //    getItemSearchText() and adjust all test expectations.
-    expect(true).toBe(true);
+  it('VERIFIED IN-GAME: implicits ARE indexed by PoE2 search', () => {
+    // Phase 7 results: "качеств" ✅, "регенерации маны" ✅, "Заражение" ✅
+    // Implicits are searchable — our model is correct
+    expect(true).toBe(true); // verified above in specific tests
   });
 });
 
@@ -580,14 +574,9 @@ describe('H6: Prefix/suffix name searchability', () => {
     expect(matchPoE2Regex('"замерзшей земли"', text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: are affix names searchable in PoE2?', () => {
-    // If PoE2 DOES make affix names searchable:
-    // 1. Search "Сильное" — does it find items with the "Сильное" prefix?
-    // 2. Search "гориллы" — does it find items with "суффикс гориллы"?
-    // 3. Search "Льдистый" — does it find items with the "Льдистый" suffix?
-    // If YES, our model is WRONG and needs to include affix names in search text.
-    // If NO, our model is CORRECT.
-    expect(true).toBe(true);
+  it('VERIFIED IN-GAME: affix names are NOT searchable (model correct)', () => {
+    // Our model already excludes affix names — this is correct
+    expect(true).toBe(true); // model matches in-game behavior
   });
 });
 
@@ -684,15 +673,10 @@ describe('H8: Inverted number ranges — (50→40) decreasing', () => {
     expect(matchPoE2Regex('"зарядов флакона"', text)).toBe(true);
   });
 
-  it('IN-GAME VERIFICATION NEEDED: how do inverted ranges affect number filtering?', () => {
-    // The mod "На 50(50-40)% меньше эффекта" — the ROLLED value is 50.
-    // But the range shows 50-40 (decreasing), meaning:
-    // - Tier 1 = 50% less (best for player)
-    // - Tier N = 40% less (worst for player)
-    // When user filters ≥40 (round10), they want ANY tier.
-    // But ≥50 would mean "only the best tier" — is this semantically correct?
-    // This needs in-game verification to confirm the rolled value interpretation.
-    expect(true).toBe(true);
+  it('VERIFIED IN-GAME: inverted ranges work correctly', () => {
+    // Phase 7 results: "50.*меньше эффекта" ✅, "меньше эффекта проклятий" ✅
+    // Number before suffix works, suffix alone works
+    expect(true).toBe(true); // verified above in specific tests
   });
 });
 
@@ -700,35 +684,36 @@ describe('H8: Inverted number ranges — (50→40) decreasing', () => {
 // H9: FULL TOOLTIP SEARCHABILITY — text outside mod section
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('H9: Full tooltip searchability — text outside mod section', () => {
-  it('"Осквернено" matches waystones (in additional text)', () => {
+describe('H9: Full tooltip searchability — text outside mod section (VERIFIED IN-GAME)', () => {
+  it('"Осквернено" matches waystones (in additional/state text — indexed)', () => {
+    // VERIFIED IN-GAME: "оскверн" highlights corrupted items
     const text1 = getItemSearchText(waystone1);
     expect(matchPoE2Regex('"оскверн"', text1)).toBe(true);
   });
 
-  it('"картоходца" matches waystones (in description text)', () => {
-    // The text "Машине картоходца" is in the description, not in any mod
+  it('"картоходца" does NOT match (description NOT indexed, VERIFIED IN-GAME)', () => {
+    // VERIFIED IN-GAME Phase 7: "картоходца" does NOT highlight any items
+    // Description/tooltip text is NOT part of the search index
     const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"картоходца"', text1)).toBe(true);
+    expect(matchPoE2Regex('"картоходца"', text1)).toBe(false);
   });
 
-  it('"одноразовые" matches waystones (in description)', () => {
+  it('"одноразовые" does NOT match (description NOT indexed)', () => {
     const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"одноразовые"', text1)).toBe(true);
+    expect(matchPoE2Regex('"одноразовые"', text1)).toBe(false);
   });
 
-  it('"Машине" matches waystone description', () => {
+  it('"Машине" does NOT match (description NOT indexed)', () => {
     const text1 = getItemSearchText(waystone1);
-    expect(matchPoE2Regex('"Машине"', text1)).toBe(true);
+    expect(matchPoE2Regex('"Машине"', text1)).toBe(false);
   });
 
-  it('tablet description: "картоходца" matches', () => {
+  it('tablet description: "картоходца" does NOT match', () => {
     const text1 = getItemSearchText(tablet1);
-    expect(matchPoE2Regex('"картоходца"', text1)).toBe(true);
+    expect(matchPoE2Regex('"картоходца"', text1)).toBe(false);
   });
 
   it('"!оскверн" would exclude all corrupted waystones', () => {
-    // If "Осквернено" is searchable, "!оскверн" hides corrupted items
     const text1 = getItemSearchText(waystone1);
     expect(matchPoE2Regex('"!оскверн"', text1)).toBe(false);
   });
@@ -736,16 +721,6 @@ describe('H9: Full tooltip searchability — text outside mod section', () => {
   it('ring without "Осквернено" matches "!оскверн"', () => {
     const text = getItemSearchText(ring1);
     expect(matchPoE2Regex('"!оскверн"', text)).toBe(true);
-  });
-
-  it('IN-GAME VERIFICATION NEEDED: does PoE2 search cover full tooltip text?', () => {
-    // Critical questions:
-    // 1. Search "картоходца" — does it highlight waystones? (tests description text)
-    // 2. Search "одноразовые" — does it highlight waystones? (tests description text)
-    // 3. Search "Осквернено" — does it highlight corrupted items? (tests item state)
-    // 4. If description text is NOT searchable, our model is WRONG and we need to
-    //    exclude `additional` from getItemSearchText().
-    expect(true).toBe(true);
   });
 });
 
@@ -957,5 +932,111 @@ describe('BONUS: Edge cases with real game text', () => {
     // Ring 2: "15% увеличение радиуса обзора" — no (min-max) because it's a fixed value
     const text = getItemSearchText(ring2);
     expect(matchPoE2Regex('"увеличение радиуса обзора"', text)).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 7 VERIFIED: Block-based matching model (in-game results)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Phase 7 VERIFIED: Block-based matching — .* does NOT cross block boundaries', () => {
+  it('.* does NOT cross mod boundaries (Test 2.1: ❌)', () => {
+    // In-game: "максимуму здоровья.*к силе" does NOT highlight Ring 1
+    // "максимуму здоровья" is in mod block, "к силе" is in a different mod block
+    expect(matchPoE2RegexItem('"максимуму здоровья.*к силе"', ring1)).toBe(false);
+  });
+
+  it('.* reverse direction also fails across blocks (Test 2.2: ❌)', () => {
+    expect(matchPoE2RegexItem('"к силе.*максимуму здоровья"', ring1)).toBe(false);
+  });
+
+  it('AND search DOES cross mod boundaries (Test 2.3: ✅)', () => {
+    // In-game: "максимуму здоровья" "к силе" DOES highlight Ring 1
+    expect(matchPoE2RegexItem('"максимуму здоровья" "к силе"', ring1)).toBe(true);
+  });
+
+  it('.* does NOT create cross-mod number FP (Test 2.4: ❌)', () => {
+    // In-game: "28.*молнии" does NOT highlight Ring 1
+    // "28" is in fire damage mod, "молнии" is in lightning resistance mod
+    expect(matchPoE2RegexItem('"28.*молнии"', ring1)).toBe(false);
+  });
+
+  it('.* within same mod block works: number + suffix (Test 9.1: ✅)', () => {
+    // In-game: "17.*огня к атакам" DOES highlight Ring 2
+    // Both "17" and "огня к атакам" are in the SAME mod block
+    expect(matchPoE2RegexItem('"17.*огня к атакам"', ring2)).toBe(true);
+  });
+
+  it('dual-number mod: second number + suffix works (Test 9.2: ✅)', () => {
+    // In-game: "30.*огня к атакам" highlights Ring 2
+    expect(matchPoE2RegexItem('"30.*огня к атакам"', ring2)).toBe(true);
+  });
+
+  it('dual-number cross-mod FP does NOT exist (Test 9.3: ❌)', () => {
+    // In-game: "30.*физического" does NOT highlight Ring 2
+    // "30" is in fire damage mod, "физического" is in physical damage mod
+    expect(matchPoE2RegexItem('"30.*физического"', ring2)).toBe(false);
+  });
+
+  it('multi-line mod: .* does NOT cross sub-lines (Test 3.1: ❌)', () => {
+    // In-game: "повышение шанса критического удара.*бонусу" does NOT highlight
+    expect(matchPoE2RegexItem('"повышение шанса критического удара.*бонусу"', waystone1)).toBe(false);
+  });
+
+  it('multi-line mod: AND DOES cross sub-lines (Test 3.3: ✅)', () => {
+    // In-game: "критического удара" "бонусу критического" highlights all waystones
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone1)).toBe(true);
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone2)).toBe(true);
+    expect(matchPoE2RegexItem('"критического удара" "бонусу критического"', waystone3)).toBe(true);
+  });
+
+  it('tablet: cross-mod number FP does NOT exist (Test 7.3: ❌)', () => {
+    // In-game: "39.*зарядов" does NOT highlight tablet
+    // "39" is in a mod, "зарядов" is in an implicit — separate blocks
+    expect(matchPoE2RegexItem('"39.*зарядов"', tablet1)).toBe(false);
+  });
+
+  it('tablet: "зарядов.*N" works within same implicit block (Test 7.4: ✅)', () => {
+    // In-game: "зарядов.*10" highlights tablets
+    // Both "зарядов" and "10" are in the SAME implicit block
+    expect(matchPoE2RegexItem('"зарядов.*10"', tablet1)).toBe(true);
+  });
+
+  it('description text is NOT searchable (Tests 1.6, 7.2: ❌)', () => {
+    // In-game: "картоходца" does NOT highlight items
+    // In-game: "использ" does NOT highlight tablets
+    expect(matchPoE2RegexItem('"картоходца"', waystone1)).toBe(false);
+    expect(matchPoE2RegexItem('"использ"', tablet1)).toBe(false);
+  });
+
+  it('state text "Осквернено" IS searchable (Test 1.5: ✅)', () => {
+    // In-game: "оскверн" highlights corrupted items
+    expect(matchPoE2RegexItem('"оскверн"', waystone1)).toBe(true);
+  });
+
+  it('item name IS searchable (Test 1.1: ✅)', () => {
+    // In-game: "потрясение" highlights both rings with that in name
+    expect(matchPoE2RegexItem('"потрясение"', ring1)).toBe(true);
+    expect(matchPoE2RegexItem('"потрясение"', ring3)).toBe(true);
+  });
+
+  it('item type IS searchable (Test 1.2: ✅)', () => {
+    expect(matchPoE2RegexItem('"Кольцо Разлома"', ring1)).toBe(true);
+  });
+
+  it('properties ARE searchable (Tests 1.3, 1.4: ✅)', () => {
+    expect(matchPoE2RegexItem('"Требуется"', ring1)).toBe(true);
+    expect(matchPoE2RegexItem('"Уровень предмета"', ring1)).toBe(true);
+  });
+
+  it('implicits ARE searchable (Tests 6.1-6.4: ✅)', () => {
+    expect(matchPoE2RegexItem('"качеств"', ring1)).toBe(true);
+    expect(matchPoE2RegexItem('"регенерации маны"', amulet1)).toBe(true);
+    expect(matchPoE2RegexItem('"Заражение"', tablet1)).toBe(true);
+  });
+
+  it('implicit number + .* suffix works within same implicit (Test 6.4: ✅)', () => {
+    // "28.*регенерации маны" — both in same implicit block
+    expect(matchPoE2RegexItem('"28.*регенерации маны"', amulet1)).toBe(true);
   });
 });

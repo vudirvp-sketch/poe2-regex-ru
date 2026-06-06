@@ -24,7 +24,10 @@ import {
   matchPoE2Regex,
   matchQuotedGroup,
   getItemSearchText,
+  getItemSearchBlocks,
+  matchPoE2RegexItem,
   testRegex,
+  parseQuotedGroups,
 } from '@core/poe2-regex-matcher';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -164,18 +167,17 @@ describe('PoE2 Regex Dialect: Character class []', () => {
   });
 });
 
-describe('PoE2 Regex Dialect: Optional quantifier ?', () => {
-  it('.? matches zero or one character', () => {
+describe('PoE2 Regex Dialect: Optional quantifier ? (NOT supported in-game)', () => {
+  // VERIFIED IN-GAME (Phase 7): `?` does NOT work in PoE2 regex.
+  // Our matcher supports it for engine completeness, but PoE2 client ignores it.
+  // Do NOT use `?` in generated regexes.
+  it('.? matches zero or one character (in our matcher engine)', () => {
     expect(matchPoE2Regex('"аб.?в"', 'абв')).toBe(true);
     expect(matchPoE2Regex('"аб.?в"', 'абXв')).toBe(true);
     expect(matchPoE2Regex('"аб.?в"', 'абXXв')).toBe(false);
   });
 
-  it('\\d..? matches digit + 1-2 any chars', () => {
-    // This is how number regex works: \d..? = digit + at least 1 char + optional char
-    // "5" → NO (need at least 1 char after digit)
-    // "55" → YES (digit=5, .=5, .?=nothing)
-    // "555" → YES (digit=5, .=5, .?=5)
+  it('\\d..? matches digit + 1-2 any chars (in our matcher engine)', () => {
     expect(matchQuotedGroup('\\d..?', '55')).toBe(true);
     expect(matchQuotedGroup('\\d..?', '555')).toBe(true);
   });
@@ -647,5 +649,116 @@ describe('testRegex batch utility', () => {
     ]);
     expect(result.passed).toBe(false);
     expect(result.results[1].ok).toBe(false);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 11: BLOCK-BASED MATCHING (Phase 7 — verified in-game)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Block-based matching: getItemSearchBlocks + matchPoE2RegexItem', () => {
+  it('getItemSearchBlocks returns each field as separate block', () => {
+    const item = {
+      name: 'Мой предмет',
+      type: 'Кольцо',
+      properties: ['Требуется: Уровень 60'],
+      implicits: ['Максимальное качество 40%'],
+      mods: ['+50 к здоровью', '+20 к силе'],
+      additional: ['Осквернено'],
+      description: ['Подсказка, не индексируемая'],
+    };
+    const blocks = getItemSearchBlocks(item);
+    expect(blocks).toEqual([
+      'Мой предмет',
+      'Кольцо',
+      'Требуется: Уровень 60',
+      'Максимальное качество 40%',
+      '+50 к здоровью',
+      '+20 к силе',
+      'Осквернено',
+    ]);
+    // description is NOT included in blocks
+    expect(blocks).not.toContain('Подсказка, не индексируемая');
+  });
+
+  it('parseQuotedGroups extracts quoted groups from regex', () => {
+    expect(parseQuotedGroups('"мод1" "мод2"')).toEqual(['мод1', 'мод2']);
+    expect(parseQuotedGroups('"мод1"')).toEqual(['мод1']);
+    expect(parseQuotedGroups('"мод1" "мод2" "!мод3"')).toEqual(['мод1', 'мод2', '!мод3']);
+  });
+
+  it('.* does NOT cross mod boundaries in block-based matching', () => {
+    const item = {
+      mods: ['+66 к максимуму здоровья', '+23 к силе'],
+    };
+    // In concatenated text, .* would cross. In block-based, it doesn't.
+    expect(matchPoE2RegexItem('"максимуму здоровья.*к силе"', item)).toBe(false);
+    expect(matchPoE2RegexItem('"к силе.*максимуму здоровья"', item)).toBe(false);
+  });
+
+  it('AND search DOES cross mod boundaries in block-based matching', () => {
+    const item = {
+      mods: ['+66 к максимуму здоровья', '+23 к силе'],
+    };
+    expect(matchPoE2RegexItem('"максимуму здоровья" "к силе"', item)).toBe(true);
+    expect(matchPoE2RegexItem('"к силе" "максимуму здоровья"', item)).toBe(true);
+  });
+
+  it('.* within a single mod block works', () => {
+    const item = {
+      mods: ['+66(60-69) к максимуму здоровья'],
+    };
+    expect(matchPoE2RegexItem('"66.*максимуму здоровья"', item)).toBe(true);
+  });
+
+  it('description text is NOT searchable via matchPoE2RegexItem', () => {
+    const item = {
+      mods: ['+50 к здоровью'],
+      description: ['Можно использовать в Машине картоходца'],
+    };
+    expect(matchPoE2RegexItem('"картоходца"', item)).toBe(false);
+    expect(matchPoE2RegexItem('"здоровью"', item)).toBe(true);
+  });
+
+  it('additional state text IS searchable via matchPoE2RegexItem', () => {
+    const item = {
+      mods: ['+50 к здоровью'],
+      additional: ['Осквернено'],
+    };
+    expect(matchPoE2RegexItem('"оскверн"', item)).toBe(true);
+    expect(matchPoE2RegexItem('"здоровью"', item)).toBe(true);
+  });
+
+  it('cross-mod number FP does NOT exist in block-based matching', () => {
+    const item = {
+      mods: ['28% увеличение урона от огня', '+35% к сопротивлению молнии'],
+    };
+    // In concatenated text: "28.*молнии" would match (cross-mod FP)
+    // In block-based: each mod is separate, so no cross
+    expect(matchPoE2RegexItem('"28.*молнии"', item)).toBe(false);
+  });
+
+  it('empty item returns false', () => {
+    expect(matchPoE2RegexItem('"тест"', {})).toBe(false);
+  });
+
+  it('negation in block-based matching', () => {
+    const item = {
+      mods: ['+50 к здоровью'],
+      additional: ['Осквернено'],
+    };
+    expect(matchPoE2RegexItem('"!оскверн"', item)).toBe(false);
+    expect(matchPoE2RegexItem('"!холоду"', item)).toBe(true);
+  });
+
+  it('multiple properties are separate blocks', () => {
+    const item = {
+      properties: ['Требуется: Уровень 60', 'Уровень предмета: 82'],
+    };
+    // Each property is a separate block
+    expect(matchPoE2RegexItem('"Требуется"', item)).toBe(true);
+    expect(matchPoE2RegexItem('"Уровень предмета"', item)).toBe(true);
+    // .* cannot cross between properties
+    expect(matchPoE2RegexItem('"Требуется.*Уровень предмета"', item)).toBe(false);
   });
 });

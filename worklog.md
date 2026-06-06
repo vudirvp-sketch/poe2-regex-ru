@@ -4,52 +4,57 @@
 
 ---
 
-## Current State (Session 38 — 2026-06-07)
+## Current State (Session 39 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (409/409 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (437/437 tests)
 **Oracle:** FP=3715, FN=0 in generated JSON files. Most FP are family-tier FP (by design).
 
-**Key Changes This Session:**
+**Key Changes This Session (Phase 7 In-Game Verification):**
 
-1. **Phase 7: Hypothesis-driven test suite** — 86 new tests in `tests/core/hypothesis-patterns.test.ts`
-   - H1: Fractional numbers (decimal point ambiguity) — ✅ all pass
-   - H2: Negative values in mod text — ✅ all pass
-   - H3: Cross-line single mod (Разрушительный) — ✅ all pass
-   - H4: Tablet "зарядов" vs "использ" — ⚠️ CRITICAL FINDING
-   - H5: Implicit property searchability — ✅ all pass (needs in-game verification)
-   - H6: Prefix/suffix name non-searchability — ✅ all pass
-   - H7: "всем стихиям" vs individual resistances — ✅ all pass
-   - H8: Inverted number ranges (50→40) — ✅ all pass
-   - H9: Full tooltip searchability — ✅ all pass (needs in-game verification)
-   - Bonus: Dual-number mods, cross-item AND search, edge cases
+1. **CRITICAL: `.*` does NOT cross mod/implicit/property boundaries** — verified in-game.
+   - Tests 2.1, 2.4, 3.1, 7.3, 9.3 all negative — `.*` restricted to single block
+   - AND (`"X" "Y"`) DOES cross blocks — tests 2.3, 3.3 positive
 
-2. **Critical finding (H4):** "использ" as tablet uses suffix matches "использовать" in item DESCRIPTION, not the charges line. Also, the charges number appears AFTER the word "зарядов", creating a directional `.*` problem. Needs in-game verification.
+2. **Block-based matching model implemented** — `matchPoE2RegexItem()` in poe2-regex-matcher.ts
+   - Each mod, implicit, property, name, type, state text = separate searchable block
+   - `getItemSearchBlocks()` returns array of blocks
+   - `matchPoE2RegexItem()` checks each quoted group against each block independently
+   - Negation `!X` is item-wide (excludes if X found in ANY block)
 
-3. **Updated docs/IN_GAME_TESTS.md** — restructured with groups A-L, prioritized by criticality.
+3. **Description/tooltip text is NOT indexed** — verified in-game (tests 1.6, 7.2, 12.2)
+   - Added `description` field to `GameItemText` interface
+   - Moved description text from `additional` to `description` in test items
+   - `getItemSearchBlocks()` and `getItemSearchText()` exclude `description`
+
+4. **`?` (optional) does NOT work** — verified in-game (test 13.1)
+
+5. **`(` is literal when unmatched** — verified in-game (test 10.3)
+
+6. **437 tests pass** — 28 new block-based tests + updated hypothesis expectations
 
 **NOT YET DONE:**
-- ⬜ In-game verification of all H-group hypotheses (G-L in IN_GAME_TESTS.md)
-- ⬜ Fix tablet "зарядов" suffix if confirmed in-game
-- ⬜ Фаза 8: Cross-family FP reduction
+- ⬜ Simplify prefix anchoring (less critical now that cross-mod FP doesn't exist)
+- ⬜ Re-run ETL with updated matcher model
+- ⬜ Fix tablet "использ" suffix in generated data (replace with "зарядов")
+- ⬜ Phase 8: Cross-family FP reduction using block-based model
 
 ---
 
 ## Frequent Bugs
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
-2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping, not literal parens.
+2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping. Unmatched `(` may be literal.
 3. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes.
-4. **hasMultiPlaceholder missing in tests:** Always include `hasMultiPlaceholder: false` in test helpers
-5. **MIN_REGEX_LEN_STRICT vs parens:** Waystone mods with `(num—num)` patterns can't have regexes ≥10 chars without parens.
-6. **Optimizer suffix-shorten too aggressive:** Fixed with per-category minimum enforcement.
-7. **"использ" matches description, not charges:** Tablet uses suffix "использ" matches "использовать" in description text. Actual charges word is "зарядов". Needs in-game verification.
+4. **`?` does NOT work in PoE2:** Do NOT use `?` in generated regexes — verified in-game.
+5. **Description text not indexed:** Tooltip text like "Можно использовать в Машине картоходца" is NOT searchable — verified in-game.
+6. **`.*` does NOT cross block boundaries:** Each mod/implicit/property is a separate block. Use AND for cross-block search.
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (409)
+npx vitest run --root .          # Run all tests (437)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL with Oracle validation
 pnpm analyze-fn                  # Analyze FN cases per category
