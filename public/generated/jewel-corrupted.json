@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T11:52:59.719Z",
+  "version": "2026-06-06T13:05:03.040Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
@@ -41,7 +41,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_hbgahi",
@@ -79,7 +80,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_tzz8ec",
@@ -120,7 +122,8 @@
         12,
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_m7831k",
@@ -162,7 +165,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_d5gez1",
@@ -204,7 +208,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_38y3za",
@@ -246,7 +251,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_9yfwgf",
@@ -287,7 +293,8 @@
       "yoficationPositions": [
         19
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_ba3cxh",
@@ -320,7 +327,8 @@
       "yoficationPositions": [
         7
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_ac18xa",
@@ -357,7 +365,8 @@
         8,
         37
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel-corrupted.mod_2hn06i",
@@ -392,7 +401,8 @@
         6,
         17
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     }
   ],
   "optimizationTable": {}

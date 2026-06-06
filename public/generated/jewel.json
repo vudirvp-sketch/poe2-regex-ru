@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T11:52:59.646Z",
+  "version": "2026-06-06T13:05:02.947Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -49,7 +49,8 @@
         13,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_l1y0fl",
@@ -97,7 +98,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4mxucf",
@@ -143,7 +145,8 @@
         13,
         27
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_is2jx9",
@@ -190,7 +193,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_y5kxwn",
@@ -236,7 +240,8 @@
         14,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4mokx7",
@@ -284,7 +289,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_764thg",
@@ -332,7 +338,8 @@
         13,
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_r2zyq",
@@ -380,7 +387,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_d5haza",
@@ -431,7 +439,8 @@
         41,
         43
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ec1qa7",
@@ -478,7 +487,8 @@
         28,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_s63yui",
@@ -523,7 +533,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_b6rfxs",
@@ -571,7 +582,8 @@
         15,
         40
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_mn6kp5",
@@ -619,7 +631,8 @@
         13,
         19
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_pk8bwh",
@@ -667,7 +680,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_r274re",
@@ -717,7 +731,8 @@
         48,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_5fpldd",
@@ -765,7 +780,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sxudmh",
@@ -814,7 +830,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_5rcjkz",
@@ -863,7 +880,8 @@
       "yoficationPositions": [
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_bgyeco",
@@ -911,7 +929,8 @@
         15,
         36
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_j05iep",
@@ -961,7 +980,8 @@
         15,
         78
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_svvmjl",
@@ -1010,7 +1030,8 @@
         14,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_pnbnmw",
@@ -1059,7 +1080,8 @@
         14,
         28
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kksrx",
@@ -1107,7 +1129,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_2f8r6l",
@@ -1155,7 +1178,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_9ve7qk",
@@ -1203,7 +1227,8 @@
         15,
         54
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kzpdi6",
@@ -1254,7 +1279,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_semlex",
@@ -1303,7 +1329,8 @@
         5,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_fsam8f",
@@ -1352,7 +1379,8 @@
         32,
         39
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sx2rlh",
@@ -1403,7 +1431,8 @@
         40,
         47
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4gpaq4",
@@ -1454,7 +1483,8 @@
         42,
         49
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ank8rj",
@@ -1502,7 +1532,8 @@
         15,
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_d6tyom",
@@ -1551,7 +1582,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_hpfzjc",
@@ -1600,7 +1632,8 @@
       "yoficationPositions": [
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_uij56f",
@@ -1649,7 +1682,8 @@
         14,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_fpwy7g",
@@ -1698,7 +1732,8 @@
         22,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_w3efj5",
@@ -1746,7 +1781,8 @@
         2,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ofi3q4",
@@ -1796,7 +1832,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_q7sbar",
@@ -1845,7 +1882,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ss8pp2",
@@ -1894,7 +1932,8 @@
       "yoficationPositions": [
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_spdhko",
@@ -1942,7 +1981,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_8wpis3",
@@ -1989,7 +2029,8 @@
         32,
         38
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ynqitf",
@@ -2034,7 +2075,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7jm1s2",
@@ -2083,7 +2125,8 @@
         14,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ewgwh2",
@@ -2133,7 +2176,8 @@
         20,
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1pakh0",
@@ -2183,7 +2227,8 @@
         31,
         45
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_jo4ch9",
@@ -2233,7 +2278,8 @@
         14,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_cggkw1",
@@ -2283,7 +2329,8 @@
         14,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_au7igs",
@@ -2332,7 +2379,8 @@
         15,
         45
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_gdne1e",
@@ -2381,7 +2429,8 @@
         14,
         36
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_x6zrt7",
@@ -2423,7 +2472,8 @@
         14,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_90o1h0",
@@ -2470,7 +2520,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_hof1hr",
@@ -2517,7 +2568,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_nh1y25",
@@ -2565,7 +2617,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_o9z2xh",
@@ -2612,7 +2665,8 @@
         32,
         44
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_6haa0h",
@@ -2660,7 +2714,8 @@
         41,
         48
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_bkjsej",
@@ -2709,7 +2764,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7f2j1",
@@ -2750,7 +2806,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ppjbmq",
@@ -2798,7 +2855,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_o3wt9e",
@@ -2850,7 +2908,8 @@
         50,
         52
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kgc2ed",
@@ -2899,7 +2958,8 @@
         14,
         26
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_np71ok",
@@ -2946,7 +3006,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_v2r1wr",
@@ -2994,7 +3055,8 @@
         15,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_rldve4",
@@ -3042,7 +3104,8 @@
         15,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1kqh44",
@@ -3090,7 +3153,8 @@
         14,
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_fktkkd",
@@ -3138,7 +3202,8 @@
       "yoficationPositions": [
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_85sj3k",
@@ -3187,7 +3252,8 @@
         14,
         34
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_wditcf",
@@ -3226,7 +3292,8 @@
         12,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_jhgqqc",
@@ -3273,7 +3340,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_5ac7q8",
@@ -3321,7 +3389,8 @@
         14,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_szkiml",
@@ -3373,7 +3442,8 @@
         63,
         93
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_su6el3",
@@ -3425,7 +3495,8 @@
         62,
         67
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_s7ardq",
@@ -3472,7 +3543,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_v23dqm",
@@ -3520,7 +3592,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_dstpng",
@@ -3568,7 +3641,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_k640km",
@@ -3616,7 +3690,8 @@
         15,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_wrtzb8",
@@ -3664,7 +3739,8 @@
       "yoficationPositions": [
         51
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_q0s6bs",
@@ -3711,7 +3787,8 @@
         28,
         38
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_n5pvk5",
@@ -3759,7 +3836,8 @@
         15,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kqgvve",
@@ -3797,7 +3875,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ip0so8",
@@ -3830,7 +3909,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_jebkzx",
@@ -3863,7 +3943,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_o0k8y4",
@@ -3912,7 +3993,8 @@
         34,
         39
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_9yf795",
@@ -3961,7 +4043,8 @@
         27,
         38
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_dx5767",
@@ -4002,7 +4085,8 @@
         14,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_61sb7w",
@@ -4042,7 +4126,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_xd7vhh",
@@ -4089,7 +4174,8 @@
         24,
         39
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_b0xymi",
@@ -4131,7 +4217,8 @@
         13,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1si702",
@@ -4173,7 +4260,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_am4lla",
@@ -4214,7 +4302,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_rg0sep",
@@ -4255,7 +4344,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_xwpyem",
@@ -4300,7 +4390,8 @@
         38,
         40
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_zhr8fs",
@@ -4342,7 +4433,8 @@
         35,
         37
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_vnnpjy",
@@ -4383,7 +4475,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7spjc9",
@@ -4425,7 +4518,8 @@
         12,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_9c1hm6",
@@ -4464,7 +4558,8 @@
         73,
         78
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_8j3prk",
@@ -4507,7 +4602,8 @@
         42,
         44
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_wqamd4",
@@ -4550,7 +4646,8 @@
         51,
         53
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_8zq7zq",
@@ -4594,7 +4691,8 @@
         24,
         39
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kcvuf",
@@ -4635,7 +4733,8 @@
         29,
         40
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_wkqo4a",
@@ -4676,7 +4775,8 @@
         13,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1jeatc",
@@ -4718,7 +4818,8 @@
         15,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_xtgbaj",
@@ -4761,7 +4862,8 @@
         15,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_atixoo",
@@ -4805,7 +4907,8 @@
         31,
         47
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_tqnqww",
@@ -4847,7 +4950,8 @@
         12,
         39
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_r9cucj",
@@ -4888,7 +4992,8 @@
       "yoficationPositions": [
         16
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1kuxym",
@@ -4930,7 +5035,8 @@
         15,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_jif6fk",
@@ -4972,7 +5078,8 @@
         13,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_e33dlw",
@@ -5013,7 +5120,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_k7v06p",
@@ -5056,7 +5164,8 @@
         31,
         54
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ju5djn",
@@ -5097,7 +5206,8 @@
         14,
         23
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_bmigen",
@@ -5140,7 +5250,8 @@
         41,
         43
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_fmxska",
@@ -5179,7 +5290,8 @@
         7,
         59
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_6xejfh",
@@ -5225,7 +5337,8 @@
         23,
         54
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ha6tdi",
@@ -5267,7 +5380,8 @@
         48,
         56
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_40sol4",
@@ -5308,7 +5422,8 @@
       "yoficationPositions": [
         53
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_8xfqnw",
@@ -5351,7 +5466,8 @@
         31,
         48
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_yzxktz",
@@ -5390,7 +5506,8 @@
         14,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_hpjpwn",
@@ -5429,7 +5546,8 @@
         14,
         23
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_z81xg6",
@@ -5469,7 +5587,8 @@
         46,
         72
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_zel2yn",
@@ -5512,7 +5631,8 @@
         14,
         34
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_xxbuhi",
@@ -5554,7 +5674,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_2k4vf6",
@@ -5597,7 +5718,8 @@
         15,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4yzy57",
@@ -5637,7 +5759,8 @@
         23,
         42
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_1wnizu",
@@ -5675,7 +5798,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_caeit5",
@@ -5718,7 +5842,8 @@
         32,
         34
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_gzhni",
@@ -5759,7 +5884,8 @@
         14,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_gmcqke",
@@ -5798,7 +5924,8 @@
         15,
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_k92tj8",
@@ -5840,7 +5967,8 @@
         24,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_molc7",
@@ -5878,7 +6006,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_uoia3f",
@@ -5919,7 +6048,8 @@
         12,
         43
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_s3muj3",
@@ -5962,7 +6092,8 @@
         30,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4go2h8",
@@ -6011,7 +6142,8 @@
         34,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_p21wj2",
@@ -6052,7 +6184,8 @@
         14,
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_lnx8ju",
@@ -6091,7 +6224,8 @@
         15,
         25
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_bi3isu",
@@ -6133,7 +6267,8 @@
         24,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_a9u5n7",
@@ -6171,7 +6306,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_q6nji8",
@@ -6214,7 +6350,8 @@
         30,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_b618b2",
@@ -6258,7 +6395,8 @@
         32,
         52
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_d5zh33",
@@ -6301,7 +6439,8 @@
         43,
         62
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_a4hrrs",
@@ -6340,7 +6479,8 @@
       "yoficationPositions": [
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_28ty77",
@@ -6379,7 +6519,8 @@
       "yoficationPositions": [
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_of3hi9",
@@ -6418,7 +6559,8 @@
       "yoficationPositions": [
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ba414f",
@@ -6464,7 +6606,8 @@
         30,
         58
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_5ai0gr",
@@ -6508,7 +6651,8 @@
         14,
         38
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7dzvh0",
@@ -6552,7 +6696,8 @@
         32,
         49
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_aw0oyt",
@@ -6596,7 +6741,8 @@
         35,
         53
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_dl3kn2",
@@ -6642,7 +6788,8 @@
         48,
         70
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7ncmu6",
@@ -6690,7 +6837,8 @@
         38,
         45
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ix7usn",
@@ -6732,7 +6880,8 @@
         17,
         41
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sbryhz",
@@ -6775,7 +6924,8 @@
         29,
         34
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_euckz9",
@@ -6818,7 +6968,8 @@
         35,
         46
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_aj1xk2",
@@ -6854,7 +7005,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_nxoa7u",
@@ -6894,7 +7046,8 @@
         34,
         53
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_7a59h",
@@ -6935,7 +7088,8 @@
         29,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_krgc82",
@@ -6977,7 +7131,8 @@
         14,
         23
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_nuzdb5",
@@ -7020,7 +7175,8 @@
         14,
         34
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_z274du",
@@ -7061,7 +7217,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_a0y567",
@@ -7101,7 +7258,8 @@
         29,
         47
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_i5jucj",
@@ -7140,7 +7298,8 @@
         17,
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_cs89lw",
@@ -7183,7 +7342,8 @@
         15,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_w1hboq",
@@ -7226,7 +7386,8 @@
         15,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_mkialb",
@@ -7267,7 +7428,8 @@
         33,
         48
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_26n6rw",
@@ -7308,7 +7470,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_du0lie",
@@ -7350,7 +7513,8 @@
         15,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_64qqpn",
@@ -7392,7 +7556,8 @@
         13,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sioc8h",
@@ -7432,7 +7597,8 @@
         34,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_aqkyv5",
@@ -7471,7 +7637,8 @@
         14,
         31
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_unop1x",
@@ -7514,7 +7681,8 @@
         71,
         78
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_cgpq5s",
@@ -7558,7 +7726,8 @@
         71,
         78
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_arw8sd",
@@ -7600,7 +7769,8 @@
         54,
         66
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_y9k2x2",
@@ -7642,7 +7812,8 @@
         12,
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_q0cayh",
@@ -7683,7 +7854,8 @@
         14,
         41
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_4gzg6c",
@@ -7723,7 +7895,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_vr3sas",
@@ -7764,7 +7937,8 @@
         30,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_w5oqnz",
@@ -7807,7 +7981,8 @@
         34,
         50
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_e0ea8n",
@@ -7849,7 +8024,8 @@
         14,
         30
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_oto1bz",
@@ -7891,7 +8067,8 @@
         12,
         33
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_6guazq",
@@ -7930,7 +8107,8 @@
         15,
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_knitv6",
@@ -7969,7 +8147,8 @@
         15,
         32
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_zfr4zr",
@@ -8007,7 +8186,8 @@
       "yoficationPositions": [
         22
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_2ri0wv",
@@ -8048,7 +8228,8 @@
         51,
         60
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_gwvpjc",
@@ -8088,7 +8269,8 @@
         24,
         35
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_h7jszs",
@@ -8127,7 +8309,8 @@
         13,
         36
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_s6f4m2",
@@ -8171,7 +8354,8 @@
         34,
         67
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_kcoue9",
@@ -8215,7 +8399,8 @@
         34,
         67
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_e6wevs",
@@ -8259,7 +8444,8 @@
         34,
         67
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_uxgq8o",
@@ -8302,7 +8488,8 @@
         34,
         67
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_d5o3e6",
@@ -8340,7 +8527,8 @@
       "yoficationPositions": [
         29
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_mx8nvj",
@@ -8375,7 +8563,8 @@
       "yoficationPositions": [
         24
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_gag3b",
@@ -8411,7 +8600,8 @@
         52,
         54
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_drjokh",
@@ -8448,7 +8638,8 @@
         53,
         55
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_239rj9",
@@ -8486,7 +8677,8 @@
         74,
         76
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_91dj9d",
@@ -8529,7 +8721,8 @@
         42,
         47
       ],
-      "level": 1
+      "level": 1,
+      "jewelType": "shared"
     }
   ],
   "optimizationTable": {
