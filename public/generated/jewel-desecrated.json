@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T13:05:03.018Z",
+  "version": "2026-06-06T14:37:05.163Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -1585,7 +1585,7 @@
         31
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "ruby"
     },
     {
       "id": "jewel-desecrated.mod_vurd3w",
