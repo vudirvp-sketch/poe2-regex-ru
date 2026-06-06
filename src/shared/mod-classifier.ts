@@ -9,7 +9,7 @@
  */
 
 import type { FamilyGroup, ModOrigin } from './types';
-import { ORIGIN_LABELS } from './constants';
+import { t } from './i18n';
 
 // ─── Semantic category types ───
 
@@ -325,7 +325,7 @@ export function classifyGroups(
       .filter(origin => classified.has(origin) && classified.get(origin)!.length > 0)
       .map(origin => ({
         key: origin,
-        label: ORIGIN_SECTION_LABELS[origin]?.label ?? ORIGIN_LABELS[origin] ?? origin,
+        label: ORIGIN_SECTION_LABELS[origin]?.label ?? t('origin.' + origin),
         colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-gray-400',
         groups: classified.get(origin)!,
       }));

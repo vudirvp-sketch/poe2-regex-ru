@@ -4,9 +4,10 @@
  * Contains:
  * - RegexOutput with health bar (sticky)
  * - Mode toggle (Хочу / Не хочу)
- * - Range filter (≥ min, ≤ max) — conditional
- * - Round10 toggle — conditional
+ * - Range filter (≥ min, ≤ max) — conditional on hasRangedTokens
+ * - Round10 toggle — conditional on hasRangedTokens (or showRound10)
  * - Slot for category-specific controls (waystone state, tablet types, etc.)
+ * - Optional clear button slot
  *
  * This component is placed ABOVE the ModList in the page layout,
  * so the regex output and controls are always visible.
@@ -32,6 +33,13 @@ interface CategoryControlPanelProps {
   setRound10Enabled: (v: boolean) => void;
   /** Slot for category-specific controls (waystone state, tablet types, etc.) */
   extraControls?: React.ReactNode;
+  /**
+   * Explicitly show round10 toggle regardless of hasRangedTokens.
+   * Used by VendorPage which has numeric inputs but no ranged mod tokens.
+   */
+  showRound10?: boolean;
+  /** Slot for a clear/reset button (used by VendorPage) */
+  clearButton?: React.ReactNode;
 }
 
 export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
@@ -49,12 +57,16 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   round10Enabled,
   setRound10Enabled,
   extraControls,
+  showRound10,
+  clearButton,
 }) => {
+  const showRound10Toggle = showRound10 ?? hasRangedTokens;
+
   return (
     <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
       style={{ background: 'var(--poe-bg, #0a0a0f)' }}
       role="toolbar"
-      aria-label="Панель управления фильтрами"
+      aria-label={t('control.panel')}
     >
       {/* Regex output */}
       <RegexOutput regex={regex} isOverflow={isOverflow} filterStore={filterStore} />
@@ -62,7 +74,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
       {/* Controls row */}
       <div className="flex flex-wrap gap-2 items-center mt-2">
         {/* Mode toggle */}
-        <div className="flex gap-1" role="radiogroup" aria-label="Режим фильтра">
+        <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}>
           <button
             onClick={() => setExcludeMode(false)}
             role="radio"
@@ -95,8 +107,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 min={0}
                 value={minValue ?? ''}
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMinValue(e.target.value === '' ? null : isNaN(v) ? null : v); }}
-                placeholder="Мин"
-                aria-label="Минимальное значение"
+                placeholder={t('range.min')}
+                aria-label={t('range.min_aria')}
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
               <span className="text-gray-500">&le;</span>
@@ -105,8 +117,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 min={0}
                 value={maxValue ?? ''}
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMaxValue(e.target.value === '' ? null : isNaN(v) ? null : v); }}
-                placeholder="Макс"
-                aria-label="Максимальное значение"
+                placeholder={t('range.max')}
+                aria-label={t('range.max_aria')}
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
             </div>
@@ -123,14 +135,14 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             )}
             {rangedSuffixes.length > 0 && (minValue !== null || maxValue !== null) && (
               <span className="text-[10px] text-gray-600">
-                суффиксы: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
+                {t('suffixes.label')}: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
               </span>
             )}
           </>
         )}
 
         {/* Round10 toggle */}
-        {hasRangedTokens && (
+        {showRound10Toggle && (
           <label className="flex items-center gap-1 cursor-pointer">
             <input
               type="checkbox"
@@ -141,6 +153,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             <span className="text-[10px] text-gray-400">{t('round10')}</span>
           </label>
         )}
+
+        {/* Clear button slot */}
+        {clearButton}
 
         {/* Category-specific controls slot */}
         {extraControls}

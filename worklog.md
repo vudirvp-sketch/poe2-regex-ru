@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 10 — 2026-06-06)
+## Current State (Session 21 — 2026-06-06)
 
 **Build:** `pnpm build` passes, `pnpm test` passes (204/204 tests)
 
@@ -26,52 +26,48 @@
 
 ---
 
-### Session 10 Changes
+### Session 21 Changes — i18n Completion + VendorPage Refactor
 
-**HIGH — Full ETL re-run completed:**
-- Ran `pnpm etl` with cached poe2db.tw data
-- Regex computed via full TypeScript algorithm (compute-regex.ts) with compound families, yofication
-- MIN_REGEX_LEN_DEFAULT raised from 3 to 5 (was only strict for waystone/tablet)
-- Result: only 1 token has regex <5 chars (i18n override fallback)
+**MEDIUM — VendorPage now uses shared CategoryControlPanel:**
+- Removed duplicated sticky wrapper, mode toggle, round10 toggle from VendorPage
+- CategoryControlPanel extended with optional props: `showRound10`, `clearButton`
+- VendorPage passes `hasRangedTokens={false}`, `showRound10={hasNumericSelected}`, `clearButton={...}`
+- Eliminates ~40 lines of duplicated UI code
 
-**HIGH — Regex quality audit:**
-- Fixed problematic regex like "(2.", "(3.", "(9." for belt health regen tokens
-- All categories now have 0 short regexes except 1 i18n override token
-- ETL deduplication improved: waystone 106→96, waystone-desecrated 18→16, tablet 78→75
+**MEDIUM — i18n: all page components now use t() instead of hardcoded Russian:**
+- BeltPage, RingPage, AmuletPage, WaystonePage, JewelPage, RelicPage, TabletPage:
+  "Загрузка данных..." → `t('loading')`, "Ошибка загрузки:" → `t('load_error')`,
+  "Нет данных" → `t('no_data')`, "выбрано" → `t('selected')`,
+  "мод(ов)" → `t('mods_word')`, "модов" → `t('mods_word')`,
+  "Выбрано:" → `t('summary.selected')`, "Включить"/"Исключить" → `t('summary.include')`/`t('summary.exclude')`
 
-**HIGH — ModList origin grouping fix:**
-- Problem: "··· Осквернённые ···" appeared multiple times within a single affix column
-  (once per semantic sub-group: under "Атакующие", under "Защитные", etc.)
-- Fix: When `showOriginSubSections=true`, now groups by origin FIRST, then by semantic
-  category within each origin. No more duplicate origin headers.
-- New `splitByOriginThenSemantic()` function replaces per-sub-group splitting
+**LOW — AFFIX_LABELS/ORIGIN_LABELS replaced with t() in ModList + mod-classifier:**
+- `AFFIX_LABELS[affix]` → `t('affix.' + affix)` in ModList (column headers, dropdowns, origin mode)
+- `ORIGIN_LABELS[origin]` → `t('origin.' + origin)` in ModList (dropdown) and mod-classifier (origin mode labels)
+- New i18n keys: `affix.prefix`, `affix.suffix`, `origin.normal/desecrated/corrupted/essence/breachborn`
 
-**MEDIUM — HomePage dynamic mod counts:**
-- Removed all hardcoded counts: '106 модов', '1 584 мода', etc.
-- Now dynamically loads JSON files and counts tokens on mount
-- Added `loadMergedCategoryData()` support for jewel (3 merged JSONs)
+**INFO — FilterChip i18n:**
+- Replaced hardcoded "выбрано/частично выбрано/не выбрано/уровней/диапазон" with `t('chip.*')` calls
+- Keys already existed in i18n.ts, just not used
 
-**MEDIUM — i18n: hardcoded Russian strings replaced with t():**
-- Added 30+ new translation keys to i18n.ts
-- RegexOutput: "Норма/Много/Критично/Копировать/Поделиться/Авто/ПЕРЕПОЛНЕНИЕ/..."
-- ModList: "Поиск модов.../Все типы/Все источники/Очистить/Моды не найдены/..."
-- CategoryControlPanel: "Хочу/Не хочу"
-- VendorPage: "Хочу/Не хочу/Очистить"
-- Sidebar: "Русский клиент"
-- Header: theme toggle titles
+**INFO — CategoryControlPanel i18n:**
+- "Панель управления фильтрами" → `t('control.panel')`
+- "Режим фильтра" → `t('mode.want')`
+- "Мин"/"Макс" → `t('range.min')`/`t('range.max')`
+- "Минимальное/Максимальное значение" → `t('range.min_aria')`/`t('range.max_aria')`
+- "суффиксы" → `t('suffixes.label')`
 
-**MEDIUM — Sidebar icon normalization:**
-- All 9 icons normalized to 128x128 canvas via PIL
-- Non-square icons (relic 80x156, vendor 331x270, belt 212x108) fitted with padding
-- Icon display size increased from 20x20 to 24x24
+**INFO — ETL automation already in place:**
+- deploy.yml has weekly cron (Monday 06:00 UTC) that runs ETL + commit + deploy
+- `workflow_dispatch` with `run_etl` parameter for manual trigger
+- `.etl-cache/` is in `.gitignore` — fresh data on each ETL run in CI
 
-**LOW — RegexOutput double-sticky fix:**
-- Removed `sticky top-0 z-10` from RegexOutput component
-- Sticky behavior now only on CategoryControlPanel and VendorPage wrapper
-
-**LOW — index.html theme-color fix:**
-- Header.tsx now updates `<meta name="theme-color">` on theme change
-- Dark: #0f0f1a, Light: #f5f5f0
+**New i18n keys added (total now ~110+):**
+- `affix.prefix`, `affix.suffix`
+- `origin.normal`, `origin.desecrated`, `origin.corrupted`, `origin.essence`, `origin.breachborn`
+- `summary.selected`, `summary.include`, `summary.exclude`
+- `control.panel`, `suffixes.label`
+- `range.min`, `range.max`, `range.min_aria`, `range.max_aria`
 
 ---
 
@@ -79,12 +75,12 @@
 
 | Priority | Issue | Status |
 |----------|-------|--------|
-| MEDIUM | VendorPage duplicates CategoryControlPanel layout (mode toggle, sticky, round10) | Not fixed — needs architectural refactor |
-| MEDIUM | Some i18n strings still hardcoded in page components (WaystonePage, JewelPage, etc.) | Partial — key components done |
-| LOW | BeltPage "Префикс"/"Суффикс" hardcoded in origin mode | Not fixed |
 | INFO | 1 i18n override token has regex <5 chars (amulet fire spell crit breachborn) | Acceptable |
 | INFO | Waystone tier filter removed (confirmed not searchable in RU client) | By design |
 | INFO | 51 tokens use i18n overrides (poe2db.tw lacks Russian text) | Handled by i18n-overrides.json |
+| LOW | TabletPage labels "Тип:", "Редкость:", "Исп.:" still hardcoded | Next iteration |
+| LOW | WaystonePage checkbox labels "Осквернён/Неосквернён/Делириум" still hardcoded | Next iteration |
+| LOW | VendorPage GROUP_ORDER + GROUP_COLORS labels are hardcoded Russian | By design (vendor-specific) |
 
 ---
 
@@ -102,9 +98,9 @@ pnpm dev              # Development server
 
 - **ETL:** `scripts/run-etl.ts` → fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON
 - **Data:** `public/generated/*.json` (10 files)
-- **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook
-- **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel
-- **i18n:** `src/shared/i18n.ts` — t() function with 90+ keys
+- **UI Pages:** `src/ui/pages/{category}/` — each uses `useCategoryPage()` hook (except VendorPage)
+- **Components:** `src/ui/components/` — ModList, FilterChip, RegexOutput, CategoryControlPanel, ProfilePanel, VendorChip
+- **i18n:** `src/shared/i18n.ts` — t() function with 110+ keys
 - **Regex Engine:** `src/core/` — AST, compiler, optimizer, number-regex
 - **Store:** `src/store/` — Zustand filter store, profile store, URL sync
 
@@ -112,4 +108,4 @@ pnpm dev              # Development server
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
 2. **i18n override regex too short:** Check `scripts/etl/i18n-overrides.json` and `run-etl.ts` `applyI18nOverrides()`
-3. **Regex double-sticky:** Only CategoryControlPanel and VendorPage wrapper should have `sticky top-0`
+3. **Regex double-sticky:** Only CategoryControlPanel should have `sticky top-0`

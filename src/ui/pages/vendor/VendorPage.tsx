@@ -1,16 +1,16 @@
 /**
  * VendorPage — Vendor regex filter for the Russian game client.
  *
- * Layout v2 (iteration 4): Control panel (regex + mode + round10) sticky at top,
- * property chips in flex-wrap groups below, verification note at the bottom.
+ * Layout v2 (iteration 8): Uses shared CategoryControlPanel for sticky
+ * regex output + mode toggle + round10. Chip groups below, verification note at bottom.
  *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.
  * The plan's invariant I4 targets mod strings from ETL, not vendor labels.
  */
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { RegexOutput } from '@ui/components/RegexOutput';
 import { VendorChip } from '@ui/components/VendorChip';
+import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@shared/constants';
 import { and, or, literal, exclude, range } from '@core/ast';
@@ -40,26 +40,6 @@ interface VendorProperty {
  * These are derived from the known Russian translations of item properties
  * in Path of Exile 2. Each regex is the shortest unique substring that
  * matches the corresponding property text in the RU client.
- *
- * Property text examples (RU client):
- *   "Качество" → regex: "качеств"
- *   "Гнёзда" → regex: "гнёзд"
- *   "Сопротивление огню" → regex: "огню"
- *   "Сопротивление холоду" → regex: "холоду"
- *   "Сопротивление молниям" → regex: "молни"
- *   "Сопротивление хаосу" → regex: "хаосу"
- *   "Физический урон" → regex: "физическ"
- *   "Урон от чар" → regex: "урон от чар"
- *   "Дух" → regex: "дух"
- *   "Скорость атаки" → regex: "скорость атаки"
- *   "Скорость сотворения" → regex: "сотворени"
- *   "Скорость передвижения" → regex: "передвижени"
- *   "Здоровье" → regex: "здоровь"
- *   "Мана" → regex: "ман"
- *   "Редкость предметов" → regex: "редкость"
- *   "Сила" → regex: "силе"
- *   "Ловкость" → regex: "ловкост"
- *   "Интеллект" → regex: "интеллект"
  */
 const VENDOR_PROPERTIES: VendorProperty[] = [
   // ─── Item property ───
@@ -380,68 +360,37 @@ export function VendorPage() {
           {t('vendor.title')}
         </h2>
         <span className="text-xs text-gray-500">
-          {selectedIds.size} выбрано
+          {selectedIds.size} {t('selected')}
         </span>
       </div>
 
-      {/* Sticky top: Regex output + controls */}
-      <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
-        style={{ background: 'var(--poe-bg, #0a0a0f)' }}
-        role="toolbar"
-        aria-label="Панель управления"
-      >
-        <RegexOutput regex={regex} isOverflow={isRegexOverflow} filterStore={filterStore.getState()} />
-
-        {/* Controls row */}
-        <div className="flex flex-wrap gap-2 items-center mt-2">
-          {/* Mode toggle */}
-          <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}>
-            <button
-              onClick={() => setExcludeMode(false)}
-              role="radio"
-              aria-checked={!excludeMode}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-              }`}
-            >
-              {t('mode.want')}
-            </button>
-            <button
-              onClick={() => setExcludeMode(true)}
-              role="radio"
-              aria-checked={excludeMode}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-              }`}
-            >
-              {t('mode.dont_want')}
-            </button>
-          </div>
-
-          {/* Round10 toggle */}
-          {hasNumericSelected && (
-            <label className="flex items-center gap-1 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={round10}
-                onChange={(e) => setRound10(e.target.checked)}
-                className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500"
-              />
-              <span className="text-[10px] text-gray-400">{t('round10')}</span>
-            </label>
-          )}
-
-          {/* Clear all */}
-          {selectedIds.size > 0 && (
+      {/* Shared control panel: regex output + mode toggle + round10 + clear */}
+      <CategoryControlPanel
+        regex={regex}
+        isOverflow={isRegexOverflow}
+        filterStore={filterStore.getState()}
+        excludeMode={excludeMode}
+        setExcludeMode={setExcludeMode}
+        hasRangedTokens={false}
+        minValue={null}
+        setMinValue={() => {}}
+        maxValue={null}
+        setMaxValue={() => {}}
+        rangedSuffixes={[]}
+        round10Enabled={round10}
+        setRound10Enabled={setRound10}
+        showRound10={hasNumericSelected}
+        clearButton={
+          selectedIds.size > 0 ? (
             <button
               onClick={clearAll}
               className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
             >
               {t('filter.clear')} ({selectedIds.size})
             </button>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       {/* Chip-based property groups */}
       <div className="flex flex-col gap-3">
@@ -471,9 +420,7 @@ export function VendorPage() {
 
       {/* Verification note */}
       <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80" role="alert">
-        <strong>Требуется проверка:</strong> Regex строки для свойств торговца основаны на
-        переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает,
-        сообщите об этом для исправления.
+        <strong>{t('vendor.verification')}</strong>
       </div>
     </div>
   );

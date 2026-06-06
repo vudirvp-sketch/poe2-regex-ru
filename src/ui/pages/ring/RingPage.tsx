@@ -29,7 +29,7 @@ export function RingPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-400">
           <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mb-2" />
-          <p className="text-sm">Загрузка данных...</p>
+          <p className="text-sm">{t('loading')}</p>
         </div>
       </div>
     );
@@ -39,13 +39,13 @@ export function RingPage() {
     return (
       <div className="p-4">
         <div className="bg-red-900/50 border border-red-700 rounded p-3 text-red-300 text-sm">
-          Ошибка загрузки: {error}
+          {t('load_error')} {error}
         </div>
       </div>
     );
   }
 
-  if (!data) return <div className="p-4 text-gray-500">Нет данных</div>;
+  if (!data) return <div className="p-4 text-gray-500">{t('no_data')}</div>;
 
   const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
   const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
@@ -60,7 +60,7 @@ export function RingPage() {
           <img src={`${import.meta.env.BASE_URL}icons/ring.png`} alt="" width={24} height={24} className="object-contain" />
           {t('ring.title')}
         </h2>
-        <span className="text-xs text-gray-500">{data.tokens.length} модов</span>
+        <span className="text-xs text-gray-500">{data.tokens.length} {t('mods_word')}</span>
       </div>
 
       <CategoryControlPanel
@@ -103,9 +103,9 @@ export function RingPage() {
 
         {selectedTokens.length > 0 && (
           <div className="bg-gray-900 border border-gray-700 rounded p-3">
-            <div className="text-xs text-gray-400 mb-1">Выбрано: {selectedTokens.length} мод(ов)</div>
+            <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {selectedTokens.length} {t('mods_word')}</div>
             <div className="text-[10px] text-gray-600">
-              {excludeMode ? 'Исключить' : 'Включить'}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+              {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
             </div>
           </div>
         )}

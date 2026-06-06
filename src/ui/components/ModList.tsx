@@ -15,7 +15,6 @@
 import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
-import { ORIGIN_LABELS, AFFIX_LABELS } from '@shared/constants';
 import { classifyGroups, type ModGroupMode, type ModSubGroup } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
@@ -80,7 +79,7 @@ function splitByOriginThenSemantic(
 
     result.push({
       origin,
-      label: labelConfig?.label ?? ORIGIN_LABELS[origin] ?? origin,
+      label: labelConfig?.label ?? t('origin.' + origin),
       colorClass: labelConfig?.colorClass ?? 'text-gray-400',
       subGroups,
     });
@@ -138,7 +137,7 @@ const AffixColumn: React.FC<{
   return (
     <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
       <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${headerColor}`}>
-        {AFFIX_LABELS[affix]} ({totalCount})
+        {t('affix.' + affix)} ({totalCount})
       </h4>
 
       {showOriginSubSections ? (
@@ -299,8 +298,8 @@ export const ModList: React.FC<ModListProps> = ({
           className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
         >
           <option value="all">{t('filter.all_types')}</option>
-          <option value="prefix">{AFFIX_LABELS.prefix}</option>
-          <option value="suffix">{AFFIX_LABELS.suffix}</option>
+          <option value="prefix">{t('affix.prefix')}</option>
+          <option value="suffix">{t('affix.suffix')}</option>
         </select>
 
         {availableOrigins.length > 1 && (
@@ -313,7 +312,7 @@ export const ModList: React.FC<ModListProps> = ({
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
               <option key={origin} value={origin}>
-                {ORIGIN_LABELS[origin] || origin}
+                {t('origin.' + origin)}
               </option>
             ))}
           </select>
@@ -352,7 +351,7 @@ export const ModList: React.FC<ModListProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-2">
                       {originPrefix.length > 0 && (
                         <div className="border-l-2 border-blue-800/50 pl-3">
-                          <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">{AFFIX_LABELS.prefix} ({originPrefix.length})</h5>
+                          <h5 className="text-[10px] font-semibold text-blue-400 uppercase mb-1">{t('affix.prefix')} ({originPrefix.length})</h5>
                           <div className="flex flex-wrap gap-1.5">
                             {originPrefix.map(group => (
                               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />
@@ -362,7 +361,7 @@ export const ModList: React.FC<ModListProps> = ({
                       )}
                       {originSuffix.length > 0 && (
                         <div className="border-l-2 border-orange-800/50 pl-3">
-                          <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">{AFFIX_LABELS.suffix} ({originSuffix.length})</h5>
+                          <h5 className="text-[10px] font-semibold text-orange-400 uppercase mb-1">{t('affix.suffix')} ({originSuffix.length})</h5>
                           <div className="flex flex-wrap gap-1.5">
                             {originSuffix.map(group => (
                               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} />

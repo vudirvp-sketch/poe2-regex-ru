@@ -11,6 +11,7 @@
  */
 import React, { useMemo } from 'react';
 import type { FamilyGroup } from '@shared/types';
+import { t } from '@shared/i18n';
 
 interface FilterChipProps {
   group: FamilyGroup;
@@ -76,10 +77,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({ group, selectedIds, onTo
 
   // ARIA label for screen readers: include full text, selection state, and tier count
   const ariaLabel = useMemo(() => {
-    const stateText = selectionState === 'full' ? 'выбрано' : selectionState === 'partial' ? 'частично выбрано' : 'не выбрано';
+    const stateText = selectionState === 'full' ? t('chip.selected') : selectionState === 'partial' ? t('chip.partial') : t('chip.unselected');
     const parts = [displayText, stateText];
-    if (tierCount > 1) parts.push(`${tierCount} уровней`);
-    if (rangeText) parts.push(`диапазон ${rangeText}`);
+    if (tierCount > 1) parts.push(`${tierCount} ${t('chip.levels')}`);
+    if (rangeText) parts.push(`${t('chip.range')} ${rangeText}`);
     return parts.join(', ');
   }, [displayText, selectionState, tierCount, rangeText]);
 
