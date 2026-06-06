@@ -4,40 +4,37 @@
 
 ---
 
-## Current State (Session 33 — 2026-06-07)
+## Current State (Session 34 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (278/278 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (318/318 tests)
 
 **Key Changes This Session:**
 
-1. **ETL перегенерация JSON** — `pnpm etl` выполнен с новыми `[0-9]` паттернами:
-   - Все 10 категорий перегенерированы: amulet(427), belt(298), jewel(193), jewel-desecrated(32), jewel-corrupted(10), relic(58), ring(366), tablet(75), waystone(97), waystone-desecrated(17)
-   - 55 i18n-override токенов наложены
+1. **Фаза 3: DP на Trie** — `src/core/dp-factorizer.ts` создан:
+   - `dpFactorize()` — главная точка входа, пробует prefix/suffix/combined стратегии
+   - `dpFactorizeByPrefix()` / `dpFactorizeBySuffix()` / `dpFactorizeCombined()` — три стратегии DP
+   - `dpFactorizeGroup()` — рекурсивная факторизация внутри групп
+   - `batchDPFactorize()` — пакетная факторизация по категориям
+   - `estimateDPCost()` — быстрая оценка стоимости без построения регекса
+   - Стоимость: `()` = 2, `|` = 1, `[]` = 2, `?` = 1
 
-2. **ETL --validate** — Oracle-валидация всех регексов:
-   - FP=1054 (ожидаемо: family-regex мэтчит все тиры одной семьи)
-   - FN=73 (реальные баги в нескольких категориях: jewel-desecrated 15 FN, waystone 10 FN)
-   - jewel-corrupted: все literal regexes валидны
+2. **Фаза 4 (частично): Диалектные оптимизации** — внутри dp-factorizer.ts:
+   - `applyDialectOptimizations()` — ёфикация, окончания, top-level merging
+   - Level 1: Within-group `(е|ё)` → `[её]`, `(ю|я)` → `[юя]`
+   - Level 2: Top-level `тест|тёст` → `т[её]ст`, `молнию|молния` → `молни[юя]`
+   - Dialect pairs: [её], [юя], [ая], [ые], [ие], [ов]
 
-3. **Проверка лимита 250 символов:**
-   - Ни один regex в JSON не превышает 250 символов
-   - Максимальная длина: tablet=57, amulet=47, belt=47
-   - Худший случай компиляции RANGE (prefix + numberRegex + suffix): < 200 символов
-
-4. **Фаза 2: Trie-факторизация** — `src/core/trie-factorizer.ts` создан:
-   - `buildTrie()` / `buildReverseTrie()` — построение Trie
-   - `findCommonPrefixes()` / `findCommonSuffixes()` — поиск общих групп
-   - `factorize()` — факторизация набора строк (prefix, suffix, combined)
-   - `batchFactorize()` — пакетная факторизация по категориям
-   - `estimateSavings()` — оценка потенциальной экономии
-   - `longestCommonPrefix()` / `longestCommonSuffix()` — утилиты
-   - `tests/core/trie-factorizer.test.ts` — 40 тестов (Trie, prefix/suffix, factorization, PoE2 scenarios)
+3. **40 новых тестов** — `tests/core/dp-factorizer.test.ts`:
+   - Basic DP, prefix/suffix/combined strategies
+   - PoE2 dialect optimizations (6 тестов)
+   - Batch factorization, cost estimation
+   - PoE2 integration scenarios
+   - DP vs greedy comparison
 
 **NOT YET DONE:**
-- Фаза 3: DP на Trie (`src/core/dp-factorizer.ts`)
-- Фаза 4: Оптимизации диалекта PoE2
+- Фаза 4 (доп): Интеграция `applyDialectOptimizations()` в ETL пайплайн
 - Фаза 5: Итеративный цикл оптимизации
-- Фаза 6: Интеграция Trie-факторизации в ETL пайплайн
+- Фаза 6: Интеграция Trie/DP-факторизации в ETL пайплайн (заменить/дополнить compute-optimizations.ts)
 - In-game тесты групп A-G из `docs/IN_GAME_TESTS.md`
 - Исправление FN багов (73 false negatives в Oracle-валидации)
 
@@ -58,7 +55,7 @@
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (278)
+npx vitest run --root .          # Run all tests (318)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL with Oracle validation
 npx tsx scripts/analyze-regexes.ts  # Analyze regex quality

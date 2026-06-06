@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 29.0 | **Date:** 2026-06-07
+> **Version:** 30.0 | **Date:** 2026-06-07
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/analyze-regexes.ts` | Regex quality analysis. | Run via `npx tsx scripts/analyze-regexes.ts`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 238 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 318 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -26,7 +26,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (238 tests, Vitest)
+npx vitest run --root . # Run tests (318 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate   # Run ETL + Oracle validation
 npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
@@ -45,7 +45,7 @@ npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (238 tests)
+- [ ] `npx vitest run --root .` passes (318 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -65,9 +65,9 @@ shared <- core <- strategies <- store <- data <- ui
 ### HIGH
 
 1. **Push fixes to GitHub** — Local TS fixes not pushed to main → CI broken
-2. **Re-run ETL** — `pnpm etl` needed: number-regex `.` → `[0-9]` fix requires JSON regeneration
-3. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` (rewritten with hypothesis-based tests)
-4. **Фаза 2: Trie-факторизация** — See `OPTIMIZER_PLAN.md` for full plan
+2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` (rewritten with hypothesis-based tests)
+3. **Фаза 6: Интеграция DP в ETL** — Replace/complement compute-optimizations.ts with dp-factorizer
+4. **Исправление FN багов** — 73 false negatives: jewel-desecrated (15), waystone (10), ring (12), amulet (27)
 
 ### MEDIUM
 
