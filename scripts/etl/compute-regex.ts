@@ -50,16 +50,23 @@ export interface RegexResult {
  * forces longer, more specific regexes.
  */
 const MIN_REGEX_LEN_DEFAULT = 5;
-const MIN_REGEX_LEN_STRICT = 10;
 
-/** Categories that require stricter minimum regex length.
- * Waystone/tablet mods have short, generic suffixes that match unintended
- * text in-game. jewel-desecrated has the same problem — dual-stat mods
- * produce very short unique suffixes like "молнии" (6), "холоду" (6),
- * "Бездны" (6) which match many unrelated mods across all categories.
- * Raising MIN_REGEX_LEN_STRICT to 10 forces longer, more specific regexes.
+/** Per-category strict minimum regex length.
+ * Waystone mods often have number ranges in parentheses like "(10—20)%"
+ * which PoE2 interprets as grouping, not literal parens. If MIN_REGEX_LEN_STRICT
+ * is too high (10), the algorithm can't find a unique substring that avoids
+ * parens AND is >= 10 chars. Lowering to 7 allows finding shorter but
+ * paren-free regexes that work in PoE2 search.
+ *
+ * Tablet and jewel-desecrated still use 10 because their suffixes tend to
+ * be more distinctive and don't suffer from the (num—num) pattern as much.
  */
-const STRICT_CATEGORIES = new Set(['waystone', 'waystone-desecrated', 'tablet', 'jewel-desecrated']);
+const STRICT_CATEGORIES_MIN_LEN: Record<string, number> = {
+  'waystone': 7,
+  'waystone-desecrated': 7,
+  'tablet': 10,
+  'jewel-desecrated': 10,
+};
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -373,8 +380,8 @@ export function computeMinimalUniqueSubstring(
   const familyKey = normalizeTemplate(template);
 
   // Determine min regex length based on category
-  const effectiveMinLen = STRICT_CATEGORIES.has(targetToken.category)
-    ? Math.max(minRegexLen, MIN_REGEX_LEN_STRICT)
+  const effectiveMinLen = STRICT_CATEGORIES_MIN_LEN[targetToken.category]
+    ? Math.max(minRegexLen, STRICT_CATEGORIES_MIN_LEN[targetToken.category])
     : minRegexLen;
 
   // Edge case: empty rawText

@@ -602,7 +602,7 @@ async function runEtl() {
       // Step 3b: Apply dialect optimizations to individual regexes
       // This saves 2-5 chars per regex for mods with е/ё and endings
       let dialectOptCount = 0;
-      for (const [id, rr] of regexResults) {
+      for (const [, rr] of regexResults) {
         const optimized = applyDialectOptimizations(rr.regex);
         if (optimized !== rr.regex) {
           rr.regex = optimized;

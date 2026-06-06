@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T16:39:12.285Z",
+  "version": "2026-06-06T18:55:24.095Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -239,7 +239,7 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "максимума чести"
+        "ru": "—12)% увеличение максимума чести"
       },
       "familyKey": {
         "ru": "#% увеличение максимума чести"
@@ -285,7 +285,7 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "максимума чести"
+        "ru": "—16)% увеличение максимума чести"
       },
       "familyKey": {
         "ru": "#% увеличение максимума чести"
@@ -331,7 +331,7 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "максимума чести"
+        "ru": "7—20)% увеличение максимума чести"
       },
       "familyKey": {
         "ru": "#% увеличение максимума чести"
@@ -377,7 +377,7 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "максимума чести"
+        "ru": "24)% увеличение максимума чести"
       },
       "familyKey": {
         "ru": "#% увеличение максимума чести"
@@ -423,7 +423,7 @@
         "ru": "##% увеличение максимума чести"
       },
       "regex": {
-        "ru": "максимума чести"
+        "ru": "30)% увеличение максимума чести"
       },
       "familyKey": {
         "ru": "#% увеличение максимума чести"
@@ -469,7 +469,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "6—10)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -516,7 +516,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "1—15)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -563,7 +563,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "6—20)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -610,7 +610,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "24)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -657,7 +657,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "29)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -1012,7 +1012,7 @@
         "ru": "Дарует святой воды в начале испытания: ##"
       },
       "regex": {
-        "ru": "я: (3"
+        "ru": "святой воды в начале испытания:"
       },
       "familyKey": {
         "ru": "Дарует святой воды в начале испытания: #"
@@ -1595,7 +1595,7 @@
         "ru": "Ловушки наносят уменьшенный на ##% урон"
       },
       "regex": {
-        "ru": "на (8"
+        "ru": "ловушки наносят уменьшенный на "
       },
       "familyKey": {
         "ru": "Ловушки наносят уменьшенный на #% урон"
@@ -2103,7 +2103,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "8—10)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2142,7 +2142,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "13)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2181,7 +2181,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "—16)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2220,7 +2220,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "19)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2259,7 +2259,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "22)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2458,7 +2458,7 @@
         "ru": "##% увеличение восстановления чести"
       },
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "8—10)% увеличение восстановления чести"
       },
       "familyKey": {
         "ru": "#% увеличение восстановления чести"
@@ -2567,9 +2567,9 @@
         "relic.sanctumstartinggold5"
       ],
       "regex": {
-        "ru": "я: (3"
+        "ru": "святой воды в начале испытания:"
       },
-      "weight": 5,
+      "weight": 31,
       "count": 5
     },
     "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
@@ -2682,157 +2682,6 @@
       "weight": 6,
       "count": 4
     },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctummaximumhonour1",
-        "relic.sanctummaximumhonour2",
-        "relic.sanctummaximumhonour3",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumhonour5",
-        "relic.sanctumresolverecoverysmall1",
-        "relic.sanctumresolverecoverysmall2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumresolverecoverysmall4",
-        "relic.sanctumresolverecoverysmall5"
-      ],
-      "regex": {
-        "ru": " чести"
-      },
-      "weight": 6,
-      "count": 11
-    },
-    "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
-      "ids": [
-        "relic.sanctummaximumhonour1",
-        "relic.sanctummaximumhonour2",
-        "relic.sanctummaximumhonour3",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumhonour5",
-        "relic.sanctummonstersdoublegoldchance1",
-        "relic.sanctummonstersdoublegoldchance2",
-        "relic.sanctummonstersdoublegoldchance3",
-        "relic.sanctummonstersdoublegoldchance4"
-      ],
-      "regex": {
-        "ru": "чест"
-      },
-      "weight": 4,
-      "count": 9
-    },
-    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
-      "ids": [
-        "relic.sanctumfountaindoublegoldchance1",
-        "relic.sanctumfountaindoublegoldchance2",
-        "relic.sanctumfountaindoublegoldchance3",
-        "relic.sanctumfountaindoublegoldchance4",
-        "relic.sanctummaximumhonour1",
-        "relic.sanctummaximumhonour2",
-        "relic.sanctummaximumhonour3",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumhonour5"
-      ],
-      "regex": {
-        "ru": "чест"
-      },
-      "weight": 4,
-      "count": 9
-    },
-    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
-      "ids": [
-        "relic.sanctumhonourresistance1",
-        "relic.sanctumhonourresistance2",
-        "relic.sanctumhonourresistance3",
-        "relic.sanctumhonourresistance4",
-        "relic.sanctumhonourresistance5",
-        "relic.sanctummaximumhonour1",
-        "relic.sanctummaximumhonour2",
-        "relic.sanctummaximumhonour3",
-        "relic.sanctummaximumhonour4",
-        "relic.sanctummaximumhonour5"
-      ],
-      "regex": {
-        "ru": " чести"
-      },
-      "weight": 6,
-      "count": 10
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctummonstersdoublegoldchance1",
-        "relic.sanctummonstersdoublegoldchance2",
-        "relic.sanctummonstersdoublegoldchance3",
-        "relic.sanctummonstersdoublegoldchance4",
-        "relic.sanctumresolverecoverysmall1",
-        "relic.sanctumresolverecoverysmall2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumresolverecoverysmall4",
-        "relic.sanctumresolverecoverysmall5"
-      ],
-      "regex": {
-        "ru": "чест"
-      },
-      "weight": 4,
-      "count": 10
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctumfountaindoublegoldchance1",
-        "relic.sanctumfountaindoublegoldchance2",
-        "relic.sanctumfountaindoublegoldchance3",
-        "relic.sanctumfountaindoublegoldchance4",
-        "relic.sanctumresolverecoverysmall1",
-        "relic.sanctumresolverecoverysmall2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumresolverecoverysmall4",
-        "relic.sanctumresolverecoverysmall5"
-      ],
-      "regex": {
-        "ru": "чест"
-      },
-      "weight": 4,
-      "count": 10
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctummovementspeed1",
-        "relic.sanctummovementspeed2",
-        "relic.sanctummovementspeed3",
-        "relic.sanctumresolverecoverysmall1",
-        "relic.sanctumresolverecoverysmall2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumresolverecoverysmall4",
-        "relic.sanctumresolverecoverysmall5"
-      ],
-      "regex": {
-        "ru": "ения"
-      },
-      "weight": 4,
-      "count": 9
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctumhonourresistance1",
-        "relic.sanctumhonourresistance2",
-        "relic.sanctumhonourresistance3",
-        "relic.sanctumhonourresistance4",
-        "relic.sanctumhonourresistance5",
-        "relic.sanctumresolverecoverysmall1",
-        "relic.sanctumresolverecoverysmall2",
-        "relic.sanctumresolverecoverysmall3",
-        "relic.sanctumresolverecoverysmall4",
-        "relic.sanctumresolverecoverysmall5"
-      ],
-      "regex": {
-        "ru": " чести"
-      },
-      "weight": 6,
-      "count": 11
-    },
     "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
       "ids": [
         "relic.sanctumfountaindoublegoldchance1",
@@ -2845,96 +2694,68 @@
         "relic.sanctummonstersdoublegoldchance4"
       ],
       "regex": {
-        "ru": "ть двойное количество святой воды"
+        "ru": "(выпас|дарова)ть двойное количество святой воды"
       },
-      "weight": 33,
+      "weight": 47,
       "count": 8
     },
-    "relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4:relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
       "ids": [
-        "relic.sanctummonstersdoublegoldchance1",
-        "relic.sanctummonstersdoublegoldchance2",
-        "relic.sanctummonstersdoublegoldchance3",
-        "relic.sanctummonstersdoublegoldchance4",
-        "relic.sanctumrelicquantity1",
-        "relic.sanctumrelicquantity2",
-        "relic.sanctumrelicquantity3"
-      ],
-      "regex": {
-        "ru": "выпа"
-      },
-      "weight": 4,
-      "count": 7
-    },
-    "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
-      "ids": [
-        "relic.sanctumdefences1",
-        "relic.sanctumdefences2",
-        "relic.sanctumdefences3",
-        "relic.sanctumdefences4",
-        "relic.sanctummonstersdoublegoldchance1",
-        "relic.sanctummonstersdoublegoldchance2",
-        "relic.sanctummonstersdoublegoldchance3",
-        "relic.sanctummonstersdoublegoldchance4"
-      ],
-      "regex": {
-        "ru": "ичес"
-      },
-      "weight": 4,
-      "count": 8
-    },
-    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
-      "ids": [
+        "relic.sanctumcorruptionresolverecovered_corrupted",
         "relic.sanctumhonourresistance1",
         "relic.sanctumhonourresistance2",
         "relic.sanctumhonourresistance3",
         "relic.sanctumhonourresistance4",
         "relic.sanctumhonourresistance5",
-        "relic.sanctummonstersdoublegoldchance1",
-        "relic.sanctummonstersdoublegoldchance2",
-        "relic.sanctummonstersdoublegoldchance3",
-        "relic.sanctummonstersdoublegoldchance4"
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "чест"
+        "ru": "(максимума|восстановления|сопротивлению) чести"
       },
-      "weight": 4,
-      "count": 9
+      "weight": 46,
+      "count": 16
     },
-    "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4:relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4": {
+    "relic.sanctummaximumhonour4:relic.sanctumresolverecoverysmall4": {
       "ids": [
-        "relic.sanctumdefences1",
-        "relic.sanctumdefences2",
-        "relic.sanctumdefences3",
-        "relic.sanctumdefences4",
-        "relic.sanctumfountaindoublegoldchance1",
-        "relic.sanctumfountaindoublegoldchance2",
-        "relic.sanctumfountaindoublegoldchance3",
-        "relic.sanctumfountaindoublegoldchance4"
+        "relic.sanctummaximumhonour4",
+        "relic.sanctumresolverecoverysmall4"
       ],
       "regex": {
-        "ru": "ичес"
+        "ru": "24)% увеличение (максимума|восстановления) чести"
       },
-      "weight": 4,
-      "count": 8
+      "weight": 48,
+      "count": 2
     },
-    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1": {
       "ids": [
-        "relic.sanctumfountaindoublegoldchance1",
-        "relic.sanctumfountaindoublegoldchance2",
-        "relic.sanctumfountaindoublegoldchance3",
-        "relic.sanctumfountaindoublegoldchance4",
-        "relic.sanctumhonourresistance1",
-        "relic.sanctumhonourresistance2",
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctumhonourresistance1"
+      ],
+      "regex": {
+        "ru": "8—10)% (к сопротивлению|увеличение восстановления) чести"
+      },
+      "weight": 56,
+      "count": 2
+    },
+    "relic.sanctumhonourresistance3:relic.sanctummaximumhonour2": {
+      "ids": [
         "relic.sanctumhonourresistance3",
-        "relic.sanctumhonourresistance4",
-        "relic.sanctumhonourresistance5"
+        "relic.sanctummaximumhonour2"
       ],
       "regex": {
-        "ru": "чест"
+        "ru": "—16)% (увеличение максимума|к сопротивлению) чести"
       },
-      "weight": 4,
-      "count": 9
+      "weight": 50,
+      "count": 2
     }
   }
 }

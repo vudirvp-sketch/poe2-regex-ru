@@ -164,8 +164,9 @@ export function computeOptimizations(
 
 /**
  * Find the longest common substring of two strings.
- * Kept as utility for potential future use.
+ * Utility for potential future use (currently unused but kept for reference).
  */
+// @ts-expect-error Kept for potential future use
 function longestCommonSubstring(s1: string, s2: string): string {
   if (s1.length > s2.length) {
     [s1, s2] = [s2, s1];

@@ -11,7 +11,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "etl": "tsx scripts/run-etl.ts"
+    "etl": "tsx scripts/run-etl.ts",
+    "analyze-fn": "tsx scripts/analyze-fn.ts",
+    "optimize": "tsx scripts/etl/iterative-optimizer.ts",
+    "optimize:dry": "tsx scripts/etl/iterative-optimizer.ts --dry-run --verbose"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.14.2",

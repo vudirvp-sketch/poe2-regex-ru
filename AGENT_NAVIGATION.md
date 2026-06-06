@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 30.0 | **Date:** 2026-06-07
+> **Version:** 31.0 | **Date:** 2026-06-07
 
 ---
 
@@ -14,10 +14,12 @@
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
 | `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** |
-| `scripts/etl/` | ETL pipeline. | Run via `pnpm etl`. Output to `public/generated/`. |
+| `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/analyze-regexes.ts` | Regex quality analysis. | Run via `npx tsx scripts/analyze-regexes.ts`. |
+| `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
+| `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 318 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 323 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -26,10 +28,12 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (318 tests, Vitest)
+npx vitest run --root . # Run tests (323 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate   # Run ETL + Oracle validation
-npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
+pnpm analyze-fn      # Analyze FN/FP per category
+pnpm optimize        # Run iterative optimizer on generated JSON
+pnpm optimize:dry    # Dry-run optimizer with verbose output
 ```
 
 ## 3. Agent Workflow
@@ -45,7 +49,7 @@ npx tsx scripts/analyze-regexes.ts  # Analyze regex quality
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (318 tests)
+- [ ] `npx vitest run --root .` passes (323 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -64,37 +68,37 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Push fixes to GitHub** — Local TS fixes not pushed to main → CI broken
-2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` (rewritten with hypothesis-based tests)
-3. **Фаза 6: Интеграция DP в ETL** — Replace/complement compute-optimizations.ts with dp-factorizer
-4. **Исправление FN багов** — 73 false negatives: jewel-desecrated (15), waystone (10), ring (12), amulet (27)
+1. **ETL re-run needed** — `public/generated/*.json` are stale (pre-FN-fix). Run `pnpm etl -- --validate` then `pnpm optimize`
+2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md`
+3. **Фаза 7: Игровые тесты** — Validate regexes in PoE2 client
+4. **Фаза 8: Финальная полировка** — FP reduction, UI polish
 
 ### MEDIUM
 
-5. **Cross-category regex conflicts** — 4002 conflicts found (see `регис/analysis-report.md`). Oracle validation can now detect these
+5. **Cross-category regex conflicts** — 4002 conflicts (see `регис/analysis-report.md`). Oracle validation can detect these
 6. **jewel-corrupted avg regex length = 7.4** — Consider adding to STRICT_CATEGORIES
-7. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding than others
+7. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
 8. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
 9. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-10. **Jewel classification accuracy** — ETL lookup works for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+10. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
 11. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-12. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run — need analysis
+12. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Data Stats
 
 | Category | Tokens | Optimizations | Avg Regex Len | Short (<10) | Conflicts |
 |----------|--------|---------------|---------------|-------------|-----------|
-| waystone | 96 | 52 | 12.4 | 52 | 52 |
-| waystone-desecrated | 16 | 4 | 9.7 | 12 | 14 |
+| waystone | 97 | 52 | 12.4 | 52 | 52 |
+| waystone-desecrated | 17 | 4 | 9.7 | 12 | 14 |
 | tablet | 75 | 363 | 19.1 | 23 | 8 |
 | jewel | 193 | 1,466 | 15.7 | 49 | 72 |
-| jewel-desecrated | 21 | 3 | 19.7 | 7 | 16 |
+| jewel-desecrated | 32 | 3 | 19.7 | 7 | 16 |
 | jewel-corrupted | 10 | 0 | 7.4 | 8 | 8 |
 | relic | 58 | 28 | 18.3 | 20 | 16 |
 | belt | 298 | 231 | 17.6 | 54 | 236 |
 | ring | 366 | 458 | 14.7 | 94 | 293 |
 | amulet | 427 | 389 | 15.1 | 121 | 395 |
-| **Total** | **1,560** | | | **440** | |
+| **Total** | **1,573** | | | **440** | |
