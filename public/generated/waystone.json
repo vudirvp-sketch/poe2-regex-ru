@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T10:18:14.813Z",
+  "version": "2026-06-06T11:52:57.482Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "tokens": [
@@ -22,6 +22,7 @@
       "regexPrefix": {
         "ru": "у редких монстров"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -57,6 +58,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -96,6 +98,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -135,6 +138,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -174,6 +178,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -213,6 +218,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -252,6 +258,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -291,6 +298,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -330,6 +338,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -369,6 +378,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -408,6 +418,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -447,6 +458,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -486,6 +498,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -525,6 +538,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -562,6 +576,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -599,6 +614,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -636,6 +652,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -673,6 +690,7 @@
       "regexPrefix": {
         "ru": "монстров повышена на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -714,6 +732,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -753,6 +772,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -792,6 +812,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -831,6 +852,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -870,6 +892,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -907,6 +930,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -944,6 +968,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -981,6 +1006,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1018,6 +1044,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1055,6 +1082,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1092,6 +1120,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1129,6 +1158,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1166,6 +1196,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1196,6 +1227,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1226,6 +1258,7 @@
       "regexPrefix": {
         "ru": "Монстры получают"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1266,6 +1299,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1305,6 +1339,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1344,6 +1379,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1383,6 +1419,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1422,6 +1459,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1462,6 +1500,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1502,6 +1541,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1542,6 +1582,7 @@
       "regexPrefix": {
         "ru": "Монстры с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1582,6 +1623,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {}
       },
@@ -1634,6 +1676,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {}
       },
@@ -1686,6 +1729,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {}
       },
@@ -1738,6 +1782,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {}
       },
@@ -1790,6 +1835,7 @@
       "regexPrefix": {
         "ru": "броню в размере"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1831,6 +1877,7 @@
       "regexPrefix": {
         "ru": "броню в размере"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1872,6 +1919,7 @@
       "regexPrefix": {
         "ru": "броню в размере"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1913,6 +1961,7 @@
       "regexPrefix": {
         "ru": "броню в размере"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1954,6 +2003,7 @@
       "regexPrefix": {
         "ru": "монстров повышена на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1992,6 +2042,7 @@
       "regexPrefix": {
         "ru": "монстров повышена на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2030,6 +2081,7 @@
       "regexPrefix": {
         "ru": "монстров повышена на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2068,6 +2120,7 @@
       "regexPrefix": {
         "ru": "монстров повышена на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2106,6 +2159,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2145,6 +2199,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2184,6 +2239,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2223,6 +2279,7 @@
       "regexPrefix": {
         "ru": "приспешники наносят"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2262,6 +2319,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2302,6 +2360,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2342,6 +2401,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2382,6 +2442,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2422,6 +2483,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2460,6 +2522,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2498,6 +2561,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2536,6 +2600,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2574,6 +2639,7 @@
       "regexPrefix": {
         "ru": "дополнительных снарядов"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2608,6 +2674,7 @@
       "regexPrefix": {
         "ru": "дополнительных снарядов"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2642,6 +2709,7 @@
       "regexPrefix": {
         "ru": "Монстры имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2678,6 +2746,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2708,6 +2777,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2741,6 +2811,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2771,6 +2842,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2803,6 +2875,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2837,6 +2910,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2870,6 +2944,7 @@
       "regexPrefix": {
         "ru": "Урон монстров пробивает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2907,6 +2982,7 @@
       "regexPrefix": {
         "ru": "Урон монстров пробивает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2944,6 +3020,7 @@
       "regexPrefix": {
         "ru": "Урон монстров пробивает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2981,6 +3058,7 @@
       "regexPrefix": {
         "ru": "Урон монстров пробивает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3018,6 +3096,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3055,6 +3134,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3092,6 +3172,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3129,6 +3210,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3166,6 +3248,7 @@
       "regexPrefix": {
         "ru": "зарядов флакона на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3204,6 +3287,7 @@
       "regexPrefix": {
         "ru": "зарядов флакона на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3242,6 +3326,7 @@
       "regexPrefix": {
         "ru": "зарядов флакона на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3280,6 +3365,7 @@
       "regexPrefix": {
         "ru": "щита игроков на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3321,6 +3407,7 @@
       "regexPrefix": {
         "ru": "щита игроков на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3362,6 +3449,7 @@
       "regexPrefix": {
         "ru": "щита игроков на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3403,6 +3491,7 @@
       "regexPrefix": {
         "ru": "Игроки имеют на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3445,6 +3534,7 @@
       "regexPrefix": {
         "ru": "Игроки имеют на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3487,6 +3577,7 @@
       "regexPrefix": {
         "ru": "Игроки имеют на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3529,6 +3620,7 @@
       "regexPrefix": {
         "ru": "Монстры получают"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3569,6 +3661,7 @@
       "regexPrefix": {
         "ru": "Монстры получают"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3609,6 +3702,7 @@
       "regexPrefix": {
         "ru": "Монстры получают"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3649,6 +3743,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3687,6 +3782,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -3725,6 +3821,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },

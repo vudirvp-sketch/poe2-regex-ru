@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T10:18:27.018Z",
+  "version": "2026-06-06T11:53:08.738Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -22,6 +22,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -61,6 +62,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -100,6 +102,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -139,6 +142,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -178,6 +182,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -217,6 +222,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -256,6 +262,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -295,6 +302,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -334,6 +342,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -371,6 +380,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -408,6 +418,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -445,6 +456,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -482,6 +494,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -519,6 +532,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -556,6 +570,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -593,6 +608,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -630,6 +646,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -670,6 +687,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -710,6 +728,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -750,6 +769,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -790,6 +810,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -830,6 +851,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -870,6 +892,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -910,6 +933,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -950,6 +974,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -990,6 +1015,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1030,6 +1056,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1070,6 +1097,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1110,6 +1138,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1150,6 +1179,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1190,6 +1220,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1230,6 +1261,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1270,6 +1302,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1310,6 +1343,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1351,6 +1385,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1392,6 +1427,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1433,6 +1469,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1474,6 +1511,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1515,6 +1553,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1556,6 +1595,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1597,6 +1637,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1638,6 +1679,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1679,6 +1721,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1720,6 +1763,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1761,6 +1805,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1802,6 +1847,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1843,6 +1889,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1884,6 +1931,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1925,6 +1973,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1966,6 +2015,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2007,6 +2057,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2048,6 +2099,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2089,6 +2141,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2130,6 +2183,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2171,6 +2225,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2212,6 +2267,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2253,6 +2309,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2294,6 +2351,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2338,6 +2396,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2382,6 +2441,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2426,6 +2486,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2470,6 +2531,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2514,6 +2576,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2558,6 +2621,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2598,6 +2662,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2638,6 +2703,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2678,6 +2744,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2718,6 +2785,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2758,6 +2826,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2798,6 +2867,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Крепкий",
@@ -2842,6 +2912,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Здоровый",
@@ -2886,6 +2957,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Здравый",
@@ -2930,6 +3002,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Стойкий",
@@ -2974,6 +3047,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сильный",
@@ -3018,6 +3092,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Мощный",
@@ -3062,6 +3137,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Массивный",
@@ -3106,6 +3182,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Могучий",
@@ -3150,6 +3227,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Выносливый",
@@ -3194,6 +3272,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Многообещающий",
@@ -3240,6 +3319,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Оптимистичный",
@@ -3286,6 +3366,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Уверенный",
@@ -3332,6 +3413,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Берилловый",
@@ -3376,6 +3458,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Кобальтовый",
@@ -3420,6 +3503,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Лазоревый",
@@ -3464,6 +3548,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бирюзовый",
@@ -3508,6 +3593,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Лазурный",
@@ -3552,6 +3638,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Аквамариновый",
@@ -3596,6 +3683,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Перламутровый",
@@ -3640,6 +3728,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Горечавковый",
@@ -3684,6 +3773,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сидеритовый",
@@ -3728,6 +3818,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сизый",
@@ -3772,6 +3863,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Синеватый",
@@ -3816,6 +3908,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Индиговый",
@@ -3860,6 +3953,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Ультрамариновый",
@@ -3904,6 +3998,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сознательный",
@@ -3950,6 +4045,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Проницательный",
@@ -3996,6 +4092,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Мнемонический",
@@ -4042,6 +4139,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сияющий",
@@ -4089,6 +4187,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Мерцающий",
@@ -4136,6 +4235,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Переливающийся",
@@ -4183,6 +4283,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Яркий",
@@ -4230,6 +4331,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Светящийся",
@@ -4277,6 +4379,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Пульсирующий",
@@ -4324,6 +4427,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сверкающий",
@@ -4371,6 +4475,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Искрящийся",
@@ -4418,6 +4523,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Лучистый",
@@ -4465,6 +4571,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Ослепительный",
@@ -4512,6 +4619,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный",
@@ -4558,6 +4666,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Слоистый",
@@ -4604,6 +4713,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бугристый",
@@ -4650,6 +4760,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Чешуйчатый",
@@ -4696,6 +4807,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Утолщённый",
@@ -4742,6 +4854,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Опоясанный",
@@ -4788,6 +4901,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Непробиваемый",
@@ -4834,6 +4948,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Теневой",
@@ -4881,6 +4996,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Призрачный",
@@ -4928,6 +5044,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Фантомный",
@@ -4975,6 +5092,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Эфемерный",
@@ -5022,6 +5140,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Маревый",
@@ -5069,6 +5188,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Кошмарный",
@@ -5116,6 +5236,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Миражный",
@@ -5163,6 +5284,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Защитный",
@@ -5211,6 +5333,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Волевой",
@@ -5259,6 +5382,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Решительный",
@@ -5307,6 +5431,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бесстрашный",
@@ -5355,6 +5480,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Неустрашимый",
@@ -5403,6 +5529,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Неукротимый",
@@ -5451,6 +5578,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Неприступный",
@@ -5499,6 +5627,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5538,6 +5667,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5577,6 +5707,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5616,6 +5747,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5656,6 +5788,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5696,6 +5829,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5736,6 +5870,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5775,6 +5910,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5814,6 +5950,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5853,6 +5990,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5894,6 +6032,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5935,6 +6074,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -5976,6 +6116,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6018,6 +6159,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6060,6 +6202,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6102,6 +6245,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6144,6 +6288,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6186,6 +6331,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6228,6 +6374,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6270,6 +6417,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6312,6 +6460,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6354,6 +6503,7 @@
       "regexPrefix": {
         "ru": "Регенерация"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6396,6 +6546,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6438,6 +6589,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6480,6 +6632,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6522,6 +6675,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6564,6 +6718,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6606,6 +6761,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -6648,6 +6804,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Точный",
@@ -6694,6 +6851,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Надёжный",
@@ -6740,6 +6898,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Собранный",
@@ -6786,6 +6945,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Тщательный",
@@ -6832,6 +6992,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Планомерный",
@@ -6878,6 +7039,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Размеренный",
@@ -6924,6 +7086,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Охотничий",
@@ -6970,6 +7133,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Егерский",
@@ -7016,6 +7180,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7056,6 +7221,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7096,6 +7262,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7136,6 +7303,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7176,6 +7344,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7216,6 +7385,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7256,6 +7426,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7297,6 +7468,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7338,6 +7510,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7379,6 +7552,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7420,6 +7594,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7461,6 +7636,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7502,6 +7678,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7543,6 +7720,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7584,6 +7762,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -7625,6 +7804,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Ценный",
@@ -7673,6 +7853,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Редкий",
@@ -7721,6 +7902,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Диковинный",
@@ -7769,6 +7951,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Вельможеский",
@@ -7811,6 +7994,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Баронский",
@@ -7853,6 +8037,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Виконтский",
@@ -7895,6 +8080,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Маркизский",
@@ -7937,6 +8123,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Графский",
@@ -7979,6 +8166,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8019,6 +8207,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8059,6 +8248,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8099,6 +8289,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8139,6 +8330,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8179,6 +8371,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8220,6 +8413,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8261,6 +8455,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8302,6 +8497,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8343,6 +8539,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8384,6 +8581,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Послушнический",
@@ -8431,6 +8629,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Заколдованный",
@@ -8478,6 +8677,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Зачарованный",
@@ -8525,6 +8725,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Профессорский",
@@ -8572,6 +8773,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Оккультный",
@@ -8619,6 +8821,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Чернокнижный",
@@ -8666,6 +8869,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8707,6 +8911,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8748,6 +8953,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8789,6 +8995,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8830,6 +9037,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8871,6 +9079,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8912,6 +9121,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8951,6 +9161,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -8990,6 +9201,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9031,6 +9243,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9075,6 +9288,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9116,6 +9330,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9154,6 +9369,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9193,6 +9409,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9230,6 +9447,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9270,6 +9488,7 @@
       "regexPrefix": {
         "ru": "зарядов в секунду"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9309,6 +9528,7 @@
       "regexPrefix": {
         "ru": "зарядов в секунду"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9348,6 +9568,7 @@
       "regexPrefix": {
         "ru": "зарядов в секунду"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9389,6 +9610,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -9438,6 +9660,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -9484,6 +9707,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -9534,6 +9758,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Аманаму",
@@ -9584,6 +9809,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Каргалом",
@@ -9635,6 +9861,7 @@
       "regexPrefix": {
         "ru": "Вызываемые чары с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Каргалом",
@@ -9683,6 +9910,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Каргалом",
@@ -9735,6 +9963,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9777,6 +10006,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9817,6 +10047,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9858,6 +10089,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9897,6 +10129,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9940,6 +10173,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -9980,6 +10214,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10025,6 +10260,7 @@
       "regexPrefix": {
         "ru": "Восстанавливает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10063,6 +10299,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10106,6 +10343,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10148,6 +10386,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10191,6 +10430,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10232,6 +10472,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10274,6 +10515,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10317,6 +10559,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10361,6 +10604,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10402,6 +10646,7 @@
       "regexPrefix": {
         "ru": "Восстанавливает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10440,6 +10685,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10483,6 +10729,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10525,6 +10772,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уламаном",
@@ -10571,6 +10819,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уламаном",
@@ -10622,6 +10871,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уламаном",
@@ -10669,6 +10919,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уламаном",
@@ -10717,6 +10968,7 @@
       "regexPrefix": {
         "ru": "Дарует"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Тул",
@@ -10768,6 +11020,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиленный Уул-Нетол",
@@ -10806,11 +11059,12 @@
         "ru": "огня"
       },
       "familyKey": {
-        "ru": "+#% to Fire Spell Critical Hit Chance"
+        "ru": "+(#)% к шансу критического удара чар огня"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10846,11 +11100,12 @@
         "ru": "запеч"
       },
       "familyKey": {
-        "ru": "Sealed Skills have +# to maximum Seals"
+        "ru": "Запечатанные умения имеют +1 к максимуму зарядов печати"
       },
       "regexPrefix": {
-        "ru": "Sealed Skills have"
+        "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -10883,6 +11138,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Прохиндейский",
@@ -10932,6 +11188,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Потворщицкий",
@@ -10981,6 +11238,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Интриганский",
@@ -11030,6 +11288,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Заговорщицкий",
@@ -11079,6 +11338,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Конспираторский",
@@ -11128,6 +11388,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Эксплуататорский",
@@ -11177,6 +11438,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Манипулятивный",
@@ -11226,6 +11488,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Кукловодческий",
@@ -11275,6 +11538,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11320,6 +11584,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11365,6 +11630,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11410,6 +11676,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11455,6 +11722,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11502,6 +11770,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11549,6 +11818,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11596,6 +11866,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11643,6 +11914,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11690,6 +11962,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11737,6 +12010,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11782,6 +12056,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11827,6 +12102,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11872,6 +12148,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11917,6 +12194,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -11960,6 +12238,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12003,6 +12282,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12046,6 +12326,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12089,6 +12370,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12132,6 +12414,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12175,6 +12458,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12218,6 +12502,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12261,6 +12546,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12304,6 +12590,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12347,6 +12634,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12390,6 +12678,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -12433,6 +12722,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Опорный",
@@ -12482,6 +12772,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Cкрепляющий",
@@ -12531,6 +12822,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Уплотняющий",
@@ -12580,6 +12872,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Усиливающий",
@@ -12629,6 +12922,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Поддерживающий",
@@ -12678,6 +12972,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Укрепляющий",
@@ -12727,6 +13022,7 @@
       "regexPrefix": {
         "ru": "Приспешники воскрешаются на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Тормошащий",
@@ -12775,6 +13071,7 @@
       "regexPrefix": {
         "ru": "Приспешники воскрешаются на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Подымающий",
@@ -12823,6 +13120,7 @@
       "regexPrefix": {
         "ru": "Приспешники воскрешаются на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Будящий",
@@ -12871,6 +13169,7 @@
       "regexPrefix": {
         "ru": "Приспешники воскрешаются на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Беспокойный",
@@ -12919,6 +13218,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Направляющий",
@@ -12968,6 +13268,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Дозорный",
@@ -13017,6 +13318,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сторожевой",
@@ -13066,6 +13368,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Караульный",
@@ -13115,6 +13418,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Пастуший",
@@ -13164,6 +13468,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Блюстительный",
@@ -13213,6 +13518,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13253,6 +13559,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13288,11 +13595,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13325,11 +13633,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13362,11 +13671,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13399,11 +13709,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13436,11 +13747,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13473,11 +13785,12 @@
         "ru": "обездвиживания"
       },
       "familyKey": {
-        "ru": "Minions have #% increased Immobilisation buildup"
+        "ru": "Приспешники имеют (#)% увеличение накопления обездвиживания"
       },
       "regexPrefix": {
-        "ru": "Minions have"
+        "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13515,6 +13828,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13557,6 +13871,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13599,6 +13914,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13641,6 +13957,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13683,6 +14000,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13725,6 +14043,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13767,6 +14086,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13809,6 +14129,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13851,6 +14172,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13893,6 +14215,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -13935,6 +14258,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Послушнический",
@@ -13982,6 +14306,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Заколдованный",
@@ -14029,6 +14354,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Зачарованный",
@@ -14076,6 +14402,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Профессорский",
@@ -14123,6 +14450,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Оккультный",
@@ -14170,6 +14498,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Чернокнижный",
@@ -14217,6 +14546,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глифический",
@@ -14264,6 +14594,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Рунический",
@@ -14311,6 +14642,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Вдумчивый",
@@ -14358,6 +14690,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Рассудительный",
@@ -14405,6 +14738,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Дальновидный",
@@ -14452,6 +14786,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Прозорливый",
@@ -14499,6 +14834,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Сметливый",
@@ -14546,6 +14882,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Расчётливый",
@@ -14593,6 +14930,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Жаждущий",
@@ -14640,6 +14978,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Увлечённый",
@@ -14687,6 +15026,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Одухотворённый",
@@ -14734,6 +15074,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Рьяный",
@@ -14781,6 +15122,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -14822,6 +15164,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -14863,6 +15206,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -14904,6 +15248,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -14945,6 +15290,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -14986,6 +15332,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15027,6 +15374,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15068,6 +15416,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15109,6 +15458,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15150,6 +15500,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15191,6 +15542,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15232,6 +15584,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15268,11 +15621,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Активирующий",
@@ -15313,11 +15667,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Стимулирующий",
@@ -15358,11 +15713,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Пробуждающий",
@@ -15403,11 +15759,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Возвышающий",
@@ -15448,11 +15805,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Подпитывающий",
@@ -15493,11 +15851,12 @@
         "ru": "урона чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Spell Damage during any Flask Effect"
+        "ru": "(#)% увеличение урона чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Будоражащий",
@@ -15543,6 +15902,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Утомляющий",
@@ -15592,6 +15952,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Истощающий",
@@ -15641,6 +16002,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Изнуряющий",
@@ -15690,6 +16052,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Изматывающий",
@@ -15739,6 +16102,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15777,6 +16141,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15815,6 +16180,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15853,6 +16219,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15891,6 +16258,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15924,11 +16292,12 @@
         "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Cast Speed during any Flask Effect"
+        "ru": "(#)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -15962,11 +16331,12 @@
         "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Cast Speed during any Flask Effect"
+        "ru": "(#)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16000,11 +16370,12 @@
         "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Cast Speed during any Flask Effect"
+        "ru": "(#)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16038,11 +16409,12 @@
         "ru": "сотворения чар во время действия любого флакона"
       },
       "familyKey": {
-        "ru": "#% increased Cast Speed during any Flask Effect"
+        "ru": "(#)% увеличение скорости сотворения чар во время действия любого флакона"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16081,6 +16453,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Проклинающий",
@@ -16128,6 +16501,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Осуждающий",
@@ -16175,6 +16549,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Злословный",
@@ -16222,6 +16597,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Обрекающий",
@@ -16269,6 +16645,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16308,6 +16685,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16349,6 +16727,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16390,6 +16769,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16431,6 +16811,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16468,6 +16849,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16505,6 +16887,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16542,6 +16925,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16579,6 +16963,7 @@
       "regexPrefix": {
         "ru": "собрать с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16616,6 +17001,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Замысловатый",
@@ -16664,6 +17050,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Изобретательный",
@@ -16712,6 +17099,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Первооткрывающий",
@@ -16760,6 +17148,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Первопроходческий",
@@ -16808,6 +17197,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Хитроумный",
@@ -16856,6 +17246,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16893,6 +17284,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16930,6 +17322,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -16967,6 +17360,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17004,6 +17398,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17041,6 +17436,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17078,6 +17474,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17118,6 +17515,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17158,6 +17556,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17198,6 +17597,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17239,6 +17639,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17280,6 +17681,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17321,6 +17723,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17362,6 +17765,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17403,6 +17807,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17444,6 +17849,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17485,6 +17891,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17526,6 +17933,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17567,6 +17975,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17607,6 +18016,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17640,6 +18050,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17673,6 +18084,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17707,6 +18119,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17748,6 +18161,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17789,6 +18203,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17830,6 +18245,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17871,6 +18287,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17912,6 +18329,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17953,6 +18371,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -17994,6 +18413,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18035,6 +18455,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18076,6 +18497,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18114,6 +18536,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18154,6 +18577,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18194,6 +18618,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18235,6 +18660,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -18276,6 +18702,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T10:18:15.488Z",
+  "version": "2026-06-06T11:52:58.118Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -22,6 +22,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -63,6 +64,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -97,6 +99,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -133,6 +136,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -167,6 +171,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -204,6 +209,7 @@
       "regexPrefix": {
         "ru": "редких сундуков"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -244,6 +250,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -283,6 +290,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -322,6 +330,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -361,6 +370,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -401,6 +411,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -441,6 +452,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -475,11 +487,12 @@
         "ru": "осколков зеркал"
       },
       "familyKey": {
-        "ru": "Delirium Fog in Map spawns #% increased MirrorShards"
+        "ru": "Туман Делириума на карте порождает на (#)% больше осколков зеркал"
       },
       "regexPrefix": {
-        "ru": "in Map spawns"
+        "ru": "карте порождает на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -515,6 +528,7 @@
       "regexPrefix": {
         "ru": "карт даруют на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -552,6 +566,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -592,6 +607,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -626,6 +642,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -660,6 +677,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -695,6 +713,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -735,6 +754,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -775,6 +795,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -816,6 +837,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -852,11 +874,12 @@
         "ru": "стоить дани"
       },
       "familyKey": {
-        "ru": "Обновленные награды в адтарях Ритуала на карте с #% шансом могут не стоить дани"
+        "ru": "Обновленные награды в алтарях Ритуала на карте с #% шансом могут не стоить дани"
       },
       "regexPrefix": {
         "ru": "на карте с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -892,6 +915,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -920,11 +944,12 @@
         "ru": "быстрее"
       },
       "familyKey": {
-        "ru": "Отложенные награды в адтарях Ритуала на карте появляются снова на #% быстрее"
+        "ru": "Отложенные награды в алтарях Ритуала на карте появляются снова на #% быстрее"
       },
       "regexPrefix": {
         "ru": "появляются снова на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -960,6 +985,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1001,6 +1027,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1041,6 +1068,7 @@
       "regexPrefix": {
         "ru": "даруют увеличенное на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1077,11 +1105,12 @@
         "ru": "окажутся редкими"
       },
       "familyKey": {
-        "ru": "#% increased chance Vaal Beacon Chests are Rare in Map"
+        "ru": "(#)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1117,6 +1146,7 @@
       "regexPrefix": {
         "ru": "На карте с"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1154,11 +1184,12 @@
         "ru": "Маяка Ваал"
       },
       "familyKey": {
-        "ru": "#% chance to add a Vaal Beacon Unique Monster to the Map"
+        "ru": "(#)% шанс добавить на карту уникального монстра Маяка Ваал"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1189,11 +1220,12 @@
         "ru": "с Маяков Ваал на карте"
       },
       "familyKey": {
-        "ru": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+        "ru": "(#)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1224,11 +1256,12 @@
         "ru": "дополнительных монстров на карте"
       },
       "familyKey": {
-        "ru": "#% increased chance Vaal Beacons summon additional Monsters in Map"
+        "ru": "(#)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1259,11 +1292,12 @@
         "ru": "дополнительных групп монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
-        "ru": "#% chance for an extra packs of Monsters around Vaal Beacons in Map"
+        "ru": "(#)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1294,11 +1328,12 @@
         "ru": "группа монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
-        "ru": "# extra pack of Monsters around Vaal Beacons in Map"
+        "ru": "# дополнительная группа монстров вокруг Маяков Ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1326,11 +1361,12 @@
         "ru": "размера групп монстров вокруг Маяков Ваал на карте"
       },
       "familyKey": {
-        "ru": "#% increased Pack Size for Monsters around Vaal Beacons in Map"
+        "ru": "(#)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1366,6 +1402,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1408,6 +1445,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1447,6 +1485,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1482,11 +1521,12 @@
         "ru": "в два"
       },
       "familyKey": {
-        "ru": "В два раза выше шанс получнения наград в провалах Бездны на карте"
+        "ru": "В два раза выше шанс получения наград в провалах Бездны на карте"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1517,6 +1557,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1552,6 +1593,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1592,6 +1634,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1630,6 +1673,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1663,6 +1707,7 @@
       "regexPrefix": {
         "ru": "редких монстров"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1703,6 +1748,7 @@
       "regexPrefix": {
         "ru": "порождают увеличенное на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1743,6 +1789,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1777,11 +1824,12 @@
         "ru": "неста"
       },
       "familyKey": {
-        "ru": "Unstable Breaches in Map spawn an additional Rare Monster when Stabilised"
+        "ru": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1812,6 +1860,7 @@
       "regexPrefix": {
         "ru": "дополнительных свойств"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1847,6 +1896,7 @@
       "regexPrefix": {
         "ru": "Карта обладает"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1884,6 +1934,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1923,6 +1974,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1962,6 +2014,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2001,6 +2054,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2036,6 +2090,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2075,6 +2130,7 @@
       "regexPrefix": {
         "ru": "с увеличенным на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2114,6 +2170,7 @@
       "regexPrefix": {
         "ru": "на карте имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2156,6 +2213,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2197,6 +2255,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2237,6 +2296,7 @@
       "regexPrefix": {
         "ru": "Зеркала Делириума на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2278,6 +2338,7 @@
       "regexPrefix": {
         "ru": "порождает увеличенное на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2318,6 +2379,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2358,6 +2420,7 @@
       "regexPrefix": {
         "ru": "карте увеличивается на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2397,6 +2460,7 @@
       "regexPrefix": {
         "ru": "карте рассеивается на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2439,6 +2503,7 @@
       "regexPrefix": {
         "ru": "на карте длится"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2482,6 +2547,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2521,6 +2587,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2562,6 +2629,7 @@
       "regexPrefix": {
         "ru": "карте с на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2600,6 +2668,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2641,6 +2710,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2682,6 +2752,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2722,6 +2793,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2761,6 +2833,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2802,6 +2875,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -2843,6 +2917,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },

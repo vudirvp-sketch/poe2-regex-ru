@@ -167,6 +167,12 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 {t('suffixes.label')}: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
               </span>
             )}
+            {/* Number boundary warning for ≥40 — PoE2 regex limitation */}
+            {minValue !== null && minValue >= 40 && (
+              <span className="text-[10px] text-amber-500/80" title={t('range.boundary_warning')}>
+                ⚠ ≥40
+              </span>
+            )}
           </>
         )}
 

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 22.0 | **Date:** 2026-06-06 | **Language:** RU-first
+> **Version:** 23.0 | **Date:** 2026-06-06 | **Language:** RU-first
 
 ---
 

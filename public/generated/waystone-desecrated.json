@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T10:18:14.885Z",
+  "version": "2026-06-06T11:52:57.559Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -22,6 +22,7 @@
       "regexPrefix": {
         "ru": "даруют увеличенное на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -68,6 +69,7 @@
       "regexPrefix": {
         "ru": "дополнительных Бездн"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -114,6 +116,7 @@
       "regexPrefix": {
         "ru": "порождают увеличенное на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -160,6 +163,7 @@
       "regexPrefix": {
         "ru": "редких монстров"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -203,6 +207,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -243,6 +248,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -284,6 +290,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -341,6 +348,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -381,6 +389,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -420,6 +429,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -463,6 +473,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -506,6 +517,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -540,6 +552,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -576,6 +589,7 @@
       "regexPrefix": {
         "ru": "Игроки имеют на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -619,6 +633,7 @@
       "regexPrefix": {
         "ru": "при нанесении удара"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -654,6 +669,7 @@
       "regexPrefix": {
         "ru": "на смерть на"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -690,6 +706,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },

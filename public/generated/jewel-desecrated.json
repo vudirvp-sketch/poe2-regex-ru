@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T10:18:17.418Z",
+  "version": "2026-06-06T11:52:59.698Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,7 @@
         "ru": "##% повышение брони, ##% увеличение урона от атак"
       },
       "regex": {
-        "ru": "и, (4—8)% увеличение урона о"
+        "ru": "брони, (4—8)% увеличение урона от атак"
       },
       "familyKey": {
         "ru": "#% повышение брони, #% увеличение урона от атак"
@@ -22,6 +22,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -75,6 +76,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -119,7 +121,7 @@
         "ru": "##% увеличение уклонения, ##% увеличение урона тотемов"
       },
       "regex": {
-        "ru": "я, (4—8)% увеличение урона т"
+        "ru": "уклонения, (4—8)% увеличение урона тотемов"
       },
       "familyKey": {
         "ru": "#% увеличение уклонения, #% увеличение урона тотемов"
@@ -127,6 +129,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -173,7 +176,7 @@
         "ru": "##% увеличение максимума энергетического щита, ##% увеличение урона тотемов"
       },
       "regex": {
-        "ru": "а, (4—8)% увеличение урона т"
+        "ru": "щита, (4—8)% увеличение урона тотемов"
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита, #% увеличение урона тотемов"
@@ -181,6 +184,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -228,7 +232,7 @@
         "ru": "##% повышение брони, ##% увеличение урона тотемов"
       },
       "regex": {
-        "ru": "и, (4—8)% увеличение урона т"
+        "ru": "брони, (4—8)% увеличение урона тотемов"
       },
       "familyKey": {
         "ru": "#% повышение брони, #% увеличение урона тотемов"
@@ -236,6 +240,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -281,7 +286,7 @@
         "ru": "##% увеличение уклонения, ##% увеличение урона шипами"
       },
       "regex": {
-        "ru": "я, (4—8)% увеличение урона ш"
+        "ru": "уклонения, (4—8)% увеличение урона шипами"
       },
       "familyKey": {
         "ru": "#% увеличение уклонения, #% увеличение урона шипами"
@@ -289,6 +294,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -334,7 +340,7 @@
         "ru": "##% увеличение максимума энергетического щита, ##% увеличение урона шипами"
       },
       "regex": {
-        "ru": "а, (4—8)% увеличение урона ш"
+        "ru": "щита, (4—8)% увеличение урона шипами"
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита, #% увеличение урона шипами"
@@ -342,6 +348,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -388,7 +395,7 @@
         "ru": "##% повышение брони, ##% увеличение урона шипами"
       },
       "regex": {
-        "ru": "и, (4—8)% увеличение урона ш"
+        "ru": "брони, (4—8)% увеличение урона шипами"
       },
       "familyKey": {
         "ru": "#% повышение брони, #% увеличение урона шипами"
@@ -396,6 +403,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -440,7 +448,7 @@
         "ru": "##% увеличение урона от чар, ##% увеличение уклонения"
       },
       "regex": {
-        "ru": " (5—10)% увеличение ук"
+        "ru": "чар, (5—10)% увеличение уклонения"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар, #% увеличение уклонения"
@@ -448,6 +456,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -494,7 +503,7 @@
         "ru": "##% увеличение урона от чар, ##% увеличение максимума энергетического щита"
       },
       "regex": {
-        "ru": "р, (5—10)% увеличение м"
+        "ru": "чар, (5—10)% увеличение максимума энергетического щита"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар, #% увеличение максимума энергетического щита"
@@ -502,6 +511,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -549,7 +559,7 @@
         "ru": "##% увеличение урона от чар, ##% повышение брони"
       },
       "regex": {
-        "ru": " (5—10)% п"
+        "ru": "чар, (5—10)% повышение брони"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар, #% повышение брони"
@@ -557,6 +567,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -610,6 +621,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -646,7 +658,7 @@
         "ru": "##% увеличение уклонения, Приспешники имеют ##% увеличение урона"
       },
       "regex": {
-        "ru": "ия, п"
+        "ru": "уклонения, Приспешники имеют (4—8)% увеличение урона"
       },
       "familyKey": {
         "ru": "#% увеличение уклонения, Приспешники имеют #% увеличение урона"
@@ -654,6 +666,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -702,7 +715,7 @@
         "ru": "##% увеличение максимума энергетического щита, Приспешники имеют ##% увеличение урона"
       },
       "regex": {
-        "ru": "та, п"
+        "ru": "щита, Приспешники имеют (4—8)% увеличение урона"
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита, Приспешники имеют #% увеличение урона"
@@ -710,6 +723,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -759,7 +773,7 @@
         "ru": "##% повышение брони, Приспешники имеют ##% увеличение урона"
       },
       "regex": {
-        "ru": "ни, п"
+        "ru": "брони, Приспешники имеют (4—8)% увеличение урона"
       },
       "familyKey": {
         "ru": "#% повышение брони, Приспешники имеют #% увеличение урона"
@@ -767,6 +781,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -822,6 +837,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -870,11 +886,12 @@
         "ru": "Бездны"
       },
       "familyKey": {
-        "ru": "#% увеличение силы накладываемого вамиИстощения Бездны"
+        "ru": "(#)% увеличение силы накладываемого вами Истощения Бездны"
       },
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -909,7 +926,7 @@
         "ru": "##% увеличение максимума энергетического щита, ##% увеличение урона от атак"
       },
       "regex": {
-        "ru": "а, (4—8)% увеличение урона о"
+        "ru": "щита, (4—8)% увеличение урона от атак"
       },
       "familyKey": {
         "ru": "#% увеличение максимума энергетического щита, #% увеличение урона от атак"
@@ -917,6 +934,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -964,7 +982,7 @@
         "ru": "##% увеличение уклонения, ##% увеличение урона от атак"
       },
       "regex": {
-        "ru": "я, (4—8)% увеличение урона о"
+        "ru": "уклонения, (4—8)% увеличение урона от атак"
       },
       "familyKey": {
         "ru": "#% увеличение уклонения, #% увеличение урона от атак"
@@ -972,6 +990,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1026,6 +1045,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1079,6 +1099,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1127,6 +1148,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1180,6 +1202,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1233,6 +1256,7 @@
       "regexPrefix": {
         "ru": "наносят увеличенный на"
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1286,6 +1310,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1342,6 +1367,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1391,6 +1417,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1444,6 +1471,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": true,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1499,6 +1527,7 @@
       "regexPrefix": {
         "ru": "Приспешники имеют"
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Бессветный",
@@ -1548,6 +1577,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1587,6 +1617,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1628,6 +1659,7 @@
       "regexPrefix": {
         "ru": ""
       },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {}
       },
@@ -1678,9 +1710,9 @@
         "jewel-desecrated.mod_wk8php"
       ],
       "regex": {
-        "ru": "и, (4—8)% увеличение урона "
+        "ru": "брони, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 31,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_g8420s": {
@@ -1711,9 +1743,9 @@
         "jewel-desecrated.mod_nbe1td"
       ],
       "regex": {
-        "ru": "и, (4—8)% увеличение урона "
+        "ru": "брони, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 31,
       "count": 2
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_g8420s": {
@@ -1738,15 +1770,59 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_g8420s": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_g8420s"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_g8420s": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_g8420s"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_g8420s",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_g8420s": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_g8420s"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_g8420s",
         "jewel-desecrated.mod_hibfue"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона о"
+        "ru": ", (4—8)% увеличение урона от атак"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_zi2db0": {
@@ -1755,9 +1831,9 @@
         "jewel-desecrated.mod_zi2db0"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона о"
+        "ru": ", (4—8)% увеличение урона от атак"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_izhaok": {
@@ -1769,6 +1845,17 @@
         "ru": "чени"
       },
       "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_g8420s:jewel-desecrated.mod_xqjbst": {
+      "ids": [
+        "jewel-desecrated.mod_g8420s",
+        "jewel-desecrated.mod_xqjbst"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
       "count": 2
     },
     "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_g8420s": {
@@ -1799,9 +1886,9 @@
         "jewel-desecrated.mod_d9b2ud"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона т"
+        "ru": ", (4—8)% увеличение урона тотемов"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_wk8php": {
@@ -1810,9 +1897,9 @@
         "jewel-desecrated.mod_wk8php"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона т"
+        "ru": ", (4—8)% увеличение урона тотемов"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_d9b2ud": {
@@ -1821,9 +1908,9 @@
         "jewel-desecrated.mod_d9b2ud"
       ],
       "regex": {
-        "ru": "я, (4—8)% увеличение урона "
+        "ru": "уклонения, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 35,
       "count": 2
     },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_ejpzup": {
@@ -1870,6 +1957,50 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_d9b2ud": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_d9b2ud"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_d9b2ud": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_d9b2ud"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_d9b2ud",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_d9b2ud",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_d9b2ud",
@@ -1887,9 +2018,9 @@
         "jewel-desecrated.mod_zi2db0"
       ],
       "regex": {
-        "ru": "я, (4—8)% увеличение урона "
+        "ru": "уклонения, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 35,
       "count": 2
     },
     "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_izhaok": {
@@ -1898,7 +2029,29 @@
         "jewel-desecrated.mod_izhaok"
       ],
       "regex": {
-        "ru": "чени"
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_d9b2ud:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_d9b2ud",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_d9b2ud": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_d9b2ud"
+      ],
+      "regex": {
+        "ru": "ения"
       },
       "weight": 4,
       "count": 2
@@ -1931,9 +2084,9 @@
         "jewel-desecrated.mod_wk8php"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона т"
+        "ru": ", (4—8)% увеличение урона тотемов"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_4qfum9": {
@@ -1953,9 +2106,9 @@
         "jewel-desecrated.mod_ejpzup"
       ],
       "regex": {
-        "ru": "а, (4—8)% увеличение урона "
+        "ru": "щита, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 30,
       "count": 2
     },
     "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_nbe1td": {
@@ -1991,15 +2144,59 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_4qfum9": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_4qfum9"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_cenwfe": {
+      "ids": [
+        "jewel-desecrated.mod_4qfum9",
+        "jewel-desecrated.mod_cenwfe"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_4qfum9",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_4qfum9",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_4qfum9",
         "jewel-desecrated.mod_hibfue"
       ],
       "regex": {
-        "ru": "а, (4—8)% увеличение урона "
+        "ru": "щита, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 30,
       "count": 2
     },
     "jewel-desecrated.mod_4qfum9:jewel-desecrated.mod_zi2db0": {
@@ -2074,9 +2271,9 @@
         "jewel-desecrated.mod_wk8php"
       ],
       "regex": {
-        "ru": "и, (4—8)% увеличение урона "
+        "ru": "брони, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 31,
       "count": 2
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_wk8php": {
@@ -2099,6 +2296,50 @@
         "ru": ")% увеличение "
       },
       "weight": 14,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_wk8php": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_wk8php"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_wk8php": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_wk8php"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_vvwqkc:jewel-desecrated.mod_wk8php": {
+      "ids": [
+        "jewel-desecrated.mod_vvwqkc",
+        "jewel-desecrated.mod_wk8php"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_wk8php": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_wk8php"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
       "count": 2
     },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_wk8php": {
@@ -2134,6 +2375,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_wk8php:jewel-desecrated.mod_xqjbst": {
+      "ids": [
+        "jewel-desecrated.mod_wk8php",
+        "jewel-desecrated.mod_xqjbst"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_wk8php": {
       "ids": [
         "jewel-desecrated.mod_7owzgr",
@@ -2162,9 +2414,9 @@
         "jewel-desecrated.mod_ejpzup"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона ш"
+        "ru": ", (4—8)% увеличение урона шипами"
       },
-      "weight": 27,
+      "weight": 32,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_nbe1td": {
@@ -2173,9 +2425,9 @@
         "jewel-desecrated.mod_nbe1td"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона ш"
+        "ru": ", (4—8)% увеличение урона шипами"
       },
-      "weight": 27,
+      "weight": 32,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_dfjfh3": {
@@ -2200,6 +2452,50 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_22l2u1": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_22l2u1"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_cenwfe": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_cenwfe"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_22l2u1",
@@ -2217,9 +2513,9 @@
         "jewel-desecrated.mod_zi2db0"
       ],
       "regex": {
-        "ru": "я, (4—8)% увеличение урона "
+        "ru": "уклонения, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 35,
       "count": 2
     },
     "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_izhaok": {
@@ -2228,7 +2524,29 @@
         "jewel-desecrated.mod_izhaok"
       ],
       "regex": {
-        "ru": "чени"
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_22l2u1:jewel-desecrated.mod_6xy8hs": {
+      "ids": [
+        "jewel-desecrated.mod_22l2u1",
+        "jewel-desecrated.mod_6xy8hs"
+      ],
+      "regex": {
+        "ru": "ения"
       },
       "weight": 4,
       "count": 2
@@ -2261,9 +2579,9 @@
         "jewel-desecrated.mod_nbe1td"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона ш"
+        "ru": ", (4—8)% увеличение урона шипами"
       },
-      "weight": 27,
+      "weight": 32,
       "count": 2
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_ejpzup": {
@@ -2288,15 +2606,59 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_ejpzup": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_ejpzup"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_ejpzup": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_ejpzup"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_ejpzup:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_ejpzup",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_ejpzup": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_ejpzup"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_ejpzup:jewel-desecrated.mod_hibfue": {
       "ids": [
         "jewel-desecrated.mod_ejpzup",
         "jewel-desecrated.mod_hibfue"
       ],
       "regex": {
-        "ru": "а, (4—8)% увеличение урона "
+        "ru": "щита, (4—8)% увеличение урона "
       },
-      "weight": 27,
+      "weight": 30,
       "count": 2
     },
     "jewel-desecrated.mod_ejpzup:jewel-desecrated.mod_zi2db0": {
@@ -2365,6 +2727,50 @@
       "weight": 14,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_nbe1td": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_nbe1td"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_nbe1td": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_nbe1td"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_nbe1td:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_nbe1td",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_nbe1td": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_nbe1td"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_nbe1td": {
       "ids": [
         "jewel-desecrated.mod_hibfue",
@@ -2398,6 +2804,17 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_nbe1td:jewel-desecrated.mod_xqjbst": {
+      "ids": [
+        "jewel-desecrated.mod_nbe1td",
+        "jewel-desecrated.mod_xqjbst"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_nbe1td": {
       "ids": [
         "jewel-desecrated.mod_7owzgr",
@@ -2426,9 +2843,9 @@
         "jewel-desecrated.mod_y6u0e9"
       ],
       "regex": {
-        "ru": " (5—10)% увеличение "
+        "ru": "чар, (5—10)% увеличение "
       },
-      "weight": 20,
+      "weight": 24,
       "count": 2
     },
     "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_dfjfh3": {
@@ -2437,9 +2854,42 @@
         "jewel-desecrated.mod_dfjfh3"
       ],
       "regex": {
-        "ru": " (5—10)% "
+        "ru": "чар, (5—10)% "
       },
-      "weight": 9,
+      "weight": 13,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_dfjfh3": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_dfjfh3"
+      ],
+      "regex": {
+        "ru": ")% увеличение у"
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_dfjfh3",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": ")% увеличение у"
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_dfjfh3",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": ")% увеличение у"
+      },
+      "weight": 15,
       "count": 2
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_hibfue": {
@@ -2475,6 +2925,28 @@
       "weight": 4,
       "count": 2
     },
+    "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_dfjfh3",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_dfjfh3": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_dfjfh3"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
     "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_dfjfh3": {
       "ids": [
         "jewel-desecrated.mod_7owzgr",
@@ -2503,9 +2975,42 @@
         "jewel-desecrated.mod_y6u0e9"
       ],
       "regex": {
-        "ru": " (5—10)% "
+        "ru": "чар, (5—10)% "
       },
-      "weight": 9,
+      "weight": 13,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_y6u0e9": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_y6u0e9"
+      ],
+      "regex": {
+        "ru": ")% увеличение "
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-desecrated.mod_vvwqkc:jewel-desecrated.mod_y6u0e9": {
+      "ids": [
+        "jewel-desecrated.mod_vvwqkc",
+        "jewel-desecrated.mod_y6u0e9"
+      ],
+      "regex": {
+        "ru": ")% увеличение "
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_y6u0e9": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_y6u0e9"
+      ],
+      "regex": {
+        "ru": ")% увеличение "
+      },
+      "weight": 14,
       "count": 2
     },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_y6u0e9": {
@@ -2563,15 +3068,334 @@
       "weight": 5,
       "count": 2
     },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_cenwfe": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_cenwfe"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_hibfue": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_hibfue"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_xqjbst": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_xqjbst"
+      ],
+      "regex": {
+        "ru": " брони"
+      },
+      "weight": 6,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_7owzgr": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_7owzgr"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_y69s0v": {
+      "ids": [
+        "jewel-desecrated.mod_1pn52r",
+        "jewel-desecrated.mod_y69s0v"
+      ],
+      "regex": {
+        "ru": "повышение "
+      },
+      "weight": 10,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": ", приспешники имеют (4—8)% увеличение урона"
+      },
+      "weight": 43,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": ", приспешники имеют (4—8)% увеличение урона"
+      },
+      "weight": 43,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_hibfue": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_hibfue"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_izhaok": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_izhaok"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_obl7vt": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_obl7vt"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_cenwfe": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_cenwfe"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_cenwfe": {
+      "ids": [
+        "jewel-desecrated.mod_7owzgr",
+        "jewel-desecrated.mod_cenwfe"
+      ],
+      "regex": {
+        "ru": "8)% увеличение "
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-desecrated.mod_cenwfe:jewel-desecrated.mod_y69s0v": {
+      "ids": [
+        "jewel-desecrated.mod_cenwfe",
+        "jewel-desecrated.mod_y69s0v"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": ", приспешники имеют (4—8)% увеличение урона"
+      },
+      "weight": 43,
+      "count": 2
+    },
+    "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_hibfue",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_vvwqkc:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_vvwqkc",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_izhaok:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_izhaok",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": "чени"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_vvwqkc": {
+      "ids": [
+        "jewel-desecrated.mod_7owzgr",
+        "jewel-desecrated.mod_vvwqkc"
+      ],
+      "regex": {
+        "ru": "8)% увеличение "
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-desecrated.mod_vvwqkc:jewel-desecrated.mod_y69s0v": {
+      "ids": [
+        "jewel-desecrated.mod_vvwqkc",
+        "jewel-desecrated.mod_y69s0v"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_hibfue": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_hibfue"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": " (4—8)% увеличение урона"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_izhaok": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_izhaok"
+      ],
+      "regex": {
+        "ru": "чени"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_xqjbst": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_xqjbst"
+      ],
+      "regex": {
+        "ru": "брони"
+      },
+      "weight": 5,
+      "count": 2
+    },
+    "jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_dy3s2a": {
+      "ids": [
+        "jewel-desecrated.mod_7owzgr",
+        "jewel-desecrated.mod_dy3s2a"
+      ],
+      "regex": {
+        "ru": "8)% увеличение "
+      },
+      "weight": 15,
+      "count": 2
+    },
+    "jewel-desecrated.mod_dy3s2a:jewel-desecrated.mod_y69s0v": {
+      "ids": [
+        "jewel-desecrated.mod_dy3s2a",
+        "jewel-desecrated.mod_y69s0v"
+      ],
+      "regex": {
+        "ru": "ение "
+      },
+      "weight": 5,
+      "count": 2
+    },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_zi2db0": {
       "ids": [
         "jewel-desecrated.mod_hibfue",
         "jewel-desecrated.mod_zi2db0"
       ],
       "regex": {
-        "ru": ", (4—8)% увеличение урона о"
+        "ru": ", (4—8)% увеличение урона от атак"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_hibfue:jewel-desecrated.mod_izhaok": {
@@ -2613,7 +3437,29 @@
         "jewel-desecrated.mod_zi2db0"
       ],
       "regex": {
-        "ru": "чени"
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_obl7vt:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_obl7vt",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ения"
+      },
+      "weight": 4,
+      "count": 2
+    },
+    "jewel-desecrated.mod_6xy8hs:jewel-desecrated.mod_zi2db0": {
+      "ids": [
+        "jewel-desecrated.mod_6xy8hs",
+        "jewel-desecrated.mod_zi2db0"
+      ],
+      "regex": {
+        "ru": "ения"
       },
       "weight": 4,
       "count": 2

@@ -8,6 +8,9 @@
  * - When a ranged group is selected (full or partial), min/max input fields appear
  *   allowing the user to set per-group numeric thresholds.
  * - These override the global minValue/maxValue for this specific group's tokens.
+ * - For dual-number mods (hasMultiPlaceholder), the filter applies to the first
+ *   placeholder's range (filterSlotIndex), which is typically the minimum damage/value.
+ *   An indicator "2x" badge shows the mod has two number slots.
  *
  * Selection states:
  * - Full: all member tokens are selected (highlighted)
@@ -149,12 +152,19 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }
 
   // Range display: inline compact format
+  // For dual-number mods: show only the filterable slot (first placeholder range)
   const rangeText = useMemo(() => {
     if (group.rangeSlots.length === 0) return null;
     if (!group.hasMultiPlaceholder) {
       return `${group.globalMin}—${group.globalMax}`;
     }
-    return group.rangeSlots.map(([min, max]) => `${min}—${max}`).join(', ');
+    // Dual-number: show filterable slot range + second slot in parentheses
+    const filterSlot = group.rangeSlots[group.filterSlotIndex] ?? group.rangeSlots[0];
+    const secondSlot = group.rangeSlots.find((_, i) => i !== group.filterSlotIndex);
+    if (secondSlot) {
+      return `${filterSlot[0]}—${filterSlot[1]} (до ${secondSlot[0]}—${secondSlot[1]})`;
+    }
+    return `${filterSlot[0]}—${filterSlot[1]}`;
   }, [group]);
 
   // ARIA label for screen readers: include full text, selection state, and tier count
@@ -181,6 +191,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           ⚓
         </span>
       )}
+      {group.hasMultiPlaceholder && (
+        <span className="text-[9px] text-amber-400/80 shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
+          2x
+        </span>
+      )}
       {tierCount > 1 && (
         <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
           &times;{tierCount}
@@ -192,14 +207,20 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         </span>
       )}
       {/* Per-chip numeric range inputs — shown when group is selected and has ranges */}
+      {/* For dual-number mods: filter applies to first placeholder (filterSlotIndex) */}
       {hasRanges && isSelected && onSetTokenRange && (
         <div className="flex items-center gap-1 text-xs" onClick={stopPropagation}>
+          {group.hasMultiPlaceholder && (
+            <span className="text-[9px] text-amber-400/60 shrink-0" title={t('chip.dual_number_filter_note')}>
+              {t('chip.dual_number_slot_label')}
+            </span>
+          )}
           <span className="text-gray-500">&ge;</span>
           <input
             min={0}
             placeholder={t('range.min')}
-            aria-label={t('range.min_aria')}
-            className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+            aria-label={group.hasMultiPlaceholder ? t('range.min_aria_dual') : t('range.min_aria')}
+            className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.min ?? ''}
             onChange={handleMinChange}
@@ -208,8 +229,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           <input
             min={0}
             placeholder={t('range.max')}
-            aria-label={t('range.max_aria')}
-            className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+            aria-label={group.hasMultiPlaceholder ? t('range.max_aria_dual') : t('range.max_aria')}
+            className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.max ?? ''}
             onChange={handleMaxChange}
