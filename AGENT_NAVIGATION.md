@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 68.0 | **Date:** 2026-06-08
+> **Version:** 69.0 | **Date:** 2026-06-08
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `tests/` | Test files. | Mirror `src/` structure. 543 tests. |
-| `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
+| `регис/` | Manual Russian mod lists + analysis reports + affix hierarchy. | Reference data for cross-validation. Priority tiers for affix popularity. |
 
 ## 2. Build Commands
 
@@ -66,9 +66,14 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
+### TODO (next iterations)
+1. **Affix priority integration** — Research completed (see `регис/Иерархия популярности аффиксов.md`). Need to integrate priority tiers into UI: visual indicators, sort/filter by tier, default sort by popularity.
+2. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
+3. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+
 ### LOW
-1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
-2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+- UI sort/filter by affix popularity tier (S/A/B/C)
+- Visual tier badges on FilterChips
 
 ### RESOLVED (Session 68)
 1. ~~ETL pipeline audit~~ — Ran `pnpm etl`, verified 1823/1823 valid, 0 cross-family FP, 1309 family-tier FP (by design). Cross-validation tests pass (543/543).

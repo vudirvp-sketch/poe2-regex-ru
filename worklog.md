@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 68 — 2026-06-08)
+## Current State (Session 69 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (543/543 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,34 +12,28 @@
 
 **Key Changes This Session:**
 
-1. **ETL pipeline audit** — Ran `pnpm etl`, verified all 10 categories generate correctly. Oracle validation: 1823/1823 valid, 0 cross-family FP. Flat-text validation: 0 FN, 1359 FP (all family-tier). Block-based: 0 FN, 1309 FP (all family-tier).
+1. **Affix popularity research** — Conducted web research across Maxroll, Mobalytics, poe2db, Reddit, U4GM, MTMMO, AOEAH. Created hierarchy of popular affixes (Tier S/A/B/C) for: Waystones, Tablets, Rings, Amulets, Belts.
 
-2. **Cross-validation tests verified** — 543/543 tests pass on real generated data. Token counts match expected ranges.
+2. **New file: `регис/Иерархия популярности аффиксов.md`** — Structured reference document with priority tiers for each item category. Key findings:
+   - Waystones: Quantity > Rarity > Pack Size (prefixes = good, suffixes = dangerous but needed for stone sustain)
+   - Tablets: Quantity of Items = most valuable mod; Ritual extra reroll = most expensive suffix in game
+   - Rings/Amulets: +Level Skills = #1 priority, Spirit, All Res, ES
+   - Belts: Max Life 150+ = absolute #1, All Res, Flask Life Recovery
 
-3. **i18n-overrides relevance** — All 56 override keys verified against generated JSON. All 42 category-specific tokens found in their respective JSON files.
+3. **Documentation updated** — AGENT_NAVIGATION.md v69, новый_план.md v12, worklog.md.
 
-4. **filterTokensByJewelType(::origin) — NO BUG** — The `::origin` suffix only exists on `FamilyGroup.familyKey` (added by `splitGroupByOrigin` for React key uniqueness). `filterTokensByJewelType` uses `groupTokensByFamily` which does NOT add `::origin`. Hidden selected tokens in regex is by design with UI warning + "Снять скрытые" button.
-
-5. **dp-factorizer/trie-factorizer — NOT dead code** — Used by ETL scripts: `compute-optimizations.ts` imports `batchDPFactorize`, `iterative-optimizer.ts` imports `batchDPFactorize, applyDialectOptimizations`, `run-etl.ts` imports `applyDialectOptimizations`. They are ETL-only (not imported by runtime `compiler.ts` or `optimizer.ts`), but essential for the build pipeline.
-
-6. **constants.ts deleted** — Had zero imports across the entire codebase. Contained `CATEGORY_IDS`, `CATEGORY_ROUTES`, `CATEGORY_LABELS`, `CategoryId` type that were never used.
-
-7. **iterative-optimizer dry-run verified** — 0 FN, 749 FP-reduction changes in iteration 1. Correctly applies strategies: FN-repair, dialect optimization, FP-reduce, suffix-shorten. Converges properly.
-
-8. **buildAstFromSelections regexPrefixContext/regexExclude — CORRECT** — Context only applied when ALL tokens in a range group share the SAME context. Exclude union across merged tokens is correct by design (over-excluding safer than FP in PoE2).
-
-9. **Unused imports in mod-classifier.test.ts** — Removed `classifyGroups` and `AffixType` that broke `pnpm build` (TS6133/TS6196).
+4. **Next iteration plan** — P0: Integrate priority tiers into UI (priorityTier field, sorting, visual badges, filter by tier).
 
 **Files changed this session:**
-- `src/shared/constants.ts` — DELETED (dead code)
-- `tests/shared/mod-classifier.test.ts` — Removed unused imports
-- `AGENT_NAVIGATION.md` — v68.0: added Session 68 RESOLVED items, updated test counts 540→543, removed "constants" from shared dir description
-- `новый_план.md` — v11.0: added Session 68 to Выполнено, added P3 section
+- `регис/Иерархия популярности аффиксов.md` — NEW: affix popularity research
+- `AGENT_NAVIGATION.md` — v69: added affix hierarchy reference, updated TODO section
+- `новый_план.md` — v12: added Session 69, added P0 integration task
 - `worklog.md` — This update
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers) — NEEDS HUMAN
-- ⬜ Mobile-specific testing (touch targets, scroll behavior) — NEEDS REAL DEVICE
+- ⬜ Integrate affix priority tiers into UI (priorityTier field on GameToken, default sort by tier, visual badges on FilterChip, filter by tier in CategoryControlPanel)
+- ⬜ Browser functional testing of VirtualizedModList — NEEDS HUMAN
+- ⬜ Mobile-specific testing — NEEDS REAL DEVICE
 
 ---
 
@@ -64,8 +58,8 @@
 17. **ARIA: interactive elements must not be children of role="switch":** Use sibling pattern.
 18. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur.
 19. **All number inputs must have step={1}:** PoE2 mod values are always integers; fractional input produces invalid regex.
-20. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё (e.g., `знам[её]н`, `вс[её]`).
-21. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code (compiler/optimizer), but essential for ETL scripts. Do NOT delete as "dead code".
+20. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
+21. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code, but essential for ETL scripts. Do NOT delete.
 
 ## Build & Run Commands
 
