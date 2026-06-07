@@ -263,7 +263,7 @@ const RUBY_SCORES: [RegExp, number][] = [
   [/боев.*клич/i, 2],
 
   // Banners (unique to Ruby)
-  [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён)/i, 3],
+  [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён|накоплен.*славы.*умени.*знамён)/i, 3],
 
   // Aura strength (Ruby specific)
   [/сил.*аур/i, 2],
@@ -277,6 +277,7 @@ const RUBY_SCORES: [RegExp, number][] = [
   // Stun (unique to Ruby — but Emerald has parry stun threshold)
   [/(?:скорост.*накоплен.*шкалы.*оглушен|скорость.*накоплен.*шкалы.*оглушен)/i, 3],
   [/оглушен/i, 1],          // generic — covers stun threshold + stun speed + parry stun
+  [/(?:порог.*оглушен|увеличен.*порог.*оглушен)/i, 2],  // stun threshold — stronger signal than generic оглушен
 
   // Leech health (unique to Ruby)
   [/(?:похищен.*здоровь|количеств.*похищен.*здоровь)/i, 2],
@@ -379,10 +380,13 @@ const EMERALD_SCORES: [RegExp, number][] = [
   [/пригвожден|скорост.*накоплен.*шкалы.*пригвожден/i, 3],
 
   // Mark skills (Emerald specific)
-  [/метк.*умени|умени.*метк/i, 2],
+  [/метк.*умени|умени.*метк|усилен.*эффект.*умени.*метк|усилен.*эффект.*метк/i, 2],
 
   // Movement speed (Emerald specific)
   [/скорост.*передвижен/i, 2],
+
+  // Conditional melee/projectile damage (Emerald — both weapon types)
+  [/урон.*ближн.*бо.*если.*снаряд|урон.*снаряд.*если.*ближн.*бо/i, 2],
 
   // Quiver (Emerald specific)
   [/колчан/i, 3],
@@ -393,6 +397,7 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Attack crit (Emerald specific)
   [/шанс.*крит.*удар.*атак|крит.*удар.*атак/i, 2],
   [/бонус.*крит.*урон.*атак/i, 2],
+  [/крит.*урон.*копь|бонус.*крит.*копь/i, 2],
 
   // Skill recharge speed (Emerald)
   [/скорост.*перезарядк.*умени/i, 2],
@@ -548,7 +553,10 @@ export function classifyJewelType(group: FamilyGroup): JewelTypeCategory {
     return 'shared';
   }
 
-  // Strategy 2: Weighted keyword scoring fallback (~84% accuracy)
+  // Strategy 2: Weighted keyword scoring fallback (~75% accuracy vs ETL ground truth)
+  // Note: ETL marks mods appearing on multiple jewel types as 'shared', even when
+  // they're semantically tied to a specific type. The heuristic tends to assign
+  // specific types more aggressively than ETL, which is acceptable for fallback use.
   const text = group.displayText;
 
   let rubyScore = 0;

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 62.0 | **Date:** 2026-06-08
+> **Version:** 63.0 | **Date:** 2026-06-08
 
 ---
 
@@ -66,13 +66,9 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
-### HIGH
-1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%). Needs improvement.
-
 ### MEDIUM
 1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
-2. **FilterChip ARIA violation** — Range inputs are children of `role="switch"` div. Needs restructuring to make inputs siblings of the switch element (same pattern as VendorChip).
-3. **FilterChip min-w-[45%]** — Forces at most 2 chips per row, wastes space on wider screens.
+2. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`), heuristic fallback ~75% vs ETL. Discrepancy is mainly because ETL marks cross-type mods as `shared`.
 
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
@@ -144,7 +140,7 @@ When the runtime optimizer replaces multiple selected tokens with a shared regex
 ## 13. ARIA Patterns
 
 - **VendorChip**: Switch (label) + input (sibling) — valid ARIA tree, no interactive child inside switch role.
-- **FilterChip**: Switch role on outer div — **KNOWN ISSUE**: range inputs are children of switch role. Needs restructuring.
+- **FilterChip**: Switch (label + badges) + inputs (siblings) — restructured in Session 63. Same sibling pattern as VendorChip.
 - **Radio groups**: Arrow key navigation implemented per ARIA spec (Left/Up = prev, Right/Down = next, wraps).
 - **PageStateWrapper**: `role="status"` for loading, `role="alert"` for error.
 - **ProfilePanel**: Delete requires confirmation (✕→✓ pattern). Aria-labels on all action buttons.

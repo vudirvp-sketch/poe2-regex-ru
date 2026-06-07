@@ -16,6 +16,11 @@
  * - Full: all member tokens are selected (highlighted)
  * - Partial: some member tokens are selected (dimmed highlight)
  * - None: no member tokens are selected
+ *
+ * ARIA structure: The numeric <input> elements are SIBLINGS of the role="switch"
+ * element, not children. This avoids invalid ARIA tree where an interactive input
+ * is nested inside a switch role. The outer div acts as a visual container only.
+ * Same pattern as VendorChip.
  */
 import React, { useMemo, useCallback } from 'react';
 import type { FamilyGroup } from '@shared/types';
@@ -261,42 +266,47 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer min-w-[45%] ${bgClass}`}
-      onClick={handleClick}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors min-w-[30%] ${bgClass}`}
       title={tooltip}
-      role="switch"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
-      <span className="leading-tight">{displayText}</span>
-      {isCollapsed && isSelected && (
-        <span className="text-[9px] text-amber-400/70 shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
-          ⚡
-        </span>
-      )}
-      {hasPrefix && isSelected && (
-        <span className="text-[9px] text-blue-400/70 shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
-          ⚓
-        </span>
-      )}
-      {group.hasMultiPlaceholder && (
-        <span className="text-[9px] text-amber-400/80 shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
-          2x
-        </span>
-      )}
-      {tierCount > 1 && (
-        <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
-          &times;{tierCount}
-        </span>
-      )}
-      {rangeText && !isSelected && (
-        <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
-          ({rangeText})
-        </span>
-      )}
-      {/* Per-chip numeric range inputs — shown when group is selected and has ranges */}
+      {/* Switch element: just the label + badges, clickable */}
+      <div
+        onClick={handleClick}
+        role="switch"
+        aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
+        aria-label={ariaLabel}
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+        className="flex items-center gap-1 cursor-pointer leading-tight"
+      >
+        <span>{displayText}</span>
+        {isCollapsed && isSelected && (
+          <span className="text-[9px] text-amber-400/70 shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
+            ⚡
+          </span>
+        )}
+        {hasPrefix && isSelected && (
+          <span className="text-[9px] text-blue-400/70 shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
+            ⚓
+          </span>
+        )}
+        {group.hasMultiPlaceholder && (
+          <span className="text-[9px] text-amber-400/80 shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
+            2x
+          </span>
+        )}
+        {tierCount > 1 && (
+          <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
+            &times;{tierCount}
+          </span>
+        )}
+        {rangeText && !isSelected && (
+          <span className="text-[10px] text-gray-500 shrink-0" aria-hidden="true">
+            ({rangeText})
+          </span>
+        )}
+      </div>
+      {/* Per-chip numeric range inputs — SIBLINGS of switch, not children — valid ARIA tree */}
       {hasRanges && isSelected && onSetTokenRange && !group.hasMultiPlaceholder && (
         <div className="flex items-center gap-1 text-xs" onClick={stopPropagation}>
           <span className="text-gray-500">&ge;</span>
@@ -347,7 +357,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           />
         </div>
       )}
-      {/* Dual-number: show separate range inputs for each slot */}
+      {/* Dual-number: separate range inputs for each slot — SIBLINGS of switch */}
       {hasRanges && isSelected && onSetTokenRange && group.hasMultiPlaceholder && (
         <div className="flex flex-col gap-0.5 text-xs" onClick={stopPropagation}>
           {/* Slot 0 row */}

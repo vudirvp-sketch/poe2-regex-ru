@@ -4,45 +4,36 @@
 
 ---
 
-## Current State (Session 62 — 2026-06-08)
+## Current State (Session 63 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **VendorChip: removed duplicate VendorProperty interface** — Was declaring a local `VendorProperty` interface identical to the one in `@data/vendor-properties.ts`. Now imports from the canonical source. Prevents future drift.
+1. **FilterChip: ARIA restructuring (HIGH)** — Same issue as VendorChip had: `<input type="number">` was a child of `role="switch"` div, violating WAI-ARIA. Restructured: outer div is visual container only (no role), inner `<div role="switch">` holds label + badges, range inputs are siblings of switch. Same pattern as VendorChip.
 
-2. **VendorChip: fixed ARIA violation** — `<input type="number">` was a child of `role="switch"` div, which violates WAI-ARIA (interactive element inside another interactive role). Restructured: outer div is visual container, inner `<div role="switch">` holds just the label, `<input>` is a sibling. Updated misleading comment that claimed this was already done.
+2. **FilterChip: min-w-[45%] → min-w-[30%] (MEDIUM)** — The 45% minimum width limited chips to 2 per row even on wider screens. Reduced to 30% to allow 3 chips per row when space permits.
 
-3. **VendorChip: added negative number validation** — `parseInt` result now checked for `v < 0`, consistent with FilterChip. Previously could store negative values.
+3. **Jewel classification: updated heuristic accuracy note** — ETL lookup gives 100% accuracy (all 250 tokens have `jewelType` populated). Heuristic fallback is ~75% vs ETL ground truth, mainly because ETL marks mods appearing on multiple jewel types as `shared`, while the heuristic assigns specific types more aggressively. Added several rule improvements:
+   - Banner rule: added `накоплен.*славы.*умени.*знамён` variant
+   - Stun threshold: added `/порог.*оглушен/` rule (w=2) for better Ruby coverage
+   - Mark skills: expanded rule to include `усилен.*эффект.*умени.*метк|усилен.*эффект.*метк`
+   - Critical damage spears: added `/крит.*урон.*копь|бонус.*крит.*копь/` rule for Emerald
+   - Conditional melee↔projectile: added rule for Emerald dual-weapon mods
 
-4. **RegexOutput: clamped aria-valuenow to MAX_CHARS** — When regex overflows 250 chars, `aria-valuenow` exceeded `aria-valuemax`, violating ARIA spec. Now uses `Math.min(charCount, MAX_CHARS)`.
-
-5. **PageStateWrapper: added ARIA roles** — Loading state gets `role="status"` + `aria-live="polite"`, error state gets `role="alert"`, no-data state gets `role="status"`.
-
-6. **ProfilePanel: added delete confirmation** — Clicking ✕ enters confirm state (shows ✓), clicking ✓ confirms delete. Clicking elsewhere (onBlur on container) cancels. Also added `aria-label` on rename (✎) and delete (✕/✓) buttons with profile name context. Added Escape key to cancel rename.
-
-7. **CategoryControlPanel: added arrow key navigation for radio groups** — Mode toggle (Хочу/Не хочу) and logic toggle (AND/OR) now respond to ArrowLeft/ArrowUp (previous) and ArrowRight/ArrowDown (next), wrapping around. Per ARIA radiogroup spec.
-
-8. **VirtualizedModList: removed unused jewelTypeFilter prop** — Was declared and destructured (`_jewelTypeFilter`) but never used. Filtering happens at the page level (JewelPage's `filterTokensByJewelType`). Removed from interface and destructuring. Updated JewelPage to not pass it.
+4. **Bug audit: UI logic review** — Reviewed all UI components (VirtualizedModList, ModList, ProfilePanel, CategoryControlPanel, VendorChip, Sidebar, Header). Found no critical bugs. ProfilePanel delete confirmation works correctly (autoFocus on ✓ button prevents onBlur race). FilterChip ARIA was the main fixable issue (done above).
 
 **Files changed this session:**
-- `src/ui/components/VendorChip.tsx` — Remove duplicate interface, ARIA fix, negative validation
-- `src/ui/components/RegexOutput.tsx` — aria-valuenow clamp
-- `src/ui/components/PageStateWrapper.tsx` — ARIA roles
-- `src/ui/components/ProfilePanel.tsx` — Delete confirmation, aria-labels
-- `src/ui/components/CategoryControlPanel.tsx` — Arrow key navigation
-- `src/ui/components/VirtualizedModList.tsx` — Remove unused jewelTypeFilter prop
-- `src/ui/pages/jewel/JewelPage.tsx` — Remove jewelTypeFilter prop pass-through
-- `AGENT_NAVIGATION.md` — Updated to v62.0
+- `src/ui/components/FilterChip.tsx` — ARIA restructure + min-w change
+- `src/shared/mod-classifier.ts` — Heuristic rule improvements + accuracy comment update
 - `worklog.md` — This update
+- `AGENT_NAVIGATION.md` — Updated to v63.0
 
 **NOT YET DONE (next iteration):**
-- ⬜ FilterChip ARIA restructuring — range inputs are children of `role="switch"` div, same issue as VendorChip had. Needs careful layout work.
-- ⬜ FilterChip min-w-[45%] — too aggressive for wider screens, consider reducing
-- ⬜ Jewel classification accuracy improvement (heuristic fallback ~84%)
 - ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
+- ⬜ Duplicate profile names allowed — ProfilePanel doesn't prevent identical names
+- ⬜ Ctrl+Shift+C shortcut may conflict with browser dev tools
 
 ---
 
@@ -64,7 +55,7 @@
 14. **Multi-line sub-lines may share text with standalone mods:** h4ipty splits can create cross-family FP with mods that have the same suffix but a `#%` prefix. Use `—` exclude/context to disambiguate.
 15. **OR-suffix RANGE must wrap `|` in `()`:** Compiler wraps suffixes containing `|` in `()` to scope the alternation. Without this, `".*огню|холоду"` parses as `".*огню"` OR `"холоду"` — wrong!
 16. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates — import from canonical source.
-17. **ARIA: interactive elements must not be children of role="switch":** Inputs and buttons inside a switch role violate WAI-ARIA. Use sibling pattern (see VendorChip).
+17. **ARIA: interactive elements must not be children of role="switch":** Inputs and buttons inside a switch role violate WAI-ARIA. Use sibling pattern (see VendorChip and FilterChip).
 
 ## Build & Run Commands
 
