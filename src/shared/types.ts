@@ -29,6 +29,12 @@ export interface GameToken {
   /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat).
    *  Used for numeric filtering: dual-number mods filter by ranges[0] (first placeholder). */
   hasMultiPlaceholder: boolean;
+  /** Exclusion patterns for cross-family FP prevention.
+   *  When the main regex suffix also matches compound-family tokens,
+   *  these patterns are used to generate negation groups:
+   *  "suffix" !"exclude1" !"exclude2"
+   *  Empty array or absent means no exclusions needed. */
+  regexExclude?: Record<Locale, string[]>;
   /** Jewel type classification (only for jewel category). Populated by ETL from
    *  poe2db ModCalc pages. 'shared' if mod appears on multiple jewel types or unknown. */
   jewelType?: JewelType;

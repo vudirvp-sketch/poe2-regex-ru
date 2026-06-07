@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 37.0 | **Date:** 2026-06-07
+> **Version:** 45.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 452 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 459 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,7 +28,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (452 tests, Vitest)
+npx vitest run --root . # Run tests (459 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -50,7 +50,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (452 tests)
+- [ ] `npx vitest run --root .` passes (459 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -69,12 +69,12 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
+1. **Remaining 89 cross-family FP** — Most are: minion variants of player mods (`Приспешники имеют ...увеличение урона`), short generic suffixes (`увеличение урона` matching many composites), `к сопротивлению всем стихиям` matching minion variants.
 
 ### MEDIUM
 
-2. **`к силе` cross-family FP** — Simple regex `к силе` matches composite mods like `+(9—15) к силе и интеллекту`. Affects amulet (95), belt (11), ring (49). Needs longer regex generation.
-3. **jewel-desecrated 16 cross-family FP** — Many short regexes match across families. Needs investigation.
+2. **jewel-desecrated 15 cross-family FP** — Dual-stat desecrated mods have short, generic suffixes that match across families. Negation helps partially but some mods have too many compound variants.
+3. **regexExclude pattern quality** — Some tokens get 3+ negation groups, making the final regex very long. Need smarter pattern selection (e.g., single word like `интеллекту` instead of `к силе и`).
 4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
 5. **HomePage hardcoded mod counts** — Category cards show stale counts
 
@@ -84,23 +84,23 @@ shared <- core <- strategies <- store <- data <- ui
 7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
 8. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
-## 7. Data Stats (Block-based Oracle, Session 43)
+## 7. Data Stats (Block-based Oracle, Session 45)
 
 | Category | Tokens | Valid | Cross-FP | Family-FP | FN |
 |----------|--------|-------|----------|-----------|----|
-| waystone | 97 | 93 | 1 | 76 | 3 |
-| waystone-desecrated | 17 | 16 | 1 | 2 | 0 |
-| tablet | 75 | 70 | 5 | 0 | 0 |
-| jewel | 193 | 178 | 15 | 0 | 0 |
-| jewel-desecrated | 32 | 16 | 16 | 0 | 0 |
-| jewel-corrupted | 10 | 9 | 1 | 0 | 0 |
+| waystone | 97 | 97 | 0 | 79 | 0 |
+| waystone-desecrated | 17 | 17 | 0 | 2 | 0 |
+| tablet | 75 | 71 | 4 | 0 | 0 |
+| jewel | 193 | 180 | 11 | 0 | 0 |
+| jewel-desecrated | 32 | 17 | 15 | 0 | 0 |
+| jewel-corrupted | 10 | 10 | 0 | 0 | 0 |
 | relic | 58 | 58 | 0 | 0 | 0 |
-| belt | 298 | 287 | 11 | 239 | 0 |
-| ring | 366 | 317 | 49 | 267 | 0 |
-| amulet | 427 | 332 | 95 | 283 | 0 |
-| **Total** | **1,573** | **1,376** | **194** | **924** | **3** |
+| belt | 298 | 298 | 0 | 303 | 0 |
+| ring | 366 | 352 | 14 | 303 | 0 |
+| amulet | 427 | 427 | 0 | 283 | 0 |
+| **Total** | **1,573** | **1,484** | **89** | **1,032** | **0** |
 
-Note: Family-tier FP (924) are "by design" — same mod family, different tiers sharing one regex. Cross-family FP (194) are real bugs needing regex fixes.
+Note: Family-tier FP (1032) are "by design" — same mod family, different tiers sharing one regex. Cross-family FP (89) are real bugs needing regex fixes. 0 false negatives.
 
 ## 8. Oracle API (Phase 8)
 
@@ -111,9 +111,20 @@ Two validation modes in `src/core/regex-oracle.ts`:
 | `validateRegex()` | Flat-text (`matchQuotedGroup`) | ETL single-mod validation |
 | `validateRegexItem()` | Block-based (`matchPoE2RegexItem`) | In-game behavior simulation |
 | `batchValidate()` | Flat-text, batch | ETL --validate |
-| `batchValidateItem()` | Block-based, batch | ETL --validate-item (Session 43) |
+| `batchValidateItem()` | Block-based, batch | ETL --validate-item |
 
 FP categorization (all functions):
 - `OracleResult.familyTierFP` — FP from same familyKey (by design)
 - `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
 - `valid = true` when NO cross-family FP and no FN
+
+## 9. regexExclude System (Session 45)
+
+New field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
+
+**How it works:**
+- ETL `computeExcludePatterns()` finds text extensions in compound-family mods
+- Example: suffix `к силе` also matches `+(9—15) к силе и интеллекту` → exclude patterns: `["к силе и", "к силе,"]`
+- Final regex: `"к силе" !"к силе и" !"к силе,"`
+- UI `useCategoryPage.ts` wraps `LITERAL` nodes with `EXCLUDE` nodes from `regexExclude`
+- Validator in `run-etl.ts` includes exclude patterns in Oracle validation

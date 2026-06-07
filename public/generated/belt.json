@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:00:58.552Z",
+  "version": "2026-06-07T06:24:52.497Z",
   "category": "belt",
   "source": "poe2db.tw",
   "tokens": [
@@ -41,7 +41,13 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.normal_1",
@@ -81,7 +87,13 @@
       "yoficationPositions": [
         13
       ],
-      "level": 11
+      "level": 11,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.strength3",
@@ -121,7 +133,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 22
+      "level": 22,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.normal_3",
@@ -161,7 +179,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 33
+      "level": 33,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.strength5",
@@ -201,7 +225,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 44
+      "level": 44,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.normal_5",
@@ -241,7 +271,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 55
+      "level": 55,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.strength7",
@@ -281,7 +317,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 66
+      "level": 66,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.normal_7",
@@ -321,7 +363,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 74
+      "level": 74,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.strength9",
@@ -361,7 +409,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 81
+      "level": 81,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.normal_9",
@@ -6295,7 +6349,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "belt.corruptiondexterity1_corrupted",
@@ -6333,7 +6393,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "belt.corruptionintelligence1_corrupted",

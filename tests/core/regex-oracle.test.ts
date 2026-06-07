@@ -747,3 +747,125 @@ describe('Regex Oracle: Batch item validation (batchValidateItem)', () => {
     expect(report.crossFamilyFPCount).toBeGreaterThan(0);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 11: NEGATION REGEX (regexExclude — Session 45)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Regex Oracle: Negation regex (regexExclude)', () => {
+  it('"к силе" !"к силе и" excludes composite mods', () => {
+    // Pure strength mod
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к силе'],
+    };
+    // Composite mod: strength + intelligence
+    const compositeItem: GameItemText = {
+      mods: ['+(9—15) к силе и интеллекту'],
+    };
+
+    // Without negation: "к силе" matches both
+    const withoutNegation = validateRegexItem(
+      'к силе',
+      [targetItem],
+      [],
+      [targetItem, compositeItem].map((item, i) => ({
+        id: `item_${i}`,
+        text: item,
+      })),
+      'pure_str',
+      new Map([
+        ['item_0', 'pure_str'],
+        ['item_1', 'composite_str_int'],
+      ])
+    );
+    expect(withoutNegation.crossFamilyFP.length).toBeGreaterThan(0);
+
+    // With negation: '"к силе" !"к силе и"' only matches pure strength
+    const withNegation = validateRegexItem(
+      '"к силе" !"к силе и"',
+      [targetItem],
+      [],
+      [targetItem, compositeItem].map((item, i) => ({
+        id: `item_${i}`,
+        text: item,
+      })),
+      'pure_str',
+      new Map([
+        ['item_0', 'pure_str'],
+        ['item_1', 'composite_str_int'],
+      ])
+    );
+    expect(withNegation.valid).toBe(true);
+    expect(withNegation.crossFamilyFP).toHaveLength(0);
+    expect(withNegation.falseNegatives).toHaveLength(0);
+  });
+
+  it('"к ловкости" !"к ловкости и" excludes composite mods', () => {
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к ловкости'],
+    };
+    const compositeItem: GameItemText = {
+      mods: ['+(9—15) к ловкости и интеллекту'],
+    };
+
+    const result = validateRegexItem(
+      '"к ловкости" !"к ловкости и"',
+      [targetItem],
+      [],
+      [targetItem, compositeItem].map((item, i) => ({
+        id: `item_${i}`,
+        text: item,
+      })),
+      'pure_dex',
+      new Map([
+        ['item_0', 'pure_dex'],
+        ['item_1', 'composite_dex_int'],
+      ])
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.crossFamilyFP).toHaveLength(0);
+  });
+
+  it('negation regex still matches its own target (no FN)', () => {
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к силе'],
+    };
+
+    const result = validateRegexItem(
+      '"к силе" !"к силе и"',
+      [targetItem],
+      []
+    );
+
+    expect(result.falseNegatives).toHaveLength(0);
+    expect(result.valid).toBe(true);
+  });
+
+  it('negation with comma-separated composite: !"к силе,"', () => {
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к силе'],
+    };
+    const compositeItem: GameItemText = {
+      mods: ['+(9—12) к силе, ловкости или интеллекту'],
+    };
+
+    const result = validateRegexItem(
+      '"к силе" !"к силе," !"к силе и"',
+      [targetItem],
+      [],
+      [targetItem, compositeItem].map((item, i) => ({
+        id: `item_${i}`,
+        text: item,
+      })),
+      'pure_str',
+      new Map([
+        ['item_0', 'pure_str'],
+        ['item_1', 'composite_all'],
+      ])
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.crossFamilyFP).toHaveLength(0);
+  });
+});

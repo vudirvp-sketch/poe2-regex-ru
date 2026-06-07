@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:00:54.855Z",
+  "version": "2026-06-07T06:24:50.021Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -163,7 +163,7 @@
         "ru": "##% увеличение эффективности монстров"
       },
       "regex": {
-        "ru": "эффективности монстров"
+        "ru": "увеличение эффективности монстров"
       },
       "familyKey": {
         "ru": "#% увеличение эффективности монстров"
@@ -188,7 +188,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "увеличение эффективности монстров бездны"
+        ]
+      }
     },
     {
       "id": "tablet.mod_h79bpa",
@@ -3041,6 +3046,19 @@
       "weight": 94,
       "count": 4
     },
+    "tablet.mod_ld06px:tablet.mod_od9m77:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
+      "ids": [
+        "tablet.mod_ld06px",
+        "tablet.mod_od9m77",
+        "tablet.mod_wrlukt",
+        "tablet.mod_yr6d7c"
+      ],
+      "regex": {
+        "ru": "увеличение (количества находимых|эффективности монстров|размера групп монстров на карте)"
+      },
+      "weight": 88,
+      "count": 4
+    },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [
         "tablet.mod_1vman9",
@@ -3075,18 +3093,6 @@
       "weight": 33,
       "count": 2
     },
-    "tablet.mod_ld06px:tablet.mod_od9m77:tablet.mod_yr6d7c": {
-      "ids": [
-        "tablet.mod_ld06px",
-        "tablet.mod_od9m77",
-        "tablet.mod_yr6d7c"
-      ],
-      "regex": {
-        "ru": "увеличение (количества находимых|размера групп монстров на карте)"
-      },
-      "weight": 65,
-      "count": 3
-    },
     "tablet.mod_9l6crt:tablet.mod_gnrsv2": {
       "ids": [
         "tablet.mod_9l6crt",
@@ -3115,9 +3121,9 @@
         "tablet.mod_yvoqjl"
       ],
       "regex": {
-        "ru": "(эффективности|количество) монстров"
+        "ru": "(увеличение эффективности|количество) монстров"
       },
-      "weight": 35,
+      "weight": 46,
       "count": 2
     },
     "tablet.mod_5xy54:tablet.mod_mug63h:tablet.mod_xfrnuy": {

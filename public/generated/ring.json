@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:01:01.816Z",
+  "version": "2026-06-07T06:24:54.146Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -41,7 +41,13 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.normal_1",
@@ -81,7 +87,13 @@
       "yoficationPositions": [
         13
       ],
-      "level": 11
+      "level": 11,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.strength3",
@@ -121,7 +133,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 22
+      "level": 22,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.normal_3",
@@ -161,7 +179,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 33
+      "level": 33,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.strength5",
@@ -201,7 +225,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 44
+      "level": 44,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.normal_5",
@@ -241,7 +271,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 55
+      "level": 55,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.strength7",
@@ -281,7 +317,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 66
+      "level": 66,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.normal_7",
@@ -321,7 +363,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 74
+      "level": 74,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.dexterity1",
@@ -359,7 +407,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.normal_9",
@@ -397,7 +450,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 11
+      "level": 11,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.dexterity3",
@@ -435,7 +493,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 22
+      "level": 22,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.normal_11",
@@ -473,7 +536,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.dexterity5",
@@ -511,7 +579,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 44
+      "level": 44,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.normal_13",
@@ -549,7 +622,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 55
+      "level": 55,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.dexterity7",
@@ -587,7 +665,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 66
+      "level": 66,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.dexterity8",
@@ -625,7 +708,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 74
+      "level": 74,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.intelligence1",
@@ -9394,7 +9482,7 @@
         "ru": "##% увеличение урона"
       },
       "regex": {
-        "ru": "% увеличение урона"
+        "ru": "увеличение урона"
       },
       "familyKey": {
         "ru": "#% увеличение урона"
@@ -9421,7 +9509,13 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.corruptionincreasedskillspeed1_corrupted",
@@ -9434,7 +9528,7 @@
         "ru": "##% повышение скорости умений"
       },
       "regex": {
-        "ru": "% повышение скорости умений"
+        "ru": "повышение скорости умений"
       },
       "familyKey": {
         "ru": "#% повышение скорости умений"
@@ -9462,7 +9556,12 @@
         12,
         28
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "повышение скорости умений приказов"
+        ]
+      }
     },
     {
       "id": "ring.corruptioncriticalstrikemultiplier1_corrupted",
@@ -9475,7 +9574,7 @@
         "ru": "##% увеличение бонуса к критическому урону"
       },
       "regex": {
-        "ru": "урону"
+        "ru": "увеличение бонуса к критическому урону"
       },
       "familyKey": {
         "ru": "#% увеличение бонуса к критическому урону"
@@ -9504,7 +9603,13 @@
         15,
         35
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "увеличение бонуса к критическому урону приспешников",
+          "увеличение бонуса к критическому урону от"
+        ]
+      }
     },
     {
       "id": "ring.corrupted_9_corrupted",
@@ -9544,7 +9649,13 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "к силе, ловкости"
+        ]
+      }
     },
     {
       "id": "ring.corruptiondexterity1_corrupted",
@@ -9582,7 +9693,12 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "к ловкости и"
+        ]
+      }
     },
     {
       "id": "ring.corruptionintelligence1_corrupted",
@@ -10526,7 +10642,7 @@
         "ru": "##% повышение скорости умений"
       },
       "regex": {
-        "ru": "% повышение скорости умений"
+        "ru": "повышение скорости умений"
       },
       "familyKey": {
         "ru": "#% повышение скорости умений"
@@ -10555,7 +10671,12 @@
         12,
         28
       ],
-      "level": 65
+      "level": 65,
+      "regexExclude": {
+        "ru": [
+          "повышение скорости умений приказов"
+        ]
+      }
     },
     {
       "id": "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
@@ -10887,7 +11008,7 @@
         "ru": "Приспешники имеют ##% повышение скорости перезарядки"
       },
       "regex": {
-        "ru": "21—29"
+        "ru": "повышение скорости перезарядки"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение скорости перезарядки"
@@ -10918,7 +11039,12 @@
         47,
         49
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "повышение скорости перезарядки умений"
+        ]
+      }
     },
     {
       "id": "ring.genesistreeringminionpuppetmaster_breachborn",
@@ -11378,7 +11504,13 @@
         14,
         31
       ],
-      "level": 13
+      "level": 13,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage2_breachborn",
@@ -11428,7 +11560,13 @@
         14,
         33
       ],
-      "level": 26
+      "level": 26,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage3_breachborn",
@@ -11478,7 +11616,13 @@
         14,
         33
       ],
-      "level": 33
+      "level": 33,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage4_breachborn",
@@ -11528,7 +11672,13 @@
         14,
         33
       ],
-      "level": 46
+      "level": 46,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage5_breachborn",
@@ -11578,7 +11728,13 @@
         14,
         33
       ],
-      "level": 54
+      "level": 54,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage6_breachborn",
@@ -11628,7 +11784,13 @@
         14,
         33
       ],
-      "level": 65
+      "level": 65,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage7_breachborn",
@@ -11678,7 +11840,13 @@
         14,
         33
       ],
-      "level": 70
+      "level": 70,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.miniondamage8_breachborn",
@@ -11691,7 +11859,7 @@
         "ru": "Приспешники имеют ##% увеличение урона"
       },
       "regex": {
-        "ru": "28—31"
+        "ru": "увеличение урона"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение урона"
@@ -11728,7 +11896,13 @@
         14,
         33
       ],
-      "level": 82
+      "level": 82,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "увеличение урона хаосом"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance1_breachborn",
@@ -11741,7 +11915,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "к сопротивлению всем стихиям"
+        "ru": "приспешники имеют +"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -11789,7 +11963,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "к сопротивлению всем стихиям"
+        "ru": "приспешники имеют +"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12213,7 +12387,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "ышение шанса критического удара"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12244,7 +12418,12 @@
         31,
         48
       ],
-      "level": 18
+      "level": 18,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikechancering2_breachborn",
@@ -12257,7 +12436,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "13—20"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12288,7 +12467,12 @@
         32,
         49
       ],
-      "level": 32
+      "level": 32,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikechancering3_breachborn",
@@ -12301,7 +12485,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "21—28"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12332,7 +12516,12 @@
         32,
         49
       ],
-      "level": 45
+      "level": 45,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikechancering4_breachborn",
@@ -12345,7 +12534,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "29—36"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12376,7 +12565,12 @@
         32,
         49
       ],
-      "level": 58
+      "level": 58,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikechancering5_breachborn",
@@ -12389,7 +12583,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "37—44"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12420,7 +12614,12 @@
         32,
         49
       ],
-      "level": 70
+      "level": 70,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikechancering6_breachborn",
@@ -12433,7 +12632,7 @@
         "ru": "Приспешники имеют ##% повышение шанса критического удара"
       },
       "regex": {
-        "ru": "45—52"
+        "ru": "повышение шанса критического удара"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% повышение шанса критического удара"
@@ -12464,7 +12663,12 @@
         32,
         49
       ],
-      "level": 81
+      "level": 81,
+      "regexExclude": {
+        "ru": [
+          "повышение шанса критического удара для"
+        ]
+      }
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring1_breachborn",
@@ -13041,7 +13245,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13076,7 +13280,12 @@
       "yoficationPositions": [
         13
       ],
-      "level": 9
+      "level": 9,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering2_breachborn",
@@ -13089,7 +13298,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13124,7 +13333,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 20
+      "level": 20,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering3_breachborn",
@@ -13137,7 +13351,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13172,7 +13386,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 31
+      "level": 31,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering4_breachborn",
@@ -13185,7 +13404,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13220,7 +13439,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 46
+      "level": 46,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering5_breachborn",
@@ -13233,7 +13457,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13268,7 +13492,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 55
+      "level": 55,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering6_breachborn",
@@ -13281,7 +13510,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13316,7 +13545,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 63
+      "level": 63,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering7_breachborn",
@@ -13329,7 +13563,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13364,7 +13598,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 71
+      "level": 71,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spelldamagering8_breachborn",
@@ -13377,7 +13616,7 @@
         "ru": "##% увеличение урона от чар"
       },
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
       "familyKey": {
         "ru": "#% увеличение урона от чар"
@@ -13412,7 +13651,12 @@
       "yoficationPositions": [
         15
       ],
-      "level": 82
+      "level": 82,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от чар при"
+        ]
+      }
     },
     {
       "id": "ring.spellcostefficiency1_breachborn",
@@ -16210,7 +16454,7 @@
         "ru": "##% повышение скорости атаки"
       },
       "regex": {
-        "ru": "% повышение скорости атаки"
+        "ru": "повышение скорости атаки"
       },
       "familyKey": {
         "ru": "#% повышение скорости атаки"
@@ -16238,7 +16482,12 @@
       "yoficationPositions": [
         12
       ],
-      "level": 45
+      "level": 45,
+      "regexExclude": {
+        "ru": [
+          "повышение скорости атаки и"
+        ]
+      }
     },
     {
       "id": "ring.alloyeffectofresistancemods1_essence",
@@ -16819,9 +17068,9 @@
         "ring.corruptionincreasedskillspeed1_corrupted"
       ],
       "regex": {
-        "ru": "% повышение скорости умений"
+        "ru": "повышение скорости умений"
       },
-      "weight": 27,
+      "weight": 25,
       "count": 2
     },
     "ring.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated:ring.remnantpickupradiusincrease1_breachborn:ring.remnantpickupradiusincrease2_breachborn:ring.remnantpickupradiusincrease3_breachborn:ring.remnantpickupradiusincrease4_breachborn:ring.remnantpickupradiusincrease5_breachborn": {
@@ -16877,9 +17126,9 @@
         "ring.minionelementalresistance6_breachborn"
       ],
       "regex": {
-        "ru": "к сопротивлению всем стихиям"
+        "ru": "приспешники имеют +"
       },
-      "weight": 28,
+      "weight": 19,
       "count": 6
     },
     "ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
@@ -16905,9 +17154,9 @@
         "ring.minioncriticalstrikechancering6_breachborn"
       ],
       "regex": {
-        "ru": "ышение шанса критического удара"
+        "ru": "повышение шанса критического удара"
       },
-      "weight": 31,
+      "weight": 34,
       "count": 6
     },
     "ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
@@ -16952,9 +17201,9 @@
         "ring.spelldamagering8_breachborn"
       ],
       "regex": {
-        "ru": "урона от чар"
+        "ru": "увеличение урона от чар"
       },
-      "weight": 12,
+      "weight": 23,
       "count": 8
     },
     "ring.spellcostefficiency1_breachborn:ring.spellcostefficiency2_breachborn:ring.spellcostefficiency3_breachborn:ring.spellcostefficiency4_breachborn:ring.spellcostefficiency5_breachborn:ring.spellcostefficiency6_breachborn": {
@@ -17069,7 +17318,7 @@
       "weight": 22,
       "count": 2
     },
-    "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.normal_183:ring.normal_184:ring.normal_190:ring.normal_195:ring.normal_197": {
+    "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.corruptionalldamage1_corrupted:ring.corruptioncriticalstrikemultiplier1_corrupted:ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn:ring.normal_183:ring.normal_184:ring.normal_190:ring.normal_195:ring.normal_197:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
       "ids": [
         "ring.chaosdamagepercent1",
         "ring.chaosdamagepercent2",
@@ -17079,6 +17328,8 @@
         "ring.colddamagepercent2",
         "ring.colddamagepercent3",
         "ring.colddamagepercent6",
+        "ring.corruptionalldamage1_corrupted",
+        "ring.corruptioncriticalstrikemultiplier1_corrupted",
         "ring.firedamagepercent1",
         "ring.firedamagepercent2",
         "ring.firedamagepercent3",
@@ -17097,17 +17348,26 @@
         "ring.miniondamage5_breachborn",
         "ring.miniondamage6_breachborn",
         "ring.miniondamage7_breachborn",
+        "ring.miniondamage8_breachborn",
         "ring.normal_183",
         "ring.normal_184",
         "ring.normal_190",
         "ring.normal_195",
-        "ring.normal_197"
+        "ring.normal_197",
+        "ring.spelldamagering1_breachborn",
+        "ring.spelldamagering2_breachborn",
+        "ring.spelldamagering3_breachborn",
+        "ring.spelldamagering4_breachborn",
+        "ring.spelldamagering5_breachborn",
+        "ring.spelldamagering6_breachborn",
+        "ring.spelldamagering7_breachborn",
+        "ring.spelldamagering8_breachborn"
       ],
       "regex": {
-        "ru": "увеличение урона( от (огня|холода|молнии)| хаосом)?"
+        "ru": "увеличение (урона( от (огня|холода|молнии|чар)| хаосом)?|бонуса к критическому урону)"
       },
-      "weight": 51,
-      "count": 31
+      "weight": 85,
+      "count": 42
     },
     "ring.genesistreeringspelldamageasextrachaos_breachborn:ring.genesistreeringspelldamageasextracold_breachborn:ring.genesistreeringspelldamageasextrafire_breachborn:ring.genesistreeringspelldamageasextralightning_breachborn": {
       "ids": [
@@ -17205,6 +17465,25 @@
       },
       "weight": 44,
       "count": 44
+    },
+    "ring.abyssmodringamuletulamansuffixskillspeed_desecrated:ring.alloyattackspeedring1_essence:ring.corruptionincreasedskillspeed1_corrupted:ring.genesistreeringminioncooldownrecovery_breachborn:ring.minioncriticalstrikechancering1_breachborn:ring.minioncriticalstrikechancering2_breachborn:ring.minioncriticalstrikechancering3_breachborn:ring.minioncriticalstrikechancering4_breachborn:ring.minioncriticalstrikechancering5_breachborn:ring.minioncriticalstrikechancering6_breachborn": {
+      "ids": [
+        "ring.abyssmodringamuletulamansuffixskillspeed_desecrated",
+        "ring.alloyattackspeedring1_essence",
+        "ring.corruptionincreasedskillspeed1_corrupted",
+        "ring.genesistreeringminioncooldownrecovery_breachborn",
+        "ring.minioncriticalstrikechancering1_breachborn",
+        "ring.minioncriticalstrikechancering2_breachborn",
+        "ring.minioncriticalstrikechancering3_breachborn",
+        "ring.minioncriticalstrikechancering4_breachborn",
+        "ring.minioncriticalstrikechancering5_breachborn",
+        "ring.minioncriticalstrikechancering6_breachborn"
+      ],
+      "regex": {
+        "ru": "повышение (скорости (умений|перезарядки|атаки)|шанса критического удара)"
+      },
+      "weight": 72,
+      "count": 10
     },
     "ring.abyssmodarmourjewellerykurgalsuffixdexterityandintelligence_desecrated:ring.corruptionintelligence1_corrupted:ring.desecrated_5_desecrated:ring.dexterity2_essence:ring.dexterity4_essence:ring.dexterity6_essence:ring.intelligence1:ring.intelligence2:ring.intelligence2_essence:ring.intelligence3:ring.intelligence4:ring.intelligence4_essence:ring.intelligence5:ring.intelligence6_essence:ring.intelligence7:ring.normal_21:ring.normal_23:ring.strength2_essence:ring.strength4_essence:ring.strength6_essence": {
       "ids": [
@@ -17383,18 +17662,6 @@
       "weight": 45,
       "count": 33
     },
-    "ring.abyssmodringamuletulamansuffixskillspeed_desecrated:ring.alloyattackspeedring1_essence:ring.corruptionincreasedskillspeed1_corrupted": {
-      "ids": [
-        "ring.abyssmodringamuletulamansuffixskillspeed_desecrated",
-        "ring.alloyattackspeedring1_essence",
-        "ring.corruptionincreasedskillspeed1_corrupted"
-      ],
-      "regex": {
-        "ru": "% повышение скорости (умений|атаки)"
-      },
-      "weight": 35,
-      "count": 3
-    },
     "ring.abyssmodringamuletkurgalsuffixexposureeffect_desecrated:ring.abyssmodringulamanprefixshockmagnitudeifconsumedfrenzycharge_desecrated:ring.corruptiondexterity1_corrupted:ring.desecrated_16_desecrated:ring.desecrated_1_desecrated:ring.dexterity1:ring.dexterity3:ring.dexterity5:ring.dexterity7:ring.dexterity8:ring.genesistreeringexposureeffect_breachborn:ring.increasedaccuracy2:ring.increasedaccuracy3:ring.increasedaccuracy4:ring.increasedaccuracy5:ring.increasedaccuracy6:ring.increasedaccuracy7:ring.increasedaccuracy8:ring.normal_11:ring.normal_13:ring.normal_157:ring.normal_9": {
       "ids": [
         "ring.abyssmodringamuletkurgalsuffixexposureeffect_desecrated",
@@ -17437,9 +17704,9 @@
         "ring.genesistreeringofferingeffect_breachborn"
       ],
       "regex": {
-        "ru": "(насыщ|% повышение скорости ум|перезарядки ум|Поднош|вызываемых ум|сопротивл)ений"
+        "ru": "(насыщ|повышение скорости ум|перезарядки ум|Поднош|вызываемых ум|сопротивл)ений"
       },
-      "weight": 81,
+      "weight": 79,
       "count": 7
     },
     "ring.chaosresist1_essence:ring.chaosresist2:ring.chaosresist2_essence:ring.chaosresist4_essence:ring.chaosresist5:ring.corruptionchaosresistance1_corrupted:ring.desecrated_11_desecrated:ring.desecrated_17_desecrated:ring.desecrated_9_desecrated:ring.normal_57:ring.normal_59:ring.normal_60:ring.normal_62": {
@@ -17476,9 +17743,9 @@
         "ring.genesistreeringofferingeffect_breachborn"
       ],
       "regex": {
-        "ru": "(состоя|% повышение скорости уме|перезарядки уме|насыще|Подноше|вызываемых уме|сопротивле)ний"
+        "ru": "(состоя|повышение скорости уме|перезарядки уме|насыще|Подноше|вызываемых уме|сопротивле)ний"
       },
-      "weight": 93,
+      "weight": 91,
       "count": 8
     },
     "ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.genesistreeringspelldamageasextracold_breachborn:ring.normal_183:ring.normal_184": {
@@ -17530,23 +17797,6 @@
       },
       "weight": 32,
       "count": 9
-    },
-    "ring.corruptionalldamage1_corrupted:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn": {
-      "ids": [
-        "ring.corruptionalldamage1_corrupted",
-        "ring.miniondamage1_breachborn",
-        "ring.miniondamage2_breachborn",
-        "ring.miniondamage3_breachborn",
-        "ring.miniondamage4_breachborn",
-        "ring.miniondamage5_breachborn",
-        "ring.miniondamage6_breachborn",
-        "ring.miniondamage7_breachborn"
-      ],
-      "regex": {
-        "ru": "(% )?увеличение урона"
-      },
-      "weight": 21,
-      "count": 8
     },
     "ring.desecrated_11_desecrated:ring.desecrated_17_desecrated:ring.desecrated_9_desecrated": {
       "ids": [
@@ -17611,9 +17861,9 @@
         "ring.genesistreeringmaximuminvocationenergy_breachborn"
       ],
       "regex": {
-        "ru": "(вызываемых|% повышение скорости|перезарядки) умений"
+        "ru": "(вызываемых|повышение скорости|перезарядки) умений"
       },
-      "weight": 52,
+      "weight": 50,
       "count": 4
     },
     "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.genesistreeringspelldamageasextrachaos_breachborn:ring.normal_195:ring.normal_197": {
@@ -17728,47 +17978,6 @@
       },
       "weight": 66,
       "count": 40
-    },
-    "ring.corruptionalldamage1_corrupted:ring.genesistreeringminionarmourbreak_breachborn:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn": {
-      "ids": [
-        "ring.corruptionalldamage1_corrupted",
-        "ring.genesistreeringminionarmourbreak_breachborn",
-        "ring.miniondamage1_breachborn",
-        "ring.miniondamage2_breachborn",
-        "ring.miniondamage3_breachborn",
-        "ring.miniondamage4_breachborn",
-        "ring.miniondamage5_breachborn",
-        "ring.miniondamage6_breachborn",
-        "ring.miniondamage7_breachborn"
-      ],
-      "regex": {
-        "ru": "(ими физического|% увеличение|увеличение) урона"
-      },
-      "weight": 47,
-      "count": 9
-    },
-    "ring.spellcriticalstrikemultiplierring1_breachborn:ring.spellcriticalstrikemultiplierring2_breachborn:ring.spellcriticalstrikemultiplierring3_breachborn:ring.spellcriticalstrikemultiplierring4_breachborn:ring.spellcriticalstrikemultiplierring5_breachborn:ring.spellcriticalstrikemultiplierring6_breachborn:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
-      "ids": [
-        "ring.spellcriticalstrikemultiplierring1_breachborn",
-        "ring.spellcriticalstrikemultiplierring2_breachborn",
-        "ring.spellcriticalstrikemultiplierring3_breachborn",
-        "ring.spellcriticalstrikemultiplierring4_breachborn",
-        "ring.spellcriticalstrikemultiplierring5_breachborn",
-        "ring.spellcriticalstrikemultiplierring6_breachborn",
-        "ring.spelldamagering1_breachborn",
-        "ring.spelldamagering2_breachborn",
-        "ring.spelldamagering3_breachborn",
-        "ring.spelldamagering4_breachborn",
-        "ring.spelldamagering5_breachborn",
-        "ring.spelldamagering6_breachborn",
-        "ring.spelldamagering7_breachborn",
-        "ring.spelldamagering8_breachborn"
-      ],
-      "regex": {
-        "ru": "урон(а|у) от чар"
-      },
-      "weight": 16,
-      "count": 14
     },
     "ring.globalincreasespellskillgemlevel1_breachborn:ring.spellareaofeffectpercent1_breachborn:ring.spellareaofeffectpercent2_breachborn:ring.spellareaofeffectpercent3_breachborn": {
       "ids": [
@@ -17909,10 +18118,33 @@
         "ring.corruptionincreasedskillspeed1_corrupted"
       ],
       "regex": {
-        "ru": "(% повышение скорост|перезарядк)и умений"
+        "ru": "п(овышение скорост|ерезарядк)и умений"
       },
-      "weight": 40,
+      "weight": 37,
       "count": 3
+    },
+    "ring.spellcriticalstrikemultiplierring1_breachborn:ring.spellcriticalstrikemultiplierring2_breachborn:ring.spellcriticalstrikemultiplierring3_breachborn:ring.spellcriticalstrikemultiplierring4_breachborn:ring.spellcriticalstrikemultiplierring5_breachborn:ring.spellcriticalstrikemultiplierring6_breachborn:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
+      "ids": [
+        "ring.spellcriticalstrikemultiplierring1_breachborn",
+        "ring.spellcriticalstrikemultiplierring2_breachborn",
+        "ring.spellcriticalstrikemultiplierring3_breachborn",
+        "ring.spellcriticalstrikemultiplierring4_breachborn",
+        "ring.spellcriticalstrikemultiplierring5_breachborn",
+        "ring.spellcriticalstrikemultiplierring6_breachborn",
+        "ring.spelldamagering1_breachborn",
+        "ring.spelldamagering2_breachborn",
+        "ring.spelldamagering3_breachborn",
+        "ring.spelldamagering4_breachborn",
+        "ring.spelldamagering5_breachborn",
+        "ring.spelldamagering6_breachborn",
+        "ring.spelldamagering7_breachborn",
+        "ring.spelldamagering8_breachborn"
+      ],
+      "regex": {
+        "ru": "у(величение урона|рону) от чар"
+      },
+      "weight": 30,
+      "count": 14
     },
     "ring.addedlightningdamage2:ring.addedlightningdamage3:ring.addedlightningdamage4:ring.addedlightningdamage5:ring.addedlightningdamage6:ring.desecrated_17_desecrated:ring.normal_119:ring.normal_125:ring.normal_126:ring.normal_127": {
       "ids": [
@@ -17945,32 +18177,6 @@
       "weight": 23,
       "count": 3
     },
-    "ring.addedphysicaldamage4:ring.addedphysicaldamage8:ring.normal_100:ring.normal_92:ring.normal_93:ring.normal_94:ring.normal_96:ring.normal_97:ring.normal_98:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
-      "ids": [
-        "ring.addedphysicaldamage4",
-        "ring.addedphysicaldamage8",
-        "ring.normal_100",
-        "ring.normal_92",
-        "ring.normal_93",
-        "ring.normal_94",
-        "ring.normal_96",
-        "ring.normal_97",
-        "ring.normal_98",
-        "ring.spelldamagering1_breachborn",
-        "ring.spelldamagering2_breachborn",
-        "ring.spelldamagering3_breachborn",
-        "ring.spelldamagering4_breachborn",
-        "ring.spelldamagering5_breachborn",
-        "ring.spelldamagering6_breachborn",
-        "ring.spelldamagering7_breachborn",
-        "ring.spelldamagering8_breachborn"
-      ],
-      "regex": {
-        "ru": "урона (к атакам|от чар)"
-      },
-      "weight": 23,
-      "count": 17
-    },
     "ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn:ring.spellcriticalstrikemultiplierring1_breachborn:ring.spellcriticalstrikemultiplierring2_breachborn:ring.spellcriticalstrikemultiplierring3_breachborn:ring.spellcriticalstrikemultiplierring4_breachborn:ring.spellcriticalstrikemultiplierring5_breachborn:ring.spellcriticalstrikemultiplierring6_breachborn": {
       "ids": [
         "ring.minioncriticalstrikemultiplierring1_breachborn",
@@ -17991,6 +18197,25 @@
       },
       "weight": 27,
       "count": 12
+    },
+    "ring.corruptionalldamage1_corrupted:ring.genesistreeringminionarmourbreak_breachborn:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn": {
+      "ids": [
+        "ring.corruptionalldamage1_corrupted",
+        "ring.genesistreeringminionarmourbreak_breachborn",
+        "ring.miniondamage1_breachborn",
+        "ring.miniondamage2_breachborn",
+        "ring.miniondamage3_breachborn",
+        "ring.miniondamage4_breachborn",
+        "ring.miniondamage5_breachborn",
+        "ring.miniondamage6_breachborn",
+        "ring.miniondamage7_breachborn",
+        "ring.miniondamage8_breachborn"
+      ],
+      "regex": {
+        "ru": "(увеличение|ими физического) урона"
+      },
+      "weight": 34,
+      "count": 10
     },
     "ring.desecrated_0_desecrated:ring.genesistreeringtemporaryminionlimit_breachborn:ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
       "ids": [
@@ -18041,17 +18266,6 @@
       "weight": 20,
       "count": 4
     },
-    "ring.genesistreeringminioncooldownrecovery_breachborn:ring.minioncriticalstrikechancering3_breachborn": {
-      "ids": [
-        "ring.genesistreeringminioncooldownrecovery_breachborn",
-        "ring.minioncriticalstrikechancering3_breachborn"
-      ],
-      "regex": {
-        "ru": "21—2(9|8)"
-      },
-      "weight": 9,
-      "count": 2
-    },
     "ring.allresistances5:ring.minionelementalresistance3_breachborn": {
       "ids": [
         "ring.allresistances5",
@@ -18063,7 +18277,7 @@
       "weight": 9,
       "count": 2
     },
-    "ring.allresistances1:ring.allresistances2:ring.allresistances3:ring.allresistances4:ring.corrupted_9_corrupted:ring.corruptionallresistances1_corrupted:ring.minionelementalresistance1_breachborn:ring.minionelementalresistance2_breachborn:ring.normal_1:ring.normal_3:ring.normal_5:ring.normal_7:ring.strength1:ring.strength3:ring.strength5:ring.strength7": {
+    "ring.allresistances1:ring.allresistances2:ring.allresistances3:ring.allresistances4:ring.corrupted_9_corrupted:ring.corruptionallresistances1_corrupted:ring.normal_1:ring.normal_3:ring.normal_5:ring.normal_7:ring.strength1:ring.strength3:ring.strength5:ring.strength7": {
       "ids": [
         "ring.allresistances1",
         "ring.allresistances2",
@@ -18071,8 +18285,6 @@
         "ring.allresistances4",
         "ring.corrupted_9_corrupted",
         "ring.corruptionallresistances1_corrupted",
-        "ring.minionelementalresistance1_breachborn",
-        "ring.minionelementalresistance2_breachborn",
         "ring.normal_1",
         "ring.normal_3",
         "ring.normal_5",
@@ -18086,7 +18298,7 @@
         "ru": "к с(иле|опротивлению всем стихиям)"
       },
       "weight": 34,
-      "count": 16
+      "count": 14
     },
     "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.desecrated_9_desecrated:ring.normal_108:ring.normal_109": {
       "ids": [
@@ -18106,6 +18318,18 @@
       },
       "weight": 25,
       "count": 10
+    },
+    "ring.genesistreeringcommandskillspeed_breachborn:ring.minionelementalresistance1_breachborn:ring.minionelementalresistance2_breachborn": {
+      "ids": [
+        "ring.genesistreeringcommandskillspeed_breachborn",
+        "ring.minionelementalresistance1_breachborn",
+        "ring.minionelementalresistance2_breachborn"
+      ],
+      "regex": {
+        "ru": "при(казов|спешники имеют +)"
+      },
+      "weight": 27,
+      "count": 3
     },
     "ring.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated:ring.desecrated_6_desecrated:ring.remnantpickupradiusincrease1_breachborn:ring.remnantpickupradiusincrease2_breachborn:ring.remnantpickupradiusincrease3_breachborn:ring.remnantpickupradiusincrease4_breachborn:ring.remnantpickupradiusincrease5_breachborn": {
       "ids": [

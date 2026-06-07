@@ -17,7 +17,7 @@ export function assembleGameToken(
   locale: Locale = 'ru',
   jewelType?: JewelType
 ): GameToken {
-  return {
+  const token: GameToken = {
     id: mod.id,
     category: mod.category,
     origin: mod.origin,
@@ -37,6 +37,11 @@ export function assembleGameToken(
     yoficationPositions: mod.yoficationPositions,
     level: mod.level,
   };
+  // Only include regexExclude if there are actual patterns (save space in JSON)
+  if (regexResult.regexExclude && regexResult.regexExclude.length > 0) {
+    token.regexExclude = { [locale]: regexResult.regexExclude };
+  }
+  return token;
 }
 
 /**
@@ -60,6 +65,7 @@ export function assembleCategoryData(
       familyKey: mod.rawTextTemplate[locale].replace(/##/g, '#'),
       regexPrefix: '',
       hasMultiPlaceholder: false,
+      regexExclude: [],
     };
     const jType = jewelTypeMap?.[mod.id];
     return assembleGameToken(mod, result, locale, jType);

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:00:54.227Z",
+  "version": "2026-06-07T06:24:49.438Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -421,7 +421,7 @@
         "ru": "#% увеличение количества волшебных монстров"
       },
       "regex": {
-        "ru": "волшебных монстров"
+        "ru": "увеличение количества волшебных монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества волшебных монстров"
@@ -452,7 +452,12 @@
         20,
         30
       ],
-      "level": 0
+      "level": 0,
+      "regexExclude": {
+        "ru": [
+          "увеличение количества волшебных монстров, провалы"
+        ]
+      }
     },
     {
       "id": "waystone-desecrated.mod_dceifh",
@@ -742,9 +747,9 @@
         "waystone-desecrated.mod_jdkriz"
       ],
       "regex": {
-        "ru": "(количеств(о|а редких)|волшебных) монстров"
+        "ru": "(количеств(о|а редких)|увеличение количества волшебных) монстров"
       },
-      "weight": 42,
+      "weight": 64,
       "count": 4
     },
     "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {

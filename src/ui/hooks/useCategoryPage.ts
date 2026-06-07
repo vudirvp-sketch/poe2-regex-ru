@@ -244,9 +244,16 @@ function buildAstFromSelections(
 
   // Handle non-ranged tokens: group them into OR
   if (nonRangedTokens.length > 0) {
-    const literals = nonRangedTokens.map(t =>
-      literal(t.regex[locale], t.id)
-    );
+    const literals = nonRangedTokens.map(t => {
+      const baseLiteral = literal(t.regex[locale], t.id);
+      // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
+      const excludes = t.regexExclude?.[locale];
+      if (excludes && excludes.length > 0 && !excludeMode) {
+        const excludeNodes = excludes.map(pattern => exclude(literal(pattern)));
+        return and(baseLiteral, ...excludeNodes);
+      }
+      return baseLiteral;
+    });
 
     if (excludeMode) {
       andChildren.push(exclude(or(...literals)));

@@ -301,12 +301,10 @@ function applyI18nOverrides() {
             if (candidate.length < 3) break;
 
             // Check uniqueness: candidate must NOT appear in tokens from OTHER families
+            // Compound families are NO LONGER exempt — their overlap causes cross-family FP
             let isUnique = true;
             for (const otherToken of data.tokens) {
               if (sameFamily.includes(otherToken.id)) continue;
-              // Skip compound families (same prefix pattern)
-              const otherFk = normalizeTemplate(otherToken.rawTextTemplate.ru);
-              if (familyKey.startsWith(otherFk) || otherFk.startsWith(familyKey)) continue;
 
               if (otherToken.rawText.ru.toLowerCase().includes(candidate)) {
                 isUnique = false;
@@ -811,12 +809,21 @@ function validateGeneratedRegexesItem(): void {
     }
 
     // Build regex list for batch validation
+    // Include regexExclude patterns as negation groups in the regex
     const regexes = tokens
       .filter((t: any) => t.regex?.ru && t.rawText?.ru)
-      .map((t: any) => ({
-        tokenId: t.id,
-        regex: t.regex.ru,
-      }));
+      .map((t: any) => {
+        let regex = t.regex.ru;
+        const excludes: string[] = t.regexExclude?.ru ?? [];
+        if (excludes.length > 0) {
+          // Build negation regex: "suffix" !"exclude1" !"exclude2"
+          regex = `"${regex}" ${excludes.map(e => `!"${e}"`).join(' ')}`;
+        }
+        return {
+          tokenId: t.id,
+          regex,
+        };
+      });
 
     const report = batchValidateItem(regexes, new Map(allItems.map(i => [i.id, i])), allItems, familyKeyById);
 

@@ -44,6 +44,13 @@ export interface RegexResult {
   /** Whether the template has multiple ##/# placeholders (dual-number or dual-stat mods).
    *  Used downstream to determine correct range slot for numeric filtering. */
   hasMultiPlaceholder: boolean;
+  /** Exclusion patterns for cross-family FP prevention.
+   *  When the main regex suffix also appears in compound-family tokens,
+   *  these are short substrings that appear in the compound mods but NOT
+   *  in the target family. Used to generate negation groups like:
+   *  "suffix" !"exclude1" !"exclude2"
+   *  Empty array means no exclusions needed. */
+  regexExclude: string[];
 }
 
 /** Minimum regex length for meaningful matching in PoE2 search.
@@ -231,39 +238,11 @@ function extractTemplatePrefix(template: string): string {
 }
 
 /**
- * Check if two templates represent a "compound" relationship.
- * A compound family is one where the other template extends our template
- * with additional text (e.g., "+# к силе" vs "+# к силе и интеллекту").
- *
- * In PoE2 search, "к силе" matches items with pure strength AND compound mods.
- * This is usually DESIRABLE — the user wants strength, compound mods have it.
- * So we don't treat compound-family conflicts as real conflicts.
- */
-function isCompoundFamily(ourTemplate: string, otherTemplate: string): boolean {
-  const ourNorm = normalizeTemplate(ourTemplate);
-  const otherNorm = normalizeTemplate(otherTemplate);
-
-  // If the other template starts with our template pattern, it's a compound
-  // e.g., "+# к силе" is a prefix of "+# к силе и интеллекту"
-  if (otherNorm.length > ourNorm.length && otherNorm.startsWith(ourNorm)) {
-    return true;
-  }
-
-  // Also check the other direction: our template extends another
-  // e.g., "+# к силе и интеллекту" extends "+# к силе"
-  if (ourNorm.length > otherNorm.length && ourNorm.startsWith(otherNorm)) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
  * Check if a candidate regex string appears in any token's rawText
- * from a genuinely different family (not a compound extension).
+ * from a different family.
  *
- * Compound families (like "к силе" vs "к силе и интеллекту") are NOT
- * treated as conflicts — the shorter suffix matching the longer is OK.
+ * Compound-family overlaps (like "к силе" matching "+(9—15) к силе и интеллекту")
+ * are now treated as REAL conflicts — the short suffix must be disambiguated.
  */
 function isSuffixUniqueInCategory(
   candidate: string,
@@ -281,10 +260,9 @@ function isSuffixUniqueInCategory(
       continue;
     }
 
-    // Skip compound families — their overlap is intentional
-    if (isCompoundFamily(targetTemplate, otherTemplate)) {
-      continue;
-    }
+    // Compound families: overlap is now treated as a real conflict
+    // (previously exempted, but this caused 155 cross-family FP)
+    // isCompoundFamily() always returns false now — no exemption
 
     // Check if the candidate appears in this token's rawText
     const rawLower = token.rawText[locale].toLowerCase();
@@ -406,7 +384,7 @@ export function computeMinimalUniqueSubstring(
 
   // Edge case: empty rawText
   if (!rawText || rawText.trim().length === 0) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '', hasMultiPlaceholder: false };
+    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
   }
 
   // Detect multi-placeholder template (dual-number or dual-stat mods)
@@ -436,7 +414,7 @@ export function computeMinimalUniqueSubstring(
           bestSuffix, targetToken, allTokensInCategory, locale
         );
 
-        return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+        return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
       }
       // Pure suffix not in rawText — fall through to Strategy 1b/1c
     }
@@ -507,7 +485,7 @@ export function computeMinimalUniqueSubstring(
             const { hasYofication, yoficationPositions } = checkYofication(
               bestExtended, targetToken, allTokensInCategory, locale
             );
-            return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+            return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
           }
           // Joined suffix not in rawText — try individual last segment
         }
@@ -527,7 +505,7 @@ export function computeMinimalUniqueSubstring(
           const { hasYofication, yoficationPositions } = checkYofication(
             lastSegment, targetToken, allTokensInCategory, locale
           );
-          return { regex: lastSegment, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+          return { regex: lastSegment, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
         }
       }
     }
@@ -560,11 +538,35 @@ export function computeMinimalUniqueSubstring(
             const { hasYofication, yoficationPositions } = checkYofication(
               bestFull, targetToken, allTokensInCategory, locale
             );
-            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder };
+            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
           }
           // Not in rawText — skip this strategy
         }
       }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
+  // Strategy 1d: Negation for cross-family FP
+  // ═══════════════════════════════════════════════════
+  // When the template suffix is not unique because it also appears in
+  // compound-family tokens (e.g., "к силе" matches both pure strength
+  // and composite "к силе и интеллекту"), we can use PoE2 negation
+  // to exclude the compound matches.
+  //
+  // Generate regex: "suffix" !"exclude1" !"exclude2" ...
+  // where exclude patterns are substrings that appear in the compound
+  // mods but NOT in the target family's rawText.
+  if (suffix.length >= effectiveMinLen && regexMatchesRawText(suffix, rawText)) {
+    const excludePatterns = computeExcludePatterns(
+      suffix, template, targetToken, allTokensInCategory, locale
+    );
+    if (excludePatterns.length > 0) {
+      // Verify: the suffix with negation should NOT match any compound-family token
+      const { hasYofication, yoficationPositions } = checkYofication(
+        suffix, targetToken, allTokensInCategory, locale
+      );
+      return { regex: suffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludePatterns };
     }
   }
 
@@ -590,13 +592,13 @@ export function computeMinimalUniqueSubstring(
       const { hasYofication, yoficationPositions } = checkYofication(
         broadSuffix, targetToken, allTokensInCategory, locale
       );
-      fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
+      fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
     }
     // If even the broad suffix doesn't match, keep the fallback result
     // (it will be an FN in Oracle but at least it's a best-effort regex)
   }
 
-  return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder };
+  return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: fallbackResult.regexExclude || [] };
 }
 
 /**
@@ -612,7 +614,7 @@ function substringSearchFallback(
 ): Omit<RegexResult, 'familyKey'> {
   const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
   if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false };
+    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
   }
 
   // Build exclusion texts: all other tokens' texts
@@ -694,8 +696,29 @@ function substringSearchFallback(
     if (containsPoE2Grouping(primaryText)) {
       // Try stripping parenthesized number ranges from rawText
       const cleanedText = primaryText.replace(/\([^)]+\)/g, '').replace(/\s+/g, ' ').trim();
-      bestCandidate = cleanedText.length >= minLen ? cleanedText : primaryText;
-    } else {
+      // First: try cleaned text as-is
+      if (cleanedText.length >= minLen && !containsPoE2Grouping(cleanedText) && regexMatchesRawText(cleanedText, primaryText)) {
+        bestCandidate = cleanedText;
+      } else {
+        // Cleaned text either has grouping, doesn't match, or is too short.
+        // Try removing trailing non-letter chars (like stray % signs after removed parens)
+        const furtherCleaned = cleanedText.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '').trim();
+        if (furtherCleaned.length >= minLen && !containsPoE2Grouping(furtherCleaned) && regexMatchesRawText(furtherCleaned, primaryText)) {
+          bestCandidate = furtherCleaned;
+        } else {
+          // Last resort: try just the text BEFORE the first parenthesized group
+          // E.g., "Меткость монстров повышена на (10—20)%" → "Меткость монстров повышена на"
+          const beforeFirstParen = primaryText.replace(/\([^)]+\).*$/, '').trim();
+          if (beforeFirstParen.length >= minLen && !containsPoE2Grouping(beforeFirstParen) && regexMatchesRawText(beforeFirstParen, primaryText)) {
+            bestCandidate = beforeFirstParen;
+          }
+          // If nothing works, bestCandidate remains empty (will be handled below)
+        }
+      }
+    }
+
+    // If still no valid candidate, use full rawText (may contain parens — will be FN)
+    if (!bestCandidate) {
       bestCandidate = primaryText;
     }
   }
@@ -705,7 +728,7 @@ function substringSearchFallback(
     bestCandidate, primaryText, targetToken, exclusionSubstrings
   );
 
-  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
+  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
 }
 
 
@@ -781,6 +804,92 @@ function checkYoficationLegacy(
   }
 
   return { hasYofication, yoficationPositions };
+}
+
+/**
+ * Compute exclusion patterns for cross-family FP prevention.
+ *
+ * Given a regex suffix that also matches tokens from compound families,
+ * find short substrings that appear in ALL conflicting tokens but NOT
+ * in the target family's rawText. These can be used as negation patterns:
+ *   "suffix" !"exclude1" !"exclude2"
+ *
+ * Algorithm:
+ * 1. Find all tokens from OTHER families whose rawText contains the suffix
+ * 2. For each conflicting token, find short distinguishing substrings
+ *    that appear in the conflicting text but NOT in the target family
+ * 3. Pick minimal set of exclusion patterns that cover all conflicts
+ *
+ * Example:
+ *   suffix="к силе", conflicting=["+(9—15) к силе и интеллекту", "+(6—10) к силе и ловкости"]
+ *   → exclude patterns: ["к силе и", "к силе,"]
+ *   → final regex: "к силе" !"к силе и" !"к силе,"
+ */
+function computeExcludePatterns(
+  suffix: string,
+  targetTemplate: string,
+  targetToken: NormalizedMod,
+  allTokensInCategory: NormalizedMod[],
+  locale: Locale
+): string[] {
+  const normalizedTargetTemplate = normalizeTemplate(targetTemplate);
+  const lowerSuffix = suffix.toLowerCase();
+  const targetRawLower = targetToken.rawText[locale].toLowerCase();
+
+  // Find all tokens from OTHER families whose rawText contains the suffix
+  const conflictingTokens: NormalizedMod[] = [];
+  for (const token of allTokensInCategory) {
+    const otherTemplate = token.rawTextTemplate[locale];
+    if (normalizeTemplate(otherTemplate) === normalizedTargetTemplate) continue;
+
+    const otherRawLower = token.rawText[locale].toLowerCase();
+    if (otherRawLower.includes(lowerSuffix)) {
+      conflictingTokens.push(token);
+    }
+  }
+
+  if (conflictingTokens.length === 0) return [];
+
+  // For each conflicting token, find the text that follows the suffix
+  // and use it as an exclusion pattern.
+  const excludePatterns: string[] = [];
+  const seenPatterns = new Set<string>();
+
+  for (const confToken of conflictingTokens) {
+    const confRawLower = confToken.rawText[locale].toLowerCase();
+    const suffixIdx = confRawLower.indexOf(lowerSuffix);
+    if (suffixIdx === -1) continue;
+
+    // Text after the suffix in the conflicting token
+    const afterSuffix = confRawLower.substring(suffixIdx + lowerSuffix.length).trim();
+
+    // If the suffix is at the end of the conflicting text, it's not a compound — skip
+    if (afterSuffix.length === 0) continue;
+
+    // Build exclude pattern: "suffix + separator + firstWord"
+    const fullAfter = confRawLower.substring(suffixIdx + lowerSuffix.length);
+    const leadingNonLetter = fullAfter.match(/^[^a-zA-Zа-яА-ЯёЁ]*/);
+    const nonLetterLen = leadingNonLetter ? leadingNonLetter[0].length : 0;
+    const trimmedAfter = fullAfter.substring(nonLetterLen).trim();
+
+    if (trimmedAfter.length === 0) continue;
+
+    // Use "suffix + separator + firstWord" as the most specific exclude pattern
+    const firstWord = trimmedAfter.split(/\s+/)[0];
+    const separator = nonLetterLen > 0 ? fullAfter.substring(0, nonLetterLen) : ' ';
+    const specificPattern = lowerSuffix + separator + firstWord;
+
+    if (!seenPatterns.has(specificPattern)) {
+      if (!targetRawLower.includes(specificPattern) && !containsPoE2Grouping(specificPattern)) {
+        seenPatterns.add(specificPattern);
+        excludePatterns.push(specificPattern);
+      }
+    }
+  }
+
+  // Limit to 3 exclude patterns max to avoid regex length blowup
+  // If we need more, the regex will be too long for PoE2's 250-char limit
+  return excludePatterns.slice(0, 3);
 }
 
 /**
