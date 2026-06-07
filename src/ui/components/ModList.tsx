@@ -49,6 +49,8 @@ interface ModListProps {
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   /** Clear per-token numeric range override */
   onClearTokenRange?: (tokenId: string) => void;
+  /** Set of token IDs whose individual regex was collapsed by the optimizer */
+  collapsedTokenIds?: Set<string>;
 }
 
 /** Origin section within an affix column */
@@ -109,7 +111,8 @@ const ModSubGroupSection: React.FC<{
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
-}> = React.memo(({ subGroup, selectedIds, onToggleTokens, perTokenRanges, onSetTokenRange, onClearTokenRange }) => {
+  collapsedTokenIds?: Set<string>;
+}> = React.memo(({ subGroup, selectedIds, onToggleTokens, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
   return (
     <div className="mb-2">
       {subGroup.label && (
@@ -127,6 +130,7 @@ const ModSubGroupSection: React.FC<{
             perTokenRanges={perTokenRanges}
             onSetTokenRange={onSetTokenRange}
             onClearTokenRange={onClearTokenRange}
+            collapsedTokenIds={collapsedTokenIds}
           />
         ))}
       </div>
@@ -145,7 +149,8 @@ const AffixColumn: React.FC<{
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
-}> = React.memo(({ affix, subGroups, originSections, selectedIds, onToggleTokens, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange }) => {
+  collapsedTokenIds?: Set<string>;
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, onToggleTokens, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
   const totalCount = showOriginSubSections
     ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
     : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
@@ -182,6 +187,7 @@ const AffixColumn: React.FC<{
                   perTokenRanges={perTokenRanges}
                   onSetTokenRange={onSetTokenRange}
                   onClearTokenRange={onClearTokenRange}
+                  collapsedTokenIds={collapsedTokenIds}
                 />
               ))}
             </div>
@@ -198,6 +204,7 @@ const AffixColumn: React.FC<{
             perTokenRanges={perTokenRanges}
             onSetTokenRange={onSetTokenRange}
             onClearTokenRange={onClearTokenRange}
+            collapsedTokenIds={collapsedTokenIds}
           />
         ))
       )}
@@ -223,8 +230,8 @@ export const ModList: React.FC<ModListProps> = ({
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
+  collapsedTokenIds,
 }) => {
-  // Get unique origins from tokens
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
     for (const token of tokens) {
@@ -329,7 +336,7 @@ export const ModList: React.FC<ModListProps> = ({
           </div>
           <div className="flex flex-wrap gap-1.5">
             {sg.groups.map(group => (
-              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} />
+              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
             ))}
           </div>
         </div>
@@ -414,7 +421,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originPrefix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originPrefix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
                                 ))}
                               </div>
                           }
@@ -427,7 +434,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originSuffix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originSuffix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
                                 ))}
                               </div>
                           }
@@ -452,6 +459,7 @@ export const ModList: React.FC<ModListProps> = ({
               perTokenRanges={perTokenRanges}
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
             />
             <AffixColumn
               affix="suffix"
@@ -463,6 +471,7 @@ export const ModList: React.FC<ModListProps> = ({
               perTokenRanges={perTokenRanges}
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
             />
           </div>
         ) : (
@@ -479,6 +488,7 @@ export const ModList: React.FC<ModListProps> = ({
                 perTokenRanges={perTokenRanges}
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
+                collapsedTokenIds={collapsedTokenIds}
               />
             )}
             {suffixGroups.length > 0 && (
@@ -492,6 +502,7 @@ export const ModList: React.FC<ModListProps> = ({
                 perTokenRanges={perTokenRanges}
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
+                collapsedTokenIds={collapsedTokenIds}
               />
             )}
           </div>

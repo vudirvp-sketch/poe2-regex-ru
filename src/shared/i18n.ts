@@ -94,6 +94,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.range': 'диапазон',
     'chip.dual_number': 'Двухчисловой мод',
     'chip.dual_number_tooltip': 'Мод содержит два числа (например "От X до Y"). Фильтр применяется к первому числу.',
+    'chip.optimizer_collapsed': 'Оптимизатор: regex этого мода уже включён в общее выражение',
     'chip.dual_number_filter_note': 'Фильтр по первому числу (мин. урон/значение)',
     'chip.dual_number_slot_label': '1е:',
     'chip.slot_switch_to_second': 'Переключить на фильтр по второму числу (макс. урон/значение)',

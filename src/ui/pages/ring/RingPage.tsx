@@ -26,6 +26,7 @@ export function RingPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'ring' });
 
   return (
@@ -79,6 +80,7 @@ export function RingPage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-semantic"
               showOriginSubSections
             />

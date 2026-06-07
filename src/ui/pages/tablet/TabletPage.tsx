@@ -86,6 +86,7 @@ export function TabletPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
 
   const syncReadyRef = useRef(false);
@@ -221,6 +222,7 @@ export function TabletPage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="tablet-type"
             />
 

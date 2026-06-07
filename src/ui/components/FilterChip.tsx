@@ -32,6 +32,9 @@ interface FilterChipProps {
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   /** Clear per-token numeric range override */
   onClearTokenRange?: (tokenId: string) => void;
+  /** Set of token IDs whose individual regex was collapsed by the optimizer.
+   *  When any member of this chip's group is in this set, show a visual indicator. */
+  collapsedTokenIds?: Set<string>;
 }
 
 export const FilterChip: React.FC<FilterChipProps> = ({
@@ -41,6 +44,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
+  collapsedTokenIds,
 }) => {
   const memberIds = useMemo(
     () => group.members.map((m) => m.id),
@@ -89,6 +93,12 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
   const hasPrefix = prefix.length > 0;
   const isSelected = selectionState !== 'none';
+
+  // Check if any member token was collapsed by the optimizer
+  const isCollapsed = useMemo(() => {
+    if (!collapsedTokenIds || collapsedTokenIds.size === 0) return false;
+    return memberIds.some(id => collapsedTokenIds.has(id));
+  }, [memberIds, collapsedTokenIds]);
 
   // Get the first ranged member's current per-token range (for display in inputs)
   // All members in a family group share the same range slot structure,
@@ -255,10 +265,17 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       onClick={handleClick}
       title={tooltip}
       role="switch"
+      tabIndex={0}
       aria-label={ariaLabel}
       aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
       <span className="leading-tight">{displayText}</span>
+      {isCollapsed && isSelected && (
+        <span className="text-[9px] text-amber-400/70 shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
+          ⚡
+        </span>
+      )}
       {hasPrefix && isSelected && (
         <span className="text-[9px] text-blue-400/70 shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
           ⚓
@@ -293,9 +310,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             onChange={(e) => {
               if (!firstRangedMember) return;
               const v = parseInt(e.target.value, 10);
+              const val = e.target.value === '' || isNaN(v) || v < 0 ? undefined : v;
               const newRange: TokenRangeOverride = {
                 ...groupRange,
-                min: e.target.value === '' || isNaN(v) ? undefined : v,
+                min: val,
               };
               if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
                 onClearTokenRange?.(firstRangedMember.id);
@@ -315,9 +333,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             onChange={(e) => {
               if (!firstRangedMember) return;
               const v = parseInt(e.target.value, 10);
+              const val = e.target.value === '' || isNaN(v) || v < 0 ? undefined : v;
               const newRange: TokenRangeOverride = {
                 ...groupRange,
-                max: e.target.value === '' || isNaN(v) ? undefined : v,
+                max: val,
               };
               if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
                 onClearTokenRange?.(firstRangedMember.id);

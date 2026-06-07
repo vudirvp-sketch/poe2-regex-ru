@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 60.0 | **Date:** 2026-06-08
+> **Version:** 61.0 | **Date:** 2026-06-08
 
 ---
 
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (487 tests)
+- [ ] `npx vitest run --root .` passes (495 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -67,36 +67,33 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### HIGH
-
-1. **OR-suffix edge case: regexExclude/regexPrefixContext** — When ranged tokens with same (min,max) but different suffixes have different `regexExclude` patterns, all excludes are unioned. This may produce overly broad regex. Only `regexPrefixContext` is conditionally added (if all tokens share same one).
+1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%). Needs improvement.
 
 ### MEDIUM
-
-1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
-2. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
+1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
+2. **ProfilePanel delete without confirmation** — Clicking ✕ immediately deletes, no undo.
+3. **Radio groups lack arrow key navigation** — Mode toggle and search logic use `role="radiogroup"` but don't implement arrow key cycling per ARIA spec.
+4. **PageStateWrapper missing ARIA roles** — No `role="status"` on loading, no `role="alert"` on error.
 
 ### LOW
+1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
+2. **Duplicate profile names allowed** — ProfilePanel doesn't prevent identical names.
+3. **Ctrl+Shift+C shortcut** — Global keyboard shortcut may conflict with browser dev tools.
 
-1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges (value-only groups), dual-slot ranges, jewel type sub-headers.
-
-## 7. Bug Fixes (Session 60)
-
-| Fix | File | Description |
-|-----|------|-------------|
-| Regex collapse on numeric range | `useCategoryPage.ts`, `compiler.ts` | Ranged tokens with different suffixes but same (min,max) now OR-join suffixes into one RANGE node instead of AND-joining separate RANGEs. Compiler wraps OR-suffixes in `()` for correct scoping. |
-| Selection count shows tokens not groups | All page components, `ModList`, `VirtualizedModList` | "Выбрано: N мод(ов)" and "Очистить (N)" now count unique FamilyGroups (familyKey+affix) instead of individual token IDs. Added `countUniqueFamilyKeys()` helper. |
-| Waystone 404 | N/A | Investigated: NOT an app bug. 404 is from SPA routing on GitHub Pages, not from JSON loading. |
-
-## 7b. Bug Fixes (Session 59)
+## 7. Bug Fixes (Session 61)
 
 | Fix | File | Description |
 |-----|------|-------------|
-| clearSelections clears perTokenRanges | `filter-store.ts` | `clearSelections()` now also resets `perTokenRanges: {}` — prevents ghost range values after clearing |
-| toggleToken/toggleTokens cleanup | `filter-store.ts` | When deselecting tokens, their `perTokenRanges` entries are now removed — prevents stale range overrides on re-selection |
-| Auto URL sync | `useCategoryPage.ts` | Filter state auto-syncs to URL hash on every change (via `syncToUrl`), so users can copy URL from address bar |
-| ProfilePanel restore | `useCategoryPage.ts` | `restoreFilterState()` now syncs React state (excludeMode, searchLogic, round10, min/max) from restored store values — fixes stale UI controls after loading a profile |
-| VendorPage searchLogic | `VendorPage.tsx` | AST building now respects `searchLogic` — OR mode puts all items in one OR group, AND mode (default) keeps separate groups |
-| URL sync imports | `useCategoryPage.ts` | Merged extraState sync + URL sync into single effect to guarantee correct serialization order |
+| P2: Optimizer collapse indicator | `optimizer.ts`, `FilterChip.tsx`, all pages | ⚡ indicator on chips when optimizer collapses their regex into shared expression |
+| FilterChip keyboard a11y | `FilterChip.tsx` | Added `tabIndex={0}` and `onKeyDown` to outer div with `role="switch"` |
+| VendorPage URL sync | `VendorPage.tsx` | Added `syncToUrl()` call so state persists on refresh |
+| VendorChip click target | `VendorChip.tsx` | Moved `onClick` to outer div; entire chip clickable |
+| VendorChip NaN storage | `VendorChip.tsx` | `parseInt` result checked for `isNaN` before storing |
+| VendorPage clearAll | `VendorPage.tsx` | `clearAll()` now resets `round10` and `searchLogic` |
+| 404 fallback route | `App.tsx` | Added `<Route path="*">` with `NotFoundPage` |
+| url-sync non-null assertion | `url-sync.ts` | `store.deserialize!(data)` → `if (store.deserialize) store.deserialize(data)` |
+| Negative number inputs | `CategoryControlPanel.tsx`, `FilterChip.tsx` | Added `v < 0` validation |
+| regexExclude OR-suffix docs | `useCategoryPage.ts` | Documented why exclude union is correct for PoE2's item-wide negation |
 
 ## 8. Regex Strategy Pipeline
 
@@ -149,3 +146,13 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 ## 12. regexExclude & regexPrefixContext
 
 Two mechanisms for cross-family FP prevention. Excludes preferred for short markers; context preferred when suffix appears in both target and conflicts. Can combine both.
+
+**OR-suffix edge case:** When ranged tokens with same (min,max) but different suffixes are merged, ALL excludes are unioned. This is correct because `!X` is item-wide in PoE2 — over-excluding is safer than missing FP. See `useCategoryPage.ts` for detailed rationale.
+
+## 13. Optimizer Collapse Indicator
+
+When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, a ⚡ indicator appears on the corresponding FilterChip. This tells the user that clicking this chip doesn't change the regex because its individual regex was already subsumed by the optimizer.
+
+- `collectCollapsedTokenIds(ast, optimizationTable)` — walks optimized AST to find `opt:` prefixed LITERAL nodes and resolves their original token IDs via optimization table lookup.
+- `collapsedTokenIds: Set<string>` — returned by `useCategoryPage`, passed through to `FilterChip`.
+- Tooltip: "Оптимизатор: regex этого мода уже включён в общее выражение"

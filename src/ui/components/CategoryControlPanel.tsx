@@ -135,7 +135,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 type="number"
                 min={0}
                 value={minValue ?? ''}
-                onChange={(e) => { const v = parseInt(e.target.value, 10); setMinValue(e.target.value === '' ? null : isNaN(v) ? null : v); }}
+                onChange={(e) => { const v = parseInt(e.target.value, 10); setMinValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}
                 placeholder={t('range.min')}
                 aria-label={t('range.min_aria')}
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -145,7 +145,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 type="number"
                 min={0}
                 value={maxValue ?? ''}
-                onChange={(e) => { const v = parseInt(e.target.value, 10); setMaxValue(e.target.value === '' ? null : isNaN(v) ? null : v); }}
+                onChange={(e) => { const v = parseInt(e.target.value, 10); setMaxValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}
                 placeholder={t('range.max')}
                 aria-label={t('range.max_aria')}
                 className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"

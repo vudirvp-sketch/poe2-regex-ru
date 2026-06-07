@@ -46,6 +46,8 @@ interface VirtualizedModListProps {
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
+  /** Set of token IDs whose individual regex was collapsed by the optimizer */
+  collapsedTokenIds?: Set<string>;
 }
 
 /** A flat virtual row for the virtualizer */
@@ -105,6 +107,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
+  collapsedTokenIds,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -405,6 +408,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                           perTokenRanges={perTokenRanges}
                           onSetTokenRange={onSetTokenRange}
                           onClearTokenRange={onClearTokenRange}
+                          collapsedTokenIds={collapsedTokenIds}
                         />
                       ))}
                     </div>

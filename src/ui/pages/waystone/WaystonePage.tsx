@@ -50,6 +50,7 @@ export function WaystonePage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
@@ -145,6 +146,7 @@ export function WaystonePage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-sentiment"
             />
 

@@ -4,48 +4,54 @@
 
 ---
 
-## Current State (Session 60 — 2026-06-08)
+## Current State (Session 61 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **P0 FIX: Regex collapses when numeric value is set** — When user selects multiple mods and sets a numeric range (global min/max or per-token), ranged tokens with different suffixes were creating separate RANGE nodes ANDed together. This required the item to have ALL mods simultaneously — wrong for typical use case (user wants ANY mod with value ≥N).
-   - Root cause: `buildAstFromSelections()` grouped ranged tokens by (suffix, prefix, min, max) — each suffix got its own RANGE node ANDed in.
-   - Fix: Changed grouping key to (prefix, min, max, exact, slotIndex) — tokens with same numeric range but different suffixes now share one RANGE with OR-joined suffixes.
-   - Example: `RANGE(10, undefined, "огню|холоду")` → `"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"` instead of `"([1-9][0-9]|[0-9][0-9][0-9]).*огню" "([1-9][0-9]|[0-9][0-9][0-9]).*холоду"`
-   - Compiler updated: OR-suffixes wrapped in `()` to scope `|` correctly: `".*(огню|холоду)"` not `".*огню|холоду"`.
-   - Files: `src/ui/hooks/useCategoryPage.ts`, `src/core/compiler.ts`, `tests/core/compiler.test.ts`
+1. **P2 FIX: Visual indicator when optimizer collapses selections** — When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, the user sees no change in the regex output when clicking a chip. Now, a ⚡ indicator appears on chips whose tokens were collapsed by the optimizer, with a tooltip "Оптимизатор: regex этого мода уже включён в общее выражение".
+   - Added `collectCollapsedTokenIds()` in `optimizer.ts` — walks optimized AST to find `opt:` prefixed tokenIds and looks up optimizationTable to identify collapsed token IDs.
+   - Added `collapsedTokenIds: Set<string>` to `useCategoryPage` return type, computed from optimized AST.
+   - Added `collapsedTokenIds` prop to `FilterChip`, `ModList`, `VirtualizedModList`, and all page components.
+   - Files: `src/core/optimizer.ts`, `src/ui/hooks/useCategoryPage.ts`, `src/ui/components/FilterChip.tsx`, `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx`, all page components, `src/shared/i18n.ts`
 
-2. **P1 FIX: Selection count shows token count instead of group count** — "Выбрано: 20 мод(ов)" when user selected 6 FamilyGroup chips. Each chip represents multiple tokens (different tier ranges), but the counter showed individual token count.
-   - Fix: Added `countUniqueFamilyKeys()` in `family-grouper.ts`, used in all page summaries and "Очистить" button in ModList/VirtualizedModList.
-   - Files: `src/shared/family-grouper.ts`, all page components, `ModList.tsx`, `VirtualizedModList.tsx`
+2. **Edge case: regexExclude при OR-suffix** — Analyzed and documented. When ranged tokens with same (min,max) but different suffixes are merged into a single RANGE with OR-joined suffixes, ALL excludes from all tokens are unioned. This is intentional and correct for PoE2's item-wide negation model. Added detailed comment explaining the tradeoff.
+   - Files: `src/ui/hooks/useCategoryPage.ts` (documentation only)
 
-3. **Waystone 404 investigated** — NOT an app bug. The 404 is from SPA routing on GitHub Pages (browser requests `/waystone` route, GitHub serves 404.html which redirects to index.html). JSON data loads correctly.
+3. **UI Audit — Bug fixes (HIGH severity):**
+   - **FilterChip keyboard inaccessibility** — Added `tabIndex={0}` and `onKeyDown` handler to FilterChip's outer div (role="switch"). Keyboard users can now focus and toggle chips.
+   - **VendorPage never syncs to URL hash** — Added `syncToUrl()` call in VendorPage's sync effect. State now persists on page refresh.
+   - **VendorChip click target mismatch** — Moved `onClick` from inner `<span>` to outer `<div>`. Entire chip area is now clickable.
+   - **No 404 fallback route** — Added `<Route path="*">` with `NotFoundPage` component in `App.tsx`.
+
+4. **UI Audit — Bug fixes (MEDIUM severity):**
+   - **VendorChip NaN storage** — Changed `parseInt` handling to check `isNaN(v)` before storing, preventing NaN values in numericInputs.
+   - **VendorPage clearAll doesn't reset round10/searchLogic** — Added `setRound10(true)` and `setSearchLogic('and')` to `clearAll()`.
+   - **url-sync non-null assertion** — Changed `store.deserialize!(data)` to `if (store.deserialize) { store.deserialize(data); }`.
+   - **Negative number inputs** — Added `v < 0` check in CategoryControlPanel and FilterChip number inputs, rejecting negative values.
 
 **Files changed this session:**
-- `src/ui/hooks/useCategoryPage.ts` — OR-suffix grouping for ranged tokens
-- `src/core/compiler.ts` — OR-suffix wrapping in `()`
-- `src/shared/family-grouper.ts` — Added `countUniqueFamilyKeys()`
-- `src/ui/components/ModList.tsx` — Use `countUniqueFamilyKeys` for clear button
-- `src/ui/components/VirtualizedModList.tsx` — Use `countUniqueFamilyKeys` for clear button
-- `src/ui/pages/amulet/AmuletPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/belt/BeltPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/ring/RingPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/relic/RelicPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/waystone/WaystonePage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/jewel/JewelPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `src/ui/pages/tablet/TabletPage.tsx` — Use `countUniqueFamilyKeys` for summary
-- `tests/core/compiler.test.ts` — 8 new OR-suffix RANGE tests
+- `src/core/optimizer.ts` — Added `collectCollapsedTokenIds()`
+- `src/ui/hooks/useCategoryPage.ts` — Added `collapsedTokenIds`, regexExclude documentation
+- `src/ui/components/FilterChip.tsx` — `collapsedTokenIds` prop, keyboard a11y, negative input validation
+- `src/ui/components/ModList.tsx` — `collapsedTokenIds` prop pass-through
+- `src/ui/components/VirtualizedModList.tsx` — `collapsedTokenIds` prop pass-through
+- `src/ui/components/VendorChip.tsx` — Fixed click target, NaN, keyboard a11y
+- `src/ui/components/CategoryControlPanel.tsx` — Negative input validation
+- `src/ui/pages/vendor/VendorPage.tsx` — URL sync, clearAll fix
+- `src/App.tsx` — 404 fallback route
+- `src/store/url-sync.ts` — Non-null assertion fix
+- `src/shared/i18n.ts` — Added `chip.optimizer_collapsed` key
+- All page components (amulet, belt, ring, relic, waystone, tablet, jewel) — `collapsedTokenIds` prop
 - `worklog.md` — This update
-- `AGENT_NAVIGATION.md` — Updated
+- `AGENT_NAVIGATION.md` — To be updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ P2: Visual indicator when optimizer collapses selections (regex doesn't change on click — confusing but correct behavior)
-- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
 - ⬜ Jewel classification accuracy improvement (heuristic fallback ~84%)
-- ⬜ Edge case audit: what if ranged tokens with same (min,max) have different regexExclude/regexPrefixContext? Currently only context is added if all tokens share the same one; excludes are unioned. This may produce overly broad regex in rare cases.
+- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
+- ⬜ Remaining UI audit fixes (MEDIUM/LOW severity): ProfilePanel delete confirmation, ARIA labels, PageStateWrapper ARIA roles, radio group arrow key navigation, etc.
 
 ---
 

@@ -26,6 +26,7 @@ export function BeltPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'belt' });
 
   return (
@@ -79,6 +80,7 @@ export function BeltPage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-semantic"
               showOriginSubSections
             />

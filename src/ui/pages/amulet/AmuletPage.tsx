@@ -26,6 +26,7 @@ export function AmuletPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -79,6 +80,7 @@ export function AmuletPage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-semantic"
               showOriginSubSections
             />

@@ -52,16 +52,16 @@ export const VendorChip: React.FC<VendorChipProps> = ({
     : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50';
 
   return (
-    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors ${bgClass} ${borderClass}`}>
-      <span
-        className="leading-tight cursor-pointer"
-        onClick={handleClick}
-        role="switch"
-        aria-checked={isSelected}
-        aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-      >
+    <div
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer ${bgClass} ${borderClass}`}
+      onClick={handleClick}
+      role="switch"
+      aria-checked={isSelected}
+      aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+    >
+      <span className="leading-tight">
         {prop.label}
       </span>
       {prop.hasNumericInput && isSelected && (
@@ -72,7 +72,10 @@ export const VendorChip: React.FC<VendorChipProps> = ({
           placeholder="≥N"
           value={numericValue ?? ''}
           onClick={(e) => e.stopPropagation()}
-          onChange={(e) => onNumericChange(prop.id, e.target.value ? parseInt(e.target.value, 10) : null)}
+          onChange={(e) => {
+            const v = parseInt(e.target.value, 10);
+            onNumericChange(prop.id, e.target.value === '' || isNaN(v) ? null : v);
+          }}
           aria-label={`Порог для ${prop.label}`}
           className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[10px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
         />

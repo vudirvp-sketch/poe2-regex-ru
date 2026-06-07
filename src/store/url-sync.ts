@@ -49,7 +49,11 @@ export function syncFromUrl(store: SerializableStore): boolean {
     if (!json) return false;
 
     const data = JSON.parse(json) as Record<string, unknown>;
-    store.deserialize!(data);
+    if (store.deserialize) {
+      store.deserialize(data);
+    } else {
+      return false;
+    }
     return true;
   } catch (err) {
     console.warn('Failed to restore state from URL:', err);

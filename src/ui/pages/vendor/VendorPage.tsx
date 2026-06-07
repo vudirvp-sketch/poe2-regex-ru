@@ -17,7 +17,7 @@ import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
 import type { ASTNode, SearchLogic } from '@shared/types';
 import { createFilterStore } from '@store/filter-store';
-import { syncFromUrl } from '@store/url-sync';
+import { syncFromUrl, syncToUrl } from '@store/url-sync';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
 import { VENDOR_PROPERTIES, type VendorProperty } from '@data/vendor-properties';
 
@@ -130,6 +130,8 @@ export function VendorPage() {
     useStore.getState().setExtraState('vendorNumericInputs', numericInputs);
     useStore.getState().setExtraState('vendorRound10', round10);
     useStore.getState().setExtraState('vendorSearchLogic', searchLogic);
+    // Auto-sync to URL hash so refreshing the page preserves state
+    syncToUrl(useStore.getState());
   }, [selectedIds, excludeMode, numericInputs, round10, searchLogic, useStore]);
 
   const toggleProperty = useCallback((id: string) => {
@@ -166,6 +168,8 @@ export function VendorPage() {
     setSelectedIds(new Set());
     setNumericInputs({});
     setExcludeMode(false);
+    setRound10(true);
+    setSearchLogic('and');
   }, []);
 
   // Build regex using core AST + compiler (fixes 3-digit number bug,

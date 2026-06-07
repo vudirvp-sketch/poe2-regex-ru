@@ -74,6 +74,7 @@ export function JewelPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    collapsedTokenIds,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -169,6 +170,7 @@ export function JewelPage() {
               perTokenRanges={perTokenRanges}
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
               groupMode="origin"
               showOriginSubSections
               showJewelTypeSubGroups

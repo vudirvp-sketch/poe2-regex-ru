@@ -17,7 +17,7 @@ import { syncFromUrl, syncToUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
-import { optimize } from '@core/optimizer';
+import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
 import { isOverflow } from '@core/limits';
 import { applyYofication } from '@strategies/locale';
 
@@ -119,6 +119,10 @@ export interface CategoryPageState {
   filterStore: FilterStoreApi;
   /** Restore filter state from a serialized object (e.g., loaded profile) */
   restoreFilterState: (data: Record<string, unknown>) => void;
+  /** Set of token IDs whose individual regex was collapsed by the optimizer.
+   *  Used to show a visual indicator on chips so the user understands why
+   *  clicking the chip doesn't change the regex output. */
+  collapsedTokenIds: Set<string>;
 }
 
 
@@ -413,7 +417,24 @@ function buildAstFromSelections(
             nodeWithExcludes = and(literal(contexts[0]), nodeWithExcludes);
           }
 
-          // Collect unique exclude patterns from all tokens in this range group
+          // Collect unique exclude patterns from all tokens in this range group.
+          //
+          // IMPORTANT: When ranged tokens with same (min,max) but different suffixes
+          // are merged into a single RANGE with OR-joined suffixes, ALL excludes from
+          // ALL tokens in the group are unioned. This is intentional and correct:
+          //
+          // - `!X` is item-wide in PoE2 — if an item contains X in ANY block, it's excluded.
+          // - `!(A|B)` = "exclude items containing A OR B" is safer than no exclusion.
+          // - Example: token1 (огню) has exclude "Приспеш", token2 (холоду) has exclude "состояния"
+          //   → `"numRegex.*(огню|холоду)" "!Приспеш|состояния"`
+          //   This correctly excludes items with minions OR DOT effects, even though
+          //   each exclude was originally targeted at a specific suffix.
+          // - Over-excluding is acceptable: it prevents false positives (matching wrong items)
+          //   at the cost of potentially excluding some valid items. This is the safer tradeoff
+          //   for PoE2 regex where the 250 char limit means we can't afford separate ranges.
+          //
+          // If per-suffix exclude scoping were needed, it would require separate RANGE nodes
+          // AND-joined together, which would double the character count for the number regex.
           const allExcludes: string[] = [];
           for (const token of group.tokens) {
             const excludes = token.regexExclude?.[locale];
@@ -733,13 +754,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   }, [data, selectedIds]);
 
   // Build AST, optimize, compile
-  const { regex, isRegexOverflow } = useMemo(() => {
+  const { regex, isRegexOverflow, collapsedIds: collapsedTokenIds } = useMemo(() => {
     // If no mod selections AND no extra nodes → empty regex
     const hasModSelections = data && selectedTokens.length > 0;
     const hasExtraNodes = extraAstNodes.length > 0;
 
     if (!hasModSelections && !hasExtraNodes) {
-      return { regex: '', isRegexOverflow: false };
+      return { regex: '', isRegexOverflow: false, collapsedIds: new Set<string>() };
     }
 
     const andChildren: ASTNode[] = [];
@@ -767,7 +788,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
 
     if (andChildren.length === 0) {
-      return { regex: '', isRegexOverflow: false };
+      return { regex: '', isRegexOverflow: false, collapsedIds: new Set<string>() };
     }
 
     // Combine all children with AND
@@ -791,6 +812,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     return {
       regex: compiledRegex,
       isRegexOverflow: isOverflow(compiledRegex),
+      collapsedIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
   }, [data, selectedTokens, excludeMode, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
 
@@ -866,5 +888,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     categoryId,
     filterStore,
     restoreFilterState,
+    collapsedTokenIds,
   };
 }
