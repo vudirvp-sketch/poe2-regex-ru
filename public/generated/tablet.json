@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:50.021Z",
+  "version": "2026-06-07T08:30:17.430Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -191,7 +191,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "увеличение эффективности монстров бездны"
+          "100%"
         ]
       }
     },
@@ -2207,7 +2207,7 @@
         "ru": "##% увеличение количества находимых на карте путевых камней"
       },
       "regex": {
-        "ru": "увеличение количества находимых"
+        "ru": "путевых кам"
       },
       "familyKey": {
         "ru": "#% увеличение количества находимых на карте путевых камней"
@@ -2236,7 +2236,12 @@
         53,
         62
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "путевых кам ней"
+        ]
+      }
     },
     {
       "id": "tablet.mod_i5eb4b",
@@ -3046,9 +3051,8 @@
       "weight": 94,
       "count": 4
     },
-    "tablet.mod_ld06px:tablet.mod_od9m77:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
+    "tablet.mod_od9m77:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
       "ids": [
-        "tablet.mod_ld06px",
         "tablet.mod_od9m77",
         "tablet.mod_wrlukt",
         "tablet.mod_yr6d7c"
@@ -3057,7 +3061,7 @@
         "ru": "увеличение (количества находимых|эффективности монстров|размера групп монстров на карте)"
       },
       "weight": 88,
-      "count": 4
+      "count": 3
     },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [

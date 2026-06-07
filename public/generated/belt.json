@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:52.497Z",
+  "version": "2026-06-07T08:30:19.750Z",
   "category": "belt",
   "source": "poe2db.tw",
   "tokens": [
@@ -6396,7 +6396,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },

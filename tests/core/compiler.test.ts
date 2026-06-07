@@ -154,4 +154,49 @@ describe('compile', () => {
     const result = compile(range(25, undefined, 'количество монстров'), { round10: true });
     expect(result).toBe('"([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
   });
+
+  // ─── Negate syntax verification (Phase 8: ! must be INSIDE quotes) ───
+
+  it('compiles AND(LITERAL, EXCLUDE) — regexExclude pattern: "suffix" "!exclude"', () => {
+    // Simulates the regexExclude use case from useCategoryPage.ts:
+    // Token with regex="к силе" and regexExclude=["к силе и", "к силе,"]
+    // Expected: "к силе" "!к силе и" "!к силе,"
+    const result = compile(
+      and(
+        literal('к силе'),
+        exclude(literal('к силе и')),
+        exclude(literal('к силе,'))
+      )
+    );
+    // CRITICAL: ! must be INSIDE quotes, NOT before them
+    // Correct:   "к силе" "!к силе и" "!к силе,"
+    // Wrong:     "к силе" !"к силе и" !"к силе,"
+    expect(result).toBe('"к силе" "!к силе и" "!к силе,"');
+    // Double-check: no ! before quotes
+    expect(result).not.toMatch(/!"/);
+  });
+
+  it('compiles AND(OR, EXCLUDE) with short minion marker', () => {
+    // Simulates: "к сопротивлению" "!Приспеш" — universal minion exclude
+    const result = compile(
+      and(
+        or(literal('к сопротивлению огню'), literal('к сопротивлению холоду')),
+        exclude(literal('Приспеш'))
+      )
+    );
+    expect(result).toBe('"к сопротивлению огню|к сопротивлению холоду" "!Приспеш"');
+    expect(result).not.toMatch(/!"/);
+  });
+
+  it('compiles AND(LITERAL, EXCLUDE(OR)) — !(A|B) format', () => {
+    // Single exclude group with OR inside: "!A|B" inside quotes
+    const result = compile(
+      and(
+        literal('всем стихи'),
+        exclude(or(literal('Приспеш'), literal(' и')))
+      )
+    );
+    expect(result).toBe('"всем стихи" "!Приспеш| и"');
+    expect(result).not.toMatch(/!"/);
+  });
 });

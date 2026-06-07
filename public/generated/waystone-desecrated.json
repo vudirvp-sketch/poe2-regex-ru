@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:49.438Z",
+  "version": "2026-06-07T08:30:16.769Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -455,7 +455,7 @@
       "level": 0,
       "regexExclude": {
         "ru": [
-          "увеличение количества волшебных монстров, провалы"
+          "как"
         ]
       }
     },

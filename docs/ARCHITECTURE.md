@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 29.0 | **Date:** 2026-06-07 | **Language:** RU-first
+> **Version:** 30.0 | **Date:** 2026-06-07 | **Language:** RU-first
 
 ---
 
@@ -136,6 +136,7 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 
 1. **`!` must be INSIDE quotes when combined with `|`:**
    - CORRECT: `"!проклят|сопротивлен"` — WRONG: `!"проклят|сопротивлен"`
+   - VERIFIED in-game (Phase 8): `"!X"` works 10/10, `!"X"` works 0/10
 2. **`.*` does NOT cross block boundaries** — each mod, implicit, property, name, type, and state text ("Осквернено") is a separate searchable block. Use AND (`"X" "Y"`) to search across blocks.
 3. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш" WITHIN the same block. For bidirectional, use AND: `"огня" "приспеш"`.
 4. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
@@ -144,6 +145,28 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 7. **Negation `!X` is item-wide** — excludes the entire item if X appears in ANY block, not just one block.
 8. **Description/tooltip text is NOT indexed** — "Можно использовать в Машине картоходца...", "Путевые камни одноразовые" etc. are not searchable.
 9. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
+
+**Word Truncation rules (verified in-game Phase 8):**
+
+PoE2 is a substring search engine. Truncating the END of a word creates a valid leading substring:
+- **Trailing substring works:** `"к си"` → matches `"к силе"` (because "си" is the start of "силе")
+- **Leading word removal works:** `"силе"` → matches `"к силе"` (substring of full phrase)
+- **Mid-word extraction does NOT work:** `"еличен"` does NOT uniquely target "увеличение"
+- **Non-contiguous does NOT work:** `"к с ле"` does NOT match "к силе"
+- **Minimum 3 significant chars per truncated word** — shorter truncation generates FP
+
+**Negate optimization rules (verified in-game Phase 8):**
+
+Priority order for exclude patterns:
+1. **Minion marker:** `"!Приспеш"` — universal, covers ALL minion-variant FP with one short pattern
+2. **Compound separator:** `"! и"` — catches "к силе и ловкости", "к силе, ловкости" etc.
+3. **Short universal markers** — single word appearing in ALL conflicts but NOT in target family
+4. **Specific full-phrase patterns** — fallback, least preferred (e.g., `"к силе и"`)
+
+**NOT supported (verified in-game, Phase 8):**
+- `^` / `$` anchors — unreliable for practical use
+- `|` inside `()` for number ranges — needs further testing with correct quote syntax
+- Character class for word alternatives: `[сило]` ≠ «сило»
 
 ## 5.1 Block-Based Matching Model (Phase 7 — verified in-game)
 

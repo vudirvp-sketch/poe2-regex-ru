@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:51.106Z",
+  "version": "2026-06-07T08:30:18.286Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -2135,7 +2135,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "увеличение урона в ближнем бою, если"
+          " атак"
         ]
       },
       "jewelType": "ruby"
@@ -4528,7 +4528,7 @@
         "ru": "##% повышение скорости сотворения чар"
       },
       "regex": {
-        "ru": "% повышение скорости сотворения"
+        "ru": "повышение скорости сотворения чар"
       },
       "familyKey": {
         "ru": "#% повышение скорости сотворения чар"
@@ -4558,6 +4558,11 @@
         32
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "метки"
+        ]
+      },
       "jewelType": "sapphire"
     },
     {
@@ -5703,7 +5708,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "повышение скорости накопления шкалы заморозки боевыми"
+          "боевыми"
         ]
       },
       "jewelType": "sapphire"
@@ -5806,7 +5811,7 @@
         "ru": "##% увеличение длительности эффекта умения"
       },
       "regex": {
-        "ru": "увеличение длительности эффекта"
+        "ru": "увеличение длительности эффекта умения"
       },
       "familyKey": {
         "ru": "#% увеличение длительности эффекта умения"
@@ -5834,6 +5839,11 @@
         42
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "меток"
+        ]
+      },
       "jewelType": "shared"
     },
     {
@@ -6483,7 +6493,7 @@
         "ru": "Умения меток имеют ##% увеличение длительности эффекта умения"
       },
       "regex": {
-        "ru": "ток и"
+        "ru": "эффекта уме"
       },
       "familyKey": {
         "ru": "Умения меток имеют #% увеличение длительности эффекта умения"
@@ -6514,6 +6524,11 @@
         62
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "эффекта уме ния"
+        ]
+      },
       "jewelType": "emerald"
     },
     {
@@ -6694,7 +6709,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению хаосу"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "к сопротивлению хаосу"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению хаосу"
@@ -6726,6 +6741,11 @@
         38
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "также"
+        ]
+      },
       "jewelType": "sapphire"
     },
     {
@@ -7686,7 +7706,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "повышение скорости накопления шкалы оглушения булавами"
+          "булавами"
         ]
       },
       "jewelType": "ruby"
@@ -7748,7 +7768,7 @@
         "ru": "Дарует дополнительный порог оглушения в размере ##% от максимума энергетического щита"
       },
       "regex": {
-        "ru": "рог о"
+        "ru": "от максимума энергетического щита"
       },
       "familyKey": {
         "ru": "Дарует дополнительный порог оглушения в размере #% от максимума энергетического щита"
@@ -7779,6 +7799,11 @@
         78
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "состояний"
+        ]
+      },
       "jewelType": "sapphire"
     },
     {
@@ -7792,7 +7817,7 @@
         "ru": "Дарует дополнительный порог состояний в размере ##% от максимума энергетического щита"
       },
       "regex": {
-        "ru": "рог с"
+        "ru": "от максимума энергетического щита"
       },
       "familyKey": {
         "ru": "Дарует дополнительный порог состояний в размере #% от максимума энергетического щита"
@@ -7824,6 +7849,11 @@
         78
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "оглушения"
+        ]
+      },
       "jewelType": "sapphire"
     },
     {
@@ -8555,7 +8585,7 @@
         "ru": "Значимые пассивные умения в радиусе также дают: +##% к сопротивлению хаосу"
       },
       "regex": {
-        "ru": "имые пассивные умения в радиусе"
+        "ru": "к сопротивлению хаосу"
       },
       "familyKey": {
         "ru": "Значимые пассивные умения в радиусе также дают: +#% к сопротивлению хаосу"
@@ -8586,6 +8616,11 @@
         67
       ],
       "level": 1,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      },
       "jewelType": "shared"
     },
     {
@@ -8838,10 +8873,26 @@
         "jewel.mod_yzxktz"
       ],
       "regex": {
-        "ru": "увеличение (области действия|максимума (энергетического щита|здоровья)|уклонения|урона в ближнем бою|бонуса к критическому урону|количества получаемых зарядов флакона|длительности эффекта|порога оглушения)"
+        "ru": "увеличение (области действия|максимума (энергетического щита|здоровья)|уклонения|урона в ближнем бою|бонуса к критическому урону|количества получаемых зарядов флакона|длительности эффекта умения|порога оглушения)"
       },
-      "weight": 205,
+      "weight": 212,
       "count": 11
+    },
+    "jewel.mod_7dzvh0:jewel.mod_7spjc9:jewel.mod_am4lla:jewel.mod_is2jx9:jewel.mod_sioc8h:jewel.mod_wkqo4a:jewel.mod_zel2yn": {
+      "ids": [
+        "jewel.mod_7dzvh0",
+        "jewel.mod_7spjc9",
+        "jewel.mod_am4lla",
+        "jewel.mod_is2jx9",
+        "jewel.mod_sioc8h",
+        "jewel.mod_wkqo4a",
+        "jewel.mod_zel2yn"
+      ],
+      "regex": {
+        "ru": "повышение (брони|скорости (атаки|сотворения чар|накопления шкалы (заморозки|оглушения))|шанса критического удара)"
+      },
+      "weight": 113,
+      "count": 7
     },
     "jewel.mod_28ty77:jewel.mod_a4hrrs:jewel.mod_d5o3e6:jewel.mod_of3hi9": {
       "ids": [
@@ -8855,21 +8906,6 @@
       },
       "weight": 54,
       "count": 4
-    },
-    "jewel.mod_7dzvh0:jewel.mod_am4lla:jewel.mod_is2jx9:jewel.mod_sioc8h:jewel.mod_wkqo4a:jewel.mod_zel2yn": {
-      "ids": [
-        "jewel.mod_7dzvh0",
-        "jewel.mod_am4lla",
-        "jewel.mod_is2jx9",
-        "jewel.mod_sioc8h",
-        "jewel.mod_wkqo4a",
-        "jewel.mod_zel2yn"
-      ],
-      "regex": {
-        "ru": "повышение (брони|скорости (атаки|накопления шкалы (заморозки|оглушения))|шанса критического удара)"
-      },
-      "weight": 98,
-      "count": 6
     },
     "jewel.mod_1kuxym:jewel.mod_8zq7zq:jewel.mod_gwvpjc:jewel.mod_krgc82:jewel.mod_w1hboq:jewel.mod_xwpyem": {
       "ids": [
@@ -8885,6 +8921,40 @@
       },
       "weight": 81,
       "count": 6
+    },
+    "jewel.mod_4gpaq4:jewel.mod_cgpq5s:jewel.mod_fsam8f:jewel.mod_sx2rlh:jewel.mod_unop1x": {
+      "ids": [
+        "jewel.mod_4gpaq4",
+        "jewel.mod_cgpq5s",
+        "jewel.mod_fsam8f",
+        "jewel.mod_sx2rlh",
+        "jewel.mod_unop1x"
+      ],
+      "regex": {
+        "ru": "(увеличение максимума|начала перезарядки|скорости перезарядки|от максимума) энергетического щита"
+      },
+      "weight": 96,
+      "count": 5
+    },
+    "jewel.mod_4yzy57:jewel.mod_5ac7q8:jewel.mod_ank8rj:jewel.mod_aqkyv5:jewel.mod_ec1qa7:jewel.mod_nxoa7u:jewel.mod_o3wt9e:jewel.mod_sbryhz:jewel.mod_sioc8h:jewel.mod_x6zrt7:jewel.mod_xwpyem": {
+      "ids": [
+        "jewel.mod_4yzy57",
+        "jewel.mod_5ac7q8",
+        "jewel.mod_ank8rj",
+        "jewel.mod_aqkyv5",
+        "jewel.mod_ec1qa7",
+        "jewel.mod_nxoa7u",
+        "jewel.mod_o3wt9e",
+        "jewel.mod_sbryhz",
+        "jewel.mod_sioc8h",
+        "jewel.mod_x6zrt7",
+        "jewel.mod_xwpyem"
+      ],
+      "regex": {
+        "ru": "(увеличение (уклон|длительности эффекта ум|порога оглуш)|ослепл|отравл|вами кровотеч|истощ|длительности кровотеч|передвиж|пригвожд|повышение скорости накопления шкалы оглуш)ения"
+      },
+      "weight": 177,
+      "count": 11
     },
     "jewel.mod_caeit5:jewel.mod_cggkw1:jewel.mod_gmcqke:jewel.mod_k7v06p:jewel.mod_k92tj8:jewel.mod_s3muj3:jewel.mod_uoia3f": {
       "ids": [
@@ -8902,50 +8972,33 @@
       "weight": 78,
       "count": 7
     },
-    "jewel.mod_5ac7q8:jewel.mod_7spjc9:jewel.mod_ank8rj:jewel.mod_aqkyv5:jewel.mod_ec1qa7:jewel.mod_nxoa7u:jewel.mod_o3wt9e:jewel.mod_sbryhz:jewel.mod_sioc8h:jewel.mod_x6zrt7:jewel.mod_xwpyem": {
-      "ids": [
-        "jewel.mod_5ac7q8",
-        "jewel.mod_7spjc9",
-        "jewel.mod_ank8rj",
-        "jewel.mod_aqkyv5",
-        "jewel.mod_ec1qa7",
-        "jewel.mod_nxoa7u",
-        "jewel.mod_o3wt9e",
-        "jewel.mod_sbryhz",
-        "jewel.mod_sioc8h",
-        "jewel.mod_x6zrt7",
-        "jewel.mod_xwpyem"
-      ],
-      "regex": {
-        "ru": "(увеличение (уклон|порога оглуш)|ослепл|отравл|вами кровотеч|истощ|длительности кровотеч|% повышение скорости сотвор|передвиж|пригвожд|повышение скорости накопления шкалы оглуш)ения"
-      },
-      "weight": 181,
-      "count": 11
-    },
-    "jewel.mod_4gpaq4:jewel.mod_fsam8f:jewel.mod_sx2rlh": {
-      "ids": [
-        "jewel.mod_4gpaq4",
-        "jewel.mod_fsam8f",
-        "jewel.mod_sx2rlh"
-      ],
-      "regex": {
-        "ru": "(увеличение максимума|начала перезарядки|скорости перезарядки) энергетического щита"
-      },
-      "weight": 83,
-      "count": 3
-    },
-    "jewel.mod_6guazq:jewel.mod_h7jszs:jewel.mod_hpjpwn:jewel.mod_kqgvve:jewel.mod_mkialb": {
+    "jewel.mod_6guazq:jewel.mod_d5zh33:jewel.mod_h7jszs:jewel.mod_hpjpwn:jewel.mod_kqgvve:jewel.mod_mkialb": {
       "ids": [
         "jewel.mod_6guazq",
+        "jewel.mod_d5zh33",
         "jewel.mod_h7jszs",
         "jewel.mod_hpjpwn",
         "jewel.mod_kqgvve",
         "jewel.mod_mkialb"
       ],
       "regex": {
-        "ru": "эффект(а (свойств-(суф|пре)фиксов|флакона|Парирован)|ов на вас)"
+        "ru": "эффект(а (свойств-(суф|пре)фиксов|флакона|уме|Парирован)|ов на вас)"
       },
-      "weight": 63,
+      "weight": 67,
+      "count": 6
+    },
+    "jewel.mod_5ai0gr:jewel.mod_e6wevs:jewel.mod_kcoue9:jewel.mod_s6f4m2:jewel.mod_uxgq8o": {
+      "ids": [
+        "jewel.mod_5ai0gr",
+        "jewel.mod_e6wevs",
+        "jewel.mod_kcoue9",
+        "jewel.mod_s6f4m2",
+        "jewel.mod_uxgq8o"
+      ],
+      "regex": {
+        "ru": "к сопротивлению (хаосу|огню|холоду|молнии)"
+      },
+      "weight": 42,
       "count": 5
     },
     "jewel.mod_7a59h:jewel.mod_bmigen:jewel.mod_d5haza": {
@@ -8982,18 +9035,6 @@
         "ru": "(урона|заморозки|атаки) боевыми посохами"
       },
       "weight": 40,
-      "count": 3
-    },
-    "jewel.mod_e6wevs:jewel.mod_kcoue9:jewel.mod_s6f4m2": {
-      "ids": [
-        "jewel.mod_e6wevs",
-        "jewel.mod_kcoue9",
-        "jewel.mod_s6f4m2"
-      ],
-      "regex": {
-        "ru": "к сопротивлению (огню|холоду|молнии)"
-      },
-      "weight": 36,
       "count": 3
     },
     "jewel.mod_5rcjkz:jewel.mod_hpfzjc:jewel.mod_ss8pp2": {
@@ -9215,6 +9256,18 @@
       "weight": 63,
       "count": 3
     },
+    "jewel.mod_5ai0gr:jewel.mod_d5o3e6:jewel.mod_uxgq8o": {
+      "ids": [
+        "jewel.mod_5ai0gr",
+        "jewel.mod_d5o3e6",
+        "jewel.mod_uxgq8o"
+      ],
+      "regex": {
+        "ru": "(к|максимальному) сопротивлению хаосу"
+      },
+      "weight": 37,
+      "count": 3
+    },
     "jewel.mod_28ty77:jewel.mod_s6f4m2": {
       "ids": [
         "jewel.mod_28ty77",
@@ -9332,6 +9385,17 @@
       },
       "weight": 36,
       "count": 3
+    },
+    "jewel.mod_7spjc9:jewel.mod_ba414f": {
+      "ids": [
+        "jewel.mod_7spjc9",
+        "jewel.mod_ba414f"
+      ],
+      "regex": {
+        "ru": "(повышение скорост|атаки )и сотворения чар"
+      },
+      "weight": 42,
+      "count": 2
     },
     "jewel.mod_gwvpjc:jewel.mod_q0s6bs": {
       "ids": [
@@ -9462,20 +9526,6 @@
       },
       "weight": 29,
       "count": 2
-    },
-    "jewel.mod_4mokx7:jewel.mod_d6tyom:jewel.mod_i5jucj:jewel.mod_kzpdi6:jewel.mod_q7sbar": {
-      "ids": [
-        "jewel.mod_4mokx7",
-        "jewel.mod_d6tyom",
-        "jewel.mod_i5jucj",
-        "jewel.mod_kzpdi6",
-        "jewel.mod_q7sbar"
-      ],
-      "regex": {
-        "ru": "от (атак|стихий|огня|молнии|врага)"
-      },
-      "weight": 34,
-      "count": 5
     },
     "jewel.mod_aw0oyt:jewel.mod_du0lie:jewel.mod_xtgbaj": {
       "ids": [
@@ -9641,6 +9691,18 @@
       "weight": 34,
       "count": 3
     },
+    "jewel.mod_64qqpn:jewel.mod_7spjc9:jewel.mod_ba414f": {
+      "ids": [
+        "jewel.mod_64qqpn",
+        "jewel.mod_7spjc9",
+        "jewel.mod_ba414f"
+      ],
+      "regex": {
+        "ru": "(дл|повышение скорости сотворени|атаки и сотворени)я чар"
+      },
+      "weight": 56,
+      "count": 3
+    },
     "jewel.mod_aqkyv5:jewel.mod_sioc8h": {
       "ids": [
         "jewel.mod_aqkyv5",
@@ -9662,6 +9724,19 @@
       },
       "weight": 42,
       "count": 2
+    },
+    "jewel.mod_4mokx7:jewel.mod_d6tyom:jewel.mod_i5jucj:jewel.mod_kzpdi6": {
+      "ids": [
+        "jewel.mod_4mokx7",
+        "jewel.mod_d6tyom",
+        "jewel.mod_i5jucj",
+        "jewel.mod_kzpdi6"
+      ],
+      "regex": {
+        "ru": "от (атак|стихий|огня|врага)"
+      },
+      "weight": 27,
+      "count": 4
     },
     "jewel.mod_ewgwh2:jewel.mod_mn6kp5": {
       "ids": [
@@ -9695,19 +9770,6 @@
       },
       "weight": 52,
       "count": 2
-    },
-    "jewel.mod_5ai0gr:jewel.mod_n5pvk5:jewel.mod_nxoa7u:jewel.mod_w5oqnz": {
-      "ids": [
-        "jewel.mod_5ai0gr",
-        "jewel.mod_n5pvk5",
-        "jewel.mod_nxoa7u",
-        "jewel.mod_w5oqnz"
-      ],
-      "regex": {
-        "ru": "при(сутствия|спешники имеют +|гвождения|менения боевых кличей)"
-      },
-      "weight": 62,
-      "count": 4
     },
     "jewel.mod_26n6rw:jewel.mod_e33dlw": {
       "ids": [
@@ -9923,6 +9985,18 @@
       "weight": 23,
       "count": 2
     },
+    "jewel.mod_n5pvk5:jewel.mod_nxoa7u:jewel.mod_w5oqnz": {
+      "ids": [
+        "jewel.mod_n5pvk5",
+        "jewel.mod_nxoa7u",
+        "jewel.mod_w5oqnz"
+      ],
+      "regex": {
+        "ru": "при(сутствия|гвождения|менения боевых кличей)"
+      },
+      "weight": 45,
+      "count": 3
+    },
     "jewel.mod_8j3prk:jewel.mod_wqamd4": {
       "ids": [
         "jewel.mod_8j3prk",
@@ -10046,17 +10120,6 @@
       "weight": 21,
       "count": 2
     },
-    "jewel.mod_64qqpn:jewel.mod_ba414f": {
-      "ids": [
-        "jewel.mod_64qqpn",
-        "jewel.mod_ba414f"
-      ],
-      "regex": {
-        "ru": "(атаки и сотворени|дл)я чар"
-      },
-      "weight": 27,
-      "count": 2
-    },
     "jewel.mod_j05iep:jewel.mod_szkiml": {
       "ids": [
         "jewel.mod_j05iep",
@@ -10068,6 +10131,18 @@
       "weight": 24,
       "count": 2
     },
+    "jewel.mod_cgpq5s:jewel.mod_q7sbar:jewel.mod_unop1x": {
+      "ids": [
+        "jewel.mod_cgpq5s",
+        "jewel.mod_q7sbar",
+        "jewel.mod_unop1x"
+      ],
+      "regex": {
+        "ru": "от м(олнии|аксимума энергетического щита)"
+      },
+      "weight": 41,
+      "count": 3
+    },
     "jewel.mod_1si702:jewel.mod_64qqpn": {
       "ids": [
         "jewel.mod_1si702",
@@ -10077,17 +10152,6 @@
         "ru": "для (урона атаками|чар)"
       },
       "weight": 23,
-      "count": 2
-    },
-    "jewel.mod_cgpq5s:jewel.mod_unop1x": {
-      "ids": [
-        "jewel.mod_cgpq5s",
-        "jewel.mod_unop1x"
-      ],
-      "regex": {
-        "ru": "рог (о|с)"
-      },
-      "weight": 9,
       "count": 2
     },
     "jewel.mod_665j7w:jewel.mod_ynqitf": {

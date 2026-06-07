@@ -327,22 +327,49 @@ function buildAstFromSelections(
       // For each unique (suffix, prefix, min, max, exact) combination, create a RANGE node
       for (const [, group] of rangeGroups) {
         const rangeNode = range(group.min, group.max, group.suffix, group.prefix || undefined, group.exact || undefined);
+
+        // Phase 8: Wrap RANGE in AND with EXCLUDE nodes if tokens have regexExclude.
+        // When the suffix has cross-family FP (e.g., "к си" matching compound mods),
+        // the RANGE regex must include negation: "numRegex.*suffix" "!exclude"
+        let nodeWithExcludes: ASTNode = rangeNode;
+        if (!excludeMode) {
+          // Collect unique exclude patterns from all tokens in this range group
+          const allExcludes: string[] = [];
+          for (const token of group.tokens) {
+            const excludes = token.regexExclude?.[locale];
+            if (excludes) {
+              for (const pattern of excludes) {
+                if (!allExcludes.includes(pattern)) {
+                  allExcludes.push(pattern);
+                }
+              }
+            }
+          }
+          if (allExcludes.length > 0) {
+            const excludeNodes = allExcludes.map(pattern => exclude(literal(pattern)));
+            nodeWithExcludes = and(rangeNode, ...excludeNodes);
+          }
+        }
+
         if (searchLogic === 'or') {
-          // In OR mode, each RANGE node becomes part of the OR alternatives
-          // But RANGE nodes can't be OR'd with LITERALs directly in PoE2 regex.
-          // Instead, we keep them as AND children but the compiler will handle
-          // the difference: OR mode compiles ranges differently.
-          // For OR mode with ranges: each range becomes a separate alternative
-          // wrapped in its own quoted group, and they're OR'd with the other alternatives.
-          orChildren.push(rangeNode);
+          orChildren.push(nodeWithExcludes);
         } else {
-          andChildren.push(rangeNode);
+          andChildren.push(nodeWithExcludes);
         }
       }
     } else {
       // No effective min/max: just use the family suffix regex as LITERAL
-      const uniqueSuffixes = [...new Set(rangedTokens.map(t => t.regex[locale]))];
-      const literals = uniqueSuffixes.map(suffix => literal(suffix));
+      // Phase 8: Apply regexExclude to these literals too (same as non-ranged tokens)
+      const uniqueSuffixTokens = [...new Map(rangedTokens.map(t => [t.regex[locale], t])).values()];
+      const literals = uniqueSuffixTokens.map(token => {
+        const baseLiteral = literal(token.regex[locale], token.id);
+        const excludes = token.regexExclude?.[locale];
+        if (excludes && excludes.length > 0 && !excludeMode) {
+          const excludeNodes = excludes.map(pattern => exclude(literal(pattern)));
+          return and(baseLiteral, ...excludeNodes);
+        }
+        return baseLiteral;
+      });
 
       if (excludeMode) {
         andChildren.push(exclude(or(...literals)));

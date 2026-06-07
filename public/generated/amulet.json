@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:57.313Z",
+  "version": "2026-06-07T08:30:22.740Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -410,7 +410,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -453,7 +453,7 @@
       "level": 11,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -496,7 +496,7 @@
       "level": 22,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -539,7 +539,7 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -582,7 +582,7 @@
       "level": 44,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -625,7 +625,7 @@
       "level": 55,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -668,7 +668,7 @@
       "level": 66,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -711,7 +711,7 @@
       "level": 74,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -2463,7 +2463,12 @@
         19,
         26
       ],
-      "level": 12
+      "level": 12,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.allresistances2",
@@ -2508,7 +2513,12 @@
         19,
         26
       ],
-      "level": 26
+      "level": 26,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.allresistances3",
@@ -2553,7 +2563,12 @@
         20,
         27
       ],
-      "level": 40
+      "level": 40,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.allresistances4",
@@ -2598,7 +2613,12 @@
         21,
         28
       ],
-      "level": 54
+      "level": 54,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.allresistances5",
@@ -2643,7 +2663,12 @@
         21,
         28
       ],
-      "level": 68
+      "level": 68,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.normal_62",
@@ -2688,7 +2713,12 @@
         21,
         28
       ],
-      "level": 80
+      "level": 80,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.normal_63",
@@ -3352,7 +3382,7 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "увеличение максимума здоровья"
       },
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
@@ -3386,7 +3416,12 @@
       "yoficationPositions": [
         13
       ],
-      "level": 33
+      "level": 33,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.maximumlifeincrease2",
@@ -3399,7 +3434,7 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "увеличение максимума здоровья"
       },
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
@@ -3433,7 +3468,12 @@
       "yoficationPositions": [
         13
       ],
-      "level": 60
+      "level": 60,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.maximumlifeincrease3",
@@ -3446,7 +3486,7 @@
         "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "увеличение максимума здоровья"
       },
       "familyKey": {
         "ru": "#% увеличение максимума здоровья"
@@ -3480,7 +3520,12 @@
       "yoficationPositions": [
         13
       ],
-      "level": 75
+      "level": 75,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.increasedmana1",
@@ -5066,7 +5111,7 @@
       "level": 2,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5119,7 +5164,7 @@
       "level": 16,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5172,7 +5217,7 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5225,7 +5270,7 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5278,7 +5323,7 @@
       "level": 54,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5331,7 +5376,7 @@
       "level": 70,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -5384,7 +5429,7 @@
       "level": 77,
       "regexExclude": {
         "ru": [
-          "увеличение уклонения от"
+          "вашего"
         ]
       }
     },
@@ -8800,7 +8845,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -8853,7 +8898,7 @@
       "level": 16,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -8906,7 +8951,7 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -8959,7 +9004,7 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -9012,7 +9057,7 @@
       "level": 60,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -9065,7 +9110,7 @@
       "level": 75,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -9486,7 +9531,12 @@
         20,
         27
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "amulet.corruptionitemfoundrarityincrease1_corrupted",
@@ -9661,7 +9711,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -11997,7 +12047,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12032,7 +12082,12 @@
         37,
         44
       ],
-      "level": 22
+      "level": 22,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionelementalresistance2_breachborn",
@@ -12045,7 +12100,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12080,7 +12135,12 @@
         39,
         46
       ],
-      "level": 38
+      "level": 38,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionelementalresistance3_breachborn",
@@ -12093,7 +12153,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12128,7 +12188,12 @@
         39,
         46
       ],
-      "level": 49
+      "level": 49,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionelementalresistance4_breachborn",
@@ -12141,7 +12206,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12176,7 +12241,12 @@
         39,
         46
       ],
-      "level": 57
+      "level": 57,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionelementalresistance5_breachborn",
@@ -12189,7 +12259,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "20—22"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12224,7 +12294,12 @@
         39,
         46
       ],
-      "level": 66
+      "level": 66,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionelementalresistance6_breachborn",
@@ -12237,7 +12312,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "23—25"
+        "ru": "стихи"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12272,7 +12347,12 @@
         39,
         46
       ],
-      "level": 73
+      "level": 73,
+      "regexExclude": {
+        "ru": [
+          "стихи ям"
+        ]
+      }
     },
     {
       "id": "amulet.minionattackspeedandcastspeed1_breachborn",
@@ -13027,7 +13107,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13064,7 +13144,12 @@
         14,
         32
       ],
-      "level": 18
+      "level": 18,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionlifering2_breachborn",
@@ -13077,7 +13162,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13114,7 +13199,12 @@
         14,
         33
       ],
-      "level": 29
+      "level": 29,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionlifering3_breachborn",
@@ -13127,7 +13217,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13164,7 +13254,12 @@
         14,
         33
       ],
-      "level": 41
+      "level": 41,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionlifering4_breachborn",
@@ -13177,7 +13272,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13214,7 +13309,12 @@
         14,
         33
       ],
-      "level": 52
+      "level": 52,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionlifering5_breachborn",
@@ -13227,7 +13327,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13264,7 +13364,12 @@
         14,
         33
       ],
-      "level": 67
+      "level": 67,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionlifering6_breachborn",
@@ -13277,7 +13382,7 @@
         "ru": "Приспешники имеют ##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение максимума здоровья"
@@ -13314,7 +13419,12 @@
         14,
         33
       ],
-      "level": 75
+      "level": 75,
+      "regexExclude": {
+        "ru": [
+          "здоро вья"
+        ]
+      }
     },
     {
       "id": "amulet.minionrevivespeed1_breachborn",
@@ -14381,7 +14491,7 @@
       "level": 23,
       "regexExclude": {
         "ru": [
-          "увеличение области действия умений"
+          "чар"
         ]
       }
     },
@@ -14429,7 +14539,7 @@
       "level": 36,
       "regexExclude": {
         "ru": [
-          "увеличение области действия умений"
+          "чар"
         ]
       }
     },
@@ -14477,7 +14587,7 @@
       "level": 49,
       "regexExclude": {
         "ru": [
-          "увеличение области действия умений"
+          "чар"
         ]
       }
     },
@@ -14525,7 +14635,7 @@
       "level": 61,
       "regexExclude": {
         "ru": [
-          "увеличение области действия умений"
+          "чар"
         ]
       }
     },
@@ -14573,7 +14683,7 @@
       "level": 73,
       "regexExclude": {
         "ru": [
-          "увеличение области действия умений"
+          "чар"
         ]
       }
     },
@@ -14626,7 +14736,7 @@
       "level": 9,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14679,7 +14789,7 @@
       "level": 20,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14732,7 +14842,7 @@
       "level": 31,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14785,7 +14895,7 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14838,7 +14948,7 @@
       "level": 55,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14891,7 +15001,7 @@
       "level": 63,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14944,7 +15054,7 @@
       "level": 71,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -14997,7 +15107,7 @@
       "level": 82,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -19299,9 +19409,9 @@
         "amulet.maximumlifeincrease3"
       ],
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "увеличение максимума здоровья"
       },
-      "weight": 31,
+      "weight": 29,
       "count": 3
     },
     "amulet.increasedmana1:amulet.increasedmana11:amulet.increasedmana12:amulet.increasedmana13:amulet.increasedmana2:amulet.increasedmana3:amulet.increasedmana3_essence:amulet.increasedmana4:amulet.increasedmana5:amulet.increasedmana6:amulet.increasedmana7:amulet.increasedmana7_essence:amulet.increasedmana8_essence:amulet.normal_88:amulet.normal_89:amulet.normal_90": {
@@ -19717,9 +19827,9 @@
         "amulet.minionelementalresistance6_breachborn"
       ],
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихи"
       },
-      "weight": 19,
+      "weight": 5,
       "count": 6
     },
     "amulet.minionattackspeedandcastspeed1_breachborn:amulet.minionattackspeedandcastspeed2_breachborn:amulet.minionattackspeedandcastspeed3_breachborn:amulet.minionattackspeedandcastspeed4_breachborn": {
@@ -19775,9 +19885,9 @@
         "amulet.minionlifering6_breachborn"
       ],
       "regex": {
-        "ru": "% увеличение максимума здоровья"
+        "ru": "здоро"
       },
-      "weight": 31,
+      "weight": 5,
       "count": 6
     },
     "amulet.minionrevivespeed1_breachborn:amulet.minionrevivespeed2_breachborn:amulet.minionrevivespeed3_breachborn:amulet.minionrevivespeed4_breachborn": {
@@ -20031,6 +20141,58 @@
       "weight": 10,
       "count": 3
     },
+    "amulet.criticalmultiplier1:amulet.criticalmultiplier2:amulet.criticalmultiplier3:amulet.criticalmultiplier4:amulet.criticalmultiplier6:amulet.increasedevasionratingpercent2:amulet.increasedevasionratingpercent3:amulet.increasedevasionratingpercent4:amulet.maximumlifeincrease1:amulet.maximumlifeincrease2:amulet.maximumlifeincrease3:amulet.minionareaofeffect1_breachborn:amulet.minionareaofeffect2_breachborn:amulet.minionareaofeffect3_breachborn:amulet.minionareaofeffect4_breachborn:amulet.minionareaofeffect5_breachborn:amulet.miniondamage1_breachborn:amulet.miniondamage2_breachborn:amulet.miniondamage3_breachborn:amulet.miniondamage4_breachborn:amulet.miniondamage5_breachborn:amulet.miniondamage6_breachborn:amulet.miniondamage7_breachborn:amulet.miniondamage8_breachborn:amulet.normal_114:amulet.normal_118:amulet.normal_119:amulet.normal_120:amulet.normal_174:amulet.normal_202:amulet.spelldamage1:amulet.spelldamage2:amulet.spelldamage3:amulet.spelldamage4:amulet.spelldamage5:amulet.spelldamagering1_breachborn:amulet.spelldamagering2_breachborn:amulet.spelldamagering3_breachborn:amulet.spelldamagering4_breachborn:amulet.spelldamagering5_breachborn:amulet.spelldamagering6_breachborn:amulet.spelldamagering7_breachborn:amulet.spelldamagering8_breachborn": {
+      "ids": [
+        "amulet.criticalmultiplier1",
+        "amulet.criticalmultiplier2",
+        "amulet.criticalmultiplier3",
+        "amulet.criticalmultiplier4",
+        "amulet.criticalmultiplier6",
+        "amulet.increasedevasionratingpercent2",
+        "amulet.increasedevasionratingpercent3",
+        "amulet.increasedevasionratingpercent4",
+        "amulet.maximumlifeincrease1",
+        "amulet.maximumlifeincrease2",
+        "amulet.maximumlifeincrease3",
+        "amulet.minionareaofeffect1_breachborn",
+        "amulet.minionareaofeffect2_breachborn",
+        "amulet.minionareaofeffect3_breachborn",
+        "amulet.minionareaofeffect4_breachborn",
+        "amulet.minionareaofeffect5_breachborn",
+        "amulet.miniondamage1_breachborn",
+        "amulet.miniondamage2_breachborn",
+        "amulet.miniondamage3_breachborn",
+        "amulet.miniondamage4_breachborn",
+        "amulet.miniondamage5_breachborn",
+        "amulet.miniondamage6_breachborn",
+        "amulet.miniondamage7_breachborn",
+        "amulet.miniondamage8_breachborn",
+        "amulet.normal_114",
+        "amulet.normal_118",
+        "amulet.normal_119",
+        "amulet.normal_120",
+        "amulet.normal_174",
+        "amulet.normal_202",
+        "amulet.spelldamage1",
+        "amulet.spelldamage2",
+        "amulet.spelldamage3",
+        "amulet.spelldamage4",
+        "amulet.spelldamage5",
+        "amulet.spelldamagering1_breachborn",
+        "amulet.spelldamagering2_breachborn",
+        "amulet.spelldamagering3_breachborn",
+        "amulet.spelldamagering4_breachborn",
+        "amulet.spelldamagering5_breachborn",
+        "amulet.spelldamagering6_breachborn",
+        "amulet.spelldamagering7_breachborn",
+        "amulet.spelldamagering8_breachborn"
+      ],
+      "regex": {
+        "ru": "увеличение (максимума здоровья|уклонения|бонуса к критическому урону|урона от чар|области действия)"
+      },
+      "weight": 99,
+      "count": 43
+    },
     "amulet.chaosresist1_essence:amulet.chaosresist2:amulet.chaosresist2_essence:amulet.chaosresist4_essence:amulet.chaosresist5:amulet.coldresist2:amulet.coldresist2_essence:amulet.coldresist3:amulet.coldresist4:amulet.coldresist4_essence:amulet.coldresist5:amulet.coldresist6_essence:amulet.corruptionmaximumelementalresistance1_corrupted:amulet.fireresist2_essence:amulet.fireresist3:amulet.fireresist4:amulet.fireresist4_essence:amulet.fireresist5:amulet.fireresist6_essence:amulet.fireresist7:amulet.lightningresist2:amulet.lightningresist2_essence:amulet.lightningresist3:amulet.lightningresist4:amulet.lightningresist4_essence:amulet.lightningresist5:amulet.lightningresist6_essence:amulet.lightningresist7:amulet.lightningresist8:amulet.normal_33:amulet.normal_34:amulet.normal_38:amulet.normal_40:amulet.normal_41:amulet.normal_46:amulet.normal_47:amulet.normal_48:amulet.normal_49:amulet.normal_54:amulet.normal_63:amulet.normal_65:amulet.normal_66:amulet.normal_68": {
       "ids": [
         "amulet.chaosresist1_essence",
@@ -20083,55 +20245,6 @@
       "weight": 57,
       "count": 43
     },
-    "amulet.criticalmultiplier1:amulet.criticalmultiplier2:amulet.criticalmultiplier3:amulet.criticalmultiplier4:amulet.criticalmultiplier6:amulet.increasedevasionratingpercent2:amulet.increasedevasionratingpercent3:amulet.increasedevasionratingpercent4:amulet.minionareaofeffect1_breachborn:amulet.minionareaofeffect2_breachborn:amulet.minionareaofeffect3_breachborn:amulet.minionareaofeffect4_breachborn:amulet.minionareaofeffect5_breachborn:amulet.miniondamage1_breachborn:amulet.miniondamage2_breachborn:amulet.miniondamage3_breachborn:amulet.miniondamage4_breachborn:amulet.miniondamage5_breachborn:amulet.miniondamage6_breachborn:amulet.miniondamage7_breachborn:amulet.miniondamage8_breachborn:amulet.normal_114:amulet.normal_118:amulet.normal_119:amulet.normal_120:amulet.normal_174:amulet.normal_202:amulet.spelldamage1:amulet.spelldamage2:amulet.spelldamage3:amulet.spelldamage4:amulet.spelldamage5:amulet.spelldamagering1_breachborn:amulet.spelldamagering2_breachborn:amulet.spelldamagering3_breachborn:amulet.spelldamagering4_breachborn:amulet.spelldamagering5_breachborn:amulet.spelldamagering6_breachborn:amulet.spelldamagering7_breachborn:amulet.spelldamagering8_breachborn": {
-      "ids": [
-        "amulet.criticalmultiplier1",
-        "amulet.criticalmultiplier2",
-        "amulet.criticalmultiplier3",
-        "amulet.criticalmultiplier4",
-        "amulet.criticalmultiplier6",
-        "amulet.increasedevasionratingpercent2",
-        "amulet.increasedevasionratingpercent3",
-        "amulet.increasedevasionratingpercent4",
-        "amulet.minionareaofeffect1_breachborn",
-        "amulet.minionareaofeffect2_breachborn",
-        "amulet.minionareaofeffect3_breachborn",
-        "amulet.minionareaofeffect4_breachborn",
-        "amulet.minionareaofeffect5_breachborn",
-        "amulet.miniondamage1_breachborn",
-        "amulet.miniondamage2_breachborn",
-        "amulet.miniondamage3_breachborn",
-        "amulet.miniondamage4_breachborn",
-        "amulet.miniondamage5_breachborn",
-        "amulet.miniondamage6_breachborn",
-        "amulet.miniondamage7_breachborn",
-        "amulet.miniondamage8_breachborn",
-        "amulet.normal_114",
-        "amulet.normal_118",
-        "amulet.normal_119",
-        "amulet.normal_120",
-        "amulet.normal_174",
-        "amulet.normal_202",
-        "amulet.spelldamage1",
-        "amulet.spelldamage2",
-        "amulet.spelldamage3",
-        "amulet.spelldamage4",
-        "amulet.spelldamage5",
-        "amulet.spelldamagering1_breachborn",
-        "amulet.spelldamagering2_breachborn",
-        "amulet.spelldamagering3_breachborn",
-        "amulet.spelldamagering4_breachborn",
-        "amulet.spelldamagering5_breachborn",
-        "amulet.spelldamagering6_breachborn",
-        "amulet.spelldamagering7_breachborn",
-        "amulet.spelldamagering8_breachborn"
-      ],
-      "regex": {
-        "ru": "увеличение (уклонения|бонуса к критическому урону|урона от чар|области действия)"
-      },
-      "weight": 80,
-      "count": 40
-    },
     "amulet.desecrated_0_desecrated:amulet.essenceglobaldefences1_essence:amulet.increasedenergyshield1:amulet.increasedenergyshield10:amulet.increasedenergyshield2:amulet.increasedenergyshield3:amulet.increasedenergyshield4:amulet.increasedenergyshield5:amulet.increasedenergyshield6:amulet.increasedenergyshield7:amulet.increasedenergyshield8:amulet.increasedenergyshieldpercent1:amulet.increasedenergyshieldpercent2:amulet.increasedenergyshieldpercent3:amulet.increasedenergyshieldpercent4:amulet.increasedenergyshieldpercent5:amulet.increasedenergyshieldpercent7:amulet.normal_105:amulet.normal_126": {
       "ids": [
         "amulet.desecrated_0_desecrated",
@@ -20160,7 +20273,7 @@
       "weight": 38,
       "count": 19
     },
-    "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated:amulet.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:amulet.corruptionlifeleech1_corrupted:amulet.damageremovedfrommanabeforelife1_breachborn:amulet.damageremovedfrommanabeforelife2_breachborn:amulet.damageremovedfrommanabeforelife3_breachborn:amulet.damageremovedfrommanabeforelife4_breachborn:amulet.damagetakengainedaslife1:amulet.damagetakengainedaslife2:amulet.damagetakengainedaslife3:amulet.damagetakengainedaslife4:amulet.damagetakengainedaslife4_essence:amulet.damagetakengainedaslife5:amulet.increasedlife2_essence:amulet.increasedlife3:amulet.increasedlife4:amulet.increasedlife6:amulet.increasedlife6_essence:amulet.increasedlife7_essence:amulet.maximumlifeincrease1:amulet.maximumlifeincrease2:amulet.maximumlifeincrease3:amulet.minionlifering1_breachborn:amulet.minionlifering2_breachborn:amulet.minionlifering3_breachborn:amulet.minionlifering4_breachborn:amulet.minionlifering5_breachborn:amulet.minionlifering6_breachborn:amulet.normal_69:amulet.normal_70:amulet.normal_73:amulet.normal_75:amulet.normal_76:amulet.normal_77": {
+    "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated:amulet.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated:amulet.corruptionlifeleech1_corrupted:amulet.damageremovedfrommanabeforelife1_breachborn:amulet.damageremovedfrommanabeforelife2_breachborn:amulet.damageremovedfrommanabeforelife3_breachborn:amulet.damageremovedfrommanabeforelife4_breachborn:amulet.damagetakengainedaslife1:amulet.damagetakengainedaslife2:amulet.damagetakengainedaslife3:amulet.damagetakengainedaslife4:amulet.damagetakengainedaslife4_essence:amulet.damagetakengainedaslife5:amulet.increasedlife2_essence:amulet.increasedlife3:amulet.increasedlife4:amulet.increasedlife6:amulet.increasedlife6_essence:amulet.increasedlife7_essence:amulet.maximumlifeincrease1:amulet.maximumlifeincrease2:amulet.maximumlifeincrease3:amulet.normal_69:amulet.normal_70:amulet.normal_73:amulet.normal_75:amulet.normal_76:amulet.normal_77": {
       "ids": [
         "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated",
         "amulet.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
@@ -20184,12 +20297,6 @@
         "amulet.maximumlifeincrease1",
         "amulet.maximumlifeincrease2",
         "amulet.maximumlifeincrease3",
-        "amulet.minionlifering1_breachborn",
-        "amulet.minionlifering2_breachborn",
-        "amulet.minionlifering3_breachborn",
-        "amulet.minionlifering4_breachborn",
-        "amulet.minionlifering5_breachborn",
-        "amulet.minionlifering6_breachborn",
         "amulet.normal_69",
         "amulet.normal_70",
         "amulet.normal_73",
@@ -20198,10 +20305,10 @@
         "amulet.normal_77"
       ],
       "regex": {
-        "ru": "(максимуму|% увеличение максимума|восполняется в виде|похищается в виде|вместо|количестве) здоровья"
+        "ru": "(максимуму|увеличение максимума|восполняется в виде|похищается в виде|вместо|количестве) здоровья"
       },
-      "weight": 99,
-      "count": 34
+      "weight": 97,
+      "count": 28
     },
     "amulet.abyssmodamuletkurgalprefixenergyshieldfromequippedbody_desecrated:amulet.desecrated_28_desecrated:amulet.desecrated_3_desecrated": {
       "ids": [
@@ -20672,6 +20779,32 @@
       "weight": 28,
       "count": 2
     },
+    "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.minionlifering1_breachborn:amulet.minionlifering2_breachborn:amulet.minionlifering3_breachborn:amulet.minionlifering4_breachborn:amulet.minionlifering5_breachborn:amulet.minionlifering6_breachborn:amulet.normal_141:amulet.normal_146": {
+      "ids": [
+        "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated",
+        "amulet.liferegeneration1",
+        "amulet.liferegeneration10",
+        "amulet.liferegeneration3",
+        "amulet.liferegeneration4",
+        "amulet.liferegeneration5",
+        "amulet.liferegeneration6",
+        "amulet.liferegeneration8",
+        "amulet.liferegeneration9",
+        "amulet.minionlifering1_breachborn",
+        "amulet.minionlifering2_breachborn",
+        "amulet.minionlifering3_breachborn",
+        "amulet.minionlifering4_breachborn",
+        "amulet.minionlifering5_breachborn",
+        "amulet.minionlifering6_breachborn",
+        "amulet.normal_141",
+        "amulet.normal_146"
+      ],
+      "regex": {
+        "ru": "здоро(вья (в секунду|при убийстве))?"
+      },
+      "weight": 36,
+      "count": 17
+    },
     "amulet.abyssmodringamuletkurgalsuffixexposureeffect_desecrated:amulet.corruptiondexterity1_corrupted:amulet.desecrated_23_desecrated:amulet.dexterity1:amulet.dexterity3:amulet.dexterity5:amulet.dexterity7:amulet.dexterity8:amulet.increasedaccuracy2:amulet.increasedaccuracy3:amulet.increasedaccuracy4:amulet.increasedaccuracy5:amulet.increasedaccuracy6:amulet.increasedaccuracy7:amulet.increasedaccuracy8:amulet.normal_11:amulet.normal_13:amulet.normal_156:amulet.normal_9": {
       "ids": [
         "amulet.abyssmodringamuletkurgalsuffixexposureeffect_desecrated",
@@ -20788,26 +20921,6 @@
       },
       "weight": 46,
       "count": 16
-    },
-    "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated:amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
-      "ids": [
-        "amulet.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated",
-        "amulet.liferegeneration1",
-        "amulet.liferegeneration10",
-        "amulet.liferegeneration3",
-        "amulet.liferegeneration4",
-        "amulet.liferegeneration5",
-        "amulet.liferegeneration6",
-        "amulet.liferegeneration8",
-        "amulet.liferegeneration9",
-        "amulet.normal_141",
-        "amulet.normal_146"
-      ],
-      "regex": {
-        "ru": "здоровья (в секунду|при убийстве)"
-      },
-      "weight": 33,
-      "count": 11
     },
     "amulet.abyssmodringamuletulamansuffixskillspeed_desecrated:amulet.castspeedjewellery3:amulet.castspeedjewellery4:amulet.normal_203:amulet.normal_204:amulet.normal_207:amulet.normal_208": {
       "ids": [

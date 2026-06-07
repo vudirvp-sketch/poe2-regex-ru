@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 45.0 | **Date:** 2026-06-07
+> **Version:** 46.0 | **Date:** 2026-06-07
 
 ---
 
@@ -69,12 +69,12 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Remaining 89 cross-family FP** — Most are: minion variants of player mods (`Приспешники имеют ...увеличение урона`), short generic suffixes (`увеличение урона` matching many composites), `к сопротивлению всем стихиям` matching minion variants.
+1. **Remaining ~89 cross-family FP** — Mostly: minion variants of player mods, short generic suffixes matching composites, `к сопротивлению всем стихиям` matching minion variants. Phase 8 Strategy 1e (word truncation) and refactored `computeExcludePatterns()` should reduce these after ETL re-run.
 
 ### MEDIUM
 
-2. **jewel-desecrated 15 cross-family FP** — Dual-stat desecrated mods have short, generic suffixes that match across families. Negation helps partially but some mods have too many compound variants.
-3. **regexExclude pattern quality** — Some tokens get 3+ negation groups, making the final regex very long. Need smarter pattern selection (e.g., single word like `интеллекту` instead of `к силе и`).
+2. **`|` inside `()` with correct quote syntax** — Needs re-testing in-game with `"!X"` format. Old tests may have been broken by the `!"X"` bug which is now confirmed fixed.
+3. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — verify works in PoE2, or find alternative approach.
 4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
 5. **HomePage hardcoded mod counts** — Category cards show stale counts
 
@@ -82,25 +82,22 @@ shared <- core <- strategies <- store <- data <- ui
 
 6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
 7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-8. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+8. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
-## 7. Data Stats (Block-based Oracle, Session 45)
+## 7. Regex Strategy Pipeline (Phase 8)
 
-| Category | Tokens | Valid | Cross-FP | Family-FP | FN |
-|----------|--------|-------|----------|-----------|----|
-| waystone | 97 | 97 | 0 | 79 | 0 |
-| waystone-desecrated | 17 | 17 | 0 | 2 | 0 |
-| tablet | 75 | 71 | 4 | 0 | 0 |
-| jewel | 193 | 180 | 11 | 0 | 0 |
-| jewel-desecrated | 32 | 17 | 15 | 0 | 0 |
-| jewel-corrupted | 10 | 10 | 0 | 0 | 0 |
-| relic | 58 | 58 | 0 | 0 | 0 |
-| belt | 298 | 298 | 0 | 303 | 0 |
-| ring | 366 | 352 | 14 | 303 | 0 |
-| amulet | 427 | 427 | 0 | 283 | 0 |
-| **Total** | **1,573** | **1,484** | **89** | **1,032** | **0** |
+The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts` tries strategies in order:
 
-Note: Family-tier FP (1032) are "by design" — same mod family, different tiers sharing one regex. Cross-family FP (89) are real bugs needing regex fixes. 0 false negatives.
+| Strategy | Name | Description | Example |
+|----------|------|-------------|---------|
+| 1 | Template-family suffix | Text after last `##` in template | `"к сопротивлению огню"` |
+| 1b | Suffix lengthening | Include text between `##` and suffix | `"увеличение урона к атакам"` |
+| 1c | Full second stat | Dual-stat template suffix join | `"повышение брони, увеличение урона"` |
+| 1d | Negation | Suffix + short exclude patterns | `"к силе" "! и"` |
+| **1e** | **Word Truncation** | **Truncate words + optional negate** | **`"к си" "! и"` (9 chars vs 40)** |
+| 2 | Substring fallback | Brute-force unique substring search | `"огню"` |
+
+Strategy 1e is new in Phase 8. It produces dramatically shorter regexes by combining word truncation with short negate markers.
 
 ## 8. Oracle API (Phase 8)
 
@@ -118,13 +115,22 @@ FP categorization (all functions):
 - `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
 - `valid = true` when NO cross-family FP and no FN
 
-## 9. regexExclude System (Session 45)
+## 9. regexExclude System (Phase 8 — Refactored)
 
 New field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
 
-**How it works:**
-- ETL `computeExcludePatterns()` finds text extensions in compound-family mods
-- Example: suffix `к силе` also matches `+(9—15) к силе и интеллекту` → exclude patterns: `["к силе и", "к силе,"]`
-- Final regex: `"к силе" !"к силе и" !"к силе,"`
-- UI `useCategoryPage.ts` wraps `LITERAL` nodes with `EXCLUDE` nodes from `regexExclude`
-- Validator in `run-etl.ts` includes exclude patterns in Oracle validation
+**Priority order for exclude patterns (verified in-game Phase 8):**
+
+1. **Minion marker:** `"Приспеш"` — if ALL conflicts are minion variants, one short marker replaces all specific excludes
+2. **Compound separator:** `" и"` — if ALL conflicts are compound-family (suffix + separator + extension), the separator alone excludes all
+3. **Short universal markers:** single word appearing in ALL conflicts but NOT in target family (e.g., `"ловк"` for dexterity compounds)
+4. **Specific full-phrase patterns:** fallback, e.g., `"к силе и"` (least preferred, longest)
+
+**How it works in UI:**
+- Non-ranged tokens: `useCategoryPage.ts` wraps `LITERAL` with `EXCLUDE` nodes from `regexExclude`
+- Ranged tokens with min/max: RANGE node wrapped in `AND(RANGE, EXCLUDE...)` — Phase 8 fix
+- Ranged tokens without min/max: same as non-ranged tokens
+
+**Example (Phase 8 optimization):**
+- Old: `"к силе" !"к силе и" !"к силе,"` (40 chars)
+- New: `"к си" "! и"` (9 chars, 80% shorter)

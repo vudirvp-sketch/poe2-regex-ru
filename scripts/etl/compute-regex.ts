@@ -571,6 +571,37 @@ export function computeMinimalUniqueSubstring(
   }
 
   // ═══════════════════════════════════════════════════
+  // Strategy 1e: Word Truncation + Negation
+  // ═══════════════════════════════════════════════════
+  // Truncate each word in the suffix from the END (trailing substring only),
+  // then try the shorter suffix with negation to exclude cross-family FP.
+  //
+  // PoE2 is a substring search engine. Truncating the end of a word
+  // still matches the original because the truncated form is a LEADING
+  // substring of the word. Example: "к си" matches "к силе" because
+  // "си" is the start of "силе".
+  //
+  // Key rules (verified in-game Phase 8):
+  // - Only trailing substring of each word (силе→сил→си)
+  // - Each truncated word must have ≥3 significant chars
+  // - No mid-word extraction (can't skip word start)
+  // - Validate truncated suffix still matches rawText via PoE2 engine
+  //
+  // Example: "к силе" with FP from "к силе и интеллекту"
+  //   → truncate "силе"→"сил"→"си" → "к си" (4 chars)
+  //   → "к си" matches target AND still has FP
+  //   → add negate " и" → "к си" "! и" (9 chars total)
+  //   vs. old: "к силе" !"к силе и" !"к силе," (40 chars)
+  {
+    const truncatedResult = tryWordTruncation(
+      suffix, template, targetToken, allTokensInCategory, locale, effectiveMinLen, rawText
+    );
+    if (truncatedResult) {
+      return truncatedResult;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
   // Strategy 2: Substring search fallback
   // ═══════════════════════════════════════════════════
   // For tokens without placeholders, or where suffix conflicts,
@@ -599,6 +630,192 @@ export function computeMinimalUniqueSubstring(
   }
 
   return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: fallbackResult.regexExclude || [] };
+}
+
+/**
+ * Strategy 1e: Try word truncation to shorten the suffix, then add negation.
+ *
+ * Algorithm:
+ * 1. Take the current suffix (may or may not be unique)
+ * 2. For each word in the suffix, iteratively truncate 1 char from the end
+ * 3. After each truncation, validate:
+ *    - The truncated suffix must still match the target's rawText via PoE2 engine
+ *    - Each truncated word must have ≥3 significant chars
+ * 4. If the truncated suffix has FP, compute exclude patterns for it
+ * 5. Return the (truncated suffix + exclude) combination that is shortest overall
+ *
+ * Only trailing substring truncation is allowed (силе→сил→си).
+ * Mid-word extraction does NOT work in PoE2's substring search.
+ *
+ * @returns RegexResult if truncation produces a shorter valid regex, null otherwise
+ */
+function tryWordTruncation(
+  suffix: string,
+  template: string,
+  targetToken: NormalizedMod,
+  allTokensInCategory: NormalizedMod[],
+  locale: Locale,
+  minLen: number,
+  rawText: string
+): RegexResult | null {
+  if (suffix.length < minLen) return null;
+
+  // Verify the suffix matches rawText — truncation only makes sense if suffix works
+  if (!regexMatchesRawText(suffix, rawText)) return null;
+
+  const familyKey = normalizeTemplate(template);
+  const regexPrefix = extractTemplatePrefix(template);
+  const placeholderCount = (template.match(/#+/g) || []).length;
+  const hasMultiPlaceholder = placeholderCount >= 2;
+
+  // Get the best non-truncated result for comparison
+  // If the suffix is already unique without excludes, no need to truncate
+  if (isSuffixUniqueInCategory(suffix, template, allTokensInCategory, locale)) {
+    return null; // Strategy 1/1b/1c already found a unique suffix — no improvement needed
+  }
+
+  // Try progressively truncated versions of the suffix
+  let bestResult: RegexResult | null = null;
+  let bestTotalLen = suffix.length; // baseline: current suffix without excludes
+
+  // Calculate current total length including excludes
+  const currentExcludes = computeExcludePatterns(suffix, template, targetToken, allTokensInCategory, locale);
+  if (currentExcludes.length > 0) {
+    // Current total: suffix + each exclude (with "!..."  format overhead)
+    bestTotalLen = suffix.length + currentExcludes.reduce((sum, exc) => sum + exc.length + 3, 0); // +3 for " !"
+  }
+
+  // Generate truncated suffix candidates
+  const candidates = generateTruncatedSuffixes(suffix, minLen);
+
+  for (const truncatedSuffix of candidates) {
+    // Validate: truncated suffix must match rawText via PoE2 engine
+    if (!regexMatchesRawText(truncatedSuffix, rawText)) continue;
+
+    // Check if truncated suffix is unique (no FP at all)
+    if (isSuffixUniqueInCategory(truncatedSuffix, template, allTokensInCategory, locale)) {
+      const totalLen = truncatedSuffix.length;
+      if (totalLen < bestTotalLen) {
+        const { hasYofication, yoficationPositions } = checkYofication(
+          truncatedSuffix, targetToken, allTokensInCategory, locale
+        );
+        bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+        bestTotalLen = totalLen;
+      }
+      continue;
+    }
+
+    // Has FP — try adding exclude patterns
+    const excludes = computeExcludePatterns(truncatedSuffix, template, targetToken, allTokensInCategory, locale);
+    if (excludes.length === 0) continue;
+
+    // Calculate total length: suffix + each exclude with "!..." format
+    // In the compiled regex: "suffix" "!exclude1" "!exclude2"
+    // Total = len(suffix) + sum(len(exclude) + 3) for each exclude  (+3 for " !")
+    const totalLen = truncatedSuffix.length + excludes.reduce((sum, exc) => sum + exc.length + 3, 0);
+
+    if (totalLen < bestTotalLen) {
+      const { hasYofication, yoficationPositions } = checkYofication(
+        truncatedSuffix, targetToken, allTokensInCategory, locale
+      );
+      bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludes };
+      bestTotalLen = totalLen;
+    }
+  }
+
+  return bestResult;
+}
+
+/**
+ * Generate all valid truncated suffix variants by removing trailing chars
+ * from each word, respecting minimum length constraints.
+ *
+ * Rules (verified in-game Phase 8):
+ * - Only trailing substring of each word: "силе"→"сил"→"си"
+ * - Each word must retain ≥3 significant chars
+ * - The overall suffix must be ≥ minLen characters
+ * - Leading words can be dropped entirely (phrase truncation from the left)
+ *
+ * @returns Array of truncated suffix strings, ordered from longest to shortest
+ */
+function generateTruncatedSuffixes(suffix: string, minLen: number): string[] {
+  const results: string[] = [];
+  const words = suffix.split(/\s+/);
+
+  // Phase 1: Try truncating individual words (keeping all words, shortening each)
+  // For each word position, generate truncated variants
+  const wordVariants: string[][] = words.map(word => {
+    const variants: string[] = [word]; // start with full word
+    // Truncate from the end: "силе"→"сил"→"си"
+    for (let len = word.length - 1; len >= 3; len--) {
+      variants.push(word.substring(0, len));
+    }
+    return variants;
+  });
+
+  // Generate all combinations (cartesian product)
+  // But limit: only first few shortest words per position
+  const limitedVariants = wordVariants.map(vs => vs.slice(0, 4)); // max 4 variants per word
+  const combinations = cartesianProduct(limitedVariants);
+
+  for (const combo of combinations) {
+    const candidate = combo.join(' ');
+    if (candidate.length >= minLen && candidate !== suffix) {
+      results.push(candidate);
+    }
+  }
+
+  // Phase 2: Try dropping leading words (phrase truncation from left)
+  // "к силе" → "силе" (drop "к"), "к сопротивлению огню" → "сопротивлению огню" → "огню"
+  for (let skipWords = 1; skipWords < words.length; skipWords++) {
+    const remaining = words.slice(skipWords).join(' ');
+    if (remaining.length >= minLen && remaining !== suffix) {
+      results.push(remaining);
+      // Also try truncating words in the remaining phrase
+      const subWords = remaining.split(/\s+/);
+      const subVariants: string[][] = subWords.map(word => {
+        const vs: string[] = [word];
+        for (let len = word.length - 1; len >= 3; len--) {
+          vs.push(word.substring(0, len));
+        }
+        return vs.slice(0, 4);
+      });
+      const subCombos = cartesianProduct(subVariants);
+      for (const combo of subCombos) {
+        const candidate = combo.join(' ');
+        if (candidate.length >= minLen && candidate !== remaining) {
+          results.push(candidate);
+        }
+      }
+    }
+  }
+
+  // Sort by length descending (try longest first — they're more likely to match rawText)
+  results.sort((a, b) => b.length - a.length);
+
+  // Remove duplicates
+  return [...new Set(results)];
+}
+
+/**
+ * Cartesian product of arrays of strings.
+ * Each element of the result is a combination picking one item from each input array.
+ */
+function cartesianProduct(arrays: string[][]): string[][] {
+  if (arrays.length === 0) return [[]];
+  if (arrays.length === 1) return arrays[0].map(item => [item]);
+
+  const [first, ...rest] = arrays;
+  const restProduct = cartesianProduct(rest);
+  const result: string[][] = [];
+
+  for (const item of first) {
+    for (const combo of restProduct) {
+      result.push([item, ...combo]);
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -809,21 +1026,18 @@ function checkYoficationLegacy(
 /**
  * Compute exclusion patterns for cross-family FP prevention.
  *
- * Given a regex suffix that also matches tokens from compound families,
- * find short substrings that appear in ALL conflicting tokens but NOT
- * in the target family's rawText. These can be used as negation patterns:
- *   "suffix" !"exclude1" !"exclude2"
+ * Priority order (Phase 8 — verified in-game):
+ * 1. Minion marker: "!Приспеш" — universal, covers ALL minion-variant FP
+ * 2. Compound separator: "! и" — catches "к силе и ловкости", "к силе, ловкости"
+ * 3. Specific short markers from conflicting tokens
+ * 4. Full phrase patterns (fallback, least preferred)
  *
- * Algorithm:
- * 1. Find all tokens from OTHER families whose rawText contains the suffix
- * 2. For each conflicting token, find short distinguishing substrings
- *    that appear in the conflicting text but NOT in the target family
- * 3. Pick minimal set of exclusion patterns that cover all conflicts
+ * Each exclude candidate must be ≥3 significant chars and must NOT match
+ * any target-family token's rawText or item names.
  *
- * Example:
- *   suffix="к силе", conflicting=["+(9—15) к силе и интеллекту", "+(6—10) к силе и ловкости"]
- *   → exclude patterns: ["к силе и", "к силе,"]
- *   → final regex: "к силе" !"к силе и" !"к силе,"
+ * Example (Phase 8 optimization):
+ *   Old: "к силе" !"к силе и" !"к силе,"  (40 chars)
+ *   New: "к си" "! и"  (9 chars)
  */
 function computeExcludePatterns(
   suffix: string,
@@ -850,6 +1064,69 @@ function computeExcludePatterns(
 
   if (conflictingTokens.length === 0) return [];
 
+  // Collect all conflicting rawTexts for pattern testing
+  const conflictingRawTexts = conflictingTokens.map(t => t.rawText[locale].toLowerCase());
+
+  // ─── Priority 1: Minion marker ───
+  // If ALL conflicting tokens are minion variants (contain "приспешник" or "Приспеш"),
+  // use "Приспеш" as a single universal exclude.
+  const MINION_MARKERS = ['приспешник', 'приспешники', 'приспеш'];
+  const allConflictsAreMinion = conflictingTokens.every(confToken => {
+    const confRawLower = confToken.rawText[locale].toLowerCase();
+    return MINION_MARKERS.some(m => confRawLower.includes(m));
+  });
+  if (allConflictsAreMinion) {
+    // Verify minion marker doesn't match target family
+    const marker = 'Приспеш';
+    if (!targetRawLower.includes(marker.toLowerCase()) && isExcludeValid(marker, targetToken, allTokensInCategory, locale, normalizedTargetTemplate)) {
+      return [marker];
+    }
+  }
+
+  // ─── Priority 2: Compound separator " и" ───
+  // If ALL conflicting tokens are compound-family (suffix followed by
+  // " и", " ,", or ","), use the shortest separator as exclude.
+  const COMPOUND_SEPARATORS = [' и', ','];
+  for (const sep of COMPOUND_SEPARATORS) {
+    const allConflictsAreCompound = conflictingRawTexts.every(confRaw => {
+      // Check if the suffix is followed by this separator in the conflicting text
+      const suffixIdx = confRaw.indexOf(lowerSuffix);
+      if (suffixIdx === -1) return false;
+      const afterSuffix = confRaw.substring(suffixIdx + lowerSuffix.length);
+      return afterSuffix.startsWith(sep) || afterSuffix.match(/^\s/);
+    });
+    if (allConflictsAreCompound) {
+      // Verify separator doesn't match target family
+      if (!targetRawLower.includes(sep) || !targetRawLower.endsWith(lowerSuffix)) {
+        // The separator only works as exclude if it appears AFTER the suffix in conflicts
+        // but NOT after the suffix in the target. Check if any target-family token
+        // has suffix followed by this separator.
+        const targetFamilyHasSeparator = allTokensInCategory.some(token => {
+          const tTemplate = token.rawTextTemplate[locale];
+          if (normalizeTemplate(tTemplate) !== normalizedTargetTemplate) return false;
+          const tRawLower = token.rawText[locale].toLowerCase();
+          const idx = tRawLower.indexOf(lowerSuffix);
+          if (idx === -1) return false;
+          return tRawLower.substring(idx + lowerSuffix.length).startsWith(sep);
+        });
+        if (!targetFamilyHasSeparator && isExcludeValid(sep, targetToken, allTokensInCategory, locale, normalizedTargetTemplate)) {
+          return [sep];
+        }
+      }
+    }
+  }
+
+  // ─── Priority 3: Short distinguishing markers ───
+  // Find a single short substring that appears in ALL conflicts but NOT in target.
+  // This is more efficient than multiple specific patterns.
+  const shortMarker = findShortUniversalMarker(
+    conflictingTokens, targetToken, allTokensInCategory, locale, normalizedTargetTemplate
+  );
+  if (shortMarker) {
+    return [shortMarker];
+  }
+
+  // ─── Priority 4: Specific patterns (fallback) ───
   // For each conflicting token, find the text that follows the suffix
   // and use it as an exclusion pattern.
   const excludePatterns: string[] = [];
@@ -888,8 +1165,116 @@ function computeExcludePatterns(
   }
 
   // Limit to 3 exclude patterns max to avoid regex length blowup
-  // If we need more, the regex will be too long for PoE2's 250-char limit
   return excludePatterns.slice(0, 3);
+}
+
+/**
+ * Validate an exclude pattern candidate.
+ * Returns true if the pattern:
+ * - Is ≥3 significant chars (letters/digits)
+ * - Does NOT appear in any target-family token's rawText
+ * - Does NOT appear in item type/name text (would cause FN)
+ * - Does NOT contain PoE2 grouping chars
+ */
+function isExcludeValid(
+  candidate: string,
+  _targetToken: NormalizedMod,
+  allTokensInCategory: NormalizedMod[],
+  locale: Locale,
+  normalizedTargetTemplate: string
+): boolean {
+  // Check minimum significant length
+  const significantChars = candidate.replace(/[^a-zA-Zа-яА-ЯёЁ0-9]/g, '');
+  if (significantChars.length < 3) return false;
+
+  // Check for PoE2 grouping chars
+  if (containsPoE2Grouping(candidate)) return false;
+
+  // Check that the candidate does NOT appear in any target-family token
+  const lowerCandidate = candidate.toLowerCase();
+  for (const token of allTokensInCategory) {
+    const tTemplate = token.rawTextTemplate[locale];
+    if (normalizeTemplate(tTemplate) === normalizedTargetTemplate) {
+      // Same family — candidate MUST NOT appear here (would exclude our own tokens)
+      if (token.rawText[locale].toLowerCase().includes(lowerCandidate)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Find a short universal marker that appears in ALL conflicting tokens
+ * but NOT in any target-family token.
+ *
+ * Tries common Russian mod-structure markers:
+ * - "Приспеш" (minion)
+ * - " и" (compound separator)
+ * - " ловк" (dexterity compound)
+ * - " интел" (intelligence compound)
+ * - First distinguishing word from conflicts
+ */
+function findShortUniversalMarker(
+  conflictingTokens: NormalizedMod[],
+  targetToken: NormalizedMod,
+  allTokensInCategory: NormalizedMod[],
+  locale: Locale,
+  normalizedTargetTemplate: string
+): string | null {
+  const conflictingRawTexts = conflictingTokens.map(t => t.rawText[locale].toLowerCase());
+  const targetRawLower = targetToken.rawText[locale].toLowerCase();
+
+  // Try known short markers that commonly distinguish mod families
+  const KNOWN_MARKERS = [
+    'Приспеш',   // minion marker
+    'приспешники',
+    ' ловк',     // dexterity compound
+    ' интел',    // intelligence compound
+    ' атак',     // attack compound
+    ' закл',     // spell compound
+  ];
+
+  for (const marker of KNOWN_MARKERS) {
+    const lowerMarker = marker.toLowerCase();
+    // Check: marker appears in ALL conflicting tokens
+    const inAllConflicts = conflictingRawTexts.every(raw => raw.includes(lowerMarker));
+    if (!inAllConflicts) continue;
+
+    // Check: marker does NOT appear in target family
+    if (targetRawLower.includes(lowerMarker)) continue;
+
+    // Full validation
+    if (isExcludeValid(marker, targetToken, allTokensInCategory, locale, normalizedTargetTemplate)) {
+      return marker;
+    }
+  }
+
+  // Try extracting distinguishing words from conflicts
+  // Find words that appear in ALL conflicts but NOT in target
+  const conflictWords = new Map<string, number>();
+  for (const raw of conflictingRawTexts) {
+    const uniqueWords = new Set(raw.split(/\s+/));
+    for (const word of uniqueWords) {
+      conflictWords.set(word, (conflictWords.get(word) || 0) + 1);
+    }
+  }
+
+  // Words that appear in ALL conflicts
+  const universalWords = [...conflictWords.entries()]
+    .filter(([, count]) => count === conflictingTokens.length)
+    .map(([word]) => word)
+    .filter(word => word.length >= 3 && !targetRawLower.includes(word))
+    .sort((a, b) => a.length - b.length); // Prefer shorter markers
+
+  for (const word of universalWords) {
+    if (isExcludeValid(word, targetToken, allTokensInCategory, locale, normalizedTargetTemplate)) {
+      return word;
+    }
+  }
+
+  return null;
 }
 
 /**

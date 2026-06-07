@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T06:24:54.146Z",
+  "version": "2026-06-07T08:30:20.867Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -410,7 +410,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -453,7 +453,7 @@
       "level": 11,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -496,7 +496,7 @@
       "level": 22,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -539,7 +539,7 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -582,7 +582,7 @@
       "level": 44,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -625,7 +625,7 @@
       "level": 55,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -668,7 +668,7 @@
       "level": 66,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -711,7 +711,7 @@
       "level": 74,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -2258,7 +2258,12 @@
         19,
         26
       ],
-      "level": 12
+      "level": 12,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.allresistances2",
@@ -2303,7 +2308,12 @@
         19,
         26
       ],
-      "level": 26
+      "level": 26,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.allresistances3",
@@ -2348,7 +2358,12 @@
         20,
         27
       ],
-      "level": 40
+      "level": 40,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.allresistances4",
@@ -2393,7 +2408,12 @@
         21,
         28
       ],
-      "level": 54
+      "level": 54,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.allresistances5",
@@ -2406,7 +2426,7 @@
         "ru": "+##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "15—16"
+        "ru": "к сопротивлению всем стихиям"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению всем стихиям"
@@ -2438,7 +2458,12 @@
         21,
         28
       ],
-      "level": 68
+      "level": 68,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.normal_57",
@@ -9427,7 +9452,12 @@
         20,
         27
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "ring.corruptionitemfoundrarityincrease1_corrupted",
@@ -9559,7 +9589,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "повышение скорости умений приказов"
+          "Приспеш"
         ]
       }
     },
@@ -9696,7 +9726,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "к ловкости и"
+          " интел"
         ]
       }
     },
@@ -10674,7 +10704,7 @@
       "level": 65,
       "regexExclude": {
         "ru": [
-          "повышение скорости умений приказов"
+          "Приспеш"
         ]
       }
     },
@@ -11042,7 +11072,7 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "повышение скорости перезарядки умений"
+          "умений"
         ]
       }
     },
@@ -11915,7 +11945,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -11950,7 +11980,12 @@
         37,
         44
       ],
-      "level": 22
+      "level": 22,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance2_breachborn",
@@ -11963,7 +11998,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -11998,7 +12033,12 @@
         39,
         46
       ],
-      "level": 38
+      "level": 38,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance3_breachborn",
@@ -12011,7 +12051,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "14—16"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12046,7 +12086,12 @@
         39,
         46
       ],
-      "level": 49
+      "level": 49,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance4_breachborn",
@@ -12059,7 +12104,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "17—19"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12094,7 +12139,12 @@
         39,
         46
       ],
-      "level": 57
+      "level": 57,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance5_breachborn",
@@ -12107,7 +12157,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "20—22"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12142,7 +12192,12 @@
         39,
         46
       ],
-      "level": 66
+      "level": 66,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionelementalresistance6_breachborn",
@@ -12155,7 +12210,7 @@
         "ru": "Приспешники имеют +##% к сопротивлению всем стихиям"
       },
       "regex": {
-        "ru": "23—25"
+        "ru": "стихия"
       },
       "familyKey": {
         "ru": "Приспешники имеют +#% к сопротивлению всем стихиям"
@@ -12190,7 +12245,12 @@
         39,
         46
       ],
-      "level": 73
+      "level": 73,
+      "regexExclude": {
+        "ru": [
+          "стихия м"
+        ]
+      }
     },
     {
       "id": "ring.minionattackspeedandcastspeed1_breachborn",
@@ -12421,7 +12481,7 @@
       "level": 18,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -12470,7 +12530,7 @@
       "level": 32,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -12519,7 +12579,7 @@
       "level": 45,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -12568,7 +12628,7 @@
       "level": 58,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -12617,7 +12677,7 @@
       "level": 70,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -12666,7 +12726,7 @@
       "level": 81,
       "regexExclude": {
         "ru": [
-          "повышение шанса критического удара для"
+          "для"
         ]
       }
     },
@@ -13283,7 +13343,7 @@
       "level": 9,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13336,7 +13396,7 @@
       "level": 20,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13389,7 +13449,7 @@
       "level": 31,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13442,7 +13502,7 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13495,7 +13555,7 @@
       "level": 55,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13548,7 +13608,7 @@
       "level": 63,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13601,7 +13661,7 @@
       "level": 71,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -13654,7 +13714,7 @@
       "level": 82,
       "regexExclude": {
         "ru": [
-          "увеличение урона от чар при"
+          "при"
         ]
       }
     },
@@ -16485,7 +16545,7 @@
       "level": 45,
       "regexExclude": {
         "ru": [
-          "повышение скорости атаки и"
+          "Приспеш"
         ]
       }
     },
@@ -17126,9 +17186,9 @@
         "ring.minionelementalresistance6_breachborn"
       ],
       "regex": {
-        "ru": "приспешники имеют +"
+        "ru": "стихия"
       },
-      "weight": 19,
+      "weight": 6,
       "count": 6
     },
     "ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
@@ -18266,23 +18326,13 @@
       "weight": 20,
       "count": 4
     },
-    "ring.allresistances5:ring.minionelementalresistance3_breachborn": {
-      "ids": [
-        "ring.allresistances5",
-        "ring.minionelementalresistance3_breachborn"
-      ],
-      "regex": {
-        "ru": "1(5|4)—16"
-      },
-      "weight": 9,
-      "count": 2
-    },
-    "ring.allresistances1:ring.allresistances2:ring.allresistances3:ring.allresistances4:ring.corrupted_9_corrupted:ring.corruptionallresistances1_corrupted:ring.normal_1:ring.normal_3:ring.normal_5:ring.normal_7:ring.strength1:ring.strength3:ring.strength5:ring.strength7": {
+    "ring.allresistances1:ring.allresistances2:ring.allresistances3:ring.allresistances4:ring.allresistances5:ring.corrupted_9_corrupted:ring.corruptionallresistances1_corrupted:ring.normal_1:ring.normal_3:ring.normal_5:ring.normal_7:ring.strength1:ring.strength3:ring.strength5:ring.strength7": {
       "ids": [
         "ring.allresistances1",
         "ring.allresistances2",
         "ring.allresistances3",
         "ring.allresistances4",
+        "ring.allresistances5",
         "ring.corrupted_9_corrupted",
         "ring.corruptionallresistances1_corrupted",
         "ring.normal_1",
@@ -18298,7 +18348,7 @@
         "ru": "к с(иле|опротивлению всем стихиям)"
       },
       "weight": 34,
-      "count": 14
+      "count": 15
     },
     "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.desecrated_9_desecrated:ring.normal_108:ring.normal_109": {
       "ids": [
@@ -18318,18 +18368,6 @@
       },
       "weight": 25,
       "count": 10
-    },
-    "ring.genesistreeringcommandskillspeed_breachborn:ring.minionelementalresistance1_breachborn:ring.minionelementalresistance2_breachborn": {
-      "ids": [
-        "ring.genesistreeringcommandskillspeed_breachborn",
-        "ring.minionelementalresistance1_breachborn",
-        "ring.minionelementalresistance2_breachborn"
-      ],
-      "regex": {
-        "ru": "при(казов|спешники имеют +)"
-      },
-      "weight": 27,
-      "count": 3
     },
     "ring.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated:ring.desecrated_6_desecrated:ring.remnantpickupradiusincrease1_breachborn:ring.remnantpickupradiusincrease2_breachborn:ring.remnantpickupradiusincrease3_breachborn:ring.remnantpickupradiusincrease4_breachborn:ring.remnantpickupradiusincrease5_breachborn": {
       "ids": [
