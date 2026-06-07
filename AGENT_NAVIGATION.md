@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 51.0 | **Date:** 2026-06-07
+> **Version:** 52.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 471 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 479 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,7 +28,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (471 tests, Vitest)
+npx vitest run --root . # Run tests (479 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -50,7 +50,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (471 tests)
+- [ ] `npx vitest run --root .` passes (479 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -69,22 +69,22 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Runtime optimizer doesn't use regexPrefixContext/regexExclude from optimization entries** — `src/core/optimizer.ts` `applyOptimizationTable()` only creates LITERAL nodes. When an OptimizationEntry has `regexPrefixContext`, the optimizer should create AND(LITERAL(context), LITERAL(regex)) instead. Same for `regexExclude`. ETL-side data is ready (patchOptimizationEntries step 7c).
+*(none currently)*
 
 ### MEDIUM
 
-2. **3 cross-family FP remaining (after ETL re-run with Session 51 changes, expect 1)** — jewel.mod_am4lla will be fixed by exclude limit 5→8. tablet.mod_od9m77 / mod_ld06px have no unique substring (accepted limitation — essentially family-tier FP with different familyKeys).
-3. **`|` inside `()` with correct quote syntax** — Group M tests added to IN_GAME_TESTS.md. Need in-game verification.
-4. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — Group M tests added. Need in-game verification.
-5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-6. **HomePage hardcoded mod counts** — Category cards show stale counts
+1. **3 cross-family FP remaining** — jewel.mod_am4lla (should be fixed by exclude limit 5→8 on ETL re-run), tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys).
+2. **`|` inside `()` with correct quote syntax** — Group M tests added to IN_GAME_TESTS.md. Need in-game verification.
+3. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — Group M tests added. Need in-game verification.
+4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
+5. **HomePage hardcoded mod counts** — Category cards show stale counts.
 
 ### LOW
 
-7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-9. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
-10. **Truncated forms in optimization entries** — compute-optimizations.ts Phase A could use word truncation for shorter shared regexes
+6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
+7. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
+8. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run.
+9. **Truncated forms in optimization entries** — compute-optimizations.ts Phase A could use word truncation for shorter shared regexes.
 
 ## 7. Regex Strategy Pipeline (Phase 8)
 
@@ -123,7 +123,7 @@ FP categorization (all functions):
 Two mechanisms for cross-family FP prevention:
 
 ### regexExclude (Phase 8)
-New field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
+Field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
 
 **Priority order for exclude patterns (verified in-game Phase 8):**
 
@@ -137,9 +137,8 @@ New field `regexExclude` on `GameToken` stores negation patterns for cross-famil
 - Ranged tokens with min/max: RANGE node wrapped in `AND(RANGE, EXCLUDE...)` — Phase 8 fix
 - Ranged tokens without min/max: same as non-ranged tokens
 
-**Example (Phase 8 optimization):**
-- Old: `"к силе" !"к силе и" !"к силе,"` (40 chars)
-- New: `"к си" "! и"` (9 chars, 80% shorter)
+**In optimizer:**
+- When `OptimizationEntry.regexExclude` is set, `buildOptimizedNode()` creates `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))` — single combined OR-negate group.
 
 ### regexPrefixContext (Phase 9)
 
@@ -151,25 +150,33 @@ When regex + regexExclude cannot eliminate all FP because the suffix appears in 
 - UI compiles: `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`
 - Both must appear on the item (AND across blocks), eliminating FP
 
-**Example:**
-- Target: "Приспешники имеют (7—9)% увеличение урона" — has "имеют" AND "увеличение урона"
-- Conflict: "(3—7)% увеличение урона от огня" — has "увеличение урона" but NOT "имеют"
-- Old: `"увеличение урона" !"увеличение урона от" !"хаосом"` — still has FP from fire/cold/lightning
-- New: `"имеют" "увеличение урона"` — no FP, shorter, no excludes needed
+**In optimizer (Session 52):**
+- When `OptimizationEntry.regexPrefixContext` is set, `buildOptimizedNode()` creates `AND(LITERAL(context), LITERAL(regex))` instead of plain `LITERAL(regex)`
+- The optimizer also finds AND-wrapped LITERALs inside OR groups (e.g., tokens already wrapped with per-token context/excludes by `buildAstFromSelections`)
 
 **When context is used vs excludes:**
 - Excludes preferred when: a short marker can cover all conflicts (e.g., `"! и"` for compound families)
 - Context preferred when: suffix appears in both target AND conflicts, no short exclude exists
 - Can combine both: `"context" "suffix" "!exclude"` — context narrows scope, excludes handle remaining
 
-## 10. Optimization Table with Context (Phase 10 / Session 51)
+## 10. Optimization Table with Context (Phase 10 / Session 51-52)
 
-`OptimizationEntry` now includes optional `regexPrefixContext` and `regexExclude` fields. These are populated by `patchOptimizationEntries()` (ETL step 7c), which runs after `repairCrossFamilyFP()`.
+`OptimizationEntry` includes optional `regexPrefixContext` and `regexExclude` fields. These are populated by `patchOptimizationEntries()` (ETL step 7c), which runs after `repairCrossFamilyFP()`.
 
 **Data flow:**
 1. Step 4: `computeOptimizations()` creates entries (regexPrefixContext/regexExclude are empty at this point)
 2. Step 7b: `repairCrossFamilyFP()` adds regexPrefixContext/regexExclude to tokens
 3. Step 7c: `patchOptimizationEntries()` copies shared context/excludes from tokens to optimization entries
+
+**Runtime optimizer (Session 52):**
+- `applyOptimizationTable()` now uses `regexPrefixContext` and `regexExclude` from `OptimizationEntry`
+- `buildOptimizedNode()` creates proper AST structure:
+  - No context/excludes: `LITERAL(regex)`
+  - With context: `AND(LITERAL(context), LITERAL(regex))`
+  - With excludes: `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`
+  - With both: `AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(...excludes)))`
+- `findLiteralsInOr()` also discovers AND-wrapped LITERALs (tokens with per-token context/excludes from `buildAstFromSelections`)
+- Dedup phase (Phase 1) handles AND-wrapped nodes with same `getValueKey` — collapses them and preserves tokenIds
 
 **Rules for patching:**
 - If ALL tokens in an optimization entry share the same `regexPrefixContext` → added to entry

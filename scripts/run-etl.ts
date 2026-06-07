@@ -737,7 +737,7 @@ function patchOptimizationEntries(): void {
 
     let filePatched = 0;
 
-    for (const [key, entry] of Object.entries(optTable) as [string, any][]) {
+    for (const [, entry] of Object.entries(optTable) as [string, any][]) {
       const entryIds: string[] = entry.ids || [];
 
       // Collect regexPrefixContext from all covered tokens

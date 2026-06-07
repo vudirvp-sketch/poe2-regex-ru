@@ -4,36 +4,43 @@
 
 ---
 
-## Current State (Session 51 — 2026-06-07)
+## Current State (Session 52 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (471/471 tests)
-**Oracle:** ETL re-run done (P0 complete). Result: 3 cross-family FP out of 1573 tokens (was 62).
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (479/479 tests)
+**Oracle:** ETL re-run done (P0 complete). Result: 3 cross-family FP out of 1573 tokens.
 
 **Key Changes This Session:**
 
-1. **repairCrossFamilyFP() exclude limit 5→8** — jewel.mod_am4lla needed 7+ excludes for all weapon types. Limit raised to 8 to accommodate: Приспеш + топорами + луками + самострелами + кинжалами + посохами + копьями + мечами.
+1. **Runtime optimizer now uses regexPrefixContext/regexExclude from OptimizationEntry** — `applyOptimizationTable()` creates proper AST structure:
+   - With context: `AND(LITERAL(context), LITERAL(regex))`
+   - With excludes: `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`
+   - With both: `AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(...excludes)))`
+   - Without either: plain `LITERAL(regex)` (backward compatible)
 
-2. **CONFLICT_MARKERS expanded** — Added: мечами, луками, топорами, без (unarmed "без оружия"). Total markers now: 15.
+2. **Optimizer finds AND-wrapped LITERALs** — `findLiteralsInOr()` now discovers LITERAL tokenIds inside AND wrappers (tokens with per-token context/excludes applied by `buildAstFromSelections`). This enables optimization of tokens that already have FP-prevention wrapping.
 
-3. **OptimizationEntry type expanded** — Added optional `regexPrefixContext?: Record<Locale, string>` and `regexExclude?: Record<Locale, string[]>` fields to `OptimizationEntry` in `src/shared/types.ts`.
+3. **Dedup handles AND-wrapped nodes** — `deduplicateOrGroups()` now properly collects tokenIds from AND-wrapped LITERALs and creates dedup: prefixed tokenIds on the inner LITERAL.
 
-4. **patchOptimizationEntries() — ETL Step 7c** — New post-processing function that copies regexPrefixContext and regexExclude from tokens to optimization entries after repairCrossFamilyFP(). Runs as Step 7c in the ETL pipeline.
+4. **Savings calculation uses approximate compiled length** — New `approCompiledLength()` function computes estimated compiled regex length for more accurate savings comparison, especially for AND-wrapped nodes.
 
-5. **Tablet FP documented as accepted limitation** — tablet.mod_od9m77 and tablet.mod_ld06px have mutual cross-family FP because their rawText is a substring/superset pair with no unique distinguishing substring. These are essentially family-tier FP with different familyKeys.
+5. **Removed stale root-level files** — Deleted `JewelPage.tsx`, `ModList.tsx`, `TabletPage.tsx`, `mod-classifier.ts` from project root (outdated copies; actual files are in `src/`).
+
+6. **Fixed TS build error** — `patchOptimizationEntries()` had unused `key` variable in destructuring.
 
 **Files changed this session:**
-- `scripts/run-etl.ts` — exclude limit 5→8, CONFLICT_MARKERS expanded, patchOptimizationEntries() added
-- `src/shared/types.ts` — OptimizationEntry: regexPrefixContext + regexExclude fields
-- `AGENT_NAVIGATION.md` — Updated to v51.0
-- `OPTIMIZER_PLAN.md` — Updated to v2.0 with ETL re-run results
-- `docs/ETL_GUIDE.md` — Updated to v8.0 with Step 7c documentation
+- `src/core/optimizer.ts` — regexPrefixContext/regexExclude support + AND-wrapped LITERAL handling
+- `tests/core/optimizer.test.ts` — 8 new tests for context/excludes optimization (479 total)
+- `scripts/run-etl.ts` — Fixed unused variable warning
+- `AGENT_NAVIGATION.md` — Updated to v52.0
+- `OPTIMIZER_PLAN.md` — Updated to v3.0
 - `worklog.md` — This update
+- Removed: `JewelPage.tsx`, `ModList.tsx`, `TabletPage.tsx`, `mod-classifier.ts` (root-level stale files)
 
 **NOT YET DONE (next iteration):**
-- ⬜ Re-run ETL with Session 51 changes to confirm jewel.mod_am4lla fix (expect 1 cross-family FP from tablet)
+- ⬜ ETL re-run with Session 51 changes to confirm jewel.mod_am4lla fix (expect 1-2 cross-family FP)
 - ⬜ In-game tests Group M — verify `|` inside `()` and number ranges
-- ⬜ Runtime optimizer — use regexPrefixContext/regexExclude from OptimizationEntry (src/core/optimizer.ts)
 - ⬜ Truncated forms in compute-optimizations.ts Phase A
+- ⬜ List virtualization for large categories
 
 ---
 
@@ -57,7 +64,7 @@
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (471)
+npx vitest run --root .          # Run all tests (479)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation

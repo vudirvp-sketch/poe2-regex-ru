@@ -163,7 +163,12 @@ After `repairCrossFamilyFP()`, `patchOptimizationEntries()` enriches optimizatio
 - If ALL tokens share the same `regexExclude` patterns → added to entry
 - Mixed context/excludes → entry is left without them
 
-**Runtime impact:** Currently, the runtime optimizer (`src/core/optimizer.ts`) does NOT use these fields yet. When updated, it will create `AND(LITERAL(context), LITERAL(regex))` nodes instead of plain `LITERAL(regex)` for entries with `regexPrefixContext`.
+**Runtime consumption (Session 52):**
+The runtime optimizer (`src/core/optimizer.ts`) now uses these fields. When `applyOptimizationTable()` replaces a group of tokens with a shared regex, it creates:
+- With `regexPrefixContext`: `AND(LITERAL(context), LITERAL(regex))`
+- With `regexExclude`: `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`
+- With both: `AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(...excludes)))`
+- Without either: plain `LITERAL(regex)` (backward compatible)
 
 ## 8. Fallback Procedures
 

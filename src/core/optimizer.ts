@@ -1,5 +1,6 @@
 import type { ASTNode, OptimizationEntry, Locale } from '@shared/types';
 import { collectTokenIds } from './ast';
+import { and, or, exclude, literal } from './ast';
 
 /**
  * Optimize an AST by:
@@ -24,6 +25,12 @@ import { collectTokenIds } from './ast';
  *   usually what the user wants (any fire resistance is acceptable).
  * - This tradeoff (shorter regex vs. slightly more permissive matching) is
  *   the same approach poe2.re intended but never implemented.
+ *
+ * Phase 2 now supports OptimizationEntry.regexPrefixContext and
+ * OptimizationEntry.regexExclude fields. When an entry has these fields,
+ * the optimizer creates AND(LITERAL(context), LITERAL(regex)) and/or
+ * AND(LITERAL(regex), EXCLUDE(OR(...excludes))) nodes instead of plain
+ * LITERAL(regex), ensuring FP prevention is preserved after optimization.
  */
 export function optimize(
   ast: ASTNode,
@@ -46,14 +53,16 @@ export function optimize(
  * tiers have regex "к сопротивлению огню"), their LITERAL nodes in an OR group
  * are identical. We collapse them into a single LITERAL, saving characters.
  *
+ * Also handles AND-wrapped LITERALs (tokens with regexPrefixContext/regexExclude):
+ * AND(LITERAL("имеют"), LITERAL("увеличение урона", id1)) and
+ * AND(LITERAL("имеют"), LITERAL("увеличение урона", id2))
+ * produce the same compiled regex, so they are deduplicated too.
+ *
  * Example:
  *   OR(LITERAL("к сопротивлению огню", id1),
  *      LITERAL("к сопротивлению огню", id2),
  *      LITERAL("к сопротивлению огню", id3))
  *   → LITERAL("к сопротивлению огню", "dedup:id1:id2:id3")
- *
- * This is the most common and impactful optimization for belt/ring/amulet categories
- * where the template-family regex algorithm produces identical regex strings for all tiers.
  */
 function deduplicateOrGroups(node: ASTNode, locale: Locale): ASTNode {
   switch (node.type) {
@@ -73,31 +82,32 @@ function deduplicateOrGroups(node: ASTNode, locale: Locale): ASTNode {
         const group = valueMap.get(valueKey)!;
         group.children.push(child);
 
-        if (child.type === 'LITERAL' && child.tokenId) {
-          group.tokenIds.push(child.tokenId);
-        }
+        // Collect token IDs from LITERAL nodes (direct or inside AND wrappers)
+        collectTokenIdsFromNode(child, group.tokenIds);
       }
 
-      // Rebuild OR group: one LITERAL per unique value
+      // Rebuild OR group: one node per unique value
       const newChildren: ASTNode[] = [];
       for (const [, group] of valueMap) {
         if (group.children.length === 1) {
           newChildren.push(group.children[0]);
         } else {
-          // Multiple children with the same value — collapse to single LITERAL
+          // Multiple children with the same value — collapse to single node
           const firstChild = group.children[0];
+          const dedupTokenId = group.tokenIds.length > 0
+            ? `dedup:${group.tokenIds.join(':')}`
+            : undefined;
+
           if (firstChild.type === 'LITERAL') {
-            const dedupTokenId = group.tokenIds.length > 0
-              ? `dedup:${group.tokenIds.join(':')}`
-              : undefined;
             newChildren.push({
               type: 'LITERAL',
               value: firstChild.value,
               tokenId: dedupTokenId,
             });
           } else {
-            // Non-LITERAL children with same value key (unusual) — keep first only
-            newChildren.push(firstChild);
+            // AND-wrapped or other node types with same value key —
+            // keep first only, but update tokenId on the inner LITERAL
+            newChildren.push(updateDedupTokenId(firstChild, dedupTokenId));
           }
         }
       }
@@ -127,6 +137,44 @@ function deduplicateOrGroups(node: ASTNode, locale: Locale): ASTNode {
     default:
       return node;
   }
+}
+
+/**
+ * Collect token IDs from a node. Looks inside AND wrappers to find
+ * LITERAL children with tokenIds.
+ */
+function collectTokenIdsFromNode(node: ASTNode, ids: string[]): void {
+  if (node.type === 'LITERAL' && node.tokenId) {
+    ids.push(...expandTokenId(node.tokenId));
+  } else if (node.type === 'AND') {
+    for (const child of node.children) {
+      collectTokenIdsFromNode(child, ids);
+    }
+  }
+}
+
+/**
+ * Update the dedup tokenId on the first LITERAL with a tokenId found
+ * within a node (typically an AND wrapper). This is used during
+ * deduplication of AND-wrapped LITERALs.
+ */
+function updateDedupTokenId(node: ASTNode, dedupTokenId: string | undefined): ASTNode {
+  if (!dedupTokenId) return node;
+
+  if (node.type === 'AND') {
+    return {
+      ...node,
+      children: node.children.map(child => {
+        // Update the first LITERAL that has a tokenId
+        if (child.type === 'LITERAL' && child.tokenId) {
+          return { ...child, tokenId: dedupTokenId };
+        }
+        return child;
+      }),
+    };
+  }
+
+  return node;
 }
 
 /**
@@ -173,6 +221,104 @@ function expandTokenId(tokenId: string | undefined): string[] {
 }
 
 /**
+ * Information about a token found in the AST for optimization purposes.
+ * Supports both plain LITERAL nodes and AND-wrapped LITERALs (which
+ * occur when tokens have regexPrefixContext/regexExclude applied by
+ * buildAstFromSelections).
+ */
+interface TokenNodeInfo {
+  /** The node to be replaced — either a LITERAL or an AND wrapper */
+  node: ASTNode;
+  /** The OR parent containing this node */
+  parent: ASTNode;
+  /** Index in parent's children array */
+  index: number;
+  /** Approximate compiled regex length of this node (for savings calculation) */
+  approxLength: number;
+}
+
+/**
+ * Compute the approximate compiled regex length of an AST node.
+ * Used for optimization savings calculation. This is a rough estimate
+ * since exact length requires full compilation.
+ */
+function approxCompiledLength(node: ASTNode): number {
+  switch (node.type) {
+    case 'LITERAL':
+      return node.value.length + 2; // "value"
+    case 'AND': {
+      // "child1" "child2" — each child quoted, separated by spaces
+      return node.children.reduce((sum, c) => sum + approxCompiledLength(c), 0)
+        + Math.max(0, node.children.length - 1); // spaces between quoted groups
+    }
+    case 'OR': {
+      // child1|child2 — each child, separated by |
+      return node.children.reduce((sum, c) => sum + approxCompiledLength(c), 0)
+        + Math.max(0, node.children.length - 1); // | separators
+    }
+    case 'EXCLUDE': {
+      // "!child" — 1 for ! + child length
+      return 1 + approxCompiledLength(node.child);
+    }
+    case 'RANGE':
+      return 20; // rough estimate for number regex
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Build the optimized replacement node for an optimization entry.
+ *
+ * When the optimization entry has regexPrefixContext, creates:
+ *   AND(LITERAL(context), LITERAL(regex))
+ * When it has regexExclude, adds:
+ *   AND(..., EXCLUDE(OR(exclude1, exclude2, ...)))
+ * Both combined:
+ *   AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(exclude1, exclude2, ...)))
+ *
+ * Without context/excludes, returns a plain LITERAL(regex) as before.
+ */
+function buildOptimizedNode(
+  optimizedRegex: string,
+  optKey: string,
+  entry: OptimizationEntry,
+  locale: Locale
+): ASTNode {
+  const regexLiteral: ASTNode = { type: 'LITERAL', value: optimizedRegex, tokenId: `opt:${optKey}` };
+
+  // Check for context and excludes
+  const context = entry.regexPrefixContext?.[locale];
+  const excludes = entry.regexExclude?.[locale];
+
+  if (!context && (!excludes || excludes.length === 0)) {
+    // No context or excludes — plain LITERAL as before
+    return regexLiteral;
+  }
+
+  const andChildren: ASTNode[] = [];
+
+  // Add context LITERAL first (AND(LITERAL(context), LITERAL(regex)))
+  if (context) {
+    andChildren.push(literal(context));
+  }
+
+  // Add the regex LITERAL
+  andChildren.push(regexLiteral);
+
+  // Add EXCLUDE node if needed (AND(..., EXCLUDE(OR(exclude1, exclude2, ...))))
+  if (excludes && excludes.length > 0) {
+    if (excludes.length === 1) {
+      andChildren.push(exclude(literal(excludes[0])));
+    } else {
+      andChildren.push(exclude(or(...excludes.map(pattern => literal(pattern)))));
+    }
+  }
+
+  return and(...andChildren);
+}
+
+/**
  * Apply optimization table entries to the AST.
  *
  * Strategy: Iterate over optimization table entries and check if the
@@ -185,6 +331,10 @@ function expandTokenId(tokenId: string | undefined): string[] {
  *
  * Only applies optimizations when the savings are positive (shared regex
  * is shorter than the sum of individual regexes).
+ *
+ * Supports AND-wrapped LITERALs (tokens with regexPrefixContext/regexExclude):
+ * The optimizer can find LITERAL tokenIds inside AND wrappers and replace
+ * the entire AND wrapper with the optimization entry's shared regex + context/excludes.
  */
 function applyOptimizationTable(
   ast: ASTNode,
@@ -192,17 +342,38 @@ function applyOptimizationTable(
   locale: Locale = 'ru'
 ): ASTNode {
   // 1. Collect all LITERAL token IDs that appear in OR groups
-  // Map from bare token ID to the LITERAL node info
-  const tokenIdToNode = new Map<string, { node: ASTNode; parent: ASTNode; index: number }>();
+  // Supports both plain LITERAL children and AND-wrapped LITERALs
+  const tokenIdToNode = new Map<string, TokenNodeInfo>();
 
   function findLiteralsInOr(node: ASTNode): void {
     if (node.type === 'OR') {
       node.children.forEach((child, i) => {
         if (child.type === 'LITERAL' && child.tokenId) {
-          // Expand dedup: prefixed IDs into bare IDs
+          // Plain LITERAL in OR group
           const bareIds = expandTokenId(child.tokenId);
           for (const bareId of bareIds) {
-            tokenIdToNode.set(bareId, { node: child, parent: node, index: i });
+            tokenIdToNode.set(bareId, {
+              node: child,
+              parent: node,
+              index: i,
+              approxLength: child.value.length,
+            });
+          }
+        } else if (child.type === 'AND') {
+          // AND-wrapped LITERAL — look for LITERAL with tokenId inside
+            // Find inner LITERALs with tokenId inside AND wrapper
+          for (const grandchild of child.children) {
+            if (grandchild.type === 'LITERAL' && grandchild.tokenId) {
+              const bareIds = expandTokenId(grandchild.tokenId);
+              for (const bareId of bareIds) {
+                tokenIdToNode.set(bareId, {
+                  node: child,       // The AND wrapper is what we'll replace
+                  parent: node,
+                  index: i,
+                  approxLength: approxCompiledLength(child),
+                });
+              }
+            }
           }
         }
       });
@@ -239,23 +410,24 @@ function applyOptimizationTable(
     const sharedRegex = entry.regex[locale] ?? '';
     if (!sharedRegex) continue;
 
+    // Compute the length of the optimized replacement node
+    const optNode = buildOptimizedNode(sharedRegex, 'temp', entry, locale);
+    const optimizedLength = approxCompiledLength(optNode);
+
     let individualLength = 0;
     for (const id of matchedIds) {
       const info = tokenIdToNode.get(id);
-      if (info?.node.type === 'LITERAL') {
-        individualLength += info.node.value.length;
+      if (info) {
+        individualLength += info.approxLength;
       }
     }
 
     // The shared regex replaces all matched individual regexes,
     // but we need to account for the | separators between them
-    // Individual: "val1|val2|val3" (sum of lengths + (n-1) for | chars)
-    // Shared: just the shared regex length
     const separatorsSaved = matchedIds.size - 1; // | separators no longer needed
     const totalIndividualWithSeparators = individualLength + separatorsSaved;
-    const sharedLength = sharedRegex.length;
 
-    const savings = totalIndividualWithSeparators - sharedLength;
+    const savings = totalIndividualWithSeparators - optimizedLength;
 
     if (savings > 0) {
       candidateOptimizations.push({ entry, savings, matchedIds });
@@ -293,17 +465,43 @@ function applyOptimizationTable(
 
     // Build the opt key for tracking (sorted, like table keys)
     const optKey = [...matchedIds].sort().join(':');
-    result = replaceWithOptimized(result, optKey, matchedIds, optimizedRegex);
+    result = replaceWithOptimized(result, optKey, matchedIds, optimizedRegex, entry, locale);
   }
 
   return result;
+}
+
+/**
+ * Check if a node (plain LITERAL or AND-wrapped) contains a tokenId
+ * that matches any ID in the optimization set.
+ */
+function nodeMatchesOptimizationSet(node: ASTNode, ids: Set<string>): boolean {
+  if (node.type === 'LITERAL' && node.tokenId) {
+    const bareIds = expandTokenId(node.tokenId);
+    return bareIds.some(id => ids.has(id));
+  }
+  if (node.type === 'AND') {
+    // Check inner LITERALs
+    for (const child of node.children) {
+      if (child.type === 'LITERAL') {
+        const tokenId = child.tokenId;
+        if (tokenId) {
+          const bareIds = expandTokenId(tokenId);
+          if (bareIds.some(id => ids.has(id))) return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 function replaceWithOptimized(
   ast: ASTNode,
   key: string,
   ids: Set<string>,
-  optimizedRegex: string
+  optimizedRegex: string,
+  entry: OptimizationEntry,
+  locale: Locale
 ): ASTNode {
   switch (ast.type) {
     case 'OR': {
@@ -311,30 +509,25 @@ function replaceWithOptimized(
       const remaining: ASTNode[] = [];
 
       for (const child of ast.children) {
-        if (child.type === 'LITERAL' && child.tokenId) {
-          // Check if any of this node's bare IDs are in the optimization set
-          const bareIds = expandTokenId(child.tokenId);
-          const isMatched = bareIds.some(id => ids.has(id));
-
-          if (isMatched) {
-            optimized.push(child);
-          } else {
-            remaining.push(child);
-          }
+        if (nodeMatchesOptimizationSet(child, ids)) {
+          optimized.push(child);
         } else {
           remaining.push(child);
         }
       }
 
+      // Build the replacement node with context/excludes from the entry
+      const replacementNode = buildOptimizedNode(optimizedRegex, key, entry, locale);
+
       if (optimized.length > 0 && optimized.length === ast.children.length) {
-        return { type: 'LITERAL', value: optimizedRegex, tokenId: `opt:${key}` };
+        return replacementNode;
       }
 
       if (optimized.length > 0) {
         return {
           type: 'OR',
           children: [
-            { type: 'LITERAL', value: optimizedRegex, tokenId: `opt:${key}` },
+            replacementNode,
             ...remaining,
           ],
         };
@@ -345,13 +538,13 @@ function replaceWithOptimized(
     case 'AND': {
       return {
         ...ast,
-        children: ast.children.map(c => replaceWithOptimized(c, key, ids, optimizedRegex)),
+        children: ast.children.map(c => replaceWithOptimized(c, key, ids, optimizedRegex, entry, locale)),
       };
     }
     case 'EXCLUDE': {
       return {
         ...ast,
-        child: replaceWithOptimized(ast.child, key, ids, optimizedRegex),
+        child: replaceWithOptimized(ast.child, key, ids, optimizedRegex, entry, locale),
       };
     }
     default:
