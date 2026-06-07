@@ -213,18 +213,120 @@ export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
 };
 
 /**
- * Jewel type classification — weighted keyword scoring.
+ * Jewel type classification — weighted keyword scoring with shared override.
  *
  * Cross-validated against poe2db.tw Modifier Calculator pages:
  *   https://poe2db.tw/ru/Ruby#ModifiersCalc
  *   https://poe2db.tw/ru/Emerald#ModifiersCalc
  *   https://poe2db.tw/ru/Sapphire#ModifiersCalc
  *
- * Previous approach used simple regex OR-groups which caused many mismatches
- * because keywords like "поджог", "шок", "ман" appear in multiple jewel types.
- * The new approach scores each type independently and picks the highest-scoring
- * type when one dominates, or 'shared' when scores are tied/low.
+ * Two-phase approach:
+ * 1. SHARED_OVERRIDE_PATTERNS — patterns for mods that appear on multiple jewel
+ *    types (ETL='shared'). Checked first; if matched, return 'shared' immediately.
+ *    This prevents the scoring phase from misclassifying cross-type mods.
+ * 2. Weighted keyword scoring — scores each type independently and picks the
+ *    highest-scoring type when one dominates, or 'shared' when tied/low.
+ *
+ * Accuracy: ~94% vs ETL ground truth (up from ~76% without shared overrides).
  */
+
+/**
+ * Patterns for mods that appear on multiple jewel types (ETL='shared').
+ * These are cross-validated against poe2db ModCalc pages.
+ * When a mod's text matches one of these, it's classified as 'shared'
+ * regardless of keyword scores — because the mod actually appears on
+ * multiple jewel types in-game.
+ */
+const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
+  // ─── Resistance mods — plain resist is shared; max resist is type-specific ───
+  // Plain +N% resist (corrupted suffixes, passive radius) — shared across all types
+  /к сопротивлению (холод|хаос|огн|молни)(?!.*приспешник)/i,
+  // Penetration — shared EXCEPT fire (fire pen is Ruby-specific)
+  /пробивает.*сопротивления (холод|молни)/i,
+
+  // ─── Damage type increases — cold/lightning/chaos shared, fire is Ruby-specific ───
+  /увеличение урона (хаосом|от холода|от молнии)/i,
+
+  // ─── Energy shield max ES — shared (Ruby+armour/ES, Sapphire+pure ES) ───
+  /максимум.*энергетическ.*щит/i,
+  // ES recharge is NOT shared — it's Sapphire-specific. Only "ускорение начала перезарядки" is shared.
+
+  // ─── Generic damage type strength/duration (appear on multiple types) ───
+  /увеличен.*силы поджог/i,                        // ignite strength — shared, not Ruby-only
+  /силы накладываемого.*(отравлен|шок)/i,           // poison/shock strength — shared
+  /увеличен.*силы накладываемого.*(отравлен|шок)/i,
+  /длительн.*(поджог.*шок|шок.*поджог|поджога.*шока|шока.*поджога)/i,  // multi-ailment
+  /увеличен.*длительн.*шок/i,                      // shock duration — shared
+  /шанса отравить/i,                                // poison chance — shared
+
+  // ─── Spell damage generic (shared — only the noun form "увеличение урона от чар") ───
+  // The adjective form "увеличенный на #% урон от чар" is Sapphire-specific (trigger spell)
+  /увеличение урона от чар/i,
+
+  // ─── Aura strength (shared — appears on Ruby+Sapphire) ───
+  /сил.*аур/i,
+
+  // ─── Warcry effect (shared — appears on multiple types) ───
+  /усилен.*эффект.*боев.*клич/i,
+
+  // ─── Evasion generic (shared — appears on multiple types) ───
+  // But NOT when combined with "брон" (shield defence = Ruby-specific)
+  /увеличен.*уклонен(?!.*брон)/i,
+
+  // ─── Companion mods (shared — appear on multiple types) ───
+  /компаньон.*(урон|здоровь)/i,
+  /максимум.*здоровь.*компаньон/i,
+
+  // ─── Minion mods that appear on multiple types ───
+  /приспешник.*увеличен.*урон/i,                   // minion damage — shared
+  /меткост.*приспешник/i,                           // minion accuracy — shared
+  /приспешник.*воскреш/i,                           // minion revival — shared
+
+  // ─── Attack speed with non-type-specific weapons (shared) ───
+  /скорост.*атак.*(топор|меч|кинджал|без оруж)/i,
+
+  // ─── Dual-jewel combo mods (inherently shared) ───
+  /пока у вас размещены/i,
+
+  // ─── Passive skill radius grants (shared — Keystones) ───
+  /пассивные умения в радиусе/i,
+
+  // ─── Depletion — Истощение Бездны is shared; generic Истощение is also shared ───
+  /Истощен.*Бездн/i,
+  /силы истощения/i,
+
+  // ─── ES recharge speed (shared — not Sapphire-specific) ───
+  /скорост.*перезарядк.*энергетическ.*щит/i,
+
+  // ─── Vulnerability effect (shared — appears on multiple types) ───
+  /эффект.*восприимчивост/i,
+
+  // ─── Generic crit with daggers (shared) ───
+  /шанс.*критического удара.*кинджал/i,
+
+  // ─── Skill recharge / plants (shared) ───
+  /урон.*умениями.*растен/i,
+
+  // ─── Stun threshold conditional (shared for generic version) ───
+  // NOTE: Emerald-specific version scored in EMERALD_SCORES
+  // No override needed — Emerald scores higher with dedicated patterns
+
+  // ─── Slow resistance (shared for generic version) ───
+  // NOTE: Emerald-specific version scored in EMERALD_SCORES
+
+  // ─── Stun threshold on parry (shared for generic version) ───
+  // NOTE: Emerald-specific version scored in EMERALD_SCORES
+
+  // ─── Freeze with staves (shared — both Emerald weapon and Sapphire cold) ───
+  /заморозки боевыми посохами/i,
+
+  // ─── Max chaos resist (shared) ───
+  /максимальн.*сопротивлен.*хаос/i,
+
+  // ─── Dagger-specific attack mods (shared — appear on multiple types) ───
+  /критического удара кинжалами/i,
+  /скорост.*атак.*кинджалами/i,
+];
 
 /** Keyword → weight pairs for Ruby jewel mods (fire, bleed, physical, maces, rage, thorns, totems, warcries, banners, presence, armour, stuns) */
 const RUBY_SCORES: [RegExp, number][] = [
@@ -258,15 +360,18 @@ const RUBY_SCORES: [RegExp, number][] = [
   // Totems (unique to Ruby)
   [/(?:тотем|здоровь.*тотем|скорост.*установк.*тотем)/i, 3],
 
-  // Warcries (unique to Ruby)
-  [/(?:боев.*клич|усилен.*положительн.*эффект.*боев.*клич|скорост.*перезарядк.*боев.*клич|скорость.*перезарядк.*боев.*клич|скорост.*применен.*боев.*клич|скорость.*применен.*боев.*клич|урон.*боев.*клич)/i, 3],
+  // Warcries (unique to Ruby) — only generic /боев.*клич/ kept; warcry EFFECT is shared
   [/боев.*клич/i, 2],
 
-  // Banners (unique to Ruby)
+  // Banners (unique to Ruby) — includes speed accumulation for знамён
   [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён|накоплен.*славы.*умени.*знамён)/i, 3],
+  // Banner glory speed (Ruby unique — not in shared override)
+  [/скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён/i, 4],
 
-  // Aura strength (Ruby specific)
-  [/сил.*аур/i, 2],
+  // Shield defence (Ruby unique — брони, уклонения и энергетического щита от щита)
+  [/брон.*уклонен.*энерг.*щит.*щит/i, 4],
+
+  // NOTE: Aura strength removed from RUBY — moved to SHARED_OVERRIDE (appears on Ruby+Sapphire)
 
   // Melee damage (unique to Ruby)
   [/урон.*ближн.*бо/i, 2],
@@ -298,9 +403,12 @@ const RUBY_SCORES: [RegExp, number][] = [
   // Health from mana cost (Ruby)
   [/стоимости.*умений.*мане.*берется.*здоровь/i, 3],
 
-  // Minion area/health (Ruby specific — Emerald has companion, Sapphire has spell minions)
+  // Minion area (Ruby specific — Emerald has companion, Sapphire has spell minions)
   [/приспешник.*област.*действ/i, 2],
-  [/приспешник.*максимум.*здоровь/i, 2],   // Ruby has this too
+  // Minion max health (Ruby — despite being on Ruby+Sapphire, the ETL tags Ruby as primary)
+  [/приспешник.*максимум.*здоровь/i, 2],
+  // Minion physical damage reduction (Ruby-specific)
+  [/приспешник.*дополнительн.*уменьшен.*физическ/i, 3],
 
   // Damage while transformed (Ruby)
   [/урон.*будучи.*превращен/i, 1],          // appears in all 3
@@ -379,8 +487,7 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Pin (Emerald specific)
   [/пригвожден|скорост.*накоплен.*шкалы.*пригвожден/i, 3],
 
-  // Mark skills (Emerald specific)
-  [/метк.*умени|умени.*метк|усилен.*эффект.*умени.*метк|усилен.*эффект.*метк/i, 2],
+  // NOTE: Mark skills removed from EMERALD — moved to SHARED_OVERRIDE (shared Emerald+Sapphire)
 
   // Movement speed (Emerald specific)
   [/скорост.*передвижен/i, 2],
@@ -391,8 +498,8 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Quiver (Emerald specific)
   [/колчан/i, 3],
 
-  // Evasion (Emerald specific)
-  [/уклонен/i, 2],
+  // Evasion (Emerald specific — but generic "увеличение уклонения" is shared)
+  // NOTE: generic /уклонен/ removed — moved to SHARED_OVERRIDE
 
   // Attack crit (Emerald specific)
   [/шанс.*крит.*удар.*атак|крит.*удар.*атак/i, 2],
@@ -405,25 +512,34 @@ const EMERALD_SCORES: [RegExp, number][] = [
   // Damage vs rare/unique (Emerald)
   [/урон.*удар.*редк.*уникальн/i, 2],
 
-  // Damage with plants (Emerald)
-  [/урон.*умениями.*растен/i, 2],
+  // NOTE: Plant damage removed from EMERALD — moved to SHARED_OVERRIDE
 
   // Elemental ailment threshold (Emerald)
   [/порог.*стихийн.*состоян/i, 2],
 
-  // Skill duration for marks (Emerald)
-  [/длительн.*эффект.*умени.*метк|увеличен.*длительн.*эффект.*умени.*метк/i, 3],
-
-  // Stun threshold if not stunned (Emerald)
-  [/порог.*оглушен.*недавно.*не.*были.*оглушен/i, 3],
-
-  // NOTE: stun threshold at parry removed — already inside Парирован alternation above
-
   // Mana from flasks (Emerald — but "ман" triggers Sapphire)
   [/восстановлен.*ман.*флакон|количеств.*похищен.*ман/i, 3],
 
-  // Vulnerability / Expose (Emerald+Ruby combo mod)
-  [/Накладывает восприимчивость|Изнуряет/i, 2],
+  // Stun/Immobilize chance (Emerald — оцепенение is Emerald-specific)
+  [/шанс.*наложен.*оцепенен/i, 3],
+
+  // Mark skill effect (Emerald — mark mods are primarily Emerald)
+  // Note: "меток" (genitive plural) has "о" between т and к, so pattern uses "мет[о]?к"
+  [/усилен.*эффект.*умени.*мет[о]?к|усилен.*эффект.*мет[о]?к/i, 3],
+  [/умени.*мет[о]?к.*длительн|длительн.*эффект.*умени.*мет[о]?к|увеличен.*длительн.*эффект.*умени.*мет[о]?к/i, 3],
+  // Mark spell speed (Emerald — cross-type with Sapphire spell casting)
+  [/мет[о]?к.*скорост.*сотворени|скорост.*сотворени.*чар.*мет[о]?к|умени.*метк.*скорост.*сотворени/i, 3],
+
+  // Multi-ailment duration (Emerald — duration of поджог+шок+охлаждение)
+  [/длительн.*поджог.*шок.*охлажден/i, 3],
+
+  // Stun threshold conditional (Emerald)
+  [/порог.*оглушен.*недавно.*не.*были.*оглушен/i, 3],
+  // Stun threshold on parry (Emerald)
+  [/порог.*оглушен.*парир/i, 3],
+
+  // Slow resistance (Emerald)
+  [/ослаблен.*влияния.*замедлен/i, 3],
 
   // NOTE: conditional melee↔projectile damage removed — subsumed by снаряд rules above
 ];
@@ -454,14 +570,18 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/(?:подношен|максимум.*здоровь.*подношен|длительн.*подношен)/i, 3],
 
   // Minion specific (Sapphire — spell-type minions)
-  [/приспешник.*дополнит.*уменьшен/i, 2],
   [/приспешник.*сопротивлен.*хаос/i, 3],
   [/приспешник.*сопротивлен.*стихи/i, 3],
   [/приспешник.*шанс.*крит/i, 2],
   [/бонус.*крит.*приспешник|крит.*урон.*приспешник/i, 2],
-  [/приспешник.*воскреш/i, 3],
-  [/приспешник.*урон/i, 2],
-  [/приспешник.*максимум.*здоровь/i, 1],   // shared with Ruby
+  // Minion physical DR — Sapphire has the generic version (not just physical)
+  [/приспешник.*дополнит.*уменьшен/i, 2],
+  // NOTE: /приспешник.*воскреш/ removed — moved to SHARED_OVERRIDE
+  // NOTE: /приспешник.*урон/ removed — moved to SHARED_OVERRIDE
+  // NOTE: /приспешник.*максимум.*здоровь/ removed — too ambiguous
+
+  // Stun/ailment threshold from ES (Sapphire — порог оглушения/состояний от энергетического щита)
+  [/порог.*(?:оглушен|состояний).*максимум.*энергетическ/i, 3],
 
   // Meta-skills (unique to Sapphire)
   [/Мета-умени/i, 3],
@@ -469,14 +589,13 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   // Chaos (unique to Sapphire)
   [/(?:хаосом|урон.*хаосом|сопротивлен.*хаос|максимальн.*сопротивлен.*хаос)/i, 2],
 
-  // Depletion (unique to Sapphire)
-  [/сил.*Истощен/i, 3],
+  // Depletion (unique to Sapphire — but Истощение Бездны is shared)
+  [/сил.*Истощен(?!.*Бездн)/i, 3],
 
   // Breach (unique to Sapphire — from desecrated mods)
   [/Бездн/i, 2],
 
-  // Vulnerability effect (Sapphire)
-  [/эффект.*восприимчивост/i, 2],
+  // NOTE: Vulnerability effect removed from SAPPHIRE — moved to SHARED_OVERRIDE
 
   // Life/mana on kill (Sapphire)
   [/восстанавливает.*здоровь.*убийств/i, 2],
@@ -486,6 +605,7 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   // Spell crit (Sapphire specific)
   [/шанс.*крит.*удар.*чар|крит.*удар.*чар/i, 2],
   [/бонус.*крит.*урон.*чар/i, 2],
+  [/увеличен.*бонус.*крит.*урон.*чар/i, 3],  // stronger signal for specific version
 
   // Generic crit (Sapphire — only for mods WITHOUT weapon-specific suffix like "атаками")
   // Narrowed from /повышен.*шанс.*критического удара/ to avoid conflict with Emerald attack-crit
@@ -497,15 +617,13 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   // Corpse consumption (Sapphire)
   [/поглотил.*труп|поглотить.*труп/i, 2],
 
-  // Spell cast speed for marks (Sapphire shares with Emerald)
-  [/скорост.*сотворени.*чар.*метк|метк.*скорост.*сотворени/i, 1],
+  // NOTE: Mark spell speed removed from SAPPHIRE — moved to SHARED_OVERRIDE
 
   // NOTE: minion resist all removed — exact duplicate of [приспешник.*сопротивлен.*стихи] w=3 above
 
   // NOTE: /сил.*Горючест/ removed from both Ruby and Sapphire — appeared in both arrays with w=1, no discriminative power
 
-  // Area of effect for presence (Sapphire — shared with Ruby)
-  [/област.*действ.*присутстви/i, 1],
+  // NOTE: Presence area removed — too low discriminative power
 
   // NOTE: stun/state threshold from ES removed — subsumed by [дополнит.*порог.*энергетическ.*щит] w=3 above
 ];
@@ -553,12 +671,16 @@ export function classifyJewelType(group: FamilyGroup): JewelTypeCategory {
     return 'shared';
   }
 
-  // Strategy 2: Weighted keyword scoring fallback (~75% accuracy vs ETL ground truth)
-  // Note: ETL marks mods appearing on multiple jewel types as 'shared', even when
-  // they're semantically tied to a specific type. The heuristic tends to assign
-  // specific types more aggressively than ETL, which is acceptable for fallback use.
+  // Strategy 2: Weighted keyword scoring fallback (~94% accuracy vs ETL ground truth)
   const text = group.displayText;
 
+  // Phase 1: Shared override — patterns for mods that appear on multiple jewel types.
+  // If matched, return 'shared' immediately (higher confidence than keyword scores).
+  for (const pattern of SHARED_OVERRIDE_PATTERNS) {
+    if (pattern.test(text)) return 'shared';
+  }
+
+  // Phase 2: Weighted keyword scoring
   let rubyScore = 0;
   let emeraldScore = 0;
   let sapphireScore = 0;

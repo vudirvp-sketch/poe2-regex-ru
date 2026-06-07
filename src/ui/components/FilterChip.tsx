@@ -266,7 +266,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors min-w-[30%] ${bgClass}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors ${bgClass}`}
       title={tooltip}
     >
       {/* Switch element: just the label + badges, clickable */}

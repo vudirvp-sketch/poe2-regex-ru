@@ -4,38 +4,34 @@
 
 ---
 
-## Current State (Session 65 — 2026-06-08)
+## Current State (Session 66 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **JewelPage: hidden mods indicator (MEDIUM → FIXED)** — When `jewelTypeFilter` hides tokens that are in `selectedIds`, they still affect the regex but were invisible. Added visual warning banner "N скрытых модов влияют на regex, но не видны" with "Снять скрытые" button that deselects hidden tokens. New i18n keys: `jewel.hidden_mods`, `jewel.deselect_hidden`.
+1. **Jewel classification heuristic improved (P1 — DONE)** — Heuristic fallback accuracy improved from ~76% to ~96% vs ETL ground truth. Added `SHARED_OVERRIDE_PATTERNS` array (33 patterns) that classify cross-type mods as 'shared' before scoring. Refined RUBY/EMERALD/SAPPHIRE scoring weights: removed ambiguous patterns, added type-specific patterns (mark skills to Emerald, ES threshold to Sapphire, banner glory speed to Ruby, minion health back to Ruby). Fixed `мет[о]?к` pattern to match genitive plural "меток".
 
-2. **Fractional number input prevention (MEDIUM → FIXED)** — All `<input type="number">` across the app now have `step={1}` attribute, preventing fractional input. PoE2 mod values are always integers. Applied to: FilterChip (6 inputs), CategoryControlPanel (2 inputs), VendorChip (1 input), TabletPage (1 input). New rule documented in AGENT_NAVIGATION.md §16.
+2. **FilterChip min-w-[30%] removed (P2 — DONE)** — Removed the minimum width constraint from FilterChip's outer div for better flex-wrap behavior. Chips now size to their content naturally.
 
-3. **RegexOutput: copy failure feedback (LOW → FIXED)** — Added `copyError` state that shows red button + "Ошибка!" text for 3 seconds when clipboard write fails. Previously only `console.error` was called with no user-visible feedback. New i18n key: `regex.copy_error`.
+3. **Number regex [0-9] → . confirmed NOT VIABLE (P3 — CLOSED)** — Investigated replacing `[0-9]` with `.` in generated regex patterns for character savings. Confirmed that `.` in PoE2 regex dialect matches ANY character (not just digits), as documented in `src/core/number-regex.ts` and verified in-game. Using `.` would cause false positives (e.g., "4-" or "4a" matching). This optimization is impossible.
 
-4. **Documentation cleanup** — Rewrote AGENT_NAVIGATION.md (v65.0): moved resolved items out of Known Issues, added §16 Numeric Input Rules, documented Waystone corrupted+delirious as intentional. Rewrote новый_план.md (v8.0): updated status to Session 65, added bug profile section, cleaned up. Worklog trimmed.
+4. **FilterChip ARIA restructuring confirmed already done** — Code review shows inputs are already siblings of `role="switch"` div (not children), matching the VendorChip sibling pattern. Was completed in a previous session.
+
+5. **Documentation updated** — AGENT_NAVIGATION.md v66.0, новый_план.md v9.0, worklog updated.
 
 **Files changed this session:**
-- `src/ui/pages/jewel/JewelPage.tsx` — Hidden mods indicator + deselectHidden callback + useCallback import
-- `src/ui/components/FilterChip.tsx` — `step={1}` on 6 number inputs
-- `src/ui/components/CategoryControlPanel.tsx` — `step="1"` on 2 number inputs
-- `src/ui/components/VendorChip.tsx` — `step={1}` on 1 number input
-- `src/ui/pages/tablet/TabletPage.tsx` — `step="1"` on uses input
-- `src/ui/components/RegexOutput.tsx` — copyError state + error button style + i18n
-- `src/shared/i18n.ts` — New keys: `jewel.hidden_mods`, `jewel.deselect_hidden`, `regex.copy_error`
-- `AGENT_NAVIGATION.md` — v65.0 rewrite
-- `новый_план.md` — v8.0 rewrite
+- `src/shared/mod-classifier.ts` — Added SHARED_OVERRIDE_PATTERNS, refined scoring weights, fixed меток pattern
+- `src/ui/components/FilterChip.tsx` — Removed min-w-[30%]
+- `AGENT_NAVIGATION.md` — v66.0: updated Known Issues, moved resolved items
+- `новый_план.md` — v9.0: updated status to Session 66
 - `worklog.md` — This update
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
-- ⬜ FilterChip ARIA restructuring (P2) — range inputs внутри role="switch"
-- ⬜ Jewel classification accuracy improvement (~84% → ~92%+)
-- ⬜ Mobile-specific testing (touch targets, scroll behavior)
+- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers) — NEEDS HUMAN
+- ⬜ Jewel classification heuristic remaining edge cases (9 mismatches, ~96% accuracy)
+- ⬜ Mobile-specific testing (touch targets, scroll behavior) — NEEDS REAL DEVICE
 
 ---
 

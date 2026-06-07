@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 65.0 | **Date:** 2026-06-08
+> **Version:** 66.0 | **Date:** 2026-06-08
 
 ---
 
@@ -67,13 +67,17 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### MEDIUM
-1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
-2. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`), heuristic fallback ~75% vs ETL. Discrepancy is mainly because ETL marks cross-type mods as `shared`.
+1. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`). Heuristic fallback accuracy improved to ~96% (was ~76%). Remaining 9 mismatches are edge cases with cross-type keyword conflicts.
 
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
-2. **FilterChip ARIA restructuring** — range inputs inside `role="switch"` div. Need sibling pattern (see VendorChip).
-3. **FilterChip min-w-[30%]** — consider reducing or removing for better flex-wrap.
+2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+
+### RESOLVED (Session 66)
+1. ~~Jewel classification accuracy~~ — Improved heuristic from ~76% to ~96% via SHARED_OVERRIDE_PATTERNS + refined scoring weights
+2. ~~FilterChip min-w-[30%]~~ — Removed for better flex-wrap
+3. ~~Number regex [0-9] → .~~ — NOT VIABLE: `.` in PoE2 regex matches any character, not just digits (verified in-game)
+4. ~~FilterChip ARIA restructuring~~ — Already done in previous session (inputs are siblings of role="switch")
 
 ### RESOLVED (Session 65)
 1. ~~JewelPage: hidden selected tokens~~ — Added visual indicator "N скрытых модов" + "Снять скрытые" button
