@@ -99,10 +99,11 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
     }
   }, [regex, isOverflow]);
 
-  // Keyboard shortcut: Ctrl+Shift+C to copy regex
+  // Keyboard shortcut: Ctrl+Shift+X to copy regex
+  // (Ctrl+Shift+C conflicts with browser DevTools)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'X' || e.key === 'x' || e.key === 'Ч' || e.key === 'ч')) {
         e.preventDefault();
         handleCopy();
       }
@@ -174,7 +175,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-500'
             }`}
-            title={t('regex.copy_shortcut')}
+            title={t('regex.copy_shortcut')} // Ctrl+Shift+X
           >
             {copied ? t('regex.copied') : t('regex.copy')}
           </button>

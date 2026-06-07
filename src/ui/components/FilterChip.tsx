@@ -367,7 +367,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <input
               min={0}
               placeholder={t('range.min')}
-              aria-label={t('range.min_aria_dual')}
+              aria-label={t('range.min_aria_dual_1')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               type="number"
               value={slot0Range.min}
@@ -377,7 +377,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <input
               min={0}
               placeholder={t('range.max')}
-              aria-label={t('range.max_aria_dual')}
+              aria-label={t('range.max_aria_dual_1')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               type="number"
               value={slot0Range.max}
@@ -391,7 +391,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <input
               min={0}
               placeholder={t('range.min')}
-              aria-label={t('range.min_aria_dual')}
+              aria-label={t('range.min_aria_dual_2')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               type="number"
               value={slot1Range.min}
@@ -401,7 +401,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <input
               min={0}
               placeholder={t('range.max')}
-              aria-label={t('range.max_aria_dual')}
+              aria-label={t('range.max_aria_dual_2')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               type="number"
               value={slot1Range.max}

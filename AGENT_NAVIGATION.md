@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 63.0 | **Date:** 2026-06-08
+> **Version:** 64.0 | **Date:** 2026-06-08
 
 ---
 
@@ -69,11 +69,12 @@ shared <- core <- strategies <- store <- data <- ui
 ### MEDIUM
 1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
 2. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`), heuristic fallback ~75% vs ETL. Discrepancy is mainly because ETL marks cross-type mods as `shared`.
+3. **JewelPage: hidden selected tokens** — When jewelTypeFilter hides tokens that are in selectedIds, they still affect the regex but are invisible. Consider adding a visual indicator or auto-deselect.
 
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
-2. **Duplicate profile names allowed** — ProfilePanel doesn't prevent identical names.
-3. **Ctrl+Shift+C shortcut** — Global keyboard shortcut may conflict with browser dev tools.
+2. ~~Duplicate profile names~~ — Fixed in Session 64 (case-insensitive check + "Есть такое" message).
+3. ~~Ctrl+Shift+C shortcut~~ — Fixed in Session 64 (changed to Ctrl+Shift+X, handles RU layout).
 
 ## 7. Regex Strategy Pipeline
 
@@ -121,6 +122,7 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 - When `slotOverrides` is set, `filterSlotIndex`/`min`/`max` are ignored
 - AST builder generates separate RANGE nodes for each active slot, ANDed together
 - FilterChip shows two rows of inputs (1е/2е) for multi-placeholder mods
+- Aria labels: `range.min_aria_dual_1` / `range.max_aria_dual_1` for slot 0, `range.min_aria_dual_2` / `range.max_aria_dual_2` for slot 1
 - Serialization format: `[tokenId, min, max, filterSlotIndex, slotIdx, sMin, sMax, ...]`
 
 ## 11. regexExclude & regexPrefixContext
@@ -140,11 +142,15 @@ When the runtime optimizer replaces multiple selected tokens with a shared regex
 ## 13. ARIA Patterns
 
 - **VendorChip**: Switch (label) + input (sibling) — valid ARIA tree, no interactive child inside switch role.
-- **FilterChip**: Switch (label + badges) + inputs (siblings) — restructured in Session 63. Same sibling pattern as VendorChip.
+- **FilterChip**: Switch (label + badges) + inputs (siblings) — same sibling pattern as VendorChip.
 - **Radio groups**: Arrow key navigation implemented per ARIA spec (Left/Up = prev, Right/Down = next, wraps).
 - **PageStateWrapper**: `role="status"` for loading, `role="alert"` for error.
-- **ProfilePanel**: Delete requires confirmation (✕→✓ pattern). Aria-labels on all action buttons.
+- **ProfilePanel**: Delete requires confirmation (✕→✓ pattern). Confirm button uses `onMouseDown` (not `onClick`) to prevent onBlur race condition. Duplicate name prevention (case-insensitive).
 
 ## 14. VendorProperty Canonical Source
 
 `VendorProperty` interface is defined **only** in `src/data/vendor-properties.ts`. All consumers import from there. Do NOT create local duplicates.
+
+## 15. Keyboard Shortcuts
+
+- **Ctrl+Shift+X** — Copy regex to clipboard (also handles Russian layout: X→Ч). Changed from Ctrl+Shift+C in Session 64 to avoid conflict with browser DevTools.

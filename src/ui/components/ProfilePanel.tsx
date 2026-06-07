@@ -48,9 +48,17 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
   /** ID of the profile pending delete confirmation */
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
+  /** Check if a profile name already exists in this category */
+  const isDuplicateName = useMemo(() => {
+    const trimmed = profileName.trim().toLowerCase();
+    if (!trimmed) return false;
+    return profiles.some(p => p.name.toLowerCase() === trimmed);
+  }, [profileName, profiles]);
+
   const handleSave = () => {
-    if (!profileName.trim()) return;
-    saveProfile(profileName.trim(), category, currentFilterData);
+    const trimmed = profileName.trim();
+    if (!trimmed || isDuplicateName) return;
+    saveProfile(trimmed, category, currentFilterData);
     setProfileName('');
   };
 
@@ -112,14 +120,15 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
             />
             <button
               onClick={handleSave}
-              disabled={!profileName.trim()}
+              disabled={!profileName.trim() || isDuplicateName}
               className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
-                profileName.trim()
+                profileName.trim() && !isDuplicateName
                   ? 'bg-blue-600 text-white hover:bg-blue-500'
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
               }`}
+              title={isDuplicateName ? t('profile.duplicate') : undefined}
             >
-              {t('profile.add')}
+              {isDuplicateName ? t('profile.duplicate') : t('profile.add')}
             </button>
           </div>
 
@@ -164,7 +173,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
                   {pendingDeleteId === profile.id ? (
                     <button
-                      onClick={() => handleDeleteConfirm(profile.id)}
+                      onMouseDown={(e) => { e.preventDefault(); handleDeleteConfirm(profile.id); }}
                       className="text-[10px] text-red-400 hover:text-red-300 px-1 font-bold"
                       title={t('profile.delete')}
                       aria-label={`${t('profile.delete')}: ${profile.name}`}

@@ -4,36 +4,36 @@
 
 ---
 
-## Current State (Session 63 — 2026-06-08)
+## Current State (Session 64 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **FilterChip: ARIA restructuring (HIGH)** — Same issue as VendorChip had: `<input type="number">` was a child of `role="switch"` div, violating WAI-ARIA. Restructured: outer div is visual container only (no role), inner `<div role="switch">` holds label + badges, range inputs are siblings of switch. Same pattern as VendorChip.
+1. **ProfilePanel: duplicate name prevention (MEDIUM)** — Added `isDuplicateName` check (case-insensitive) that disables the Save button and shows "Есть такое" when a profile with the same name already exists in the category. New i18n key: `profile.duplicate`.
 
-2. **FilterChip: min-w-[45%] → min-w-[30%] (MEDIUM)** — The 45% minimum width limited chips to 2 per row even on wider screens. Reduced to 30% to allow 3 chips per row when space permits.
+2. **RegexOutput: Ctrl+Shift+C → Ctrl+Shift+X (LOW)** — The old shortcut conflicted with Chrome/Firefox DevTools. Changed to Ctrl+Shift+X (also handles Russian keyboard layout: X→Ч). Updated i18n key `regex.copy_shortcut`.
 
-3. **Jewel classification: updated heuristic accuracy note** — ETL lookup gives 100% accuracy (all 250 tokens have `jewelType` populated). Heuristic fallback is ~75% vs ETL ground truth, mainly because ETL marks mods appearing on multiple jewel types as `shared`, while the heuristic assigns specific types more aggressively. Added several rule improvements:
-   - Banner rule: added `накоплен.*славы.*умени.*знамён` variant
-   - Stun threshold: added `/порог.*оглушен/` rule (w=2) for better Ruby coverage
-   - Mark skills: expanded rule to include `усилен.*эффект.*умени.*метк|усилен.*эффект.*метк`
-   - Critical damage spears: added `/крит.*урон.*копь|бонус.*крит.*копь/` rule for Emerald
-   - Conditional melee↔projectile: added rule for Emerald dual-weapon mods
+3. **ProfilePanel: onBlur race condition fix (HIGH)** — Delete confirm button (✓) now uses `onMouseDown` with `e.preventDefault()` instead of `onClick`. This ensures the confirm handler fires BEFORE the parent's `onBlur={handleDeleteCancel}`, preventing accidental cancellation of the delete confirmation.
 
-4. **Bug audit: UI logic review** — Reviewed all UI components (VirtualizedModList, ModList, ProfilePanel, CategoryControlPanel, VendorChip, Sidebar, Header). Found no critical bugs. ProfilePanel delete confirmation works correctly (autoFocus on ✓ button prevents onBlur race). FilterChip ARIA was the main fixable issue (done above).
+4. **VirtualizedModList: re-measure on selection change (MEDIUM)** — Added `useEffect(() => { virtualizer.measure(); }, [selectedIds, perTokenRanges, virtualizer])` to force re-measurement when chip heights change (range inputs appear/disappear). Previously, the virtualizer could show incorrect row heights after toggling a chip.
+
+5. **FilterChip: separate aria labels for dual-number slots (LOW)** — Replaced shared `range.min_aria_dual` / `range.max_aria_dual` with slot-specific keys: `range.min_aria_dual_1`, `range.max_aria_dual_1` (slot 0), `range.min_aria_dual_2`, `range.max_aria_dual_2` (slot 1). Screen readers now correctly announce "первого числа" vs "второго числа".
 
 **Files changed this session:**
-- `src/ui/components/FilterChip.tsx` — ARIA restructure + min-w change
-- `src/shared/mod-classifier.ts` — Heuristic rule improvements + accuracy comment update
+- `src/ui/components/ProfilePanel.tsx` — Duplicate name prevention + onBlur fix
+- `src/ui/components/RegexOutput.tsx` — Shortcut Ctrl+Shift+C → Ctrl+Shift+X
+- `src/ui/components/VirtualizedModList.tsx` — Re-measure effect
+- `src/ui/components/FilterChip.tsx` — Separate dual-number aria labels
+- `src/shared/i18n.ts` — New keys: `profile.duplicate`, `range.min_aria_dual_1/2`, `range.max_aria_dual_1/2`; updated `regex.copy_shortcut`
 - `worklog.md` — This update
-- `AGENT_NAVIGATION.md` — Updated to v63.0
+- `AGENT_NAVIGATION.md` — Updated to v64.0
 
 **NOT YET DONE (next iteration):**
 - ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
-- ⬜ Duplicate profile names allowed — ProfilePanel doesn't prevent identical names
-- ⬜ Ctrl+Shift+C shortcut may conflict with browser dev tools
+- ⬜ JewelPage: selected tokens hidden by jewelTypeFilter but still in regex — consider adding visual indicator
+- ⬜ Additional UI audit for edge cases (tablet rarity regex accuracy, waystone corrupted+delirious interaction)
 
 ---
 
@@ -56,6 +56,7 @@
 15. **OR-suffix RANGE must wrap `|` in `()`:** Compiler wraps suffixes containing `|` in `()` to scope the alternation. Without this, `".*огню|холоду"` parses as `".*огню"` OR `"холоду"` — wrong!
 16. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates — import from canonical source.
 17. **ARIA: interactive elements must not be children of role="switch":** Inputs and buttons inside a switch role violate WAI-ARIA. Use sibling pattern (see VendorChip and FilterChip).
+18. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur, causing delete confirmation to be cancelled by the parent's onBlur handler.
 
 ## Build & Run Commands
 

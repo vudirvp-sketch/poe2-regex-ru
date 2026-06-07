@@ -273,6 +273,12 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     overscan: 8,
   });
 
+  // Re-measure all visible items when selection or range overrides change,
+  // because chip height changes when range inputs appear/disappear.
+  useEffect(() => {
+    virtualizer.measure();
+  }, [selectedIds, perTokenRanges, virtualizer]);
+
   const handleAffixFilter = useCallback(
     (value: string) => {
       onAffixFilterChange(value === 'all' ? null : (value as AffixType));
