@@ -4,30 +4,34 @@
 
 ---
 
-## Current State (Session 42 — 2026-06-07)
+## Current State (Session 43 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (452/452 tests)
-**Oracle:** FP=3715, FN=0 in generated JSON files. Most FP are family-tier FP (by design). Phase 8 Oracle now categorizes FP.
+**Oracle:** Block-based: 1376/1573 valid, 194 cross-family FP, 924 family-tier FP
 
-**Key Changes This Session (getItemSearchText Removal):**
+**Key Changes This Session (--validate-item):**
 
-1. **Deleted `getItemSearchText()` from `poe2-regex-matcher.ts`** — The deprecated function that concatenated all blocks into one string (allowing `.*` to cross block boundaries, which does NOT happen in-game) is now removed.
+1. **Added `--validate-item` flag to `run-etl.ts`** — New `validateGeneratedRegexesItem()` function that uses `batchValidateItem()` from `regex-oracle.ts` for block-based Oracle validation. Unlike `--validate` (flat-text), this accurately simulates in-game behavior where `.*` does NOT cross block boundaries.
 
-2. **Replaced ~81 test calls** across two test files:
-   - `poe2-regex-matcher.test.ts` (Vendor section): 13 calls → `matchPoE2RegexItem(regex, item)` (block-based)
-   - `hypothesis-patterns.test.ts` (H1-H9 + BONUS): ~68 calls replaced:
-     - Simple substring/AND/negation → `matchPoE2RegexItem(regex, item)` (same behavior, block-accurate)
-     - `.*` within same block → `matchPoE2RegexItem(regex, item)` (same result, within-block `.*` works identically)
-     - Text content assertions (`toContain`) → `getItemSearchBlocks(item).join('\n')`
-     - **H4 cross-block `.*` test**: `matchPoE2Regex('"([1-9][0-9]|...).*зарядов"', text)` was `true` (concatenated text allowed cross-block `.*`) → now `matchPoE2RegexItem(...)` = `false` (correct: `.*` does NOT cross from mod block to implicit block)
+2. **Import added:** `batchValidateItem` from `regex-oracle.ts` + `GameItemText` type from `poe2-regex-matcher.ts`.
 
-3. **Cleaned up unused imports** — Removed `matchQuotedGroup`, `testRegex`, `and`, `or`, `exclude`, `literal` from hypothesis test imports. Fixed `amulet2` unused variable.
+3. **Block-based validation results** (first run):
+   - relic: 58/58 valid ✅
+   - waystone: 93/97 (1 cross-family FP, 3 FN from `()` in regex)
+   - waystone-desecrated: 16/17 (1 cross-family FP)
+   - tablet: 70/75 (5 cross-family FP)
+   - jewel: 178/193 (15 cross-family FP — many `()` bugs)
+   - jewel-desecrated: 16/32 (16 cross-family FP)
+   - jewel-corrupted: 9/10 (1 cross-family FP — `—6) к с` bug confirmed)
+   - belt: 287/298 (11 cross-family FP)
+   - ring: 317/366 (49 cross-family FP)
+   - amulet: 332/427 (95 cross-family FP)
 
 **NOT YET DONE:**
-- ⬜ Re-run ETL (`pnpm etl`) to regenerate JSON with simplified prefix + jewel-corrupted STRICT
-- ⬜ After ETL re-run: verify jewel-corrupted regexes are ≥7 chars and don't contain `()` patterns
-- ⬜ After ETL re-run: check if waystone implicits (level, pack size, quantity, rarity, etc.) appear in data — they are NOT affixes, they are base item properties
-- ⬜ Integrate `batchValidateItem()` in ETL pipeline — Add `--validate-item` flag in `run-etl.ts`
+- ⬜ Fix `()` in regexes — ETL compute-regex generates `—6) к с` etc. PoE2 interprets `)` as groupClose, truncating the regex
+- ⬜ Fix `к силе` cross-family FP — matches composite mods `+(9—15) к силе и интеллекту` etc.
+- ⬜ jewel-desecrated 16 cross-family FP — needs investigation
+- ⬜ Add tests for `validateGeneratedRegexesItem()`
 
 ---
 
@@ -39,7 +43,7 @@
 4. **`?` does NOT work in PoE2:** Do NOT use `?` in generated regexes — verified in-game.
 5. **Description text not indexed:** Tooltip text like "Можно использовать в Машине картоходца" is NOT searchable — verified in-game.
 6. **`.*` does NOT cross block boundaries:** Each mod/implicit/property is a separate block. Use AND for cross-block search.
-7. **Waystone implicits are NOT affixes:** Properties like "Уровень путевого камня", "размер групп", "количество предметов" are base item properties, not from the mod system. Not in ETL data.
+7. **Waystone implicits are NOT affixes:** Properties like "Уровень путевого камня", "размер групп", "количество предметов" are base item properties, not from the mod system. Not in ETL data. Verified.
 
 ## Build & Run Commands
 
@@ -48,7 +52,8 @@ pnpm install                     # Install dependencies
 pnpm build                       # Production build
 npx vitest run --root .          # Run all tests (452)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
-pnpm etl -- --validate           # Run ETL with Oracle validation
+pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
+pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation (accurate in-game sim)
 pnpm analyze-fn                  # Analyze FN cases per category
 pnpm optimize                    # Run iterative optimizer on generated JSON
 pnpm optimize:dry                # Dry-run optimizer with verbose output

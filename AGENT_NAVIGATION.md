@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 36.0 | **Date:** 2026-06-07
+> **Version:** 37.0 | **Date:** 2026-06-07
 
 ---
 
@@ -30,7 +30,8 @@ pnpm dev             # Start dev server
 pnpm build           # Production build
 npx vitest run --root . # Run tests (452 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network)
-pnpm etl -- --validate   # Run ETL + Oracle validation
+pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
+pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
 pnpm analyze-fn      # Analyze FN/FP per category
 pnpm optimize        # Run iterative optimizer on generated JSON
 pnpm optimize:dry    # Dry-run optimizer with verbose output
@@ -68,38 +69,39 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
+1. **`()` in regexes — ETL compute-regex bug** — Regexes like `—6) к с` contain `)` which PoE2 interprets as groupClose, truncating the regex. Affects jewel (15), jewel-corrupted (1), waystone (3 FN). Fix requires changes in `scripts/etl/compute-regex.ts`.
+2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
 
 ### MEDIUM
 
-2. **Icon proportions** — relic/vendor/belt PNGs have more transparent padding
-3. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-4. **HomePage hardcoded mod counts** — Category cards show stale counts
-5. **Re-run ETL** — After adding jewel-corrupted to STRICT_CATEGORIES, need ETL re-run to regenerate JSON with longer regexes
+3. **`к силе` cross-family FP** — Simple regex `к силе` matches composite mods like `+(9—15) к силе и интеллекту`. Affects amulet (95), belt (11), ring (49). Needs longer regex generation.
+4. **jewel-desecrated 16 cross-family FP** — Many short regexes match across families. Needs investigation.
+5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+6. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-8. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+9. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
-## 7. Data Stats
+## 7. Data Stats (Block-based Oracle, Session 43)
 
-| Category | Tokens | FN | FP | avgLen |
-|----------|--------|----|----|--------|
-| waystone | 97 | 0 | 203 | 16.0 |
-| waystone-desecrated | 17 | 0 | 3 | 10.4 |
-| tablet | 75 | 0 | 6 | 19.7 |
-| jewel | 193 | 0 | 147 | 15.8 |
-| jewel-desecrated | 32 | 0 | 113 | 15.8 |
-| jewel-corrupted | 10 | 0 | 0 | 5.8 |
-| relic | 58 | 0 | 142 | 23.1 |
-| belt | 298 | 0 | 767 | 21.8 |
-| ring | 366 | 0 | 1023 | 20.9 |
-| amulet | 427 | 0 | 1311 | 21.0 |
-| **Total** | **1,573** | **0** | **3,715** | **19.9** |
+| Category | Tokens | Valid | Cross-FP | Family-FP | FN |
+|----------|--------|-------|----------|-----------|----|
+| waystone | 97 | 93 | 1 | 76 | 3 |
+| waystone-desecrated | 17 | 16 | 1 | 2 | 0 |
+| tablet | 75 | 70 | 5 | 0 | 0 |
+| jewel | 193 | 178 | 15 | 0 | 0 |
+| jewel-desecrated | 32 | 16 | 16 | 0 | 0 |
+| jewel-corrupted | 10 | 9 | 1 | 0 | 0 |
+| relic | 58 | 58 | 0 | 0 | 0 |
+| belt | 298 | 287 | 11 | 239 | 0 |
+| ring | 366 | 317 | 49 | 267 | 0 |
+| amulet | 427 | 332 | 95 | 283 | 0 |
+| **Total** | **1,573** | **1,376** | **194** | **924** | **3** |
 
-Note: Most FP are family-tier FP (same mod, different tiers sharing one regex) — this is by design. Phase 8 Oracle now distinguishes family-tier FP from cross-family FP in `OracleResult.familyTierFP` / `OracleResult.crossFamilyFP`.
+Note: Family-tier FP (924) are "by design" — same mod family, different tiers sharing one regex. Cross-family FP (194) are real bugs needing regex fixes.
 
 ## 8. Oracle API (Phase 8)
 
@@ -110,7 +112,7 @@ Two validation modes in `src/core/regex-oracle.ts`:
 | `validateRegex()` | Flat-text (`matchQuotedGroup`) | ETL single-mod validation |
 | `validateRegexItem()` | Block-based (`matchPoE2RegexItem`) | In-game behavior simulation |
 | `batchValidate()` | Flat-text, batch | ETL --validate |
-| `batchValidateItem()` | Block-based, batch | Accurate FP analysis |
+| `batchValidateItem()` | Block-based, batch | ETL --validate-item (Session 43) |
 
 FP categorization (all functions):
 - `OracleResult.familyTierFP` — FP from same familyKey (by design)

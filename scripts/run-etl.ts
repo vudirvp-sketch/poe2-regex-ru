@@ -20,7 +20,8 @@ import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
-import { validateRegex } from '../src/core/regex-oracle.js';
+import { validateRegex, batchValidateItem } from '../src/core/regex-oracle.js';
+import type { GameItemText } from '../src/core/poe2-regex-matcher.js';
 import type { ModOrigin, JewelType } from '../src/shared/types.js';
 import type { NormalizedMod } from './etl/normalize.js';
 import * as path from 'path';
@@ -682,6 +683,11 @@ async function runEtl() {
     validateGeneratedRegexes();
   }
 
+  // Step 9: Block-based validation (if --validate-item flag is provided)
+  if (process.argv.includes('--validate-item')) {
+    validateGeneratedRegexesItem();
+  }
+
   console.log('\n=== ETL Pipeline Complete ===');
 }
 
@@ -758,6 +764,92 @@ function validateGeneratedRegexes(): void {
   console.log(`\n  Total: ${totalFP} FP, ${totalFN} FN across ${jsonFiles.length} categories`);
   if (totalFP === 0 && totalFN === 0) {
     console.log('  All literal regexes pass Oracle validation!');
+  }
+}
+
+/**
+ * Validate all generated regexes using BLOCK-BASED matching (matchPoE2RegexItem).
+ *
+ * Unlike validateGeneratedRegexes() which uses flat-text matching where .*
+ * crosses block boundaries, this method accurately simulates in-game behavior:
+ * - Each token is treated as a separate block (mods: [rawText])
+ * - .* does NOT cross block boundaries
+ * - FP are categorized into family-tier (by design) vs cross-family (real bugs)
+ *
+ * Reports per category: valid, invalid, crossFamilyFP, familyTierFP.
+ */
+function validateGeneratedRegexesItem(): void {
+  console.log('\n=== Validating regexes with Block-based Oracle ===');
+
+  const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+  let grandTotal = 0;
+  let grandValid = 0;
+  let grandCrossFP = 0;
+  let grandFamilyFP = 0;
+
+  for (const jsonFile of jsonFiles) {
+    const filePath = path.join(OUTPUT_DIR, jsonFile);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const tokens = data.tokens;
+    if (!tokens || tokens.length === 0) continue;
+
+    const category = data.category || jsonFile.replace('.json', '');
+
+    // Build GameItemText items: each token = one item with its rawText as a single mod block
+    const allItems: { id: string; text: GameItemText }[] = tokens.map((t: any) => ({
+      id: t.id,
+      text: { mods: [t.rawText?.ru ?? ''] },
+    }));
+
+    // Build familyKey map from token data
+    const familyKeyById = new Map<string, string>();
+    for (const token of tokens) {
+      const fk = token.familyKey?.ru;
+      if (fk) {
+        familyKeyById.set(token.id, fk);
+      }
+    }
+
+    // Build regex list for batch validation
+    const regexes = tokens
+      .filter((t: any) => t.regex?.ru && t.rawText?.ru)
+      .map((t: any) => ({
+        tokenId: t.id,
+        regex: t.regex.ru,
+      }));
+
+    const report = batchValidateItem(regexes, new Map(allItems.map(i => [i.id, i])), allItems, familyKeyById);
+
+    // Log problems
+    const problems = report.entries.filter(e => !e.result.valid);
+    if (problems.length > 0) {
+      console.log(`  ${category}: ${report.validCount}/${report.totalChecked} valid, ${report.crossFamilyFPCount} cross-family FP, ${report.familyTierFPOnlyCount} family-tier FP`);
+      for (const entry of problems.slice(0, 10)) {
+        const r = entry.result;
+        if (r.falseNegatives.length > 0) {
+          console.log(`    FN: ${entry.tokenId} — regex "${entry.regex}" doesn't match its own text`);
+        }
+        if (r.crossFamilyFP.length > 0) {
+          const samples = r.crossFamilyFP.slice(0, 3).map(fp => fp.substring(0, 50));
+          console.log(`    Cross-FP: ${entry.tokenId} — regex "${entry.regex}" also matches: ${samples.join(', ')}`);
+        }
+      }
+      if (problems.length > 10) {
+        console.log(`    ... and ${problems.length - 10} more`);
+      }
+    } else {
+      console.log(`  ${category}: all ${report.totalChecked} regexes valid (block-based)`);
+    }
+
+    grandTotal += report.totalChecked;
+    grandValid += report.validCount;
+    grandCrossFP += report.crossFamilyFPCount;
+    grandFamilyFP += report.familyTierFPOnlyCount;
+  }
+
+  console.log(`\n  Total: ${grandValid}/${grandTotal} valid, ${grandCrossFP} cross-family FP, ${grandFamilyFP} family-tier FP`);
+  if (grandCrossFP === 0) {
+    console.log('  No cross-family FP detected — all regexes are safe for in-game use!');
   }
 }
 
