@@ -84,3 +84,79 @@ describe('computeAllRegexes', () => {
     }
   });
 });
+
+describe('() grouping prevention (P0 fix)', () => {
+  it('never produces regex containing ( or ) from rawText with parenthesized number ranges', () => {
+    // Simulate mods like "(4—6)% увеличение области действия" and "(5—15)% повышение шанса"
+    // These have (num—num) patterns that PoE2 interprets as grouping, breaking the regex.
+    const tokens: NormalizedMod[] = [
+      makeMod({
+        id: 'test.paren1',
+        rawText: { ru: '(4—6)% увеличение области действия' },
+        rawTextTemplate: { ru: '(##)% увеличение области действия' },
+        category: 'jewel',
+      }),
+      makeMod({
+        id: 'test.paren2',
+        rawText: { ru: '(5—15)% повышение шанса критического удара' },
+        rawTextTemplate: { ru: '(##)% повышение шанса критического удара' },
+        category: 'jewel',
+      }),
+      makeMod({
+        id: 'test.paren3',
+        rawText: { ru: '+(4—6) к силе' },
+        rawTextTemplate: { ru: '+#(##) к силе' },
+        category: 'jewel-corrupted',
+      }),
+    ];
+
+    for (const token of tokens) {
+      const result = computeMinimalUniqueSubstring(token, tokens, 'ru');
+      expect(result.regex).not.toContain('(');
+      expect(result.regex).not.toContain(')');
+    }
+  });
+
+  it('avoids parens in waystone mods with (num—num) pattern', () => {
+    // Real waystone bug: "Меткость монстров повышена на (20—30)%"
+    const tokens: NormalizedMod[] = [
+      makeMod({
+        id: 'waystone.accuracy20',
+        rawText: { ru: 'Меткость монстров повышена на (20—30)%' },
+        rawTextTemplate: { ru: 'Меткость монстров повышена на (##)%' },
+        category: 'waystone',
+      }),
+      makeMod({
+        id: 'waystone.accuracy30',
+        rawText: { ru: 'Меткость монстров повышена на (30—40)%' },
+        rawTextTemplate: { ru: 'Меткость монстров повышена на (##)%' },
+        category: 'waystone',
+      }),
+    ];
+
+    for (const token of tokens) {
+      const result = computeMinimalUniqueSubstring(token, tokens, 'ru');
+      expect(result.regex).not.toContain('(');
+      expect(result.regex).not.toContain(')');
+      expect(result.regex.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('still finds valid regex for mods with (num—num) when text after parens is unique', () => {
+    const tokens: NormalizedMod[] = [
+      makeMod({
+        id: 'test.area',
+        rawText: { ru: '(4—6)% увеличение области действия' },
+        rawTextTemplate: { ru: '(##)% увеличение области действия' },
+        category: 'jewel',
+      }),
+    ];
+
+    const result = computeMinimalUniqueSubstring(tokens[0], tokens, 'ru');
+    expect(result.regex).toBeTruthy();
+    expect(result.regex).not.toContain('(');
+    expect(result.regex).not.toContain(')');
+    // Should find "увеличение области действия" or similar text after the parens
+    expect(result.regex.length).toBeGreaterThanOrEqual(5);
+  });
+});

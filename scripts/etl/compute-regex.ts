@@ -329,6 +329,10 @@ function findShortestUniqueSuffix(
     return null; // Even the full suffix conflicts — can't use template approach
   }
 
+  // If the full suffix contains `()`, it's unusable in PoE2 — skip entirely.
+  // Template suffixes rarely contain parens, but we guard against it.
+  if (containsPoE2Grouping(fullSuffix)) return null;
+
   // Try trimming from the left (word by word) to find shortest unique suffix
   let bestSuffix = fullSuffix;
 
@@ -337,6 +341,8 @@ function findShortestUniqueSuffix(
   for (let skipWords = 1; skipWords < words.length; skipWords++) {
     const candidate = words.slice(skipWords).join(' ');
     if (candidate.length < minLen) break;
+    // Skip candidates with `()` — PoE2 interprets them as grouping
+    if (containsPoE2Grouping(candidate)) continue;
 
     if (isSuffixUniqueInCategory(candidate, targetTemplate, allTokensInCategory, locale)) {
       bestSuffix = candidate;
@@ -350,13 +356,27 @@ function findShortestUniqueSuffix(
 }
 
 /**
+ * Check if a string contains `(` or `)` characters that PoE2 interprets
+ * as grouping (not literal parentheses). Any regex containing these chars
+ * will be misinterpreted by PoE2, causing truncation or unintended grouping.
+ *
+ * IMPORTANT: This check must be applied BEFORE using a candidate as regex.
+ * The `regexMatchesRawText()` validation is NOT sufficient because PoE2's
+ * parser truncates at `)` — e.g. "—6) к с" becomes "—6" which still matches
+ * the rawText, giving a false-positive validation pass.
+ */
+function containsPoE2Grouping(candidate: string): boolean {
+  return candidate.includes('(') || candidate.includes(')');
+}
+
+/**
  * Verify that a candidate regex actually matches the rawText using PoE2's
- * regex engine. This catches cases where the regex contains `()` that PoE2
- * interprets as grouping (not literal parens), or other regex metacharacters
+ * regex engine. This catches cases where the regex contains metacharacters
  * that cause the match to fail even though the substring exists.
  *
- * For example, "(2—4)% повышение" contains `()` which PoE2 treats as a group,
- * so it matches "2—4" inside parens but NOT the literal "(2—4)".
+ * NOTE: This function does NOT reliably catch `()` issues because PoE2's
+ * parser truncates at `)`, so the truncated regex may still match rawText.
+ * Use `containsPoE2Grouping()` as a pre-filter instead.
  */
 function regexMatchesRawText(regex: string, rawText: string): boolean {
   return matchQuotedGroup(regex, rawText.toLowerCase());
@@ -410,7 +430,6 @@ export function computeMinimalUniqueSubstring(
       // Verify the suffix actually matches the rawText via PoE2 regex engine.
       // For multi-placeholder (dual-stat) mods, the template-joined suffix
       // may not appear in rawText because numbers interrupt the segments.
-      // Also catches regexes with `()` that PoE2 interprets as grouping.
       if (regexMatchesRawText(bestSuffix, rawText)) {
         // Check yofication on the suffix
         const { hasYofication, yoficationPositions } = checkYofication(
@@ -502,9 +521,9 @@ export function computeMinimalUniqueSubstring(
         const segments = template.split(/#+/);
         const lastSegment = segments[segments.length - 1]
           .replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '').trim();
-        if (lastSegment && lastSegment.length >= effectiveMinLen) {
-          // This is a broad match, but it WORKS against rawText.
-          // The user can combine with other filters to narrow down.
+        if (lastSegment && lastSegment.length >= effectiveMinLen
+            && !containsPoE2Grouping(lastSegment)
+            && regexMatchesRawText(lastSegment, rawText)) {
           const { hasYofication, yoficationPositions } = checkYofication(
             lastSegment, targetToken, allTokensInCategory, locale
           );
@@ -559,31 +578,22 @@ export function computeMinimalUniqueSubstring(
   );
 
   // Final validation: verify the regex matches rawText via PoE2 engine.
-  // This catches regexes containing `(...)` which PoE2 interprets as grouping
-  // instead of literal parentheses (e.g., "(5—10)% повышение" → PoE2 reads
-  // group "5—10" then "% повышение", which doesn't match the rawText).
+  // Since substringSearchFallback now filters `()` at generation time,
+  // this mainly catches other metacharacter issues or multi-placeholder joins.
   if (fallbackResult.regex && !regexMatchesRawText(fallbackResult.regex, rawText)) {
-    // Try substring search that avoids `(...)` number ranges
-    const safeResult = substringSearchAvoidingParens(
-      targetToken, allTokensInCategory, locale, effectiveMinLen
-    );
-    if (safeResult.regex && regexMatchesRawText(safeResult.regex, rawText)) {
-      fallbackResult = safeResult;
-    } else {
-      // Last resort: use the template suffix even if not unique.
-      // A broad match that WORKS is better than a specific match that DOESN'T.
-      // For tokens where the suffix appears in multiple families,
-      // the user can combine with other filters to narrow down.
-      const broadSuffix = extractTemplateSuffix(template);
-      if (broadSuffix && broadSuffix.length >= 3 && regexMatchesRawText(broadSuffix, rawText)) {
-        const { hasYofication, yoficationPositions } = checkYofication(
-          broadSuffix, targetToken, allTokensInCategory, locale
-        );
-        fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
-      }
-      // If even the broad suffix doesn't match, keep the fallback result
-      // (it will be an FN in Oracle but at least it's a best-effort regex)
+    // Last resort: use the template suffix even if not unique.
+    // A broad match that WORKS is better than a specific match that DOESN'T.
+    const broadSuffix = extractTemplateSuffix(template);
+    if (broadSuffix && broadSuffix.length >= 3
+        && !containsPoE2Grouping(broadSuffix)
+        && regexMatchesRawText(broadSuffix, rawText)) {
+      const { hasYofication, yoficationPositions } = checkYofication(
+        broadSuffix, targetToken, allTokensInCategory, locale
+      );
+      fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
     }
+    // If even the broad suffix doesn't match, keep the fallback result
+    // (it will be an FN in Oracle but at least it's a best-effort regex)
   }
 
   return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder };
@@ -622,11 +632,16 @@ function substringSearchFallback(
   let bestScore = Infinity;
 
   // Try all substrings starting from minimum length
+  // SKIP candidates containing `(` or `)` — PoE2 interprets them as grouping,
+  // causing truncation (e.g. "—6) к с" → PoE2 reads only "—6") → cross-family FP.
   for (let length = minLen; length <= primaryText.length; length++) {
     let foundForThisLength = false;
 
     for (let start = 0; start <= primaryText.length - length; start++) {
       const candidate = primaryText.substring(start, start + length);
+
+      // Skip candidates containing `(` or `)` — PoE2 treats as grouping
+      if (containsPoE2Grouping(candidate)) continue;
 
       if (candidate.trim().length < minLen) continue;
       if (/^\d+$/.test(candidate.trim())) continue;
@@ -659,6 +674,7 @@ function substringSearchFallback(
         let found = false;
         for (let start = 0; start <= lowerForm.length - length; start++) {
           const candidate = lowerForm.substring(start, start + length);
+          if (containsPoE2Grouping(candidate)) continue;
           if (candidate.trim().length < minLen) continue;
           if (/^\d+$/.test(candidate.trim())) continue;
           if (!exclusionSubstrings.has(candidate)) {
@@ -673,112 +689,12 @@ function substringSearchFallback(
     }
   }
 
-  // Fallback: full rawText
+  // Fallback: full rawText (strip parens if present)
   if (!bestCandidate) {
-    bestCandidate = primaryText;
-  }
-
-  // Check yofication
-  const { hasYofication, yoficationPositions } = checkYoficationLegacy(
-    bestCandidate, primaryText, targetToken, exclusionSubstrings
-  );
-
-  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
-}
-
-/**
- * Substring search that avoids candidates containing `(...)` patterns.
- * PoE2 interprets `()` as grouping, so regexes like "(5—10)% повышение"
- * don't match the rawText because PoE2 reads the parens as a group.
- *
- * Strategy: find the shortest unique substring of rawText that does NOT
- * contain `(` or `)` characters. This ensures PoE2 treats it as a literal.
- */
-function substringSearchAvoidingParens(
-  targetToken: NormalizedMod,
-  allTokensInCategory: NormalizedMod[],
-  locale: Locale,
-  minLen: number = MIN_REGEX_LEN_DEFAULT
-): Omit<RegexResult, 'familyKey'> {
-  const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
-  if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false };
-  }
-
-  // Build exclusion texts: all other tokens' texts
-  const exclusionTexts: string[] = [];
-  for (const token of allTokensInCategory) {
-    if (token.id === targetToken.id) continue;
-    const texts = getAllTexts(token, locale).map(t => t.toLowerCase());
-    exclusionTexts.push(...texts);
-  }
-
-  const exclusionSubstrings = buildSubstringSet(exclusionTexts, 30);
-  const primaryText = targetToken.rawText[locale].toLowerCase();
-
-  // Find a unique substring that doesn't contain `(` or `)`
-  let bestCandidate = '';
-  let bestScore = Infinity;
-
-  for (let length = minLen; length <= primaryText.length; length++) {
-    let foundForThisLength = false;
-
-    for (let start = 0; start <= primaryText.length - length; start++) {
-      const candidate = primaryText.substring(start, start + length);
-
-      // Skip candidates containing `(` or `)` — PoE2 treats these as grouping
-      if (candidate.includes('(') || candidate.includes(')')) continue;
-
-      if (candidate.trim().length < minLen) continue;
-      if (/^\d+$/.test(candidate.trim())) continue;
-
-      if (!exclusionSubstrings.has(candidate)) {
-        const isEndOfWord = (start + length === primaryText.length) ||
-                           primaryText[start + length] === ' ';
-        const hasSpaces = candidate.includes(' ');
-        const score = length * 10 + (hasSpaces ? 5 : 0) + (isEndOfWord ? 0 : 3);
-
-        if (score < bestScore) {
-          bestCandidate = candidate;
-          bestScore = score;
-        }
-        foundForThisLength = true;
-      }
-    }
-
-    if (foundForThisLength && bestCandidate) break;
-  }
-
-  // Try gender form texts if no result
-  if (!bestCandidate) {
-    for (const formText of targetTexts.slice(1)) {
-      if (formText === primaryText) continue;
-      const lowerForm = formText.toLowerCase();
-      for (let length = minLen; length <= lowerForm.length; length++) {
-        let found = false;
-        for (let start = 0; start <= lowerForm.length - length; start++) {
-          const candidate = lowerForm.substring(start, start + length);
-          if (candidate.includes('(') || candidate.includes(')')) continue;
-          if (candidate.trim().length < minLen) continue;
-          if (/^\d+$/.test(candidate.trim())) continue;
-          if (!exclusionSubstrings.has(candidate)) {
-            bestCandidate = candidate;
-            found = true;
-            break;
-          }
-        }
-        if (found) break;
-      }
-      if (bestCandidate) break;
-    }
-  }
-
-  // Fallback: try to find ANY substring without parens, even if not unique
-  if (!bestCandidate) {
-    // Remove number ranges from rawText and try again
-    const cleanedText = primaryText.replace(/\([^)]+\)/g, '').replace(/\s+/g, ' ').trim();
-    if (cleanedText.length >= minLen) {
-      bestCandidate = cleanedText;
+    if (containsPoE2Grouping(primaryText)) {
+      // Try stripping parenthesized number ranges from rawText
+      const cleanedText = primaryText.replace(/\([^)]+\)/g, '').replace(/\s+/g, ' ').trim();
+      bestCandidate = cleanedText.length >= minLen ? cleanedText : primaryText;
     } else {
       bestCandidate = primaryText;
     }
@@ -791,6 +707,8 @@ function substringSearchAvoidingParens(
 
   return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false };
 }
+
+
 
 /**
  * Check yofication for template-based regex.

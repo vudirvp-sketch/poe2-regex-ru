@@ -4,32 +4,31 @@
 
 ---
 
-## Current State (Session 43 — 2026-06-07)
+## Current State (Session 44 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (452/452 tests)
-**Oracle:** Block-based: 1376/1573 valid, 194 cross-family FP, 924 family-tier FP
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (455/455 tests)
+**Oracle:** Block-based: pending re-run after P0 fix. Previous: 1376/1573 valid, 194 cross-family FP, 924 family-tier FP
 
-**Key Changes This Session (--validate-item):**
+**Key Changes This Session (P0 fix — `()` in regexes):**
 
-1. **Added `--validate-item` flag to `run-etl.ts`** — New `validateGeneratedRegexesItem()` function that uses `batchValidateItem()` from `regex-oracle.ts` for block-based Oracle validation. Unlike `--validate` (flat-text), this accurately simulates in-game behavior where `.*` does NOT cross block boundaries.
+1. **Root cause:** `compute-regex.ts` generated candidate substrings containing `(` or `)`. PoE2 interprets these as grouping, truncating the regex (e.g. `—6) к с` → PoE2 reads `—6`). The `regexMatchesRawText()` validation didn't catch this because the truncated regex still matched the rawText.
 
-2. **Import added:** `batchValidateItem` from `regex-oracle.ts` + `GameItemText` type from `poe2-regex-matcher.ts`.
+2. **Fix: Added `containsPoE2Grouping()` helper** — checks for `(` or `)` in candidate strings. Applied as a pre-filter at ALL generation points:
+   - `substringSearchFallback()` — primary source of `()` bugs (line ~652)
+   - `findShortestUniqueSuffix()` — word-trimming loop (line ~344)
+   - Strategy 1b-alt — added `containsPoE2Grouping()` + `regexMatchesRawText()` check (line ~525)
+   - Broad suffix fallback — added `containsPoE2Grouping()` check (line ~588)
 
-3. **Block-based validation results** (first run):
-   - relic: 58/58 valid ✅
-   - waystone: 93/97 (1 cross-family FP, 3 FN from `()` in regex)
-   - waystone-desecrated: 16/17 (1 cross-family FP)
-   - tablet: 70/75 (5 cross-family FP)
-   - jewel: 178/193 (15 cross-family FP — many `()` bugs)
-   - jewel-desecrated: 16/32 (16 cross-family FP)
-   - jewel-corrupted: 9/10 (1 cross-family FP — `—6) к с` bug confirmed)
-   - belt: 287/298 (11 cross-family FP)
-   - ring: 317/366 (49 cross-family FP)
-   - amulet: 332/427 (95 cross-family FP)
+3. **Removed `substringSearchAvoidingParens()`** — its logic is now built into `substringSearchFallback()`, making the separate function redundant. Simpler code, same result.
+
+4. **Added 3 new tests** for `()` prevention (total: 455 tests, all pass).
+
+5. **Affected regexes:** 51 across all categories had `()` before fix. After ETL re-run, expect 0.
 
 **NOT YET DONE:**
-- ⬜ Fix `()` in regexes — ETL compute-regex generates `—6) к с` etc. PoE2 interprets `)` as groupClose, truncating the regex
-- ⬜ Fix `к силе` cross-family FP — matches composite mods `+(9—15) к силе и интеллекту` etc.
+- ⬜ Run ETL to regenerate `public/generated/*.json` with fixed regexes
+- ⬜ Re-run `--validate-item` Oracle to measure improvement
+- ⬜ Fix `к силе` cross-family FP — matches composite mods
 - ⬜ jewel-desecrated 16 cross-family FP — needs investigation
 - ⬜ Add tests for `validateGeneratedRegexesItem()`
 
@@ -38,12 +37,12 @@
 ## Frequent Bugs
 
 1. **ETL cache stale:** If poe2db.tw updates, delete `.etl-cache/` and re-run `pnpm etl`
-2. **`()` in regex = PoE2 grouping:** Regexes MUST NOT contain literal `(...)` — PoE2 interprets as grouping. Unmatched `(` may be literal.
-3. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes.
-4. **`?` does NOT work in PoE2:** Do NOT use `?` in generated regexes — verified in-game.
-5. **Description text not indexed:** Tooltip text like "Можно использовать в Машине картоходца" is NOT searchable — verified in-game.
-6. **`.*` does NOT cross block boundaries:** Each mod/implicit/property is a separate block. Use AND for cross-block search.
-7. **Waystone implicits are NOT affixes:** Properties like "Уровень путевого камня", "размер групп", "количество предметов" are base item properties, not from the mod system. Not in ETL data. Verified.
+2. **`##` from template in regex:** Template placeholders (`##`) MUST NOT appear in final regexes.
+3. **`?` does NOT work in PoE2:** Do NOT use `?` in generated regexes — verified in-game.
+4. **Description text not indexed:** Tooltip text like "Можно использовать в Машине картоходца" is NOT searchable — verified in-game.
+5. **`.*` does NOT cross block boundaries:** Each mod/implicit/property is a separate block. Use AND for cross-block search.
+6. **Waystone implicits are NOT affixes:** Properties like "Уровень путевого камня", "размер групп", "количество предметов" are base item properties, not from the mod system. Not in ETL data. Verified.
+7. **`()` in regex = PoE2 grouping (FIXED Session 44):** `containsPoE2Grouping()` now filters `(` and `)` at generation time. No more `—6) к с` bugs.
 
 ## Build & Run Commands
 

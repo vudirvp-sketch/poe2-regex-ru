@@ -69,21 +69,20 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **`()` in regexes — ETL compute-regex bug** — Regexes like `—6) к с` contain `)` which PoE2 interprets as groupClose, truncating the regex. Affects jewel (15), jewel-corrupted (1), waystone (3 FN). Fix requires changes in `scripts/etl/compute-regex.ts`.
-2. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
+1. **In-game regex verification** — See `docs/IN_GAME_TESTS.md` groups G-L
 
 ### MEDIUM
 
-3. **`к силе` cross-family FP** — Simple regex `к силе` matches composite mods like `+(9—15) к силе и интеллекту`. Affects amulet (95), belt (11), ring (49). Needs longer regex generation.
-4. **jewel-desecrated 16 cross-family FP** — Many short regexes match across families. Needs investigation.
-5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-6. **HomePage hardcoded mod counts** — Category cards show stale counts
+2. **`к силе` cross-family FP** — Simple regex `к силе` matches composite mods like `+(9—15) к силе и интеллекту`. Affects amulet (95), belt (11), ring (49). Needs longer regex generation.
+3. **jewel-desecrated 16 cross-family FP** — Many short regexes match across families. Needs investigation.
+4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+5. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-9. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+8. **Number regex length increase** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Data Stats (Block-based Oracle, Session 43)
 

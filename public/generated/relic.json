@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T22:20:30.050Z",
+  "version": "2026-06-07T06:00:56.860Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -1549,7 +1549,7 @@
         "ru": "Ловушки наносят уменьшенный на ##% урон"
       },
       "regex": {
-        "ru": "5—7)%"
+        "ru": "ловушки наносят уменьшенный на "
       },
       "familyKey": {
         "ru": "Ловушки наносят уменьшенный на #% урон"
@@ -2603,9 +2603,9 @@
         "relic.sanctumreducedtrapdamage3"
       ],
       "regex": {
-        "ru": "5—7)%"
+        "ru": "ловушки наносят уменьшенный на "
       },
-      "weight": 5,
+      "weight": 31,
       "count": 2
     },
     "relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3": {

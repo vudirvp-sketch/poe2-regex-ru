@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-06T22:20:29.829Z",
+  "version": "2026-06-07T06:00:56.661Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
@@ -14,7 +14,7 @@
         "ru": "+## к силе"
       },
       "regex": {
-        "ru": "—6) к с"
+        "ru": "к силе"
       },
       "familyKey": {
         "ru": "+# к силе"
