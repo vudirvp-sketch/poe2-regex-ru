@@ -171,6 +171,8 @@ export function JewelPage() {
               onClearTokenRange={clearTokenRange}
               groupMode="origin"
               showOriginSubSections
+              showJewelTypeSubGroups
+              jewelTypeFilter={jewelTypeFilter}
             />
 
             <div className="flex flex-col gap-3">

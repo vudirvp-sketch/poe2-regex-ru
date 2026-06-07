@@ -50,7 +50,7 @@ export function normalizeTypeA(
   const genderForms = extractGenderForms(raw.nameHtml);
   const baseId = generateId(raw.modCode, category, segments[0].rawText, raw.origin || origin);
 
-  return segments.map((seg, idx) => {
+  return segments.map((seg) => {
     // For multi-segment mods, use a hash of the segment's rawText as suffix
     // instead of a simple index. This avoids ID collisions when different tiers
     // of the same modCode have different second segments (e.g., desecrated jewels).
@@ -92,7 +92,7 @@ export function normalizeTypeB(
   const genderForms = extractGenderForms(tier.nameHtml);
   const baseId = generateId(tier.modCode || group.genGroup, category, segments[0].rawText, group.origin);
 
-  return segments.map((seg, idx) => {
+  return segments.map((seg) => {
     // For multi-segment mods, use a hash of the segment's rawText as suffix
     const id = segments.length > 1
       ? `${baseId}.${simpleHash(seg.rawText)}`

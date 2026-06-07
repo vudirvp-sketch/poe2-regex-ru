@@ -12,7 +12,7 @@
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
-import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
+import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride, type SlotRangeOverride } from '@store/filter-store';
 import { syncFromUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
@@ -137,6 +137,9 @@ export interface CategoryPageState {
  * Get effective min/max for a token: per-token override > global fallback.
  * For multi-placeholder tokens (hasMultiPlaceholder), uses filterSlotIndex
  * from the per-token override to select the correct range slot.
+ *
+ * When slotOverrides is set, returns the override for each slot independently.
+ * Callers should check hasSlotOverrides first and use getEffectiveRangePerSlot instead.
  */
 function getEffectiveRange(
   token: GameToken,
@@ -155,6 +158,42 @@ function getEffectiveRange(
     };
   }
   return { min: globalMin, max: globalMax, filterSlotIndex: 0 };
+}
+
+/**
+ * Get effective range for each slot in a multi-placeholder token.
+ * Returns an array of { slotIndex, min, max } for each slot that has a range override.
+ * Falls back to single-slot mode when slotOverrides is not set.
+ */
+function getEffectiveRangePerSlot(
+  token: GameToken,
+  globalMin: number | null,
+  globalMax: number | null,
+  perTokenRanges: Record<string, TokenRangeOverride>
+): Array<{ slotIndex: number; min: number | null; max: number | null }> {
+  const override = perTokenRanges[token.id];
+
+  if (!override?.slotOverrides || Object.keys(override.slotOverrides).length === 0) {
+    // Fallback to single-slot mode
+    const effective = getEffectiveRange(token, globalMin, globalMax, perTokenRanges);
+    if (effective.min === null && effective.max === null) return [];
+    return [{ slotIndex: effective.filterSlotIndex, min: effective.min, max: effective.max }];
+  }
+
+  // Dual-slot mode: return overrides for each slot
+  const result: Array<{ slotIndex: number; min: number | null; max: number | null }> = [];
+  const slotCount = token.ranges.length;
+
+  for (let i = 0; i < slotCount; i++) {
+    const slotOverride: SlotRangeOverride = override.slotOverrides[i] ?? {};
+    const slotMin = slotOverride.min ?? (i === (override.filterSlotIndex ?? 0) ? override.min : null) ?? globalMin;
+    const slotMax = slotOverride.max ?? (i === (override.filterSlotIndex ?? 0) ? override.max : null) ?? globalMax;
+    if (slotMin !== null || slotMax !== null) {
+      result.push({ slotIndex: i, min: slotMin, max: slotMax });
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -288,55 +327,57 @@ function buildAstFromSelections(
 
   // Handle ranged tokens with per-token or global numeric ranges
   if (rangedTokens.length > 0) {
-    // Determine if ANY token has an effective min/max
-    const tokensWithRange = rangedTokens.map(token => ({
+    // Determine if ANY token has an effective min/max (including slot overrides)
+    const tokensWithSlots = rangedTokens.map(token => ({
       token,
-      effective: getEffectiveRange(token, minValue, maxValue, perTokenRanges),
+      slots: getEffectiveRangePerSlot(token, minValue, maxValue, perTokenRanges),
     }));
 
-    const anyHasRange = tokensWithRange.some(
-      ({ effective }) => (effective.min !== null && effective.min > 0) || (effective.max !== null && effective.max > 0)
+    const anyHasRange = tokensWithSlots.some(
+      ({ slots }) => slots.some(s => (s.min !== null && s.min > 0) || (s.max !== null && s.max > 0))
     );
 
     if (anyHasRange) {
-      // Group ranged tokens by suffix + prefix + effective range
-      // Each unique (suffix, prefix, min, max, isPerToken) combination gets its own RANGE node
-      // Per-token range → exact=true (no round10), global range → exact=false (use round10)
+      // Group ranged tokens by suffix + prefix + effective range per slot
+      // Each unique (suffix, prefix, min, max, isPerToken, slotIndex) combination
+      // gets its own RANGE node. For dual-slot tokens, each slot produces a
+      // separate RANGE node that will be ANDed together.
       const rangeGroups = new Map<string, {
         suffix: string;
         prefix: string;
         min: number | undefined;
         max: number | undefined;
         exact: boolean;
+        slotIndex: number;
         tokens: GameToken[];
       }>();
-      for (const { token, effective } of tokensWithRange) {
+      for (const { token, slots } of tokensWithSlots) {
         const suffix = token.regex[locale];
-        // Use slot-specific prefix: for filterSlotIndex=0 use precomputed prefix,
-        // for filterSlotIndex>0 extract from template at runtime
-        const prefix = getPrefixForSlot(token, locale, effective.filterSlotIndex);
-        const hasMin = effective.min !== null && effective.min > 0;
-        const hasMax = effective.max !== null && effective.max > 0;
-
-        // Per-token range override → exact (no round10); global range → not exact
         const isPerToken = !!perTokenRanges[token.id];
 
-        // Create a group key that includes prefix, filterSlotIndex, and whether it's per-token exact
-        // This ensures tokens with different filterSlotIndex or prefixes get separate RANGE nodes
-        const groupKey = `${suffix}::${prefix}::${hasMin ? effective.min : ''}::${hasMax ? effective.max : ''}::${isPerToken}::slot${effective.filterSlotIndex}`;
+        for (const slot of slots) {
+          const hasMin = slot.min !== null && slot.min > 0;
+          const hasMax = slot.max !== null && slot.max > 0;
+          if (!hasMin && !hasMax) continue;
 
-        const existing = rangeGroups.get(groupKey);
-        if (existing) {
-          existing.tokens.push(token);
-        } else {
-          rangeGroups.set(groupKey, {
-            suffix,
-            prefix: prefix,
-            min: hasMin ? effective.min! : undefined,
-            max: hasMax ? effective.max! : undefined,
-            exact: isPerToken,  // per-token range → exact regex (no round10)
-            tokens: [token],
-          });
+          const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
+
+          const groupKey = `${suffix}::${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}`;
+
+          const existing = rangeGroups.get(groupKey);
+          if (existing) {
+            existing.tokens.push(token);
+          } else {
+            rangeGroups.set(groupKey, {
+              suffix,
+              prefix: prefix,
+              min: hasMin ? slot.min! : undefined,
+              max: hasMax ? slot.max! : undefined,
+              exact: isPerToken,
+              slotIndex: slot.slotIndex,
+              tokens: [token],
+            });
+          }
         }
       }
 

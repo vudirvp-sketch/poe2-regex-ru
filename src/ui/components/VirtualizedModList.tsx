@@ -3,22 +3,24 @@
  *
  * Uses @tanstack/react-virtual to render only visible sub-groups,
  * significantly reducing DOM nodes for categories with 200+ tokens
- * (belt: 298, ring: 366, amulet: 427).
+ * (belt: 298, ring: 366, amulet: 427, jewel: 235).
  *
  * Strategy: flatten the hierarchical structure (column → origin section →
- * sub-group) into a flat list of "virtual rows". Each row is either:
+ * jewel-type sub-group → sub-group) into a flat list of "virtual rows".
+ * Each row is either:
  * - A column header (ПРЕФИКС / СУФФИКС)
  * - An origin section header (··· Осквернённые ···)
+ * - A jewel type sub-header (── Рубин ── / ── Сапфир ──)
  * - A sub-group with its header and flex-wrap chips
  *
- * The virtualizer uses the viewport as the scroll element, so the page
- * scrolls naturally without nested scroll containers.
+ * The virtualizer uses the <main> scroll container (id="main-content"),
+ * so the page scrolls naturally without nested scroll containers.
  */
-import React, { useMemo, useCallback, useRef } from 'react';
+import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
-import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
+import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { t } from '@shared/i18n';
@@ -37,9 +39,9 @@ interface VirtualizedModListProps {
   onClearSelections: () => void;
   groupMode?: ModGroupMode;
   showOriginSubSections?: boolean;
-  /** @deprecated Not used in virtualized mode */
+  /** Show jewel type sub-headers (Рубин/Изумруд/Сапфир/Общие) inside origin sections */
   showJewelTypeSubGroups?: boolean;
-  /** @deprecated Not used in virtualized mode */
+  /** Filter tokens by jewel type before display (pre-filtering at page level) */
   jewelTypeFilter?: JewelTypeCategory | 'all';
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
@@ -50,16 +52,40 @@ interface VirtualizedModListProps {
 type VirtualRow =
   | { type: 'column-header'; affix: AffixType; count: number }
   | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; count: number }
+  | { type: 'jewel-type-header'; jewelType: JewelTypeCategory; label: string; colorClass: string; count: number }
   | { type: 'subgroup'; subGroup: ModSubGroup; affix: AffixType };
 
 const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
 
+/** Order for jewel type sub-headers within origin sections */
+const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 'shared'];
+
 /** Estimated heights for virtualizer (will be dynamically measured) */
 const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
-  'column-header': 32,
-  'origin-header': 24,
-  'subgroup': 80, // varies by chip count, but this is a reasonable average
+  'column-header': 36,
+  'origin-header': 28,
+  'jewel-type-header': 26,
+  'subgroup': 100, // varies by chip count; estimated high to reduce jump
 };
+
+/**
+ * Find the nearest scrollable ancestor element.
+ * Walks up the DOM tree from the given element, checking computed overflow.
+ */
+function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
+  let current = el;
+  while (current) {
+    // Check for <main id="main-content"> first — known scroll container
+    if (current.id === 'main-content') return current;
+    const style = getComputedStyle(current);
+    const overflowY = style.overflowY;
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      return current;
+    }
+    current = current.parentElement;
+  }
+  return null;
+}
 
 export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   tokens,
@@ -74,13 +100,19 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   onClearSelections,
   groupMode = 'affix-semantic',
   showOriginSubSections = false,
-  showJewelTypeSubGroups: _showJewelTypeSubGroups = false,
+  showJewelTypeSubGroups = false,
   jewelTypeFilter: _jewelTypeFilter = 'all',
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Resolve the scroll element after mount
+  const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setScrollElement(findScrollableParent(containerRef.current));
+  }, []);
 
   // Get unique origins from tokens
   const availableOrigins = useMemo(() => {
@@ -165,7 +197,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           const originSubGroups = classifyGroups(originGroups, groupMode);
           const sectionCount = originSubGroups.reduce((s, sg) => s + sg.groups.length, 0);
 
-          // Origin section header (skip for the first/normal origin — already implied by column header)
+          // Origin section header (skip for normal-only — already implied by column header)
           if (origin !== 'normal' || byOrigin.size > 1) {
             rows.push({
               type: 'origin-header',
@@ -176,9 +208,43 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             });
           }
 
-          // Sub-groups within this origin section
-          for (const sg of originSubGroups) {
-            rows.push({ type: 'subgroup', subGroup: sg, affix });
+          // Jewel type sub-groups within origin section
+          if (showJewelTypeSubGroups) {
+            // Classify origin groups by jewel type
+            const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
+            for (const group of originGroups) {
+              const jewelType = classifyJewelType(group);
+              const list = byJewelType.get(jewelType) || [];
+              list.push(group);
+              byJewelType.set(jewelType, list);
+            }
+
+            for (const jewelType of JEWEL_TYPE_ORDER) {
+              const jtGroups = byJewelType.get(jewelType);
+              if (!jtGroups || jtGroups.length === 0) continue;
+
+              const labelConfig = JEWEL_TYPE_LABELS[jewelType];
+
+              // Jewel type sub-header
+              rows.push({
+                type: 'jewel-type-header',
+                jewelType,
+                label: labelConfig.label,
+                colorClass: labelConfig.colorClass,
+                count: jtGroups.length,
+              });
+
+              // Sub-groups within this jewel type
+              const jtSubGroups = classifyGroups(jtGroups, groupMode);
+              for (const sg of jtSubGroups) {
+                rows.push({ type: 'subgroup', subGroup: sg, affix });
+              }
+            }
+          } else {
+            // No jewel type sub-headers: just sub-groups within origin
+            for (const sg of originSubGroups) {
+              rows.push({ type: 'subgroup', subGroup: sg, affix });
+            }
           }
         }
       } else {
@@ -193,18 +259,18 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     addColumn('suffix', suffixGroups, suffixSubGroups);
 
     return rows;
-  }, [prefixGroups, suffixGroups, prefixSubGroups, suffixSubGroups, showOriginSubSections, groupMode]);
+  }, [prefixGroups, suffixGroups, prefixSubGroups, suffixSubGroups, showOriginSubSections, showJewelTypeSubGroups, groupMode]);
 
   // Virtualizer
   const virtualizer = useVirtualizer({
     count: virtualRows.length,
-    getScrollElement: () => scrollRef.current?.parentElement ?? null,
+    getScrollElement: () => scrollElement,
     estimateSize: (index) => {
       const row = virtualRows[index];
       if (!row) return 40;
       return ROW_ESTIMATES[row.type];
     },
-    overscan: 5,
+    overscan: 8,
   });
 
   const handleAffixFilter = useCallback(
@@ -222,7 +288,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   );
 
   return (
-    <div className="virtualized-mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')}>
+    <div className="virtualized-mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')} ref={containerRef}>
       {/* Search + Filters row */}
       <div className="flex flex-wrap gap-2 items-center">
         <input
@@ -278,71 +344,75 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
 
       {/* Virtualized list */}
       {virtualRows.length > 0 ? (
-        <div ref={scrollRef}>
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const row = virtualRows[virtualItem.index];
-              if (!row) return null;
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualizer.getVirtualItems().map((virtualItem) => {
+            const row = virtualRows[virtualItem.index];
+            if (!row) return null;
 
-              return (
-                <div
-                  key={virtualItem.key}
-                  data-index={virtualItem.index}
-                  ref={virtualizer.measureElement}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                >
-                  {row.type === 'column-header' && (
-                    <div className={`text-xs font-bold uppercase tracking-wider mb-2 mt-2 ${
-                      row.affix === 'prefix' ? 'text-blue-400 border-l-2 border-blue-800/50 pl-3' : 'text-orange-400 border-l-2 border-orange-800/50 pl-3'
-                    }`}>
-                      {t('affix.' + row.affix)} ({row.count})
-                    </div>
-                  )}
+            return (
+              <div
+                key={virtualItem.key}
+                data-index={virtualItem.index}
+                ref={virtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+              >
+                {row.type === 'column-header' && (
+                  <div className={`text-xs font-bold uppercase tracking-wider mb-2 mt-2 ${
+                    row.affix === 'prefix' ? 'text-blue-400 border-l-2 border-blue-800/50 pl-3' : 'text-orange-400 border-l-2 border-orange-800/50 pl-3'
+                  }`}>
+                    {t('affix.' + row.affix)} ({row.count})
+                  </div>
+                )}
 
-                  {row.type === 'origin-header' && (
-                    <div className={`text-[9px] font-semibold uppercase tracking-wider mb-1 mt-2 ${row.colorClass} opacity-80`}>
-                      ··· {row.label} ({row.count}) ···
-                    </div>
-                  )}
+                {row.type === 'origin-header' && (
+                  <div className={`text-[9px] font-semibold uppercase tracking-wider mb-1 mt-2 ${row.colorClass} opacity-80`}>
+                    ··· {row.label} ({row.count}) ···
+                  </div>
+                )}
 
-                  {row.type === 'subgroup' && (
-                    <div className="mb-2">
-                      {row.subGroup.label && (
-                        <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${row.subGroup.colorClass}`}>
-                          ── {row.subGroup.label} ({row.subGroup.groups.length}) ──
-                        </div>
-                      )}
-                      <div className="flex flex-wrap gap-1.5">
-                        {row.subGroup.groups.map((group) => (
-                          <FilterChip
-                            key={group.familyKey}
-                            group={group}
-                            selectedIds={selectedIds}
-                            onToggleTokens={onToggleTokens}
-                            perTokenRanges={perTokenRanges}
-                            onSetTokenRange={onSetTokenRange}
-                            onClearTokenRange={onClearTokenRange}
-                          />
-                        ))}
+                {row.type === 'jewel-type-header' && (
+                  <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 mt-1.5 ${row.colorClass}`}>
+                    ── {row.label} ({row.count}) ──
+                  </div>
+                )}
+
+                {row.type === 'subgroup' && (
+                  <div className="mb-2">
+                    {row.subGroup.label && (
+                      <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${row.subGroup.colorClass}`}>
+                        ── {row.subGroup.label} ({row.subGroup.groups.length}) ──
                       </div>
+                    )}
+                    <div className="flex flex-wrap gap-1.5">
+                      {row.subGroup.groups.map((group) => (
+                        <FilterChip
+                          key={group.familyKey}
+                          group={group}
+                          selectedIds={selectedIds}
+                          onToggleTokens={onToggleTokens}
+                          perTokenRanges={perTokenRanges}
+                          onSetTokenRange={onSetTokenRange}
+                          onClearTokenRange={onClearTokenRange}
+                        />
+                      ))}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="text-center text-gray-500 py-8">

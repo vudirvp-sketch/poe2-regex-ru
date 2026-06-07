@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 55.0 | **Date:** 2026-06-07
+> **Version:** 56.0 | **Date:** 2026-06-07
 
 ---
 
@@ -10,12 +10,11 @@
 |-----------|---------|-------|
 | `src/core/` | Business logic. Pure TS, no React. | **Tests mandatory.** No DOM/React/Zustand imports. |
 | `src/strategies/` | Locale-specific logic. Currently only RU. | Can import from `src/shared/` and `src/core/`. |
-| `src/ui/` | React components. | Each file < 250 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
+| `src/ui/` | React components. | Each file < 300 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
 | `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
-| `scripts/analyze-regexes.ts` | Regex quality analysis. | Run via `npx tsx scripts/analyze-regexes.ts`. |
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
@@ -73,35 +72,35 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 
-1. **4 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px and their multi-line splits (.h4ipty). Accepted limitation — no unique substring, essentially family-tier FP with different familyKeys.
-2. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
+1. **4 tablet cross-family FP** — mod_od9m77/mod_ld06px and their .h4ipty splits. Try longer regex or regexPrefixContext. These are currently accepted as limitations.
 
 ### LOW
 
 1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
 2. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
-3. **VirtualizedModList jewel type sub-groups** — JewelPage uses VirtualizedModList with origin sub-sections but without jewel type sub-headers (Рубин/Изумруд/Сапфир). Token pre-filtering by jewelType still works; only the visual sub-headers within origin sections are not rendered.
+3. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, dual-slot ranges, jewel type sub-headers.
 
-## 7. Multi-Line Mod Splitting (Session 55)
+## 7. Dual-Slot Range Filtering (Session 56)
 
-`extractTextAndRanges()` in `scripts/etl/normalize.ts` now splits `<br>` segments into separate tokens. Each sub-line is an independent searchable block (verified in-game Phase 7 Block 3 / Group I).
+`TokenRangeOverride` now supports `slotOverrides` for simultaneous filtering of both placeholders in dual-number mods.
 
 **How it works:**
-- HTML like `"Монстры имеют (80—120)% повышение шанса<br>(30—50)% к бонусу критического урона"` produces 2 tokens
+- `slotOverrides: Record<number, SlotRangeOverride>` — per-slot min/max overrides
+- Example: `{ slotOverrides: { 0: { min: 30 }, 1: { min: 50 } } }` filters both placeholders
+- When `slotOverrides` is set, `filterSlotIndex`/`min`/`max` are ignored
+- AST builder generates separate RANGE nodes for each active slot, ANDed together
+- FilterChip shows two rows of inputs (1е/2е) for multi-placeholder mods
+- Serialization format extended: `[tokenId, min, max, filterSlotIndex, slotIdx, sMin, sMax, ...]`
+
+## 8. Multi-Line Mod Splitting (Session 55)
+
+`extractTextAndRanges()` in `scripts/etl/normalize.ts` splits `<br>` segments into separate tokens. Each sub-line is an independent searchable block (verified in-game Phase 7 Block 3 / Group I).
+
 - Token IDs use hash-based suffixes: `waystone.mod_dv8kwa`, `waystone.mod_dv8kwa.h4ipty`
-- Hash suffix avoids ID collisions when different tiers of the same modCode have different second segments
-- `normalizeTypeA()` and `normalizeTypeB()` now return `NormalizedMod[]` instead of single `NormalizedMod`
+- `normalizeTypeA()` and `normalizeTypeB()` return `NormalizedMod[]`
 - `run-etl.ts` uses `flatMap()` to handle the array results
 
-**Token count changes:**
-| Category | Before | After |
-|----------|--------|-------|
-| waystone | 97 | 311 |
-| waystone-desecrated | 17 | 27 |
-| tablet | 75 | 82 |
-| jewel-desecrated | 32 | 47 |
-
-## 8. Regex Strategy Pipeline (Phase 8)
+## 9. Regex Strategy Pipeline (Phase 8)
 
 The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts` tries strategies in order:
 
@@ -115,7 +114,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | **1f** | **AND-composed Context** | **regexPrefixContext + regex** | **`"имеют" "увеличение урона"` (−23 FP)** |
 | 2 | Substring fallback | Brute-force unique substring search | `"огню"` |
 
-## 9. Optimization Pipeline (Phases A-B-C + A1)
+## 10. Optimization Pipeline (Phases A-B-C + A1)
 
 `computeOptimizations()` in `scripts/etl/compute-optimizations.ts`:
 
@@ -126,9 +125,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | **B** | DP factorization | Cross-family groups factorized via `batchDPFactorize()` |
 | **C** | Dialect optimization | `[её]`, `[юя]`, `ь?` applied to all regexes |
 
-Phase A1 only truncates entries WITHOUT context/excludes (pure, no FP). Truncated forms are validated: must match all family tokens via PoE2 engine AND be unique within the category.
-
-## 10. Oracle API
+## 11. Oracle API
 
 Two validation modes in `src/core/regex-oracle.ts`:
 
@@ -139,45 +136,8 @@ Two validation modes in `src/core/regex-oracle.ts`:
 | `batchValidate()` | Flat-text, batch | ETL --validate |
 | `batchValidateItem()` | Block-based, batch | ETL --validate-item |
 
-FP categorization (all functions):
-- `OracleResult.familyTierFP` — FP from same familyKey (by design)
-- `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
-- `valid = true` when NO cross-family FP and no FN
+FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` = different familyKey (real bugs).
 
-## 11. regexExclude & regexPrefixContext System
+## 12. regexExclude & regexPrefixContext
 
-Two mechanisms for cross-family FP prevention:
-
-### regexExclude
-Field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
-
-**Priority order for exclude patterns (verified in-game Phase 8):**
-1. **Minion marker:** `"Приспеш"` — covers all minion variants
-2. **Compound separator:** `" и"` — covers compound-family overlaps
-3. **Short universal markers:** single word in ALL conflicts but NOT in target
-4. **Specific full-phrase patterns:** fallback, longest
-
-**In optimizer:** `buildOptimizedNode()` creates `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`.
-
-### regexPrefixContext
-
-When regex + regexExclude cannot eliminate all FP, `regexPrefixContext` provides a short substring appearing ONLY in the target family's rawText. UI compiles: `AND(LITERAL(context), LITERAL(regex))`.
-
-**When context is used vs excludes:**
-- Excludes preferred when: a short marker covers all conflicts
-- Context preferred when: suffix appears in both target AND conflicts
-- Can combine both: `"context" "suffix" "!exclude"`
-
-## 12. Optimization Table with Context
-
-`OptimizationEntry` includes optional `regexPrefixContext` and `regexExclude` fields. These are populated by `patchOptimizationEntries()` (ETL step 7c), which runs after `repairCrossFamilyFP()`.
-
-**Data flow:**
-1. Step 4: `computeOptimizations()` creates entries (Phase A → A1 truncation → B → C)
-2. Step 7b: `repairCrossFamilyFP()` adds regexPrefixContext/regexExclude to tokens
-3. Step 7c: `patchOptimizationEntries()` copies shared context/excludes from tokens to optimization entries
-
-**Rules for patching:**
-- If ALL tokens share the same `regexPrefixContext` → added to entry
-- If ALL tokens share the same `regexExclude` patterns → added to entry
-- Mixed → entry left without them (not optimizable by runtime)
+Two mechanisms for cross-family FP prevention. Excludes preferred for short markers; context preferred when suffix appears in both target and conflicts. Can combine both.

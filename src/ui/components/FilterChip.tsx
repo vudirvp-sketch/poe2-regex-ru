@@ -8,9 +8,9 @@
  * - When a ranged group is selected (full or partial), min/max input fields appear
  *   allowing the user to set per-group numeric thresholds.
  * - These override the global minValue/maxValue for this specific group's tokens.
- * - For dual-number mods (hasMultiPlaceholder), the filter applies to the first
- *   placeholder's range (filterSlotIndex), which is typically the minimum damage/value.
- *   An indicator "2x" badge shows the mod has two number slots.
+ * - For dual-number mods (hasMultiPlaceholder), TWO rows of min/max inputs appear:
+ *   slot 0 (1е) and slot 1 (2е), each filtering its own placeholder independently.
+ *   The generated regex ANDs both RANGE nodes together.
  *
  * Selection states:
  * - Full: all member tokens are selected (highlighted)
@@ -20,7 +20,7 @@
 import React, { useMemo, useCallback } from 'react';
 import type { FamilyGroup } from '@shared/types';
 import { t } from '@shared/i18n';
-import type { TokenRangeOverride } from '@store/filter-store';
+import type { TokenRangeOverride, SlotRangeOverride } from '@store/filter-store';
 
 interface FilterChipProps {
   group: FamilyGroup;
@@ -98,7 +98,6 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }, [group.members]);
 
   // Get effective per-group range from perTokenRanges
-  // Use the first ranged member's override as the group's override
   const groupRange = useMemo<TokenRangeOverride>(() => {
     if (!firstRangedMember || !perTokenRanges) return {};
     return perTokenRanges[firstRangedMember.id] ?? {};
@@ -107,48 +106,107 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Current filterSlotIndex for this group (from perTokenRanges or default 0)
   const currentSlotIndex = groupRange.filterSlotIndex ?? 0;
 
-  // Handle slot toggle for multi-placeholder groups
-  const handleSlotToggle = useCallback(() => {
-    if (!firstRangedMember || !onSetTokenRange) return;
-    const newSlot = currentSlotIndex === 0 ? 1 : 0;
-    const newRange: TokenRangeOverride = {
-      ...groupRange,
-      filterSlotIndex: newSlot,
-    };
-    onSetTokenRange(firstRangedMember.id, newRange);
-  }, [firstRangedMember, onSetTokenRange, groupRange, currentSlotIndex]);
+  // Slot-specific range values for display
+  const slot0Range = useMemo<{ min: string; max: string }>(() => {
+    if (groupRange.slotOverrides?.[0]) {
+      return {
+        min: groupRange.slotOverrides[0].min?.toString() ?? '',
+        max: groupRange.slotOverrides[0].max?.toString() ?? '',
+      };
+    }
+    // Fallback: if currentSlotIndex === 0, use top-level min/max
+    if (currentSlotIndex === 0) {
+      return {
+        min: groupRange.min?.toString() ?? '',
+        max: groupRange.max?.toString() ?? '',
+      };
+    }
+    return { min: '', max: '' };
+  }, [groupRange, currentSlotIndex]);
 
-  // Handle min input change for this group
-  const handleMinChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const slot1Range = useMemo<{ min: string; max: string }>(() => {
+    if (groupRange.slotOverrides?.[1]) {
+      return {
+        min: groupRange.slotOverrides[1].min?.toString() ?? '',
+        max: groupRange.slotOverrides[1].max?.toString() ?? '',
+      };
+    }
+    // Fallback: if currentSlotIndex === 1, use top-level min/max
+    if (currentSlotIndex === 1) {
+      return {
+        min: groupRange.min?.toString() ?? '',
+        max: groupRange.max?.toString() ?? '',
+      };
+    }
+    return { min: '', max: '' };
+  }, [groupRange, currentSlotIndex]);
+
+  // Helper to build a new range with updated slot overrides
+  const updateSlotOverride = useCallback((slotIndex: number, slotRange: SlotRangeOverride) => {
     if (!firstRangedMember || !onSetTokenRange) return;
-    const v = parseInt(e.target.value, 10);
+    const newSlotOverrides = { ...groupRange.slotOverrides };
+    newSlotOverrides[slotIndex] = slotRange;
+
+    // Clean up empty slot overrides
+    const cleanSlotOverrides: Record<number, SlotRangeOverride> = {};
+    for (const [idx, sr] of Object.entries(newSlotOverrides)) {
+      if (sr.min !== undefined || sr.max !== undefined) {
+        cleanSlotOverrides[Number(idx)] = sr;
+      }
+    }
+
     const newRange: TokenRangeOverride = {
       ...groupRange,
+      slotOverrides: Object.keys(cleanSlotOverrides).length > 0 ? cleanSlotOverrides : undefined,
+    };
+
+    // If both slotOverrides and top-level min/max/filterSlotIndex are empty, clear
+    const hasTopLevel = newRange.min !== undefined || newRange.max !== undefined;
+    const hasSlotLevel = newRange.slotOverrides && Object.keys(newRange.slotOverrides).length > 0;
+    if (!hasTopLevel && !hasSlotLevel) {
+      onClearTokenRange?.(firstRangedMember.id);
+    } else {
+      onSetTokenRange(firstRangedMember.id, newRange);
+    }
+  }, [firstRangedMember, onSetTokenRange, onClearTokenRange, groupRange]);
+
+  // Handle min/max input changes for slot 0
+  const handleSlot0MinChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    const current = groupRange.slotOverrides?.[0] ?? {};
+    updateSlotOverride(0, {
+      ...current,
       min: e.target.value === '' || isNaN(v) ? undefined : v,
-    };
-    // If both min and max are undefined and no slot override, clear the override
-    if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
-      onClearTokenRange?.(firstRangedMember.id);
-    } else {
-      onSetTokenRange(firstRangedMember.id, newRange);
-    }
-  }, [firstRangedMember, onSetTokenRange, onClearTokenRange, groupRange]);
+    });
+  }, [groupRange, updateSlotOverride]);
 
-  // Handle max input change for this group
-  const handleMaxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!firstRangedMember || !onSetTokenRange) return;
+  const handleSlot0MaxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseInt(e.target.value, 10);
-    const newRange: TokenRangeOverride = {
-      ...groupRange,
+    const current = groupRange.slotOverrides?.[0] ?? {};
+    updateSlotOverride(0, {
+      ...current,
       max: e.target.value === '' || isNaN(v) ? undefined : v,
-    };
-    // If both min and max are undefined and no slot override, clear the override
-    if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
-      onClearTokenRange?.(firstRangedMember.id);
-    } else {
-      onSetTokenRange(firstRangedMember.id, newRange);
-    }
-  }, [firstRangedMember, onSetTokenRange, onClearTokenRange, groupRange]);
+    });
+  }, [groupRange, updateSlotOverride]);
+
+  // Handle min/max input changes for slot 1
+  const handleSlot1MinChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    const current = groupRange.slotOverrides?.[1] ?? {};
+    updateSlotOverride(1, {
+      ...current,
+      min: e.target.value === '' || isNaN(v) ? undefined : v,
+    });
+  }, [groupRange, updateSlotOverride]);
+
+  const handleSlot1MaxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    const current = groupRange.slotOverrides?.[1] ?? {};
+    updateSlotOverride(1, {
+      ...current,
+      max: e.target.value === '' || isNaN(v) ? undefined : v,
+    });
+  }, [groupRange, updateSlotOverride]);
 
   // Prevent click on input from toggling the chip
   const stopPropagation = useCallback((e: React.MouseEvent) => {
@@ -166,19 +224,19 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }
 
   // Range display: inline compact format
-  // For dual-number mods: show only the filterable slot (first placeholder range)
+  // For dual-number mods: show both slot ranges
   const rangeText = useMemo(() => {
     if (group.rangeSlots.length === 0) return null;
     if (!group.hasMultiPlaceholder) {
       return `${group.globalMin}—${group.globalMax}`;
     }
-    // Dual-number: show filterable slot range + second slot in parentheses
-    const filterSlot = group.rangeSlots[group.filterSlotIndex] ?? group.rangeSlots[0];
-    const secondSlot = group.rangeSlots.find((_, i) => i !== group.filterSlotIndex);
-    if (secondSlot) {
-      return `${filterSlot[0]}—${filterSlot[1]} (до ${secondSlot[0]}—${secondSlot[1]})`;
+    // Dual-number: show both slot ranges
+    const slot0 = group.rangeSlots[0];
+    const slot1 = group.rangeSlots[1];
+    if (slot1) {
+      return `${slot0[0]}—${slot0[1]} / ${slot1[0]}—${slot1[1]}`;
     }
-    return `${filterSlot[0]}—${filterSlot[1]}`;
+    return `${slot0[0]}—${slot0[1]}`;
   }, [group]);
 
   // ARIA label for screen readers: include full text, selection state, and tier count
@@ -221,40 +279,103 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         </span>
       )}
       {/* Per-chip numeric range inputs — shown when group is selected and has ranges */}
-      {/* For dual-number mods: slot toggle (1е/2е) switches which placeholder to filter by */}
-      {hasRanges && isSelected && onSetTokenRange && (
+      {hasRanges && isSelected && onSetTokenRange && !group.hasMultiPlaceholder && (
         <div className="flex items-center gap-1 text-xs" onClick={stopPropagation}>
-          {group.hasMultiPlaceholder && (
-            <button
-              type="button"
-              className="px-1 py-0.5 bg-amber-900/40 border border-amber-600/50 rounded text-[9px] text-amber-300 hover:bg-amber-800/50 transition-colors shrink-0 cursor-pointer"
-              title={currentSlotIndex === 0 ? t('chip.slot_switch_to_second') : t('chip.slot_switch_to_first')}
-              aria-label={currentSlotIndex === 0 ? t('chip.slot_switch_to_second') : t('chip.slot_switch_to_first')}
-              onClick={handleSlotToggle}
-            >
-              {currentSlotIndex === 0 ? '1е' : '2е'}
-            </button>
-          )}
           <span className="text-gray-500">&ge;</span>
           <input
             min={0}
             placeholder={t('range.min')}
-            aria-label={group.hasMultiPlaceholder ? t('range.min_aria_dual') : t('range.min_aria')}
+            aria-label={t('range.min_aria')}
             className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.min ?? ''}
-            onChange={handleMinChange}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              const newRange: TokenRangeOverride = {
+                ...groupRange,
+                min: e.target.value === '' || isNaN(v) ? undefined : v,
+              };
+              if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
+                onClearTokenRange?.(firstRangedMember!.id);
+              } else {
+                onSetTokenRange(firstRangedMember!.id, newRange);
+              }
+            }}
           />
           <span className="text-gray-500">&le;</span>
           <input
             min={0}
             placeholder={t('range.max')}
-            aria-label={group.hasMultiPlaceholder ? t('range.max_aria_dual') : t('range.max_aria')}
+            aria-label={t('range.max_aria')}
             className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.max ?? ''}
-            onChange={handleMaxChange}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              const newRange: TokenRangeOverride = {
+                ...groupRange,
+                max: e.target.value === '' || isNaN(v) ? undefined : v,
+              };
+              if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
+                onClearTokenRange?.(firstRangedMember!.id);
+              } else {
+                onSetTokenRange(firstRangedMember!.id, newRange);
+              }
+            }}
           />
+        </div>
+      )}
+      {/* Dual-number: show separate range inputs for each slot */}
+      {hasRanges && isSelected && onSetTokenRange && group.hasMultiPlaceholder && (
+        <div className="flex flex-col gap-0.5 text-xs" onClick={stopPropagation}>
+          {/* Slot 0 row */}
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] text-blue-400/80 font-semibold shrink-0 w-4">1е</span>
+            <span className="text-gray-500">&ge;</span>
+            <input
+              min={0}
+              placeholder={t('range.min')}
+              aria-label={t('range.min_aria_dual')}
+              className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              type="number"
+              value={slot0Range.min}
+              onChange={handleSlot0MinChange}
+            />
+            <span className="text-gray-500">&le;</span>
+            <input
+              min={0}
+              placeholder={t('range.max')}
+              aria-label={t('range.max_aria_dual')}
+              className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              type="number"
+              value={slot0Range.max}
+              onChange={handleSlot0MaxChange}
+            />
+          </div>
+          {/* Slot 1 row */}
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] text-orange-400/80 font-semibold shrink-0 w-4">2е</span>
+            <span className="text-gray-500">&ge;</span>
+            <input
+              min={0}
+              placeholder={t('range.min')}
+              aria-label={t('range.min_aria_dual')}
+              className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              type="number"
+              value={slot1Range.min}
+              onChange={handleSlot1MinChange}
+            />
+            <span className="text-gray-500">&le;</span>
+            <input
+              min={0}
+              placeholder={t('range.max')}
+              aria-label={t('range.max_aria_dual')}
+              className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              type="number"
+              value={slot1Range.max}
+              onChange={handleSlot1MaxChange}
+            />
+          </div>
         </div>
       )}
     </div>

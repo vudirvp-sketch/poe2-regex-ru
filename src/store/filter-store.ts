@@ -7,14 +7,27 @@
 import { create } from 'zustand';
 import type { AffixType, ModOrigin } from '@shared/types';
 
+/** Per-slot numeric range override */
+export interface SlotRangeOverride {
+  min?: number;
+  max?: number;
+}
+
 /** Per-token numeric range override */
 export interface TokenRangeOverride {
   min?: number;
   max?: number;
   /** For multi-placeholder mods (e.g., "От ## до ## урона"), which slot to filter by.
    *  0 = first placeholder (min damage), 1 = second placeholder (max damage).
-   *  Defaults to 0 if not specified. */
+   *  Defaults to 0 if not specified.
+   *  Used in single-slot mode (1е/2е toggle). For dual-slot mode, use slotOverrides. */
   filterSlotIndex?: number;
+  /** Per-slot overrides for multi-placeholder mods.
+   *  When set, enables simultaneous filtering of multiple placeholders:
+   *  both slot 0 AND slot 1 get their own RANGE nodes ANDed together.
+   *  Takes priority over top-level min/max for the respective slot.
+   *  When slotOverrides is set, filterSlotIndex is ignored. */
+  slotOverrides?: Record<number, SlotRangeOverride>;
 }
 
 /** A single filter state for a category */
@@ -165,10 +178,25 @@ export function createFilterStore() {
       }
       // Include perTokenRanges only if non-empty
       if (Object.keys(state.perTokenRanges).length > 0) {
-        // Convert to array format for compact serialization: [[tokenId, min, max], ...]
+        // Compact serialization:
+        // Without slotOverrides: [tokenId, min, max, filterSlotIndex]
+        // With slotOverrides:    [tokenId, min, max, filterSlotIndex, [slotIdx, sMin, sMax], ...]
         result.r = Object.entries(state.perTokenRanges)
-          .filter(([, v]) => v.min !== undefined || v.max !== undefined)
-          .map(([k, v]) => [k, v.min ?? null, v.max ?? null, v.filterSlotIndex ?? null]);
+          .filter(([, v]) =>
+            v.min !== undefined || v.max !== undefined ||
+            (v.slotOverrides && Object.values(v.slotOverrides).some(s => s.min !== undefined || s.max !== undefined))
+          )
+          .map(([k, v]) => {
+            const base: (string | number | null)[] = [k, v.min ?? null, v.max ?? null, v.filterSlotIndex ?? null];
+            if (v.slotOverrides) {
+              for (const [slotIdx, slotOverride] of Object.entries(v.slotOverrides)) {
+                if (slotOverride.min !== undefined || slotOverride.max !== undefined) {
+                  base.push(Number(slotIdx), slotOverride.min ?? null, slotOverride.max ?? null);
+                }
+              }
+            }
+            return base;
+          });
       }
       return result;
     },
@@ -177,16 +205,37 @@ export function createFilterStore() {
       const selectedIds = new Set<string>(
         Array.isArray(data.s) ? data.s as string[] : []
       );
-      // Deserialize perTokenRanges from array format
+      // Deserialize perTokenRanges from compact array format
       let perTokenRanges: Record<string, TokenRangeOverride> = {};
       if (Array.isArray(data.r)) {
-        for (const entry of data.r as [string, number | null, number | null, number | null][]) {
-          const [tokenId, min, max, filterSlotIndex] = entry;
+        for (const entry of data.r as (string | number | null)[][]) {
+          const tokenId = entry[0] as string;
           const override: TokenRangeOverride = {};
+          const min = entry[1] as number | null;
+          const max = entry[2] as number | null;
+          const filterSlotIndex = entry[3] as number | null;
           if (min !== null && min !== undefined) override.min = min;
           if (max !== null && max !== undefined) override.max = max;
           if (filterSlotIndex !== null && filterSlotIndex !== undefined) override.filterSlotIndex = filterSlotIndex;
-          if (override.min !== undefined || override.max !== undefined) {
+          // Parse slot overrides (triplets: slotIdx, sMin, sMax starting at index 4)
+          if (entry.length > 4) {
+            const slotOverrides: Record<number, SlotRangeOverride> = {};
+            for (let i = 4; i + 2 < entry.length; i += 3) {
+              const slotIdx = entry[i] as number;
+              const sMin = entry[i + 1] as number | null;
+              const sMax = entry[i + 2] as number | null;
+              if (sMin !== null && sMin !== undefined || sMax !== null && sMax !== undefined) {
+                slotOverrides[slotIdx] = {
+                  min: sMin ?? undefined,
+                  max: sMax ?? undefined,
+                };
+              }
+            }
+            if (Object.keys(slotOverrides).length > 0) {
+              override.slotOverrides = slotOverrides;
+            }
+          }
+          if (override.min !== undefined || override.max !== undefined || override.slotOverrides) {
             perTokenRanges[tokenId] = override;
           }
         }
