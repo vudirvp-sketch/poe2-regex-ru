@@ -174,6 +174,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               <span className="text-gray-500">&ge;</span>
               <input
                 type="number"
+                step="1"
                 min={0}
                 value={minValue ?? ''}
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMinValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}
@@ -184,6 +185,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               <span className="text-gray-500">&le;</span>
               <input
                 type="number"
+                step="1"
                 min={0}
                 value={maxValue ?? ''}
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMaxValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}

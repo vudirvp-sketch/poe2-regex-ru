@@ -1,39 +1,41 @@
 # PoE2 Regex RU — Worklog
 
-> Append-only but trimmed. Historical details are in git history.
+> Current state only. Historical details are in git history.
 
 ---
 
-## Current State (Session 64 — 2026-06-08)
+## Current State (Session 65 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **ProfilePanel: duplicate name prevention (MEDIUM)** — Added `isDuplicateName` check (case-insensitive) that disables the Save button and shows "Есть такое" when a profile with the same name already exists in the category. New i18n key: `profile.duplicate`.
+1. **JewelPage: hidden mods indicator (MEDIUM → FIXED)** — When `jewelTypeFilter` hides tokens that are in `selectedIds`, they still affect the regex but were invisible. Added visual warning banner "N скрытых модов влияют на regex, но не видны" with "Снять скрытые" button that deselects hidden tokens. New i18n keys: `jewel.hidden_mods`, `jewel.deselect_hidden`.
 
-2. **RegexOutput: Ctrl+Shift+C → Ctrl+Shift+X (LOW)** — The old shortcut conflicted with Chrome/Firefox DevTools. Changed to Ctrl+Shift+X (also handles Russian keyboard layout: X→Ч). Updated i18n key `regex.copy_shortcut`.
+2. **Fractional number input prevention (MEDIUM → FIXED)** — All `<input type="number">` across the app now have `step={1}` attribute, preventing fractional input. PoE2 mod values are always integers. Applied to: FilterChip (6 inputs), CategoryControlPanel (2 inputs), VendorChip (1 input), TabletPage (1 input). New rule documented in AGENT_NAVIGATION.md §16.
 
-3. **ProfilePanel: onBlur race condition fix (HIGH)** — Delete confirm button (✓) now uses `onMouseDown` with `e.preventDefault()` instead of `onClick`. This ensures the confirm handler fires BEFORE the parent's `onBlur={handleDeleteCancel}`, preventing accidental cancellation of the delete confirmation.
+3. **RegexOutput: copy failure feedback (LOW → FIXED)** — Added `copyError` state that shows red button + "Ошибка!" text for 3 seconds when clipboard write fails. Previously only `console.error` was called with no user-visible feedback. New i18n key: `regex.copy_error`.
 
-4. **VirtualizedModList: re-measure on selection change (MEDIUM)** — Added `useEffect(() => { virtualizer.measure(); }, [selectedIds, perTokenRanges, virtualizer])` to force re-measurement when chip heights change (range inputs appear/disappear). Previously, the virtualizer could show incorrect row heights after toggling a chip.
-
-5. **FilterChip: separate aria labels for dual-number slots (LOW)** — Replaced shared `range.min_aria_dual` / `range.max_aria_dual` with slot-specific keys: `range.min_aria_dual_1`, `range.max_aria_dual_1` (slot 0), `range.min_aria_dual_2`, `range.max_aria_dual_2` (slot 1). Screen readers now correctly announce "первого числа" vs "второго числа".
+4. **Documentation cleanup** — Rewrote AGENT_NAVIGATION.md (v65.0): moved resolved items out of Known Issues, added §16 Numeric Input Rules, documented Waystone corrupted+delirious as intentional. Rewrote новый_план.md (v8.0): updated status to Session 65, added bug profile section, cleaned up. Worklog trimmed.
 
 **Files changed this session:**
-- `src/ui/components/ProfilePanel.tsx` — Duplicate name prevention + onBlur fix
-- `src/ui/components/RegexOutput.tsx` — Shortcut Ctrl+Shift+C → Ctrl+Shift+X
-- `src/ui/components/VirtualizedModList.tsx` — Re-measure effect
-- `src/ui/components/FilterChip.tsx` — Separate dual-number aria labels
-- `src/shared/i18n.ts` — New keys: `profile.duplicate`, `range.min_aria_dual_1/2`, `range.max_aria_dual_1/2`; updated `regex.copy_shortcut`
+- `src/ui/pages/jewel/JewelPage.tsx` — Hidden mods indicator + deselectHidden callback + useCallback import
+- `src/ui/components/FilterChip.tsx` — `step={1}` on 6 number inputs
+- `src/ui/components/CategoryControlPanel.tsx` — `step="1"` on 2 number inputs
+- `src/ui/components/VendorChip.tsx` — `step={1}` on 1 number input
+- `src/ui/pages/tablet/TabletPage.tsx` — `step="1"` on uses input
+- `src/ui/components/RegexOutput.tsx` — copyError state + error button style + i18n
+- `src/shared/i18n.ts` — New keys: `jewel.hidden_mods`, `jewel.deselect_hidden`, `regex.copy_error`
+- `AGENT_NAVIGATION.md` — v65.0 rewrite
+- `новый_план.md` — v8.0 rewrite
 - `worklog.md` — This update
-- `AGENT_NAVIGATION.md` — Updated to v64.0
 
 **NOT YET DONE (next iteration):**
 - ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
-- ⬜ JewelPage: selected tokens hidden by jewelTypeFilter but still in regex — consider adding visual indicator
-- ⬜ Additional UI audit for edge cases (tablet rarity regex accuracy, waystone corrupted+delirious interaction)
+- ⬜ FilterChip ARIA restructuring (P2) — range inputs внутри role="switch"
+- ⬜ Jewel classification accuracy improvement (~84% → ~92%+)
+- ⬜ Mobile-specific testing (touch targets, scroll behavior)
 
 ---
 
@@ -51,12 +53,13 @@
 10. **i18n overrides cause cross-family FP:** `repairCrossFamilyFP()` + `regexPrefixContext` fix this.
 11. **regexExclude format must be locale-object:** Always `{ru: [...]}` not plain array.
 12. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
-13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break the context/exclude patching logic.
-14. **Multi-line sub-lines may share text with standalone mods:** h4ipty splits can create cross-family FP with mods that have the same suffix but a `#%` prefix. Use `—` exclude/context to disambiguate.
-15. **OR-suffix RANGE must wrap `|` in `()`:** Compiler wraps suffixes containing `|` in `()` to scope the alternation. Without this, `".*огню|холоду"` parses as `".*огню"` OR `"холоду"` — wrong!
-16. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates — import from canonical source.
-17. **ARIA: interactive elements must not be children of role="switch":** Inputs and buttons inside a switch role violate WAI-ARIA. Use sibling pattern (see VendorChip and FilterChip).
-18. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur, causing delete confirmation to be cancelled by the parent's onBlur handler.
+13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break patching logic.
+14. **Multi-line sub-lines may share text with standalone mods:** Use `—` exclude/context to disambiguate.
+15. **OR-suffix RANGE must wrap `|` in `()`:** Without this, `".*огню|холоду"` parses wrong.
+16. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates.
+17. **ARIA: interactive elements must not be children of role="switch":** Use sibling pattern.
+18. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur.
+19. **All number inputs must have step={1}:** PoE2 mod values are always integers; fractional input produces invalid regex.
 
 ## Build & Run Commands
 

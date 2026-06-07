@@ -199,7 +199,7 @@ export function TabletPage() {
 
                   {/* Uses remaining */}
                   <span className="text-[10px] text-gray-500 ml-1">{t('tablet.uses_label')}</span>
-                  <input type="number" min={1} max={30} value={usesMin ?? ''}
+                  <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
                     onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
                     placeholder="≥N"
                     className="w-14 px-1.5 py-0.5 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"

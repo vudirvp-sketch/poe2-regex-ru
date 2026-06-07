@@ -58,6 +58,7 @@ const HEALTH_COLORS = {
 
 export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore }) => {
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [autoCopy, setAutoCopy] = useState(() => {
     try {
@@ -93,9 +94,12 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
     try {
       await navigator.clipboard.writeText(regex);
       setCopied(true);
+      setCopyError(false);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 3000);
     }
   }, [regex, isOverflow]);
 
@@ -169,15 +173,17 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
             onClick={handleCopy}
             disabled={!regex || isOverflow}
             className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
-              copied
-                ? 'bg-green-600 text-white'
-                : isOverflow || !regex
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-500'
+              copyError
+                ? 'bg-red-600 text-white'
+                : copied
+                  ? 'bg-green-600 text-white'
+                  : isOverflow || !regex
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-500'
             }`}
             title={t('regex.copy_shortcut')} // Ctrl+Shift+X
           >
-            {copied ? t('regex.copied') : t('regex.copy')}
+            {copyError ? t('regex.copy_error') : copied ? t('regex.copied') : t('regex.copy')}
           </button>
         </div>
       </div>

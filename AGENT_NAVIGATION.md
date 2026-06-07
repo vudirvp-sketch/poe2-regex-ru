@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 64.0 | **Date:** 2026-06-08
+> **Version:** 65.0 | **Date:** 2026-06-08
 
 ---
 
@@ -38,7 +38,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 
 ## 3. Agent Workflow
 
-1. Read `docs/ARCHITECTURE.md` and `docs/DATA_CONTRACTS.md`
+1. Read `AGENT_NAVIGATION.md` and `новый_план.md`
 2. Read `worklog.md` to understand what's already done
 3. Execute the current iteration's tasks
 4. Write tests for new code
@@ -69,12 +69,20 @@ shared <- core <- strategies <- store <- data <- ui
 ### MEDIUM
 1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
 2. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`), heuristic fallback ~75% vs ETL. Discrepancy is mainly because ETL marks cross-type mods as `shared`.
-3. **JewelPage: hidden selected tokens** — When jewelTypeFilter hides tokens that are in selectedIds, they still affect the regex but are invisible. Consider adding a visual indicator or auto-deselect.
 
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
-2. ~~Duplicate profile names~~ — Fixed in Session 64 (case-insensitive check + "Есть такое" message).
-3. ~~Ctrl+Shift+C shortcut~~ — Fixed in Session 64 (changed to Ctrl+Shift+X, handles RU layout).
+2. **FilterChip ARIA restructuring** — range inputs inside `role="switch"` div. Need sibling pattern (see VendorChip).
+3. **FilterChip min-w-[30%]** — consider reducing or removing for better flex-wrap.
+
+### RESOLVED (Session 65)
+1. ~~JewelPage: hidden selected tokens~~ — Added visual indicator "N скрытых модов" + "Снять скрытые" button
+2. ~~Fractional number inputs~~ — Added `step={1}` to all `<input type="number">` across all components
+3. ~~RegexOutput copy failure feedback~~ — Added error state (red button + "Ошибка!") on clipboard failure
+
+### CONFIRMED INTENTIONAL
+1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
+2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected (audited Session 65).
 
 ## 7. Regex Strategy Pipeline
 
@@ -129,23 +137,23 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 Two mechanisms for cross-family FP prevention. Excludes preferred for short markers; context preferred when suffix appears in both target and conflicts. Can combine both.
 
-**OR-suffix edge case:** When ranged tokens with same (min,max) but different suffixes are merged, ALL excludes are unioned. This is correct because `!X` is item-wide in PoE2 — over-excluding is safer than missing FP. See `useCategoryPage.ts` for detailed rationale.
+**OR-suffix edge case:** When ranged tokens with same (min,max) but different suffixes are merged, ALL excludes are unioned. This is correct because `!X` is item-wide in PoE2 — over-excluding is safer than missing FP.
 
 ## 12. Optimizer Collapse Indicator
 
-When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, a ⚡ indicator appears on the corresponding FilterChip. This tells the user that clicking this chip doesn't change the regex because its individual regex was already subsumed by the optimizer.
+When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, a ⚡ indicator appears on the corresponding FilterChip.
 
-- `collectCollapsedTokenIds(ast, optimizationTable)` — walks optimized AST to find `opt:` prefixed LITERAL nodes and resolves their original token IDs via optimization table lookup.
-- `collapsedTokenIds: Set<string>` — returned by `useCategoryPage`, passed through to `FilterChip`.
+- `collectCollapsedTokenIds(ast, optimizationTable)` — walks optimized AST to find `opt:` prefixed LITERAL nodes
+- `collapsedTokenIds: Set<string>` — returned by `useCategoryPage`, passed through to `FilterChip`
 - Tooltip: "Оптимизатор: regex этого мода уже включён в общее выражение"
 
 ## 13. ARIA Patterns
 
-- **VendorChip**: Switch (label) + input (sibling) — valid ARIA tree, no interactive child inside switch role.
-- **FilterChip**: Switch (label + badges) + inputs (siblings) — same sibling pattern as VendorChip.
-- **Radio groups**: Arrow key navigation implemented per ARIA spec (Left/Up = prev, Right/Down = next, wraps).
-- **PageStateWrapper**: `role="status"` for loading, `role="alert"` for error.
-- **ProfilePanel**: Delete requires confirmation (✕→✓ pattern). Confirm button uses `onMouseDown` (not `onClick`) to prevent onBlur race condition. Duplicate name prevention (case-insensitive).
+- **VendorChip**: Switch (label) + input (sibling) — valid ARIA tree
+- **FilterChip**: Switch (label + badges) + inputs (siblings) — same sibling pattern
+- **Radio groups**: Arrow key navigation implemented per ARIA spec
+- **PageStateWrapper**: `role="status"` for loading, `role="alert"` for error
+- **ProfilePanel**: Delete confirmation uses `onMouseDown` (not `onClick`) to prevent onBlur race condition
 
 ## 14. VendorProperty Canonical Source
 
@@ -153,4 +161,12 @@ When the runtime optimizer replaces multiple selected tokens with a shared regex
 
 ## 15. Keyboard Shortcuts
 
-- **Ctrl+Shift+X** — Copy regex to clipboard (also handles Russian layout: X→Ч). Changed from Ctrl+Shift+C in Session 64 to avoid conflict with browser DevTools.
+- **Ctrl+Shift+X** — Copy regex to clipboard (also handles Russian layout: X→Ч)
+
+## 16. Numeric Input Rules
+
+All `<input type="number">` must include `step={1}` (or `step="1"`) to prevent fractional input. PoE2 mod values are always integers. This applies to:
+- FilterChip range inputs (6 per dual-number chip)
+- CategoryControlPanel global range inputs
+- VendorChip numeric threshold input
+- TabletPage uses remaining input

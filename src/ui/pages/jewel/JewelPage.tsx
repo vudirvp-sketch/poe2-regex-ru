@@ -14,7 +14,7 @@
  * "All" shows the complete list; specific types show only mods that match
  * that jewel type plus shared mods.
  */
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
@@ -100,6 +100,29 @@ export function JewelPage() {
     return filterTokensByJewelType(data.tokens, jewelTypeFilter);
   }, [data, jewelTypeFilter]);
 
+  // Count selected tokens that are hidden by the current jewel type filter
+  const hiddenSelectedIds = useMemo(() => {
+    if (!data || jewelTypeFilter === 'all') return new Set<string>();
+    const filteredIdSet = new Set(filteredTokens.map(t => t.id));
+    const hidden: string[] = [];
+    for (const id of selectedIds) {
+      if (!filteredIdSet.has(id)) hidden.push(id);
+    }
+    return new Set(hidden);
+  }, [data, jewelTypeFilter, selectedIds, filteredTokens]);
+
+  const hiddenSelectedCount = hiddenSelectedIds.size;
+
+  // Deselect all tokens that are currently hidden by the jewel type filter
+  const deselectHidden = useCallback(() => {
+    if (hiddenSelectedCount === 0) return;
+    const remaining = [...selectedIds].filter(id => !hiddenSelectedIds.has(id));
+    clearSelections();
+    if (remaining.length > 0) {
+      toggleTokens(remaining);
+    }
+  }, [hiddenSelectedCount, hiddenSelectedIds, selectedIds, clearSelections, toggleTokens]);
+
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
       {(data) => {
@@ -155,6 +178,19 @@ export function JewelPage() {
                 </div>
               }
             />
+
+            {/* Hidden selected mods warning */}
+            {hiddenSelectedCount > 0 && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-amber-900/30 border border-amber-700/50 rounded text-xs text-amber-300" role="alert">
+                <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenSelectedCount))}</span>
+                <button
+                  onClick={deselectHidden}
+                  className="px-2 py-0.5 bg-amber-800/50 border border-amber-600/50 rounded text-[10px] text-amber-200 hover:bg-amber-700/50 transition-colors"
+                >
+                  {t('jewel.deselect_hidden')}
+                </button>
+              </div>
+            )}
 
             <VirtualizedModList
               tokens={filteredTokens}

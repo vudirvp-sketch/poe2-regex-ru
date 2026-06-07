@@ -61,6 +61,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'regex.title': 'Регулярное выражение',
     'regex.copy': 'Копировать',
     'regex.copied': 'Скопировано!',
+    'regex.copy_error': 'Ошибка!',
     'regex.share': 'Поделиться',
     'regex.share_copied': 'Ссылка скопирована!',
     'regex.auto': 'Авто',
@@ -154,6 +155,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'jewel.type_emerald': 'Изумруд',
     'jewel.type_sapphire': 'Сапфир',
     'jewel.type_label': 'Тип самоцвета:',
+    'jewel.hidden_mods': '{n} скрытых модов влияют на regex, но не видны',
+    'jewel.deselect_hidden': 'Снять скрытые',
   },
 };
 

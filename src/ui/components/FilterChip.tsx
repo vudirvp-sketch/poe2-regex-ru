@@ -312,6 +312,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           <span className="text-gray-500">&ge;</span>
           <input
             min={0}
+            step={1}
             placeholder={t('range.min')}
             aria-label={t('range.min_aria')}
             className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -335,6 +336,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           <span className="text-gray-500">&le;</span>
           <input
             min={0}
+            step={1}
             placeholder={t('range.max')}
             aria-label={t('range.max_aria')}
             className="w-14 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -366,6 +368,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <span className="text-gray-500">&ge;</span>
             <input
               min={0}
+              step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_1')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -376,6 +379,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <span className="text-gray-500">&le;</span>
             <input
               min={0}
+              step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_1')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -390,6 +394,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <span className="text-gray-500">&ge;</span>
             <input
               min={0}
+              step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_2')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
@@ -400,6 +405,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             <span className="text-gray-500">&le;</span>
             <input
               min={0}
+              step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_2')}
               className="w-12 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[11px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"

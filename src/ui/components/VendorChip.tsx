@@ -63,6 +63,7 @@ export const VendorChip: React.FC<VendorChipProps> = ({
       {prop.hasNumericInput && isSelected && (
         <input
           type="number"
+          step={1}
           min={0}
           max={1000}
           placeholder="≥N"
