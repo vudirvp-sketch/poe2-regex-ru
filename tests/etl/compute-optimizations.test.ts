@@ -28,6 +28,7 @@ function makeRegexResult(overrides: Partial<RegexResult> & { regex: string }): R
     regexPrefix: '',
     hasMultiPlaceholder: false,
     regexExclude: [],
+    regexPrefixContext: '',
     ...overrides,
   };
 }

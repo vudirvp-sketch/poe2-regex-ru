@@ -718,9 +718,14 @@ function repairCrossFamilyFP(): void {
     'Приспеш',    // minion variants
     'во время',   // flask-effect variants
     'флакона',    // flask variants
-    'снарядов',   // projectile gem level
+    'снарядов',   // projectile gem level vs all skills
     'всем стихиям', // all-resist vs single-element
     'умений',     // gem skills (vs "умения" skill)
+    'самострелами', // crossbow attack speed vs generic
+    'кинжалами',  // dagger attack speed/crit vs generic
+    'посохами',   // staff attack speed/crit vs generic
+    'копьями',    // spear attack speed vs generic
+    'для',        // spell-specific variants (e.g., "для заклинаний")
   ];
 
   for (const jsonFile of jsonFiles) {
@@ -821,7 +826,7 @@ function repairCrossFamilyFP(): void {
 
         // Try known conflict markers
         for (const marker of CONFLICT_MARKERS) {
-          if (newExcludes.length >= 3) break;
+          if (newExcludes.length >= 5) break;
           if (newExcludes.includes(marker)) continue;
 
           let coversAny = false;
@@ -853,7 +858,7 @@ function repairCrossFamilyFP(): void {
 
         // Try first word after suffix in uncovered conflicts
         for (let i = 0; i < conflicts.length; i++) {
-          if (newExcludes.length >= 3) break;
+          if (newExcludes.length >= 5) break;
           if (coveredByCurrent.has(i)) continue;
 
           const confRaw = conflicts[i].rawText.toLowerCase();
@@ -975,8 +980,8 @@ function repairCrossFamilyFP(): void {
               if (!bestContext && prefixWords.length >= 2) {
                 for (let i = prefixWords.length - 1; i >= 1; i--) {
                   const twoWords = prefixWords.slice(i - 1, i + 1)
-                    .map(w => w.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, ''))
-                    .filter(w => w.length > 0)
+                    .map((w: string) => w.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, ''))
+                    .filter((w: string) => w.length > 0)
                     .join(' ');
                   if (twoWords.length < 5) continue;
                   const twoLower = twoWords.toLowerCase();
@@ -1181,16 +1186,31 @@ function validateGeneratedRegexesItem(): void {
     }
 
     // Build regex list for batch validation
-    // Include regexExclude patterns as negation groups in the regex
+    // Compile the regex the same way the UI would, including regexPrefixContext
+    // and regexExclude, so the Oracle reports accurate FP counts.
     const regexes = tokens
       .filter((t: any) => t.regex?.ru && t.rawText?.ru)
       .map((t: any) => {
         let regex = t.regex.ru;
         const excludes: string[] = t.regexExclude?.ru ?? [];
-        if (excludes.length > 0) {
-          // Build negation regex: "suffix" !"exclude1" !"exclude2"
+        const context: string = t.regexPrefixContext?.ru ?? '';
+
+        // Build the effective regex as the UI compiles it:
+        // - With context: AND(LITERAL(context), LITERAL(regex)) → "context" "regex"
+        // - With excludes: suffix !"exclude1" !"exclude2"
+        // - Both: "context" "regex" !"exclude1" !"exclude2"
+        if (context) {
+          // regexPrefixContext mode: AND(context, regex) + optional excludes
+          const excludePart = excludes.length > 0
+            ? ` ${excludes.map(e => `!"${e}"`).join(' ')}`
+            : '';
+          regex = `"${context}" "${regex}"${excludePart}`;
+        } else if (excludes.length > 0) {
+          // No context, just excludes: "suffix" !"exclude1" !"exclude2"
           regex = `"${regex}" ${excludes.map(e => `!"${e}"`).join(' ')}`;
         }
+        // else: raw regex (validateRegexItem wraps in quotes automatically)
+
         return {
           tokenId: t.id,
           regex,

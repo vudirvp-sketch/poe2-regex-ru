@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 49.0 | **Date:** 2026-06-07
+> **Version:** 50.0 | **Date:** 2026-06-07
 
 ---
 
@@ -69,22 +69,21 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Remaining ~39 cross-family FP** — Down from 62. P0 (AND-composed regex via `regexPrefixContext`) eliminated ~23 FP in ring minion damage and jewel-desecrated composites. Breakdown: amulet 19, ring 0 (was 14, fixed by regexPrefixContext), jewel-desecrated 0 (was 15, fixed), jewel 11, tablet 3. Remaining amulet and jewel FP need detailed i18n-overrides analysis.
+1. **Oracle validation now accounts for regexPrefixContext** — Session 50 fix: `validateGeneratedRegexesItem()` compiles regex as AND(context, regex) when regexPrefixContext is present, matching UI behavior. Expected: cross-family FP drops from 62 to ~20-25 (amulet ~7, jewel ~6, jewel-desecrated ~0, ring ~0, tablet ~3). **ETL re-run required** to confirm actual numbers.
 
 ### MEDIUM
 
-2. **ringPrefixContext system implemented** — `regexPrefixContext` field added to GameToken (Phase 9). ETL `repairCrossFamilyFP()` Step 3 fills it when excludes can't eliminate all FP. UI compiles `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`. Covers ring minion damage and jewel-desecrated composites.
-3. **Ring minion elemental res** — Fixed by regexPrefixContext="имеют" → `"имеют" "стихия"` eliminates FP from non-minion "к сопротивлению всем стихиям" tokens.
-4. **`|` inside `()` with correct quote syntax** — Needs re-testing in-game with `"!X"` format.
-5. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — verify works in PoE2, or find alternative approach.
-6. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-7. **HomePage hardcoded mod counts** — Category cards show stale counts
+2. **repairCrossFamilyFP() exclude limit raised to 5** — Was 3, now 5. This allows more weapon-specific excludes (самострелами, кинжалами, посохами, копьями) and "снарядов" for gem-level FP. CONFLICT_MARKERS expanded with 5 new markers.
+3. **`|` inside `()` with correct quote syntax** — Group M tests added to IN_GAME_TESTS.md. Need in-game verification.
+4. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — Group M tests added. Need in-game verification.
+5. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+6. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 
-6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
-7. **List virtualization** — belt (298), ring (366), amulet (427) tokens
-8. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
+7. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted
+8. **List virtualization** — belt (298), ring (366), amulet (427) tokens
+9. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run
 
 ## 7. Regex Strategy Pipeline (Phase 8)
 
