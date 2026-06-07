@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 67.0 | **Date:** 2026-06-08
+> **Version:** 68.0 | **Date:** 2026-06-08
 
 ---
 
@@ -13,12 +13,12 @@
 | `src/ui/` | React components. | Each file < 300 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading + vendor-properties. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
-| `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** |
+| `src/shared/` | Types, i18n, classifier. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 540 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 543 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (540 tests, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (543 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (540 tests)
+- [ ] `npx vitest run --root .` passes (543 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -70,8 +70,18 @@ shared <- core <- strategies <- store <- data <- ui
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
 
+### RESOLVED (Session 68)
+1. ~~ETL pipeline audit~~ — Ran `pnpm etl`, verified 1823/1823 valid, 0 cross-family FP, 1309 family-tier FP (by design). Cross-validation tests pass (543/543).
+2. ~~i18n-overrides relevance~~ — All 56 overrides match existing tokens in generated JSON.
+3. ~~filterTokensByJewelType ::origin suffix~~ — No bug. `::origin` suffix only exists on `FamilyGroup.familyKey` (display layer via `splitGroupByOrigin`), never on `token.familyKey.ru`. Hidden selected tokens in regex is by design with UI warning.
+4. ~~dp-factorizer/trie-factorizer dead code~~ — NOT dead code. Used by ETL scripts: `compute-optimizations.ts`, `iterative-optimizer.ts`, `run-etl.ts`. They are ETL-only, not runtime.
+5. ~~constants.ts dead code~~ — Deleted. Had zero imports across the entire codebase.
+6. ~~iterative-optimizer correctness~~ — Dry-run verified: 0 FN, 749 FP-reduction changes in iteration 1, converges correctly.
+7. ~~buildAstFromSelections regexPrefixContext/regexExclude grouping~~ — Context union is correct: only applied when ALL tokens in a range group share the SAME context. Exclude union is correct by design (over-excluding safer than FP).
+8. ~~Unused imports in mod-classifier.test.ts~~ — Removed `classifyGroups` and `AffixType` unused imports that broke `pnpm build`.
+
 ### RESOLVED (Session 67)
-1. ~~Jewel classification heuristic 9 mismatches~~ — All 9 fixed, heuristic accuracy now 100% vs ETL ground truth. Fixes: кинджал→кинжал typo, shield defence override, minion resist lookbehind, ES threshold narrowing, triple-ailment exclusion, mark/dagger/banner scoring boosts, е/ё dialect handling
+1. ~~Jewel classification heuristic 9 mismatches~~ — All 9 fixed, heuristic accuracy now 100% vs ETL ground truth.
 
 ### RESOLVED (Session 66)
 1. ~~Jewel classification accuracy~~ — Improved heuristic from ~76% to ~96% via SHARED_OVERRIDE_PATTERNS + refined scoring weights

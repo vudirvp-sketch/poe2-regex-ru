@@ -13,10 +13,9 @@ import {
   classifyByText,
   classifyWaystoneSentiment,
   classifyTabletType,
-  classifyGroups,
   type JewelTypeCategory,
 } from '@shared/mod-classifier';
-import type { FamilyGroup, GameToken, AffixType } from '@shared/types';
+import type { FamilyGroup, GameToken } from '@shared/types';
 
 // ─── Helpers ───
 
