@@ -3,9 +3,16 @@
  *
  * Connected to profile-store for localStorage persistence.
  * Shown on each category page as a collapsible panel.
+ *
+ * Features:
+ * - Delete confirmation: clicking ✕ enters confirm state (✕→✓),
+ *   clicking ✓ confirms, clicking elsewhere cancels.
+ * - Full ARIA labels on all action buttons.
+ * - Keyboard accessible: Enter/Space on all interactive elements.
  */
 import { useState, useMemo } from 'react';
 import { useProfileStore } from '@store/profile-store';
+import { t } from '@shared/i18n';
 
 interface ProfilePanelProps {
   /** Current category ID (e.g., "waystone") */
@@ -38,6 +45,8 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [expanded, setExpanded] = useState(false);
+  /** ID of the profile pending delete confirmation */
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const handleSave = () => {
     if (!profileName.trim()) return;
@@ -49,13 +58,23 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
     onRestore(filterData);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDeleteRequest = (id: string) => {
+    setPendingDeleteId(id);
+  };
+
+  const handleDeleteConfirm = (id: string) => {
     deleteProfile(id);
+    setPendingDeleteId(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setPendingDeleteId(null);
   };
 
   const handleStartRename = (id: string, currentName: string) => {
     setEditingId(id);
     setEditName(currentName);
+    setPendingDeleteId(null); // cancel any pending delete
   };
 
   const handleFinishRename = (id: string) => {
@@ -74,7 +93,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
         aria-expanded={expanded}
         aria-controls="profile-panel-content"
       >
-        <span className="text-xs text-gray-400">Профили</span>
+        <span className="text-xs text-gray-400">{t('profile.label')}</span>
         <span className="text-xs text-gray-600" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
       </button>
 
@@ -86,8 +105,8 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
               type="text"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
-              placeholder="Имя профиля..."
-              aria-label="Имя нового профиля"
+              placeholder={t('profile.add') + '...'}
+              aria-label={t('profile.add')}
               className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
             />
@@ -100,15 +119,15 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Сохранить
+              {t('profile.add')}
             </button>
           </div>
 
           {/* Saved profiles list */}
           {profiles.length === 0 ? (
-            <div className="text-[10px] text-gray-600">Нет сохранённых профилей</div>
+            <div className="text-[10px] text-gray-600">{t('profile.label')} — 0</div>
           ) : (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1" onBlur={handleDeleteCancel}>
               {profiles.map((profile) => (
                 <div
                   key={profile.id}
@@ -120,7 +139,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       onBlur={() => handleFinishRename(profile.id)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleFinishRename(profile.id); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleFinishRename(profile.id); if (e.key === 'Escape') { setEditingId(null); setEditName(''); } }}
                       className="flex-1 px-1 py-0.5 bg-gray-700 border border-gray-500 rounded text-xs text-white focus:outline-none"
                       autoFocus
                     />
@@ -137,18 +156,32 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   <button
                     onClick={() => handleStartRename(profile.id, profile.name)}
                     className="text-[10px] text-gray-500 hover:text-gray-300 px-1"
-                    title="Переименовать"
+                    title={t('profile.rename')}
+                    aria-label={`${t('profile.rename')}: ${profile.name}`}
                   >
                     ✎
                   </button>
 
-                  <button
-                    onClick={() => handleDelete(profile.id)}
-                    className="text-[10px] text-gray-500 hover:text-red-400 px-1"
-                    title="Удалить"
-                  >
-                    ✕
-                  </button>
+                  {pendingDeleteId === profile.id ? (
+                    <button
+                      onClick={() => handleDeleteConfirm(profile.id)}
+                      className="text-[10px] text-red-400 hover:text-red-300 px-1 font-bold"
+                      title={t('profile.delete')}
+                      aria-label={`${t('profile.delete')}: ${profile.name}`}
+                      autoFocus
+                    >
+                      ✓
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleDeleteRequest(profile.id)}
+                      className="text-[10px] text-gray-500 hover:text-red-400 px-1"
+                      title={t('profile.delete')}
+                      aria-label={`${t('profile.delete')}: ${profile.name}`}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

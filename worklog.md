@@ -4,54 +4,45 @@
 
 ---
 
-## Current State (Session 61 — 2026-06-08)
+## Current State (Session 62 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **P2 FIX: Visual indicator when optimizer collapses selections** — When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, the user sees no change in the regex output when clicking a chip. Now, a ⚡ indicator appears on chips whose tokens were collapsed by the optimizer, with a tooltip "Оптимизатор: regex этого мода уже включён в общее выражение".
-   - Added `collectCollapsedTokenIds()` in `optimizer.ts` — walks optimized AST to find `opt:` prefixed tokenIds and looks up optimizationTable to identify collapsed token IDs.
-   - Added `collapsedTokenIds: Set<string>` to `useCategoryPage` return type, computed from optimized AST.
-   - Added `collapsedTokenIds` prop to `FilterChip`, `ModList`, `VirtualizedModList`, and all page components.
-   - Files: `src/core/optimizer.ts`, `src/ui/hooks/useCategoryPage.ts`, `src/ui/components/FilterChip.tsx`, `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx`, all page components, `src/shared/i18n.ts`
+1. **VendorChip: removed duplicate VendorProperty interface** — Was declaring a local `VendorProperty` interface identical to the one in `@data/vendor-properties.ts`. Now imports from the canonical source. Prevents future drift.
 
-2. **Edge case: regexExclude при OR-suffix** — Analyzed and documented. When ranged tokens with same (min,max) but different suffixes are merged into a single RANGE with OR-joined suffixes, ALL excludes from all tokens are unioned. This is intentional and correct for PoE2's item-wide negation model. Added detailed comment explaining the tradeoff.
-   - Files: `src/ui/hooks/useCategoryPage.ts` (documentation only)
+2. **VendorChip: fixed ARIA violation** — `<input type="number">` was a child of `role="switch"` div, which violates WAI-ARIA (interactive element inside another interactive role). Restructured: outer div is visual container, inner `<div role="switch">` holds just the label, `<input>` is a sibling. Updated misleading comment that claimed this was already done.
 
-3. **UI Audit — Bug fixes (HIGH severity):**
-   - **FilterChip keyboard inaccessibility** — Added `tabIndex={0}` and `onKeyDown` handler to FilterChip's outer div (role="switch"). Keyboard users can now focus and toggle chips.
-   - **VendorPage never syncs to URL hash** — Added `syncToUrl()` call in VendorPage's sync effect. State now persists on page refresh.
-   - **VendorChip click target mismatch** — Moved `onClick` from inner `<span>` to outer `<div>`. Entire chip area is now clickable.
-   - **No 404 fallback route** — Added `<Route path="*">` with `NotFoundPage` component in `App.tsx`.
+3. **VendorChip: added negative number validation** — `parseInt` result now checked for `v < 0`, consistent with FilterChip. Previously could store negative values.
 
-4. **UI Audit — Bug fixes (MEDIUM severity):**
-   - **VendorChip NaN storage** — Changed `parseInt` handling to check `isNaN(v)` before storing, preventing NaN values in numericInputs.
-   - **VendorPage clearAll doesn't reset round10/searchLogic** — Added `setRound10(true)` and `setSearchLogic('and')` to `clearAll()`.
-   - **url-sync non-null assertion** — Changed `store.deserialize!(data)` to `if (store.deserialize) { store.deserialize(data); }`.
-   - **Negative number inputs** — Added `v < 0` check in CategoryControlPanel and FilterChip number inputs, rejecting negative values.
+4. **RegexOutput: clamped aria-valuenow to MAX_CHARS** — When regex overflows 250 chars, `aria-valuenow` exceeded `aria-valuemax`, violating ARIA spec. Now uses `Math.min(charCount, MAX_CHARS)`.
+
+5. **PageStateWrapper: added ARIA roles** — Loading state gets `role="status"` + `aria-live="polite"`, error state gets `role="alert"`, no-data state gets `role="status"`.
+
+6. **ProfilePanel: added delete confirmation** — Clicking ✕ enters confirm state (shows ✓), clicking ✓ confirms delete. Clicking elsewhere (onBlur on container) cancels. Also added `aria-label` on rename (✎) and delete (✕/✓) buttons with profile name context. Added Escape key to cancel rename.
+
+7. **CategoryControlPanel: added arrow key navigation for radio groups** — Mode toggle (Хочу/Не хочу) and logic toggle (AND/OR) now respond to ArrowLeft/ArrowUp (previous) and ArrowRight/ArrowDown (next), wrapping around. Per ARIA radiogroup spec.
+
+8. **VirtualizedModList: removed unused jewelTypeFilter prop** — Was declared and destructured (`_jewelTypeFilter`) but never used. Filtering happens at the page level (JewelPage's `filterTokensByJewelType`). Removed from interface and destructuring. Updated JewelPage to not pass it.
 
 **Files changed this session:**
-- `src/core/optimizer.ts` — Added `collectCollapsedTokenIds()`
-- `src/ui/hooks/useCategoryPage.ts` — Added `collapsedTokenIds`, regexExclude documentation
-- `src/ui/components/FilterChip.tsx` — `collapsedTokenIds` prop, keyboard a11y, negative input validation
-- `src/ui/components/ModList.tsx` — `collapsedTokenIds` prop pass-through
-- `src/ui/components/VirtualizedModList.tsx` — `collapsedTokenIds` prop pass-through
-- `src/ui/components/VendorChip.tsx` — Fixed click target, NaN, keyboard a11y
-- `src/ui/components/CategoryControlPanel.tsx` — Negative input validation
-- `src/ui/pages/vendor/VendorPage.tsx` — URL sync, clearAll fix
-- `src/App.tsx` — 404 fallback route
-- `src/store/url-sync.ts` — Non-null assertion fix
-- `src/shared/i18n.ts` — Added `chip.optimizer_collapsed` key
-- All page components (amulet, belt, ring, relic, waystone, tablet, jewel) — `collapsedTokenIds` prop
+- `src/ui/components/VendorChip.tsx` — Remove duplicate interface, ARIA fix, negative validation
+- `src/ui/components/RegexOutput.tsx` — aria-valuenow clamp
+- `src/ui/components/PageStateWrapper.tsx` — ARIA roles
+- `src/ui/components/ProfilePanel.tsx` — Delete confirmation, aria-labels
+- `src/ui/components/CategoryControlPanel.tsx` — Arrow key navigation
+- `src/ui/components/VirtualizedModList.tsx` — Remove unused jewelTypeFilter prop
+- `src/ui/pages/jewel/JewelPage.tsx` — Remove jewelTypeFilter prop pass-through
+- `AGENT_NAVIGATION.md` — Updated to v62.0
 - `worklog.md` — This update
-- `AGENT_NAVIGATION.md` — To be updated
 
 **NOT YET DONE (next iteration):**
+- ⬜ FilterChip ARIA restructuring — range inputs are children of `role="switch"` div, same issue as VendorChip had. Needs careful layout work.
+- ⬜ FilterChip min-w-[45%] — too aggressive for wider screens, consider reducing
 - ⬜ Jewel classification accuracy improvement (heuristic fallback ~84%)
 - ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
-- ⬜ Remaining UI audit fixes (MEDIUM/LOW severity): ProfilePanel delete confirmation, ARIA labels, PageStateWrapper ARIA roles, radio group arrow key navigation, etc.
 
 ---
 
@@ -72,6 +63,8 @@
 13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break the context/exclude patching logic.
 14. **Multi-line sub-lines may share text with standalone mods:** h4ipty splits can create cross-family FP with mods that have the same suffix but a `#%` prefix. Use `—` exclude/context to disambiguate.
 15. **OR-suffix RANGE must wrap `|` in `()`:** Compiler wraps suffixes containing `|` in `()` to scope the alternation. Without this, `".*огню|холоду"` parses as `".*огню"` OR `"холоду"` — wrong!
+16. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates — import from canonical source.
+17. **ARIA: interactive elements must not be children of role="switch":** Inputs and buttons inside a switch role violate WAI-ARIA. Use sibling pattern (see VendorChip).
 
 ## Build & Run Commands
 

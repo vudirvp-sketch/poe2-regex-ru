@@ -8,20 +8,12 @@
  * - Full: property is selected (highlighted)
  * - None: property is not selected
  *
- * ARIA fix (iteration 7): Restructured so that the numeric <input> is a SIBLING
- * of the role="switch" element, not a child. This avoids invalid ARIA tree where
- * an interactive input is nested inside a switch role.
+ * ARIA structure: The numeric <input> is a SIBLING of the role="switch" element,
+ * not a child. This avoids invalid ARIA tree where an interactive input is nested
+ * inside a switch role. The outer div acts as a visual container only.
  */
 import React from 'react';
-
-interface VendorProperty {
-  id: string;
-  label: string;
-  regex: string;
-  group: string;
-  hasNumericInput?: boolean;
-  numericSuffix?: string;
-}
+import type { VendorProperty } from '@data/vendor-properties';
 
 interface VendorChipProps {
   prop: VendorProperty;
@@ -53,17 +45,21 @@ export const VendorChip: React.FC<VendorChipProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors cursor-pointer ${bgClass} ${borderClass}`}
-      onClick={handleClick}
-      role="switch"
-      aria-checked={isSelected}
-      aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border-l-2 transition-colors ${bgClass} ${borderClass}`}
     >
-      <span className="leading-tight">
+      {/* Switch element: just the label, clickable */}
+      <div
+        onClick={handleClick}
+        role="switch"
+        aria-checked={isSelected}
+        aria-label={`${prop.label}${isSelected ? ', выбрано' : ', не выбрано'}`}
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+        className="leading-tight cursor-pointer"
+      >
         {prop.label}
-      </span>
+      </div>
+      {/* Numeric input: SIBLING of switch, not child — valid ARIA tree */}
       {prop.hasNumericInput && isSelected && (
         <input
           type="number"
@@ -71,10 +67,9 @@ export const VendorChip: React.FC<VendorChipProps> = ({
           max={1000}
           placeholder="≥N"
           value={numericValue ?? ''}
-          onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
             const v = parseInt(e.target.value, 10);
-            onNumericChange(prop.id, e.target.value === '' || isNaN(v) ? null : v);
+            onNumericChange(prop.id, e.target.value === '' || isNaN(v) || v < 0 ? null : v);
           }}
           aria-label={`Порог для ${prop.label}`}
           className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[10px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"

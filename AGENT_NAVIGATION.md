@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 61.0 | **Date:** 2026-06-08
+> **Version:** 62.0 | **Date:** 2026-06-08
 
 ---
 
@@ -12,7 +12,7 @@
 | `src/strategies/` | Locale-specific logic. Currently only RU. | Can import from `src/shared/` and `src/core/`. |
 | `src/ui/` | React components. | Each file < 300 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
-| `src/data/` | JSON loading. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
+| `src/data/` | JSON loading + vendor-properties. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
 | `src/shared/` | Types, constants, i18n, classifier. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (495 tests, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (495 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -71,31 +71,15 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 1. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
-2. **ProfilePanel delete without confirmation** — Clicking ✕ immediately deletes, no undo.
-3. **Radio groups lack arrow key navigation** — Mode toggle and search logic use `role="radiogroup"` but don't implement arrow key cycling per ARIA spec.
-4. **PageStateWrapper missing ARIA roles** — No `role="status"` on loading, no `role="alert"` on error.
+2. **FilterChip ARIA violation** — Range inputs are children of `role="switch"` div. Needs restructuring to make inputs siblings of the switch element (same pattern as VendorChip).
+3. **FilterChip min-w-[45%]** — Forces at most 2 chips per row, wastes space on wider screens.
 
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
 2. **Duplicate profile names allowed** — ProfilePanel doesn't prevent identical names.
 3. **Ctrl+Shift+C shortcut** — Global keyboard shortcut may conflict with browser dev tools.
 
-## 7. Bug Fixes (Session 61)
-
-| Fix | File | Description |
-|-----|------|-------------|
-| P2: Optimizer collapse indicator | `optimizer.ts`, `FilterChip.tsx`, all pages | ⚡ indicator on chips when optimizer collapses their regex into shared expression |
-| FilterChip keyboard a11y | `FilterChip.tsx` | Added `tabIndex={0}` and `onKeyDown` to outer div with `role="switch"` |
-| VendorPage URL sync | `VendorPage.tsx` | Added `syncToUrl()` call so state persists on refresh |
-| VendorChip click target | `VendorChip.tsx` | Moved `onClick` to outer div; entire chip clickable |
-| VendorChip NaN storage | `VendorChip.tsx` | `parseInt` result checked for `isNaN` before storing |
-| VendorPage clearAll | `VendorPage.tsx` | `clearAll()` now resets `round10` and `searchLogic` |
-| 404 fallback route | `App.tsx` | Added `<Route path="*">` with `NotFoundPage` |
-| url-sync non-null assertion | `url-sync.ts` | `store.deserialize!(data)` → `if (store.deserialize) store.deserialize(data)` |
-| Negative number inputs | `CategoryControlPanel.tsx`, `FilterChip.tsx` | Added `v < 0` validation |
-| regexExclude OR-suffix docs | `useCategoryPage.ts` | Documented why exclude union is correct for PoE2's item-wide negation |
-
-## 8. Regex Strategy Pipeline
+## 7. Regex Strategy Pipeline
 
 The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts` tries strategies in order:
 
@@ -109,7 +93,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | 1f | AND-composed Context | regexPrefixContext + regex |
 | 2 | Substring fallback | Brute-force unique substring search |
 
-## 9. Optimization Pipeline
+## 8. Optimization Pipeline
 
 `computeOptimizations()` in `scripts/etl/compute-optimizations.ts`:
 
@@ -120,7 +104,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | B | DP factorization | Cross-family groups factorized via `batchDPFactorize()` |
 | C | Dialect optimization | `[её]`, `[юя]`, `ь?` applied to all regexes |
 
-## 10. Oracle API
+## 9. Oracle API
 
 Two validation modes in `src/core/regex-oracle.ts`:
 
@@ -133,7 +117,7 @@ Two validation modes in `src/core/regex-oracle.ts`:
 
 FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` = different familyKey (real bugs).
 
-## 11. Dual-Slot Range Filtering
+## 10. Dual-Slot Range Filtering
 
 `TokenRangeOverride` supports `slotOverrides` for simultaneous filtering of both placeholders in dual-number mods.
 
@@ -143,16 +127,28 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 - FilterChip shows two rows of inputs (1е/2е) for multi-placeholder mods
 - Serialization format: `[tokenId, min, max, filterSlotIndex, slotIdx, sMin, sMax, ...]`
 
-## 12. regexExclude & regexPrefixContext
+## 11. regexExclude & regexPrefixContext
 
 Two mechanisms for cross-family FP prevention. Excludes preferred for short markers; context preferred when suffix appears in both target and conflicts. Can combine both.
 
 **OR-suffix edge case:** When ranged tokens with same (min,max) but different suffixes are merged, ALL excludes are unioned. This is correct because `!X` is item-wide in PoE2 — over-excluding is safer than missing FP. See `useCategoryPage.ts` for detailed rationale.
 
-## 13. Optimizer Collapse Indicator
+## 12. Optimizer Collapse Indicator
 
 When the runtime optimizer replaces multiple selected tokens with a shared regex from the optimization table, a ⚡ indicator appears on the corresponding FilterChip. This tells the user that clicking this chip doesn't change the regex because its individual regex was already subsumed by the optimizer.
 
 - `collectCollapsedTokenIds(ast, optimizationTable)` — walks optimized AST to find `opt:` prefixed LITERAL nodes and resolves their original token IDs via optimization table lookup.
 - `collapsedTokenIds: Set<string>` — returned by `useCategoryPage`, passed through to `FilterChip`.
 - Tooltip: "Оптимизатор: regex этого мода уже включён в общее выражение"
+
+## 13. ARIA Patterns
+
+- **VendorChip**: Switch (label) + input (sibling) — valid ARIA tree, no interactive child inside switch role.
+- **FilterChip**: Switch role on outer div — **KNOWN ISSUE**: range inputs are children of switch role. Needs restructuring.
+- **Radio groups**: Arrow key navigation implemented per ARIA spec (Left/Up = prev, Right/Down = next, wraps).
+- **PageStateWrapper**: `role="status"` for loading, `role="alert"` for error.
+- **ProfilePanel**: Delete requires confirmation (✕→✓ pattern). Aria-labels on all action buttons.
+
+## 14. VendorProperty Canonical Source
+
+`VendorProperty` interface is defined **only** in `src/data/vendor-properties.ts`. All consumers import from there. Do NOT create local duplicates.

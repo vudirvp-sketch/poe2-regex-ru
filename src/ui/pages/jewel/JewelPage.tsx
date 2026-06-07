@@ -174,7 +174,6 @@ export function JewelPage() {
               groupMode="origin"
               showOriginSubSections
               showJewelTypeSubGroups
-              jewelTypeFilter={jewelTypeFilter}
             />
 
             <div className="flex flex-col gap-3">

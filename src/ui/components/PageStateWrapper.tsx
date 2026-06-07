@@ -25,7 +25,7 @@ interface PageStateWrapperProps<T> {
 export function PageStateWrapper<T>({ loading, error, data, children }: PageStateWrapperProps<T>) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64" role="status" aria-live="polite">
         <div className="text-gray-400">
           <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mb-2" />
           <p className="text-sm">{t('loading')}</p>
@@ -36,7 +36,7 @@ export function PageStateWrapper<T>({ loading, error, data, children }: PageStat
 
   if (error) {
     return (
-      <div className="p-4">
+      <div className="p-4" role="alert">
         <div className="bg-red-900/50 border border-red-700 rounded p-3 text-red-300 text-sm">
           {t('load_error')} {error}
         </div>
@@ -45,7 +45,7 @@ export function PageStateWrapper<T>({ loading, error, data, children }: PageStat
   }
 
   if (!data) {
-    return <div className="p-4 text-gray-500">{t('no_data')}</div>;
+    return <div className="p-4 text-gray-500" role="status">{t('no_data')}</div>;
   }
 
   return <>{children(data)}</>;

@@ -45,6 +45,31 @@ interface CategoryControlPanelProps {
   clearButton?: React.ReactNode;
 }
 
+/**
+ * Arrow key handler for radio groups per ARIA spec.
+ * Left/Up = previous, Right/Down = next. Wraps around.
+ */
+function handleRadioKeyDown(
+  e: React.KeyboardEvent,
+  options: { value: boolean | string; action: () => void }[],
+  currentValue: boolean | string,
+) {
+  const currentIndex = options.findIndex(o => o.value === currentValue);
+  if (currentIndex === -1) return;
+
+  let nextIndex: number;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    nextIndex = (currentIndex + 1) % options.length;
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    nextIndex = (currentIndex - 1 + options.length) % options.length;
+  } else {
+    return;
+  }
+
+  e.preventDefault();
+  options[nextIndex].action();
+}
+
 export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   regex,
   isOverflow,
@@ -67,6 +92,18 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
+  // Mode toggle options for arrow key navigation
+  const modeOptions = [
+    { value: false, action: () => setExcludeMode(false) },
+    { value: true, action: () => setExcludeMode(true) },
+  ];
+
+  // Logic toggle options for arrow key navigation
+  const logicOptions = [
+    { value: 'and' as SearchLogic, action: () => setSearchLogic('and') },
+    { value: 'or' as SearchLogic, action: () => setSearchLogic('or') },
+  ];
+
   return (
     <div className="sticky top-0 z-10 -mx-1 px-1 -mt-1 pt-1 pb-3"
       style={{ background: 'var(--poe-bg, #0a0a0f)' }}
@@ -79,7 +116,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
       {/* Controls row */}
       <div className="flex flex-wrap gap-2 items-center mt-2">
         {/* Mode toggle */}
-        <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}>
+        <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}
+          onKeyDown={(e) => handleRadioKeyDown(e, modeOptions, excludeMode)}
+        >
           <button
             onClick={() => setExcludeMode(false)}
             role="radio"
@@ -103,7 +142,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         </div>
 
         {/* Search logic toggle: AND/OR */}
-        <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}>
+        <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}
+          onKeyDown={(e) => handleRadioKeyDown(e, logicOptions, searchLogic)}
+        >
           <button
             onClick={() => setSearchLogic('and')}
             role="radio"

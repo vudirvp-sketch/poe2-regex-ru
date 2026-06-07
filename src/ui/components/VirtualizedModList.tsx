@@ -41,8 +41,6 @@ interface VirtualizedModListProps {
   showOriginSubSections?: boolean;
   /** Show jewel type sub-headers (Рубин/Изумруд/Сапфир/Общие) inside origin sections */
   showJewelTypeSubGroups?: boolean;
-  /** Filter tokens by jewel type before display (pre-filtering at page level) */
-  jewelTypeFilter?: JewelTypeCategory | 'all';
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
@@ -103,7 +101,6 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   groupMode = 'affix-semantic',
   showOriginSubSections = false,
   showJewelTypeSubGroups = false,
-  jewelTypeFilter: _jewelTypeFilter = 'all',
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,

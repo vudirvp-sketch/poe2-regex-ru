@@ -182,7 +182,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       </div>
 
       {/* Character Health Bar — visual green/yellow/red indicator */}
-      <div className="mb-2" role="progressbar" aria-valuenow={charCount} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
+      <div className="mb-2" role="progressbar" aria-valuenow={Math.min(charCount, MAX_CHARS)} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
         <div className="flex items-center justify-between mb-1">
           <span className={`text-xs font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
             {isOverflow ? t('regex.overflow') : healthConfig.label}
