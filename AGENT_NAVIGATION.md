@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 54.0 | **Date:** 2026-06-07
+> **Version:** 55.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 480 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 487 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,7 +28,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (480 tests, Vitest)
+npx vitest run --root . # Run tests (487 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -50,7 +50,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (480 tests)
+- [ ] `npx vitest run --root .` passes (487 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -73,17 +73,35 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 
-1. **2 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys).
+1. **4 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px and their multi-line splits (.h4ipty). Accepted limitation — no unique substring, essentially family-tier FP with different familyKeys.
 2. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
-3. **Multi-line mod handling** — ETL drops second sub-lines for most multi-line mods (e.g., "Разрушительный" waystone loses "+к бонусу критического урона монстров"). 4 waystone tokens incorrectly join 4 segments with ", ". Fix requires: split `<br>` segments into separate tokens in normalize.ts, each as independent searchable block (matches in-game behavior where each sub-line is a separate block).
 
 ### LOW
 
-3. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
-4. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
-5. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
+1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
+2. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
+3. **VirtualizedModList jewel type sub-groups** — JewelPage uses VirtualizedModList with origin sub-sections but without jewel type sub-headers (Рубин/Изумруд/Сапфир). Token pre-filtering by jewelType still works; only the visual sub-headers within origin sections are not rendered.
 
-## 7. Regex Strategy Pipeline (Phase 8)
+## 7. Multi-Line Mod Splitting (Session 55)
+
+`extractTextAndRanges()` in `scripts/etl/normalize.ts` now splits `<br>` segments into separate tokens. Each sub-line is an independent searchable block (verified in-game Phase 7 Block 3 / Group I).
+
+**How it works:**
+- HTML like `"Монстры имеют (80—120)% повышение шанса<br>(30—50)% к бонусу критического урона"` produces 2 tokens
+- Token IDs use hash-based suffixes: `waystone.mod_dv8kwa`, `waystone.mod_dv8kwa.h4ipty`
+- Hash suffix avoids ID collisions when different tiers of the same modCode have different second segments
+- `normalizeTypeA()` and `normalizeTypeB()` now return `NormalizedMod[]` instead of single `NormalizedMod`
+- `run-etl.ts` uses `flatMap()` to handle the array results
+
+**Token count changes:**
+| Category | Before | After |
+|----------|--------|-------|
+| waystone | 97 | 311 |
+| waystone-desecrated | 17 | 27 |
+| tablet | 75 | 82 |
+| jewel-desecrated | 32 | 47 |
+
+## 8. Regex Strategy Pipeline (Phase 8)
 
 The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts` tries strategies in order:
 
@@ -97,7 +115,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | **1f** | **AND-composed Context** | **regexPrefixContext + regex** | **`"имеют" "увеличение урона"` (−23 FP)** |
 | 2 | Substring fallback | Brute-force unique substring search | `"огню"` |
 
-## 8. Optimization Pipeline (Phases A-B-C + A1)
+## 9. Optimization Pipeline (Phases A-B-C + A1)
 
 `computeOptimizations()` in `scripts/etl/compute-optimizations.ts`:
 
@@ -110,7 +128,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 
 Phase A1 only truncates entries WITHOUT context/excludes (pure, no FP). Truncated forms are validated: must match all family tokens via PoE2 engine AND be unique within the category.
 
-## 9. Oracle API
+## 10. Oracle API
 
 Two validation modes in `src/core/regex-oracle.ts`:
 
@@ -126,7 +144,7 @@ FP categorization (all functions):
 - `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
 - `valid = true` when NO cross-family FP and no FN
 
-## 10. regexExclude & regexPrefixContext System
+## 11. regexExclude & regexPrefixContext System
 
 Two mechanisms for cross-family FP prevention:
 
@@ -150,7 +168,7 @@ When regex + regexExclude cannot eliminate all FP, `regexPrefixContext` provides
 - Context preferred when: suffix appears in both target AND conflicts
 - Can combine both: `"context" "suffix" "!exclude"`
 
-## 11. Optimization Table with Context
+## 12. Optimization Table with Context
 
 `OptimizationEntry` includes optional `regexPrefixContext` and `regexExclude` fields. These are populated by `patchOptimizationEntries()` (ETL step 7c), which runs after `repairCrossFamilyFP()`.
 

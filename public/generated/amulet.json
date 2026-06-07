@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:43:54.175Z",
+  "version": "2026-06-07T15:45:49.672Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -11302,7 +11302,7 @@
       "level": 1
     },
     {
-      "id": "amulet.genesistreeamuletanaemiaonhit_breachborn",
+      "id": "amulet.genesistreeamuletanaemiaonhit_breachborn.j5a0k0",
       "category": "amulet",
       "origin": "breachborn",
       "rawText": {
@@ -11342,6 +11342,54 @@
         14,
         26,
         28
+      ],
+      "level": 1
+    },
+    {
+      "id": "amulet.genesistreeamuletanaemiaonhit_breachborn.tji6cm",
+      "category": "amulet",
+      "origin": "breachborn",
+      "rawText": {
+        "ru": "Позволяет наложить на врагов +(2—3) отрицательных эффектов оскверненной крови"
+      },
+      "rawTextTemplate": {
+        "ru": "Позволяет наложить на врагов +## отрицательных эффектов оскверненной крови"
+      },
+      "regex": {
+        "ru": "крови"
+      },
+      "familyKey": {
+        "ru": "Позволяет наложить на врагов +# отрицательных эффектов оскверненной крови"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Усиленный Уул-Нетол",
+          "fs": "Усиленная Уул-Нетол",
+          "ns": "Усиленное Уул-Нетол",
+          "mp": "Усиленные Уул-Нетол",
+          "fp": "Усиленные Уул-Нетол",
+          "np": "Усиленные Уул-Нетол"
+        }
+      },
+      "affix": "prefix",
+      "tags": [
+        "physical"
+      ],
+      "ranges": [
+        [
+          2,
+          3
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        43,
+        66
       ],
       "level": 1
     },

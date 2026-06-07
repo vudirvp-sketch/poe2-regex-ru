@@ -4,6 +4,7 @@
  * - Generate internal_id from mod code or English name
  * - Extract gender inflection forms (supports both lowercase and UPPERCASE keys)
  * - Mark E positions for yofication
+ * - Split multi-line mods (<br> segments) into separate tokens
  */
 import type { Locale, AffixType, ModOrigin, GenderForms } from '../../src/shared/types.js';
 import type { RawModData } from './parse-tables.js';
@@ -27,73 +28,95 @@ export interface NormalizedMod {
   modCode?: string;
 }
 
+/** Result of extracting text/ranges from a single <br>-separated segment */
+export interface ExtractedSegment {
+  rawText: string;
+  rawTextTemplate: string;
+  ranges: number[][];
+  values: number[];
+}
+
 /**
- * Normalize a Type A raw mod into NormalizedMod
+ * Normalize a Type A raw mod into one or more NormalizedMods.
+ * Multi-line mods (<br> segments) are split into separate tokens,
+ * each with an ID suffix like .1, .2, etc.
  */
 export function normalizeTypeA(
   raw: RawModData,
   category: string,
   origin: ModOrigin
-): NormalizedMod {
-  const { rawText, rawTextTemplate, ranges, values } = extractTextAndRanges(raw.descriptionHtml);
-
+): NormalizedMod[] {
+  const segments = extractTextAndRanges(raw.descriptionHtml);
   const genderForms = extractGenderForms(raw.nameHtml);
-  const { hasYofication, yoficationPositions } = detectYofication(rawText);
+  const baseId = generateId(raw.modCode, category, segments[0].rawText, raw.origin || origin);
 
-  const id = generateId(raw.modCode, category, rawText, raw.origin || origin);
+  return segments.map((seg, idx) => {
+    // For multi-segment mods, use a hash of the segment's rawText as suffix
+    // instead of a simple index. This avoids ID collisions when different tiers
+    // of the same modCode have different second segments (e.g., desecrated jewels).
+    const id = segments.length > 1
+      ? `${baseId}.${simpleHash(seg.rawText)}`
+      : baseId;
+    const { hasYofication, yoficationPositions } = detectYofication(seg.rawText);
 
-  return {
-    id,
-    category,
-    origin: raw.origin || origin,
-    rawText: { ru: rawText },
-    rawTextTemplate: { ru: rawTextTemplate },
-    genderForms: { ru: genderForms },
-    affix: raw.affix,
-    tags: raw.tags || [],
-    ranges,
-    values,
-    hasYofication,
-    yoficationPositions,
-    level: raw.level,
-    modCode: raw.modCode,
-  };
+    return {
+      id,
+      category,
+      origin: raw.origin || origin,
+      rawText: { ru: seg.rawText },
+      rawTextTemplate: { ru: seg.rawTextTemplate },
+      genderForms: { ru: genderForms },
+      affix: raw.affix,
+      tags: raw.tags || [],
+      ranges: seg.ranges,
+      values: seg.values,
+      hasYofication,
+      yoficationPositions,
+      level: raw.level,
+      modCode: raw.modCode,
+    };
+  });
 }
 
 /**
- * Normalize a Type B raw mod tier into NormalizedMod
+ * Normalize a Type B raw mod tier into one or more NormalizedMods.
+ * Multi-line mods (<br> segments) are split into separate tokens,
+ * each with an ID suffix like .1, .2, etc.
  */
 export function normalizeTypeB(
   tier: RawModTier,
   group: RawModGroupData,
   category: string
-): NormalizedMod {
-  const { rawText, rawTextTemplate, ranges, values } = extractTextAndRanges(tier.descriptionHtml);
-
+): NormalizedMod[] {
+  const segments = extractTextAndRanges(tier.descriptionHtml);
   const genderForms = extractGenderForms(tier.nameHtml);
-  const { hasYofication, yoficationPositions } = detectYofication(rawText);
+  const baseId = generateId(tier.modCode || group.genGroup, category, segments[0].rawText, group.origin);
 
-  const id = generateId(tier.modCode || group.genGroup, category, rawText, group.origin);
+  return segments.map((seg, idx) => {
+    // For multi-segment mods, use a hash of the segment's rawText as suffix
+    const id = segments.length > 1
+      ? `${baseId}.${simpleHash(seg.rawText)}`
+      : baseId;
+    const affix: AffixType = tier.affix || inferAffix(seg.rawText);
+    const { hasYofication, yoficationPositions } = detectYofication(seg.rawText);
 
-  // Use the affix from the tier if available, otherwise infer
-  const affix: AffixType = tier.affix || inferAffix(rawText);
-
-  return {
-    id,
-    category,
-    origin: group.origin,
-    rawText: { ru: rawText },
-    rawTextTemplate: { ru: rawTextTemplate },
-    genderForms: { ru: genderForms },
-    affix,
-    tags: tier.tags?.length > 0 ? tier.tags : group.tags,
-    ranges,
-    values,
-    hasYofication,
-    yoficationPositions,
-    level: tier.level,
-    modCode: tier.modCode,
-  };
+    return {
+      id,
+      category,
+      origin: group.origin,
+      rawText: { ru: seg.rawText },
+      rawTextTemplate: { ru: seg.rawTextTemplate },
+      genderForms: { ru: genderForms },
+      affix,
+      tags: tier.tags?.length > 0 ? tier.tags : group.tags,
+      ranges: seg.ranges,
+      values: seg.values,
+      hasYofication,
+      yoficationPositions,
+      level: tier.level,
+      modCode: tier.modCode,
+    };
+  });
 }
 
 /**
@@ -103,68 +126,43 @@ export function normalizeTypeB(
  * - Numeric ranges: (5<span class="ndash">—</span>9) -> ranges[[5,9]], template uses ##
  * - Standalone numbers: values[], template uses #
  * - Gender templates: <if:MS>...</if:MS> -> extracted separately
- * - Multi-line mods separated by <br> — CURRENTLY only first line taken (see MEDIUM #3 in AGENT_NAVIGATION.md)
+ * - Multi-line mods separated by <br> — each segment is a SEPARATE searchable block
  *
- * IMPORTANT: poe2db.tw stores multiple related properties in one description cell,
- * separated by <br>. In-game, each sub-line is a SEPARATE searchable block (verified
- * Phase 7 Block 3 / Group I). The current code takes only the first line for most
- * multi-line mods, which means users can't search for text in subsequent sub-lines.
- * For "dual-stat" mods (multiple segments each with ranges), segments are joined with
- * ", " which also doesn't match in-game behavior.
+ * Each <br>-separated segment becomes its own token in the output array.
+ * In-game, each sub-line is a separate searchable block (verified Phase 7 Block 3 / Group I).
+ * This matches in-game behavior where searching for text in any sub-line finds the item.
  *
- * TODO: Split each <br> segment into a separate token so each sub-line is independently
- * searchable. Each sub-line is a separate block in PoE2 search, so this matches the
- * in-game model correctly.
+ * Token IDs use suffixes: waystone.mod_dv8kwa.1, waystone.mod_dv8kwa.2, etc.
  */
-export function extractTextAndRanges(html: string): {
-  rawText: string;
-  rawTextTemplate: string;
-  ranges: number[][];
-  values: number[];
-} {
-  // Split by <br> tags and take only the FIRST segment.
-  // On poe2db.tw waystone/tablet pages, the description cell often contains:
-  //   "Actual affix text<br>Implicit bonus 1<br>Implicit bonus 2"
-  // Only the first line is the affix that appears in the item's mod list.
-  // Subsequent lines are implicit properties that appear on the item tooltip
-  // but are NOT separate searchable affixes.
-  //
-  // EXCEPTION: For desecrated jewel dual-stat mods, <br> separates two parts
-  // of the SAME affix (e.g., "(5—10)% повышение брони<br>(4—8)% увеличение урона от атак").
-  // In-game, these appear as ONE mod line with a comma. Splitting them loses
-  // the second stat and causes familyKey collisions with normal mods.
-  // Detection: if multiple segments each contain numeric ranges, this is likely
-  // a dual-stat mod, not an implicit bonus. We join them with ", " instead.
-  const segments = html.split(/<br\s*\/?>/i);
+export function extractTextAndRanges(html: string): ExtractedSegment[] {
+  const htmlSegments = html.split(/<br\s*\/?>/i);
 
-  let firstSegment: string;
-  if (segments.length > 1) {
-    // Check if multiple segments each contain numeric ranges — indicates a dual-stat mod.
-    // The range pattern needs to account for HTML tags like <span class="ndash">—</span>
-    // that break the plain-text range pattern. We detect dual-stat mods by checking
-    // that multiple segments each have their OWN <span class="mod-value"> with a ndash
-    // (range indicator). Single-value mod-value spans (like ": 1") don't count.
-    //
-    // This distinguishes:
-    // - Dual-stat: "(5—10)% повышение брони<br>(4—8)% увеличение урона от атак"
-    //   → both segments have ranges → join them
-    // - Waystone implicit: "Дополнительных свойств: 1<br>25% увеличение количества..."
-    //   → only first has mod-value, or first has single value → take only first
-    const modValueWithRangePattern = /class=['"]mod-value['"][^>]*>\([^<]*<span\s+class=["']ndash["']>/i;
-    const segmentsWithRangeValues = segments.filter(s => modValueWithRangePattern.test(s));
+  const results: ExtractedSegment[] = [];
 
-    if (segmentsWithRangeValues.length >= 2) {
-      // Dual-stat mod: join all segments with ", " (how they appear in-game)
-      firstSegment = segments.join(', ');
-    } else {
-      // Standard case: only first segment is the actual affix
-      firstSegment = segments[0];
-    }
-  } else {
-    firstSegment = segments[0];
+  for (const segmentHtml of htmlSegments) {
+    const trimmed = segmentHtml.trim();
+    if (!trimmed) continue; // skip empty segments
+
+    const segment = parseSingleSegment(trimmed);
+    if (segment.rawText.length === 0) continue; // skip segments that parse to empty
+
+    results.push(segment);
   }
 
-  const $ = cheerio.load(firstSegment);
+  // If no segments produced results, return at least one empty result
+  // (shouldn't happen normally, but guards against edge cases)
+  if (results.length === 0) {
+    return [{ rawText: '', rawTextTemplate: '', ranges: [], values: [] }];
+  }
+
+  return results;
+}
+
+/**
+ * Parse a single HTML segment (no <br> tags) into rawText, template, ranges, and values.
+ */
+function parseSingleSegment(html: string): ExtractedSegment {
+  const $ = cheerio.load(html);
   const ranges: number[][] = [];
   const values: number[] = [];
 
@@ -177,10 +175,6 @@ export function extractTextAndRanges(html: string): {
     if (rangeMatch) {
       const min = parseFloat(rangeMatch[1]);
       const max = parseFloat(rangeMatch[2]);
-      // Store as integers scaled by 10 if fractional, otherwise as-is
-      // For fractional ranges like (2.1—3), store [21, 30] with a note
-      // Actually, keep as floats for now — downstream code handles integer ranges
-      // Round to avoid floating-point issues: 2.1 → 2.1, 3 → 3
       ranges.push([min, max]);
     }
 
@@ -197,8 +191,6 @@ export function extractTextAndRanges(html: string): {
   $('span.secondary').remove();
   // Remove crafting tag badges — they contain labels like "Броня", "Атака",
   // "Урон Стихийный" etc. that are NOT part of the mod text.
-  // These appear as <span class="badge" data-tag="armour">Броня</span>
-  // or similar elements with data-tag attributes.
   $('[data-tag]').remove();
   // Also remove badge elements without data-tag (some pages use
   // <span class="badge bg-primary craftingfire">Огонь</span>)
@@ -214,8 +206,6 @@ export function extractTextAndRanges(html: string): {
   // Replace ranges in reverse order to maintain positions
   for (let i = ranges.length - 1; i >= 0; i--) {
     const [min, max] = ranges[i];
-    // Replace the first occurrence of "(min—max)" or "(min-max)" pattern
-    // Use the original text representation to match (handles fractional values)
     const minStr = Number.isInteger(min) ? String(min) : String(min);
     const maxStr = Number.isInteger(max) ? String(max) : String(max);
     const rangeStr = `(${minStr}—${maxStr})`;
@@ -317,7 +307,7 @@ export function detectYofication(text: string): {
  * When the same mod code appears in multiple origins (normal, desecrated, etc.),
  * we append the origin suffix to differentiate them.
  */
-function generateId(
+export function generateId(
   modCode: string | undefined,
   category: string,
   rawText: string,

@@ -446,10 +446,14 @@ async function buildJewelTypeMap(
 
             // Also map normalized description text → modCode
             // This allows matching Type A jewel mods (which lack modCode) by their text
-            const { rawTextTemplate } = extractTextAndRanges(tier.descriptionHtml);
-            const normalizedKey = normalizeRawTextForMatching(rawTextTemplate);
-            if (normalizedKey && !normalizedTextToModCode.has(normalizedKey)) {
-              normalizedTextToModCode.set(normalizedKey, tier.modCode);
+            // extractTextAndRanges now returns an array of segments; use the first segment
+            // for text→modCode mapping (all segments share the same modCode)
+            const segments = extractTextAndRanges(tier.descriptionHtml);
+            for (const seg of segments) {
+              const normalizedKey = normalizeRawTextForMatching(seg.rawTextTemplate);
+              if (normalizedKey && !normalizedTextToModCode.has(normalizedKey)) {
+                normalizedTextToModCode.set(normalizedKey, tier.modCode);
+              }
             }
           }
         }
@@ -547,7 +551,7 @@ async function runEtl() {
           return parseTypeAPage(html, '', cat.origin || 'normal');
         });
 
-        normalized = rawMods.map(mod =>
+        normalized = rawMods.flatMap(mod =>
           normalizeTypeA(mod, cat.name, mod.origin || cat.origin || 'normal')
         );
       } else if (cat.type === 'relic') {
@@ -556,7 +560,7 @@ async function runEtl() {
           return parseTypeAPage(html, 'RelicMods', 'normal');
         });
 
-        normalized = rawMods.map(mod =>
+        normalized = rawMods.flatMap(mod =>
           normalizeTypeA(mod, cat.name, mod.origin || 'normal')
         );
       } else {
@@ -573,7 +577,7 @@ async function runEtl() {
         });
 
         normalized = uniqueGroups.flatMap(group =>
-          group.tiers.map(tier => normalizeTypeB(tier, group, cat.name))
+          group.tiers.flatMap(tier => normalizeTypeB(tier, group, cat.name))
         );
       }
 

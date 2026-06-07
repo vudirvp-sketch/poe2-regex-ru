@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:43:49.845Z",
+  "version": "2026-06-07T15:45:45.396Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -81,7 +81,7 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_od9m77",
+      "id": "tablet.mod_od9m77.h4ipty",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
@@ -118,7 +118,81 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_vc6g4q",
+      "id": "tablet.mod_od9m77.giiz25",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительных бродячих изгнанников: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительных бродячих изгнанников: #"
+      },
+      "regex": {
+        "ru": "гнанников:"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительных бродячих изгнанников: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_od9m77.f2md77",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительных духов азмири: 1"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительных духов азмири: #"
+      },
+      "regex": {
+        "ru": "ьных духов"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительных духов азмири: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_vc6g4q.3d4ulj",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
@@ -128,7 +202,7 @@
         "ru": "На карте можно встретить дополнительную Сущность"
       },
       "regex": {
-        "ru": "ю сущность"
+        "ru": " можно встретить дополнительную"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительную Сущность"
@@ -149,6 +223,49 @@
         7,
         19,
         33
+      ],
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "без",
+          "бездну"
+        ]
+      }
+    },
+    {
+      "id": "tablet.mod_vc6g4q.h4ipty",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "увеличение количества находимых"
+      },
+      "familyKey": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8,
+        18,
+        41,
+        46,
+        55
       ],
       "level": 1
     },
@@ -634,6 +751,47 @@
       }
     },
     {
+      "id": "tablet.mod_vc6g4q",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительную Сущность"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительную Сущность"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительную"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительную Сущность"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "без",
+          "бездну"
+        ]
+      }
+    },
+    {
       "id": "tablet.mod_sglt63",
       "category": "tablet",
       "origin": "normal",
@@ -644,7 +802,7 @@
         "ru": "На карте можно встретить дополнительный алтарь"
       },
       "regex": {
-        "ru": "ный алтарь"
+        "ru": " можно встретить дополнительный"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный алтарь"
@@ -666,7 +824,13 @@
         19,
         33
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "ларец"
+        ]
+      }
     },
     {
       "id": "tablet.mod_a94wuy",
@@ -679,7 +843,7 @@
         "ru": "На карте можно встретить дополнительный ларец"
       },
       "regex": {
-        "ru": "ьный ларец"
+        "ru": " можно встретить дополнительный"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный ларец"
@@ -702,7 +866,13 @@
         33,
         43
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "алтарь"
+        ]
+      }
     },
     {
       "id": "tablet.mod_d3iw8o",
@@ -1794,7 +1964,7 @@
         "ru": "На карте с увеличенным на ##% шансом можно встретить бродячих изгнанников"
       },
       "regex": {
-        "ru": "изгнанников"
+        "ru": "встретить бродячих изгнанников"
       },
       "familyKey": {
         "ru": "На карте с увеличенным на #% шансом можно встретить бродячих изгнанников"
@@ -1979,7 +2149,7 @@
         "ru": "На карте с увеличенным на ##% шансом можно встретить духов азмири"
       },
       "regex": {
-        "ru": "духов азмири"
+        "ru": "встретить духов азмири"
       },
       "familyKey": {
         "ru": "На карте с увеличенным на #% шансом можно встретить духов азмири"
@@ -2049,7 +2219,7 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_as23xk",
+      "id": "tablet.mod_as23xk.o6qs9n",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
@@ -2081,6 +2251,85 @@
         8,
         17,
         43
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_as23xk.2po3dj",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительный ларец"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительный ларец"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительный ларец"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        43
+      ],
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "алтарь"
+        ]
+      }
+    },
+    {
+      "id": "tablet.mod_as23xk.h4ipty",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "rawTextTemplate": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "regex": {
+        "ru": "увеличение количества находимых"
+      },
+      "familyKey": {
+        "ru": "% увеличение количества находимых на карте путевых камней"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8,
+        18,
+        41,
+        46,
+        55
       ],
       "level": 1
     },
@@ -2123,6 +2372,47 @@
         53
       ],
       "level": 1
+    },
+    {
+      "id": "tablet.mod_as23xk.i41rig",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительный алтарь"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительный алтарь"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительный алтарь"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "ларец"
+        ]
+      }
     },
     {
       "id": "tablet.mod_swvjcv",
@@ -2955,6 +3245,69 @@
     }
   ],
   "optimizationTable": {
+    "tablet.mod_as23xk.h4ipty:tablet.mod_od9m77.h4ipty:tablet.mod_vc6g4q.h4ipty": {
+      "ids": [
+        "tablet.mod_as23xk.h4ipty",
+        "tablet.mod_od9m77.h4ipty",
+        "tablet.mod_vc6g4q.h4ipty"
+      ],
+      "regex": {
+        "ru": "увеличение количества находимых"
+      },
+      "weight": 31,
+      "count": 3
+    },
+    "tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
+      "ids": [
+        "tablet.mod_vc6g4q",
+        "tablet.mod_vc6g4q.3d4ulj"
+      ],
+      "regex": {
+        "ru": " можно встретить дополнительную"
+      },
+      "weight": 31,
+      "count": 2,
+      "regexExclude": {
+        "ru": [
+          "без",
+          "бездну"
+        ]
+      }
+    },
+    "tablet.mod_as23xk.i41rig:tablet.mod_sglt63": {
+      "ids": [
+        "tablet.mod_as23xk.i41rig",
+        "tablet.mod_sglt63"
+      ],
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "weight": 31,
+      "count": 2,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "ларец"
+        ]
+      }
+    },
+    "tablet.mod_a94wuy:tablet.mod_as23xk.2po3dj": {
+      "ids": [
+        "tablet.mod_a94wuy",
+        "tablet.mod_as23xk.2po3dj"
+      ],
+      "regex": {
+        "ru": " можно встретить дополнительный"
+      },
+      "weight": 31,
+      "count": 2,
+      "regexExclude": {
+        "ru": [
+          "ритуальный",
+          "алтарь"
+        ]
+      }
+    },
     "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_jkqo0p:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
       "ids": [
         "tablet.mod_h8udqa",
@@ -3000,6 +3353,21 @@
       "weight": 132,
       "count": 7
     },
+    "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_o3kmu5:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
+      "ids": [
+        "tablet.mod_3mbysh",
+        "tablet.mod_apm69j",
+        "tablet.mod_bunso1",
+        "tablet.mod_o3kmu5",
+        "tablet.mod_swvjcv",
+        "tablet.mod_xpt1fq"
+      ],
+      "regex": {
+        "ru": "встретить (бродячих изгнанников|ритуальный круг|духов азмири|Сущности|ларцы|алтари)"
+      },
+      "weight": 83,
+      "count": 6
+    },
     "tablet.mod_i7llgb:tablet.mod_lqwqxg": {
       "ids": [
         "tablet.mod_i7llgb",
@@ -3034,18 +3402,20 @@
       "weight": 46,
       "count": 3
     },
-    "tablet.mod_3mbysh:tablet.mod_o3kmu5:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
+    "tablet.mod_a94wuy:tablet.mod_as23xk.2po3dj:tablet.mod_as23xk.i41rig:tablet.mod_sglt63:tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
       "ids": [
-        "tablet.mod_3mbysh",
-        "tablet.mod_o3kmu5",
-        "tablet.mod_swvjcv",
-        "tablet.mod_xpt1fq"
+        "tablet.mod_a94wuy",
+        "tablet.mod_as23xk.2po3dj",
+        "tablet.mod_as23xk.i41rig",
+        "tablet.mod_sglt63",
+        "tablet.mod_vc6g4q",
+        "tablet.mod_vc6g4q.3d4ulj"
       ],
       "regex": {
-        "ru": "встретить (ритуальный круг|Сущности|ларцы|алтари)"
+        "ru": " можно встретить дополнительн(ую|ый)"
       },
-      "weight": 49,
-      "count": 4
+      "weight": 36,
+      "count": 6
     },
     "tablet.mod_2jjyh7:tablet.mod_f87zsk:tablet.mod_guq13l:tablet.mod_yvoqjl": {
       "ids": [
@@ -3060,9 +3430,11 @@
       "weight": 94,
       "count": 4
     },
-    "tablet.mod_od9m77:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
+    "tablet.mod_as23xk.h4ipty:tablet.mod_od9m77.h4ipty:tablet.mod_vc6g4q.h4ipty:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
       "ids": [
-        "tablet.mod_od9m77",
+        "tablet.mod_as23xk.h4ipty",
+        "tablet.mod_od9m77.h4ipty",
+        "tablet.mod_vc6g4q.h4ipty",
         "tablet.mod_wrlukt",
         "tablet.mod_yr6d7c"
       ],
@@ -3070,7 +3442,7 @@
         "ru": "увеличение (количества находимых|эффективности монстров|размера групп монстров на карте)"
       },
       "weight": 88,
-      "count": 3
+      "count": 5
     },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [

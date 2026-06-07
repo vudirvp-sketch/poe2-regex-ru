@@ -63,16 +63,16 @@ describe('ETL vs регис cross-validation', () => {
       expect(coverage).toBeGreaterThan(0.7);
     });
 
-    it('waystone token count matches expected range (90-120 normal)', () => {
+    it('waystone token count matches expected range (280-350 with multi-line splits)', () => {
       const waystoneData = loadCategoryData('waystone.json');
-      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(90);
-      expect(waystoneData.tokens.length).toBeLessThanOrEqual(120);
+      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(280);
+      expect(waystoneData.tokens.length).toBeLessThanOrEqual(350);
     });
 
-    it('waystone-desecrated has 15-25 tokens', () => {
+    it('waystone-desecrated has 25-35 tokens', () => {
       const data = loadCategoryData('waystone-desecrated.json');
-      expect(data.tokens.length).toBeGreaterThanOrEqual(15);
-      expect(data.tokens.length).toBeLessThanOrEqual(25);
+      expect(data.tokens.length).toBeGreaterThanOrEqual(25);
+      expect(data.tokens.length).toBeLessThanOrEqual(35);
     });
   });
 

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:43:50.592Z",
+  "version": "2026-06-07T15:45:46.103Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -789,7 +789,7 @@
         14
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sxudmh",
@@ -839,7 +839,7 @@
         14
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_5rcjkz",
@@ -889,7 +889,7 @@
         32
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_bgyeco",
@@ -1388,7 +1388,7 @@
         39
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_sx2rlh",
@@ -1541,7 +1541,7 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_d6tyom",
@@ -1891,7 +1891,7 @@
         14
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_ss8pp2",
@@ -1941,7 +1941,7 @@
         32
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_spdhko",
@@ -2316,7 +2316,7 @@
           "хаосом"
         ]
       },
-      "jewelType": "sapphire",
+      "jewelType": "shared",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -2519,7 +2519,7 @@
         50
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_90o1h0",
@@ -2902,7 +2902,7 @@
         14
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_o3wt9e",
@@ -3436,7 +3436,7 @@
         29
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_szkiml",
@@ -3639,7 +3639,7 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_dstpng",
@@ -3688,7 +3688,7 @@
         15
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "shared"
     },
     {
       "id": "jewel.mod_k640km",

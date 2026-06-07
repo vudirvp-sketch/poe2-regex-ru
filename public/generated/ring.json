@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:43:52.681Z",
+  "version": "2026-06-07T15:45:48.236Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -7736,7 +7736,7 @@
       "level": 47
     },
     {
-      "id": "ring.lightradiusandmanaregeneration1",
+      "id": "ring.lightradiusandmanaregeneration1.tsr1nh",
       "category": "ring",
       "origin": "normal",
       "rawText": {
@@ -7779,7 +7779,44 @@
       "level": 8
     },
     {
-      "id": "ring.lightradiusandmanaregeneration2",
+      "id": "ring.lightradiusandmanaregeneration1.3cj0lv",
+      "category": "ring",
+      "origin": "normal",
+      "rawText": {
+        "ru": "5% увеличение радиуса обзора"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regex": {
+        "ru": "обзора"
+      },
+      "familyKey": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "mana"
+      ],
+      "ranges": [],
+      "values": [
+        5
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9
+      ],
+      "level": 8
+    },
+    {
+      "id": "ring.lightradiusandmanaregeneration2.k2eis8",
       "category": "ring",
       "origin": "normal",
       "rawText": {
@@ -7822,7 +7859,44 @@
       "level": 15
     },
     {
-      "id": "ring.lightradiusandmanaregeneration3",
+      "id": "ring.lightradiusandmanaregeneration2.hu16ll",
+      "category": "ring",
+      "origin": "normal",
+      "rawText": {
+        "ru": "10% увеличение радиуса обзора"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regex": {
+        "ru": "обзора"
+      },
+      "familyKey": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "mana"
+      ],
+      "ranges": [],
+      "values": [
+        10
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10
+      ],
+      "level": 15
+    },
+    {
+      "id": "ring.lightradiusandmanaregeneration3.jmqba5",
       "category": "ring",
       "origin": "normal",
       "rawText": {
@@ -7861,6 +7935,43 @@
         29,
         31,
         33
+      ],
+      "level": 30
+    },
+    {
+      "id": "ring.lightradiusandmanaregeneration3.38a9a4",
+      "category": "ring",
+      "origin": "normal",
+      "rawText": {
+        "ru": "15% увеличение радиуса обзора"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regex": {
+        "ru": "обзора"
+      },
+      "familyKey": {
+        "ru": "#% увеличение радиуса обзора"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [
+        "mana"
+      ],
+      "ranges": [],
+      "values": [
+        15
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10
       ],
       "level": 30
     },
@@ -16982,12 +17093,12 @@
       "weight": 4,
       "count": 7
     },
-    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1.tsr1nh:ring.lightradiusandmanaregeneration2.k2eis8:ring.lightradiusandmanaregeneration3.jmqba5:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionmanaregeneration1_corrupted",
-        "ring.lightradiusandmanaregeneration1",
-        "ring.lightradiusandmanaregeneration2",
-        "ring.lightradiusandmanaregeneration3",
+        "ring.lightradiusandmanaregeneration1.tsr1nh",
+        "ring.lightradiusandmanaregeneration2.k2eis8",
+        "ring.lightradiusandmanaregeneration3.jmqba5",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",
@@ -17086,6 +17197,18 @@
       },
       "weight": 6,
       "count": 7
+    },
+    "ring.lightradiusandmanaregeneration1.3cj0lv:ring.lightradiusandmanaregeneration2.hu16ll:ring.lightradiusandmanaregeneration3.38a9a4": {
+      "ids": [
+        "ring.lightradiusandmanaregeneration1.3cj0lv",
+        "ring.lightradiusandmanaregeneration2.hu16ll",
+        "ring.lightradiusandmanaregeneration3.38a9a4"
+      ],
+      "regex": {
+        "ru": "обз"
+      },
+      "weight": 3,
+      "count": 3
     },
     "ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6": {
       "ids": [
@@ -17687,7 +17810,7 @@
       "weight": 35,
       "count": 36
     },
-    "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated:ring.corruptionincreasedmana1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.essenceincreasedmanapercent1_essence:ring.increasedmana1:ring.increasedmana11:ring.increasedmana12:ring.increasedmana2:ring.increasedmana3:ring.increasedmana3_essence:ring.increasedmana4:ring.increasedmana5:ring.increasedmana6:ring.increasedmana7:ring.increasedmana7_essence:ring.increasedmana8_essence:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaleech2:ring.manaleech3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6:ring.normal_78:ring.normal_79:ring.normal_80": {
+    "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated:ring.corruptionincreasedmana1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.essenceincreasedmanapercent1_essence:ring.increasedmana1:ring.increasedmana11:ring.increasedmana12:ring.increasedmana2:ring.increasedmana3:ring.increasedmana3_essence:ring.increasedmana4:ring.increasedmana5:ring.increasedmana6:ring.increasedmana7:ring.increasedmana7_essence:ring.increasedmana8_essence:ring.lightradiusandmanaregeneration1.tsr1nh:ring.lightradiusandmanaregeneration2.k2eis8:ring.lightradiusandmanaregeneration3.jmqba5:ring.manaleech2:ring.manaleech3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6:ring.normal_78:ring.normal_79:ring.normal_80": {
       "ids": [
         "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated",
         "ring.corruptionincreasedmana1_corrupted",
@@ -17705,9 +17828,9 @@
         "ring.increasedmana7",
         "ring.increasedmana7_essence",
         "ring.increasedmana8_essence",
-        "ring.lightradiusandmanaregeneration1",
-        "ring.lightradiusandmanaregeneration2",
-        "ring.lightradiusandmanaregeneration3",
+        "ring.lightradiusandmanaregeneration1.tsr1nh",
+        "ring.lightradiusandmanaregeneration2.k2eis8",
+        "ring.lightradiusandmanaregeneration3.jmqba5",
         "ring.manaleech2",
         "ring.manaleech3",
         "ring.manaregeneration1",
@@ -18037,13 +18160,13 @@
       "weight": 30,
       "count": 7
     },
-    "ring.corruptionliferegenerationrate1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
+    "ring.corruptionliferegenerationrate1_corrupted:ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1.tsr1nh:ring.lightradiusandmanaregeneration2.k2eis8:ring.lightradiusandmanaregeneration3.jmqba5:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
       "ids": [
         "ring.corruptionliferegenerationrate1_corrupted",
         "ring.corruptionmanaregeneration1_corrupted",
-        "ring.lightradiusandmanaregeneration1",
-        "ring.lightradiusandmanaregeneration2",
-        "ring.lightradiusandmanaregeneration3",
+        "ring.lightradiusandmanaregeneration1.tsr1nh",
+        "ring.lightradiusandmanaregeneration2.k2eis8",
+        "ring.lightradiusandmanaregeneration3.jmqba5",
         "ring.manaregeneration1",
         "ring.manaregeneration2",
         "ring.manaregeneration3",

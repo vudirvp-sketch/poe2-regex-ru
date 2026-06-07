@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:43:49.230Z",
+  "version": "2026-06-07T15:45:44.626Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -61,7 +61,7 @@
         "ru": "В области можно встретить дополнительных Бездн: ##"
       },
       "regex": {
-        "ru": "льных б"
+        "ru": " можно встретить дополнительных"
       },
       "familyKey": {
         "ru": "В области можно встретить дополнительных Бездн: #"
@@ -145,7 +145,7 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_sbcpi5",
+      "id": "waystone-desecrated.mod_sbcpi5.mp9l1p",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
@@ -185,6 +185,94 @@
         4,
         28,
         36
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_sbcpi5.tm2zcf",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "В области можно встретить дополнительных Бездн: (14—18)"
+      },
+      "rawTextTemplate": {
+        "ru": "В области можно встретить дополнительных Бездн: ##"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительных"
+      },
+      "familyKey": {
+        "ru": "В области можно встретить дополнительных Бездн: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          14,
+          18
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        20,
+        34,
+        42
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_sbcpi5.f0kp3t",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Область захвачена монстрами Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Область захвачена монстрами Бездны"
+      },
+      "regex": {
+        "ru": "хвачена"
+      },
+      "familyKey": {
+        "ru": "Область захвачена монстрами Бездны"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        29
       ],
       "level": 0
     },
@@ -272,25 +360,69 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_mhtsg",
+      "id": "waystone-desecrated.mod_cmq708.rl8it4",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
-        "ru": "40% увеличение количества волшебных монстров, Провалы Бездны с (50—80)% шансом могут породить как минимум волшебных монстров, Трещины Бездны с (40—60)% шансом могут породить как минимум волшебных монстров,"
+        "ru": "40% увеличение количества волшебных монстров"
       },
       "rawTextTemplate": {
-        "ru": "#% увеличение количества волшебных монстров, Провалы Бездны с ##% шансом могут породить как минимум волшебных монстров, Трещины Бездны с ##% шансом могут породить как минимум волшебных монстров,"
+        "ru": "#% увеличение количества волшебных монстров"
       },
       "regex": {
-        "ru": "монстров,"
+        "ru": "количества волшебных монстров"
       },
       "familyKey": {
-        "ru": "#% увеличение количества волшебных монстров, Провалы Бездны с #% шансом могут породить как минимум волшебных монстров, Трещины Бездны с #% шансом могут породить как минимум волшебных монстров,"
+        "ru": "#% увеличение количества волшебных монстров"
       },
       "regexPrefix": {
         "ru": ""
       },
-      "hasMultiPlaceholder": true,
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        40
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        30
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_cmq708.73v083",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Провалы Бездны с (50—80)% шансом могут породить как минимум волшебных монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "Провалы Бездны с ##% шансом могут породить как минимум волшебных монстров"
+      },
+      "regex": {
+        "ru": "шансом могут породить как минимум волшебных монстров"
+      },
+      "familyKey": {
+        "ru": "Провалы Бездны с #% шансом могут породить как минимум волшебных монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
       "genderForms": {
         "ru": {
           "ms": "Глубинный",
@@ -307,27 +439,72 @@
         [
           50,
           80
-        ],
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        64
+      ],
+      "level": 0,
+      "regexExclude": {
+        "ru": [
+          "трещины"
+        ]
+      }
+    },
+    {
+      "id": "waystone-desecrated.mod_cmq708.fu78h3",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Трещины Бездны с (40—60)% шансом могут породить как минимум волшебных монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "Трещины Бездны с ##% шансом могут породить как минимум волшебных монстров"
+      },
+      "regex": {
+        "ru": "шансом могут породить как минимум волшебных монстров"
+      },
+      "familyKey": {
+        "ru": "Трещины Бездны с #% шансом могут породить как минимум волшебных монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
         [
           40,
           60
         ]
       ],
-      "values": [
-        40
-      ],
+      "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        10,
-        20,
-        30,
-        55,
-        110,
-        128,
-        135,
-        190
+        2,
+        9,
+        64
       ],
-      "level": 0
+      "level": 0,
+      "regexExclude": {
+        "ru": [
+          "провалы"
+        ]
+      }
     },
     {
       "id": "waystone-desecrated.mod_xmrnsf",
@@ -411,56 +588,7 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_cmq708",
-      "category": "waystone-desecrated",
-      "origin": "desecrated",
-      "rawText": {
-        "ru": "40% увеличение количества волшебных монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение количества волшебных монстров"
-      },
-      "regex": {
-        "ru": "увеличение количества волшебных монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение количества волшебных монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Глубинный",
-          "fs": "Глубинная",
-          "ns": "Глубинное",
-          "mp": "Глубинные",
-          "fp": "Глубинные",
-          "np": "Глубинные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        40
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        20,
-        30
-      ],
-      "level": 0,
-      "regexExclude": {
-        "ru": [
-          "как"
-        ]
-      }
-    },
-    {
-      "id": "waystone-desecrated.mod_dceifh",
+      "id": "waystone-desecrated.mod_cmq708.tx448t",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
@@ -504,7 +632,139 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_nue2hs",
+      "id": "waystone-desecrated.mod_cmq708.mhmuy1",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Провалы Бездны в области всегда содержат награды"
+      },
+      "rawTextTemplate": {
+        "ru": "Провалы Бездны в области всегда содержат награды"
+      },
+      "regex": {
+        "ru": "одержат"
+      },
+      "familyKey": {
+        "ru": "Провалы Бездны в области всегда содержат награды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        9,
+        27,
+        35
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_dceifh.tx448t",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "30% увеличение количества редких монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества редких монстров"
+      },
+      "regex": {
+        "ru": "количества редких монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества редких монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        30
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        27
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_dceifh.8cwlid",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Естественные редкие обитатели области обладают 1 дополнительным свойством Бездны"
+      },
+      "rawTextTemplate": {
+        "ru": "Естественные редкие обитатели области обладают # дополнительным свойством Бездны"
+      },
+      "regex": {
+        "ru": "свойством Бездны"
+      },
+      "familyKey": {
+        "ru": "Естественные редкие обитатели области обладают # дополнительным свойством Бездны"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Глубинный",
+          "fs": "Глубинная",
+          "ns": "Глубинное",
+          "mp": "Глубинные",
+          "fp": "Глубинные",
+          "np": "Глубинные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        3,
+        14,
+        26,
+        57,
+        75
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_nue2hs.cwshdc",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
@@ -514,7 +774,7 @@
         "ru": "Естественные редкие обитатели области пожирают души убитых в их присутствии монстров"
       },
       "regex": {
-        "ru": "твенные"
+        "ru": "ожирают"
       },
       "familyKey": {
         "ru": "Естественные редкие обитатели области пожирают души убитых в их присутствии монстров"
@@ -539,7 +799,40 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_c3hgc1",
+      "id": "waystone-desecrated.mod_nue2hs.vlht6j",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Игроки крадут поглощаемые души убитых редких монстров в области"
+      },
+      "rawTextTemplate": {
+        "ru": "Игроки крадут поглощаемые души убитых редких монстров в области"
+      },
+      "regex": {
+        "ru": "ощаемые"
+      },
+      "familyKey": {
+        "ru": "Игроки крадут поглощаемые души убитых редких монстров в области"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        39
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_c3hgc1.y3rptt",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
@@ -572,6 +865,43 @@
         10,
         20,
         27
+      ],
+      "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_c3hgc1.x3c26p",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
+      },
+      "rawTextTemplate": {
+        "ru": "Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
+      },
+      "regex": {
+        "ru": "пешники"
+      },
+      "familyKey": {
+        "ru": "Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        17,
+        25,
+        44,
+        46,
+        67
       ],
       "level": 0
     },
@@ -656,7 +986,7 @@
       "level": 0
     },
     {
-      "id": "waystone-desecrated.mod_z1e94l",
+      "id": "waystone-desecrated.mod_z1e94l.z94mfv",
       "category": "waystone-desecrated",
       "origin": "desecrated",
       "rawText": {
@@ -693,6 +1023,40 @@
       "level": 0
     },
     {
+      "id": "waystone-desecrated.mod_z1e94l.pg2hde",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "после убийства редкого или уникального монстра"
+      },
+      "rawTextTemplate": {
+        "ru": "после убийства редкого или уникального монстра"
+      },
+      "regex": {
+        "ru": "бийства"
+      },
+      "familyKey": {
+        "ru": "после убийства редкого или уникального монстра"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        16
+      ],
+      "level": 0
+    },
+    {
       "id": "waystone-desecrated.mod_34v9ul",
       "category": "waystone-desecrated",
       "origin": "desecrated",
@@ -703,7 +1067,7 @@
         "ru": "Область содержит участки вытягивающей ману земли"
       },
       "regex": {
-        "ru": "область"
+        "ru": "одержит"
       },
       "familyKey": {
         "ru": "Область содержит участки вытягивающей ману земли"
@@ -725,64 +1089,132 @@
         35
       ],
       "level": 0
+    },
+    {
+      "id": "waystone-desecrated.mod_c3hgc1",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "50% увеличение количества редких монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "#% увеличение количества редких монстров"
+      },
+      "regex": {
+        "ru": "количества редких монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества редких монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        50
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        20,
+        27
+      ],
+      "level": 0
     }
   ],
   "optimizationTable": {
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh": {
+    "waystone-desecrated.mod_5lu2g6:waystone-desecrated.mod_sbcpi5.tm2zcf": {
+      "ids": [
+        "waystone-desecrated.mod_5lu2g6",
+        "waystone-desecrated.mod_sbcpi5.tm2zcf"
+      ],
+      "regex": {
+        "ru": "встретить дополнительны"
+      },
+      "weight": 23,
+      "count": 2
+    },
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t": {
       "ids": [
         "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_dceifh"
+        "waystone-desecrated.mod_c3hgc1.y3rptt",
+        "waystone-desecrated.mod_cmq708.tx448t",
+        "waystone-desecrated.mod_dceifh.tx448t"
       ],
       "regex": {
         "ru": "количества редких монст"
       },
       "weight": 23,
-      "count": 2
+      "count": 4
     },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz": {
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.73v083:waystone-desecrated.mod_cmq708.fu78h3:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz": {
       "ids": [
         "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_cmq708",
-        "waystone-desecrated.mod_dceifh",
+        "waystone-desecrated.mod_c3hgc1.y3rptt",
+        "waystone-desecrated.mod_cmq708.73v083",
+        "waystone-desecrated.mod_cmq708.fu78h3",
+        "waystone-desecrated.mod_cmq708.rl8it4",
+        "waystone-desecrated.mod_cmq708.tx448t",
+        "waystone-desecrated.mod_dceifh.tx448t",
         "waystone-desecrated.mod_jdkriz"
       ],
       "regex": {
-        "ru": "(количеств(о|а редких)|увеличение количества волшебных) монстров"
+        "ru": "(количеств(о|а (волшебны|редки)х)|шансом могут породить как минимум волшебных) монстров"
       },
-      "weight": 64,
-      "count": 4
+      "weight": 87,
+      "count": 8
     },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
+    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
       "ids": [
         "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_dceifh",
+        "waystone-desecrated.mod_c3hgc1.y3rptt",
+        "waystone-desecrated.mod_cmq708.rl8it4",
+        "waystone-desecrated.mod_cmq708.tx448t",
+        "waystone-desecrated.mod_dceifh.tx448t",
         "waystone-desecrated.mod_jdkriz",
         "waystone-desecrated.mod_tmrm3c"
       ],
       "regex": {
-        "ru": "количеств(о опыта|о монстров|а редких монстров)"
+        "ru": "количеств(о опыта|о монстров|а (волшебны|редки)х монстров)"
       },
-      "weight": 47,
-      "count": 4
+      "weight": 58,
+      "count": 7
     },
-    "waystone-desecrated.mod_34v9ul:waystone-desecrated.mod_9crcta": {
+    "waystone-desecrated.mod_34v9ul:waystone-desecrated.mod_cmq708.mhmuy1": {
       "ids": [
         "waystone-desecrated.mod_34v9ul",
-        "waystone-desecrated.mod_9crcta"
+        "waystone-desecrated.mod_cmq708.mhmuy1"
       ],
       "regex": {
-        "ru": "о(жно|бла)сть"
+        "ru": "одерж(а|и)т"
       },
-      "weight": 13,
+      "weight": 11,
       "count": 2
     },
-    "waystone-desecrated.mod_sbcpi5:waystone-desecrated.mod_z1e94l": {
+    "waystone-desecrated.mod_sbcpi5.mp9l1p:waystone-desecrated.mod_z1e94l.z94mfv": {
       "ids": [
-        "waystone-desecrated.mod_sbcpi5",
-        "waystone-desecrated.mod_z1e94l"
+        "waystone-desecrated.mod_sbcpi5.mp9l1p",
+        "waystone-desecrated.mod_z1e94l.z94mfv"
       ],
       "regex": {
         "ru": "(вляе|екаю)тся"
+      },
+      "weight": 14,
+      "count": 2
+    },
+    "waystone-desecrated.mod_aoveo8:waystone-desecrated.mod_nue2hs.cwshdc": {
+      "ids": [
+        "waystone-desecrated.mod_aoveo8",
+        "waystone-desecrated.mod_nue2hs.cwshdc"
+      ],
+      "regex": {
+        "ru": "(ожир|адыв)ают"
       },
       "weight": 14,
       "count": 2

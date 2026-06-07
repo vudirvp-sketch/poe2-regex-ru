@@ -1,16 +1,13 @@
 /**
  * JewelPage — Category page for Jewels.
  *
- * Layout v2: Control panel sticky at top, mod list full width below
- * with origin-based grouping (normal/desecrated/corrupted → prefix/suffix within each origin).
+ * Layout v3: Virtualized mod list with origin-based grouping.
+ * Uses VirtualizedModList for smooth rendering of 250+ tokens.
  *
  * Loads and merges three JSON files:
  * - jewel.json (193 normal tokens)
- * - jewel-desecrated.json (21 desecrated tokens)
+ * - jewel-desecrated.json (47 desecrated tokens, including multi-line splits)
  * - jewel-corrupted.json (10 corrupted tokens)
- *
- * The `groupMode="origin"` in ModList then groups them visually:
- * Обычные → prefix/suffix, Очернённые → prefix/suffix, Осквернённые → prefix/suffix.
  *
  * Jewel type filter: Ruby/Emerald/Sapphire/All buttons filter tokens by
  * jewel-type heuristics (weighted scoring classification via classifyJewelType).
@@ -19,7 +16,7 @@
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
-import { ModList } from '@ui/components/ModList';
+import { VirtualizedModList } from '@ui/components/VirtualizedModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
@@ -158,7 +155,7 @@ export function JewelPage() {
               }
             />
 
-            <ModList
+            <VirtualizedModList
               tokens={filteredTokens}
               selectedIds={selectedIds}
               searchText={searchText}
@@ -173,8 +170,7 @@ export function JewelPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               groupMode="origin"
-              showJewelTypeSubGroups
-              jewelTypeFilter={jewelTypeFilter}
+              showOriginSubSections
             />
 
             <div className="flex flex-col gap-3">
