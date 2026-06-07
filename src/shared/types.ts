@@ -63,6 +63,16 @@ export interface GameToken {
 export interface OptimizationEntry {
   ids: string[];
   regex: Record<Locale, string>;
+  /** AND-composed prefix context from the family's tokens.
+   *  When all tokens in the optimization group share the same regexPrefixContext,
+   *  it is stored here so the runtime optimizer can create AND(context, regex) nodes.
+   *  Empty string or absent means no prefix context. */
+  regexPrefixContext?: Record<Locale, string>;
+  /** Exclusion patterns from the family's tokens.
+   *  When all tokens in the optimization group share the same regexExclude patterns,
+   *  they are stored here so the runtime optimizer can add exclude nodes.
+   *  Empty array or absent means no exclusions. */
+  regexExclude?: Record<Locale, string[]>;
   weight: number;
   count: number;
 }

@@ -4,37 +4,36 @@
 
 ---
 
-## Current State (Session 50 — 2026-06-07)
+## Current State (Session 51 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (471/471 tests)
-**Oracle:** ETL not re-run yet. Expected: ~20-25 cross-family FP (down from 62 after Oracle fix + expanded excludes).
+**Oracle:** ETL re-run done (P0 complete). Result: 3 cross-family FP out of 1573 tokens (was 62).
 
 **Key Changes This Session:**
 
-1. **Oracle validation fix** — `validateGeneratedRegexesItem()` in `run-etl.ts` now compiles regexPrefixContext as AND(context, regex) when present, matching how the UI compiles regexes. Previously, Oracle only checked the raw regex field, ignoring regexPrefixContext and regexExclude that were set by `repairCrossFamilyFP()`. This caused inflated FP counts (62 instead of the real ~20-25).
+1. **repairCrossFamilyFP() exclude limit 5→8** — jewel.mod_am4lla needed 7+ excludes for all weapon types. Limit raised to 8 to accommodate: Приспеш + топорами + луками + самострелами + кинжалами + посохами + копьями + мечами.
 
-2. **repairCrossFamilyFP() exclude limit raised 3→5** — The old limit of 3 excludes was too restrictive for tokens like `amulet.corrupted_5_corrupted` (which had excludes [Приспеш, чар, ближнего] but still had FP from снарядов). With limit 5, "снарядов" and other markers can be added.
+2. **CONFLICT_MARKERS expanded** — Added: мечами, луками, топорами, без (unarmed "без оружия"). Total markers now: 15.
 
-3. **CONFLICT_MARKERS expanded** — Added 5 new markers: самострелами, кинжалами, посохами, копьями, для. These cover weapon-specific attack speed/crit variants and spell-specific variants that cause cross-family FP in jewel and amulet categories.
+3. **OptimizationEntry type expanded** — Added optional `regexPrefixContext?: Record<Locale, string>` and `regexExclude?: Record<Locale, string[]>` fields to `OptimizationEntry` in `src/shared/types.ts`.
 
-4. **In-game tests Group M** — Added 5 tests for `|` inside `()` and number range with `|` to `docs/IN_GAME_TESTS.md`. Tests M1-M5 cover: basic OR-range, two-digit ranges, small ranges, free OR, and combined negation.
+4. **patchOptimizationEntries() — ETL Step 7c** — New post-processing function that copies regexPrefixContext and regexExclude from tokens to optimization entries after repairCrossFamilyFP(). Runs as Step 7c in the ETL pipeline.
 
-5. **TS build fix** — Added `regexPrefixContext: ''` default to `makeRegexResult()` in `tests/etl/compute-optimizations.test.ts`. Added type annotations for arrow function params in `run-etl.ts` two-words computation.
+5. **Tablet FP documented as accepted limitation** — tablet.mod_od9m77 and tablet.mod_ld06px have mutual cross-family FP because their rawText is a substring/superset pair with no unique distinguishing substring. These are essentially family-tier FP with different familyKeys.
 
 **Files changed this session:**
-- `scripts/run-etl.ts` — Oracle validation fix + CONFLICT_MARKERS expansion + exclude limit 5→ + TS type annotations
-- `tests/etl/compute-optimizations.test.ts` — regexPrefixContext default
-- `docs/IN_GAME_TESTS.md` — Group M tests
-- `AGENT_NAVIGATION.md` — Updated known issues, version 50.0
-- `OPTIMIZER_PLAN.md` — Updated to v1.9 with Session 50 status
-- `новый_план.md` — Updated to v13.0 with Session 50 context
+- `scripts/run-etl.ts` — exclude limit 5→8, CONFLICT_MARKERS expanded, patchOptimizationEntries() added
+- `src/shared/types.ts` — OptimizationEntry: regexPrefixContext + regexExclude fields
+- `AGENT_NAVIGATION.md` — Updated to v51.0
+- `OPTIMIZER_PLAN.md` — Updated to v2.0 with ETL re-run results
+- `docs/ETL_GUIDE.md` — Updated to v8.0 with Step 7c documentation
 - `worklog.md` — This update
 
 **NOT YET DONE (next iteration):**
-- ⬜ Re-run ETL to verify Oracle fix and actual FP counts
+- ⬜ Re-run ETL with Session 51 changes to confirm jewel.mod_am4lla fix (expect 1 cross-family FP from tablet)
 - ⬜ In-game tests Group M — verify `|` inside `()` and number ranges
-- ⬜ Optimizer expansion — truncated forms in compute-optimizations.ts
-- ⬜ Remaining ~20-25 FP analysis after ETL re-run
+- ⬜ Runtime optimizer — use regexPrefixContext/regexExclude from OptimizationEntry (src/core/optimizer.ts)
+- ⬜ Truncated forms in compute-optimizations.ts Phase A
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T10:16:14.074Z",
+  "version": "2026-06-07T14:13:11.709Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -3227,7 +3227,10 @@
         "ru": "(отложен|уникаль)ные"
       },
       "weight": 20,
-      "count": 2
+      "count": 2,
+      "regexPrefixContext": {
+        "ru": "снова"
+      }
     }
   }
 }

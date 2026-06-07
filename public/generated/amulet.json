@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T10:16:19.206Z",
+  "version": "2026-06-07T14:13:16.681Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -19292,7 +19292,13 @@
         "ru": "к силе"
       },
       "weight": 6,
-      "count": 9
+      "count": 9,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "ловкости"
+        ]
+      }
     },
     "amulet.corruptiondexterity1_corrupted:amulet.dexterity1:amulet.dexterity3:amulet.dexterity5:amulet.dexterity7:amulet.dexterity8:amulet.normal_11:amulet.normal_13:amulet.normal_9": {
       "ids": [
@@ -19310,7 +19316,12 @@
         "ru": "к ловкости"
       },
       "weight": 10,
-      "count": 9
+      "count": 9,
+      "regexExclude": {
+        "ru": [
+          " интел"
+        ]
+      }
     },
     "amulet.corruptionintelligence1_corrupted:amulet.intelligence1:amulet.intelligence2:amulet.intelligence3:amulet.intelligence4:amulet.intelligence5:amulet.intelligence7:amulet.normal_21:amulet.normal_23": {
       "ids": [
@@ -19422,7 +19433,12 @@
         "ru": "к сопротивлению всем стихиям"
       },
       "weight": 28,
-      "count": 7
+      "count": 7,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     "amulet.chaosresist1_essence:amulet.chaosresist2:amulet.chaosresist2_essence:amulet.chaosresist4_essence:amulet.chaosresist5:amulet.normal_63:amulet.normal_65:amulet.normal_66:amulet.normal_68": {
       "ids": [
@@ -19473,7 +19489,12 @@
         "ru": "увеличение максимума здоровья"
       },
       "weight": 29,
-      "count": 3
+      "count": 3,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     "amulet.increasedmana1:amulet.increasedmana11:amulet.increasedmana12:amulet.increasedmana13:amulet.increasedmana2:amulet.increasedmana3:amulet.increasedmana3_essence:amulet.increasedmana4:amulet.increasedmana5:amulet.increasedmana6:amulet.increasedmana7:amulet.increasedmana7_essence:amulet.increasedmana8_essence:amulet.normal_88:amulet.normal_89:amulet.normal_90": {
       "ids": [
@@ -19561,7 +19582,12 @@
         "ru": "увеличение уклонения"
       },
       "weight": 20,
-      "count": 7
+      "count": 7,
+      "regexExclude": {
+        "ru": [
+          "вашего"
+        ]
+      }
     },
     "amulet.increasedenergyshieldpercent1:amulet.increasedenergyshieldpercent2:amulet.increasedenergyshieldpercent3:amulet.increasedenergyshieldpercent4:amulet.increasedenergyshieldpercent5:amulet.increasedenergyshieldpercent7:amulet.normal_126": {
       "ids": [
@@ -19694,7 +19720,13 @@
         "ru": "повышение шанса критического удара"
       },
       "weight": 34,
-      "count": 6
+      "count": 6,
+      "regexExclude": {
+        "ru": [
+          "Приспеш",
+          "для"
+        ]
+      }
     },
     "amulet.criticalmultiplier1:amulet.criticalmultiplier2:amulet.criticalmultiplier3:amulet.criticalmultiplier4:amulet.criticalmultiplier6:amulet.normal_174": {
       "ids": [
@@ -19709,7 +19741,13 @@
         "ru": "увеличение бонуса к критическому урону"
       },
       "weight": 38,
-      "count": 6
+      "count": 6,
+      "regexExclude": {
+        "ru": [
+          "Приспеш",
+          "чар"
+        ]
+      }
     },
     "amulet.corruptionitemfoundrarityincrease1_corrupted:amulet.itemfoundrarityincreaseprefix1:amulet.itemfoundrarityincreaseprefix2:amulet.itemfoundrarityincreaseprefix3:amulet.normal_176:amulet.normal_177:amulet.normal_178": {
       "ids": [
@@ -19791,7 +19829,12 @@
         "ru": "увеличение урона от чар"
       },
       "weight": 23,
-      "count": 14
+      "count": 14,
+      "regexExclude": {
+        "ru": [
+          "при"
+        ]
+      }
     },
     "amulet.castspeedjewellery3:amulet.castspeedjewellery4:amulet.normal_203:amulet.normal_204:amulet.normal_207:amulet.normal_208": {
       "ids": [
@@ -19863,7 +19906,15 @@
         "ru": "увеличение урона"
       },
       "weight": 16,
-      "count": 8
+      "count": 8,
+      "regexExclude": {
+        "ru": [
+          "увеличение урона от",
+          "во время",
+          "флакона",
+          "чар"
+        ]
+      }
     },
     "amulet.minionmovementspeed1_breachborn:amulet.minionmovementspeed2_breachborn:amulet.minionmovementspeed3_breachborn:amulet.minionmovementspeed4_breachborn": {
       "ids": [
@@ -19891,7 +19942,10 @@
         "ru": "стихи"
       },
       "weight": 5,
-      "count": 6
+      "count": 6,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "amulet.minionattackspeedandcastspeed1_breachborn:amulet.minionattackspeedandcastspeed2_breachborn:amulet.minionattackspeedandcastspeed3_breachborn:amulet.minionattackspeedandcastspeed4_breachborn": {
       "ids": [
@@ -19919,7 +19973,15 @@
         "ru": "повышение шанса критического удара"
       },
       "weight": 34,
-      "count": 6
+      "count": 6,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      },
+      "regexExclude": {
+        "ru": [
+          "для"
+        ]
+      }
     },
     "amulet.minioncriticalstrikemultiplierring1_breachborn:amulet.minioncriticalstrikemultiplierring2_breachborn:amulet.minioncriticalstrikemultiplierring3_breachborn:amulet.minioncriticalstrikemultiplierring4_breachborn:amulet.minioncriticalstrikemultiplierring5_breachborn:amulet.minioncriticalstrikemultiplierring6_breachborn": {
       "ids": [
@@ -19949,7 +20011,10 @@
         "ru": "здоро"
       },
       "weight": 5,
-      "count": 6
+      "count": 6,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "amulet.minionrevivespeed1_breachborn:amulet.minionrevivespeed2_breachborn:amulet.minionrevivespeed3_breachborn:amulet.minionrevivespeed4_breachborn": {
       "ids": [
@@ -20020,7 +20085,12 @@
         "ru": "увеличение области действия"
       },
       "weight": 27,
-      "count": 5
+      "count": 5,
+      "regexExclude": {
+        "ru": [
+          "чар"
+        ]
+      }
     },
     "amulet.spellcostefficiency1_breachborn:amulet.spellcostefficiency2_breachborn:amulet.spellcostefficiency3_breachborn:amulet.spellcostefficiency4_breachborn:amulet.spellcostefficiency5_breachborn:amulet.spellcostefficiency6_breachborn": {
       "ids": [
@@ -20670,7 +20740,10 @@
         "ru": "повышение (брони|шанса критического удара|скорости перезарядки)"
       },
       "weight": 63,
-      "count": 20
+      "count": 20,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "amulet.corruptionlifeleech1_corrupted:amulet.corruptionmanaleech1_corrupted": {
       "ids": [
@@ -20864,7 +20937,10 @@
         "ru": "здоро(вья (в секунду|при убийстве))?"
       },
       "weight": 36,
-      "count": 17
+      "count": 17,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "amulet.abyssmodringamuletkurgalsuffixexposureeffect_desecrated:amulet.corruptiondexterity1_corrupted:amulet.desecrated_23_desecrated:amulet.dexterity1:amulet.dexterity3:amulet.dexterity5:amulet.dexterity7:amulet.dexterity8:amulet.increasedaccuracy2:amulet.increasedaccuracy3:amulet.increasedaccuracy4:amulet.increasedaccuracy5:amulet.increasedaccuracy6:amulet.increasedaccuracy7:amulet.increasedaccuracy8:amulet.normal_11:amulet.normal_13:amulet.normal_156:amulet.normal_9": {
       "ids": [

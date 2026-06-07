@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 7.0 | **Date:** 2026-06-07
+> **Version:** 8.0 | **Date:** 2026-06-07
 
 ---
 
@@ -146,6 +146,24 @@ After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` runs in 3 steps pe
 3. **regexPrefixContext** (Phase 9) — When excludes can't cover all FP, find a short substring from the template prefix that appears in ALL target-family tokens but NOT in any conflict. Stored as `regexPrefixContext` field on GameToken. UI compiles: `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`
 
 Steps iterate until convergence. Expected impact: −23 cross-family FP (ring minion damage + jewel-desecrated composites).
+
+**CONFLICT_MARKERS (Session 51):**
+Expanded list: Приспеш, во время, флакона, снарядов, всем стихиям, умений, самострелами, кинжалами, посохами, копьями, мечами, луками, топорами, без, для.
+
+**Exclude limit:** Raised from 5 to 8 in Session 51 to accommodate all weapon types (топорами, луками, самострелами, кинжалами, посохами, копьями, мечами) + minion marker + unarmed.
+
+## 7c. Optimization Entry Patching (Post-Repair)
+
+After `repairCrossFamilyFP()`, `patchOptimizationEntries()` enriches optimization entries with `regexPrefixContext` and `regexExclude` from their covered tokens.
+
+**Why needed:** Optimization entries are computed at Step 4 (before i18n overrides and FP repair). The `regexPrefixContext` and `regexExclude` fields are only added to tokens at Step 7b. This step copies shared context/excludes from tokens to optimization entries.
+
+**Rules:**
+- If ALL tokens in an entry share the same `regexPrefixContext` → added to entry
+- If ALL tokens share the same `regexExclude` patterns → added to entry
+- Mixed context/excludes → entry is left without them
+
+**Runtime impact:** Currently, the runtime optimizer (`src/core/optimizer.ts`) does NOT use these fields yet. When updated, it will create `AND(LITERAL(context), LITERAL(regex))` nodes instead of plain `LITERAL(regex)` for entries with `regexPrefixContext`.
 
 ## 8. Fallback Procedures
 

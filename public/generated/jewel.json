@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T10:16:14.882Z",
+  "version": "2026-06-07T14:13:12.486Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -2308,7 +2308,10 @@
           "самострелами",
           "кинжалами",
           "посохами",
-          "копьями"
+          "копьями",
+          "мечами",
+          "луками",
+          "топорами"
         ]
       },
       "jewelType": "sapphire",
@@ -4350,7 +4353,10 @@
           "топорами",
           "луками",
           "самострелами",
-          "кинжалами"
+          "кинжалами",
+          "посохами",
+          "копьями",
+          "мечами"
         ]
       },
       "jewelType": "emerald"
@@ -8909,7 +8915,10 @@
         "ru": "увеличение (области действия|максимума (энергетического щита|здоровья)|уклонения|урона в ближнем бою|бонуса к критическому урону|количества получаемых зарядов флакона|длительности эффекта умения|порога оглушения)"
       },
       "weight": 212,
-      "count": 11
+      "count": 11,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_7dzvh0:jewel.mod_7spjc9:jewel.mod_am4lla:jewel.mod_is2jx9:jewel.mod_sioc8h:jewel.mod_wkqo4a:jewel.mod_zel2yn": {
       "ids": [
@@ -8925,7 +8934,10 @@
         "ru": "повышение (брони|скорости (атаки|сотворения чар|накопления шкалы (заморозки|оглушения))|шанса критического удара)"
       },
       "weight": 113,
-      "count": 7
+      "count": 7,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_28ty77:jewel.mod_a4hrrs:jewel.mod_d5o3e6:jewel.mod_of3hi9": {
       "ids": [
@@ -9018,7 +9030,10 @@
         "ru": "эффект(а (свойств-(суф|пре)фиксов|флакона|уме|Парирован)|ов на вас)"
       },
       "weight": 67,
-      "count": 6
+      "count": 6,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_5ai0gr:jewel.mod_e6wevs:jewel.mod_kcoue9:jewel.mod_s6f4m2:jewel.mod_uxgq8o": {
       "ids": [
@@ -9092,7 +9107,10 @@
         "ru": "((повышение скорост|атаки )и )?сотворения чар"
       },
       "weight": 45,
-      "count": 3
+      "count": 3,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_fktkkd:jewel.mod_kgc2ed:jewel.mod_pk8bwh:jewel.mod_ppjbmq:jewel.mod_r2zyq:jewel.mod_v2r1wr": {
       "ids": [
@@ -9395,7 +9413,10 @@
         "ru": "(повышение шанса критического|кровотечение при нанесении|оцепенения при нанесении|отравить при нанесении) удара"
       },
       "weight": 111,
-      "count": 5
+      "count": 5,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_h7jszs:jewel.mod_mx8nvj": {
       "ids": [
@@ -9468,7 +9489,10 @@
         "ru": "(дл|повышение скорости сотворени|сотворени|атаки и сотворени)я чар"
       },
       "weight": 66,
-      "count": 4
+      "count": 4,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_vr3sas:jewel.mod_w5oqnz": {
       "ids": [
@@ -9618,7 +9642,10 @@
         "ru": "(увеличение|глобального физического|получаемого физического) урона"
       },
       "weight": 66,
-      "count": 3
+      "count": 3,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_k640km:jewel.mod_nh1y25:jewel.mod_nuzdb5:jewel.mod_z274du": {
       "ids": [
@@ -10131,7 +10158,10 @@
         "ru": "(увеличение области дей|присут)ствия"
       },
       "weight": 36,
-      "count": 3
+      "count": 3,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "jewel.mod_4mokx7:jewel.mod_su6el3": {
       "ids": [

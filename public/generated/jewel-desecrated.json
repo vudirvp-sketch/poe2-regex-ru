@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T10:16:14.934Z",
+  "version": "2026-06-07T14:13:12.535Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -1876,7 +1876,10 @@
         "ru": "повышение (брони|ловкости|силы)"
       },
       "weight": 31,
-      "count": 3
+      "count": 3,
+      "regexPrefixContext": {
+        "ru": "т ч"
+      }
     },
     "jewel-desecrated.mod_dfjfh3:jewel-desecrated.mod_izhaok:jewel-desecrated.mod_obl7vt": {
       "ids": [
@@ -1888,7 +1891,10 @@
         "ru": "(увеличение уклон|кровотеч|силы истощ)ения"
       },
       "weight": 42,
-      "count": 3
+      "count": 3,
+      "regexPrefixContext": {
+        "ru": "т ч"
+      }
     },
     "jewel-desecrated.mod_1pn52r:jewel-desecrated.mod_xqjbst": {
       "ids": [
@@ -1899,7 +1905,10 @@
         "ru": "(повышение|разрушаемой) брони"
       },
       "weight": 29,
-      "count": 2
+      "count": 2,
+      "regexPrefixContext": {
+        "ru": "т ч"
+      }
     },
     "jewel-desecrated.mod_3yl2ru:jewel-desecrated.mod_jfkx8z": {
       "ids": [

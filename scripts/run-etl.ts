@@ -681,6 +681,11 @@ async function runEtl() {
   // now match overridden tokens. This step adds missing exclude patterns.
   repairCrossFamilyFP();
 
+  // Step 7c: Patch optimization entries with regexPrefixContext and regexExclude
+  // from the tokens they cover. These fields are populated by repairCrossFamilyFP()
+  // AFTER the optimization table was computed, so they need to be patched in.
+  patchOptimizationEntries();
+
   // Step 8: Validate generated regexes (if --validate flag is provided)
   if (process.argv.includes('--validate')) {
     validateGeneratedRegexes();
@@ -692,6 +697,109 @@ async function runEtl() {
   }
 
   console.log('\n=== ETL Pipeline Complete ===');
+}
+
+/**
+ * Patch optimization entries with regexPrefixContext and regexExclude
+ * from the tokens they cover.
+ *
+ * The optimization table is computed at Step 4, BEFORE i18n overrides
+ * and repairCrossFamilyFP() add regexPrefixContext/regexExclude to tokens.
+ * This post-processing step enriches optimization entries with these fields
+ * so the runtime optimizer can produce correct AND(context, regex) nodes.
+ *
+ * Rules:
+ * - If ALL tokens in an optimization entry share the same regexPrefixContext,
+ *   it is added to the entry.
+ * - If ALL tokens in an optimization entry share the same regexExclude patterns,
+ *   they are added to the entry.
+ * - If tokens have mixed contexts/excludes, the entry is left without them
+ *   (the runtime optimizer will not optimize these groups).
+ */
+function patchOptimizationEntries(): void {
+  console.log('\n=== Patching optimization entries with context/excludes ===');
+
+  const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+  let totalPatched = 0;
+
+  for (const jsonFile of jsonFiles) {
+    const filePath = path.join(OUTPUT_DIR, jsonFile);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const tokens = data.tokens;
+    const optTable = data.optimizationTable;
+    if (!optTable || !tokens) continue;
+
+    // Build token lookup
+    const tokenById = new Map<string, any>();
+    for (const token of tokens) {
+      tokenById.set(token.id, token);
+    }
+
+    let filePatched = 0;
+
+    for (const [key, entry] of Object.entries(optTable) as [string, any][]) {
+      const entryIds: string[] = entry.ids || [];
+
+      // Collect regexPrefixContext from all covered tokens
+      const contexts = new Set<string>();
+      const excludesList: string[][] = [];
+
+      for (const id of entryIds) {
+        const token = tokenById.get(id);
+        if (!token) continue;
+
+        const ctx = token.regexPrefixContext
+          ? (typeof token.regexPrefixContext === 'object' ? (token.regexPrefixContext.ru || '') : '')
+          : '';
+        contexts.add(ctx);
+
+        const exc: string[] = token.regexExclude
+          ? (Array.isArray(token.regexExclude)
+            ? token.regexExclude
+            : (typeof token.regexExclude === 'object' && token.regexExclude.ru
+              ? token.regexExclude.ru
+              : []))
+          : [];
+        excludesList.push(exc);
+      }
+
+      // Remove empty context from set (tokens without context are compatible with each other)
+      const nonEmptyContexts = [...contexts].filter(c => c.length > 0);
+
+      // All tokens share the same non-empty context → add to entry
+      if (nonEmptyContexts.length === 1 && contexts.size <= 2) {
+        // contexts.size <= 2 means: one non-empty + possibly one empty
+        // Only add context if ALL tokens have the SAME context (or no tokens have context)
+        const allHaveSameContext = nonEmptyContexts.length === 1 &&
+          (contexts.size === 1 || (contexts.size === 2 && contexts.has('')));
+
+        if (allHaveSameContext && nonEmptyContexts[0]) {
+          entry.regexPrefixContext = { ru: nonEmptyContexts[0] };
+          filePatched++;
+        }
+      }
+
+      // All tokens share the same exclude patterns → add to entry
+      if (excludesList.length > 0 && excludesList.every(e => e.length > 0)) {
+        // Check if all exclude lists are identical
+        const firstExc = JSON.stringify(excludesList[0]);
+        const allSame = excludesList.every(e => JSON.stringify(e) === firstExc);
+
+        if (allSame && excludesList[0].length > 0) {
+          entry.regexExclude = { ru: excludesList[0] };
+          filePatched++;
+        }
+      }
+    }
+
+    if (filePatched > 0) {
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+      console.log(`  ${jsonFile}: patched ${filePatched} optimization entries`);
+    }
+    totalPatched += filePatched;
+  }
+
+  console.log(`  Total optimization entries patched: ${totalPatched}`);
 }
 
 /**
@@ -725,6 +833,10 @@ function repairCrossFamilyFP(): void {
     'кинжалами',  // dagger attack speed/crit vs generic
     'посохами',   // staff attack speed/crit vs generic
     'копьями',    // spear attack speed vs generic
+    'мечами',     // sword attack speed/crit vs generic
+    'луками',     // bow attack speed vs generic (added for completeness)
+    'топорами',   // axe attack speed vs generic (added for completeness)
+    'без',        // unarmed attack speed vs generic ("без оружия")
     'для',        // spell-specific variants (e.g., "для заклинаний")
   ];
 
@@ -826,7 +938,7 @@ function repairCrossFamilyFP(): void {
 
         // Try known conflict markers
         for (const marker of CONFLICT_MARKERS) {
-          if (newExcludes.length >= 5) break;
+          if (newExcludes.length >= 8) break;
           if (newExcludes.includes(marker)) continue;
 
           let coversAny = false;
@@ -858,7 +970,7 @@ function repairCrossFamilyFP(): void {
 
         // Try first word after suffix in uncovered conflicts
         for (let i = 0; i < conflicts.length; i++) {
-          if (newExcludes.length >= 5) break;
+          if (newExcludes.length >= 8) break;
           if (coveredByCurrent.has(i)) continue;
 
           const confRaw = conflicts[i].rawText.toLowerCase();

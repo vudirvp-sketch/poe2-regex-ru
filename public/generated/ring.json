@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T10:16:17.356Z",
+  "version": "2026-06-07T14:13:14.892Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -16671,7 +16671,13 @@
         "ru": "к силе"
       },
       "weight": 6,
-      "count": 9
+      "count": 9,
+      "regexExclude": {
+        "ru": [
+          "к силе и",
+          "ловкости"
+        ]
+      }
     },
     "ring.corruptiondexterity1_corrupted:ring.dexterity1:ring.dexterity3:ring.dexterity5:ring.dexterity7:ring.dexterity8:ring.normal_11:ring.normal_13:ring.normal_9": {
       "ids": [
@@ -16689,7 +16695,12 @@
         "ru": "к ловкости"
       },
       "weight": 10,
-      "count": 9
+      "count": 9,
+      "regexExclude": {
+        "ru": [
+          " интел"
+        ]
+      }
     },
     "ring.corruptionintelligence1_corrupted:ring.intelligence1:ring.intelligence2:ring.intelligence3:ring.intelligence4:ring.intelligence5:ring.intelligence7:ring.normal_21:ring.normal_23": {
       "ids": [
@@ -16795,7 +16806,12 @@
         "ru": "к сопротивлению всем стихиям"
       },
       "weight": 28,
-      "count": 6
+      "count": 6,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     "ring.chaosresist1_essence:ring.chaosresist2:ring.chaosresist2_essence:ring.chaosresist4_essence:ring.chaosresist5:ring.corruptionchaosresistance1_corrupted:ring.normal_57:ring.normal_59:ring.normal_60:ring.normal_62": {
       "ids": [
@@ -17154,7 +17170,12 @@
         "ru": "повышение скорости умений"
       },
       "weight": 25,
-      "count": 2
+      "count": 2,
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     "ring.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated:ring.remnantpickupradiusincrease1_breachborn:ring.remnantpickupradiusincrease2_breachborn:ring.remnantpickupradiusincrease3_breachborn:ring.remnantpickupradiusincrease4_breachborn:ring.remnantpickupradiusincrease5_breachborn": {
       "ids": [
@@ -17197,7 +17218,15 @@
         "ru": "увеличение урона"
       },
       "weight": 16,
-      "count": 8
+      "count": 8,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      },
+      "regexExclude": {
+        "ru": [
+          "хаосом"
+        ]
+      }
     },
     "ring.minionelementalresistance1_breachborn:ring.minionelementalresistance2_breachborn:ring.minionelementalresistance3_breachborn:ring.minionelementalresistance4_breachborn:ring.minionelementalresistance5_breachborn:ring.minionelementalresistance6_breachborn": {
       "ids": [
@@ -17212,7 +17241,10 @@
         "ru": "стихия"
       },
       "weight": 6,
-      "count": 6
+      "count": 6,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "ring.minionattackspeedandcastspeed1_breachborn:ring.minionattackspeedandcastspeed2_breachborn:ring.minionattackspeedandcastspeed3_breachborn:ring.minionattackspeedandcastspeed4_breachborn": {
       "ids": [
@@ -17240,7 +17272,12 @@
         "ru": "повышение шанса критического удара"
       },
       "weight": 34,
-      "count": 6
+      "count": 6,
+      "regexExclude": {
+        "ru": [
+          "для"
+        ]
+      }
     },
     "ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
       "ids": [
@@ -17287,7 +17324,12 @@
         "ru": "увеличение урона от чар"
       },
       "weight": 23,
-      "count": 8
+      "count": 8,
+      "regexExclude": {
+        "ru": [
+          "при"
+        ]
+      }
     },
     "ring.spellcostefficiency1_breachborn:ring.spellcostefficiency2_breachborn:ring.spellcostefficiency3_breachborn:ring.spellcostefficiency4_breachborn:ring.spellcostefficiency5_breachborn:ring.spellcostefficiency6_breachborn": {
       "ids": [
@@ -17450,7 +17492,10 @@
         "ru": "увеличение (урона( от (огня|холода|молнии|чар)| хаосом)?|бонуса к критическому урону)"
       },
       "weight": 85,
-      "count": 42
+      "count": 42,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "ring.genesistreeringspelldamageasextrachaos_breachborn:ring.genesistreeringspelldamageasextracold_breachborn:ring.genesistreeringspelldamageasextrafire_breachborn:ring.genesistreeringspelldamageasextralightning_breachborn": {
       "ids": [
@@ -18298,7 +18343,10 @@
         "ru": "(увеличение|ими физического) урона"
       },
       "weight": 34,
-      "count": 10
+      "count": 10,
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     "ring.desecrated_0_desecrated:ring.genesistreeringtemporaryminionlimit_breachborn:ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
       "ids": [
