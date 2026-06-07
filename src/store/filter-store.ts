@@ -98,8 +98,14 @@ export function createFilterStore() {
     toggleToken: (id: string) =>
       set((state) => {
         const newSet = new Set(state.selectedIds);
-        if (newSet.has(id)) {
+        const wasSelected = newSet.has(id);
+        if (wasSelected) {
           newSet.delete(id);
+          // Clean up perTokenRanges for deselected token to avoid ghost values
+          if (id in state.perTokenRanges) {
+            const { [id]: _, ...rest } = state.perTokenRanges;
+            return { selectedIds: newSet, perTokenRanges: rest };
+          }
         } else {
           newSet.add(id);
         }
@@ -111,23 +117,33 @@ export function createFilterStore() {
         const newSet = new Set(state.selectedIds);
         // If ALL ids are selected → deselect all; otherwise → select all
         const allSelected = ids.every((id) => newSet.has(id));
+        let newRanges = state.perTokenRanges;
         if (allSelected) {
           for (const id of ids) {
             newSet.delete(id);
+          }
+          // Clean up perTokenRanges for deselected tokens to avoid ghost values
+          const rangesToDelete = new Set(ids);
+          const hasRangesToDelete = Object.keys(state.perTokenRanges).some(k => rangesToDelete.has(k));
+          if (hasRangesToDelete) {
+            newRanges = { ...state.perTokenRanges };
+            for (const id of ids) {
+              delete newRanges[id];
+            }
           }
         } else {
           for (const id of ids) {
             newSet.add(id);
           }
         }
-        return { selectedIds: newSet };
+        return { selectedIds: newSet, perTokenRanges: newRanges };
       }),
 
     setSelectedIds: (ids: Set<string>) =>
       set({ selectedIds: ids }),
 
     clearSelections: () =>
-      set({ selectedIds: new Set<string>() }),
+      set({ selectedIds: new Set<string>(), perTokenRanges: {} }),
 
     setSearchText: (text: string) =>
       set({ searchText: text }),

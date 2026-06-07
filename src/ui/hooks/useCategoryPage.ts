@@ -13,7 +13,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride, type SlotRangeOverride } from '@store/filter-store';
-import { syncFromUrl } from '@store/url-sync';
+import { syncFromUrl, syncToUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
@@ -689,19 +689,23 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   }, [categoryId, mergeCategories]);
 
   // Sync excludeMode/minValue/round10Enabled to filter store's extraState
-  // so they are included in share URLs. Skips the first render to avoid
-  // overwriting URL-restored values before page-level restore effects run.
+  // AND auto-sync filter state to URL hash.
+  // Skips the first render to avoid overwriting URL-restored values.
   useEffect(() => {
     if (!syncReadyRef.current) {
       syncReadyRef.current = true;
       return;
     }
+    // 1. Sync React state → store extraState (so they're included in serialization)
     useStore.getState().setExtraState('excludeMode', excludeMode);
     useStore.getState().setExtraState('searchLogic', searchLogic);
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
     useStore.getState().setExtraState('maxValue', maxValue);
-  }, [excludeMode, searchLogic, round10Enabled, minValue, maxValue, useStore]);
+    // 2. Auto-sync store state to URL hash
+    syncToUrl(useStore.getState());
+  }, [selectedIds, searchText, affixFilter, originFilter, perTokenRanges,
+      excludeMode, searchLogic, round10Enabled, minValue, maxValue, useStore]);
 
   // Build selected tokens list
   const selectedTokens = useMemo(() => {
@@ -774,6 +778,30 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
     useStore.getState().deserialize(data);
+
+    // Sync React state from the restored store values.
+    // Without this, the UI controls (excludeMode, searchLogic, etc.) would
+    // show stale values even though the Zustand store has been updated.
+    const restored = useStore.getState();
+    const restoredExclude = restored.getExtraState('excludeMode');
+    if (typeof restoredExclude === 'boolean') setExcludeMode(restoredExclude);
+    else setExcludeMode(false);
+
+    const restoredLogic = restored.getExtraState('searchLogic');
+    if (restoredLogic === 'and' || restoredLogic === 'or') setSearchLogic(restoredLogic);
+    else setSearchLogic('and');
+
+    const restoredRound10 = restored.getExtraState('round10Enabled');
+    if (typeof restoredRound10 === 'boolean') setRound10Enabled(restoredRound10);
+    else setRound10Enabled(defaultRound10);
+
+    const restoredMin = restored.getExtraState('minValue');
+    if (typeof restoredMin === 'number') setMinValue(restoredMin);
+    else setMinValue(null);
+
+    const restoredMax = restored.getExtraState('maxValue');
+    if (typeof restoredMax === 'number') setMaxValue(restoredMax);
+    else setMaxValue(null);
   };
 
   // Create a stable FilterStoreApi wrapper that delegates convenience methods

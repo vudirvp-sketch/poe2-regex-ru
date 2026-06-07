@@ -179,13 +179,14 @@ export function VendorPage() {
     const astNodes: ASTNode[] = [];
     const includeLiterals: ASTNode[] = [];
     const excludeLiterals: ASTNode[] = [];
+    const numericNodes: ASTNode[] = [];
 
     for (const prop of selectedProps) {
       if (prop.hasNumericInput) {
         const numValue = numericInputs[prop.id];
         if (numValue && numValue > 0 && prop.numericSuffix) {
           // Use core range() — generates correct number regex including 3-digit handling
-          astNodes.push(range(numValue, undefined, prop.numericSuffix));
+          numericNodes.push(range(numValue, undefined, prop.numericSuffix));
         }
         continue;
       }
@@ -206,16 +207,35 @@ export function VendorPage() {
       if (value <= 0) continue;
       const prop = VENDOR_PROPERTIES.find(p => p.id === id);
       if (prop?.hasNumericInput && !selectedIds.has(id) && prop.numericSuffix) {
-        astNodes.push(range(value, undefined, prop.numericSuffix));
+        numericNodes.push(range(value, undefined, prop.numericSuffix));
       }
     }
 
-    // Add included properties as a single OR group (compact: "A|B|C")
-    if (includeLiterals.length > 0) {
-      if (includeLiterals.length === 1) {
-        astNodes.push(includeLiterals[0]);
-      } else {
-        astNodes.push(or(...includeLiterals));
+    // In OR mode: all items go into a single OR group (item needs ANY selected property)
+    if (searchLogic === 'or' && !excludeMode) {
+      const orChildren: ASTNode[] = [];
+      if (includeLiterals.length > 0) {
+        orChildren.push(...includeLiterals);
+      }
+      if (numericNodes.length > 0) {
+        orChildren.push(...numericNodes);
+      }
+      if (orChildren.length > 0) {
+        astNodes.push(orChildren.length === 1 ? orChildren[0] : or(...orChildren));
+      }
+    } else {
+      // AND mode (default): literals as OR group, numeric as separate AND nodes
+      if (numericNodes.length > 0) {
+        astNodes.push(...numericNodes);
+      }
+
+      // Add included properties as a single OR group (compact: "A|B|C")
+      if (includeLiterals.length > 0) {
+        if (includeLiterals.length === 1) {
+          astNodes.push(includeLiterals[0]);
+        } else {
+          astNodes.push(or(...includeLiterals));
+        }
       }
     }
 
@@ -232,7 +252,7 @@ export function VendorPage() {
     const ast = and(...astNodes);
     const result = compile(ast, { round10 });
     return { regex: result, isRegexOverflow: result.length > MAX_CHARS };
-  }, [selectedIds, excludeMode, numericInputs, round10]);
+  }, [selectedIds, excludeMode, numericInputs, round10, searchLogic]);
 
   // Group properties for UI display (ordered by GROUP_ORDER)
   const groupedProperties = useMemo(() => {
