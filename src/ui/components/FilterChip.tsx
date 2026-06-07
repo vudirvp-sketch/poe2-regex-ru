@@ -83,6 +83,18 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Affix color for left border
   const affixColor = group.affix === 'prefix' ? 'border-l-blue-500' : 'border-l-orange-500';
 
+  // Priority tier visual differentiation:
+  // S-tier: brighter border accent (amber/gold tint)
+  // C-tier: dimmer/muted appearance
+  // A/B: default
+  const tierBorderClass = group.priorityTier === 'S'
+    ? 'border-l-amber-400'
+    : group.priorityTier === 'A'
+      ? affixColor
+      : ''; // B and C use default affixColor
+
+  const effectiveBorderClass = tierBorderClass || affixColor;
+
   const handleClick = () => {
     onToggleTokens(memberIds);
   };
@@ -230,13 +242,17 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }, []);
 
   // Selection styling — compact inline version
+  // Priority tier affects visual brightness:
+  // - S-tier: slightly brighter background when selected
+  // - C-tier: slightly more muted/transparent
   let bgClass: string;
+  const tierOpacity = group.priorityTier === 'S' ? '' : group.priorityTier === 'C' ? 'opacity-80' : '';
   if (selectionState === 'full') {
-    bgClass = `bg-blue-900/40 ${affixColor} text-white`;
+    bgClass = `bg-blue-900/40 ${effectiveBorderClass} text-white ${tierOpacity}`;
   } else if (selectionState === 'partial') {
-    bgClass = `bg-blue-900/20 ${affixColor} text-gray-300`;
+    bgClass = `bg-blue-900/20 ${effectiveBorderClass} text-gray-300 ${tierOpacity}`;
   } else {
-    bgClass = `bg-gray-800/50 ${affixColor} text-gray-300 hover:bg-gray-700/50`;
+    bgClass = `bg-gray-800/50 ${effectiveBorderClass} text-gray-300 hover:bg-gray-700/50 ${tierOpacity}`;
   }
 
   // Range display: inline compact format

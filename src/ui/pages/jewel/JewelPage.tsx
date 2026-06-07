@@ -74,6 +74,7 @@ export function JewelPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    priorityFilter, setPriorityFilter,
     collapsedTokenIds,
   } = useCategoryPage({
     categoryId: 'jewel',
@@ -158,6 +159,8 @@ export function JewelPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
               extraControls={
                 <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
                   <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
@@ -210,6 +213,8 @@ export function JewelPage() {
               groupMode="origin"
               showOriginSubSections
               showJewelTypeSubGroups
+              category="jewel"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">

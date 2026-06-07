@@ -13,7 +13,7 @@
  * - Full-width layout (takes entire available width)
  */
 import React, { useMemo, useCallback } from 'react';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
@@ -51,6 +51,10 @@ interface ModListProps {
   onClearTokenRange?: (tokenId: string) => void;
   /** Set of token IDs whose individual regex was collapsed by the optimizer */
   collapsedTokenIds?: Set<string>;
+  /** Item category for priority tier classification (e.g., 'ring', 'belt') */
+  category?: string;
+  /** Priority tier filter: 'all' = show all, 'S+A' = S and A only, 'S' = S only */
+  priorityFilter?: PriorityFilter;
 }
 
 /** Origin section within an affix column */
@@ -231,6 +235,8 @@ export const ModList: React.FC<ModListProps> = ({
   onSetTokenRange,
   onClearTokenRange,
   collapsedTokenIds,
+  category,
+  priorityFilter = 'all',
 }) => {
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -264,20 +270,30 @@ export const ModList: React.FC<ModListProps> = ({
     return result;
   }, [tokens, searchText, affixFilter, originFilter]);
 
-  // Group filtered tokens by family
+  // Group filtered tokens by family (with category for priority tier)
   const familyGroups = useMemo(
-    () => groupTokensByFamily(filteredTokens),
-    [filteredTokens]
+    () => groupTokensByFamily(filteredTokens, category),
+    [filteredTokens, category]
   );
 
-  // Separate groups by affix type
+  // Filter by priority tier
+  const priorityFilteredGroups = useMemo(() => {
+    if (priorityFilter === 'all') return familyGroups;
+    return familyGroups.filter(g => {
+      if (priorityFilter === 'S') return g.priorityTier === 'S';
+      if (priorityFilter === 'S+A') return g.priorityTier === 'S' || g.priorityTier === 'A';
+      return true;
+    });
+  }, [familyGroups, priorityFilter]);
+
+  // Separate groups by affix type (after priority filter)
   const prefixGroups = useMemo(
-    () => familyGroups.filter((g) => g.affix === 'prefix'),
-    [familyGroups]
+    () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
+    [priorityFilteredGroups]
   );
   const suffixGroups = useMemo(
-    () => familyGroups.filter((g) => g.affix === 'suffix'),
-    [familyGroups]
+    () => priorityFilteredGroups.filter((g) => g.affix === 'suffix'),
+    [priorityFilteredGroups]
   );
 
   // Classify groups into sub-groups based on mode
@@ -395,15 +411,15 @@ export const ModList: React.FC<ModListProps> = ({
 
       {/* Stats */}
       <div className="text-xs text-gray-500">
-        {t('filter.stats').replace('{shown}', String(familyGroups.length)).replace('{total}', String(tokens.length))}
+        {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
       {/* Mod groups area */}
-      {familyGroups.length > 0 ? (
+      {priorityFilteredGroups.length > 0 ? (
         isOriginMode ? (
           /* Origin mode: single column, sub-grouped by origin */
           <div className="flex flex-col gap-2">
-            {classifyGroups(familyGroups, 'origin').map((sg) => (
+            {classifyGroups(priorityFilteredGroups, 'origin').map((sg) => (
               <div key={sg.key}>
                 <div className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sg.colorClass}`}>
                   {sg.label} ({sg.groups.length})

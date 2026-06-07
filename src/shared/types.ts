@@ -3,6 +3,10 @@ export type AffixType = 'prefix' | 'suffix';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
 export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
+/** Priority tier based on affix popularity research (S=highest, C=lowest) */
+export type PriorityTier = 'S' | 'A' | 'B' | 'C';
+/** Filter mode for priority tiers in UI */
+export type PriorityFilter = 'all' | 'S+A' | 'S';
 
 export interface GenderForms {
   ms?: string;  // masculine singular
@@ -106,6 +110,10 @@ export interface FamilyGroup {
   /** Index of the range slot used for numeric filtering (0 = first placeholder).
    *  For dual-number mods like "От ## до ## урона", this is 0 (filter by min damage). */
   filterSlotIndex: number;
+  /** Priority tier based on affix popularity research (S=highest demand, C=lowest).
+   *  Assigned by classifyPriorityTier() during grouping. Used for default sort order
+   *  (S→A→B→C) and UI filter. Defaults to 'C' if not classified. */
+  priorityTier: PriorityTier;
 }
 
 export type ASTNode =

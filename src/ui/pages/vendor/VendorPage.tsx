@@ -15,7 +15,7 @@ import { t } from '@shared/i18n';
 import { MAX_CHARS } from '@core/limits';
 import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
-import type { ASTNode, SearchLogic } from '@shared/types';
+import type { ASTNode, SearchLogic, PriorityFilter } from '@shared/types';
 import { createFilterStore } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
@@ -113,6 +113,8 @@ export function VendorPage() {
     }
     return 'and';
   });
+  // VendorPage doesn't use mod families, so priority filter defaults to 'all'
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
 
   // Ref to skip the first sync-to-store cycle, preventing overwrite
   // of URL-restored extraState values before the restore effect has run.
@@ -311,6 +313,8 @@ export function VendorPage() {
         setRound10Enabled={setRound10}
         searchLogic={searchLogic}
         setSearchLogic={setSearchLogic}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
         showRound10={hasNumericSelected}
         clearButton={
           selectedIds.size > 0 ? (

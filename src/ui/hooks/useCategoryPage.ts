@@ -14,7 +14,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride, type SlotRangeOverride } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
-import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic } from '@shared/types';
+import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter } from '@shared/types';
 import { and, or, exclude, literal, range } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
@@ -101,6 +101,10 @@ export interface CategoryPageState {
   affixFilter: AffixType | null;
   /** Origin filter */
   originFilter: ModOrigin | null;
+  /** Priority tier filter */
+  priorityFilter: PriorityFilter;
+  /** Set priority tier filter */
+  setPriorityFilter: (v: PriorityFilter) => void;
   /** Toggle a token's selection */
   toggleToken: (id: string) => void;
   /** Toggle multiple tokens at once (for FamilyGroup batch toggle) */
@@ -673,6 +677,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
     return null;
   });
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('priorityFilter');
+      if (val === 'all' || val === 'S+A' || val === 'S') return val;
+    }
+    return 'all';
+  });
 
   // Ref to skip the first sync-to-store render cycle, preventing
   // overwrite of URL-restored extraState values before page-level
@@ -742,10 +753,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
     useStore.getState().setExtraState('maxValue', maxValue);
+    useStore.getState().setExtraState('priorityFilter', priorityFilter);
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      excludeMode, searchLogic, round10Enabled, minValue, maxValue, useStore]);
+      excludeMode, searchLogic, round10Enabled, minValue, maxValue, priorityFilter, useStore]);
 
   // Build selected tokens list
   const selectedTokens = useMemo(() => {
@@ -843,6 +855,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     const restoredMax = restored.getExtraState('maxValue');
     if (typeof restoredMax === 'number') setMaxValue(restoredMax);
     else setMaxValue(null);
+
+    const restoredPriority = restored.getExtraState('priorityFilter');
+    if (restoredPriority === 'all' || restoredPriority === 'S+A' || restoredPriority === 'S') setPriorityFilter(restoredPriority);
+    else setPriorityFilter('all');
   };
 
   // Create a stable FilterStoreApi wrapper that delegates convenience methods
@@ -872,6 +888,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setMinValue,
     maxValue,
     setMaxValue,
+    priorityFilter,
+    setPriorityFilter,
     perTokenRanges,
     setTokenRange,
     clearTokenRange,

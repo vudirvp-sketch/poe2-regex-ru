@@ -15,7 +15,7 @@
 import React from 'react';
 import { RegexOutput } from './RegexOutput';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
-import type { SearchLogic } from '@shared/types';
+import type { SearchLogic, PriorityFilter } from '@shared/types';
 import { t } from '@shared/i18n';
 
 interface CategoryControlPanelProps {
@@ -34,6 +34,13 @@ interface CategoryControlPanelProps {
   rangedSuffixes: string[];
   round10Enabled: boolean;
   setRound10Enabled: (v: boolean) => void;
+  /** Priority tier filter state */
+  priorityFilter: PriorityFilter;
+  /** Set priority tier filter */
+  setPriorityFilter: (v: PriorityFilter) => void;
+  /** Whether to show priority tier filter toggle. Only shown for categories
+   *   that have priority classification (ring, amulet, belt, waystone, tablet). */
+  showPriorityFilter?: boolean;
   /** Slot for category-specific controls (waystone state, tablet types, etc.) */
   extraControls?: React.ReactNode;
   /**
@@ -89,6 +96,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   extraControls,
   showRound10,
   clearButton,
+  priorityFilter,
+  setPriorityFilter,
+  showPriorityFilter,
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
@@ -102,6 +112,13 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   const logicOptions = [
     { value: 'and' as SearchLogic, action: () => setSearchLogic('and') },
     { value: 'or' as SearchLogic, action: () => setSearchLogic('or') },
+  ];
+
+  // Priority filter options for arrow key navigation
+  const priorityOptions = [
+    { value: 'all' as PriorityFilter, action: () => setPriorityFilter('all') },
+    { value: 'S+A' as PriorityFilter, action: () => setPriorityFilter('S+A') },
+    { value: 'S' as PriorityFilter, action: () => setPriorityFilter('S') },
   ];
 
   return (
@@ -234,6 +251,47 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
 
         {/* Clear button slot */}
         {clearButton}
+
+        {/* Priority tier filter */}
+        {showPriorityFilter && (
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-gray-500">{t('priority.label')}</span>
+            <div className="flex gap-0.5" role="radiogroup" aria-label={t('priority.label')}
+              onKeyDown={(e) => handleRadioKeyDown(e, priorityOptions, priorityFilter)}
+            >
+              <button
+                onClick={() => setPriorityFilter('all')}
+                role="radio"
+                aria-checked={priorityFilter === 'all'}
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                  priorityFilter === 'all' ? 'bg-gray-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                }`}
+              >
+                {t('priority.all')}
+              </button>
+              <button
+                onClick={() => setPriorityFilter('S+A')}
+                role="radio"
+                aria-checked={priorityFilter === 'S+A'}
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                  priorityFilter === 'S+A' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                }`}
+              >
+                {t('priority.sa')}
+              </button>
+              <button
+                onClick={() => setPriorityFilter('S')}
+                role="radio"
+                aria-checked={priorityFilter === 'S'}
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                  priorityFilter === 'S' ? 'bg-amber-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                }`}
+              >
+                {t('priority.s_only')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Category-specific controls slot */}
         {extraControls}

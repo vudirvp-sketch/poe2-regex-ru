@@ -51,6 +51,7 @@ export function WaystonePage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    priorityFilter, setPriorityFilter,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
@@ -108,6 +109,9 @@ export function WaystonePage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              showPriorityFilter
               extraControls={
                 <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-700">
                   <label className="flex items-center gap-1 cursor-pointer">
@@ -148,6 +152,8 @@ export function WaystonePage() {
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-sentiment"
+              category="waystone"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">

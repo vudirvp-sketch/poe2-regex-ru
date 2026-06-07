@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 69.0 | **Date:** 2026-06-08
+> **Version:** 70.0 | **Date:** 2026-06-08
 
 ---
 
@@ -13,12 +13,12 @@
 | `src/ui/` | React components. | Each file < 300 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
 | `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
 | `src/data/` | JSON loading + vendor-properties. | Proxies `fetch()` -> typed objects. Import from `@shared`. |
-| `src/shared/` | Types, i18n, classifier. | **No imports from other src/ directories.** |
+| `src/shared/` | Types, i18n, classifier, priority tiers. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 543 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 576 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports + affix hierarchy. | Reference data for cross-validation. Priority tiers for affix popularity. |
 
 ## 2. Build Commands
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (543 tests, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (576 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (543 tests)
+- [ ] `npx vitest run --root .` passes (576 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -67,13 +67,13 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Affix priority integration** — Research completed (see `регис/Иерархия популярности аффиксов.md`). Need to integrate priority tiers into UI: visual indicators, sort/filter by tier, default sort by popularity.
-2. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
-3. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers, priority tier filter.
+2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+3. **Priority tier refinement** — Validate tier classifications against live trade data. Add Relic/Vendor priority if needed.
 
 ### LOW
-- UI sort/filter by affix popularity tier (S/A/B/C)
-- Visual tier badges on FilterChips
+- Priority tier validation against trade data
+- Relic/Vendor priority tier classification
 
 ### RESOLVED (Session 68)
 1. ~~ETL pipeline audit~~ — Ran `pnpm etl`, verified 1823/1823 valid, 0 cross-family FP, 1309 family-tier FP (by design). Cross-validation tests pass (543/543).
@@ -189,3 +189,19 @@ All `<input type="number">` must include `step={1}` (or `step="1"`) to prevent f
 - CategoryControlPanel global range inputs
 - VendorChip numeric threshold input
 - TabletPage uses remaining input
+
+## 17. Priority Tier System
+
+Affix popularity tiers (S/A/B/C) integrated into UI based on research (`регис/Иерархия популярности аффиксов.md`).
+
+| Component | Role |
+|-----------|------|
+| `PriorityTier` type | `'S' | 'A' | 'B' | 'C'` — defined in `types.ts` |
+| `PriorityFilter` type | `'all' | 'S+A' | 'S'` — filter mode in UI |
+| `classifyPriorityTier(group, category)` | Text-based heuristic per category (ring/amulet/belt/waystone/tablet). Jewel/relic/vendor return 'C'. |
+| `FamilyGroup.priorityTier` | Set during grouping by `family-grouper.ts`, used for default sort (S→C) |
+| `CategoryControlPanel` | Toggle group: «Все | S+A | S» with amber accent for active filter |
+| `FilterChip` | S-tier gets amber border-l, C-tier gets opacity-80 dimming |
+| `filter-store.ts` | `priorityFilter` persisted in URL via `p` key |
+
+**Categories with priority classification:** ring, amulet, belt, waystone, tablet. Others (jewel, relic, vendor) default to 'C' for all mods.

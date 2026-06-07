@@ -27,6 +27,7 @@ export function BeltPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    priorityFilter, setPriorityFilter,
   } = useCategoryPage({ categoryId: 'belt' });
 
   return (
@@ -64,6 +65,9 @@ export function BeltPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              showPriorityFilter
             />
 
             <VirtualizedModList
@@ -83,6 +87,8 @@ export function BeltPage() {
               collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-semantic"
               showOriginSubSections
+              category="belt"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">

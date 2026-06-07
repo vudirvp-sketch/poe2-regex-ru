@@ -4,35 +4,61 @@
 
 ---
 
-## Current State (Session 69 — 2026-06-08)
+## Current State (Session 70 — 2026-06-08)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (543/543 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
 **Jewel heuristic:** 100% accuracy (193/193) vs ETL ground truth
 
 **Key Changes This Session:**
 
-1. **Affix popularity research** — Conducted web research across Maxroll, Mobalytics, poe2db, Reddit, U4GM, MTMMO, AOEAH. Created hierarchy of popular affixes (Tier S/A/B/C) for: Waystones, Tablets, Rings, Amulets, Belts.
+1. **Priority tier system integrated into UI** — Full implementation of Variant В (sort + compact filter):
+   - `PriorityTier` ('S'|'A'|'B'|'C') and `PriorityFilter` ('all'|'S+A'|'S') types added to `types.ts`
+   - `classifyPriorityTier(group, category)` in `mod-classifier.ts` — text-based heuristic per category (ring, amulet, belt, waystone, tablet). Jewel/relic/vendor default to 'C'.
+   - `FamilyGroup.priorityTier` field — set during grouping in `family-grouper.ts`
+   - Default sort order changed: within each affix, groups sorted by tier (S→A→B→C) then alphabetically
+   - FilterChip visual differentiation: S-tier gets amber border-l, C-tier gets opacity-80
+   - CategoryControlPanel toggle group: «Приоритет: Все | S+A | S» with amber accent
+   - `priorityFilter` added to filter-store with URL persistence (`p` key)
+   - ModList + VirtualizedModList: `category` and `priorityFilter` props for priority filtering
+   - All 5 category pages (ring, amulet, belt, waystone, tablet) updated with priority filter props
 
-2. **New file: `регис/Иерархия популярности аффиксов.md`** — Structured reference document with priority tiers for each item category. Key findings:
-   - Waystones: Quantity > Rarity > Pack Size (prefixes = good, suffixes = dangerous but needed for stone sustain)
-   - Tablets: Quantity of Items = most valuable mod; Ritual extra reroll = most expensive suffix in game
-   - Rings/Amulets: +Level Skills = #1 priority, Spirit, All Res, ES
-   - Belts: Max Life 150+ = absolute #1, All Res, Flask Life Recovery
+2. **33 new tests** — classifyPriorityTier (30 tests across ring/amulet/belt/waystone/tablet/unknown) + family-grouper priority tier tests (3 tests). Total: 576 tests.
 
-3. **Documentation updated** — AGENT_NAVIGATION.md v69, новый_план.md v12, worklog.md.
-
-4. **Next iteration plan** — P0: Integrate priority tiers into UI (priorityTier field, sorting, visual badges, filter by tier).
+3. **Documentation updated** — AGENT_NAVIGATION.md v70, worklog.md.
 
 **Files changed this session:**
-- `регис/Иерархия популярности аффиксов.md` — NEW: affix popularity research
-- `AGENT_NAVIGATION.md` — v69: added affix hierarchy reference, updated TODO section
-- `новый_план.md` — v12: added Session 69, added P0 integration task
-- `worklog.md` — This update
+- `src/shared/types.ts` — Added PriorityTier, PriorityFilter types; priorityTier field on FamilyGroup
+- `src/shared/mod-classifier.ts` — Added classifyPriorityTier(), TIER_SORT_ORDER, per-category keyword patterns
+- `src/shared/family-grouper.ts` — Added category param, priorityTier assignment, tier-based sorting, priorityTier inheritance in splitGroupByOrigin
+- `src/shared/i18n.ts` — Added priority filter labels (priority.all, priority.sa, priority.s_only, priority.label)
+- `src/store/filter-store.ts` — Added priorityFilter state, setPriorityFilter action, URL serialization
+- `src/ui/components/FilterChip.tsx` — S-tier amber border, C-tier opacity-80 dimming
+- `src/ui/components/CategoryControlPanel.tsx` — Priority filter toggle group with ARIA radio group
+- `src/ui/components/ModList.tsx` — category/priorityFilter props, priority filtering
+- `src/ui/components/VirtualizedModList.tsx` — category/priorityFilter props, priority filtering
+- `src/ui/hooks/useCategoryPage.ts` — priorityFilter state, URL sync, restore
+- `src/ui/pages/ring/RingPage.tsx` — Priority filter props
+- `src/ui/pages/amulet/AmuletPage.tsx` — Priority filter props
+- `src/ui/pages/belt/BeltPage.tsx` — Priority filter props
+- `src/ui/pages/waystone/WaystonePage.tsx` — Priority filter props
+- `src/ui/pages/tablet/TabletPage.tsx` — Priority filter props
+- `src/ui/pages/jewel/JewelPage.tsx` — Priority filter + category props
+- `src/ui/pages/relic/RelicPage.tsx` — Priority filter + category props
+- `src/ui/pages/vendor/VendorPage.tsx` — Local priorityFilter state + props
+- `tests/shared/mod-classifier.test.ts` — 30 new tests for classifyPriorityTier + TIER_SORT_ORDER
+- `tests/shared/family-grouper.test.ts` — 3 new tests for priorityTier assignment and sorting
+- `AGENT_NAVIGATION.md` — v70: added Priority Tier System section, updated test count, updated TODO
+
+**Continued (same session, context overflow fix):**
+- Fixed TypeScript errors: JewelPage, RelicPage, VendorPage missing priorityFilter/setPriorityFilter props
+- JewelPage: added priorityFilter/setPriorityFilter from useCategoryPage + category/priorityFilter on VirtualizedModList
+- RelicPage: added priorityFilter/setPriorityFilter from useCategoryPage + category/priorityFilter on ModList
+- VendorPage: added local priorityFilter/setPriorityFilter state (vendor doesn't use mod families)
 
 **NOT YET DONE (next iteration):**
-- ⬜ Integrate affix priority tiers into UI (priorityTier field on GameToken, default sort by tier, visual badges on FilterChip, filter by tier in CategoryControlPanel)
-- ⬜ Browser functional testing of VirtualizedModList — NEEDS HUMAN
+- ⬜ Browser functional testing of priority tier filter — NEEDS HUMAN
+- ⬜ Validate priority tier classifications against live trade data
 - ⬜ Mobile-specific testing — NEEDS REAL DEVICE
 
 ---

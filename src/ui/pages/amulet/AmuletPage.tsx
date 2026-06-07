@@ -27,6 +27,7 @@ export function AmuletPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    priorityFilter, setPriorityFilter,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -64,6 +65,9 @@ export function AmuletPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              showPriorityFilter
             />
 
             <VirtualizedModList
@@ -83,6 +87,8 @@ export function AmuletPage() {
               collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-semantic"
               showOriginSubSections
+              category="amulet"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">

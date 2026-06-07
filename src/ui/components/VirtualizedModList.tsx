@@ -18,7 +18,7 @@
  */
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
@@ -46,6 +46,10 @@ interface VirtualizedModListProps {
   onClearTokenRange?: (tokenId: string) => void;
   /** Set of token IDs whose individual regex was collapsed by the optimizer */
   collapsedTokenIds?: Set<string>;
+  /** Item category for priority tier classification (e.g., 'ring', 'belt') */
+  category?: string;
+  /** Priority tier filter */
+  priorityFilter?: PriorityFilter;
 }
 
 /** A flat virtual row for the virtualizer */
@@ -105,6 +109,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   onSetTokenRange,
   onClearTokenRange,
   collapsedTokenIds,
+  category,
+  priorityFilter = 'all',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -143,19 +149,29 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     return result;
   }, [tokens, searchText, affixFilter, originFilter]);
 
-  // Group and classify
+  // Group and classify (with category for priority tier)
   const familyGroups = useMemo(
-    () => groupTokensByFamily(filteredTokens),
-    [filteredTokens]
+    () => groupTokensByFamily(filteredTokens, category),
+    [filteredTokens, category]
   );
 
+  // Filter by priority tier
+  const priorityFilteredGroups = useMemo(() => {
+    if (priorityFilter === 'all') return familyGroups;
+    return familyGroups.filter(g => {
+      if (priorityFilter === 'S') return g.priorityTier === 'S';
+      if (priorityFilter === 'S+A') return g.priorityTier === 'S' || g.priorityTier === 'A';
+      return true;
+    });
+  }, [familyGroups, priorityFilter]);
+
   const prefixGroups = useMemo(
-    () => familyGroups.filter((g) => g.affix === 'prefix'),
-    [familyGroups]
+    () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
+    [priorityFilteredGroups]
   );
   const suffixGroups = useMemo(
-    () => familyGroups.filter((g) => g.affix === 'suffix'),
-    [familyGroups]
+    () => priorityFilteredGroups.filter((g) => g.affix === 'suffix'),
+    [priorityFilteredGroups]
   );
 
   const prefixSubGroups = useMemo(
@@ -345,7 +361,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
 
       {/* Stats */}
       <div className="text-xs text-gray-500">
-        {t('filter.stats').replace('{shown}', String(familyGroups.length)).replace('{total}', String(tokens.length))}
+        {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
       {/* Virtualized list */}

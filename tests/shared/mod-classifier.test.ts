@@ -13,6 +13,8 @@ import {
   classifyByText,
   classifyWaystoneSentiment,
   classifyTabletType,
+  classifyPriorityTier,
+  TIER_SORT_ORDER,
   type JewelTypeCategory,
 } from '@shared/mod-classifier';
 import type { FamilyGroup, GameToken } from '@shared/types';
@@ -34,6 +36,7 @@ function makeGroup(
     hasMultiPlaceholder: false,
     rangeSlots: [],
     filterSlotIndex: 0,
+    priorityTier: 'C',
     ...overrides,
   };
 }
@@ -325,5 +328,177 @@ describe('classifyTabletType', () => {
   it('classifies unknown as generic', () => {
     const group = makeGroup('(5—15)% увеличение области действия');
     expect(classifyTabletType(group)).toBe('generic');
+  });
+});
+
+// ─── classifyPriorityTier ───
+
+describe('classifyPriorityTier', () => {
+  // ─── Ring ───
+  describe('ring', () => {
+    it('classifies +skill levels as S-tier', () => {
+      const group = makeGroup('+(1—2) к уровню камней умений');
+      expect(classifyPriorityTier(group, 'ring')).toBe('S');
+    });
+
+    it('classifies Spirit as S-tier', () => {
+      const group = makeGroup('+(5—10) Дух');
+      expect(classifyPriorityTier(group, 'ring')).toBe('S');
+    });
+
+    it('classifies All Res as S-tier', () => {
+      const group = makeGroup('+(5—10)% ко всем стихийным сопротивлениям');
+      expect(classifyPriorityTier(group, 'ring')).toBe('S');
+    });
+
+    it('classifies ES as S-tier', () => {
+      const group = makeGroup('+(10—20) энергетический щит');
+      expect(classifyPriorityTier(group, 'ring')).toBe('S');
+    });
+
+    it('classifies attributes as A-tier', () => {
+      const group = makeGroup('+(5—7) к силе');
+      expect(classifyPriorityTier(group, 'ring')).toBe('A');
+    });
+
+    it('classifies attack speed as A-tier', () => {
+      const group = makeGroup('(5—15)% повышение скорости атаки');
+      expect(classifyPriorityTier(group, 'ring')).toBe('A');
+    });
+
+    it('classifies chaos res as B-tier', () => {
+      const group = makeGroup('+(5—10)% к сопротивлению хаосу');
+      expect(classifyPriorityTier(group, 'ring')).toBe('B');
+    });
+
+    it('classifies MF as B-tier', () => {
+      const group = makeGroup('(5—15)% повышение редкости найденных предметов');
+      expect(classifyPriorityTier(group, 'ring')).toBe('B');
+    });
+
+    it('classifies unknown as C-tier', () => {
+      const group = makeGroup('(3—5)% шанс наложить кровотечение');
+      expect(classifyPriorityTier(group, 'ring')).toBe('C');
+    });
+  });
+
+  // ─── Amulet ───
+  describe('amulet', () => {
+    it('classifies +skill levels as S-tier', () => {
+      const group = makeGroup('+(1—2) к уровню камней умений');
+      expect(classifyPriorityTier(group, 'amulet')).toBe('S');
+    });
+
+    it('classifies All Attributes as S-tier', () => {
+      const group = makeGroup('+(5—10) ко всем атрибутам');
+      expect(classifyPriorityTier(group, 'amulet')).toBe('S');
+    });
+
+    it('classifies max mana as A-tier', () => {
+      const group = makeGroup('+(10—20) максимум маны');
+      expect(classifyPriorityTier(group, 'amulet')).toBe('A');
+    });
+
+    it('classifies chaos res as B-tier', () => {
+      const group = makeGroup('+(5—10)% к сопротивлению хаосу');
+      expect(classifyPriorityTier(group, 'amulet')).toBe('B');
+    });
+  });
+
+  // ─── Belt ───
+  describe('belt', () => {
+    it('classifies max life as S-tier', () => {
+      const group = makeGroup('+(30—60) максимум здоровья');
+      expect(classifyPriorityTier(group, 'belt')).toBe('S');
+    });
+
+    it('classifies All Res as S-tier', () => {
+      const group = makeGroup('+(5—10)% ко всем стихийным сопротивлениям');
+      expect(classifyPriorityTier(group, 'belt')).toBe('S');
+    });
+
+    it('classifies flask life recovery as S-tier', () => {
+      const group = makeGroup('(10—20)% увеличение скорости восстановления здоровья флаконом');
+      expect(classifyPriorityTier(group, 'belt')).toBe('S');
+    });
+
+    it('classifies individual res as A-tier', () => {
+      const group = makeGroup('+(15—30)% к сопротивлению огню');
+      expect(classifyPriorityTier(group, 'belt')).toBe('A');
+    });
+
+    it('classifies attributes as A-tier', () => {
+      const group = makeGroup('+(5—7) к силе');
+      expect(classifyPriorityTier(group, 'belt')).toBe('A');
+    });
+  });
+
+  // ─── Waystone ───
+  describe('waystone', () => {
+    it('classifies quantity as S-tier prefix', () => {
+      const group = makeGroup('(5—15)% повышение количества найденных предметов', { affix: 'prefix' });
+      expect(classifyPriorityTier(group, 'waystone')).toBe('S');
+    });
+
+    it('classifies rarity as S-tier prefix', () => {
+      const group = makeGroup('(5—15)% повышение редкости найденных предметов', { affix: 'prefix' });
+      expect(classifyPriorityTier(group, 'waystone')).toBe('S');
+    });
+
+    it('classifies experience as A-tier prefix', () => {
+      const group = makeGroup('(5—15)% повышение опыта', { affix: 'prefix' });
+      expect(classifyPriorityTier(group, 'waystone')).toBe('A');
+    });
+
+    it('classifies extra waystones as S-tier suffix', () => {
+      const group = makeGroup('Дополнительных путевых камней: #(1—3)', { affix: 'suffix' });
+      expect(classifyPriorityTier(group, 'waystone')).toBe('S');
+    });
+
+    it('classifies negative suffix as B-tier', () => {
+      const group = makeGroup('(15—25)% увеличение урона монстров', { affix: 'suffix' });
+      expect(classifyPriorityTier(group, 'waystone')).toBe('B');
+    });
+  });
+
+  // ─── Tablet ───
+  describe('tablet', () => {
+    it('classifies quantity in maps as S-tier', () => {
+      const group = makeGroup('(5—15)% увеличение количества предметов в картах');
+      expect(classifyPriorityTier(group, 'tablet')).toBe('S');
+    });
+
+    it('classifies generic as B-tier', () => {
+      const group = makeGroup('(5—15)% увеличение области действия');
+      expect(classifyPriorityTier(group, 'tablet')).toBe('B');
+    });
+  });
+
+  // ─── Unknown categories ───
+  describe('unknown categories', () => {
+    it('returns C for jewel category', () => {
+      const group = makeGroup('+(5—10) Дух');
+      expect(classifyPriorityTier(group, 'jewel')).toBe('C');
+    });
+
+    it('returns C for relic category', () => {
+      const group = makeGroup('+(5—10) Дух');
+      expect(classifyPriorityTier(group, 'relic')).toBe('C');
+    });
+  });
+
+  // ─── TIER_SORT_ORDER ───
+  describe('TIER_SORT_ORDER', () => {
+    it('S has lower order than A', () => {
+      expect(TIER_SORT_ORDER.S).toBeLessThan(TIER_SORT_ORDER.A);
+    });
+
+    it('A has lower order than B', () => {
+      expect(TIER_SORT_ORDER.A).toBeLessThan(TIER_SORT_ORDER.B);
+    });
+
+    it('B has lower order than C', () => {
+      expect(TIER_SORT_ORDER.B).toBeLessThan(TIER_SORT_ORDER.C);
+    });
   });
 });

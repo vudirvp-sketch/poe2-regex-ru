@@ -26,6 +26,7 @@ export function RelicPage() {
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
+    priorityFilter, setPriorityFilter,
     collapsedTokenIds,
   } = useCategoryPage({ categoryId: 'relic' });
 
@@ -64,6 +65,8 @@ export function RelicPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
             />
 
             <ModList
@@ -83,6 +86,8 @@ export function RelicPage() {
               collapsedTokenIds={collapsedTokenIds}
               groupMode="affix-only"
               showOriginSubSections
+              category="relic"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">

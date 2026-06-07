@@ -337,4 +337,62 @@ describe('groupTokensByFamily', () => {
     expect(groups[0].rangeSlots).toEqual([[2, 7], [4, 13]]);
     expect(groups[0].displayText).toBe('Добавляет от (2—7) до (4—13) физического урона к атакам');
   });
+
+  it('assigns priorityTier="C" when no category is provided', () => {
+    const tokens = [
+      makeToken({
+        id: 'str1',
+        affix: 'prefix',
+        familyKey: { ru: '+# к силе' },
+        rawTextTemplate: { ru: '+## к силе' },
+        rawText: { ru: '+(5—8) к силе' },
+        regex: { ru: 'к силе' },
+      }),
+    ];
+    const groups = groupTokensByFamily(tokens);
+    expect(groups[0].priorityTier).toBe('C');
+  });
+
+  it('assigns priorityTier based on category', () => {
+    const tokens = [
+      makeToken({
+        id: 'skill1',
+        affix: 'prefix',
+        familyKey: { ru: '+# к уровню камней умений' },
+        rawTextTemplate: { ru: '+# к уровню камней умений' },
+        rawText: { ru: '+1 к уровню камней умений' },
+        regex: { ru: 'уровню камней умений' },
+        values: [1],
+      }),
+    ];
+    // With ring category, +skill levels should be S-tier
+    const groups = groupTokensByFamily(tokens, 'ring');
+    expect(groups[0].priorityTier).toBe('S');
+  });
+
+  it('sorts by priority tier within same affix', () => {
+    const tokens = [
+      makeToken({
+        id: 'thorns',
+        affix: 'prefix',
+        familyKey: { ru: '# урон шипами' },
+        rawTextTemplate: { ru: '# урон шипами' },
+        rawText: { ru: '3 урон шипами' },
+        regex: { ru: 'шипами' },
+      }),
+      makeToken({
+        id: 'allres',
+        affix: 'prefix',
+        familyKey: { ru: '+#% ко всем стихийным сопротивлениям' },
+        rawTextTemplate: { ru: '+##% ко всем стихийным сопротивлениям' },
+        rawText: { ru: '+(5—10)% ко всем стихийным сопротивлениям' },
+        regex: { ru: 'ко всем стихийным сопротивлениям' },
+        ranges: [[5, 10]],
+      }),
+    ];
+    const groups = groupTokensByFamily(tokens, 'ring');
+    // All Res (S-tier) should come before thorns (C-tier)
+    expect(groups[0].priorityTier).toBe('S');
+    expect(groups[1].priorityTier).toBe('C');
+  });
 });

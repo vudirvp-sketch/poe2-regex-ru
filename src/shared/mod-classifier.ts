@@ -8,7 +8,7 @@
  * Used by ModList to create semantic sub-groups within prefix/suffix columns.
  */
 
-import type { FamilyGroup, ModOrigin, JewelType } from './types';
+import type { FamilyGroup, ModOrigin, JewelType, PriorityTier } from './types';
 import { splitGroupByOrigin } from './family-grouper';
 import { t } from './i18n';
 
@@ -727,6 +727,159 @@ export function classifyJewelType(group: FamilyGroup): JewelTypeCategory {
   // If no type scored at all → shared
   return 'shared';
 }
+
+// ─── Priority tier classification ───
+
+/**
+ * Priority tier classification based on affix popularity research.
+ *
+ * Source: `регис/Иерархия популярности аффиксов.md`
+ *
+ * Tiers:
+ * - S = always sought after (e.g., +skill levels, all res, max life, quantity)
+ * - A = very good, build-enabling (e.g., attributes, attack speed, regen)
+ * - B = niche/moderate value (e.g., chaos res, MF, flask charges)
+ * - C = rarely sought (e.g., thorns, light radius, minion mods for non-minion builds)
+ *
+ * Classification uses text heuristics per category. The `category` parameter
+ * determines which keyword set to use (waystone, tablet, ring, amulet, belt).
+ * For jewel/relic/vendor, no priority classification is applied (returns 'C').
+ */
+
+// ─── Waystone priority patterns ───
+
+/** S-tier waystone prefixes: Quantity, Rarity, Pack Size, Monster Count */
+const WAYSTONE_S_PREFIX = /(?:количеств.*найден|редкост.*найден|размер.*групп.*монстр|количеств.*групп.*монстр)/i;
+
+/** A-tier waystone prefixes: Magic/Rare monsters, Experience, Chests */
+const WAYSTONE_A_PREFIX = /(?:волшебн.*монстр|редк.*монстр|опыт|волшебн.*сундук|редк.*сундук)/i;
+
+/** S-tier waystone suffixes (high waystone drop chance, low danger) */
+const WAYSTONE_S_SUFFIX = /(?:дополнит.*путев|шанс.*сгустк|больше.*путев)/i;
+
+/** A-tier waystone suffixes (medium danger but needed for sustain) */
+const WAYSTONE_A_SUFFIX = /(?:дополнит.*дух|дополнит.*Бездн|дополнит.*бездн|дополнит.*ритуальн|дополнит.*алтар|дополнит.*ларец|дополнит.*Сущност|дополнит.*изгнан|Бездны ведут|дополнит.*Царевн|Бездн появляется)/i;
+
+/** B-tier waystone mods (gold, specific monster types) */
+const WAYSTONE_B = /(?:золот|дополнит.*сгустк)/i;
+
+// ─── Tablet priority patterns ───
+
+/** S-tier tablet: Quantity, Rarity in maps */
+const TABLET_S = /(?:количеств.*предмет.*карт|редкост.*предмет.*карт|увеличен.*количеств|увеличен.*редкост)/i;
+
+/** A-tier tablet: Extra mechanics, experience, rare monsters */
+const TABLET_A = /(?:шанс.*дополнит.*механ|опыт.*карт|редк.*монстр.*карт|дополнит.*переролл|дополнит.*омен|больше.*осколк|больше.*взрывчатк)/i;
+
+/** C-tier tablet: Monster difficulty, specific mob types */
+const TABLET_C = /(?:сложност.*монстр|конкретн.*тип|модификатор.*монстр)/i;
+
+// ─── Ring priority patterns ───
+
+/** S-tier ring: +Skill levels, Spirit, All Res, ES */
+const RING_S = /(?:уровень.*умени|уровн.*умени|Дух|ко всем.*сопротивлен|ко всем стихийн.*сопротивлен|энергетическ.*щит|увеличен.*энергетическ)/i;
+
+/** A-tier ring: Attributes, elemental damage, attack/cast speed, mana regen */
+const RING_A = /(?:к силе|к ловк|к интелл|атрибут|добавлен.*стихийн.*урон|увеличен.*урон.*стихи|скорост.*атак|скорост.*сотворени|регенерац.*ман)/i;
+
+/** B-tier ring: Chaos res, MF, max mana */
+const RING_B = /(?:хаос.*сопр|сопротивлен.*хаос|редкост.*найден|количеств.*найден|максимум.*ман)/i;
+
+// ─── Amulet priority patterns ───
+
+/** S-tier amulet: +Skill levels, Spirit, ES, All Res, All Attributes */
+const AMULET_S = /(?:уровень.*умени|уровн.*умени|Дух|энергетическ.*щит|увеличен.*энергетическ|ко всем.*сопротивлен|ко всем стихийн.*сопротивлен|ко всем.*атрибут|ко всем характеристик)/i;
+
+/** A-tier amulet: Max mana, global defence, cast speed, mana regen */
+const AMULET_A = /(?:максимум.*ман|глобальн.*защит|скорост.*сотворени|регенерац.*ман)/i;
+
+/** B-tier amulet: Chaos res, MF, added damage */
+const AMULET_B = /(?:хаос.*сопр|сопротивлен.*хаос|редкост.*найден|количеств.*найден|добавлен.*урон)/i;
+
+// ─── Belt priority patterns ───
+
+/** S-tier belt: Max life, All Res, Flask life recovery */
+const BELT_S = /(?:максимум.*здоров|ко всем.*сопротивлен|ко всем стихийн.*сопротивлен|восстановлен.*здоровь.*флакон|скорост.*восстановлен.*здоровь.*флакон)/i;
+
+/** A-tier belt: Individual res, attributes, flask mana recovery, armour */
+const BELT_A = /(?:сопротивлен.*(огн|холод|молни|хаос)|к силе|к ловк|к интелл|брон|восстановлен.*ман.*флакон|скорост.*восстановлен.*ман.*флакон)/i;
+
+/** B-tier belt: Flask duration, flask charges */
+const BELT_B = /(?:длительн.*оберег|заряд.*флакон|длительн.*флакон)/i;
+
+/**
+ * Classify a FamilyGroup into a priority tier based on affix popularity.
+ *
+ * @param group - The FamilyGroup to classify
+ * @param category - The item category (waystone, tablet, ring, amulet, belt, etc.)
+ * @returns PriorityTier: 'S', 'A', 'B', or 'C'
+ */
+export function classifyPriorityTier(group: FamilyGroup, category: string): PriorityTier {
+  const text = group.displayText;
+
+  switch (category) {
+    case 'waystone':
+      return classifyWaystonePriority(group, text);
+    case 'tablet':
+      return classifyTabletPriority(text);
+    case 'ring':
+      return classifyRingPriority(text);
+    case 'amulet':
+      return classifyAmuletPriority(text);
+    case 'belt':
+      return classifyBeltPriority(text);
+    default:
+      // jewel, relic, vendor — no priority classification
+      return 'C';
+  }
+}
+
+function classifyWaystonePriority(group: FamilyGroup, text: string): PriorityTier {
+  // Prefixes
+  if (group.affix === 'prefix') {
+    if (WAYSTONE_S_PREFIX.test(text)) return 'S';
+    if (WAYSTONE_A_PREFIX.test(text)) return 'A';
+    if (WAYSTONE_B.test(text)) return 'B';
+    return 'C';
+  }
+  // Suffixes
+  if (WAYSTONE_S_SUFFIX.test(text)) return 'S';
+  if (WAYSTONE_A_SUFFIX.test(text)) return 'A';
+  // Negative suffixes (dangerous) — still classified but lower tier
+  // These are covered by sentiment classification as 'negative'
+  return 'B';
+}
+
+function classifyTabletPriority(text: string): PriorityTier {
+  if (TABLET_S.test(text)) return 'S';
+  if (TABLET_A.test(text)) return 'A';
+  if (TABLET_C.test(text)) return 'C';
+  return 'B';
+}
+
+function classifyRingPriority(text: string): PriorityTier {
+  if (RING_S.test(text)) return 'S';
+  if (RING_A.test(text)) return 'A';
+  if (RING_B.test(text)) return 'B';
+  return 'C';
+}
+
+function classifyAmuletPriority(text: string): PriorityTier {
+  if (AMULET_S.test(text)) return 'S';
+  if (AMULET_A.test(text)) return 'A';
+  if (AMULET_B.test(text)) return 'B';
+  return 'C';
+}
+
+function classifyBeltPriority(text: string): PriorityTier {
+  if (BELT_S.test(text)) return 'S';
+  if (BELT_A.test(text)) return 'A';
+  if (BELT_B.test(text)) return 'B';
+  return 'C';
+}
+
+/** Sort order for priority tiers (lower = higher priority) */
+export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2, C: 3 };
 
 // ─── Unified classification ───
 

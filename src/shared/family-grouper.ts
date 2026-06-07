@@ -11,7 +11,8 @@
  * Display text: Takes the familyKey template and substitutes each `#` placeholder
  * with the global min—max range across all members.
  */
-import type { GameToken, AffixType, FamilyGroup, ModOrigin } from './types';
+import type { GameToken, AffixType, FamilyGroup, ModOrigin, PriorityTier } from './types';
+import { classifyPriorityTier, TIER_SORT_ORDER } from './mod-classifier';
 
 /**
  * Parse a rawTextTemplate to extract placeholder info.
@@ -122,9 +123,11 @@ function generateDisplayText(
  * Group tokens by familyKey + affix and compute display metadata.
  *
  * @param tokens - Pre-filtered list of GameTokens (after origin/affix/search filter)
+ * @param category - Item category for priority tier classification (e.g., 'ring', 'belt').
+ *                   When provided, each FamilyGroup gets a priorityTier field.
  * @returns Array of FamilyGroup objects
  */
-export function groupTokensByFamily(tokens: GameToken[]): FamilyGroup[] {
+export function groupTokensByFamily(tokens: GameToken[], category?: string): FamilyGroup[] {
   // Step 1: Group by familyKey.ru + affix
   const groupMap = new Map<string, GameToken[]>();
 
@@ -141,14 +144,17 @@ export function groupTokensByFamily(tokens: GameToken[]): FamilyGroup[] {
   for (const [key, members] of groupMap) {
     const [familyKey, affixStr] = key.split('::');
     const affix = affixStr as AffixType;
-    groups.push(buildFamilyGroup(familyKey, affix, members));
+    groups.push(buildFamilyGroup(familyKey, affix, members, category));
   }
 
-  // Sort groups: prefixes first, then suffixes; within each group, sort by familyKey
+  // Sort groups: prefixes first, then suffixes; within each group, sort by priority tier then familyKey
   groups.sort((a, b) => {
     if (a.affix !== b.affix) {
       return a.affix === 'prefix' ? -1 : 1;
     }
+    // Sort by priority tier (S→A→B→C) then alphabetically
+    const tierDiff = TIER_SORT_ORDER[a.priorityTier] - TIER_SORT_ORDER[b.priorityTier];
+    if (tierDiff !== 0) return tierDiff;
     return a.familyKey.localeCompare(b.familyKey, 'ru');
   });
 
@@ -175,8 +181,13 @@ export function countUniqueFamilyKeys(tokens: GameToken[]): number {
 /**
  * Build a FamilyGroup from a given set of members and a known familyKey template.
  * This is a refactored helper used by both groupTokensByFamily and splitGroupByOrigin.
+ *
+ * @param familyKey - The family key template
+ * @param affix - Prefix or suffix
+ * @param members - Member tokens
+ * @param category - Item category for priority tier classification (optional)
  */
-function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToken[]): FamilyGroup {
+function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToken[], category?: string): FamilyGroup {
   const familyKeyPlaceholders = parseTemplatePlaceholders(familyKey);
   const numSlots = familyKeyPlaceholders.length;
   const accumulatedSlots: number[][] = Array.from({ length: numSlots }, () => []);
@@ -222,7 +233,8 @@ function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToke
     }
   }
 
-  return {
+  // Build the group first without priorityTier to classify it
+  const group: FamilyGroup = {
     familyKey,
     affix,
     members,
@@ -232,7 +244,15 @@ function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToke
     hasMultiPlaceholder,
     rangeSlots,
     filterSlotIndex: 0, // Always filter by first placeholder (min damage, min value, etc.)
+    priorityTier: 'C' as PriorityTier, // Will be set below
   };
+
+  // Assign priority tier based on category
+  group.priorityTier = category
+    ? classifyPriorityTier(group, category)
+    : 'C';
+
+  return group;
 }
 
 /**
@@ -283,6 +303,9 @@ export function splitGroupByOrigin(group: FamilyGroup): Array<{ origin: ModOrigi
     );
     // Override familyKey to include origin suffix for unique React keys
     splitGroup.familyKey = `${group.familyKey}::${origin}`;
+    // Inherit priorityTier from the original group (splitting by origin
+    // doesn't change the mod's popularity tier)
+    splitGroup.priorityTier = group.priorityTier;
 
     results.push({ origin, group: splitGroup });
   }

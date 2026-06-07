@@ -157,6 +157,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'jewel.type_label': 'Тип самоцвета:',
     'jewel.hidden_mods': '{n} скрытых модов влияют на regex, но не видны',
     'jewel.deselect_hidden': 'Снять скрытые',
+
+    // Priority tier filter
+    'priority.all': 'Все',
+    'priority.sa': 'S+A',
+    'priority.s_only': 'S',
+    'priority.label': 'Приоритет:',
   },
 };
 

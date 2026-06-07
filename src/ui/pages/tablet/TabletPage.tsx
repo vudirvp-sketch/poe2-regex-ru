@@ -87,6 +87,7 @@ export function TabletPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    priorityFilter, setPriorityFilter,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
 
   const syncReadyRef = useRef(false);
@@ -160,6 +161,9 @@ export function TabletPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              showPriorityFilter
               extraControls={
                 <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
                   {/* Tablet type buttons */}
@@ -224,6 +228,8 @@ export function TabletPage() {
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               groupMode="tablet-type"
+              category="tablet"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">
