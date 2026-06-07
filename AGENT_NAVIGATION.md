@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 57.0 | **Date:** 2026-06-08
+> **Version:** 58.0 | **Date:** 2026-06-08
 
 ---
 
@@ -78,7 +78,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 1. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
 2. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
-3. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, dual-slot ranges, jewel type sub-headers.
+3. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges (value-only groups), dual-slot ranges, jewel type sub-headers.
 
 ## 7. Dual-Slot Range Filtering (Session 56)
 

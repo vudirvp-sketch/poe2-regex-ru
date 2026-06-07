@@ -93,8 +93,9 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Get the first ranged member's current per-token range (for display in inputs)
   // All members in a family group share the same range slot structure,
   // so we use the first member's override as representative for the group.
+  // Must match hasRanges condition: rangeSlots is built from both ranges (##) and values (#).
   const firstRangedMember = useMemo(() => {
-    return group.members.find(m => m.ranges.length > 0);
+    return group.members.find(m => m.ranges.length > 0 || m.values.length > 0);
   }, [group.members]);
 
   // Get effective per-group range from perTokenRanges
@@ -290,15 +291,16 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             type="number"
             value={groupRange.min ?? ''}
             onChange={(e) => {
+              if (!firstRangedMember) return;
               const v = parseInt(e.target.value, 10);
               const newRange: TokenRangeOverride = {
                 ...groupRange,
                 min: e.target.value === '' || isNaN(v) ? undefined : v,
               };
               if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
-                onClearTokenRange?.(firstRangedMember!.id);
+                onClearTokenRange?.(firstRangedMember.id);
               } else {
-                onSetTokenRange(firstRangedMember!.id, newRange);
+                onSetTokenRange(firstRangedMember.id, newRange);
               }
             }}
           />
@@ -311,15 +313,16 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             type="number"
             value={groupRange.max ?? ''}
             onChange={(e) => {
+              if (!firstRangedMember) return;
               const v = parseInt(e.target.value, 10);
               const newRange: TokenRangeOverride = {
                 ...groupRange,
                 max: e.target.value === '' || isNaN(v) ? undefined : v,
               };
               if (newRange.min === undefined && newRange.max === undefined && newRange.filterSlotIndex === undefined) {
-                onClearTokenRange?.(firstRangedMember!.id);
+                onClearTokenRange?.(firstRangedMember.id);
               } else {
-                onSetTokenRange(firstRangedMember!.id, newRange);
+                onSetTokenRange(firstRangedMember.id, newRange);
               }
             }}
           />
