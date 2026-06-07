@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:31:08.155Z",
+  "version": "2026-06-07T14:43:54.175Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -19336,9 +19336,9 @@
         "amulet.normal_23"
       ],
       "regex": {
-        "ru": "к интеллекту"
+        "ru": "к интелле"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 9
     },
     "amulet.allattributes1:amulet.allattributes2:amulet.allattributes3:amulet.allattributes5:amulet.allattributes6:amulet.allattributes7:amulet.allattributes8:amulet.allattributes9:amulet.normal_27": {
@@ -19354,9 +19354,9 @@
         "amulet.normal_27"
       ],
       "regex": {
-        "ru": "всем характеристикам"
+        "ru": "всем характеристи"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 9
     },
     "amulet.fireresist2_essence:amulet.fireresist3:amulet.fireresist4:amulet.fireresist4_essence:amulet.fireresist5:amulet.fireresist6_essence:amulet.fireresist7:amulet.normal_33:amulet.normal_34:amulet.normal_38:amulet.normal_40": {
@@ -19374,9 +19374,9 @@
         "amulet.normal_40"
       ],
       "regex": {
-        "ru": "сопротивлению огню"
+        "ru": "сопротивлению огн"
       },
-      "weight": 18,
+      "weight": 17,
       "count": 11
     },
     "amulet.coldresist2:amulet.coldresist2_essence:amulet.coldresist3:amulet.coldresist4:amulet.coldresist4_essence:amulet.coldresist5:amulet.coldresist6_essence:amulet.normal_41:amulet.normal_46:amulet.normal_47:amulet.normal_48": {
@@ -19394,9 +19394,9 @@
         "amulet.normal_48"
       ],
       "regex": {
-        "ru": "сопротивлению холоду"
+        "ru": "сопротивлению хол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 11
     },
     "amulet.lightningresist2:amulet.lightningresist2_essence:amulet.lightningresist3:amulet.lightningresist4:amulet.lightningresist4_essence:amulet.lightningresist5:amulet.lightningresist6_essence:amulet.lightningresist7:amulet.lightningresist8:amulet.normal_49:amulet.normal_54": {
@@ -19414,9 +19414,9 @@
         "amulet.normal_54"
       ],
       "regex": {
-        "ru": "сопротивлению молнии"
+        "ru": "сопротивлению мол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 11
     },
     "amulet.allresistances1:amulet.allresistances2:amulet.allresistances3:amulet.allresistances4:amulet.allresistances5:amulet.corruptionallresistances1_corrupted:amulet.normal_62": {
@@ -19453,9 +19453,9 @@
         "amulet.normal_68"
       ],
       "regex": {
-        "ru": "сопротивлению хаосу"
+        "ru": "сопротивлению хао"
       },
-      "weight": 19,
+      "weight": 17,
       "count": 9
     },
     "amulet.increasedlife2_essence:amulet.increasedlife3:amulet.increasedlife4:amulet.increasedlife6:amulet.increasedlife6_essence:amulet.increasedlife7_essence:amulet.normal_69:amulet.normal_70:amulet.normal_73:amulet.normal_75:amulet.normal_76:amulet.normal_77": {
@@ -19474,9 +19474,9 @@
         "amulet.normal_77"
       ],
       "regex": {
-        "ru": "максимуму здоровья"
+        "ru": "максимуму здоро"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 12
     },
     "amulet.maximumlifeincrease1:amulet.maximumlifeincrease2:amulet.maximumlifeincrease3": {
@@ -19516,9 +19516,9 @@
         "amulet.normal_90"
       ],
       "regex": {
-        "ru": "максимуму маны"
+        "ru": "максимуму ман"
       },
-      "weight": 14,
+      "weight": 13,
       "count": 16
     },
     "amulet.maximummanaincrease1:amulet.maximummanaincrease2:amulet.maximummanaincrease3": {
@@ -19528,9 +19528,9 @@
         "amulet.maximummanaincrease3"
       ],
       "regex": {
-        "ru": "максимума маны"
+        "ru": "максимума ман"
       },
-      "weight": 14,
+      "weight": 13,
       "count": 3
     },
     "amulet.increasedenergyshield1:amulet.increasedenergyshield10:amulet.increasedenergyshield2:amulet.increasedenergyshield3:amulet.increasedenergyshield4:amulet.increasedenergyshield5:amulet.increasedenergyshield6:amulet.increasedenergyshield7:amulet.increasedenergyshield8:amulet.normal_105": {
@@ -19547,9 +19547,9 @@
         "amulet.normal_105"
       ],
       "regex": {
-        "ru": "максимуму энергетического щита"
+        "ru": "максимуму энергетического щит"
       },
-      "weight": 30,
+      "weight": 29,
       "count": 10
     },
     "amulet.increasedphysicaldamagereductionratingpercent2:amulet.increasedphysicaldamagereductionratingpercent3:amulet.increasedphysicaldamagereductionratingpercent4:amulet.increasedphysicaldamagereductionratingpercent5:amulet.increasedphysicaldamagereductionratingpercent6:amulet.increasedphysicaldamagereductionratingpercent7:amulet.normal_107": {
@@ -19563,9 +19563,9 @@
         "amulet.normal_107"
       ],
       "regex": {
-        "ru": "повышение брони"
+        "ru": "повышение бро"
       },
-      "weight": 15,
+      "weight": 13,
       "count": 7
     },
     "amulet.increasedevasionratingpercent2:amulet.increasedevasionratingpercent3:amulet.increasedevasionratingpercent4:amulet.normal_114:amulet.normal_118:amulet.normal_119:amulet.normal_120": {
@@ -19600,9 +19600,9 @@
         "amulet.normal_126"
       ],
       "regex": {
-        "ru": "максимума энергетического щита"
+        "ru": "максимума энергетического щит"
       },
-      "weight": 30,
+      "weight": 29,
       "count": 7
     },
     "amulet.globalincreasespellskillgemlevel1_breachborn:amulet.normal_128:amulet.normal_129:amulet.normal_130": {
@@ -19627,9 +19627,9 @@
         "amulet.normal_133"
       ],
       "regex": {
-        "ru": "умений приспешников"
+        "ru": "умений приспешни"
       },
-      "weight": 19,
+      "weight": 16,
       "count": 5
     },
     "amulet.normal_134:amulet.normal_135:amulet.normal_136": {
@@ -19639,9 +19639,9 @@
         "amulet.normal_136"
       ],
       "regex": {
-        "ru": "ближнего боя"
+        "ru": "боя"
       },
-      "weight": 12,
+      "weight": 3,
       "count": 3
     },
     "amulet.normal_137:amulet.normal_138:amulet.normal_139": {
@@ -19651,9 +19651,9 @@
         "amulet.normal_139"
       ],
       "regex": {
-        "ru": "снарядов"
+        "ru": "снаряд"
       },
-      "weight": 8,
+      "weight": 6,
       "count": 3
     },
     "amulet.liferegeneration1:amulet.liferegeneration10:amulet.liferegeneration3:amulet.liferegeneration4:amulet.liferegeneration5:amulet.liferegeneration6:amulet.liferegeneration8:amulet.liferegeneration9:amulet.normal_141:amulet.normal_146": {
@@ -19670,9 +19670,9 @@
         "amulet.normal_146"
       ],
       "regex": {
-        "ru": "здоровья в секунду"
+        "ru": "здоровья в секу"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 10
     },
     "amulet.manaregeneration1:amulet.manaregeneration2:amulet.manaregeneration3:amulet.manaregeneration4:amulet.manaregeneration5:amulet.manaregeneration6": {
@@ -19685,9 +19685,9 @@
         "amulet.manaregeneration6"
       ],
       "regex": {
-        "ru": "регенерации маны"
+        "ru": "регенерации ман"
       },
-      "weight": 16,
+      "weight": 15,
       "count": 6
     },
     "amulet.increasedaccuracy2:amulet.increasedaccuracy3:amulet.increasedaccuracy4:amulet.increasedaccuracy5:amulet.increasedaccuracy6:amulet.increasedaccuracy7:amulet.increasedaccuracy8:amulet.normal_156": {
@@ -19702,9 +19702,9 @@
         "amulet.normal_156"
       ],
       "regex": {
-        "ru": "меткости"
+        "ru": "метко"
       },
-      "weight": 8,
+      "weight": 5,
       "count": 8
     },
     "amulet.criticalstrikechance1:amulet.criticalstrikechance2:amulet.criticalstrikechance3:amulet.criticalstrikechance4:amulet.criticalstrikechance5:amulet.normal_169": {
@@ -19760,9 +19760,9 @@
         "amulet.normal_178"
       ],
       "regex": {
-        "ru": "предметов"
+        "ru": "предме"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 7
     },
     "amulet.normal_182:amulet.normal_183:amulet.normal_184:amulet.normal_185:amulet.normal_186": {
@@ -19774,9 +19774,9 @@
         "amulet.normal_186"
       ],
       "regex": {
-        "ru": "к духу"
+        "ru": "дух"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 5
     },
     "amulet.damagetakengainedaslife1:amulet.damagetakengainedaslife2:amulet.damagetakengainedaslife3:amulet.damagetakengainedaslife4:amulet.damagetakengainedaslife4_essence:amulet.damagetakengainedaslife5": {
@@ -19789,9 +19789,9 @@
         "amulet.damagetakengainedaslife5"
       ],
       "regex": {
-        "ru": "восполняется в виде здоровья"
+        "ru": "восполняется в виде здоро"
       },
-      "weight": 28,
+      "weight": 25,
       "count": 6
     },
     "amulet.damagetakengainedasmana1:amulet.damagetakengainedasmana2:amulet.damagetakengainedasmana3:amulet.damagetakengainedasmana4:amulet.damagetakengainedasmana5": {
@@ -19803,9 +19803,9 @@
         "amulet.damagetakengainedasmana5"
       ],
       "regex": {
-        "ru": "восполняется в виде маны"
+        "ru": "восполняется в виде ман"
       },
-      "weight": 24,
+      "weight": 23,
       "count": 5
     },
     "amulet.normal_202:amulet.spelldamage1:amulet.spelldamage2:amulet.spelldamage3:amulet.spelldamage4:amulet.spelldamage5:amulet.spelldamagering1_breachborn:amulet.spelldamagering2_breachborn:amulet.spelldamagering3_breachborn:amulet.spelldamagering4_breachborn:amulet.spelldamagering5_breachborn:amulet.spelldamagering6_breachborn:amulet.spelldamagering7_breachborn:amulet.spelldamagering8_breachborn": {
@@ -19857,9 +19857,9 @@
         "amulet.essenceglobaldefences1_essence"
       ],
       "regex": {
-        "ru": "и энергетического щита"
+        "ru": "и энергетического щит"
       },
-      "weight": 22,
+      "weight": 21,
       "count": 2
     },
     "amulet.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated:amulet.remnantpickupradiusincrease1_breachborn:amulet.remnantpickupradiusincrease2_breachborn:amulet.remnantpickupradiusincrease3_breachborn:amulet.remnantpickupradiusincrease4_breachborn:amulet.remnantpickupradiusincrease5_breachborn": {
@@ -19872,9 +19872,9 @@
         "amulet.remnantpickupradiusincrease5_breachborn"
       ],
       "regex": {
-        "ru": "расстояния"
+        "ru": "расстоя"
       },
-      "weight": 10,
+      "weight": 7,
       "count": 6
     },
     "amulet.abyssmodamuletkurgalsuffixdamagefrommanabeforelife_desecrated:amulet.damageremovedfrommanabeforelife1_breachborn:amulet.damageremovedfrommanabeforelife2_breachborn:amulet.damageremovedfrommanabeforelife3_breachborn:amulet.damageremovedfrommanabeforelife4_breachborn": {
@@ -19886,9 +19886,9 @@
         "amulet.damageremovedfrommanabeforelife4_breachborn"
       ],
       "regex": {
-        "ru": "вместо здоровья"
+        "ru": "вместо здоро"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 5
     },
     "amulet.miniondamage1_breachborn:amulet.miniondamage2_breachborn:amulet.miniondamage3_breachborn:amulet.miniondamage4_breachborn:amulet.miniondamage5_breachborn:amulet.miniondamage6_breachborn:amulet.miniondamage7_breachborn:amulet.miniondamage8_breachborn": {
@@ -19924,9 +19924,9 @@
         "amulet.minionmovementspeed4_breachborn"
       ],
       "regex": {
-        "ru": "передвижения"
+        "ru": "передвиже"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 4
     },
     "amulet.minionelementalresistance1_breachborn:amulet.minionelementalresistance2_breachborn:amulet.minionelementalresistance3_breachborn:amulet.minionelementalresistance4_breachborn:amulet.minionelementalresistance5_breachborn:amulet.minionelementalresistance6_breachborn": {
@@ -19993,9 +19993,9 @@
         "amulet.minioncriticalstrikemultiplierring6_breachborn"
       ],
       "regex": {
-        "ru": "урону приспешников"
+        "ru": "урону приспешни"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 6
     },
     "amulet.minionlifering1_breachborn:amulet.minionlifering2_breachborn:amulet.minionlifering3_breachborn:amulet.minionlifering4_breachborn:amulet.minionlifering5_breachborn:amulet.minionlifering6_breachborn": {
@@ -20024,9 +20024,9 @@
         "amulet.minionrevivespeed4_breachborn"
       ],
       "regex": {
-        "ru": "быстрее"
+        "ru": "быст"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 4
     },
     "amulet.minioncommandskilldamage1_breachborn:amulet.minioncommandskilldamage2_breachborn:amulet.minioncommandskilldamage3_breachborn:amulet.minioncommandskilldamage4_breachborn:amulet.minioncommandskilldamage5_breachborn:amulet.minioncommandskilldamage6_breachborn": {
@@ -20039,9 +20039,9 @@
         "amulet.minioncommandskilldamage6_breachborn"
       ],
       "regex": {
-        "ru": "умениями-приказами"
+        "ru": "умениями-приказ"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 6
     },
     "amulet.minionimmobilisationbuildup1_breachborn:amulet.minionimmobilisationbuildup2_breachborn:amulet.minionimmobilisationbuildup3_breachborn:amulet.minionimmobilisationbuildup4_breachborn:amulet.minionimmobilisationbuildup5_breachborn:amulet.minionimmobilisationbuildup6_breachborn": {
@@ -20054,9 +20054,9 @@
         "amulet.minionimmobilisationbuildup6_breachborn"
       ],
       "regex": {
-        "ru": "buildup"
+        "ru": "buil"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 6
     },
     "amulet.offeringduration1_breachborn:amulet.offeringduration2_breachborn:amulet.offeringduration3_breachborn:amulet.offeringduration4_breachborn:amulet.offeringduration5_breachborn": {
@@ -20068,9 +20068,9 @@
         "amulet.offeringduration5_breachborn"
       ],
       "regex": {
-        "ru": "подношений"
+        "ru": "подноше"
       },
-      "weight": 10,
+      "weight": 7,
       "count": 5
     },
     "amulet.minionareaofeffect1_breachborn:amulet.minionareaofeffect2_breachborn:amulet.minionareaofeffect3_breachborn:amulet.minionareaofeffect4_breachborn:amulet.minionareaofeffect5_breachborn": {
@@ -20102,9 +20102,9 @@
         "amulet.spellcostefficiency6_breachborn"
       ],
       "regex": {
-        "ru": "чарами"
+        "ru": "чара"
       },
-      "weight": 6,
+      "weight": 4,
       "count": 6
     },
     "amulet.arcanesurgeeffect1_breachborn:amulet.arcanesurgeeffect2_breachborn:amulet.arcanesurgeeffect3_breachborn:amulet.arcanesurgeeffect4_breachborn": {
@@ -20115,9 +20115,9 @@
         "amulet.arcanesurgeeffect4_breachborn"
       ],
       "regex": {
-        "ru": "на вас"
+        "ru": "вас"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 4
     },
     "amulet.spellcriticalstrikechancering1_breachborn:amulet.spellcriticalstrikechancering2_breachborn:amulet.spellcriticalstrikechancering3_breachborn:amulet.spellcriticalstrikechancering4_breachborn:amulet.spellcriticalstrikechancering5_breachborn:amulet.spellcriticalstrikechancering6_breachborn": {
@@ -20160,9 +20160,9 @@
         "amulet.spelldamageduringmanaflaskeffect6_breachborn"
       ],
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "Damage during any Flask Eff"
       },
-      "weight": 30,
+      "weight": 27,
       "count": 6
     },
     "amulet.remnantgranteffecttwicechance1_breachborn:amulet.remnantgranteffecttwicechance2_breachborn:amulet.remnantgranteffecttwicechance3_breachborn:amulet.remnantgranteffecttwicechance4_breachborn:amulet.remnantgranteffecttwicechance5_breachborn": {
@@ -20187,9 +20187,9 @@
         "amulet.castspeedduringmanaflaskeffect4_breachborn"
       ],
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "Speed during any Flask Eff"
       },
-      "weight": 29,
+      "weight": 26,
       "count": 4
     },
     "amulet.curseeffectiveness1_breachborn:amulet.curseeffectiveness2_breachborn:amulet.curseeffectiveness3_breachborn:amulet.curseeffectiveness4_breachborn": {
@@ -20200,9 +20200,9 @@
         "amulet.curseeffectiveness4_breachborn"
       ],
       "regex": {
-        "ru": "проклятий"
+        "ru": "прокля"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 4
     },
     "amulet.spellareaofeffectpercent1_breachborn:amulet.spellareaofeffectpercent2_breachborn:amulet.spellareaofeffectpercent3_breachborn": {
@@ -20255,9 +20255,9 @@
         "amulet.essenceabysssuffix_essence"
       ],
       "regex": {
-        "ru": "знак повелителя бездны"
+        "ru": "без"
       },
-      "weight": 22,
+      "weight": 3,
       "count": 2
     },
     "amulet.essencepercentdexterity1_essence:amulet.essencepercentintelligence1_essence:amulet.essencepercentstrength1_essence": {

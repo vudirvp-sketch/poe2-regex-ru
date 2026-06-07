@@ -349,7 +349,7 @@ function findShortestUniqueSuffix(
  * parser truncates at `)` — e.g. "—6) к с" becomes "—6" which still matches
  * the rawText, giving a false-positive validation pass.
  */
-function containsPoE2Grouping(candidate: string): boolean {
+export function containsPoE2Grouping(candidate: string): boolean {
   return candidate.includes('(') || candidate.includes(')');
 }
 
@@ -744,7 +744,7 @@ function tryWordTruncation(
  *
  * @returns Array of truncated suffix strings, ordered from longest to shortest
  */
-function generateTruncatedSuffixes(suffix: string, minLen: number): string[] {
+export function generateTruncatedSuffixes(suffix: string, minLen: number): string[] {
   const results: string[] = [];
   const words = suffix.split(/\s+/);
 

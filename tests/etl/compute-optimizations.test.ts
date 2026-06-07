@@ -174,7 +174,7 @@ describe('computeOptimizations', () => {
     });
   });
 
-  describe('Family-based grouping (Phase A) still works', () => {
+  describe('Family-based grouping (Phase A + A1 truncation)', () => {
     it('creates optimization for tokens in the same family', () => {
       const tokens: NormalizedMod[] = [
         makeMod({ id: 'test.fire1', rawText: { ru: '+(5-10)% к сопротивлению огню' } }),
@@ -193,7 +193,44 @@ describe('computeOptimizations', () => {
       const familyEntry = entries.find(e => e.count === 3);
       expect(familyEntry).toBeDefined();
       if (familyEntry) {
-        expect(familyEntry.regex.ru).toBe('к сопротивлению огню');
+        // Phase A1 may truncate the shared regex — must be shorter or equal to original
+        expect(familyEntry.regex.ru.length).toBeLessThanOrEqual('к сопротивлению огню'.length);
+        // Must be a leading substring match of the family's rawText tokens
+        const regexLower = familyEntry.regex.ru.toLowerCase();
+        const allMatch = tokens.every(t =>
+          t.rawText.ru.toLowerCase().includes(regexLower)
+        );
+        expect(allMatch).toBe(true);
+      }
+    });
+
+    it('Phase A1 does not truncate when it would cause cross-family FP', () => {
+      // Two families sharing a common suffix word
+      const tokens: NormalizedMod[] = [
+        makeMod({ id: 'test.fire1', rawText: { ru: '+(5-10)% к сопротивлению огню' } }),
+        makeMod({ id: 'test.fire2', rawText: { ru: '+(11-15)% к сопротивлению огню' } }),
+        makeMod({ id: 'test.cold1', rawText: { ru: '+(5-10)% к сопротивлению холоду' } }),
+      ];
+
+      const regexResults = new Map<string, RegexResult>();
+      regexResults.set('test.fire1', makeRegexResult({ regex: 'к сопротивлению огню', familyKey: '+#% к сопротивлению огню' }));
+      regexResults.set('test.fire2', makeRegexResult({ regex: 'к сопротивлению огню', familyKey: '+#% к сопротивлению огню' }));
+      regexResults.set('test.cold1', makeRegexResult({ regex: 'к сопротивлению холоду', familyKey: '+#% к сопротивлению холоду' }));
+
+      const result = computeOptimizations(tokens, regexResults, 'ru');
+
+      const entries = Object.values(result);
+      const fireEntry = entries.find(e => e.ids.includes('test.fire1'));
+      expect(fireEntry).toBeDefined();
+      if (fireEntry) {
+        // "огн" would match "огню" in fire family but NOT in cold family
+        // However "сопрот" could match both, so truncation must respect uniqueness
+        const regexLower = fireEntry.regex.ru.toLowerCase();
+        // Must NOT match any cold family rawText
+        const matchesCold = tokens
+          .filter(t => !fireEntry!.ids.includes(t.id))
+          .some(t => t.rawText.ru.toLowerCase().includes(regexLower));
+        expect(matchesCold).toBe(false);
       }
     });
   });

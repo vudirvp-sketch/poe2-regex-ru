@@ -938,7 +938,7 @@ function repairCrossFamilyFP(): void {
 
         // Try known conflict markers
         for (const marker of CONFLICT_MARKERS) {
-          if (newExcludes.length >= 8) break;
+          if (newExcludes.length >= 10) break;
           if (newExcludes.includes(marker)) continue;
 
           let coversAny = false;
@@ -970,7 +970,7 @@ function repairCrossFamilyFP(): void {
 
         // Try first word after suffix in uncovered conflicts
         for (let i = 0; i < conflicts.length; i++) {
-          if (newExcludes.length >= 8) break;
+          if (newExcludes.length >= 10) break;
           if (coveredByCurrent.has(i)) continue;
 
           const confRaw = conflicts[i].rawText.toLowerCase();

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:31:02.566Z",
+  "version": "2026-06-07T14:43:49.230Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -734,9 +734,9 @@
         "waystone-desecrated.mod_dceifh"
       ],
       "regex": {
-        "ru": "количества редких монстров"
+        "ru": "количества редких монст"
       },
-      "weight": 26,
+      "weight": 23,
       "count": 2
     },
     "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_cmq708:waystone-desecrated.mod_dceifh:waystone-desecrated.mod_jdkriz": {

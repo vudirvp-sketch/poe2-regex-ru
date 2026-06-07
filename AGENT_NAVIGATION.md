@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 52.0 | **Date:** 2026-06-07
+> **Version:** 53.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 479 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 480 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -28,8 +28,8 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (479 tests, Vitest)
-pnpm etl             # Run ETL pipeline (requires network)
+npx vitest run --root . # Run tests (480 tests, Vitest)
+pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
 pnpm analyze-fn      # Analyze FN/FP per category
@@ -50,7 +50,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (479 tests)
+- [ ] `npx vitest run --root .` passes (480 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -73,18 +73,16 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 
-1. **3 cross-family FP remaining** — jewel.mod_am4lla (should be fixed by exclude limit 5→8 on ETL re-run), tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys).
+1. **2 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys). jewel.mod_am4lla FP eliminated (Session 53, exclude limit raised to 10).
 2. **`|` inside `()` with correct quote syntax** — Group M tests added to IN_GAME_TESTS.md. Need in-game verification.
 3. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — Group M tests added. Need in-game verification.
 4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
-5. **HomePage hardcoded mod counts** — Category cards show stale counts.
 
 ### LOW
 
-6. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
-7. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
-8. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit after ETL re-run.
-9. **Truncated forms in optimization entries** — compute-optimizations.ts Phase A could use word truncation for shorter shared regexes.
+5. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
+6. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
+7. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
 
 ## 7. Regex Strategy Pipeline (Phase 8)
 
@@ -100,9 +98,20 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | **1f** | **AND-composed Context** | **regexPrefixContext + regex** | **`"имеют" "увеличение урона"` (−23 FP)** |
 | 2 | Substring fallback | Brute-force unique substring search | `"огню"` |
 
-Strategy 1e is new in Phase 8. It produces dramatically shorter regexes by combining word truncation with short negate markers.
+## 8. Optimization Pipeline (Phases A-B-C + A1)
 
-## 8. Oracle API (Phase 8)
+`computeOptimizations()` in `scripts/etl/compute-optimizations.ts`:
+
+| Phase | Name | Description |
+|-------|------|-------------|
+| **A** | Family-based grouping | Tokens sharing a familyKey get one shared regex |
+| **A1** | Word truncation (Session 53) | Try Strategy 1e truncation on Phase A shared regexes — saves ~541 chars across categories |
+| **B** | DP factorization | Cross-family groups factorized via `batchDPFactorize()` |
+| **C** | Dialect optimization | `[её]`, `[юя]`, `ь?` applied to all regexes |
+
+Phase A1 only truncates entries WITHOUT context/excludes (pure, no FP). Truncated forms are validated: must match all family tokens via PoE2 engine AND be unique within the category.
+
+## 9. Oracle API
 
 Two validation modes in `src/core/regex-oracle.ts`:
 
@@ -118,67 +127,40 @@ FP categorization (all functions):
 - `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
 - `valid = true` when NO cross-family FP and no FN
 
-## 9. regexExclude & regexPrefixContext System (Phase 8-9)
+## 10. regexExclude & regexPrefixContext System
 
 Two mechanisms for cross-family FP prevention:
 
-### regexExclude (Phase 8)
+### regexExclude
 Field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
 
 **Priority order for exclude patterns (verified in-game Phase 8):**
+1. **Minion marker:** `"Приспеш"` — covers all minion variants
+2. **Compound separator:** `" и"` — covers compound-family overlaps
+3. **Short universal markers:** single word in ALL conflicts but NOT in target
+4. **Specific full-phrase patterns:** fallback, longest
 
-1. **Minion marker:** `"Приспеш"` — if ALL conflicts are minion variants, one short marker replaces all specific excludes
-2. **Compound separator:** `" и"` — if ALL conflicts are compound-family (suffix + separator + extension), the separator alone excludes all
-3. **Short universal markers:** single word appearing in ALL conflicts but NOT in target family (e.g., `"ловк"` for dexterity compounds)
-4. **Specific full-phrase patterns:** fallback, e.g., `"к силе и"` (least preferred, longest)
+**In optimizer:** `buildOptimizedNode()` creates `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`.
 
-**How it works in UI:**
-- Non-ranged tokens: `useCategoryPage.ts` wraps `LITERAL` with `EXCLUDE` nodes from `regexExclude`
-- Ranged tokens with min/max: RANGE node wrapped in `AND(RANGE, EXCLUDE...)` — Phase 8 fix
-- Ranged tokens without min/max: same as non-ranged tokens
+### regexPrefixContext
 
-**In optimizer:**
-- When `OptimizationEntry.regexExclude` is set, `buildOptimizedNode()` creates `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))` — single combined OR-negate group.
-
-### regexPrefixContext (Phase 9)
-
-When regex + regexExclude cannot eliminate all FP because the suffix appears in both target and conflict families, `regexPrefixContext` provides a short substring that appears ONLY in the target family's rawText.
-
-**How it works:**
-- ETL `repairCrossFamilyFP()` Step 3 computes it after excludes are exhausted
-- Finds shortest word from the template prefix that appears in ALL target-family tokens but NOT in any conflict
-- UI compiles: `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`
-- Both must appear on the item (AND across blocks), eliminating FP
-
-**In optimizer (Session 52):**
-- When `OptimizationEntry.regexPrefixContext` is set, `buildOptimizedNode()` creates `AND(LITERAL(context), LITERAL(regex))` instead of plain `LITERAL(regex)`
-- The optimizer also finds AND-wrapped LITERALs inside OR groups (e.g., tokens already wrapped with per-token context/excludes by `buildAstFromSelections`)
+When regex + regexExclude cannot eliminate all FP, `regexPrefixContext` provides a short substring appearing ONLY in the target family's rawText. UI compiles: `AND(LITERAL(context), LITERAL(regex))`.
 
 **When context is used vs excludes:**
-- Excludes preferred when: a short marker can cover all conflicts (e.g., `"! и"` for compound families)
-- Context preferred when: suffix appears in both target AND conflicts, no short exclude exists
-- Can combine both: `"context" "suffix" "!exclude"` — context narrows scope, excludes handle remaining
+- Excludes preferred when: a short marker covers all conflicts
+- Context preferred when: suffix appears in both target AND conflicts
+- Can combine both: `"context" "suffix" "!exclude"`
 
-## 10. Optimization Table with Context (Phase 10 / Session 51-52)
+## 11. Optimization Table with Context
 
 `OptimizationEntry` includes optional `regexPrefixContext` and `regexExclude` fields. These are populated by `patchOptimizationEntries()` (ETL step 7c), which runs after `repairCrossFamilyFP()`.
 
 **Data flow:**
-1. Step 4: `computeOptimizations()` creates entries (regexPrefixContext/regexExclude are empty at this point)
+1. Step 4: `computeOptimizations()` creates entries (Phase A → A1 truncation → B → C)
 2. Step 7b: `repairCrossFamilyFP()` adds regexPrefixContext/regexExclude to tokens
 3. Step 7c: `patchOptimizationEntries()` copies shared context/excludes from tokens to optimization entries
 
-**Runtime optimizer (Session 52):**
-- `applyOptimizationTable()` now uses `regexPrefixContext` and `regexExclude` from `OptimizationEntry`
-- `buildOptimizedNode()` creates proper AST structure:
-  - No context/excludes: `LITERAL(regex)`
-  - With context: `AND(LITERAL(context), LITERAL(regex))`
-  - With excludes: `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`
-  - With both: `AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(...excludes)))`
-- `findLiteralsInOr()` also discovers AND-wrapped LITERALs (tokens with per-token context/excludes from `buildAstFromSelections`)
-- Dedup phase (Phase 1) handles AND-wrapped nodes with same `getValueKey` — collapses them and preserves tokenIds
-
 **Rules for patching:**
-- If ALL tokens in an optimization entry share the same `regexPrefixContext` → added to entry
+- If ALL tokens share the same `regexPrefixContext` → added to entry
 - If ALL tokens share the same `regexExclude` patterns → added to entry
-- Mixed context/excludes → entry is left without them (not optimizable by runtime)
+- Mixed → entry left without them (not optimizable by runtime)

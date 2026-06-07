@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:31:06.372Z",
+  "version": "2026-06-07T14:43:52.681Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -16715,9 +16715,9 @@
         "ring.normal_23"
       ],
       "regex": {
-        "ru": "к интеллекту"
+        "ru": "к интелле"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 9
     },
     "ring.allattributes1:ring.allattributes2:ring.allattributes3:ring.normal_27": {
@@ -16728,9 +16728,9 @@
         "ring.normal_27"
       ],
       "regex": {
-        "ru": "характеристикам"
+        "ru": "характеристи"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 4
     },
     "ring.fireresist2_essence:ring.fireresist3:ring.fireresist4:ring.fireresist4_essence:ring.fireresist5:ring.fireresist6_essence:ring.fireresist7:ring.normal_28:ring.normal_29:ring.normal_33:ring.normal_35": {
@@ -16748,9 +16748,9 @@
         "ring.normal_35"
       ],
       "regex": {
-        "ru": "сопротивлению огню"
+        "ru": "сопротивлению огн"
       },
-      "weight": 18,
+      "weight": 17,
       "count": 11
     },
     "ring.coldresist2:ring.coldresist2_essence:ring.coldresist3:ring.coldresist4:ring.coldresist4_essence:ring.coldresist5:ring.coldresist6_essence:ring.normal_36:ring.normal_41:ring.normal_42:ring.normal_43": {
@@ -16768,9 +16768,9 @@
         "ring.normal_43"
       ],
       "regex": {
-        "ru": "сопротивлению холоду"
+        "ru": "сопротивлению хол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 11
     },
     "ring.lightningresist2:ring.lightningresist2_essence:ring.lightningresist3:ring.lightningresist4:ring.lightningresist4_essence:ring.lightningresist5:ring.lightningresist6_essence:ring.lightningresist7:ring.lightningresist8:ring.normal_44:ring.normal_49": {
@@ -16788,9 +16788,9 @@
         "ring.normal_49"
       ],
       "regex": {
-        "ru": "сопротивлению молнии"
+        "ru": "сопротивлению мол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 11
     },
     "ring.allresistances1:ring.allresistances2:ring.allresistances3:ring.allresistances4:ring.allresistances5:ring.corruptionallresistances1_corrupted": {
@@ -16827,9 +16827,9 @@
         "ring.normal_62"
       ],
       "regex": {
-        "ru": "сопротивлению хаосу"
+        "ru": "сопротивлению хао"
       },
-      "weight": 19,
+      "weight": 17,
       "count": 10
     },
     "ring.increasedlife2_essence:ring.increasedlife3:ring.increasedlife4:ring.increasedlife6:ring.increasedlife6_essence:ring.normal_63:ring.normal_64:ring.normal_67:ring.normal_69:ring.normal_70": {
@@ -16846,9 +16846,9 @@
         "ring.normal_70"
       ],
       "regex": {
-        "ru": "максимуму здоровья"
+        "ru": "максимуму здоро"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 10
     },
     "ring.corruptionincreasedmana1_corrupted:ring.increasedmana1:ring.increasedmana11:ring.increasedmana12:ring.increasedmana2:ring.increasedmana3:ring.increasedmana3_essence:ring.increasedmana4:ring.increasedmana5:ring.increasedmana6:ring.increasedmana7:ring.increasedmana7_essence:ring.increasedmana8_essence:ring.normal_78:ring.normal_79:ring.normal_80": {
@@ -16871,9 +16871,9 @@
         "ring.normal_80"
       ],
       "regex": {
-        "ru": "максимуму маны"
+        "ru": "максимуму ман"
       },
-      "weight": 14,
+      "weight": 13,
       "count": 16
     },
     "ring.increasedevasionrating1:ring.increasedevasionrating2:ring.increasedevasionrating4:ring.increasedevasionrating5:ring.increasedevasionrating6:ring.increasedevasionrating7:ring.increasedevasionrating8:ring.normal_85:ring.normal_91": {
@@ -16889,9 +16889,9 @@
         "ring.normal_91"
       ],
       "regex": {
-        "ru": "уклонению"
+        "ru": "уклоне"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 9
     },
     "ring.addedphysicaldamage4:ring.addedphysicaldamage8:ring.normal_100:ring.normal_92:ring.normal_93:ring.normal_94:ring.normal_96:ring.normal_97:ring.normal_98": {
@@ -16907,9 +16907,9 @@
         "ring.normal_98"
       ],
       "regex": {
-        "ru": "урона к атакам"
+        "ru": "урона к ата"
       },
-      "weight": 14,
+      "weight": 11,
       "count": 9
     },
     "ring.addedfiredamage1:ring.addedfiredamage2:ring.addedfiredamage3:ring.addedfiredamage4:ring.addedfiredamage5:ring.addedfiredamage6:ring.addedfiredamage7:ring.normal_108:ring.normal_109": {
@@ -16925,9 +16925,9 @@
         "ring.normal_109"
       ],
       "regex": {
-        "ru": "огня к атакам"
+        "ru": "огня к ата"
       },
-      "weight": 13,
+      "weight": 10,
       "count": 9
     },
     "ring.addedcolddamage3:ring.addedcolddamage4:ring.addedcolddamage5:ring.addedcolddamage6:ring.normal_110:ring.normal_111:ring.normal_116:ring.normal_117:ring.normal_118": {
@@ -16943,9 +16943,9 @@
         "ring.normal_118"
       ],
       "regex": {
-        "ru": "холода к атакам"
+        "ru": "холода к ата"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 9
     },
     "ring.addedlightningdamage2:ring.addedlightningdamage3:ring.addedlightningdamage4:ring.addedlightningdamage5:ring.addedlightningdamage6:ring.normal_119:ring.normal_125:ring.normal_126:ring.normal_127": {
@@ -16961,9 +16961,9 @@
         "ring.normal_127"
       ],
       "regex": {
-        "ru": "молнии к атакам"
+        "ru": "молнии к ата"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 9
     },
     "ring.liferegeneration1:ring.liferegeneration3:ring.liferegeneration4:ring.liferegeneration5:ring.liferegeneration6:ring.normal_129:ring.normal_134": {
@@ -16977,9 +16977,9 @@
         "ring.normal_134"
       ],
       "regex": {
-        "ru": "секунду"
+        "ru": "секу"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 7
     },
     "ring.corruptionmanaregeneration1_corrupted:ring.lightradiusandmanaregeneration1:ring.lightradiusandmanaregeneration2:ring.lightradiusandmanaregeneration3:ring.manaregeneration1:ring.manaregeneration2:ring.manaregeneration3:ring.manaregeneration4:ring.manaregeneration5:ring.manaregeneration5_essence:ring.manaregeneration6": {
@@ -16997,9 +16997,9 @@
         "ring.manaregeneration6"
       ],
       "regex": {
-        "ru": "регенерации маны"
+        "ru": "регенерации ман"
       },
-      "weight": 16,
+      "weight": 15,
       "count": 11
     },
     "ring.lifeleech2:ring.lifeleech3": {
@@ -17008,9 +17008,9 @@
         "ring.lifeleech3"
       ],
       "regex": {
-        "ru": "виде здоровья"
+        "ru": "виде здоро"
       },
-      "weight": 13,
+      "weight": 10,
       "count": 2
     },
     "ring.manaleech2:ring.manaleech3": {
@@ -17019,9 +17019,9 @@
         "ring.manaleech3"
       ],
       "regex": {
-        "ru": "виде маны"
+        "ru": "виде ман"
       },
-      "weight": 9,
+      "weight": 8,
       "count": 2
     },
     "ring.lifegainedfromenemydeath1:ring.lifegainedfromenemydeath2:ring.lifegainedfromenemydeath3:ring.lifegainedfromenemydeath4:ring.lifegainedfromenemydeath5:ring.normal_150": {
@@ -17034,9 +17034,9 @@
         "ring.normal_150"
       ],
       "regex": {
-        "ru": "здоровья за каждого убитого врага"
+        "ru": "здоровья за каждого убитого вра"
       },
-      "weight": 33,
+      "weight": 31,
       "count": 6
     },
     "ring.managainedfromenemydeath1:ring.managainedfromenemydeath2:ring.managainedfromenemydeath3:ring.managainedfromenemydeath4:ring.managainedfromenemydeath5:ring.managainedfromenemydeath6": {
@@ -17049,9 +17049,9 @@
         "ring.managainedfromenemydeath6"
       ],
       "regex": {
-        "ru": "маны за каждого убитого врага"
+        "ru": "маны за каждого убитого вра"
       },
-      "weight": 29,
+      "weight": 27,
       "count": 6
     },
     "ring.increasedaccuracy2:ring.increasedaccuracy3:ring.increasedaccuracy4:ring.increasedaccuracy5:ring.increasedaccuracy6:ring.increasedaccuracy7:ring.increasedaccuracy8:ring.normal_157": {
@@ -17066,9 +17066,9 @@
         "ring.normal_157"
       ],
       "regex": {
-        "ru": "меткости"
+        "ru": "метко"
       },
-      "weight": 8,
+      "weight": 5,
       "count": 8
     },
     "ring.corruptionitemfoundrarityincrease1_corrupted:ring.itemfoundrarityincreaseprefix1:ring.itemfoundrarityincreaseprefix2:ring.itemfoundrarityincreaseprefix3:ring.normal_165:ring.normal_166:ring.normal_167": {
@@ -17082,9 +17082,9 @@
         "ring.normal_167"
       ],
       "regex": {
-        "ru": "предметов"
+        "ru": "предме"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 7
     },
     "ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6": {
@@ -17097,9 +17097,9 @@
         "ring.firedamagepercent6"
       ],
       "regex": {
-        "ru": "увеличение урона от огня"
+        "ru": "увеличение урона от огн"
       },
-      "weight": 24,
+      "weight": 23,
       "count": 6
     },
     "ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.normal_183:ring.normal_184": {
@@ -17112,9 +17112,9 @@
         "ring.normal_184"
       ],
       "regex": {
-        "ru": "увеличение урона от холода"
+        "ru": "увеличение урона от хол"
       },
-      "weight": 26,
+      "weight": 23,
       "count": 6
     },
     "ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.normal_190": {
@@ -17127,9 +17127,9 @@
         "ring.normal_190"
       ],
       "regex": {
-        "ru": "увеличение урона от молнии"
+        "ru": "увеличение урона от мол"
       },
-      "weight": 26,
+      "weight": 23,
       "count": 6
     },
     "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.normal_195:ring.normal_197": {
@@ -17142,9 +17142,9 @@
         "ring.normal_197"
       ],
       "regex": {
-        "ru": "увеличение урона хаосом"
+        "ru": "увеличение урона хао"
       },
-      "weight": 23,
+      "weight": 20,
       "count": 6
     },
     "ring.castspeedjewellery3:ring.castspeedjewellery4:ring.normal_198:ring.normal_199:ring.normal_202": {
@@ -17187,9 +17187,9 @@
         "ring.remnantpickupradiusincrease5_breachborn"
       ],
       "regex": {
-        "ru": "расстояния"
+        "ru": "расстоя"
       },
-      "weight": 10,
+      "weight": 7,
       "count": 6
     },
     "ring.abyssmodringamuletkurgalsuffixexposureeffect_desecrated:ring.genesistreeringexposureeffect_breachborn": {
@@ -17198,9 +17198,9 @@
         "ring.genesistreeringexposureeffect_breachborn"
       ],
       "regex": {
-        "ru": "восприимчивости"
+        "ru": "восприимчиво"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 2
     },
     "ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn": {
@@ -17289,9 +17289,9 @@
         "ring.minioncriticalstrikemultiplierring6_breachborn"
       ],
       "regex": {
-        "ru": "урону приспешников"
+        "ru": "урону приспешни"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 6
     },
     "ring.minionlifering1_breachborn:ring.minionlifering2_breachborn:ring.minionlifering3_breachborn:ring.minionlifering4_breachborn:ring.minionlifering5_breachborn:ring.minionlifering6_breachborn": {
@@ -17304,9 +17304,9 @@
         "ring.minionlifering6_breachborn"
       ],
       "regex": {
-        "ru": "максимума здоровья"
+        "ru": "максимума здоро"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 6
     },
     "ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {
@@ -17341,9 +17341,9 @@
         "ring.spellcostefficiency6_breachborn"
       ],
       "regex": {
-        "ru": "маны чарами"
+        "ru": "маны чар"
       },
-      "weight": 11,
+      "weight": 8,
       "count": 6
     },
     "ring.arcanesurgeeffect1_breachborn:ring.arcanesurgeeffect2_breachborn:ring.arcanesurgeeffect3_breachborn:ring.arcanesurgeeffect4_breachborn": {
@@ -17354,9 +17354,9 @@
         "ring.arcanesurgeeffect4_breachborn"
       ],
       "regex": {
-        "ru": "на вас"
+        "ru": "вас"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 4
     },
     "ring.spellcriticalstrikechancering1_breachborn:ring.spellcriticalstrikechancering2_breachborn:ring.spellcriticalstrikechancering3_breachborn:ring.spellcriticalstrikechancering4_breachborn:ring.spellcriticalstrikechancering5_breachborn:ring.spellcriticalstrikechancering6_breachborn": {
@@ -17397,9 +17397,9 @@
         "ring.curseeffectiveness4_breachborn"
       ],
       "regex": {
-        "ru": "проклятий"
+        "ru": "прокля"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 4
     },
     "ring.spellareaofeffectpercent1_breachborn:ring.spellareaofeffectpercent2_breachborn:ring.spellareaofeffectpercent3_breachborn": {
@@ -17427,9 +17427,9 @@
         "ring.strength6_essence"
       ],
       "regex": {
-        "ru": "или интеллекту"
+        "ru": "или интелле"
       },
-      "weight": 14,
+      "weight": 11,
       "count": 9
     },
     "ring.essenceabyssprefix_essence:ring.essenceabysssuffix_essence": {
@@ -17438,9 +17438,9 @@
         "ring.essenceabysssuffix_essence"
       ],
       "regex": {
-        "ru": "знак повелителя бездны"
+        "ru": "без"
       },
-      "weight": 22,
+      "weight": 3,
       "count": 2
     },
     "ring.chaosdamagepercent1:ring.chaosdamagepercent2:ring.chaosdamagepercent3:ring.chaosdamagepercent5:ring.colddamagepercent1:ring.colddamagepercent2:ring.colddamagepercent3:ring.colddamagepercent6:ring.corruptionalldamage1_corrupted:ring.corruptioncriticalstrikemultiplier1_corrupted:ring.firedamagepercent1:ring.firedamagepercent2:ring.firedamagepercent3:ring.firedamagepercent4:ring.firedamagepercent5:ring.firedamagepercent6:ring.lightningdamagepercent1:ring.lightningdamagepercent2:ring.lightningdamagepercent3:ring.lightningdamagepercent4:ring.lightningdamagepercent6:ring.miniondamage1_breachborn:ring.miniondamage2_breachborn:ring.miniondamage3_breachborn:ring.miniondamage4_breachborn:ring.miniondamage5_breachborn:ring.miniondamage6_breachborn:ring.miniondamage7_breachborn:ring.miniondamage8_breachborn:ring.normal_183:ring.normal_184:ring.normal_190:ring.normal_195:ring.normal_197:ring.spelldamagering1_breachborn:ring.spelldamagering2_breachborn:ring.spelldamagering3_breachborn:ring.spelldamagering4_breachborn:ring.spelldamagering5_breachborn:ring.spelldamagering6_breachborn:ring.spelldamagering7_breachborn:ring.spelldamagering8_breachborn": {

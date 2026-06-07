@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:31:05.314Z",
+  "version": "2026-06-07T14:43:51.796Z",
   "category": "belt",
   "source": "poe2db.tw",
   "tokens": [
@@ -13113,9 +13113,9 @@
         "belt.normal_9"
       ],
       "regex": {
-        "ru": "к сопротивлению огню"
+        "ru": "к сопротивлению огн"
       },
-      "weight": 20,
+      "weight": 19,
       "count": 12
     },
     "belt.coldresist2:belt.coldresist2_essence:belt.coldresist3:belt.coldresist4:belt.coldresist4_essence:belt.coldresist5:belt.coldresist6_essence:belt.corruptioncoldresistance1_corrupted:belt.normal_17:belt.normal_22:belt.normal_23:belt.normal_24": {
@@ -13134,9 +13134,9 @@
         "belt.normal_24"
       ],
       "regex": {
-        "ru": "сопротивлению холоду"
+        "ru": "сопротивлению хол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 12
     },
     "belt.corruptionlightningresistance1_corrupted:belt.lightningresist2:belt.lightningresist2_essence:belt.lightningresist3:belt.lightningresist4:belt.lightningresist4_essence:belt.lightningresist5:belt.lightningresist6_essence:belt.lightningresist7:belt.lightningresist8:belt.normal_25:belt.normal_30": {
@@ -13155,9 +13155,9 @@
         "belt.normal_30"
       ],
       "regex": {
-        "ru": "сопротивлению молнии"
+        "ru": "сопротивлению мол"
       },
-      "weight": 20,
+      "weight": 17,
       "count": 12
     },
     "belt.chaosresist1_essence:belt.chaosresist2:belt.chaosresist2_essence:belt.chaosresist4_essence:belt.chaosresist5:belt.normal_33:belt.normal_35:belt.normal_36:belt.normal_38": {
@@ -13173,9 +13173,9 @@
         "belt.normal_38"
       ],
       "regex": {
-        "ru": "сопротивлению хаосу"
+        "ru": "сопротивлению хао"
       },
-      "weight": 19,
+      "weight": 17,
       "count": 9
     },
     "belt.corruptionincreasedlife1_corrupted:belt.increasedlife10:belt.increasedlife3:belt.increasedlife3_essence:belt.increasedlife4:belt.increasedlife6:belt.increasedlife7_essence:belt.increasedlife8_essence:belt.normal_39:belt.normal_40:belt.normal_43:belt.normal_45:belt.normal_46:belt.normal_47": {
@@ -13196,9 +13196,9 @@
         "belt.normal_47"
       ],
       "regex": {
-        "ru": "максимуму здоровья"
+        "ru": "максимуму здоро"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 14
     },
     "belt.increasedmana1:belt.increasedmana2:belt.increasedmana3:belt.increasedmana3_essence:belt.increasedmana4:belt.increasedmana5:belt.increasedmana6:belt.increasedmana6_essence:belt.increasedmana7:belt.increasedmana7_essence:belt.normal_56:belt.normal_57": {
@@ -13217,9 +13217,9 @@
         "belt.normal_57"
       ],
       "regex": {
-        "ru": "максимуму маны"
+        "ru": "максимуму ман"
       },
-      "weight": 14,
+      "weight": 13,
       "count": 12
     },
     "belt.increasedphysicaldamagereductionrating1:belt.increasedphysicaldamagereductionrating10:belt.increasedphysicaldamagereductionrating2:belt.increasedphysicaldamagereductionrating3:belt.increasedphysicaldamagereductionrating4:belt.increasedphysicaldamagereductionrating5:belt.increasedphysicaldamagereductionrating6:belt.increasedphysicaldamagereductionrating7:belt.increasedphysicaldamagereductionrating8:belt.increasedphysicaldamagereductionrating9": {
@@ -13256,9 +13256,9 @@
         "belt.stunthreshold9"
       ],
       "regex": {
-        "ru": "оглушения"
+        "ru": "оглуше"
       },
-      "weight": 9,
+      "weight": 6,
       "count": 11
     },
     "belt.attackertakesdamage1:belt.attackertakesdamage2:belt.attackertakesdamage3:belt.attackertakesdamage4:belt.attackertakesdamage5:belt.attackertakesdamage6:belt.attackertakesdamage7": {
@@ -13272,9 +13272,9 @@
         "belt.attackertakesdamage7"
       ],
       "regex": {
-        "ru": "урона шипами"
+        "ru": "урона шип"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 7
     },
     "belt.liferegeneration1:belt.liferegeneration3:belt.liferegeneration4:belt.liferegeneration5:belt.liferegeneration6:belt.liferegeneration8:belt.liferegeneration9:belt.normal_86:belt.normal_91": {
@@ -13290,9 +13290,9 @@
         "belt.normal_91"
       ],
       "regex": {
-        "ru": "здоровья в секунду"
+        "ru": "здоровья в секу"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 9
     },
     "belt.beltflaskliferecoveryrate1:belt.beltflaskliferecoveryrate2:belt.beltflaskliferecoveryrate3:belt.beltflaskliferecoveryrate4:belt.beltflaskliferecoveryrate6:belt.normal_98": {
@@ -13305,9 +13305,9 @@
         "belt.normal_98"
       ],
       "regex": {
-        "ru": "здоровья от флакона"
+        "ru": "здоровья от флак"
       },
-      "weight": 19,
+      "weight": 16,
       "count": 6
     },
     "belt.beltflaskmanarecoveryrate1:belt.beltflaskmanarecoveryrate2:belt.beltflaskmanarecoveryrate3:belt.beltflaskmanarecoveryrate4:belt.beltflaskmanarecoveryrate5:belt.beltflaskmanarecoveryrate6": {
@@ -13320,9 +13320,9 @@
         "belt.beltflaskmanarecoveryrate6"
       ],
       "regex": {
-        "ru": "маны от флакона"
+        "ru": "маны от флак"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 6
     },
     "belt.beltincreasedcharmduration1:belt.beltincreasedcharmduration2:belt.beltincreasedcharmduration3:belt.beltincreasedcharmduration4:belt.beltincreasedcharmduration5": {
@@ -13334,9 +13334,9 @@
         "belt.beltincreasedcharmduration5"
       ],
       "regex": {
-        "ru": "эффекта оберега"
+        "ru": "эффекта обер"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 5
     },
     "belt.beltincreasedflaskchargesgained1:belt.beltincreasedflaskchargesgained2:belt.beltincreasedflaskchargesgained3:belt.beltincreasedflaskchargesgained4:belt.beltincreasedflaskchargesgained5:belt.beltincreasedflaskchargesgained6": {
@@ -13349,9 +13349,9 @@
         "belt.beltincreasedflaskchargesgained6"
       ],
       "regex": {
-        "ru": "получаемых зарядов флакона"
+        "ru": "получаемых зарядов флак"
       },
-      "weight": 26,
+      "weight": 23,
       "count": 6
     },
     "belt.beltreducedflaskchargesused1:belt.beltreducedflaskchargesused2:belt.beltreducedflaskchargesused3:belt.beltreducedflaskchargesused4:belt.beltreducedflaskchargesused5:belt.beltreducedflaskchargesused6": {
@@ -13364,9 +13364,9 @@
         "belt.beltreducedflaskchargesused6"
       ],
       "regex": {
-        "ru": "количества зарядов флакона"
+        "ru": "количества зарядов флак"
       },
-      "weight": 26,
+      "weight": 23,
       "count": 6
     },
     "belt.beltincreasedcharmchargesgained1:belt.beltincreasedcharmchargesgained2:belt.beltincreasedcharmchargesgained3:belt.beltincreasedcharmchargesgained4:belt.beltincreasedcharmchargesgained5:belt.beltincreasedcharmchargesgained6": {
@@ -13379,9 +13379,9 @@
         "belt.beltincreasedcharmchargesgained6"
       ],
       "regex": {
-        "ru": "получаемых зарядов оберегов"
+        "ru": "получаемых зарядов обере"
       },
-      "weight": 27,
+      "weight": 24,
       "count": 6
     },
     "belt.beltreducedcharmchargesused1:belt.beltreducedcharmchargesused2:belt.beltreducedcharmchargesused3:belt.beltreducedcharmchargesused4:belt.beltreducedcharmchargesused5:belt.beltreducedcharmchargesused6": {
@@ -13394,9 +13394,9 @@
         "belt.beltreducedcharmchargesused6"
       ],
       "regex": {
-        "ru": "используемых зарядов оберегов"
+        "ru": "используемых зарядов обере"
       },
-      "weight": 29,
+      "weight": 26,
       "count": 6
     },
     "belt.abyssmodbeltkurgalprefixchancetonotconsumeflaskconsumecharges_desecrated:belt.abyssmodbeltulamanprefixchancetonotconsumeflaskconsumecharges_desecrated": {
@@ -13405,9 +13405,9 @@
         "belt.abyssmodbeltulamanprefixchancetonotconsumeflaskconsumecharges_desecrated"
       ],
       "regex": {
-        "ru": "их использовании"
+        "ru": "их использова"
       },
-      "weight": 16,
+      "weight": 13,
       "count": 2
     },
     "belt.abyssmodbeltkurgalsuffixmanaregenerationrate_desecrated:belt.manaregeneration1_breachborn:belt.manaregeneration2_breachborn:belt.manaregeneration3_breachborn:belt.manaregeneration4_breachborn:belt.manaregeneration5_breachborn:belt.manaregeneration6_breachborn": {
@@ -13421,9 +13421,9 @@
         "belt.manaregeneration6_breachborn"
       ],
       "regex": {
-        "ru": "регенерации маны"
+        "ru": "регенерации ман"
       },
-      "weight": 16,
+      "weight": 15,
       "count": 7
     },
     "belt.minionmovementspeed1_breachborn:belt.minionmovementspeed2_breachborn:belt.minionmovementspeed3_breachborn:belt.minionmovementspeed4_breachborn": {
@@ -13434,9 +13434,9 @@
         "belt.minionmovementspeed4_breachborn"
       ],
       "regex": {
-        "ru": "передвижения"
+        "ru": "передвиже"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 4
     },
     "belt.minionlifering1_breachborn:belt.minionlifering2_breachborn:belt.minionlifering3_breachborn:belt.minionlifering4_breachborn:belt.minionlifering5_breachborn:belt.minionlifering6_breachborn": {
@@ -13449,9 +13449,9 @@
         "belt.minionlifering6_breachborn"
       ],
       "regex": {
-        "ru": "увеличение максимума здоровья"
+        "ru": "увеличение максимума здоро"
       },
-      "weight": 29,
+      "weight": 26,
       "count": 6
     },
     "belt.minionrevivespeed1_breachborn:belt.minionrevivespeed2_breachborn:belt.minionrevivespeed3_breachborn:belt.minionrevivespeed4_breachborn": {
@@ -13462,9 +13462,9 @@
         "belt.minionrevivespeed4_breachborn"
       ],
       "regex": {
-        "ru": "быстрее"
+        "ru": "быст"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 4
     },
     "belt.minioncommandskilldamage1_breachborn:belt.minioncommandskilldamage2_breachborn:belt.minioncommandskilldamage3_breachborn:belt.minioncommandskilldamage4_breachborn:belt.minioncommandskilldamage5_breachborn:belt.minioncommandskilldamage6_breachborn": {
@@ -13477,9 +13477,9 @@
         "belt.minioncommandskilldamage6_breachborn"
       ],
       "regex": {
-        "ru": "умениями-приказами"
+        "ru": "умениями-приказ"
       },
-      "weight": 18,
+      "weight": 15,
       "count": 6
     },
     "belt.miniongemlevelbelt1_breachborn:belt.miniongemlevelbelt2_breachborn": {
@@ -13488,9 +13488,9 @@
         "belt.miniongemlevelbelt2_breachborn"
       ],
       "regex": {
-        "ru": "умений приспешников"
+        "ru": "умений приспешни"
       },
-      "weight": 19,
+      "weight": 16,
       "count": 2
     },
     "belt.minionimmobilisationbuildup1_breachborn:belt.minionimmobilisationbuildup2_breachborn:belt.minionimmobilisationbuildup3_breachborn:belt.minionimmobilisationbuildup4_breachborn:belt.minionimmobilisationbuildup5_breachborn:belt.minionimmobilisationbuildup6_breachborn": {
@@ -13503,9 +13503,9 @@
         "belt.minionimmobilisationbuildup6_breachborn"
       ],
       "regex": {
-        "ru": "buildup"
+        "ru": "buil"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 6
     },
     "belt.offeringduration1_breachborn:belt.offeringduration2_breachborn:belt.offeringduration3_breachborn:belt.offeringduration4_breachborn:belt.offeringduration5_breachborn": {
@@ -13517,9 +13517,9 @@
         "belt.offeringduration5_breachborn"
       ],
       "regex": {
-        "ru": "подношений"
+        "ru": "подноше"
       },
-      "weight": 10,
+      "weight": 7,
       "count": 5
     },
     "belt.minionareaofeffect1_breachborn:belt.minionareaofeffect2_breachborn:belt.minionareaofeffect3_breachborn:belt.minionareaofeffect4_breachborn:belt.minionareaofeffect5_breachborn": {
@@ -13531,9 +13531,9 @@
         "belt.minionareaofeffect5_breachborn"
       ],
       "regex": {
-        "ru": "области действия"
+        "ru": "области дейст"
       },
-      "weight": 16,
+      "weight": 13,
       "count": 5
     },
     "belt.breach_caster_8_breachborn:belt.increasedenergyshield10_breachborn:belt.increasedenergyshield1_breachborn:belt.increasedenergyshield2_breachborn:belt.increasedenergyshield3_breachborn:belt.increasedenergyshield4_breachborn:belt.increasedenergyshield5_breachborn:belt.increasedenergyshield6_breachborn:belt.increasedenergyshield7_breachborn:belt.increasedenergyshield8_breachborn": {
@@ -13550,9 +13550,9 @@
         "belt.increasedenergyshield8_breachborn"
       ],
       "regex": {
-        "ru": "максимуму энергетического щита"
+        "ru": "максимуму энергетического щит"
       },
-      "weight": 30,
+      "weight": 29,
       "count": 10
     },
     "belt.spelldamageduringmanaflaskeffect1_breachborn:belt.spelldamageduringmanaflaskeffect2_breachborn:belt.spelldamageduringmanaflaskeffect3_breachborn:belt.spelldamageduringmanaflaskeffect4_breachborn:belt.spelldamageduringmanaflaskeffect5_breachborn:belt.spelldamageduringmanaflaskeffect6_breachborn": {
@@ -13565,9 +13565,9 @@
         "belt.spelldamageduringmanaflaskeffect6_breachborn"
       ],
       "regex": {
-        "ru": "Damage during any Flask Effect"
+        "ru": "Damage during any Flask Eff"
       },
-      "weight": 30,
+      "weight": 27,
       "count": 6
     },
     "belt.damageremovedfrommanabeforelife1_breachborn:belt.damageremovedfrommanabeforelife2_breachborn:belt.damageremovedfrommanabeforelife3_breachborn:belt.damageremovedfrommanabeforelife4_breachborn": {
@@ -13578,9 +13578,9 @@
         "belt.damageremovedfrommanabeforelife4_breachborn"
       ],
       "regex": {
-        "ru": "вместо здоровья"
+        "ru": "вместо здоро"
       },
-      "weight": 15,
+      "weight": 12,
       "count": 4
     },
     "belt.remnantgranteffecttwicechance1_breachborn:belt.remnantgranteffecttwicechance2_breachborn:belt.remnantgranteffecttwicechance3_breachborn:belt.remnantgranteffecttwicechance4_breachborn:belt.remnantgranteffecttwicechance5_breachborn": {
@@ -13592,9 +13592,9 @@
         "belt.remnantgranteffecttwicechance5_breachborn"
       ],
       "regex": {
-        "ru": "сгустка"
+        "ru": "сгус"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 5
     },
     "belt.castspeedduringmanaflaskeffect1_breachborn:belt.castspeedduringmanaflaskeffect2_breachborn:belt.castspeedduringmanaflaskeffect3_breachborn:belt.castspeedduringmanaflaskeffect4_breachborn": {
@@ -13605,9 +13605,9 @@
         "belt.castspeedduringmanaflaskeffect4_breachborn"
       ],
       "regex": {
-        "ru": "Speed during any Flask Effect"
+        "ru": "Speed during any Flask Eff"
       },
-      "weight": 29,
+      "weight": 26,
       "count": 4
     },
     "belt.spellcooldownrecovery1_breachborn:belt.spellcooldownrecovery2_breachborn:belt.spellcooldownrecovery3_breachborn:belt.spellcooldownrecovery4_breachborn:belt.spellcooldownrecovery5_breachborn": {
@@ -13637,9 +13637,9 @@
         "belt.strength6_essence"
       ],
       "regex": {
-        "ru": "или интеллекту"
+        "ru": "или интелле"
       },
-      "weight": 14,
+      "weight": 11,
       "count": 9
     },
     "belt.essenceabyssprefix_essence:belt.essenceabysssuffix_essence": {
@@ -13648,9 +13648,9 @@
         "belt.essenceabysssuffix_essence"
       ],
       "regex": {
-        "ru": "знак повелителя бездны"
+        "ru": "без"
       },
-      "weight": 22,
+      "weight": 3,
       "count": 2
     },
     "belt.abyssmodbeltamanamuprefixgainfirethornsper100maximumlife_desecrated:belt.abyssmodbeltulamanprefixliferegenrateduringlifeflaskeffect_desecrated:belt.corruptionincreasedlife1_corrupted:belt.damageremovedfrommanabeforelife1_breachborn:belt.damageremovedfrommanabeforelife2_breachborn:belt.damageremovedfrommanabeforelife3_breachborn:belt.damageremovedfrommanabeforelife4_breachborn:belt.essencefirerecouplife1_essence:belt.increasedlife10:belt.increasedlife3:belt.increasedlife3_essence:belt.increasedlife4:belt.increasedlife6:belt.increasedlife7_essence:belt.increasedlife8_essence:belt.minionlifering1_breachborn:belt.minionlifering2_breachborn:belt.minionlifering3_breachborn:belt.minionlifering4_breachborn:belt.minionlifering5_breachborn:belt.minionlifering6_breachborn:belt.normal_39:belt.normal_40:belt.normal_43:belt.normal_45:belt.normal_46:belt.normal_47": {

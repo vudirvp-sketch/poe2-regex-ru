@@ -4,43 +4,37 @@
 
 ---
 
-## Current State (Session 52 — 2026-06-07)
+## Current State (Session 53 — 2026-06-07)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (479/479 tests)
-**Oracle:** ETL re-run done (P0 complete). Result: 3 cross-family FP out of 1573 tokens.
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (480/480 tests)
+**Oracle:** ETL re-run done. Result: 2 cross-family FP out of 1573 tokens (jewel.mod_am4lla FIXED).
 
 **Key Changes This Session:**
 
-1. **Runtime optimizer now uses regexPrefixContext/regexExclude from OptimizationEntry** — `applyOptimizationTable()` creates proper AST structure:
-   - With context: `AND(LITERAL(context), LITERAL(regex))`
-   - With excludes: `AND(LITERAL(regex), EXCLUDE(OR(...excludes)))`
-   - With both: `AND(LITERAL(context), LITERAL(regex), EXCLUDE(OR(...excludes)))`
-   - Without either: plain `LITERAL(regex)` (backward compatible)
+1. **jewel.mod_am4lla FP eliminated** — Raised exclude limit from 8→10 in `repairCrossFamilyFP()`. Now "без" (unarmed) and "для" (spell-specific) markers are included, covering all attack-speed cross-family FP.
 
-2. **Optimizer finds AND-wrapped LITERALs** — `findLiteralsInOr()` now discovers LITERAL tokenIds inside AND wrappers (tokens with per-token context/excludes applied by `buildAstFromSelections`). This enables optimization of tokens that already have FP-prevention wrapping.
+2. **Phase A1: Word truncation in optimization entries** — `computeOptimizations()` now applies Strategy 1e word truncation to Phase A family-based optimization entries. For each entry without context/excludes, tries truncated suffix variants and picks the shortest that is unique within the category and matches all family tokens via PoE2 engine. Saved **541 chars** across all categories.
 
-3. **Dedup handles AND-wrapped nodes** — `deduplicateOrGroups()` now properly collects tokenIds from AND-wrapped LITERALs and creates dedup: prefixed tokenIds on the inner LITERAL.
+3. **Exported `generateTruncatedSuffixes` and `containsPoE2Grouping`** from `compute-regex.ts` for reuse in `compute-optimizations.ts`.
 
-4. **Savings calculation uses approximate compiled length** — New `approCompiledLength()` function computes estimated compiled regex length for more accurate savings comparison, especially for AND-wrapped nodes.
+4. **Updated test for Phase A1** — Test now validates truncation correctness (shorter regex, matches all family tokens, no cross-family FP) instead of exact string match. Added new test for FP prevention during truncation.
 
-5. **Removed stale root-level files** — Deleted `JewelPage.tsx`, `ModList.tsx`, `TabletPage.tsx`, `mod-classifier.ts` from project root (outdated copies; actual files are in `src/`).
-
-6. **Fixed TS build error** — `patchOptimizationEntries()` had unused `key` variable in destructuring.
+5. **HomePage counts verified** — Already uses dynamic loading via `loadCategoryData`/`loadMergedCategoryData`. No hardcoded counts. Removed from known issues.
 
 **Files changed this session:**
-- `src/core/optimizer.ts` — regexPrefixContext/regexExclude support + AND-wrapped LITERAL handling
-- `tests/core/optimizer.test.ts` — 8 new tests for context/excludes optimization (479 total)
-- `scripts/run-etl.ts` — Fixed unused variable warning
-- `AGENT_NAVIGATION.md` — Updated to v52.0
-- `OPTIMIZER_PLAN.md` — Updated to v3.0
-- `worklog.md` — This update
-- Removed: `JewelPage.tsx`, `ModList.tsx`, `TabletPage.tsx`, `mod-classifier.ts` (root-level stale files)
+- `scripts/run-etl.ts` — exclude limit 8→10 in repairCrossFamilyFP()
+- `scripts/etl/compute-regex.ts` — exported `generateTruncatedSuffixes`, `containsPoE2Grouping`
+- `scripts/etl/compute-optimizations.ts` — Phase A1 word truncation + imports
+- `tests/etl/compute-optimizations.test.ts` — updated + new test for truncation FP prevention
+- `public/generated/*.json` — regenerated with ETL re-run (Phase A1 savings)
+- `AGENT_NAVIGATION.md` — v53.0
+- `OPTIMIZER_PLAN.md` — v4.0
+- `worklog.md` — this update
 
 **NOT YET DONE (next iteration):**
-- ⬜ ETL re-run with Session 51 changes to confirm jewel.mod_am4lla fix (expect 1-2 cross-family FP)
 - ⬜ In-game tests Group M — verify `|` inside `()` and number ranges
-- ⬜ Truncated forms in compute-optimizations.ts Phase A
-- ⬜ List virtualization for large categories
+- ⬜ List virtualization for large categories (belt/ring/amulet)
+- ⬜ Multi-line mod handling
 
 ---
 
@@ -58,13 +52,14 @@
 10. **i18n overrides cause cross-family FP:** `repairCrossFamilyFP()` + `regexPrefixContext` fix this.
 11. **regexExclude format must be locale-object:** Always `{ru: [...]}` not plain array.
 12. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
+13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break the context/exclude patching logic.
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (479)
+npx vitest run --root .          # Run all tests (480)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation

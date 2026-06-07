@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T14:31:04.219Z",
+  "version": "2026-06-07T14:43:50.826Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
@@ -2498,9 +2498,9 @@
         "relic.sanctummaximumlife5"
       ],
       "regex": {
-        "ru": "здоровья"
+        "ru": "здоро"
       },
-      "weight": 8,
+      "weight": 5,
       "count": 5
     },
     "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
@@ -2512,9 +2512,9 @@
         "relic.sanctummaximumhonour5"
       ],
       "regex": {
-        "ru": "максимума чести"
+        "ru": "максимума чес"
       },
-      "weight": 15,
+      "weight": 13,
       "count": 5
     },
     "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
@@ -2527,9 +2527,9 @@
         "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "восстановления чести"
+        "ru": "восстановления чес"
       },
-      "weight": 20,
+      "weight": 18,
       "count": 6
     },
     "relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
@@ -2540,9 +2540,9 @@
         "relic.sanctummonstersdoublegoldchance4"
       ],
       "regex": {
-        "ru": "выпасть двойное количество святой воды"
+        "ru": "выпасть двойное количество святой вод"
       },
-      "weight": 38,
+      "weight": 37,
       "count": 4
     },
     "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4": {
@@ -2553,9 +2553,9 @@
         "relic.sanctumfountaindoublegoldchance4"
       ],
       "regex": {
-        "ru": "даровать двойное количество святой воды"
+        "ru": "даровать двойное количество святой вод"
       },
-      "weight": 39,
+      "weight": 38,
       "count": 4
     },
     "relic.sanctumstartinggold1:relic.sanctumstartinggold2:relic.sanctumstartinggold3:relic.sanctumstartinggold4:relic.sanctumstartinggold5": {
@@ -2567,9 +2567,9 @@
         "relic.sanctumstartinggold5"
       ],
       "regex": {
-        "ru": "святой воды в начале испытания:"
+        "ru": "испытан"
       },
-      "weight": 31,
+      "weight": 7,
       "count": 5
     },
     "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
@@ -2579,9 +2579,9 @@
         "relic.sanctumrelicquantity3"
       ],
       "regex": {
-        "ru": "реликвий, выпадающих из монстров"
+        "ru": "реликвий, выпадающих из монст"
       },
-      "weight": 32,
+      "weight": 29,
       "count": 3
     },
     "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4": {
@@ -2592,9 +2592,9 @@
         "relic.sanctumdefences4"
       ],
       "regex": {
-        "ru": "энергетического щита"
+        "ru": "щит"
       },
-      "weight": 20,
+      "weight": 3,
       "count": 4
     },
     "relic.sanctumreducedtrapdamage2:relic.sanctumreducedtrapdamage3": {
@@ -2603,9 +2603,9 @@
         "relic.sanctumreducedtrapdamage3"
       ],
       "regex": {
-        "ru": "ловушки наносят уменьшенный на "
+        "ru": "уменьшенный на "
       },
-      "weight": 31,
+      "weight": 15,
       "count": 2
     },
     "relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3": {
@@ -2615,9 +2615,9 @@
         "relic.sanctummovementspeed3"
       ],
       "regex": {
-        "ru": "передвижения"
+        "ru": "передвиже"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 3
     },
     "relic.sanctumdodgerolldistance1:relic.sanctumdodgerolldistance2": {
@@ -2626,9 +2626,9 @@
         "relic.sanctumdodgerolldistance2"
       ],
       "regex": {
-        "ru": "кувырка"
+        "ru": "кувы"
       },
-      "weight": 7,
+      "weight": 4,
       "count": 2
     },
     "relic.sanctumslowresistance1:relic.sanctumslowresistance2:relic.sanctumslowresistance3": {
@@ -2638,9 +2638,9 @@
         "relic.sanctumslowresistance3"
       ],
       "regex": {
-        "ru": "на вас"
+        "ru": "вас"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 3
     },
     "relic.sanctumreducedcritdamage1:relic.sanctumreducedcritdamage2:relic.sanctumreducedcritdamage3": {
@@ -2650,9 +2650,9 @@
         "relic.sanctumreducedcritdamage3"
       ],
       "regex": {
-        "ru": "по вам"
+        "ru": "вам"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 3
     },
     "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
@@ -2664,9 +2664,9 @@
         "relic.sanctumhonourresistance5"
       ],
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "сопротивлению чес"
       },
-      "weight": 19,
+      "weight": 17,
       "count": 5
     },
     "relic.sanctumkeydropchance1:relic.sanctumkeydropchance2:relic.sanctumkeydropchance3:relic.sanctumkeydropchance4": {
@@ -2677,9 +2677,9 @@
         "relic.sanctumkeydropchance4"
       ],
       "regex": {
-        "ru": "ключей"
+        "ru": "клю"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 4
     },
     "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {

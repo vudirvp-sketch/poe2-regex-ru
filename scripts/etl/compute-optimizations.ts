@@ -17,6 +17,8 @@ import {
   batchDPFactorize,
   applyDialectOptimizations,
 } from '../../src/core/dp-factorizer.js';
+import { generateTruncatedSuffixes, containsPoE2Grouping } from './compute-regex.js';
+import { matchQuotedGroup } from '../../src/core/poe2-regex-matcher.js';
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -87,6 +89,89 @@ export function computeOptimizations(
       weight: sharedRegex.length,
       count: familyTokens.length,
     };
+  }
+
+  // ─── Phase A1: Word truncation for family-based entries ───
+  // For each family-based entry, try truncated versions of the shared regex
+  // to find a shorter one that still matches all family tokens and is unique.
+  // Only applies when the current shared regex is unique (no FP), so truncated
+  // forms must also be unique — avoids complicating context/exclude patching.
+  {
+    // Pre-build: for each family group, collect all rawTexts (lowercase)
+    const familyRawTexts = new Map<string, string[]>();
+    for (const [familyKey, familyTokens] of familyGroups) {
+      familyRawTexts.set(familyKey, familyTokens.map(t => t.rawText[locale].toLowerCase()));
+    }
+
+    // Pre-build: all other-family rawTexts for uniqueness checks
+    const allFamilyKeys = [...familyGroups.keys()];
+
+    let truncationSavings = 0;
+    for (const key of Object.keys(result)) {
+      const entry = result[key];
+      const currentRegex = entry.regex[locale];
+      if (!currentRegex || currentRegex.length < 5) continue;
+
+      // Only truncate entries that don't have context/excludes (pure, no FP)
+      // These are the safe ones to truncate
+      if (entry.regexPrefixContext || entry.regexExclude) continue;
+
+      // Find the family group for this entry
+      const entryTokenIds = new Set(entry.ids);
+      let matchedFamilyKey: string | null = null;
+      let familyTokensList: NormalizedMod[] = [];
+      for (const [fk, ft] of familyGroups) {
+        if (ft.length === entry.count && ft.every(t => entryTokenIds.has(t.id))) {
+          matchedFamilyKey = fk;
+          familyTokensList = ft;
+          break;
+        }
+      }
+      if (!matchedFamilyKey) continue;
+
+      // Collect other-family rawTexts (lowercase) for uniqueness check
+      const otherRawTexts: string[] = [];
+      for (const fk of allFamilyKeys) {
+        if (fk === matchedFamilyKey) continue;
+        const rawTexts = familyRawTexts.get(fk);
+        if (rawTexts) otherRawTexts.push(...rawTexts);
+      }
+
+      // Generate truncated variants
+      const candidates = generateTruncatedSuffixes(currentRegex, 3);
+
+      // Sort by length ascending (try shortest first for max savings)
+      candidates.sort((a, b) => a.length - b.length);
+
+      for (const candidate of candidates) {
+        // Skip if not shorter than current
+        if (candidate.length >= currentRegex.length) continue;
+
+        // Skip candidates with PoE2 grouping chars
+        if (containsPoE2Grouping(candidate)) continue;
+
+        // Check: candidate matches ALL family tokens' rawText via PoE2 engine
+        const candidateLower = candidate.toLowerCase();
+        const allMatch = familyTokensList.every(t =>
+          matchQuotedGroup(candidateLower, t.rawText[locale].toLowerCase())
+        );
+        if (!allMatch) continue;
+
+        // Check: candidate is unique (doesn't appear in any other-family rawText)
+        const isUnique = !otherRawTexts.some(rt => rt.includes(candidateLower));
+        if (!isUnique) continue;
+
+        // Found a shorter unique truncated form — update the entry
+        entry.regex[locale] = candidate;
+        entry.weight = candidate.length;
+        truncationSavings += currentRegex.length - candidate.length;
+        break; // Take the shortest valid one
+      }
+    }
+
+    if (truncationSavings > 0) {
+      console.log(`  Phase A1: Word truncation saved ${truncationSavings} chars in optimization entries`);
+    }
   }
 
   // ─── Phase B: DP factorization for cross-family optimizations ───
