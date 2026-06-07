@@ -103,12 +103,18 @@ export function normalizeTypeB(
  * - Numeric ranges: (5<span class="ndash">—</span>9) -> ranges[[5,9]], template uses ##
  * - Standalone numbers: values[], template uses #
  * - Gender templates: <if:MS>...</if:MS> -> extracted separately
- * - Multi-line mods separated by <br> — ONLY the first line is the actual affix
+ * - Multi-line mods separated by <br> — CURRENTLY only first line taken (see MEDIUM #3 in AGENT_NAVIGATION.md)
  *
  * IMPORTANT: poe2db.tw stores multiple related properties in one description cell,
- * separated by <br>. Only the FIRST line is the actual affix mod; subsequent lines
- * are implicit bonuses that the item gains from having that affix. Taking only the
- * first line prevents "mod gluing" where all text gets concatenated into one string.
+ * separated by <br>. In-game, each sub-line is a SEPARATE searchable block (verified
+ * Phase 7 Block 3 / Group I). The current code takes only the first line for most
+ * multi-line mods, which means users can't search for text in subsequent sub-lines.
+ * For "dual-stat" mods (multiple segments each with ranges), segments are joined with
+ * ", " which also doesn't match in-game behavior.
+ *
+ * TODO: Split each <br> segment into a separate token so each sub-line is independently
+ * searchable. Each sub-line is a separate block in PoE2 search, so this matches the
+ * in-game model correctly.
  */
 export function extractTextAndRanges(html: string): {
   rawText: string;

@@ -119,8 +119,8 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 | `.*` | Any sequence WITHIN a single block | `"Бездн.*монстр"` within one mod | Yes |
 | `[]` | Character class | `Делири[уф]` matches either | Yes |
 | `^` / `$` | Anchors (start/end) | `огня$` matches end of line | Yes |
-| `()` | Grouping | `([5-9]\|\d..)` | Yes |
-| `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes |
+| `()` | Grouping | `([5-9]\|\d..)` | Yes (verified M-02, M-04) |
+| `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes (verified M-08) |
 | `%` / `+` | Literals (not special) | `"+66"`, `"% к сопротивлению"` | Yes |
 | `(` unmatched | Literal (when not paired) | `"(60"` matches literal "(60" | Yes |
 
@@ -187,8 +187,13 @@ When a token has multiple exclude patterns, they are combined into a single `EXC
 
 **NOT supported (verified in-game, Phase 8):**
 - `^` / `$` anchors — unreliable for practical use
-- `|` inside `()` for number ranges — needs further testing with correct quote syntax
 - Character class for word alternatives: `[сило]` ≠ «сило»
+
+**Verified in-game (Group M, Phase 8):**
+- `|` inside `()` for number ranges — WORKS. `([3-9][0-9]|[0-9][0-9][0-9])` confirmed in M-04.
+- `\d` digit shorthand — WORKS. Confirmed in M-08.
+- `!` + `|` inside quotes = `!(A|B)` — WORKS. Confirmed in M-07.
+- `()` + `|` + `.*` scoped OR within one block — WORKS. Confirmed in M-06.
 
 ## 5.1 Block-Based Matching Model (Phase 7 — verified in-game)
 

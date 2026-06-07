@@ -4,37 +4,45 @@
 
 ---
 
-## Current State (Session 53 — 2026-06-07)
+## Current State (Session 54 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (480/480 tests)
-**Oracle:** ETL re-run done. Result: 2 cross-family FP out of 1573 tokens (jewel.mod_am4lla FIXED).
+**Oracle:** Unchanged from Session 53 (2 cross-family FP accepted).
 
 **Key Changes This Session:**
 
-1. **jewel.mod_am4lla FP eliminated** — Raised exclude limit from 8→10 in `repairCrossFamilyFP()`. Now "без" (unarmed) and "для" (spell-specific) markers are included, covering all attack-speed cross-family FP.
+1. **Group M in-game tests VERIFIED** — All 8 tests pass in PoE2 (RU client). Key findings:
+   - `|` inside `()` works correctly (M-02 = M-01, M-04 number ranges confirmed)
+   - `\d` is supported in PoE2 (M-08, got 2 matches, not 0)
+   - `!` + `|` = `!(A|B)` works (M-07, original expected count was wrong — R2 has "молнии" in another mod)
+   - Number range patterns like `([3-9][0-9]|[0-9][0-9][0-9])` confirmed (M-04 + M-05 cross-validation)
+   - Updated docs: ARCHITECTURE.md removed from "NOT supported", IN_GAME_TESTS.md replaced with verified results
 
-2. **Phase A1: Word truncation in optimization entries** — `computeOptimizations()` now applies Strategy 1e word truncation to Phase A family-based optimization entries. For each entry without context/excludes, tries truncated suffix variants and picks the shortest that is unique within the category and matches all family tokens via PoE2 engine. Saved **541 chars** across all categories.
+2. **List virtualization for belt/ring/amulet** — New `VirtualizedModList` component using @tanstack/react-virtual (already in package.json). Flattens hierarchical structure into virtual rows (column headers, origin headers, sub-groups). Only visible rows rendered. Belt/Ring/Amulet pages now use VirtualizedModList instead of ModList.
 
-3. **Exported `generateTruncatedSuffixes` and `containsPoE2Grouping`** from `compute-regex.ts` for reuse in `compute-optimizations.ts`.
-
-4. **Updated test for Phase A1** — Test now validates truncation correctness (shorter regex, matches all family tokens, no cross-family FP) instead of exact string match. Added new test for FP prevention during truncation.
-
-5. **HomePage counts verified** — Already uses dynamic loading via `loadCategoryData`/`loadMergedCategoryData`. No hardcoded counts. Removed from known issues.
+3. **Multi-line mod handling investigation** — Identified root cause in `normalize.ts`:
+   - ETL drops second sub-lines for most multi-line mods (e.g., "Разрушительный" loses "+к бонусу критического урона")
+   - 4 waystone tokens incorrectly join 4 segments with ", " (akte8u, n81h8i, fzuqda, hzhrha)
+   - Fix requires splitting `<br>` segments into separate tokens in normalize.ts
+   - Updated normalize.ts comments to reflect correct understanding (each sub-line = separate searchable block)
+   - Actual ETL fix deferred to next iteration (significant change requiring ETL re-run + test updates)
 
 **Files changed this session:**
-- `scripts/run-etl.ts` — exclude limit 8→10 in repairCrossFamilyFP()
-- `scripts/etl/compute-regex.ts` — exported `generateTruncatedSuffixes`, `containsPoE2Grouping`
-- `scripts/etl/compute-optimizations.ts` — Phase A1 word truncation + imports
-- `tests/etl/compute-optimizations.test.ts` — updated + new test for truncation FP prevention
-- `public/generated/*.json` — regenerated with ETL re-run (Phase A1 savings)
-- `AGENT_NAVIGATION.md` — v53.0
-- `OPTIMIZER_PLAN.md` — v4.0
+- `docs/IN_GAME_TESTS.md` — Group M replaced with verified in-game results
+- `docs/ARCHITECTURE.md` — `|` inside `()` and `\d` confirmed, added "Verified in-game (Group M)" section
+- `AGENT_NAVIGATION.md` — v54.0, M-group removed from MEDIUM, multi-line mod issue added
+- `src/ui/components/VirtualizedModList.tsx` — NEW: virtualized mod list component
+- `src/ui/pages/amulet/AmuletPage.tsx` — switched to VirtualizedModList
+- `src/ui/pages/ring/RingPage.tsx` — switched to VirtualizedModList
+- `src/ui/pages/belt/BeltPage.tsx` — switched to VirtualizedModList
+- `scripts/etl/normalize.ts` — updated comments about multi-line mod handling
 - `worklog.md` — this update
 
 **NOT YET DONE (next iteration):**
-- ⬜ In-game tests Group M — verify `|` inside `()` and number ranges
-- ⬜ List virtualization for large categories (belt/ring/amulet)
-- ⬜ Multi-line mod handling
+- ⬜ Multi-line mod ETL fix — split `<br>` segments into separate tokens in normalize.ts
+- ⬜ Re-run ETL after multi-line fix, validate all tokens
+- ⬜ Verify VirtualizedModList in browser (functional testing)
+- ⬜ Consider virtualization for jewel page (224 tokens, merged 3 JSONs)
 
 ---
 
@@ -53,6 +61,7 @@
 11. **regexExclude format must be locale-object:** Always `{ru: [...]}` not plain array.
 12. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
 13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break the context/exclude patching logic.
+14. **Multi-line mods: ETL drops second sub-lines:** normalize.ts takes only first `<br>` segment. Fix requires splitting into separate tokens.
 
 ## Build & Run Commands
 

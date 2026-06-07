@@ -6,7 +6,7 @@
  * and semantic sub-grouping (offensive/defensive/attribute/neutral).
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
-import { ModList } from '@ui/components/ModList';
+import { VirtualizedModList } from '@ui/components/VirtualizedModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
@@ -64,7 +64,7 @@ export function BeltPage() {
               setSearchLogic={setSearchLogic}
             />
 
-            <ModList
+            <VirtualizedModList
               tokens={data.tokens}
               selectedIds={selectedIds}
               searchText={searchText}

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 53.0 | **Date:** 2026-06-07
+> **Version:** 54.0 | **Date:** 2026-06-07
 
 ---
 
@@ -73,16 +73,15 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 
-1. **2 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys). jewel.mod_am4lla FP eliminated (Session 53, exclude limit raised to 10).
-2. **`|` inside `()` with correct quote syntax** — Group M tests added to IN_GAME_TESTS.md. Need in-game verification.
-3. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — Group M tests added. Need in-game verification.
-4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
+1. **2 cross-family FP remaining** — tablet.mod_od9m77/mod_ld06px (accepted limitation — no unique substring, essentially family-tier FP with different familyKeys).
+2. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported.
+3. **Multi-line mod handling** — ETL drops second sub-lines for most multi-line mods (e.g., "Разрушительный" waystone loses "+к бонусу критического урона монстров"). 4 waystone tokens incorrectly join 4 segments with ", ". Fix requires: split `<br>` segments into separate tokens in normalize.ts, each as independent searchable block (matches in-game behavior where each sub-line is a separate block).
 
 ### LOW
 
-5. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
-6. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
-7. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
+3. **Jewel classification accuracy** — ETL lookup for normal jewels; heuristic fallback (~84%) for desecrated/corrupted.
+4. **List virtualization** — belt (298), ring (366), amulet (427) tokens.
+5. **Number regex length** — `[0-9]` is 5 chars vs `.` (1 char). Some RANGE regexes may exceed 250 limit.
 
 ## 7. Regex Strategy Pipeline (Phase 8)
 
