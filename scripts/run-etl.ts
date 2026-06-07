@@ -676,6 +676,11 @@ async function runEtl() {
   // Step 7: Apply i18n overrides for tokens without Russian text on poe2db.tw
   applyI18nOverrides();
 
+  // Step 7b: Repair cross-family FP caused by i18n overrides changing rawText
+  // After overrides, some regexes that were unique against the original rawText
+  // now match overridden tokens. This step adds missing exclude patterns.
+  repairCrossFamilyFP();
+
   // Step 8: Validate generated regexes (if --validate flag is provided)
   if (process.argv.includes('--validate')) {
     validateGeneratedRegexes();
@@ -687,6 +692,220 @@ async function runEtl() {
   }
 
   console.log('\n=== ETL Pipeline Complete ===');
+}
+
+/**
+ * Post-i18n-override repair: detect and fix cross-family FP.
+ *
+ * After i18n overrides change rawText, some regexes computed against the
+ * original rawText may now match other-family tokens. This step:
+ * 1. Scans ALL tokens for cross-family FP (regex matches other-family rawText)
+ * 2. Tries to lengthen the regex to a more specific template suffix
+ * 3. Adds missing exclude patterns to prevent FP
+ * 4. Iterates until no more improvements can be made
+ *
+ * Uses a simplified substring-match check (not full PoE2 engine) for speed,
+ * since the block-based Oracle validation runs separately with --validate-item.
+ */
+function repairCrossFamilyFP(): void {
+  console.log('\n=== Repairing cross-family FP after i18n overrides ===');
+
+  const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+  let totalRepaired = 0;
+
+  // Known short markers for common cross-family conflict types
+  const CONFLICT_MARKERS = [
+    'Приспеш',    // minion variants
+    'во время',   // flask-effect variants
+    'флакона',    // flask variants
+    'снарядов',   // projectile gem level
+    'всем стихиям', // all-resist vs single-element
+    'умений',     // gem skills (vs "умения" skill)
+  ];
+
+  for (const jsonFile of jsonFiles) {
+    const filePath = path.join(OUTPUT_DIR, jsonFile);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const tokens = data.tokens;
+    let fileRepaired = 0;
+
+    // Build family-key map
+    const tokenFamilyMap = new Map<string, string>();
+    for (const token of tokens) {
+      const fk = typeof token.familyKey === 'object' ? token.familyKey.ru : token.familyKey;
+      tokenFamilyMap.set(token.id, fk);
+    }
+
+    // Iterate until no more changes
+    let changed = true;
+    while (changed) {
+      changed = false;
+
+      for (const token of tokens) {
+        const regex = typeof token.regex === 'object' ? token.regex.ru : token.regex;
+        if (!regex || regex.length === 0) continue;
+
+        const tokenFamily = tokenFamilyMap.get(token.id) || '';
+        const regexLower = regex.toLowerCase();
+
+        // Find conflicting tokens (other-family, regex matches their rawText)
+        const conflicts: { id: string; rawText: string }[] = [];
+        for (const other of tokens) {
+          if (other.id === token.id) continue;
+          const otherFamily = tokenFamilyMap.get(other.id) || '';
+          if (otherFamily === tokenFamily) continue;
+
+          const otherRaw = typeof other.rawText === 'object' ? other.rawText.ru : other.rawText;
+          if (otherRaw.toLowerCase().includes(regexLower)) {
+            conflicts.push({ id: other.id, rawText: otherRaw });
+          }
+        }
+
+        if (conflicts.length === 0) continue;
+
+        // Step 1: Try lengthening the regex to the full template suffix
+        const template = typeof token.rawTextTemplate === 'object'
+          ? token.rawTextTemplate.ru : token.rawTextTemplate;
+        if (template) {
+          const fullSuffix = extractTemplateSuffix(template);
+          if (fullSuffix && fullSuffix.length > regex.length && fullSuffix.toLowerCase() !== regexLower) {
+            const longerLower = fullSuffix.toLowerCase();
+            let longerConflicts = 0;
+            for (const other of tokens) {
+              if (other.id === token.id) continue;
+              const otherFamily = tokenFamilyMap.get(other.id) || '';
+              if (otherFamily === tokenFamily) continue;
+              const otherRaw = (typeof other.rawText === 'object' ? other.rawText.ru : other.rawText).toLowerCase();
+              if (otherRaw.includes(longerLower)) longerConflicts++;
+            }
+            if (longerConflicts < conflicts.length) {
+              // Longer suffix has fewer conflicts — upgrade regex
+              token.regex = typeof token.regex === 'object' ? { ...token.regex, ru: fullSuffix } : fullSuffix;
+              // Reset excludes since the longer regex may not need them
+              if (token.regexExclude) {
+                if (typeof token.regexExclude === 'object' && !Array.isArray(token.regexExclude)) {
+                  token.regexExclude = { ...token.regexExclude, ru: [] };
+                } else {
+                  token.regexExclude = { ru: [] };
+                }
+              }
+              changed = true;
+              fileRepaired++;
+              totalRepaired++;
+              continue; // Re-evaluate with new regex on next iteration
+            }
+          }
+        }
+
+        // Step 2: Add exclude patterns for remaining conflicts
+        const currentExcludes: string[] = token.regexExclude
+          ? (Array.isArray(token.regexExclude)
+            ? [...token.regexExclude]
+            : (typeof token.regexExclude === 'object' && token.regexExclude.ru
+              ? [...(token.regexExclude.ru || [])]
+              : []))
+          : [];
+
+        // Check if current excludes already cover all conflicts
+        const coveredByCurrent = new Set<number>();
+        for (let i = 0; i < conflicts.length; i++) {
+          const confRaw = conflicts[i].rawText.toLowerCase();
+          if (currentExcludes.some(exc => confRaw.includes(exc.toLowerCase()))) {
+            coveredByCurrent.add(i);
+          }
+        }
+        if (coveredByCurrent.size === conflicts.length) continue;
+
+        // Try adding new excludes
+        const newExcludes: string[] = [...currentExcludes];
+
+        // Try known conflict markers
+        for (const marker of CONFLICT_MARKERS) {
+          if (newExcludes.length >= 3) break;
+          if (newExcludes.includes(marker)) continue;
+
+          let coversAny = false;
+          for (let i = 0; i < conflicts.length; i++) {
+            if (coveredByCurrent.has(i)) continue;
+            if (conflicts[i].rawText.toLowerCase().includes(marker.toLowerCase())) {
+              coversAny = true;
+              break;
+            }
+          }
+          if (!coversAny) continue;
+
+          // Check: marker does NOT appear in target family's tokens
+          const markerLower = marker.toLowerCase();
+          let validForTarget = true;
+          for (const t of tokens) {
+            const tFam = tokenFamilyMap.get(t.id) || '';
+            if (tFam !== tokenFamily) continue;
+            const tRaw = (typeof t.rawText === 'object' ? t.rawText.ru : t.rawText).toLowerCase();
+            if (tRaw.includes(markerLower)) {
+              validForTarget = false;
+              break;
+            }
+          }
+          if (!validForTarget) continue;
+
+          newExcludes.push(marker);
+        }
+
+        // Try first word after suffix in uncovered conflicts
+        for (let i = 0; i < conflicts.length; i++) {
+          if (newExcludes.length >= 3) break;
+          if (coveredByCurrent.has(i)) continue;
+
+          const confRaw = conflicts[i].rawText.toLowerCase();
+          const suffixIdx = confRaw.indexOf(regexLower);
+          if (suffixIdx === -1) continue;
+
+          const afterSuffix = confRaw.substring(suffixIdx + regexLower.length).trim();
+          if (afterSuffix.length === 0) continue;
+
+          const firstWord = afterSuffix.split(/\s+/)[0].replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
+          if (firstWord.length < 3) continue;
+
+          const wordLower = firstWord.toLowerCase();
+          let validForTarget = true;
+          for (const t of tokens) {
+            const tFam = tokenFamilyMap.get(t.id) || '';
+            if (tFam !== tokenFamily) continue;
+            const tRaw = (typeof t.rawText === 'object' ? t.rawText.ru : t.rawText).toLowerCase();
+            if (tRaw.includes(wordLower)) {
+              validForTarget = false;
+              break;
+            }
+          }
+          if (!validForTarget) continue;
+
+          if (!newExcludes.includes(firstWord)) {
+            newExcludes.push(firstWord);
+          }
+        }
+
+        // Apply updated excludes if they changed
+        if (newExcludes.length > currentExcludes.length) {
+          const existing = token.regexExclude;
+          if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+            token.regexExclude = { ...existing, ru: newExcludes };
+          } else {
+            token.regexExclude = { ru: newExcludes };
+          }
+          changed = true;
+          fileRepaired++;
+          totalRepaired++;
+        }
+      }
+    }
+
+    if (fileRepaired > 0) {
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+      console.log(`  ${jsonFile}: repaired ${fileRepaired} tokens`);
+    }
+  }
+
+  console.log(`  Total tokens repaired: ${totalRepaired}`);
 }
 
 /**

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T09:01:54.332Z",
+  "version": "2026-06-07T09:29:13.410Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -499,7 +499,12 @@
         56
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_y6u0e9",
@@ -556,7 +561,12 @@
         70
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_1pn52r",
@@ -611,7 +621,12 @@
         45
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "Приспеш"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_t1xcyw",
@@ -715,7 +730,14 @@
         61
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "боевыми",
+          "тотемов",
+          "шипами"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_vvwqkc",
@@ -774,7 +796,14 @@
         82
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "боевыми",
+          "тотемов",
+          "шипами"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_dy3s2a",
@@ -831,7 +860,14 @@
         56
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexExclude": {
+        "ru": [
+          "боевыми",
+          "тотемов",
+          "шипами"
+        ]
+      }
     },
     {
       "id": "jewel-desecrated.mod_cjvsm3",

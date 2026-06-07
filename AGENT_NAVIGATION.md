@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 46.0 | **Date:** 2026-06-07
+> **Version:** 48.0 | **Date:** 2026-06-07
 
 ---
 
@@ -19,7 +19,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 459 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 471 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -69,14 +69,16 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Remaining ~89 cross-family FP** — Mostly: minion variants of player mods, short generic suffixes matching composites, `к сопротивлению всем стихиям` matching minion variants. Phase 8 Strategy 1e (word truncation) and refactored `computeExcludePatterns()` should reduce these after ETL re-run.
+1. **Remaining ~62 cross-family FP** — Breakdown: amulet 19, ring 14, jewel-desecrated 15, jewel 11, tablet 3. The `repairCrossFamilyFP()` ETL step (Session 48) reduced from 77 to 62 by lengthening regexes and adding excludes after i18n overrides. Remaining cases need AND-composed regex support.
 
 ### MEDIUM
 
-2. **`|` inside `()` with correct quote syntax** — Needs re-testing in-game with `"!X"` format. Old tests may have been broken by the `!"X"` bug which is now confirmed fixed.
-3. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — verify works in PoE2, or find alternative approach.
-4. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
-5. **HomePage hardcoded mod counts** — Category cards show stale counts
+2. **AND-composed regex support needed** — Ring minion damage (8 FP) and jewel-desecrated composites (15 FP) need `"context" "suffix"` AND syntax, which the current regex system doesn't support. The `regex` field is a single string; need a `regexPrefixContext` field or similar that gets AND-composed in the UI.
+3. **Ring minion elemental res FP (4)** — regex "стихия" with exclude "стихия м" doesn't exclude "всем стихиям" because "всем стихиям" appears in the target family too. Needs different regex approach.
+4. **`|` inside `()` with correct quote syntax** — Needs re-testing in-game with `"!X"` format.
+5. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — verify works in PoE2, or find alternative approach.
+6. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
+7. **HomePage hardcoded mod counts** — Category cards show stale counts
 
 ### LOW
 

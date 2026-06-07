@@ -4,28 +4,57 @@
 
 ---
 
-## Current State (Session 47 — 2026-06-07)
+## Current State (Session 48 — 2026-06-07)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (471/471 tests)
-**Oracle:** ETL re-run done (Session 46 output): 1490/1573 valid, 83 cross-family FP, 1042 family-tier FP, 0 FN. Re-run with Session 47 changes needed to see improvement.
+**Oracle:** 1511/1573 valid, 62 cross-family FP, 1062 family-tier FP, 0 FN (was 77 cross-family FP in Session 47)
 
-**Key Changes This Session (Phase 8 — Mixed-conflict exclude + `!(A|B)` format):**
+**Key Changes This Session (Phase 8 — Post-i18n-override FP repair):**
 
-1. **Mixed-conflict `computeExcludePatterns()`** — Previously, minion marker and compound separator only triggered when ALL conflicts were the same type. Now: partial coverage is allowed. The algorithm accumulates short markers (minion `"Приспеш"`, compound `" и"`, short universal markers) until all conflicts are covered, instead of falling through to long specific patterns when types are mixed. This directly addresses the 39 cross-family FP in amulet where "повышение шанса критического удара" conflicted with both minion AND non-minion variants.
+1. **`repairCrossFamilyFP()` in run-etl.ts** — New ETL step after i18n overrides that detects and fixes cross-family FP caused by rawText changes. The core issue: i18n overrides replace rawText of some tokens AFTER regex computation, making previously-unique regexes match the new (Russian) text of other families. The repair step:
+   - Scans ALL tokens for cross-family FP (regex matches other-family rawText)
+   - Tries lengthening the regex to the full template suffix (e.g., "скорости сотворения чар" → "повышение скорости сотворения чар" for cast speed)
+   - Adds missing exclude patterns from known markers and first-word-after-suffix extraction
+   - Iterates until no more improvements can be made
+   - Always writes `regexExclude` in locale-object format `{ru: [...]}` for Oracle compatibility
 
-2. **`"!(A|B)"` combined exclude format** (`useCategoryPage.ts`) — Multiple exclude patterns are now combined into a single `EXCLUDE(OR([...]))` node, compiling to `"!A|B"` instead of separate `"!A" "!B"`. Semantically equivalent (both exclude items containing A OR B), but saves ~3 chars per additional exclude. The compiler already supported this format; the change was in how the AST is built from `regexExclude` arrays.
+2. **Known conflict markers** for `repairCrossFamilyFP()`: `Приспеш` (minion), `во время` (flask-effect), `флакона` (flask), `снарядов` (projectile gems), `всем стихиям` (all-resist), `умений` (gem skills vs skills).
 
-3. **Extended known markers** in `findShortUniversalMarker()` — Added: `"состояния"` (ailment/DOT), `"заканчив"` (debuff duration), `"воскреш"` (resurrect), `"во время"` (flask-effect), `"флакона"` (flask), `"умения"` (skill). These cover common cross-family FP patterns in jewel, ring, and amulet categories.
+**ETL Pipeline Order (updated):**
+```
+fetch → parse → normalize → compute-regex → compute-optimizations → generate JSON
+→ jewel type map → i18n overrides → repairCrossFamilyFP → validate
+```
 
-4. **Short-form excludes in Priority 4** — Instead of always generating `"suffix + firstWord"` (long specific pattern), Priority 4 now tries the first word after suffix alone as a short exclude first. Only falls back to the longer form if the short word isn't valid.
+**Per-category FP (Session 48):**
+| Category | valid/total | cross-family FP |
+|----------|-------------|-----------------|
+| amulet | 408/427 | 19 (was 33) |
+| belt | 298/298 | 0 |
+| jewel-corrupted | 10/10 | 0 |
+| jewel-desecrated | 17/32 | 15 (unchanged) |
+| jewel | 182/193 | 11 (unchanged) |
+| relic | 58/58 | 0 |
+| ring | 352/366 | 14 (unchanged) |
+| tablet | 72/75 | 3 (was 4) |
+| waystone | 97/97 | 0 |
+| waystone-desecrated | 17/17 | 0 |
 
-5. **Added 2 new tests** for mixed-conflict scenarios in `compute-regex.test.ts`.
+**Remaining cross-family FP breakdown (62 total):**
+- **amulet (19):** minion elemental resist FP, minion damage vs flask-effect, corrupted gem level
+- **ring (14):** minion damage matches generic "увеличение урона" (8), minion elemental resist matches "всем стихиям" (4), other (2)
+- **jewel-desecrated (15):** composite dual-stat mods sharing second-stat suffixes — needs AND-composed regex support
+- **jewel (11):** short generic suffixes ("быстрее", "увеличение урона", "повышение скорости атаки") matching across families
+- **tablet (3):** "быстрее", "увеличение количества находимых", "путевых кам"
 
 **NOT YET DONE:**
-- ⬜ Run ETL pipeline with Session 47 changes to measure Oracle improvement (expected: cross-family FP reduction from 83 to ~50-60)
+- ⬜ Ring minion damage FP (8) — needs AND-composed regex or positive context anchor (e.g., `"имеют" "увеличение урона"`)
+- ⬜ Ring minion elemental resist FP (4) — exclude "всем стихиям" is invalid (appears in target family); needs different regex strategy
+- ⬜ Jewel-desecrated composite FP (15) — fundamental: dual-stat mods share suffix across different composite families. Needs AND-composed regex like `"повышение брони" "увеличение урона от атак"`
+- ⬜ Jewel generic suffix FP (11) — needs more specific excludes or longer regexes
 - ⬜ Re-test `|` inside `()` with correct `"!X"` syntax in-game
 - ⬜ Number range with `|` — verify `([6-9][0-9]|[0-9][0-9][0-9])` works in PoE2
-- ⬜ Optimizer expansion — try truncated forms in `compute-optimizations.ts` for family grouping shared regex
+- ⬜ Optimizer expansion — truncated forms in compute-optimizations.ts family grouping
 
 ---
 
@@ -41,6 +70,8 @@
 8. **Negate syntax `"!X"` only:** `!"X"` does NOT work in PoE2 — `!` must be inside quotes. Compiler already generates correct format.
 9. **Word truncation = trailing substring only:** Mid-word extraction does NOT work in PoE2 substring search. "силе"→"сил"→"си" OK, but "еличен" from "увеличение" does NOT uniquely target the word.
 10. **Mixed exclude types need combined markers:** When FP comes from both minion AND compound variants, a single exclude type won't cover all conflicts. The algorithm now accumulates markers.
+11. **i18n overrides cause cross-family FP:** Overrides change rawText AFTER regex computation. The `repairCrossFamilyFP()` step fixes this, but AND-composed regex support is needed for cases where excludes alone can't help.
+12. **regexExclude format must be locale-object:** Always write `{ru: [...]}` not plain array `[...]`. The Oracle validation reads `token.regexExclude?.ru`.
 
 ## Build & Run Commands
 

@@ -1,73 +1,53 @@
 # PoE2 Regex RU — План реализации
 
-> **Версия:** 1.6 | **Дата:** 2026-06-07
+> **Версия:** 1.7 | **Дата:** 2026-06-07
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 
 ---
 
-## Текущий статус (итерация 38)
+## Текущий статус (Session 48)
 
 ### Выполнено
 - ✅ **Фаза 0-6:** Regex Oracle, number-regex fix, Trie/DP factorization, dialect optimizations, iterative optimizer
-- ✅ **ETL re-run + optimize:** FN=0, FP=3715 (mostly family-tier FP by design)
 - ✅ **Фаза 7 (частично):** 86 hypothesis-driven тестов на реальных предметах
-  - H1: Дробные числа — `.` в regex матчит литеральную точку в "15.9"
-  - H2: Отрицательные значения — `-` работает как литерал
-  - H3: Многострочные моды (Разрушительный) — `.*` пересекает newline
-  - H4: **CRITICAL** — "использ" суффикс совпадает с описанием, а не с зарядами
-  - H5-H9: Имплиситы, имена префиксов, инвертированные диапазоны — все проходят
+- ✅ **Фаза 8 (частично):** Mixed-conflict excludes, `!(A|B)` format, word truncation, post-i18n-override FP repair
+- ✅ **ETL re-run (Session 48):** FN=0, cross-family FP=62 (was 77), family-tier FP=1062, valid=1511/1573
 
-### Критические находки Фазы 7
-1. **Tablet "зарядов" bug (H4):** Суффикс "использ" для number regex совпадает с "использовать" в описании плитки. Настоящее слово — "зарядов". Число стоит ПОСЛЕ слова (обратный порядок для `.*`).
-2. **Cross-mod FP:** Число из одного мода может через `.*` привязаться к суффиксу из другого мода — нужен prefix anchoring.
+### Ключевые изменения Session 48
+1. **`repairCrossFamilyFP()` в run-etl.ts** — Новый ETL шаг после i18n overrides: удлиняет regex до полного суффикса шаблона, добавляет недостающие exclude-маркеры, итерирует до сходимости. Исправил 15 cross-family FP (77→62).
+2. **Корневая причина FP после i18n overrides** — i18n заменяет rawText ПОСЛЕ compute-regex, делая ранее уникальные regex не-уникальными. Пример: "скорости сотворения чар" был уникален против английского flask-effect rawText, но после override появился русский "увеличение скорости сотворения чар во время действия любого флакона" с FP.
 
-### Не начато
-- ⬜ In-game верификация гипотез (см. docs/IN_GAME_TESTS.md группы G-L)
-- ⬜ Исправление tablet suffix после in-game подтверждения
-- ⬜ Фаза 8: Cross-family FP reduction, UI polish
-
----
-
-## Контекст
-
-### Что делает проект
-
-Пайплайн:
-```
-fetch-poe2db.ts → normalize.ts → compute-regex.ts → compute-optimizations.ts → optimizer.ts → compiler.ts → "регекс строка"
-```
-
-### Диалект PoE2 regex
-
-| Фича | Поведение | Влияние |
-|------|-----------|---------|
-| `.` | Матчит ЛЮБОЙ символ (включая литеральную `.` в дробных числах) | С осторожностью |
-| `[0-9]` | Матчит только цифру | Для числовых паттернов |
-| `()` | ГРУППИРОВКА (не литерал!) | Регексы не должны содержать `(...)` |
-| `[]` | Класс символов | `[её]`, `[юя]`, `[.]` для точного совпадения точки |
-| `?` | Опциональность | Для окончаний |
-| `#` | Литерал `#` | НЕ использовать `##` в регексе |
-| `-` | Литерал (НЕ спецсимвол вне `[]`) | Отрицательные числа работают |
-| Лимит | **250 символов** | Оптимизатор следит |
-
-### Формулы и шаблоны (выводы Фазы 7)
-
-1. **Дробные числа:** `"15.9"` → `.` матчит литеральную точку. Для точного совпадения: `"15[.]9"`. `"159"` НЕ матчит "15.9".
-2. **Отрицательные значения:** `"-11"` — дефис литерал. Совпадает и как подстрока "11".
-3. **Инвертированные диапазоны:** "(50-40)%" — число перед суффиксом, `.*` работает. Проблем: семантика инвертирована.
-4. **Заряды плитки:** Число ПОСЛЕ слова "зарядов" → directional `.*` требует инверсии: `"зарядов.*10"`.
-5. **Cross-mod FP:** Число из мода A может привязаться через `.*` к суффиксу из мода B. Решение: prefix anchoring.
+### Оставшиеся cross-family FP (62)
+| Категория | FP | Причина | Решение |
+|-----------|-----|---------|---------|
+| amulet | 19 | minion res, minion damage vs flask, corrupted gems | Исключить через AND-regex или i18n overrides |
+| ring | 14 | minion damage (8), elemental res (4), other (2) | AND-composed regex `"имеют" "увеличение урона"` |
+| jewel-desecrated | 15 | composite dual-stat mods делят второй стат | AND-composed regex `"повышение брони" "увеличение урона"` |
+| jewel | 11 | короткие суффиксы ("быстрее", "увеличение урона") | Длинные суффиксы или больше excludes |
+| tablet | 3 | "быстрее", generic prefixes | i18n overrides с explicit regex |
 
 ---
 
-## Файловая структура (изменённые файлы)
+## Следующие шаги (P0 → P2)
 
-```
-tests/core/hypothesis-patterns.test.ts  — 86 тестов гипотез Фазы 7 (НОВЫЙ)
-docs/IN_GAME_TESTS.md                   — обновлён: группы A-L с приоритетами
-worklog.md                              — обновлён: сессия 38
-OPTIMIZER_PLAN.md                       — обновлён: версия 1.6
-```
+### P0: AND-composed regex support
+Для ring minion damage и jewel-desecrated composite mods нужен механизм:
+- Новое поле `regexPrefixContext` в JSON схеме
+- UI: `AND(LITERAL(prefixContext), LITERAL(regex))` компилируется в `"context" "suffix"`
+- ETL: `repairCrossFamilyFP()` заполняет `regexPrefixContext` когда exclude не помогает
+- Ожидаемый эффект: −23 cross-family FP (8 ring + 15 jewel-desecrated)
+
+### P1: Остальные FP фиксы
+1. Ring minion elemental res (4 FP) — изменить regex с "стихия" на "к сопротивлению всем стихиям" или добавить "сопротивлению" как префикс
+2. Amulet оставшиеся 19 FP — детальный анализ конкретных токенов
+3. Jewel 11 FP — longer suffixes или additional excludes
+4. In-game тесты — `|` внутри `()`, number range с `|`
+5. Optimizer expansion — truncated forms в compute-optimizations.ts
+
+### P2: UI/UX
+1. List virtualization — belt (298), ring (366), amulet (427)
+2. HomePage hardcoded counts
+3. Multi-line mod handling
 
 ---
 
@@ -75,9 +55,9 @@ OPTIMIZER_PLAN.md                       — обновлён: версия 1.6
 
 ```
 Продолжи работу над проектом poe2-regex-ru. Репозиторий: https://github.com/vudirvp-sketch/poe2-regex-ru
-План: OPTIMIZER_PLAN.md (версия 1.6)
-Текущая фаза: 7 (in-game верификация) / 8 (финальная полировка)
-Что сделано: Фазы 0-7. 409 тестов (323 + 86 гипотез). FN=0, FP=3715.
-Критические находки: H4 — tablet "зарядов" suffix bug. "использ" совпадает с описанием.
-Следующий шаг: In-game верификация групп G-L из docs/IN_GAME_TESTS.md. Исправление tablet suffix. Фаза 8 — cross-family FP.
+План: OPTIMIZER_PLAN.md (версия 1.7)
+Текущая фаза: 8 (cross-family FP reduction)
+Что сделано: Фазы 0-8 частично. 471 тест, FN=0, cross-family FP=62 (was 77).
+Ключевое: repairCrossFamilyFP() ETL step добавлен. Root cause FP после i18n overrides найден.
+Следующий шаг: AND-composed regex support для ring minion damage и jewel-desecrated composites.
 ```
