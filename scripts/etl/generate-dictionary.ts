@@ -41,6 +41,10 @@ export function assembleGameToken(
   if (regexResult.regexExclude && regexResult.regexExclude.length > 0) {
     token.regexExclude = { [locale]: regexResult.regexExclude };
   }
+  // Only include regexPrefixContext if non-empty (save space in JSON)
+  if (regexResult.regexPrefixContext && regexResult.regexPrefixContext.length > 0) {
+    token.regexPrefixContext = { [locale]: regexResult.regexPrefixContext };
+  }
   return token;
 }
 
@@ -66,6 +70,7 @@ export function assembleCategoryData(
       regexPrefix: '',
       hasMultiPlaceholder: false,
       regexExclude: [],
+      regexPrefixContext: '',
     };
     const jType = jewelTypeMap?.[mod.id];
     return assembleGameToken(mod, result, locale, jType);

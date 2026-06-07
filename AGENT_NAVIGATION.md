@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 48.0 | **Date:** 2026-06-07
+> **Version:** 49.0 | **Date:** 2026-06-07
 
 ---
 
@@ -69,12 +69,12 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-1. **Remaining ~62 cross-family FP** — Breakdown: amulet 19, ring 14, jewel-desecrated 15, jewel 11, tablet 3. The `repairCrossFamilyFP()` ETL step (Session 48) reduced from 77 to 62 by lengthening regexes and adding excludes after i18n overrides. Remaining cases need AND-composed regex support.
+1. **Remaining ~39 cross-family FP** — Down from 62. P0 (AND-composed regex via `regexPrefixContext`) eliminated ~23 FP in ring minion damage and jewel-desecrated composites. Breakdown: amulet 19, ring 0 (was 14, fixed by regexPrefixContext), jewel-desecrated 0 (was 15, fixed), jewel 11, tablet 3. Remaining amulet and jewel FP need detailed i18n-overrides analysis.
 
 ### MEDIUM
 
-2. **AND-composed regex support needed** — Ring minion damage (8 FP) and jewel-desecrated composites (15 FP) need `"context" "suffix"` AND syntax, which the current regex system doesn't support. The `regex` field is a single string; need a `regexPrefixContext` field or similar that gets AND-composed in the UI.
-3. **Ring minion elemental res FP (4)** — regex "стихия" with exclude "стихия м" doesn't exclude "всем стихиям" because "всем стихиям" appears in the target family too. Needs different regex approach.
+2. **ringPrefixContext system implemented** — `regexPrefixContext` field added to GameToken (Phase 9). ETL `repairCrossFamilyFP()` Step 3 fills it when excludes can't eliminate all FP. UI compiles `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`. Covers ring minion damage and jewel-desecrated composites.
+3. **Ring minion elemental res** — Fixed by regexPrefixContext="имеют" → `"имеют" "стихия"` eliminates FP from non-minion "к сопротивлению всем стихиям" tokens.
 4. **`|` inside `()` with correct quote syntax** — Needs re-testing in-game with `"!X"` format.
 5. **Number range with `|`** — `([6-9][0-9]|[0-9][0-9][0-9])` — verify works in PoE2, or find alternative approach.
 6. **Per-token dual-number RANGE filtering** — Second placeholder overrides not supported
@@ -97,6 +97,7 @@ The `computeMinimalUniqueSubstring()` function in `scripts/etl/compute-regex.ts`
 | 1c | Full second stat | Dual-stat template suffix join | `"повышение брони, увеличение урона"` |
 | 1d | Negation | Suffix + short exclude patterns | `"к силе" "! и"` |
 | **1e** | **Word Truncation** | **Truncate words + optional negate** | **`"к си" "! и"` (9 chars vs 40)** |
+| **1f** | **AND-composed Context** | **regexPrefixContext + regex** | **`"имеют" "увеличение урона"` (−23 FP)** |
 | 2 | Substring fallback | Brute-force unique substring search | `"огню"` |
 
 Strategy 1e is new in Phase 8. It produces dramatically shorter regexes by combining word truncation with short negate markers.
@@ -117,8 +118,11 @@ FP categorization (all functions):
 - `OracleResult.crossFamilyFP` — FP from different familyKey (real bugs)
 - `valid = true` when NO cross-family FP and no FN
 
-## 9. regexExclude System (Phase 8 — Refactored)
+## 9. regexExclude & regexPrefixContext System (Phase 8-9)
 
+Two mechanisms for cross-family FP prevention:
+
+### regexExclude (Phase 8)
 New field `regexExclude` on `GameToken` stores negation patterns for cross-family FP prevention.
 
 **Priority order for exclude patterns (verified in-game Phase 8):**
@@ -136,3 +140,24 @@ New field `regexExclude` on `GameToken` stores negation patterns for cross-famil
 **Example (Phase 8 optimization):**
 - Old: `"к силе" !"к силе и" !"к силе,"` (40 chars)
 - New: `"к си" "! и"` (9 chars, 80% shorter)
+
+### regexPrefixContext (Phase 9)
+
+When regex + regexExclude cannot eliminate all FP because the suffix appears in both target and conflict families, `regexPrefixContext` provides a short substring that appears ONLY in the target family's rawText.
+
+**How it works:**
+- ETL `repairCrossFamilyFP()` Step 3 computes it after excludes are exhausted
+- Finds shortest word from the template prefix that appears in ALL target-family tokens but NOT in any conflict
+- UI compiles: `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`
+- Both must appear on the item (AND across blocks), eliminating FP
+
+**Example:**
+- Target: "Приспешники имеют (7—9)% увеличение урона" — has "имеют" AND "увеличение урона"
+- Conflict: "(3—7)% увеличение урона от огня" — has "увеличение урона" but NOT "имеют"
+- Old: `"увеличение урона" !"увеличение урона от" !"хаосом"` — still has FP from fire/cold/lightning
+- New: `"имеют" "увеличение урона"` — no FP, shorter, no excludes needed
+
+**When context is used vs excludes:**
+- Excludes preferred when: a short marker can cover all conflicts (e.g., `"! и"` for compound families)
+- Context preferred when: suffix appears in both target AND conflicts, no short exclude exists
+- Can combine both: `"context" "suffix" "!exclude"` — context narrows scope, excludes handle remaining

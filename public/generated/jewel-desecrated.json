@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T09:29:13.410Z",
+  "version": "2026-06-07T09:53:57.559Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -56,7 +56,13 @@
         38
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "пов"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_faag7j",
@@ -166,7 +172,13 @@
         57
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "укл"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_4qfum9",
@@ -223,7 +235,13 @@
         78
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "е м"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_wk8php",
@@ -278,7 +296,13 @@
         52
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "пов"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_22l2u1",
@@ -333,7 +357,13 @@
         43
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "укл"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_ejpzup",
@@ -389,7 +419,13 @@
         64
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "е м"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_nbe1td",
@@ -443,7 +479,13 @@
         38
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "пов"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_dfjfh3",
@@ -504,6 +546,9 @@
         "ru": [
           "Приспеш"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "т ч"
       }
     },
     {
@@ -566,6 +611,9 @@
         "ru": [
           "Приспеш"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "т ч"
       }
     },
     {
@@ -626,6 +674,9 @@
         "ru": [
           "Приспеш"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "т ч"
       }
     },
     {
@@ -737,6 +788,9 @@
           "тотемов",
           "шипами"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "я, п"
       }
     },
     {
@@ -803,6 +857,9 @@
           "тотемов",
           "шипами"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "а, п"
       }
     },
     {
@@ -867,6 +924,9 @@
           "тотемов",
           "шипами"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "и, п"
       }
     },
     {
@@ -1023,7 +1083,13 @@
         64
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "е м"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_zi2db0",
@@ -1079,7 +1145,13 @@
         43
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "укл"
+      },
+      "regexExclude": {
+        "ru": []
+      }
     },
     {
       "id": "jewel-desecrated.mod_dzug44",

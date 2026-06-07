@@ -137,6 +137,16 @@ After applying overrides, `run-etl.ts` recomputes: `regex.ru`, `familyKey.ru`, `
 
 **To add new overrides:** Identify English-only tokens → find Russian translation from in-game text or `регис/` folder → add to `i18n-overrides.json` → re-run `pnpm etl`.
 
+## 7b. Cross-Family FP Repair (Post-Override)
+
+After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` runs in 3 steps per token:
+
+1. **Suffix lengthening** — If the current regex has FP, try upgrading to the full template suffix (fewer conflicts)
+2. **Exclude patterns** — Add short negation markers (from known CONFLICT_MARKERS + first-word-after-suffix heuristic)
+3. **regexPrefixContext** (Phase 9) — When excludes can't cover all FP, find a short substring from the template prefix that appears in ALL target-family tokens but NOT in any conflict. Stored as `regexPrefixContext` field on GameToken. UI compiles: `AND(LITERAL(context), LITERAL(regex))` → `"context" "suffix"`
+
+Steps iterate until convergence. Expected impact: −23 cross-family FP (ring minion damage + jewel-desecrated composites).
+
 ## 8. Fallback Procedures
 
 If poe2db.tw adds anti-bot: manual HTML save → local file → parse from file.

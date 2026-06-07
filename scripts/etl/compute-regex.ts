@@ -51,6 +51,12 @@ export interface RegexResult {
    *  "suffix" !"exclude1" !"exclude2"
    *  Empty array means no exclusions needed. */
   regexExclude: string[];
+  /** AND-composed prefix context for cross-family FP prevention.
+   *  When regex + regexExclude cannot eliminate all FP, this provides a
+   *  short substring that appears ONLY in the target family's rawText.
+   *  UI compiles: AND(LITERAL(context), LITERAL(regex)) → "context" "suffix"
+   *  Empty string means no prefix context needed. */
+  regexPrefixContext: string;
 }
 
 /** Minimum regex length for meaningful matching in PoE2 search.
@@ -384,7 +390,7 @@ export function computeMinimalUniqueSubstring(
 
   // Edge case: empty rawText
   if (!rawText || rawText.trim().length === 0) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
+    return { regex: '', hasYofication: false, yoficationPositions: [], familyKey, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [], regexPrefixContext: '' };
   }
 
   // Detect multi-placeholder template (dual-number or dual-stat mods)
@@ -414,7 +420,7 @@ export function computeMinimalUniqueSubstring(
           bestSuffix, targetToken, allTokensInCategory, locale
         );
 
-        return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+        return { regex: bestSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [], regexPrefixContext: '' };
       }
       // Pure suffix not in rawText — fall through to Strategy 1b/1c
     }
@@ -485,7 +491,7 @@ export function computeMinimalUniqueSubstring(
             const { hasYofication, yoficationPositions } = checkYofication(
               bestExtended, targetToken, allTokensInCategory, locale
             );
-            return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+            return { regex: bestExtended, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [], regexPrefixContext: '' };
           }
           // Joined suffix not in rawText — try individual last segment
         }
@@ -505,7 +511,7 @@ export function computeMinimalUniqueSubstring(
           const { hasYofication, yoficationPositions } = checkYofication(
             lastSegment, targetToken, allTokensInCategory, locale
           );
-          return { regex: lastSegment, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+          return { regex: lastSegment, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [], regexPrefixContext: '' };
         }
       }
     }
@@ -538,7 +544,7 @@ export function computeMinimalUniqueSubstring(
             const { hasYofication, yoficationPositions } = checkYofication(
               bestFull, targetToken, allTokensInCategory, locale
             );
-            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+            return { regex: bestFull, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [], regexPrefixContext: '' };
           }
           // Not in rawText — skip this strategy
         }
@@ -566,7 +572,7 @@ export function computeMinimalUniqueSubstring(
       const { hasYofication, yoficationPositions } = checkYofication(
         suffix, targetToken, allTokensInCategory, locale
       );
-      return { regex: suffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludePatterns };
+      return { regex: suffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludePatterns, regexPrefixContext: '' };
     }
   }
 
@@ -623,13 +629,13 @@ export function computeMinimalUniqueSubstring(
       const { hasYofication, yoficationPositions } = checkYofication(
         broadSuffix, targetToken, allTokensInCategory, locale
       );
-      fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
+      fallbackResult = { regex: broadSuffix, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [], regexPrefixContext: '' };
     }
     // If even the broad suffix doesn't match, keep the fallback result
     // (it will be an FN in Oracle but at least it's a best-effort regex)
   }
 
-  return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: fallbackResult.regexExclude || [] };
+  return { ...fallbackResult, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: fallbackResult.regexExclude || [], regexPrefixContext: fallbackResult.regexPrefixContext || '' };
 }
 
 /**
@@ -699,7 +705,7 @@ function tryWordTruncation(
         const { hasYofication, yoficationPositions } = checkYofication(
           truncatedSuffix, targetToken, allTokensInCategory, locale
         );
-        bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [] };
+        bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: [], regexPrefixContext: '' };
         bestTotalLen = totalLen;
       }
       continue;
@@ -718,7 +724,7 @@ function tryWordTruncation(
       const { hasYofication, yoficationPositions } = checkYofication(
         truncatedSuffix, targetToken, allTokensInCategory, locale
       );
-      bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludes };
+      bestResult = { regex: truncatedSuffix, hasYofication, yoficationPositions, familyKey, regexPrefix, hasMultiPlaceholder, regexExclude: excludes, regexPrefixContext: '' };
       bestTotalLen = totalLen;
     }
   }
@@ -831,7 +837,7 @@ function substringSearchFallback(
 ): Omit<RegexResult, 'familyKey'> {
   const targetTexts = getAllTexts(targetToken, locale).map(t => t.toLowerCase());
   if (targetTexts.length === 0 || targetTexts.every(t => t === '')) {
-    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
+    return { regex: '', hasYofication: false, yoficationPositions: [], regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [], regexPrefixContext: '' };
   }
 
   // Build exclusion texts: all other tokens' texts
@@ -945,7 +951,7 @@ function substringSearchFallback(
     bestCandidate, primaryText, targetToken, exclusionSubstrings
   );
 
-  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [] };
+  return { regex: bestCandidate, hasYofication, yoficationPositions, regexPrefix: '', hasMultiPlaceholder: false, regexExclude: [], regexPrefixContext: '' };
 }
 
 

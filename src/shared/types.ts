@@ -35,6 +35,17 @@ export interface GameToken {
    *  "suffix" !"exclude1" !"exclude2"
    *  Empty array or absent means no exclusions needed. */
   regexExclude?: Record<Locale, string[]>;
+  /** AND-composed prefix context for cross-family FP prevention.
+   *  When regex + regexExclude cannot eliminate all FP because the suffix
+   *  appears in both target and conflict families, this field provides a
+   *  short substring that appears ONLY in the target family's rawText
+   *  (typically a word before the number placeholder like "имеют" for
+   *  "Приспешники имеют ... увеличение урона").
+   *  UI compiles: AND(LITERAL(regexPrefixContext), LITERAL(regex)) → "context" "suffix"
+   *  Both must appear on the item (AND across blocks), eliminating FP
+   *  where "suffix" appears without "context".
+   *  Empty string or absent means no prefix context needed. */
+  regexPrefixContext?: Record<Locale, string>;
   /** Jewel type classification (only for jewel category). Populated by ETL from
    *  poe2db ModCalc pages. 'shared' if mod appears on multiple jewel types or unknown. */
   jewelType?: JewelType;

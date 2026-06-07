@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T09:29:13.375Z",
+  "version": "2026-06-07T09:53:57.509Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -2242,12 +2242,15 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "проклятий",
           "умений",
+          "проклятий",
           "присутствия"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_jo4ch9",
@@ -2300,12 +2303,15 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "увеличение урона от",
+          "снарядов",
           "топорами",
           "луками"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_cggkw1",
@@ -5355,7 +5361,10 @@
           "активация"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "заканчиваются"
+      }
     },
     {
       "id": "jewel.mod_6xejfh",
@@ -5493,7 +5502,10 @@
           "активация"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "урон"
+      }
     },
     {
       "id": "jewel.mod_8xfqnw",
@@ -6485,7 +6497,10 @@
       "regexExclude": {
         "ru": []
       },
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_d5zh33",
@@ -6530,11 +6545,12 @@
       ],
       "level": 1,
       "regexExclude": {
-        "ru": [
-          "эффекта уме ния"
-        ]
+        "ru": []
       },
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_a4hrrs",
@@ -6803,7 +6819,10 @@
           "для"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_aw0oyt",
@@ -6992,7 +7011,10 @@
           "активация"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "regexPrefixContext": {
+        "ru": "воскрешаются"
+      }
     },
     {
       "id": "jewel.mod_sbryhz",

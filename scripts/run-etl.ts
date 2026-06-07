@@ -896,6 +896,159 @@ function repairCrossFamilyFP(): void {
           fileRepaired++;
           totalRepaired++;
         }
+
+        // Step 3: If excludes still can't cover all conflicts, try regexPrefixContext.
+        // Find a short substring that appears in ALL target-family tokens but NOT
+        // in any uncovered conflict tokens. This creates AND(LITERAL(context), LITERAL(regex))
+        // which compiles to "context" "suffix" in PoE2.
+        {
+          const currentExcludesAfterStep2: string[] = token.regexExclude
+            ? (Array.isArray(token.regexExclude)
+              ? [...token.regexExclude]
+              : (typeof token.regexExclude === 'object' && token.regexExclude.ru
+                ? [...(token.regexExclude.ru || [])]
+                : []))
+            : [];
+
+          // Find uncovered conflicts (after excludes applied)
+          const uncoveredConflicts: { id: string; rawText: string }[] = [];
+          for (const conf of conflicts) {
+            const confRaw = conf.rawText.toLowerCase();
+            if (!currentExcludesAfterStep2.some(exc => confRaw.includes(exc.toLowerCase()))) {
+              uncoveredConflicts.push(conf);
+            }
+          }
+
+          if (uncoveredConflicts.length === 0) continue;
+
+          // Already has prefix context? Skip
+          const existingContext = token.regexPrefixContext
+            ? (typeof token.regexPrefixContext === 'object' ? token.regexPrefixContext.ru : '')
+            : '';
+          if (existingContext) continue;
+
+          // Collect all same-family rawTexts to find common substrings
+          const familyTexts: string[] = [];
+          for (const t of tokens) {
+            const tFam = tokenFamilyMap.get(t.id) || '';
+            if (tFam === tokenFamily) {
+              familyTexts.push((typeof t.rawText === 'object' ? t.rawText.ru : t.rawText).toLowerCase());
+            }
+          }
+
+          // Find the shortest common substring that:
+          // 1. Appears in ALL family texts
+          // 2. Does NOT appear in any uncovered conflict text
+          // Try candidate words from the template prefix (text before first #)
+          const tmpl = typeof token.rawTextTemplate === 'object'
+            ? token.rawTextTemplate.ru : token.rawTextTemplate;
+          let bestContext = '';
+
+          if (tmpl) {
+            // Extract text before first # placeholder
+            const hashIdx = tmpl.indexOf('#');
+            if (hashIdx > 0) {
+              const prefixText = tmpl.substring(0, hashIdx).trim();
+              // Try words from the prefix (right to left, shortest first)
+              const prefixWords = prefixText.split(/\s+/);
+              // Try individual words from end of prefix
+              for (let i = prefixWords.length - 1; i >= 0; i--) {
+                const word = prefixWords[i].replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+                if (word.length < 3) continue;
+                const wordLower = word.toLowerCase();
+
+                // Check: word appears in ALL family texts
+                const inAllFamily = familyTexts.every(t => t.includes(wordLower));
+                if (!inAllFamily) continue;
+
+                // Check: word does NOT appear in any uncovered conflict
+                const inAnyConflict = uncoveredConflicts.some(c =>
+                  c.rawText.toLowerCase().includes(wordLower)
+                );
+                if (inAnyConflict) continue;
+
+                bestContext = word;
+                break; // Found shortest valid word from the end
+              }
+
+              // If single word not found, try 2-word combinations from end
+              if (!bestContext && prefixWords.length >= 2) {
+                for (let i = prefixWords.length - 1; i >= 1; i--) {
+                  const twoWords = prefixWords.slice(i - 1, i + 1)
+                    .map(w => w.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, ''))
+                    .filter(w => w.length > 0)
+                    .join(' ');
+                  if (twoWords.length < 5) continue;
+                  const twoLower = twoWords.toLowerCase();
+
+                  const inAllFamily = familyTexts.every(t => t.includes(twoLower));
+                  if (!inAllFamily) continue;
+
+                  const inAnyConflict = uncoveredConflicts.some(c =>
+                    c.rawText.toLowerCase().includes(twoLower)
+                  );
+                  if (inAnyConflict) continue;
+
+                  bestContext = twoWords;
+                  break;
+                }
+              }
+            }
+          }
+
+          // If no prefix-based context found, try brute-force common substring
+          if (!bestContext && familyTexts.length > 0) {
+            // Try all substrings of the first family text from shortest to longest
+            const firstText = familyTexts[0];
+            for (let len = 3; len <= Math.min(firstText.length, 20); len++) {
+              let found = false;
+              for (let start = 0; start <= firstText.length - len; start++) {
+                const candidate = firstText.substring(start, start + len).trim();
+                if (candidate.length < 3 || candidate.includes('(') || candidate.includes(')')) continue;
+                // Must start and end with a letter
+                if (!/[a-zA-Zа-яА-ЯёЁ]/.test(candidate[0]) || !/[a-zA-Zа-яА-ЯёЁ]/.test(candidate[candidate.length - 1])) continue;
+
+                const candLower = candidate.toLowerCase();
+
+                const inAllFamily = familyTexts.every(t => t.includes(candLower));
+                if (!inAllFamily) continue;
+
+                const inAnyConflict = uncoveredConflicts.some(c =>
+                  c.rawText.toLowerCase().includes(candLower)
+                );
+                if (inAnyConflict) continue;
+
+                bestContext = candidate;
+                found = true;
+                break;
+              }
+              if (found) break;
+            }
+          }
+
+          if (bestContext) {
+            token.regexPrefixContext = { ru: bestContext };
+            // Clear excludes since context makes them unnecessary (context + regex AND is sufficient)
+            // Actually, keep excludes that are still needed for partial coverage
+            // But if regexPrefixContext covers ALL conflicts, we can clear excludes
+            // Check: does context appear in any conflict (including covered ones)?
+            const contextLower = bestContext.toLowerCase();
+            const contextCoversAll = conflicts.every(c =>
+              !c.rawText.toLowerCase().includes(contextLower)
+            );
+            if (contextCoversAll) {
+              // Context alone eliminates all FP — clear excludes
+              token.regexExclude = typeof token.regexExclude === 'object' && !Array.isArray(token.regexExclude)
+                ? { ...token.regexExclude, ru: [] }
+                : { ru: [] };
+            }
+
+            changed = true;
+            fileRepaired++;
+            totalRepaired++;
+            console.log(`  regexPrefixContext: ${token.id} -> "${bestContext}" (eliminates ${uncoveredConflicts.length} uncovered FP)`);
+          }
+        }
       }
     }
 

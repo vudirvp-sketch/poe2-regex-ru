@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 4.0 | **Date:** 2026-06-06
+> **Version:** 5.0 | **Date:** 2026-06-07
 
 ---
 
@@ -34,6 +34,12 @@ export interface GameToken {
   familyKey: Record<Locale, string>;       // normalized rawTextTemplate for grouping mods of the same family
   regexPrefix: Record<Locale, string>;     // text before number placeholder, dual-number mods only
   hasMultiPlaceholder: boolean;            // template has multiple ##/# (dual-number or dual-stat)
+  /** Exclusion patterns for cross-family FP prevention */
+  regexExclude?: Record<Locale, string[]>;
+  /** AND-composed prefix context for cross-family FP prevention.
+   *  Short substring appearing in ALL target-family tokens but NOT in conflicts.
+   *  UI compiles: AND(LITERAL(context), LITERAL(regex)) → "context" "suffix" */
+  regexPrefixContext?: Record<Locale, string>;
   jewelType?: JewelType;                   // only for jewel category; populated by ETL from ModCalc pages
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
@@ -122,6 +128,7 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 | `RANGE(min=40, suffix="m q")` | `"([4-9].\|\d..).*m q"` | (with round10) | Yes |
 | `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9].\|\d..).*m q"` | (dual-number prefix) | Yes |
 | `AND([RANGE(...), LITERAL(...)])` | `"rangeRegex" "literal"` | | Yes |
+| AND-composed `regexPrefixContext` | `"context" "suffix"` | `"имеют" "увеличение урона"` | Yes |
 
 **Key rules:**
 - Each AND child gets its own quoted group. Space between groups = AND (order-independent)

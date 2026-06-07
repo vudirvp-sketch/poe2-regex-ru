@@ -246,6 +246,15 @@ function buildAstFromSelections(
   if (nonRangedTokens.length > 0) {
     const literals = nonRangedTokens.map(t => {
       const baseLiteral = literal(t.regex[locale], t.id);
+
+      // If this token has a prefix context, wrap in AND with context LITERAL:
+      // AND(LITERAL(context), LITERAL(regex)) compiles to "context" "regex"
+      // Both must appear on the item (AND across blocks), eliminating FP.
+      const prefixContext = t.regexPrefixContext?.[locale];
+      const contextNode = prefixContext
+        ? and(literal(prefixContext), baseLiteral)
+        : baseLiteral;
+
       // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
       const excludes = t.regexExclude?.[locale];
       if (excludes && excludes.length > 0 && !excludeMode) {
@@ -253,13 +262,13 @@ function buildAstFromSelections(
         // "!A|B" is shorter than "!A" "!B" and semantically equivalent
         // (both exclude items containing A OR B in any block)
         if (excludes.length === 1) {
-          return and(baseLiteral, exclude(literal(excludes[0])));
+          return and(contextNode, exclude(literal(excludes[0])));
         } else {
           const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
-          return and(baseLiteral, excludeOrNode);
+          return and(contextNode, excludeOrNode);
         }
       }
-      return baseLiteral;
+      return contextNode;
     });
 
     if (excludeMode) {
@@ -338,8 +347,15 @@ function buildAstFromSelections(
         // Phase 8: Wrap RANGE in AND with EXCLUDE nodes if tokens have regexExclude.
         // When the suffix has cross-family FP (e.g., "к си" matching compound mods),
         // the RANGE regex must include negation: "numRegex.*suffix" "!exclude"
+        // Phase 9: Also add regexPrefixContext as AND(LITERAL(context), RANGE(...))
         let nodeWithExcludes: ASTNode = rangeNode;
         if (!excludeMode) {
+          // Add prefix context if available
+          const prefixContext = group.tokens[0]?.regexPrefixContext?.[locale];
+          if (prefixContext) {
+            nodeWithExcludes = and(literal(prefixContext), nodeWithExcludes);
+          }
+
           // Collect unique exclude patterns from all tokens in this range group
           const allExcludes: string[] = [];
           for (const token of group.tokens) {
@@ -375,17 +391,24 @@ function buildAstFromSelections(
       const uniqueSuffixTokens = [...new Map(rangedTokens.map(t => [t.regex[locale], t])).values()];
       const literals = uniqueSuffixTokens.map(token => {
         const baseLiteral = literal(token.regex[locale], token.id);
+
+        // If this token has a prefix context, wrap in AND with context LITERAL
+        const prefixContext = token.regexPrefixContext?.[locale];
+        const contextNode = prefixContext
+          ? and(literal(prefixContext), baseLiteral)
+          : baseLiteral;
+
         const excludes = token.regexExclude?.[locale];
         if (excludes && excludes.length > 0 && !excludeMode) {
           // Combine multiple excludes into single EXCLUDE(OR([...])) for shorter regex
           if (excludes.length === 1) {
-            return and(baseLiteral, exclude(literal(excludes[0])));
+            return and(contextNode, exclude(literal(excludes[0])));
           } else {
             const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
-            return and(baseLiteral, excludeOrNode);
+            return and(contextNode, excludeOrNode);
           }
         }
-        return baseLiteral;
+        return contextNode;
       });
 
       if (excludeMode) {

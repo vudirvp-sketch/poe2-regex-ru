@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T09:29:16.730Z",
+  "version": "2026-06-07T09:54:01.966Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -12107,6 +12107,9 @@
       "level": 22,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12158,6 +12161,9 @@
       "level": 38,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12209,6 +12215,9 @@
       "level": 49,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12260,6 +12269,9 @@
       "level": 57,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12311,6 +12323,9 @@
       "level": 66,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12362,6 +12377,9 @@
       "level": 73,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12595,6 +12613,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12644,6 +12665,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12693,6 +12717,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12742,6 +12769,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12791,6 +12821,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12840,6 +12873,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13157,6 +13193,9 @@
       "level": 18,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13210,6 +13249,9 @@
       "level": 29,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13263,6 +13305,9 @@
       "level": 41,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13316,6 +13361,9 @@
       "level": 52,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13369,6 +13417,9 @@
       "level": 67,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -13422,6 +13473,9 @@
       "level": 75,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
