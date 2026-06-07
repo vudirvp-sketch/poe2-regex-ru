@@ -16,7 +16,7 @@
  * - Red + pulse: >250 characters (OVERFLOW — copy blocked)
  */
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { MAX_CHARS } from '@shared/constants';
+import { MAX_CHARS } from '@core/limits';
 import { getShareableUrl, type SerializableStore } from '@store/url-sync';
 import { t } from '@shared/i18n';
 

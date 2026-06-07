@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 8.0 | **Date:** 2026-06-07
+> **Version:** 9.0 | **Date:** 2026-06-08
 
 ---
 

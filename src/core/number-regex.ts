@@ -89,7 +89,9 @@ export function generateMaxNumberRegex(number: string, round10: boolean): string
     quant = Math.ceil(quant / 10) * 10;
   }
 
-  if (isNaN(quant) || quant <= 0) return '';
+  if (isNaN(quant) || quant < 0) return '';
+
+  if (quant === 0) return '(0)';
 
   if (quant >= 100) return threeDigitMax(quant);
 
@@ -166,13 +168,34 @@ function threeDigitMax(n: number): string {
     return `([0-9]|[1-9][0-9]|1[0-${prevD1}][0-9]|1${d1}[0-${d2}])`;
   }
 
-  // D0 > 1: e.g., 250 → 0-9, 10-99, 100-199, 200-249, 250
+  // D0 > 1: need to cover 0-9, 10-99, 100-(D0-1)99, D0*00-n
+  const prevDigits = D0 > 2 ? `[1-${D0 - 1}][0-9][0-9]` : '1[0-9][0-9]';
+
+  // Round hundreds: 200, 300, etc.
   if (d1 === '0' && d2 === '0') {
-    return `([0-9]|[1-9][0-9]|[1-${D0 - 1}][0-9][0-9]|${n})`;
+    return `([0-9]|[1-9][0-9]|${prevDigits}|${n})`;
   }
-  // e.g., 250 → 0-9, 10-99, 100-199, 200-249, 250
-  // More general:
-  return `([0-9]|[1-9][0-9]|[1-${D0 - 1}][0-9][0-9]|${n})`;
+
+  // D0 > 1 with d1 === '0' but d2 !== '0': e.g., 205 → 0-9, 10-99, 100-199, 200-205
+  if (d1 === '0') {
+    return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}0[0-${d2}])`;
+  }
+
+  // D0 > 1 with d2 === '0': e.g., 250 → 0-9, 10-99, 100-199, 200-249, 250
+  if (d2 === '0') {
+    const prevD1 = Number(d1) - 1;
+    if (prevD1 === 0) {
+      return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}0[0-9]|${n})`;
+    }
+    return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}[0-${prevD1}][0-9]|${n})`;
+  }
+
+  // D0 > 1 general: e.g., 275 → 0-9, 10-99, 100-199, 200-269, 270-275
+  const prevD1 = Number(d1) - 1;
+  if (prevD1 === 0) {
+    return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}0[0-9]|${d0}${d1}[0-${d2}])`;
+  }
+  return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}[0-${prevD1}][0-9]|${d0}${d1}[0-${d2}])`;
 }
 
 function threeDigitMin(n: number): string {

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 5.0 | **Date:** 2026-06-07
+> **Version:** 6.0 | **Date:** 2026-06-08
 
 ---
 

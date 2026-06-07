@@ -57,6 +57,23 @@ describe('generateMaxNumberRegex', () => {
     it('max=200 → "([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200)" matches 0-200', () => {
       expect(generateMaxNumberRegex('200', false)).toBe('([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200)');
     });
+
+    it('max=250 → covers 0-249 and 250', () => {
+      // BUG FIX: previously missed 200-249
+      const result = generateMaxNumberRegex('250', false);
+      expect(result).toBe('([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|250)');
+    });
+
+    it('max=275 → covers 0-269 and 270-275', () => {
+      const result = generateMaxNumberRegex('275', false);
+      expect(result).toContain('2[0-6][0-9]');
+      expect(result).toContain('27[0-5]');
+    });
+
+    it('max=205 → covers 0-199 and 200-205', () => {
+      const result = generateMaxNumberRegex('205', false);
+      expect(result).toContain('20[0-5]');
+    });
   });
 
   describe('round10', () => {
@@ -69,8 +86,8 @@ describe('generateMaxNumberRegex', () => {
   });
 
   describe('edge cases', () => {
-    it('0 → empty (no numbers ≤ 0 in PoE regex context)', () => {
-      expect(generateMaxNumberRegex('0', false)).toBe('');
+    it('0 → matches only 0', () => {
+      expect(generateMaxNumberRegex('0', false)).toBe('(0)');
     });
 
     it('non-numeric → empty', () => {

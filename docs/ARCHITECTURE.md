@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 32.0 | **Date:** 2026-06-07 | **Language:** RU-first
+> **Version:** 33.0 | **Date:** 2026-06-08 | **Language:** RU-first
 
 ---
 
@@ -355,3 +355,22 @@ Oracle results distinguish two types of false positives:
 ### Waystone implicits note
 
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
+
+## 12. Bug Fix Log
+
+### v33.0 (2026-06-08)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| `threeDigitMax()` missing range for D0>1 non-round-hundred values | **Critical** | e.g., max=250 previously produced `([0-9]\|[1-9][0-9]\|[1-1][0-9][0-9]\|250)`, missing 200-249. Fixed: now produces `([0-9]\|[1-9][0-9]\|1[0-9][0-9]\|2[0-4][0-9]\|250)` |
+| `generateMaxNumberRegex` returned `''` for max=0 | Medium | Now returns `'(0)'` — matches only zero instead of silently dropping the constraint |
+| Duplicate `MAX_CHARS` constant in `shared/constants.ts` and `core/limits.ts` | Low | Consolidated: `MAX_CHARS` only in `core/limits.ts`, UI imports from there. `shared/constants.ts` now only contains CATEGORY_IDS/ROUTES/LABELS |
+
+### Number Regex correctness note
+
+The `threeDigitMax()` function generates correct PoE2 regex for all 3-digit max values:
+- Round hundreds (100, 200, 300): `([0-9]|[1-9][0-9]|[1-N][0-9][0-9]|N00)`
+- D0=1 general (125, 150, 175): `([0-9]|[1-9][0-9]|1[0-prevD1][0-9]|1d1[0-d2])`
+- D0>1 with d1=0 (205, 305): `([0-9]|[1-9][0-9]|[1-D0-1][0-9][0-9]|D00[0-d2])`
+- D0>1 with d2=0 (250, 350): `([0-9]|[1-9][0-9]|[1-D0-1][0-9][0-9]|D0[0-prevD1][0-9]|ND0)`
+- D0>1 general (275, 385): `([0-9]|[1-9][0-9]|[1-D0-1][0-9][0-9]|D0[0-prevD1][0-9]|D0d1[0-d2])`

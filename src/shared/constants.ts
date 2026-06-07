@@ -1,5 +1,3 @@
-export const MAX_CHARS = 250;
-
 export const CATEGORY_IDS = [
   'waystone',
   'waystone-desecrated',

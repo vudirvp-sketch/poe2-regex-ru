@@ -12,7 +12,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { VendorChip } from '@ui/components/VendorChip';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { t } from '@shared/i18n';
-import { MAX_CHARS } from '@shared/constants';
+import { MAX_CHARS } from '@core/limits';
 import { and, or, literal, exclude, range } from '@core/ast';
 import { compile } from '@core/compiler';
 import type { ASTNode, SearchLogic } from '@shared/types';
