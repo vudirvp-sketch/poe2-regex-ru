@@ -842,6 +842,7 @@ function repairCrossFamilyFP(): void {
     'топорами',   // axe attack speed vs generic (added for completeness)
     'без',        // unarmed attack speed vs generic ("без оружия")
     'для',        // spell-specific variants (e.g., "для заклинаний")
+    '—',          // em-dash: distinguishes "(30—40)% ..." from "% ..." (tablet h4ipty FP)
   ];
 
   for (const jsonFile of jsonFiles) {
@@ -1117,7 +1118,26 @@ function repairCrossFamilyFP(): void {
             }
           }
 
-          // If no prefix-based context found, try brute-force common substring
+          // If no prefix-based context found, try conflict markers as context
+          // Markers that appear in ALL family texts but NOT in uncovered conflicts
+          // make good AND-composed prefix contexts (e.g., "—" for number-range mods)
+          if (!bestContext) {
+            for (const marker of CONFLICT_MARKERS) {
+              const markerLower = marker.toLowerCase();
+              // Marker must appear in ALL family texts
+              const inAllFamily = familyTexts.every(t => t.includes(markerLower));
+              if (!inAllFamily) continue;
+              // Marker must NOT appear in any uncovered conflict
+              const inAnyConflict = uncoveredConflicts.some(c =>
+                c.rawText.toLowerCase().includes(markerLower)
+              );
+              if (inAnyConflict) continue;
+              bestContext = marker;
+              break;
+            }
+          }
+
+          // If still no context found, try brute-force common substring
           if (!bestContext && familyTexts.length > 0) {
             // Try all substrings of the first family text from shortest to longest
             const firstText = familyTexts[0];

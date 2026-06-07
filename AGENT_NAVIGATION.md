@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 56.0 | **Date:** 2026-06-07
+> **Version:** 57.0 | **Date:** 2026-06-08
 
 ---
 
@@ -72,7 +72,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### MEDIUM
 
-1. **4 tablet cross-family FP** — mod_od9m77/mod_ld06px and their .h4ipty splits. Try longer regex or regexPrefixContext. These are currently accepted as limitations.
+*(none currently)*
 
 ### LOW
 

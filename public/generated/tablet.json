@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-07T16:14:14.071Z",
+  "version": "2026-06-07T16:28:32.039Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -115,7 +115,12 @@
         46,
         55
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "—"
+        ]
+      }
     },
     {
       "id": "tablet.mod_od9m77.giiz25",
@@ -267,7 +272,12 @@
         46,
         55
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "—"
+        ]
+      }
     },
     {
       "id": "tablet.mod_wrlukt",
@@ -2331,7 +2341,12 @@
         46,
         55
       ],
-      "level": 1
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "—"
+        ]
+      }
     },
     {
       "id": "tablet.mod_xpt1fq",
@@ -2540,6 +2555,9 @@
       "level": 1,
       "regexExclude": {
         "ru": []
+      },
+      "regexPrefixContext": {
+        "ru": "—"
       }
     },
     {
@@ -3255,7 +3273,12 @@
         "ru": "увеличение количества находимых"
       },
       "weight": 31,
-      "count": 3
+      "count": 3,
+      "regexExclude": {
+        "ru": [
+          "—"
+        ]
+      }
     },
     "tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
       "ids": [
