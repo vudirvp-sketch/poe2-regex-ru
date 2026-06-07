@@ -4,33 +4,45 @@
 
 ---
 
-## Current State (Session 66 — 2026-06-08)
+## Current State (Session 67 — 2026-06-08)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (540/540 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
+**Jewel heuristic:** 100% accuracy (193/193) vs ETL ground truth
 
 **Key Changes This Session:**
 
-1. **Jewel classification heuristic improved (P1 — DONE)** — Heuristic fallback accuracy improved from ~76% to ~96% vs ETL ground truth. Added `SHARED_OVERRIDE_PATTERNS` array (33 patterns) that classify cross-type mods as 'shared' before scoring. Refined RUBY/EMERALD/SAPPHIRE scoring weights: removed ambiguous patterns, added type-specific patterns (mark skills to Emerald, ES threshold to Sapphire, banner glory speed to Ruby, minion health back to Ruby). Fixed `мет[о]?к` pattern to match genitive plural "меток".
+1. **Jewel heuristic all 9 mismatches fixed (P2 — DONE)** — Heuristic accuracy improved from ~96% to 100% vs ETL ground truth. Root causes and fixes:
 
-2. **FilterChip min-w-[30%] removed (P2 — DONE)** — Removed the minimum width constraint from FilterChip's outer div for better flex-wrap behavior. Chips now size to their content naturally.
+   - **Typo: кинджал→кинжал** — "кинджал" (with д) doesn't match real Russian "кинжал" (dagger). Fixed in all SHARED_OVERRIDE + EMERALD_SCORES patterns.
+   - **Shield defence override too broad** — `/увеличен.*уклонен(?!.*брон)/` matched shield defence because "брони" appears BEFORE "уклонения". Added `(?!.*от щит)` to exclude shield defence signature.
+   - **Minion resist lookbehind** — `/к сопротивлению (хаос|...)(?!.*приспешник)/` missed "Приспешники" before the resist text. Replaced with `/(?<!приспешник.*)к сопротивлению/` using JS lookbehind.
+   - **ES threshold narrowing** — `/максимум.*энергетическ.*щит/` caught "порог от максимума ES" (Sapphire-specific). Narrowed to `/увеличен.*максимум.*энергетическ.*щит/`.
+   - **Triple-ailment exclusion** — `/длительн.*(поджог.*шок|...)/` caught "поджог, шок и охлаждение" (Emerald-specific). Added `(?!.*охлажден)` negative lookahead.
+   - **Mark spell scoring boost** — Emerald=3, Sapphire=3 tie on mark spell speed. Boosted Emerald mark pattern from w=3 to w=5; added `(?!.*мет)` to Sapphire `скорост.*сотворени.*чар`.
+   - **Conditional stun threshold** — Ruby generic "оглушен" tied with Emerald specific. Boosted Emerald conditional pattern from w=3 to w=5.
+   - **Banner е/ё dialect** — Patterns used "знамён" (ё) but displayText has "знамен" (е). Changed to `знам[её]н`.
+   - **Dagger damage override missing** — Added `/увеличен.*урона.*кинжал/` to SHARED_OVERRIDE.
+   - **Shield defence scoring boost** — Increased Ruby shield defence pattern from w=4 to w=5 for better margin.
 
-3. **Number regex [0-9] → . confirmed NOT VIABLE (P3 — CLOSED)** — Investigated replacing `[0-9]` with `.` in generated regex patterns for character savings. Confirmed that `.` in PoE2 regex dialect matches ANY character (not just digits), as documented in `src/core/number-regex.ts` and verified in-game. Using `.` would cause false positives (e.g., "4-" or "4a" matching). This optimization is impossible.
+2. **45 unit tests added for mod-classifier.ts** — New test file `tests/shared/mod-classifier.test.ts` covering:
+   - classifyJewelType heuristic (30 tests: all 9 former mismatches + key positive cases)
+   - classifyByTags (5 tests)
+   - classifyByText (4 tests)
+   - classifyWaystoneSentiment (3 tests)
+   - classifyTabletType (4 tests)
 
-4. **FilterChip ARIA restructuring confirmed already done** — Code review shows inputs are already siblings of `role="switch"` div (not children), matching the VendorChip sibling pattern. Was completed in a previous session.
-
-5. **Documentation updated** — AGENT_NAVIGATION.md v66.0, новый_план.md v9.0, worklog updated.
+3. **Documentation updated** — AGENT_NAVIGATION.md v67.0, новый_план.md v10.0, worklog updated.
 
 **Files changed this session:**
-- `src/shared/mod-classifier.ts` — Added SHARED_OVERRIDE_PATTERNS, refined scoring weights, fixed меток pattern
-- `src/ui/components/FilterChip.tsx` — Removed min-w-[30%]
-- `AGENT_NAVIGATION.md` — v66.0: updated Known Issues, moved resolved items
-- `новый_план.md` — v9.0: updated status to Session 66
+- `src/shared/mod-classifier.ts` — Fixed 9 mismatches, added dagger damage override, fixed typo, scoring boosts, dialect handling
+- `tests/shared/mod-classifier.test.ts` — NEW: 45 unit tests
+- `AGENT_NAVIGATION.md` — v67.0: moved jewel heuristic to RESOLVED, test count 495→540
+- `новый_план.md` — v10.0: marked P2 as completed
 - `worklog.md` — This update
 
 **NOT YET DONE (next iteration):**
 - ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers) — NEEDS HUMAN
-- ⬜ Jewel classification heuristic remaining edge cases (9 mismatches, ~96% accuracy)
 - ⬜ Mobile-specific testing (touch targets, scroll behavior) — NEEDS REAL DEVICE
 
 ---
@@ -56,13 +68,14 @@
 17. **ARIA: interactive elements must not be children of role="switch":** Use sibling pattern.
 18. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur.
 19. **All number inputs must have step={1}:** PoE2 mod values are always integers; fractional input produces invalid regex.
+20. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё (e.g., `знам[её]н`, `вс[её]`).
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (495)
+npx vitest run --root .          # Run all tests (540)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation

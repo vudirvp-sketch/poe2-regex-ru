@@ -240,7 +240,8 @@ export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
 const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   // ─── Resistance mods — plain resist is shared; max resist is type-specific ───
   // Plain +N% resist (corrupted suffixes, passive radius) — shared across all types
-  /к сопротивлению (холод|хаос|огн|молни)(?!.*приспешник)/i,
+  // Lookbehind excludes minion resist ("Приспешники имеют ... к сопротивлению X")
+  /(?<!приспешник.*)к сопротивлению (холод|хаос|огн|молни)/i,
   // Penetration — shared EXCEPT fire (fire pen is Ruby-specific)
   /пробивает.*сопротивления (холод|молни)/i,
 
@@ -248,15 +249,16 @@ const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   /увеличение урона (хаосом|от холода|от молнии)/i,
 
   // ─── Energy shield max ES — shared (Ruby+armour/ES, Sapphire+pure ES) ───
-  /максимум.*энергетическ.*щит/i,
+  // Specific: only "увеличение максимума ES", not "порог от максимума ES" (Sapphire)
+  /увеличен.*максимум.*энергетическ.*щит/i,
   // ES recharge is NOT shared — it's Sapphire-specific. Only "ускорение начала перезарядки" is shared.
 
   // ─── Generic damage type strength/duration (appear on multiple types) ───
   /увеличен.*силы поджог/i,                        // ignite strength — shared, not Ruby-only
   /силы накладываемого.*(отравлен|шок)/i,           // poison/shock strength — shared
   /увеличен.*силы накладываемого.*(отравлен|шок)/i,
-  /длительн.*(поджог.*шок|шок.*поджог|поджога.*шока|шока.*поджога)/i,  // multi-ailment
-  /увеличен.*длительн.*шок/i,                      // shock duration — shared
+  /длительн.*(поджог.*шок|шок.*поджог|поджога.*шока|шока.*поджога)(?!.*охлажден)/i,  // dual-ailment (поджог+шок), NOT triple (Emerald-specific)
+  /увеличен.*длительн.*шок(?!.*охлажден)/i,                      // shock duration — shared, not triple-ailment
   /шанса отравить/i,                                // poison chance — shared
 
   // ─── Spell damage generic (shared — only the noun form "увеличение урона от чар") ───
@@ -270,8 +272,10 @@ const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   /усилен.*эффект.*боев.*клич/i,
 
   // ─── Evasion generic (shared — appears on multiple types) ───
-  // But NOT when combined with "брон" (shield defence = Ruby-specific)
-  /увеличен.*уклонен(?!.*брон)/i,
+  // But NOT when combined with "брон" or "от щит" (shield defence = Ruby-specific)
+  // Note: negative lookahead checks AFTER "уклонен"; "брони" in shield defence
+  // appears BEFORE "уклонения", so we also exclude "от щит" after it
+  /увеличен.*уклонен(?!.*(?:брон|от щит))/i,
 
   // ─── Companion mods (shared — appear on multiple types) ───
   /компаньон.*(урон|здоровь)/i,
@@ -283,7 +287,7 @@ const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   /приспешник.*воскреш/i,                           // minion revival — shared
 
   // ─── Attack speed with non-type-specific weapons (shared) ───
-  /скорост.*атак.*(топор|меч|кинджал|без оруж)/i,
+  /скорост.*атак.*(топор|меч|кинжал|без оруж)/i,
 
   // ─── Dual-jewel combo mods (inherently shared) ───
   /пока у вас размещены/i,
@@ -302,7 +306,7 @@ const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   /эффект.*восприимчивост/i,
 
   // ─── Generic crit with daggers (shared) ───
-  /шанс.*критического удара.*кинджал/i,
+  /шанс.*критического удара.*кинжал/i,
 
   // ─── Skill recharge / plants (shared) ───
   /урон.*умениями.*растен/i,
@@ -323,9 +327,10 @@ const SHARED_OVERRIDE_PATTERNS: RegExp[] = [
   // ─── Max chaos resist (shared) ───
   /максимальн.*сопротивлен.*хаос/i,
 
-  // ─── Dagger-specific attack mods (shared — appear on multiple types) ───
-  /критического удара кинжалами/i,
-  /скорост.*атак.*кинджалами/i,
+  // ─── Dagger-specific mods (shared — appear on multiple types) ───
+  /увеличен.*урона.*кинжал/i,                       // dagger damage — shared (not Emerald-only)
+  /критического удара кинжалами/i,                    // dagger crit — shared
+  /скорост.*атак.*кинжалами/i,                        // dagger attack speed — shared
 ];
 
 /** Keyword → weight pairs for Ruby jewel mods (fire, bleed, physical, maces, rage, thorns, totems, warcries, banners, presence, armour, stuns) */
@@ -364,12 +369,12 @@ const RUBY_SCORES: [RegExp, number][] = [
   [/боев.*клич/i, 2],
 
   // Banners (unique to Ruby) — includes speed accumulation for знамён
-  [/(?:знамён|област.*действ.*знамён|скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён|длительн.*знамён|накоплен.*славы.*умени.*знамён)/i, 3],
+  [/(?:знам[её]н|област.*действ.*знам[её]н|скорост.*накоплен.*славы.*знам[её]н|скорость.*накоплен.*славы.*знам[её]н|длительн.*знам[её]н|накоплен.*славы.*умени.*знам[её]н)/i, 3],
   // Banner glory speed (Ruby unique — not in shared override)
-  [/скорост.*накоплен.*славы.*знамён|скорость.*накоплен.*славы.*знамён/i, 4],
+  [/скорост.*накоплен.*славы.*знам[её]н|скорость.*накоплен.*славы.*знам[её]н/i, 4],
 
   // Shield defence (Ruby unique — брони, уклонения и энергетического щита от щита)
-  [/брон.*уклонен.*энерг.*щит.*щит/i, 4],
+  [/брон.*уклонен.*энерг.*щит.*щит/i, 5],
 
   // NOTE: Aura strength removed from RUBY — moved to SHARED_OVERRIDE (appears on Ruby+Sapphire)
 
@@ -458,7 +463,7 @@ const EMERALD_SCORES: [RegExp, number][] = [
   [/копь[яюей]/i, 2],
 
   // Daggers (Emerald)
-  [/кинджал/i, 2],
+  [/кинжал/i, 2],
 
   // Parry (unique to Emerald)
   [/(?:Парирован|длительн.*Парирован|урон.*Парирован|порог.*оглушен.*парир)/i, 3],
@@ -528,13 +533,13 @@ const EMERALD_SCORES: [RegExp, number][] = [
   [/усилен.*эффект.*умени.*мет[о]?к|усилен.*эффект.*мет[о]?к/i, 3],
   [/умени.*мет[о]?к.*длительн|длительн.*эффект.*умени.*мет[о]?к|увеличен.*длительн.*эффект.*умени.*мет[о]?к/i, 3],
   // Mark spell speed (Emerald — cross-type with Sapphire spell casting)
-  [/мет[о]?к.*скорост.*сотворени|скорост.*сотворени.*чар.*мет[о]?к|умени.*метк.*скорост.*сотворени/i, 3],
+  [/мет[о]?к.*скорост.*сотворени|скорост.*сотворени.*чар.*мет[о]?к|умени.*метк.*скорост.*сотворени/i, 5],
 
   // Multi-ailment duration (Emerald — duration of поджог+шок+охлаждение)
   [/длительн.*поджог.*шок.*охлажден/i, 3],
 
   // Stun threshold conditional (Emerald)
-  [/порог.*оглушен.*недавно.*не.*были.*оглушен/i, 3],
+  [/порог.*оглушен.*недавно.*не.*были.*оглушен/i, 5],
   // Stun threshold on parry (Emerald)
   [/порог.*оглушен.*парир/i, 3],
 
@@ -560,7 +565,7 @@ const SAPPHIRE_SCORES: [RegExp, number][] = [
   [/(?:энергетическ.*щит|максимум.*энергетическ.*щит|перезарядк.*энергетическ.*щит|ускорен.*начал.*перезарядк.*энергетическ.*щит|энергетическ.*щит.*фокус|дополнит.*порог.*энергетическ.*щит)/i, 3],
 
   // Spells (unique to Sapphire)
-  [/(?:чар[ыуе].*умени|урон.*чар|Срабатывающ.*чар|скорост.*сотворени.*чар)/i, 3],
+  [/(?:чар[ыуе].*умени|урон.*чар|Срабатывающ.*чар|скорост.*сотворени.*чар(?!.*мет))/i, 3],
 
   // Mana (Sapphire — NOT flask mana which is Emerald)
   [/максимум.*ман|скорост.*регенерац.*ман|ман.*вместо.*здоровь|получаем.*урон.*берет.*ман/i, 2],

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 66.0 | **Date:** 2026-06-08
+> **Version:** 67.0 | **Date:** 2026-06-08
 
 ---
 
@@ -18,7 +18,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 495 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 540 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (495 tests, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (540 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -49,7 +49,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root .` passes (495 tests)
+- [ ] `npx vitest run --root .` passes (540 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -66,12 +66,12 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 6. Known Issues & Remaining Work
 
-### MEDIUM
-1. **Jewel classification heuristic** — ETL lookup gives 100% (all tokens have `jewelType`). Heuristic fallback accuracy improved to ~96% (was ~76%). Remaining 9 mismatches are edge cases with cross-type keyword conflicts.
-
 ### LOW
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+
+### RESOLVED (Session 67)
+1. ~~Jewel classification heuristic 9 mismatches~~ — All 9 fixed, heuristic accuracy now 100% vs ETL ground truth. Fixes: кинджал→кинжал typo, shield defence override, minion resist lookbehind, ES threshold narrowing, triple-ailment exclusion, mark/dagger/banner scoring boosts, е/ё dialect handling
 
 ### RESOLVED (Session 66)
 1. ~~Jewel classification accuracy~~ — Improved heuristic from ~76% to ~96% via SHARED_OVERRIDE_PATTERNS + refined scoring weights
