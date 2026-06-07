@@ -19,7 +19,7 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
-import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
+import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
@@ -332,7 +332,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             onClick={onClearSelections}
             className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
           >
-            {t('filter.clear')} ({selectedIds.size})
+            {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
         )}
       </div>

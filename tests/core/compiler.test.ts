@@ -188,6 +188,70 @@ describe('compile', () => {
     expect(result).not.toMatch(/!"/);
   });
 
+  // ─── OR-suffix RANGE tests (Session 60: ranged tokens with different suffixes) ───
+
+  it('compiles RANGE with OR-suffix (multiple suffixes joined by |)', () => {
+    // When multiple ranged tokens share the same (min, max) but have different suffixes,
+    // they are merged into one RANGE with OR-joined suffix.
+    // The compiler must wrap the OR-suffix in () to scope the | correctly.
+    // Without wrapping: "([1-9][0-9]|[0-9][0-9][0-9]).*огню|холоду" would parse as
+    //   "([1-9][0-9]|[0-9][0-9][0-9]).*огню" OR "холоду" — WRONG!
+    // With wrapping: "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" — correct!
+    const result = compile(range(10, undefined, 'огню|холоду'), { round10: false });
+    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+  });
+
+  it('compiles RANGE with single suffix (no wrapping needed)', () => {
+    // Single suffix without | — no wrapping, same as before
+    const result = compile(range(10, undefined, 'к сопротивлению огню'), { round10: false });
+    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*к сопротивлению огню"');
+  });
+
+  it('compiles RANGE with OR-suffix and prefix', () => {
+    // Dual-number mod with OR-suffix and prefix anchoring
+    const result = compile(range(10, undefined, 'урона от молнии|урона от огня', 'От'), { round10: false });
+    expect(result).toBe('"От ([1-9][0-9]|[0-9][0-9][0-9]).*(урона от молнии|урона от огня)"');
+  });
+
+  it('compiles RANGE with OR-suffix and both min+max', () => {
+    // min+max with OR-suffix: both RANGE nodes get the OR-suffix wrapped
+    const result = compile(range(10, 50, 'огню|холоду'), { round10: false });
+    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" "([0-9]|[1-4][0-9]|50).*(огню|холоду)"');
+  });
+
+  it('compiles RANGE with OR-suffix and max-only', () => {
+    const result = compile(range(undefined, 25, 'огню|холоду'), { round10: false });
+    expect(result).toBe('"([0-9]|1[0-9]|2[0-5]).*(огню|холоду)"');
+  });
+
+  it('compiles AND(LITERAL, RANGE with OR-suffix)', () => {
+    // Simulates: a non-ranged literal AND a ranged OR-suffix
+    const result = compile(
+      and(literal('оскверн'), range(10, undefined, 'огню|холоду')),
+      { round10: false }
+    );
+    expect(result).toBe('"оскверн" "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+  });
+
+  it('compiles AND(LITERAL, RANGE with OR-suffix, EXCLUDE)', () => {
+    // Full combo: non-ranged literal + ranged OR-suffix + exclude
+    const result = compile(
+      and(
+        or(literal('даровать двойное'), literal('фонтаны')),
+        range(10, undefined, 'огню|холоду'),
+        exclude(literal('Приспеш'))
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('"даровать двойное|фонтаны" "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" "!Приспеш"');
+  });
+
+  it('compiles RANGE with OR-suffix and exact=true (no round10)', () => {
+    const result = compile(range(25, undefined, 'огню|холоду', undefined, true), { round10: true });
+    // exact=true → no round10, so ≥25 not rounded to 30
+    expect(result).toBe('"(2[5-9]|[3-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+  });
+
   it('compiles AND(LITERAL, EXCLUDE(OR)) — !(A|B) format', () => {
     // Single exclude group with OR inside: "!A|B" inside quotes
     const result = compile(

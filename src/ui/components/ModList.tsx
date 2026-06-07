@@ -14,7 +14,7 @@
  */
 import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup } from '@shared/types';
-import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
+import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
@@ -381,7 +381,7 @@ export const ModList: React.FC<ModListProps> = ({
             onClick={onClearSelections}
             className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
           >
-            {t('filter.clear')} ({selectedIds.size})
+            {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
         )}
       </div>

@@ -117,15 +117,25 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       // - exact=undefined → use global round10 (default behavior)
       const useRound10 = ast.exact === true ? false : round10;
 
+      // Compile the suffix: if it contains '|' (OR of multiple suffixes),
+      // wrap in () so the '|' is scoped correctly within the quoted group.
+      // Example: suffix="огню|холоду" → "(огню|холоду)"
+      // Without wrapping: "([1-9][0-9]).*огню|холоду" would parse as
+      //   "([1-9][0-9]).*огню" OR "холоду" — wrong!
+      // With wrapping: "([1-9][0-9]).*(огню|холоду)" — correct!
+      const compiledSuffix = ast.suffix
+        ? (ast.suffix.includes('|') ? `(${ast.suffix})` : ast.suffix)
+        : undefined;
+
       // ≥ min: generate regex matching numbers ≥ min
       if (ast.min !== undefined) {
         const minStr = ast.min.toString();
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
-        if (ast.suffix) {
+        if (compiledSuffix) {
           // With prefix: "prefix numRegex.*suffix" — anchors number within same block (dual-number only)
-          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${ast.suffix}`;
-          return `${numRegex}.*${ast.suffix}`;
+          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
+          return `${numRegex}.*${compiledSuffix}`;
         }
         // No suffix: just prefix + numRegex or numRegex alone
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
@@ -137,9 +147,9 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const maxStr = ast.max.toString();
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
-        if (ast.suffix) {
-          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${ast.suffix}`;
-          return `${numRegex}.*${ast.suffix}`;
+        if (compiledSuffix) {
+          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
+          return `${numRegex}.*${compiledSuffix}`;
         }
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
         return numRegex;

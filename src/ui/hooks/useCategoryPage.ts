@@ -338,12 +338,14 @@ function buildAstFromSelections(
     );
 
     if (anyHasRange) {
-      // Group ranged tokens by suffix + prefix + effective range per slot
-      // Each unique (suffix, prefix, min, max, isPerToken, slotIndex) combination
-      // gets its own RANGE node. For dual-slot tokens, each slot produces a
-      // separate RANGE node that will be ANDed together.
+      // Group ranged tokens by (prefix, min, max, exact, slotIndex) — NOT by suffix.
+      // This allows merging tokens with different suffixes but the same numeric
+      // range into a single RANGE node with OR-joined suffixes, e.g.:
+      //   RANGE(10, undefined, "огню|холоду|молнии") → "([1-9][0-9][0-9]?).*(огню|холоду|молнии)"
+      // instead of three separate AND-joined RANGEs which would require the item
+      // to have ALL three mods simultaneously (wrong for typical use case).
       const rangeGroups = new Map<string, {
-        suffix: string;
+        suffixes: string[];
         prefix: string;
         min: number | undefined;
         max: number | undefined;
@@ -362,14 +364,19 @@ function buildAstFromSelections(
 
           const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
 
-          const groupKey = `${suffix}::${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}`;
+          // Group by (prefix, min, max, exact, slotIndex) — NOT by suffix
+          const groupKey = `${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}`;
 
           const existing = rangeGroups.get(groupKey);
           if (existing) {
             existing.tokens.push(token);
+            // Add suffix if not already in the group
+            if (!existing.suffixes.includes(suffix)) {
+              existing.suffixes.push(suffix);
+            }
           } else {
             rangeGroups.set(groupKey, {
-              suffix,
+              suffixes: [suffix],
               prefix: prefix,
               min: hasMin ? slot.min! : undefined,
               max: hasMax ? slot.max! : undefined,
@@ -381,9 +388,15 @@ function buildAstFromSelections(
         }
       }
 
-      // For each unique (suffix, prefix, min, max, exact) combination, create a RANGE node
+      // For each unique (prefix, min, max, exact) group, create a RANGE node
+      // with OR-joined suffixes if multiple unique suffixes exist
       for (const [, group] of rangeGroups) {
-        const rangeNode = range(group.min, group.max, group.suffix, group.prefix || undefined, group.exact || undefined);
+        // Join multiple suffixes with | — compiler will wrap in () when needed
+        const suffixStr = group.suffixes.length > 1
+          ? group.suffixes.join('|')
+          : group.suffixes[0];
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined);
 
         // Phase 8: Wrap RANGE in AND with EXCLUDE nodes if tokens have regexExclude.
         // When the suffix has cross-family FP (e.g., "к си" matching compound mods),
@@ -391,10 +404,13 @@ function buildAstFromSelections(
         // Phase 9: Also add regexPrefixContext as AND(LITERAL(context), RANGE(...))
         let nodeWithExcludes: ASTNode = rangeNode;
         if (!excludeMode) {
-          // Add prefix context if available
-          const prefixContext = group.tokens[0]?.regexPrefixContext?.[locale];
-          if (prefixContext) {
-            nodeWithExcludes = and(literal(prefixContext), nodeWithExcludes);
+          // Add prefix context if available (only when all tokens share the same context)
+          const contexts = [...new Set(
+            group.tokens.map(t => t.regexPrefixContext?.[locale] ?? '').filter(c => c.length > 0)
+          )];
+          // Only add context if all tokens that have context share the SAME value
+          if (contexts.length === 1) {
+            nodeWithExcludes = and(literal(contexts[0]), nodeWithExcludes);
           }
 
           // Collect unique exclude patterns from all tokens in this range group
@@ -423,6 +439,9 @@ function buildAstFromSelections(
         if (searchLogic === 'or') {
           orChildren.push(nodeWithExcludes);
         } else {
+          // AND mode: ranged tokens with same (min, max, prefix) go into ONE
+          // RANGE node with OR-suffix, NOT separate AND-joined RANGE nodes.
+          // This is the fix for the "regex collapses when numeric value is set" bug.
           andChildren.push(nodeWithExcludes);
         }
       }

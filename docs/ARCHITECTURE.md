@@ -250,6 +250,14 @@ For single-number mods, prefix is always empty — `.*` within a single block ca
 Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to first number
 Single-number: "(numRegex).*к сопротивлению огню"  ← no prefix needed, .* stays within block
 ```
+
+### OR-suffix RANGE (Session 60: ranged tokens with different suffixes)
+When multiple ranged tokens share the same numeric range (min, max) but have different suffixes, they are merged into a single RANGE node with OR-joined suffixes. The compiler wraps OR-suffixes in `()` to scope the `|` correctly within the quoted group:
+```
+RANGE(10, undefined, "огню|холоду|молнии")  →  "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду|молнии)"
+```
+Without wrapping: `"([1-9][0-9]).*огню|холоду|молнии"` would parse as `"([1-9][0-9]).*огню"` OR `"холоду"` OR `"молнии"` — WRONG.
+
 - **When prefix is needed:** Dual-number mods ("От ## до ## ...", "Добавляет от ## до ## ...")
 - **When prefix is NOT needed:** All single-number mods (.* can't cross blocks)
 - Implementation: `regexPrefix` field on GameToken, `prefix` param on RANGE AST node

@@ -4,26 +4,48 @@
 
 ---
 
-## Current State (Session 58 — 2026-06-08)
+## Current State (Session 60 — 2026-06-08)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (487/487 tests)
+**Build:** `pnpm build` passes, `npx vitest run --root .` passes (495/495 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**
 
 **Key Changes This Session:**
 
-1. **FilterChip `firstRangedMember` crash fixed** — `TypeError: Cannot read properties of undefined (reading 'id')` in onChange handlers:
-   - Root cause: `firstRangedMember` searched for `m.ranges.length > 0`, but `hasRanges` checks `group.rangeSlots.length > 0` which includes both `ranges` (##) and `values` (#). For value-only groups (corrupted implicits like "+1 к уровню всех камней умений"), `firstRangedMember` was `undefined` → crash on `.id` access.
-   - Fix: Changed `firstRangedMember` to `m.ranges.length > 0 || m.values.length > 0` + replaced `firstRangedMember!.id` with null-guarded `firstRangedMember.id`.
-   - Affected 27 groups across amulet/belt/ring/jewel (VirtualizedModList) and 17+ in waystone/tablet (ModList).
+1. **P0 FIX: Regex collapses when numeric value is set** — When user selects multiple mods and sets a numeric range (global min/max or per-token), ranged tokens with different suffixes were creating separate RANGE nodes ANDed together. This required the item to have ALL mods simultaneously — wrong for typical use case (user wants ANY mod with value ≥N).
+   - Root cause: `buildAstFromSelections()` grouped ranged tokens by (suffix, prefix, min, max) — each suffix got its own RANGE node ANDed in.
+   - Fix: Changed grouping key to (prefix, min, max, exact, slotIndex) — tokens with same numeric range but different suffixes now share one RANGE with OR-joined suffixes.
+   - Example: `RANGE(10, undefined, "огню|холоду")` → `"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"` instead of `"([1-9][0-9]|[0-9][0-9][0-9]).*огню" "([1-9][0-9]|[0-9][0-9][0-9]).*холоду"`
+   - Compiler updated: OR-suffixes wrapped in `()` to scope `|` correctly: `".*(огню|холоду)"` not `".*огню|холоду"`.
+   - Files: `src/ui/hooks/useCategoryPage.ts`, `src/core/compiler.ts`, `tests/core/compiler.test.ts`
+
+2. **P1 FIX: Selection count shows token count instead of group count** — "Выбрано: 20 мод(ов)" when user selected 6 FamilyGroup chips. Each chip represents multiple tokens (different tier ranges), but the counter showed individual token count.
+   - Fix: Added `countUniqueFamilyKeys()` in `family-grouper.ts`, used in all page summaries and "Очистить" button in ModList/VirtualizedModList.
+   - Files: `src/shared/family-grouper.ts`, all page components, `ModList.tsx`, `VirtualizedModList.tsx`
+
+3. **Waystone 404 investigated** — NOT an app bug. The 404 is from SPA routing on GitHub Pages (browser requests `/waystone` route, GitHub serves 404.html which redirects to index.html). JSON data loads correctly.
 
 **Files changed this session:**
-- `src/ui/components/FilterChip.tsx` — Fixed `firstRangedMember` lookup + null guards
-- `AGENT_NAVIGATION.md` — v58.0, updated browser testing note
+- `src/ui/hooks/useCategoryPage.ts` — OR-suffix grouping for ranged tokens
+- `src/core/compiler.ts` — OR-suffix wrapping in `()`
+- `src/shared/family-grouper.ts` — Added `countUniqueFamilyKeys()`
+- `src/ui/components/ModList.tsx` — Use `countUniqueFamilyKeys` for clear button
+- `src/ui/components/VirtualizedModList.tsx` — Use `countUniqueFamilyKeys` for clear button
+- `src/ui/pages/amulet/AmuletPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/belt/BeltPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/ring/RingPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/relic/RelicPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/waystone/WaystonePage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/jewel/JewelPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `src/ui/pages/tablet/TabletPage.tsx` — Use `countUniqueFamilyKeys` for summary
+- `tests/core/compiler.test.ts` — 8 new OR-suffix RANGE tests
 - `worklog.md` — This update
+- `AGENT_NAVIGATION.md` — Updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges on value-only groups, dual-slot ranges, jewel type sub-headers)
+- ⬜ P2: Visual indicator when optimizer collapses selections (regex doesn't change on click — confusing but correct behavior)
+- ⬜ Browser functional testing of VirtualizedModList (scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers)
 - ⬜ Jewel classification accuracy improvement (heuristic fallback ~84%)
+- ⬜ Edge case audit: what if ranged tokens with same (min,max) have different regexExclude/regexPrefixContext? Currently only context is added if all tokens share the same one; excludes are unioned. This may produce overly broad regex in rare cases.
 
 ---
 
@@ -43,13 +65,14 @@
 12. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
 13. **Phase A1 truncation only for entries without context/excludes:** Truncating entries with FP would break the context/exclude patching logic.
 14. **Multi-line sub-lines may share text with standalone mods:** h4ipty splits can create cross-family FP with mods that have the same suffix but a `#%` prefix. Use `—` exclude/context to disambiguate.
+15. **OR-suffix RANGE must wrap `|` in `()`:** Compiler wraps suffixes containing `|` in `()` to scope the alternation. Without this, `".*огню|холоду"` parses as `".*огню"` OR `"холоду"` — wrong!
 
 ## Build & Run Commands
 
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (487)
+npx vitest run --root .          # Run all tests (495)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation

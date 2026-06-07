@@ -21,8 +21,8 @@ import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { t } from '@shared/i18n';
+import { countUniqueFamilyKeys, groupTokensByFamily } from '@shared/family-grouper';
 import { classifyJewelType, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
-import { groupTokensByFamily } from '@shared/family-grouper';
 import type { GameToken } from '@shared/types';
 
 /** Jewel type filter options for the control panel */
@@ -184,7 +184,7 @@ export function JewelPage() {
 
               {selectedTokens.length > 0 && (
                 <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {selectedTokens.length} {t('mods_word')}</div>
+                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(selectedTokens)} {t('mods_word')}</div>
                   <div className="text-[10px] text-gray-600">
                     {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>

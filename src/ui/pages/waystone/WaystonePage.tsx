@@ -21,6 +21,7 @@ import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { t } from '@shared/i18n';
+import { countUniqueFamilyKeys } from '@shared/family-grouper';
 import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
@@ -157,7 +158,7 @@ export function WaystonePage() {
               {(selectedTokens.length > 0 || corrupted || uncorrupted || delirious) && (
                 <div className="bg-gray-900 border border-gray-700 rounded p-3">
                   <div className="text-xs text-gray-400 mb-1">
-                    {t('summary.selected')}: {selectedTokens.length} {t('mods_word')}
+                    {t('summary.selected')}: {countUniqueFamilyKeys(selectedTokens)} {t('mods_word')}
                     {corrupted && ` ${t('waystone.summary_corrupted')}`}
                     {uncorrupted && ` ${t('waystone.summary_uncorrupted')}`}
                     {delirious && ` ${t('waystone.summary_delirious')}`}

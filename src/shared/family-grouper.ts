@@ -155,6 +155,21 @@ export function groupTokensByFamily(tokens: GameToken[]): FamilyGroup[] {
   return groups;
 }
 
+/**
+ * Count unique family keys among a set of selected tokens.
+ * Each FamilyGroup chip represents one visual "mod" in the UI, but internally
+ * a single chip can represent multiple tokens (different tier ranges).
+ * This function returns the count of distinct visual groups (family keys),
+ * which is what the user expects to see in "Selected: N mods".
+ */
+export function countUniqueFamilyKeys(tokens: GameToken[]): number {
+  const keys = new Set<string>();
+  for (const token of tokens) {
+    keys.add(`${token.familyKey.ru}::${token.affix}`);
+  }
+  return keys.size;
+}
+
 // ─── Origin splitting (for P0: origin sub-sections within semantic groups) ───
 
 /**

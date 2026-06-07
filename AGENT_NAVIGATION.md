@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 59.0 | **Date:** 2026-06-08
+> **Version:** 60.0 | **Date:** 2026-06-08
 
 ---
 
@@ -18,7 +18,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 487 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 495 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports. | Reference data for cross-validation. |
 
 ## 2. Build Commands
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root . # Run tests (487 tests, Vitest)
+npx vitest run --root . # Run tests (495 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -68,7 +68,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### HIGH
 
-*(none currently)*
+1. **OR-suffix edge case: regexExclude/regexPrefixContext** — When ranged tokens with same (min,max) but different suffixes have different `regexExclude` patterns, all excludes are unioned. This may produce overly broad regex. Only `regexPrefixContext` is conditionally added (if all tokens share same one).
 
 ### MEDIUM
 
@@ -79,7 +79,15 @@ shared <- core <- strategies <- store <- data <- ui
 
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges (value-only groups), dual-slot ranges, jewel type sub-headers.
 
-## 7. Bug Fixes (Session 59)
+## 7. Bug Fixes (Session 60)
+
+| Fix | File | Description |
+|-----|------|-------------|
+| Regex collapse on numeric range | `useCategoryPage.ts`, `compiler.ts` | Ranged tokens with different suffixes but same (min,max) now OR-join suffixes into one RANGE node instead of AND-joining separate RANGEs. Compiler wraps OR-suffixes in `()` for correct scoping. |
+| Selection count shows tokens not groups | All page components, `ModList`, `VirtualizedModList` | "Выбрано: N мод(ов)" and "Очистить (N)" now count unique FamilyGroups (familyKey+affix) instead of individual token IDs. Added `countUniqueFamilyKeys()` helper. |
+| Waystone 404 | N/A | Investigated: NOT an app bug. 404 is from SPA routing on GitHub Pages, not from JSON loading. |
+
+## 7b. Bug Fixes (Session 59)
 
 | Fix | File | Description |
 |-----|------|-------------|
