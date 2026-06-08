@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 72 — 2026-06-08)
+## Current State (Session 73 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,15 +12,26 @@
 
 **Key Changes This Session:**
 
-1. **Build fix — CategoryControlPanelProps** — Made `priorityFilter` and `setPriorityFilter` optional props (were required but removed from JewelPage/RelicPage/VendorPage in Session 71). Added default `'all'` for `priorityFilter` and `() => {}` fallback for `setPriorityFilter`. This was the root cause of the failing GitHub Actions deploy.
+1. **Build fix — ModSubGroup.borderLClass** — Added `borderLClass` field to `ModSubGroup` interface and populated it in all `classifyGroups()` branches. This was the TS2551 error blocking the GitHub Actions deploy (`Property 'borderLClass' does not exist on type 'ModSubGroup'`).
+2. **Bug fix — First origin section hidden** — Removed `idx > 0 &&` guard that was hiding the Level 2 badge for the first origin section (Обычные). Now all origin sections display their badge header.
+3. **Origin color scheme update** — Changed origin colors per new design spec:
+   - Очернённые: green → purple
+   - Осквернённые: red → orange
+   - Сущность: amber → yellow
+   - Разлом: purple → cyan
 
 **Files changed this session:**
-- `src/ui/components/CategoryControlPanel.tsx` — Made `priorityFilter`/`setPriorityFilter` optional, added defaults and safe callback
+- `src/shared/mod-classifier.ts` — Added `borderLClass` to `ModSubGroup`; populated in all classifyGroups branches; updated `ORIGIN_SECTION_LABELS` colors
+- `src/ui/components/ModList.tsx` — Fixed first origin section hidden by removing `idx > 0 &&` guard
+- `docs/ARCHITECTURE.md` — Updated origin color table
+- `AGENT_NAVIGATION.md` — Updated origin color mapping description
+- `worklog.md` — Updated
 
 **NOT YET DONE (next iteration):**
 - ⬜ Browser functional testing of priority tier filter — NEEDS HUMAN
 - ⬜ Validate priority tier classifications against live trade data
 - ⬜ Mobile-specific testing — NEEDS REAL DEVICE
+- ⬜ Visual testing — Verify 3-level badge rendering across all category tabs (especially new origin colors)
 
 ---
 
@@ -45,6 +56,7 @@
 17. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
 18. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code, but essential for ETL scripts. Do NOT delete.
 19. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers (jewel/relic/vendor) must NOT pass these props. Show toggle only when `showPriorityFilter` is set.
+20. **ModSubGroup.borderLClass is required:** All `classifyGroups()` branches must populate `borderLClass`. Level 2 (origin) uses `ORIGIN_SECTION_LABELS[origin].borderLClass`; Level 3 (semantic/sentiment/tablet/jewel-type) uses `''`.
 
 ## Build & Run Commands
 

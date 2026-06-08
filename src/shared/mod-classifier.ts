@@ -55,10 +55,10 @@ export const SENTIMENT_LABELS: Record<SentimentCategory, CategoryLabel> = {
 
 export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
   normal:     { label: 'Обычные',       colorClass: 'text-gray-300',   bgClass: 'bg-gray-900/30',   borderClass: 'border-gray-500/25',   borderLClass: 'border-l-gray-400' },
-  desecrated: { label: 'Очернённые',    colorClass: 'text-green-400',  bgClass: 'bg-green-900/30',  borderClass: 'border-green-500/25',  borderLClass: 'border-l-green-400' },
-  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',    bgClass: 'bg-red-900/30',    borderClass: 'border-red-500/25',    borderLClass: 'border-l-red-400' },
-  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',  bgClass: 'bg-amber-900/30',  borderClass: 'border-amber-500/25',  borderLClass: 'border-l-amber-400' },
-  breachborn: { label: 'Разлом',        colorClass: 'text-purple-400', bgClass: 'bg-purple-900/30', borderClass: 'border-purple-500/25', borderLClass: 'border-l-purple-400' },
+  desecrated: { label: 'Очернённые',    colorClass: 'text-purple-400', bgClass: 'bg-purple-900/30', borderClass: 'border-purple-500/25', borderLClass: 'border-l-purple-400' },
+  corrupted:  { label: 'Осквернённые',  colorClass: 'text-orange-400', bgClass: 'bg-orange-900/30', borderClass: 'border-orange-500/25', borderLClass: 'border-l-orange-400' },
+  essence:    { label: 'Сущность',      colorClass: 'text-yellow-400', bgClass: 'bg-yellow-900/30', borderClass: 'border-yellow-500/25', borderLClass: 'border-l-yellow-400' },
+  breachborn: { label: 'Разлом',        colorClass: 'text-cyan-400',   bgClass: 'bg-cyan-900/30',   borderClass: 'border-cyan-500/25',   borderLClass: 'border-l-cyan-400' },
 };
 
 // ─── Tags-based classification (preferred) ───
@@ -915,6 +915,9 @@ export interface ModSubGroup {
   colorClass: string;
   bgClass: string;
   borderClass: string;
+  /** Left accent border class for Level 2 origin badges (e.g. 'border-l-purple-400').
+   *  Empty string for Level 3 semantic/sentiment/tablet/jewel-type badges. */
+  borderLClass: string;
   groups: FamilyGroup[];
 }
 
@@ -937,6 +940,7 @@ export function classifyGroups(
       colorClass: '',
       bgClass: '',
       borderClass: '',
+      borderLClass: '',
       groups,
     }];
   }
@@ -963,6 +967,7 @@ export function classifyGroups(
         colorClass: SEMANTIC_LABELS[cat].colorClass,
         bgClass: SEMANTIC_LABELS[cat].bgClass,
         borderClass: SEMANTIC_LABELS[cat].borderClass,
+        borderLClass: SEMANTIC_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -986,6 +991,7 @@ export function classifyGroups(
         colorClass: SENTIMENT_LABELS[cat].colorClass,
         bgClass: SENTIMENT_LABELS[cat].bgClass,
         borderClass: SENTIMENT_LABELS[cat].borderClass,
+        borderLClass: SENTIMENT_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -1009,6 +1015,7 @@ export function classifyGroups(
         colorClass: TABLET_TYPE_LABELS[cat].colorClass,
         bgClass: TABLET_TYPE_LABELS[cat].bgClass,
         borderClass: TABLET_TYPE_LABELS[cat].borderClass,
+        borderLClass: TABLET_TYPE_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -1039,6 +1046,7 @@ export function classifyGroups(
         colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-gray-400',
         bgClass: ORIGIN_SECTION_LABELS[origin]?.bgClass ?? '',
         borderClass: ORIGIN_SECTION_LABELS[origin]?.borderClass ?? '',
+        borderLClass: ORIGIN_SECTION_LABELS[origin]?.borderLClass ?? '',
         groups: classified.get(origin)!,
       }));
   }
@@ -1063,10 +1071,11 @@ export function classifyGroups(
         colorClass: JEWEL_TYPE_LABELS[cat].colorClass,
         bgClass: JEWEL_TYPE_LABELS[cat].bgClass,
         borderClass: JEWEL_TYPE_LABELS[cat].borderClass,
+        borderLClass: JEWEL_TYPE_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
       }));
   }
 
   // Fallback
-  return [{ key: 'all', label: '', colorClass: '', bgClass: '', borderClass: '', groups }];
+  return [{ key: 'all', label: '', colorClass: '', bgClass: '', borderClass: '', borderLClass: '', groups }];
 }

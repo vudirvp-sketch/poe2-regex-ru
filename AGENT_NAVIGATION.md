@@ -76,7 +76,7 @@ shared <- core <- strategies <- store <- data <- ui
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
 3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
-4. **Origin color mapping** — Очернённые=green (Abyss), Осквернённые=red (Vaal), Сущность=amber (Essence/gold), Разлом=purple (Hive/Breach). Aligned with in-game color associations.
+4. **Origin color mapping** — Очернённые=purple (Desecrated), Осквернённые=orange (Corrupted/Vaal), Сущность=yellow (Essence), Разлом=cyan (Breachborn). Aligned with 3-level visual hierarchy.
 
 ## 7. Regex Strategy Pipeline
 

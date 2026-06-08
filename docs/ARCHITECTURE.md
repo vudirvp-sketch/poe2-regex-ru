@@ -332,10 +332,10 @@ Badge-style header with background, visible but clearly subordinate to Level 1:
 | Origin | Text | Background | Border | border-l | In-game association |
 |--------|------|-----------|--------|----------|-------------------|
 | Обычные | `gray-300` | `gray-900/30` | `gray-500/25` | `gray-400` | Default |
-| Очернённые | `green-400` | `green-900/30` | `green-500/25` | `green-400` | Abyss |
-| Осквернённые | `red-400` | `red-900/30` | `red-500/25` | `red-400` | Vaal |
-| Сущность | `amber-400` | `amber-900/30` | `amber-500/25` | `amber-400` | Essence (gold) |
-| Разлом | `purple-400` | `purple-900/30` | `purple-500/25` | `purple-400` | Hive/Breach |
+| Очернённые | `purple-400` | `purple-900/30` | `purple-500/25` | `purple-400` | Desecrated |
+| Осквернённые | `orange-400` | `orange-900/30` | `orange-500/25` | `orange-400` | Corrupted/Vaal |
+| Сущность | `yellow-400` | `yellow-900/30` | `yellow-500/25` | `yellow-400` | Essence |
+| Разлом | `cyan-400` | `cyan-900/30` | `cyan-500/25` | `cyan-400` | Breachborn |
 
 ### Level 3 — СЕМАНТИКА (Атакующие / Защитные / Характеристики / Прочие)
 

@@ -183,11 +183,9 @@ const AffixColumn: React.FC<{
           const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
           return (
             <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
-              {idx > 0 && (
-                <div className={`inline-block ml-2 mt-2.5 mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass}`}>
-                  {section.label} ({sectionCount})
-                </div>
-              )}
+              <div className={`inline-block ml-2 ${idx > 0 ? 'mt-2.5' : 'mt-1'} mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass}`}>
+                {section.label} ({sectionCount})
+              </div>
               {section.subGroups.map((sg) => (
                 <ModSubGroupSection
                   key={sg.key}
