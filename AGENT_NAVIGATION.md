@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 72.0 | **Date:** 2026-06-08
+> **Version:** 73.0 | **Date:** 2026-06-08
 
 ---
 
@@ -70,11 +70,13 @@ shared <- core <- strategies <- store <- data <- ui
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers, priority tier filter.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
 3. **Priority tier refinement** — Validate tier classifications against live trade data.
+4. **Visual hierarchy testing** — Verify 3-level badge rendering (Level 2 origin badges, Level 3 semantic badges) across all category tabs, especially in VirtualizedModList.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
 3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
+4. **Origin color mapping** — Очернённые=green (Abyss), Осквернённые=red (Vaal), Сущность=amber (Essence/gold), Разлом=purple (Hive/Breach). Aligned with in-game color associations.
 
 ## 7. Regex Strategy Pipeline
 

@@ -20,33 +20,45 @@ export type SemanticCategory = 'offensive' | 'defensive' | 'attribute' | 'neutra
 /** Sentiment categories for waystones (positive/negative/neutral map mods) */
 export type SentimentCategory = 'positive' | 'negative' | 'neutral';
 
-/** Label + color config for display */
+/** Label + styling config for display.
+ *  Supports 3-level visual hierarchy:
+ *  - Level 1 (Affix): uses colorClass only (no bg/border)
+ *  - Level 2 (Origin): uses colorClass + bgClass + borderClass + borderLClass (badge)
+ *  - Level 3 (Semantic): uses colorClass + bgClass + borderClass (compact label)
+ */
 export interface CategoryLabel {
   label: string;
+  /** Text color class (e.g. 'text-red-400') */
   colorClass: string;
+  /** Background class for badge (e.g. 'bg-red-900/30') */
+  bgClass: string;
+  /** Border class for badge (e.g. 'border-red-500/25') */
+  borderClass: string;
+  /** Left accent border class for Level 2 badges (e.g. 'border-l-red-400') */
+  borderLClass: string;
 }
 
 // ─── Display config ───
 
 export const SEMANTIC_LABELS: Record<SemanticCategory, CategoryLabel> = {
-  offensive: { label: 'Атакующие', colorClass: 'text-red-400' },
-  defensive: { label: 'Защитные', colorClass: 'text-blue-400' },
-  attribute: { label: 'Характеристики', colorClass: 'text-green-400' },
-  neutral:   { label: 'Прочие', colorClass: 'text-gray-400' },
+  offensive: { label: 'Атакующие', colorClass: 'text-red-400', bgClass: 'bg-red-900/15', borderClass: 'border-red-500/15', borderLClass: '' },
+  defensive: { label: 'Защитные', colorClass: 'text-blue-400', bgClass: 'bg-blue-900/15', borderClass: 'border-blue-500/15', borderLClass: '' },
+  attribute: { label: 'Характеристики', colorClass: 'text-green-400', bgClass: 'bg-green-900/15', borderClass: 'border-green-500/15', borderLClass: '' },
+  neutral:   { label: 'Прочие', colorClass: 'text-gray-400', bgClass: 'bg-gray-900/15', borderClass: 'border-gray-500/15', borderLClass: '' },
 };
 
 export const SENTIMENT_LABELS: Record<SentimentCategory, CategoryLabel> = {
-  positive: { label: 'Позитивные', colorClass: 'text-green-400' },
-  negative: { label: 'Негативные', colorClass: 'text-red-400' },
-  neutral:  { label: 'Нейтральные', colorClass: 'text-gray-400' },
+  positive: { label: 'Позитивные', colorClass: 'text-green-400', bgClass: 'bg-green-900/15', borderClass: 'border-green-500/15', borderLClass: '' },
+  negative: { label: 'Негативные', colorClass: 'text-red-400', bgClass: 'bg-red-900/15', borderClass: 'border-red-500/15', borderLClass: '' },
+  neutral:  { label: 'Нейтральные', colorClass: 'text-gray-400', bgClass: 'bg-gray-900/15', borderClass: 'border-gray-500/15', borderLClass: '' },
 };
 
 export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
-  normal:     { label: 'Обычные', colorClass: 'text-gray-300' },
-  desecrated: { label: 'Очернённые', colorClass: 'text-purple-400' },
-  corrupted:  { label: 'Осквернённые', colorClass: 'text-orange-400' },
-  essence:    { label: 'Сущность', colorClass: 'text-yellow-400' },
-  breachborn: { label: 'Разлом', colorClass: 'text-cyan-400' },
+  normal:     { label: 'Обычные',       colorClass: 'text-gray-300',   bgClass: 'bg-gray-900/30',   borderClass: 'border-gray-500/25',   borderLClass: 'border-l-gray-400' },
+  desecrated: { label: 'Очернённые',    colorClass: 'text-green-400',  bgClass: 'bg-green-900/30',  borderClass: 'border-green-500/25',  borderLClass: 'border-l-green-400' },
+  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',    bgClass: 'bg-red-900/30',    borderClass: 'border-red-500/25',    borderLClass: 'border-l-red-400' },
+  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',  bgClass: 'bg-amber-900/30',  borderClass: 'border-amber-500/25',  borderLClass: 'border-l-amber-400' },
+  breachborn: { label: 'Разлом',        colorClass: 'text-purple-400', bgClass: 'bg-purple-900/30', borderClass: 'border-purple-500/25', borderLClass: 'border-l-purple-400' },
 };
 
 // ─── Tags-based classification (preferred) ───
@@ -159,12 +171,12 @@ export function classifyWaystoneSentiment(group: FamilyGroup): SentimentCategory
 export type TabletTypeCategory = 'ritual' | 'breach' | 'delirium' | 'vaal' | 'expedition' | 'generic';
 
 export const TABLET_TYPE_LABELS: Record<TabletTypeCategory, CategoryLabel> = {
-  ritual:     { label: 'Ритуал', colorClass: 'text-red-400' },
-  breach:     { label: 'Бездна', colorClass: 'text-purple-400' },
-  delirium:   { label: 'Делириум', colorClass: 'text-blue-400' },
-  vaal:       { label: 'Ваал', colorClass: 'text-orange-400' },
-  expedition: { label: 'Экспедиция', colorClass: 'text-green-400' },
-  generic:    { label: 'Общие', colorClass: 'text-gray-400' },
+  ritual:     { label: 'Ритуал',      colorClass: 'text-red-400',    bgClass: 'bg-red-900/15',    borderClass: 'border-red-500/15',    borderLClass: '' },
+  breach:     { label: 'Бездна',      colorClass: 'text-purple-400', bgClass: 'bg-purple-900/15', borderClass: 'border-purple-500/15', borderLClass: '' },
+  delirium:   { label: 'Делириум',    colorClass: 'text-blue-400',   bgClass: 'bg-blue-900/15',   borderClass: 'border-blue-500/15',   borderLClass: '' },
+  vaal:       { label: 'Ваал',        colorClass: 'text-orange-400', bgClass: 'bg-orange-900/15', borderClass: 'border-orange-500/15', borderLClass: '' },
+  expedition: { label: 'Экспедиция',  colorClass: 'text-green-400',  bgClass: 'bg-green-900/15',  borderClass: 'border-green-500/15',  borderLClass: '' },
+  generic:    { label: 'Общие',       colorClass: 'text-gray-400',   bgClass: 'bg-gray-900/15',   borderClass: 'border-gray-500/15',   borderLClass: '' },
 };
 
 /** Keywords indicating a Ritual tablet mod */
@@ -206,10 +218,10 @@ export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
 export type JewelTypeCategory = JewelType;
 
 export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
-  ruby:     { label: 'Рубин', colorClass: 'text-red-400' },
-  emerald:  { label: 'Изумруд', colorClass: 'text-green-400' },
-  sapphire: { label: 'Сапфир', colorClass: 'text-blue-400' },
-  shared:   { label: 'Общие', colorClass: 'text-gray-400' },
+  ruby:     { label: 'Рубин',    colorClass: 'text-red-400',    bgClass: 'bg-red-900/15',    borderClass: 'border-red-500/15',    borderLClass: '' },
+  emerald:  { label: 'Изумруд',  colorClass: 'text-green-400',  bgClass: 'bg-green-900/15',  borderClass: 'border-green-500/15',  borderLClass: '' },
+  sapphire: { label: 'Сапфир',   colorClass: 'text-blue-400',   bgClass: 'bg-blue-900/15',   borderClass: 'border-blue-500/15',   borderLClass: '' },
+  shared:   { label: 'Общие',    colorClass: 'text-gray-400',   bgClass: 'bg-gray-900/15',   borderClass: 'border-gray-500/15',   borderLClass: '' },
 };
 
 /**
@@ -901,6 +913,8 @@ export interface ModSubGroup {
   key: string;
   label: string;
   colorClass: string;
+  bgClass: string;
+  borderClass: string;
   groups: FamilyGroup[];
 }
 
@@ -921,6 +935,8 @@ export function classifyGroups(
       key: 'all',
       label: '',
       colorClass: '',
+      bgClass: '',
+      borderClass: '',
       groups,
     }];
   }
@@ -945,6 +961,8 @@ export function classifyGroups(
         key: cat,
         label: SEMANTIC_LABELS[cat].label,
         colorClass: SEMANTIC_LABELS[cat].colorClass,
+        bgClass: SEMANTIC_LABELS[cat].bgClass,
+        borderClass: SEMANTIC_LABELS[cat].borderClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -966,6 +984,8 @@ export function classifyGroups(
         key: cat,
         label: SENTIMENT_LABELS[cat].label,
         colorClass: SENTIMENT_LABELS[cat].colorClass,
+        bgClass: SENTIMENT_LABELS[cat].bgClass,
+        borderClass: SENTIMENT_LABELS[cat].borderClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -987,6 +1007,8 @@ export function classifyGroups(
         key: cat,
         label: TABLET_TYPE_LABELS[cat].label,
         colorClass: TABLET_TYPE_LABELS[cat].colorClass,
+        bgClass: TABLET_TYPE_LABELS[cat].bgClass,
+        borderClass: TABLET_TYPE_LABELS[cat].borderClass,
         groups: classified.get(cat)!,
       }));
   }
@@ -1015,6 +1037,8 @@ export function classifyGroups(
         key: origin,
         label: ORIGIN_SECTION_LABELS[origin]?.label ?? t('origin.' + origin),
         colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-gray-400',
+        bgClass: ORIGIN_SECTION_LABELS[origin]?.bgClass ?? '',
+        borderClass: ORIGIN_SECTION_LABELS[origin]?.borderClass ?? '',
         groups: classified.get(origin)!,
       }));
   }
@@ -1037,10 +1061,12 @@ export function classifyGroups(
         key: cat,
         label: JEWEL_TYPE_LABELS[cat].label,
         colorClass: JEWEL_TYPE_LABELS[cat].colorClass,
+        bgClass: JEWEL_TYPE_LABELS[cat].bgClass,
+        borderClass: JEWEL_TYPE_LABELS[cat].borderClass,
         groups: classified.get(cat)!,
       }));
   }
 
   // Fallback
-  return [{ key: 'all', label: '', colorClass: '', groups }];
+  return [{ key: 'all', label: '', colorClass: '', bgClass: '', borderClass: '', groups }];
 }

@@ -55,8 +55,8 @@ interface VirtualizedModListProps {
 /** A flat virtual row for the virtualizer */
 type VirtualRow =
   | { type: 'column-header'; affix: AffixType; count: number }
-  | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; count: number }
-  | { type: 'jewel-type-header'; jewelType: JewelTypeCategory; label: string; colorClass: string; count: number }
+  | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; bgClass: string; borderClass: string; borderLClass: string; count: number }
+  | { type: 'jewel-type-header'; jewelType: JewelTypeCategory; label: string; colorClass: string; bgClass: string; borderClass: string; count: number }
   | { type: 'subgroup'; subGroup: ModSubGroup; affix: AffixType };
 
 const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
@@ -220,6 +220,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
               origin,
               label: labelConfig?.label ?? t('origin.' + origin),
               colorClass: labelConfig?.colorClass ?? 'text-gray-400',
+              bgClass: labelConfig?.bgClass ?? '',
+              borderClass: labelConfig?.borderClass ?? '',
+              borderLClass: labelConfig?.borderLClass ?? '',
               count: sectionCount,
             });
           }
@@ -247,6 +250,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 jewelType,
                 label: labelConfig.label,
                 colorClass: labelConfig.colorClass,
+                bgClass: labelConfig.bgClass,
+                borderClass: labelConfig.borderClass,
                 count: jtGroups.length,
               });
 
@@ -399,22 +404,22 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 )}
 
                 {row.type === 'origin-header' && (
-                  <div className={`text-[9px] font-semibold uppercase tracking-wider mb-1 mt-2 ${row.colorClass} opacity-80`}>
-                    ··· {row.label} ({row.count}) ···
+                  <div className={`inline-block ml-2 mt-2.5 mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass}`}>
+                    {row.label} ({row.count})
                   </div>
                 )}
 
                 {row.type === 'jewel-type-header' && (
-                  <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 mt-1.5 ${row.colorClass}`}>
-                    ── {row.label} ({row.count}) ──
+                  <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
+                    {row.label} ({row.count})
                   </div>
                 )}
 
                 {row.type === 'subgroup' && (
                   <div className="mb-2">
                     {row.subGroup.label && (
-                      <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${row.subGroup.colorClass}`}>
-                        ── {row.subGroup.label} ({row.subGroup.groups.length}) ──
+                      <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+                        {row.subGroup.label} ({row.subGroup.groups.length})
                       </div>
                     )}
                     <div className="flex flex-wrap gap-1.5">

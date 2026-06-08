@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 33.0 | **Date:** 2026-06-08 | **Language:** RU-first
+> **Version:** 34.0 | **Date:** 2026-06-08 | **Language:** RU-first
 
 ---
 
@@ -277,23 +277,108 @@ All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single 
 - Origin filter is applied **before** grouping — filtering by "corrupted" produces groups with ranges scoped to corrupted tokens only
 - Dual-number mods (`hasMultiPlaceholder=true`) show "2x" badge and 1е/2е slot switcher
 
-## 9. Layout v2 — Two-Column Full-Width with Semantic Grouping
+## 9. Layout v3 — 3-Level Visual Hierarchy
 
 ```
 +--------------------------------------------------------------+
 | [RegexOutput + Health Bar + Copy + Share] (sticky)          |
 | [Хочу/Не хочу] [AND/OR] [Min ≥] [Max ≤] [Round10] [Extras] |
 +--------------------------------------------------------------+
-|  +-- ПРЕФИКС (N) --+-- СУФФИКС (M) --------------------+   |
-|  | [chip] [chip]    | [chip] [chip] [chip]              |   |
-|  |  -- Атакующие -- |  -- Защитные --                   |   |
-|  | [chip] [chip]    | [chip] [chip] [chip]              |   |
-|  +------------------+------------------------------------+   |
+|  ┃ ПРЕФИКС (40)                         ┃ СУФФИКС (55)      |
+|  │                                       │                    |
+|  │  █ Очернённые (11)                    │  █ Осквернённые(8) |
+|  │    ▪ Атакующие (3)                    │    ▪ Защитные (5)  |
+|  │      [chip] [chip] [chip]             │      [chip] [chip] |
+|  │    ▪ Защитные (5)                     │    ▪ Прочие (3)    |
+|  │      [chip] [chip]                    │      [chip] [chip] |
+|  │  █ Осквернённые (6)                   │                    |
+|  │    ▪ Атакующие (2)                    │                    |
+|  │      [chip] [chip]                    │                    |
+|  +---------------------------------------+--------------------+
 | [ProfilePanel]                                               |
 +--------------------------------------------------------------+
 ```
 
-**Key:** No virtual scroll (family pooling keeps counts manageable). Two-column prefix/suffix grid `grid-cols-[2fr_3fr]`. Flex-wrap inline-flex chips. Sticky CategoryControlPanel with `extraControls` slot.
+### 3-Level Hierarchy
+
+Each level is visually subordinate to the previous: smaller text, more indentation, muted background.
+
+| | Level 1: АФФИКС | Level 2: ORIGIN | Level 3: СЕМАНТИКА |
+|---|---|---|---|
+| Font size | 12px (`text-xs`) | 11px (`text-[11px]`) | 10px (`text-[10px]`) |
+| Font weight | bold | bold | semibold |
+| Transform | uppercase | uppercase | uppercase |
+| Background | none | `bg-{color}-900/30` (notable) | `bg-{color}-900/15` (muted) |
+| Border | `border-l-2` (full-width) | `border + border-l-2` (badge) | `border` (thin, badge) |
+| Left indent | 0 | `ml-2` | `ml-4` |
+| Width | 100% column | inline (by content) | inline (by content) |
+| Decorators | none | none (removed `···`) | none (removed `──`) |
+
+### Level 1 — АФФИКС (Prefix / Suffix)
+
+No changes from v2. Full-width column header with `border-l-2` and left padding.
+- Prefix: `text-blue-400`, `border-blue-800/50`
+- Suffix: `text-orange-400`, `border-orange-800/50`
+
+### Level 2 — ORIGIN (Обычные / Очернённые / Осквернённые / Сущность / Разлом)
+
+Badge-style header with background, visible but clearly subordinate to Level 1:
+- `text-[11px] font-bold uppercase tracking-wider`
+- `bg-{color}-900/30 border border-{color}-500/25 rounded-sm px-2.5 py-0.5 border-l-2 border-l-{color}-400`
+- `inline-block ml-2 mt-2.5 mb-1.5`
+
+**Origin colors** (aligned with in-game color associations):
+
+| Origin | Text | Background | Border | border-l | In-game association |
+|--------|------|-----------|--------|----------|-------------------|
+| Обычные | `gray-300` | `gray-900/30` | `gray-500/25` | `gray-400` | Default |
+| Очернённые | `green-400` | `green-900/30` | `green-500/25` | `green-400` | Abyss |
+| Осквернённые | `red-400` | `red-900/30` | `red-500/25` | `red-400` | Vaal |
+| Сущность | `amber-400` | `amber-900/30` | `amber-500/25` | `amber-400` | Essence (gold) |
+| Разлом | `purple-400` | `purple-900/30` | `purple-500/25` | `purple-400` | Hive/Breach |
+
+### Level 3 — СЕМАНТИКА (Атакующие / Защитные / Характеристики / Прочие)
+
+Compact inline label, even smaller and more muted. Subordinate to Origin:
+
+- `text-[10px] font-semibold uppercase tracking-wider`
+- `bg-{color}-900/15 border border-{color}-500/15 rounded px-2 py-px`
+- `inline-block ml-4 mb-1`
+- No `border-l-2` (to avoid competing with Levels 1 and 2)
+
+**Semantic colors:**
+
+| Category | Text | Background | Border |
+|----------|------|-----------|--------|
+| Атакующие | `red-400` | `red-900/15` | `red-500/15` |
+| Защитные | `blue-400` | `blue-900/15` | `blue-500/15` |
+| Характеристики | `green-400` | `green-900/15` | `green-500/15` |
+| Прочие | `gray-400` | `gray-900/15` | `gray-500/15` |
+
+Same pattern applies for:
+- Waystone sentiments: Позитивные=green, Негативные=red, Нейтральные=gray
+- Tablet types: Ритуал=red, Бездна=purple, Делириум=blue, Ваал=orange, Экспедиция=green, Общие=gray
+- Jewel types: Рубин=red, Изумруд=green, Сапфир=blue, Общие=gray
+
+### CategoryLabel interface
+
+All visual configuration is centralized in `CategoryLabel` (in `mod-classifier.ts`):
+
+```ts
+interface CategoryLabel {
+  label: string;        // Display text
+  colorClass: string;   // Text color (e.g. 'text-red-400')
+  bgClass: string;      // Background for badge (e.g. 'bg-red-900/30')
+  borderClass: string;  // Border for badge (e.g. 'border-red-500/25')
+  borderLClass: string; // Left accent for Level 2 only (e.g. 'border-l-red-400')
+}
+```
+
+### What was removed from v2
+
+- `··· Очернённые (11) ···` → badge Level 2
+- `── Атакующие (3) ──` → badge Level 3
+- `opacity-80` on origin sections → replaced with background+border styling
 
 ### Per-Tab Grouping Modes
 
@@ -327,7 +412,7 @@ All tokens sharing the same `familyKey.ru` AND `affix` are merged into a single 
 - JewelPage: jewel + jewel-desecrated + jewel-corrupted (224 tokens)
 - WaystonePage: waystone + waystone-desecrated (112 tokens)
 
-Origin sub-sections (`splitGroupByOrigin()` in family-grouper) split FamilyGroups by origin with visual dividers (··· Осквернённые ···). Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop.
+Origin sub-sections (`splitGroupByOrigin()` in family-grouper) split FamilyGroups by origin with Level 2 badge headers. Enabled for Amulet/Ring/Belt/Relic via `showOriginSubSections` prop.
 
 ## 11. Oracle API — Regex Validation (Phase 8)
 

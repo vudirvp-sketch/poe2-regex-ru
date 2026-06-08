@@ -62,6 +62,9 @@ interface OriginSection {
   origin: ModOrigin;
   label: string;
   colorClass: string;
+  bgClass: string;
+  borderClass: string;
+  borderLClass: string;
   subGroups: ModSubGroup[];
 }
 
@@ -100,6 +103,9 @@ function splitByOriginThenSemantic(
       origin,
       label: labelConfig?.label ?? t('origin.' + origin),
       colorClass: labelConfig?.colorClass ?? 'text-gray-400',
+      bgClass: labelConfig?.bgClass ?? '',
+      borderClass: labelConfig?.borderClass ?? '',
+      borderLClass: labelConfig?.borderLClass ?? '',
       subGroups,
     });
   }
@@ -107,7 +113,7 @@ function splitByOriginThenSemantic(
   return result;
 }
 
-/** Render a sub-group with its header and flex-wrap chips */
+/** Render a sub-group with its Level 3 badge header and flex-wrap chips */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
@@ -120,8 +126,8 @@ const ModSubGroupSection: React.FC<{
   return (
     <div className="mb-2">
       {subGroup.label && (
-        <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${subGroup.colorClass}`}>
-          ── {subGroup.label} ({subGroup.groups.length}) ──
+        <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
+          {subGroup.label} ({subGroup.groups.length})
         </div>
       )}
       <div className="flex flex-wrap gap-1.5">
@@ -178,8 +184,8 @@ const AffixColumn: React.FC<{
           return (
             <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
               {idx > 0 && (
-                <div className={`text-[9px] font-semibold uppercase tracking-wider mb-1 ${section.colorClass} opacity-80`}>
-                  ··· {section.label} ({sectionCount}) ···
+                <div className={`inline-block ml-2 mt-2.5 mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass}`}>
+                  {section.label} ({sectionCount})
                 </div>
               )}
               {section.subGroups.map((sg) => (
@@ -347,8 +353,8 @@ export const ModList: React.FC<ModListProps> = ({
       })
       .map(sg => (
         <div key={sg.key} className="mb-1.5">
-          <div className={`text-[9px] font-semibold uppercase tracking-wider mb-0.5 ${sg.colorClass}`}>
-            ── {sg.label} ({sg.groups.length}) ──
+          <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
+            {sg.label} ({sg.groups.length})
           </div>
           <div className="flex flex-wrap gap-1.5">
             {sg.groups.map(group => (
@@ -421,7 +427,7 @@ export const ModList: React.FC<ModListProps> = ({
           <div className="flex flex-col gap-2">
             {classifyGroups(priorityFilteredGroups, 'origin').map((sg) => (
               <div key={sg.key}>
-                <div className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sg.colorClass}`}>
+                <div className={`inline-block ml-2 mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass}`}>
                   {sg.label} ({sg.groups.length})
                 </div>
                 {/* Within each origin, further split by affix */}
