@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 70.0 | **Date:** 2026-06-08
+> **Version:** 71.0 | **Date:** 2026-06-08
 
 ---
 
@@ -69,39 +69,12 @@ shared <- core <- strategies <- store <- data <- ui
 ### TODO (next iterations)
 1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers, priority tier filter.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
-3. **Priority tier refinement** — Validate tier classifications against live trade data. Add Relic/Vendor priority if needed.
-
-### LOW
-- Priority tier validation against trade data
-- Relic/Vendor priority tier classification
-
-### RESOLVED (Session 68)
-1. ~~ETL pipeline audit~~ — Ran `pnpm etl`, verified 1823/1823 valid, 0 cross-family FP, 1309 family-tier FP (by design). Cross-validation tests pass (543/543).
-2. ~~i18n-overrides relevance~~ — All 56 overrides match existing tokens in generated JSON.
-3. ~~filterTokensByJewelType ::origin suffix~~ — No bug. `::origin` suffix only exists on `FamilyGroup.familyKey` (display layer via `splitGroupByOrigin`), never on `token.familyKey.ru`. Hidden selected tokens in regex is by design with UI warning.
-4. ~~dp-factorizer/trie-factorizer dead code~~ — NOT dead code. Used by ETL scripts: `compute-optimizations.ts`, `iterative-optimizer.ts`, `run-etl.ts`. They are ETL-only, not runtime.
-5. ~~constants.ts dead code~~ — Deleted. Had zero imports across the entire codebase.
-6. ~~iterative-optimizer correctness~~ — Dry-run verified: 0 FN, 749 FP-reduction changes in iteration 1, converges correctly.
-7. ~~buildAstFromSelections regexPrefixContext/regexExclude grouping~~ — Context union is correct: only applied when ALL tokens in a range group share the SAME context. Exclude union is correct by design (over-excluding safer than FP).
-8. ~~Unused imports in mod-classifier.test.ts~~ — Removed `classifyGroups` and `AffixType` unused imports that broke `pnpm build`.
-
-### RESOLVED (Session 67)
-1. ~~Jewel classification heuristic 9 mismatches~~ — All 9 fixed, heuristic accuracy now 100% vs ETL ground truth.
-
-### RESOLVED (Session 66)
-1. ~~Jewel classification accuracy~~ — Improved heuristic from ~76% to ~96% via SHARED_OVERRIDE_PATTERNS + refined scoring weights
-2. ~~FilterChip min-w-[30%]~~ — Removed for better flex-wrap
-3. ~~Number regex [0-9] → .~~ — NOT VIABLE: `.` in PoE2 regex matches any character, not just digits (verified in-game)
-4. ~~FilterChip ARIA restructuring~~ — Already done in previous session (inputs are siblings of role="switch")
-
-### RESOLVED (Session 65)
-1. ~~JewelPage: hidden selected tokens~~ — Added visual indicator "N скрытых модов" + "Снять скрытые" button
-2. ~~Fractional number inputs~~ — Added `step={1}` to all `<input type="number">` across all components
-3. ~~RegexOutput copy failure feedback~~ — Added error state (red button + "Ошибка!") on clipboard failure
+3. **Priority tier refinement** — Validate tier classifications against live trade data.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
-2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected (audited Session 65).
+2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
+3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
 
 ## 7. Regex Strategy Pipeline
 
@@ -198,10 +171,10 @@ Affix popularity tiers (S/A/B/C) integrated into UI based on research (`реги
 |-----------|------|
 | `PriorityTier` type | `'S' | 'A' | 'B' | 'C'` — defined in `types.ts` |
 | `PriorityFilter` type | `'all' | 'S+A' | 'S'` — filter mode in UI |
-| `classifyPriorityTier(group, category)` | Text-based heuristic per category (ring/amulet/belt/waystone/tablet). Jewel/relic/vendor return 'C'. |
+| `classifyPriorityTier(group, category)` | Text-based heuristic per category (ring/amulet/belt/waystone/tablet). Others return 'C'. |
 | `FamilyGroup.priorityTier` | Set during grouping by `family-grouper.ts`, used for default sort (S→C) |
 | `CategoryControlPanel` | Toggle group: «Все | S+A | S» with amber accent for active filter |
 | `FilterChip` | S-tier gets amber border-l, C-tier gets opacity-80 dimming |
 | `filter-store.ts` | `priorityFilter` persisted in URL via `p` key |
 
-**Categories with priority classification:** ring, amulet, belt, waystone, tablet. Others (jewel, relic, vendor) default to 'C' for all mods.
+**Categories with priority classification:** ring, amulet, belt, waystone, tablet (show toggle in CategoryControlPanel). Others (jewel, relic, vendor) return 'C' for all mods — no toggle shown, no priorityFilter passed to ModList.

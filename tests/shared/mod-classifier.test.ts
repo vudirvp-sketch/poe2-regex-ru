@@ -455,9 +455,9 @@ describe('classifyPriorityTier', () => {
       expect(classifyPriorityTier(group, 'waystone')).toBe('S');
     });
 
-    it('classifies negative suffix as B-tier', () => {
+    it('classifies negative suffix as C-tier (not sought after)', () => {
       const group = makeGroup('(15—25)% увеличение урона монстров', { affix: 'suffix' });
-      expect(classifyPriorityTier(group, 'waystone')).toBe('B');
+      expect(classifyPriorityTier(group, 'waystone')).toBe('C');
     });
   });
 

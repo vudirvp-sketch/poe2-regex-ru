@@ -845,9 +845,10 @@ function classifyWaystonePriority(group: FamilyGroup, text: string): PriorityTie
   // Suffixes
   if (WAYSTONE_S_SUFFIX.test(text)) return 'S';
   if (WAYSTONE_A_SUFFIX.test(text)) return 'A';
-  // Negative suffixes (dangerous) — still classified but lower tier
-  // These are covered by sentiment classification as 'negative'
-  return 'B';
+  // B-tier: gold, additional splinters (nice-to-have but not critical)
+  if (WAYSTONE_B.test(text)) return 'B';
+  // Everything else (negative mods, unremarkable neutral) — not sought after
+  return 'C';
 }
 
 function classifyTabletPriority(text: string): PriorityTier {
