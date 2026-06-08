@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 74 — 2026-06-08)
+## Current State (Session 75 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,31 +12,24 @@
 
 **Key Changes This Session:**
 
-1. **Fix: inline-block мешанина** — All Level 1/2/3 headers changed from `inline-block` to `block` to prevent text concatenation ("Очернённые (33)Рубин (10)" → each header on its own line). Fixed in both `VirtualizedModList.tsx` and `ModList.tsx`.
-2. **Visual hierarchy sizes increased** — Level 1 (Префикс/Суффикс): `text-xs` → `text-sm` (14px). Level 2 (Origin): `text-[11px]` → `text-xs` (12px). Level 3 unchanged `text-[10px]`. Level 1 affix headers inside origin mode: `text-[10px]` → `text-xs`.
-3. **Origin color palette v4** — Updated `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`:
-   - Очернённые: purple → emerald (dark-green)
-   - Осквернённые: orange → red (crimson)
-   - Сущность: yellow → amber (noble gold)
-   - Разлом: cyan → violet (purple)
-4. **Light theme CSS** — Added overrides for new origin colors (emerald, violet, amber, red backgrounds/borders) in `index.css`.
-5. **Documentation** — Updated `AGENT_NAVIGATION.md` (v74), `новый_план.md` (v15), `worklog.md`.
+1. **Origin icons integration** — Added `iconPath` field to `CategoryLabel` interface and `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`. Icons rendered in Level 2 origin badges (VirtualizedModList + ModList). Icons: очернение абис.webp, осквернение.webp, сущность.webp, разлом.webp from `public/icons/`.
+2. **Level 1 decorative frames** — CSS classes `affix-header-prefix` (blue) and `affix-header-suffix` (orange) with gradient backgrounds, full borders, thicker left accent, and decorative corner accents via `::before`/`::after` pseudo-elements. Applied to all Level 1 headers in VirtualizedModList and ModList (including origin mode).
+3. **Mobile improvements** — Extended mobile CSS rules to cover `.virtualized-mod-list` in addition to `.mod-list`. Added touch target rules for `[role="switch"]` (min-height 32px, min-width 44px), control panel buttons, origin badge icons (max 16px), and `-webkit-overflow-scrolling: touch` for smooth mobile scroll.
+4. **Documentation** — Updated AGENT_NAVIGATION.md (v75), worklog.md.
 
 **Files changed this session:**
-- `src/shared/mod-classifier.ts` — Updated `ORIGIN_SECTION_LABELS` color palette
-- `src/ui/components/VirtualizedModList.tsx` — Fixed inline-block→block, text-sm for column headers
-- `src/ui/components/ModList.tsx` — Fixed inline-block→block, text-sm for affix headers, text-xs for origin mode affix headers
-- `src/index.css` — Added light theme overrides for emerald/violet/amber/red origin colors
-- `AGENT_NAVIGATION.md` — v74, added Section 18 (Visual Hierarchy), updated origin color mapping
-- `новый_план.md` — v15, added Session 74 status
+- `src/shared/mod-classifier.ts` — Added `iconPath` field to `CategoryLabel`, populated in `ORIGIN_SECTION_LABELS`
+- `src/ui/components/VirtualizedModList.tsx` — Origin header icon rendering, Level 1 decorative frame classes
+- `src/ui/components/ModList.tsx` — Origin section icon rendering, Level 1 decorative frame classes, origin mode icons
+- `src/index.css` — Level 1 decorative frame CSS, extended mobile rules, virtualized-mod-list support
+- `AGENT_NAVIGATION.md` — v75, updated Section 18 (Visual Hierarchy) with icons + frames, updated TODO list
 - `worklog.md` — Updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing — verify new origin colors, visual hierarchy, block-level headers across all tabs
+- ⬜ Browser functional testing — verify icons render correctly, decorative frames look good, all tabs
+- ⬜ Mobile testing on real device — verify touch targets, scroll behavior
 - ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
-- ⬜ Mobile testing — touch targets, scroll behavior
-- ⬜ Origin icons — User preparing icons for очернение/разлом/сущность/осквернение
-- ⬜ Textured frames for Level 1 (Префикс/Суффикс) categories
+- ⬜ Origin icon sizing refinement — may need per-viewport adjustments
 - ⬜ Validate priority tier classifications against live trade data
 
 ---

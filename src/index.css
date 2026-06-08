@@ -425,20 +425,104 @@ body {
   border-left-color: #14b8a6 !important;
 }
 
+/* ─── Level 1 Affix decorative frames ─── */
+
+/* Prefix header: textured frame with blue accent */
+.affix-header-prefix {
+  position: relative;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-left: 3px solid rgba(96, 165, 250, 0.5);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 8px 0;
+}
+
+/* Suffix header: textured frame with orange accent */
+.affix-header-suffix {
+  position: relative;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.03) 100%);
+  border: 1px solid rgba(234, 88, 12, 0.15);
+  border-left: 3px solid rgba(251, 146, 60, 0.5);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 8px 0;
+}
+
+/* Decorative corner accents for Level 1 headers */
+.affix-header-prefix::before,
+.affix-header-prefix::after,
+.affix-header-suffix::before,
+.affix-header-suffix::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  opacity: 0.4;
+}
+
+.affix-header-prefix::before {
+  top: -1px;
+  right: -1px;
+  border-top: 2px solid rgba(96, 165, 250, 0.5);
+  border-right: 2px solid rgba(96, 165, 250, 0.5);
+  border-radius: 0 4px 0 0;
+}
+
+.affix-header-prefix::after {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid rgba(96, 165, 250, 0.5);
+  border-left: 2px solid rgba(96, 165, 250, 0.5);
+  border-radius: 0 0 0 4px;
+}
+
+.affix-header-suffix::before {
+  top: -1px;
+  right: -1px;
+  border-top: 2px solid rgba(251, 146, 60, 0.5);
+  border-right: 2px solid rgba(251, 146, 60, 0.5);
+  border-radius: 0 4px 0 0;
+}
+
+.affix-header-suffix::after {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid rgba(251, 146, 60, 0.5);
+  border-left: 2px solid rgba(251, 146, 60, 0.5);
+  border-radius: 0 0 0 4px;
+}
+
+/* Light theme: Level 1 affix frames */
+[data-theme="light"] .affix-header-prefix {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%);
+  border-color: rgba(37, 99, 235, 0.2);
+  border-left-color: rgba(37, 99, 235, 0.5);
+}
+
+[data-theme="light"] .affix-header-suffix {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.06) 0%, rgba(234, 88, 12, 0.02) 100%);
+  border-color: rgba(234, 88, 12, 0.2);
+  border-left-color: rgba(234, 88, 12, 0.5);
+}
+
 /* ─── Mobile optimization ─── */
 
 /* Increase touch targets for chips on small screens */
 @media (max-width: 768px) {
   /* Larger tap area for filter chips */
   .mod-list button[class*="inline-flex"],
-  .mod-list span[class*="inline-flex"] {
+  .mod-list span[class*="inline-flex"],
+  .virtualized-mod-list button[class*="inline-flex"],
+  .virtualized-mod-list span[class*="inline-flex"] {
     min-height: 32px;
     padding-top: 6px;
     padding-bottom: 6px;
   }
 
   /* Slightly larger chip text on mobile for readability */
-  .mod-list .text-xs {
+  .mod-list .text-xs,
+  .virtualized-mod-list .text-xs {
     font-size: 0.8rem;
   }
 
@@ -448,18 +532,52 @@ body {
   }
 
   /* Origin sub-section dividers: less vertical space on mobile */
-  .mod-list .mt-1\.5 {
+  .mod-list .mt-1\.5,
+  .virtualized-mod-list .mt-1\.5 {
     margin-top: 8px;
   }
 
   /* Search input full width on mobile */
-  .mod-list input[type="text"] {
+  .mod-list input[type="text"],
+  .virtualized-mod-list input[type="text"] {
     min-width: 100%;
   }
 
   /* VendorChip larger tap targets on mobile */
   span[class*="inline-flex"][class*="cursor-pointer"] {
     min-height: 32px;
+  }
+
+  /* FilterChip role="switch" larger touch targets */
+  [role="switch"] {
+    min-height: 32px;
+    min-width: 44px;
+  }
+
+  /* Control panel buttons larger touch targets */
+  .sticky.top-0 button {
+    min-height: 32px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  /* Level 1 affix frames: less padding on mobile */
+  .affix-header-prefix,
+  .affix-header-suffix {
+    padding: 4px 8px;
+    margin: 6px 0;
+  }
+
+  /* Origin badges with icons: ensure icon doesn't shrink on small screens */
+  .virtualized-mod-list img,
+  .mod-list img {
+    max-width: 16px;
+    max-height: 16px;
+  }
+
+  /* Smooth scroll behavior on mobile */
+  .virtualized-mod-list {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -471,8 +589,20 @@ body {
   }
 
   /* Full-width chips on very small screens */
-  .mod-list .gap-1\.5 {
+  .mod-list .gap-1\.5,
+  .virtualized-mod-list .gap-1\.5 {
     gap: 6px;
+  }
+
+  /* Range inputs slightly wider on very small screens */
+  .mod-list input[type="number"],
+  .virtualized-mod-list input[type="number"] {
+    width: 52px;
+  }
+
+  /* Control panel wraps on very small screens */
+  .sticky.top-0 .flex-wrap {
+    gap: 4px;
   }
 }
 

@@ -55,7 +55,7 @@ interface VirtualizedModListProps {
 /** A flat virtual row for the virtualizer */
 type VirtualRow =
   | { type: 'column-header'; affix: AffixType; count: number }
-  | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; bgClass: string; borderClass: string; borderLClass: string; count: number }
+  | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; bgClass: string; borderClass: string; borderLClass: string; count: number; iconPath?: string }
   | { type: 'jewel-type-header'; jewelType: JewelTypeCategory; label: string; colorClass: string; bgClass: string; borderClass: string; count: number }
   | { type: 'subgroup'; subGroup: ModSubGroup; affix: AffixType };
 
@@ -224,6 +224,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
               borderClass: labelConfig?.borderClass ?? '',
               borderLClass: labelConfig?.borderLClass ?? '',
               count: sectionCount,
+              iconPath: labelConfig?.iconPath,
             });
           }
 
@@ -396,16 +397,25 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 }}
               >
                 {row.type === 'column-header' && (
-                  <div className={`text-sm font-bold uppercase tracking-wider mb-2 mt-2 ${
-                    row.affix === 'prefix' ? 'text-blue-400 border-l-2 border-blue-800/50 pl-3' : 'text-orange-400 border-l-2 border-orange-800/50 pl-3'
+                  <div className={`text-sm font-bold uppercase tracking-wider ${
+                    row.affix === 'prefix' ? 'affix-header-prefix text-blue-400' : 'affix-header-suffix text-orange-400'
                   }`}>
                     {t('affix.' + row.affix)} ({row.count})
                   </div>
                 )}
 
                 {row.type === 'origin-header' && (
-                  <div className={`block ml-2 mt-4 mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass}`}>
-                    {row.label} ({row.count})
+                  <div className={`block ml-2 mt-4 mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
+                    {row.iconPath && (
+                      <img
+                        src={`${import.meta.env.BASE_URL}${row.iconPath}`}
+                        alt=""
+                        width={14}
+                        height={14}
+                        className="shrink-0 object-contain"
+                      />
+                    )}
+                    <span>{row.label} ({row.count})</span>
                   </div>
                 )}
 

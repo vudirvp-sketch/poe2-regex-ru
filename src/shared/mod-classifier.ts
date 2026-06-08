@@ -36,6 +36,8 @@ export interface CategoryLabel {
   borderClass: string;
   /** Left accent border class for Level 2 badges (e.g. 'border-l-red-400') */
   borderLClass: string;
+  /** Optional icon path relative to public/ (e.g. 'icons/осквернение.webp') */
+  iconPath?: string;
 }
 
 // ─── Display config ───
@@ -55,10 +57,10 @@ export const SENTIMENT_LABELS: Record<SentimentCategory, CategoryLabel> = {
 
 export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
   normal:     { label: 'Обычные',       colorClass: 'text-gray-300',    bgClass: 'bg-gray-900/30',    borderClass: 'border-gray-500/25',    borderLClass: 'border-l-gray-400' },
-  desecrated: { label: 'Очернённые',    colorClass: 'text-emerald-400', bgClass: 'bg-emerald-900/30',  borderClass: 'border-emerald-500/25', borderLClass: 'border-l-emerald-400' },
-  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',     bgClass: 'bg-red-900/30',     borderClass: 'border-red-500/25',     borderLClass: 'border-l-red-400' },
-  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',   bgClass: 'bg-amber-900/30',   borderClass: 'border-amber-500/25',   borderLClass: 'border-l-amber-400' },
-  breachborn: { label: 'Разлом',        colorClass: 'text-violet-400',  bgClass: 'bg-violet-900/30',  borderClass: 'border-violet-500/25',  borderLClass: 'border-l-violet-400' },
+  desecrated: { label: 'Очернённые',    colorClass: 'text-emerald-400', bgClass: 'bg-emerald-900/30',  borderClass: 'border-emerald-500/25', borderLClass: 'border-l-emerald-400', iconPath: 'icons/очернение абис.webp' },
+  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',     bgClass: 'bg-red-900/30',     borderClass: 'border-red-500/25',     borderLClass: 'border-l-red-400',     iconPath: 'icons/осквернение.webp' },
+  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',   bgClass: 'bg-amber-900/30',   borderClass: 'border-amber-500/25',   borderLClass: 'border-l-amber-400',   iconPath: 'icons/сущность.webp' },
+  breachborn: { label: 'Разлом',        colorClass: 'text-violet-400',  bgClass: 'bg-violet-900/30',  borderClass: 'border-violet-500/25',  borderLClass: 'border-l-violet-400',  iconPath: 'icons/разлом.webp' },
 };
 
 // ─── Tags-based classification (preferred) ───

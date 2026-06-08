@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 74.0 | **Date:** 2026-06-08
+> **Version:** 75.0 | **Date:** 2026-06-08
 
 ---
 
@@ -67,11 +67,10 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt (showOriginSubSections=true), Jewel (origin mode), Waystone, Tablet, Relic. Check that origin badges render on separate lines, jewel type sub-headers are visually distinct, and the 3-level hierarchy has clear size separation.
-2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
+1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt (showOriginSubSections=true), Jewel (origin mode), Waystone, Tablet, Relic. Check that origin badges render with icons on separate lines, Level 1 decorative frames look correct, and the 3-level hierarchy has clear size separation.
+2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device). CSS is prepared but needs manual verification.
 3. **Priority tier refinement** — Validate tier classifications against live trade data.
-4. **Origin icons** — User plans to provide icons for очернение/разлом/сущность/осквернение sub-categories to replace or augment text badges. Placeholder: `public/icons/` has `осквернение.webp`, `разлом.webp`, `очернение абис.webp`, `сущность.webp`.
-5. **Textured frames for prefix/suffix** — User requested decorative borders for Level 1 (Префикс/Суффикс) categories to differentiate from Level 2 origin badges.
+4. **Origin icon sizing refinement** — Current 14px icons may need adjustment per device/viewport. CSS sets max-width/height: 16px on mobile.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
@@ -188,9 +187,24 @@ All category pages use a 3-level visual hierarchy. Headers are **block-level** (
 
 | Level | Label | Font Size | Style |
 |-------|-------|-----------|-------|
-| 1 — Affix | ПРЕФИКС / СУФФИКС | `text-sm` (14px) | Bold uppercase, border-l-2 accent, blue/orange |
-| 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-xs` (12px) | Bold uppercase badge, bg+border+border-l, origin-specific color |
+| 1 — Affix | ПРЕФИКС / СУФФИКС | `text-sm` (14px) | Bold uppercase, decorative frame with gradient bg, corner accents, colored border-l. CSS classes: `affix-header-prefix` (blue), `affix-header-suffix` (orange). Defined in `index.css`. |
+| 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-xs` (12px) | Bold uppercase badge, bg+border+border-l, origin-specific color + icon. Icons from `public/icons/` (webp). |
 | 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / Рубин / ... | `text-[10px]` (10px) | Semibold uppercase badge, bg+border, category-specific color |
+
+**Level 1 decorative frames** — CSS classes `affix-header-prefix` and `affix-header-suffix` provide:
+- Gradient background (subtle, color-matched)
+- Full border + thicker left accent border
+- Decorative corner accents (CSS `::before`/`::after` pseudo-elements)
+- Light theme overrides included
+
+**Level 2 origin icons** — `ORIGIN_SECTION_LABELS` in `mod-classifier.ts` includes `iconPath` field:
+- Очернённые: `icons/очернение абис.webp`
+- Осквернённые: `icons/осквернение.webp`
+- Сущность: `icons/сущность.webp`
+- Разлом: `icons/разлом.webp`
+- Обычные: no icon (implied by absence of other origin)
+
+Icons render as 14px inline images in origin badges, with `flex items-center gap-1.5` layout.
 
 **Origin color palette (v4):**
 
