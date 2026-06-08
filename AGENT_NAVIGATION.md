@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 75.0 | **Date:** 2026-06-08
+> **Version:** 76.0 | **Date:** 2026-06-08
 
 ---
 
@@ -38,13 +38,11 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 
 ## 3. Agent Workflow
 
-1. Read `AGENT_NAVIGATION.md` and `новый_план.md`
-2. Read `worklog.md` to understand what's already done
-3. Execute the current iteration's tasks
-4. Write tests for new code
-5. Run `npx vitest run --root .` and `pnpm build` — both must pass
-6. Update `worklog.md` with what was done
-7. **NEVER** touch `public/generated/` manually
+1. Read `AGENT_NAVIGATION.md`
+2. Execute the current iteration's tasks
+3. Write tests for new code
+4. Run `npx vitest run --root .` and `pnpm build` — both must pass
+5. **NEVER** touch `public/generated/` manually
 
 ## 4. Pre-Commit Checklist
 
@@ -53,7 +51,6 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
-- [ ] `worklog.md` is updated
 
 ## 5. Dependency Rules
 
@@ -67,16 +64,16 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt (showOriginSubSections=true), Jewel (origin mode), Waystone, Tablet, Relic. Check that origin badges render with icons on separate lines, Level 1 decorative frames look correct, and the 3-level hierarchy has clear size separation.
+1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt, Jewel, Waystone, Tablet, Relic. Check origin badges, Level 1 frames, 3-level hierarchy sizing.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device). CSS is prepared but needs manual verification.
 3. **Priority tier refinement** — Validate tier classifications against live trade data.
-4. **Origin icon sizing refinement** — Current 14px icons may need adjustment per device/viewport. CSS sets max-width/height: 16px on mobile.
+4. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
 3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
-4. **Origin color mapping (v4 palette)** — Очернённые=emerald/dark-green (Desecrated), Осквернённые=red/crimson (Corrupted/Vaal), Сущность=amber/noble-gold (Essence), Разлом=violet/purple (Breachborn). Defined in `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`.
+4. **Origin color mapping (v4 palette)** — Очернённые=emerald/dark-green, Осквернённые=red/crimson, Сущность=amber/noble-gold, Разлом=violet/purple. Defined in `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`.
 
 ## 7. Regex Strategy Pipeline
 
@@ -187,9 +184,9 @@ All category pages use a 3-level visual hierarchy. Headers are **block-level** (
 
 | Level | Label | Font Size | Style |
 |-------|-------|-----------|-------|
-| 1 — Affix | ПРЕФИКС / СУФФИКС | `text-sm` (14px) | Bold uppercase, decorative frame with gradient bg, corner accents, colored border-l. CSS classes: `affix-header-prefix` (blue), `affix-header-suffix` (orange). Defined in `index.css`. |
-| 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-xs` (12px) | Bold uppercase badge, bg+border+border-l, origin-specific color + icon. Icons from `public/icons/` (webp). |
-| 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / Рубин / ... | `text-[10px]` (10px) | Semibold uppercase badge, bg+border, category-specific color |
+| 1 — Affix | ПРЕФИКС / СУФФИКС | `text-base` (16px) | Bold uppercase, decorative frame with gradient bg, corner accents, colored border-l. CSS classes: `affix-header-prefix` (blue), `affix-header-suffix` (orange). Defined in `index.css`. |
+| 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-[14px]` (14px) | Bold uppercase badge, bg+border+border-l, origin-specific color + 17px icon. Icons from `public/icons/` (webp). |
+| 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / Рубин / ... | `text-[12px]` (12px) | Semibold uppercase badge, bg+border, category-specific color |
 
 **Level 1 decorative frames** — CSS classes `affix-header-prefix` and `affix-header-suffix` provide:
 - Gradient background (subtle, color-matched)
@@ -204,12 +201,12 @@ All category pages use a 3-level visual hierarchy. Headers are **block-level** (
 - Разлом: `icons/разлом.webp`
 - Обычные: no icon (implied by absence of other origin)
 
-Icons render as 14px inline images in origin badges, with `flex items-center gap-1.5` layout.
+Icons render as 17px inline images in origin badges, with `flex items-center gap-1.5` layout.
 
 **Origin color palette (v4):**
 
 | Origin | Color | Tailwind Base |
---------|-------|--------------|
+|--------|-------|--------------|
 | Обычные (normal) | Gray | `text-gray-300` |
 | Очернённые (desecrated) | Dark green | `text-emerald-400` |
 | Осквернённые (corrupted) | Crimson red | `text-red-400` |
@@ -217,3 +214,43 @@ Icons render as 14px inline images in origin badges, with `flex items-center gap
 | Разлом (breachborn) | Purple/Violet | `text-violet-400` |
 
 All origin colors defined in `ORIGIN_SECTION_LABELS` (`mod-classifier.ts`). Light theme overrides in `index.css`.
+
+## 19. UI Sizing Reference (v76 — +15-20% scale)
+
+| Element | Size | Notes |
+|---------|------|-------|
+| FilterChip text | `text-[13px]` | Was `text-xs` (12px) |
+| FilterChip padding | `px-2.5 py-1.5` | Was `px-2 py-1` |
+| FilterChip badges (⚡⚓2x) | `text-[11px]` | Was `text-[9px]` |
+| FilterChip tier/range | `text-[12px]` | Was `text-[10px]` |
+| FilterChip range inputs | `w-16 text-[13px]` | Was `w-14 text-xs` |
+| FilterChip dual-number inputs | `w-14 text-[13px]` | Was `w-12 text-[11px]` |
+| Control panel buttons | `text-[13px] py-1.5` | Was `text-xs py-1` |
+| Control panel labels | `text-[12px]` | Was `text-[10px]` |
+| Regex output title | `text-[15px]` | Was `text-sm` (14px) |
+| Regex display area | `text-base` (16px) | Was `text-sm` (14px) |
+| Health bar text | `text-[13px]` | Was `text-xs` |
+| Health bar height | `h-2.5` | Was `h-2` |
+| Search input | `text-[15px] py-2` | Was `text-sm py-1.5` |
+| Select dropdowns | `text-[13px]` | Was `text-xs` |
+| Sidebar nav items | `text-[15px]` | Was `text-sm` |
+| Sidebar icons | `36×36px` | Was `32×32px` |
+| Header title | `text-lg` (18px) | Was `text-base` (16px) |
+| Home card titles | `text-[15px]` | Was `text-sm` |
+| Home card descriptions | `text-[13px]` | Was `text-xs` |
+| Home feature titles | `text-xl` (20px) | Was `text-lg` (18px) |
+| Origin badge icons | `17×17px` | Was `14×14px` |
+| Origin badge padding | `px-3 py-1.5` | Was `px-2.5 py-1` |
+| Mobile icon max-size | `20px` | Was `16px` |
+
+## 20. Sticky Control Panel
+
+The `CategoryControlPanel` uses `sticky top-0 z-10` with `control-panel-sticky` CSS class.
+
+**Gap fix (v76):** A `::before` pseudo-element extends the background 16px above the element to prevent scroll text from peeking through the gap above the sticky panel. Defined in `index.css` under `.control-panel-sticky::before`.
+
+## 21. i18n Conventions
+
+- "для русского клиента" appears **only** in `home.title` (landing page hero)
+- `app.subtitle` = "Поиск модов" (concise, no redundant mention)
+- All other labels use generic Russian without client qualifiers

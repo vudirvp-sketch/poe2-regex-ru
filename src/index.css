@@ -425,6 +425,23 @@ body {
   border-left-color: #14b8a6 !important;
 }
 
+/* ─── Sticky control panel: cover gap above ─── */
+.control-panel-sticky {
+  position: relative;
+  padding-top: 4px;
+}
+.control-panel-sticky::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: -4px;
+  right: -4px;
+  height: 20px;
+  background: var(--poe-bg);
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* ─── Level 1 Affix decorative frames ─── */
 
 /* Prefix header: textured frame with blue accent */
@@ -521,12 +538,13 @@ body {
   }
 
   /* Slightly larger chip text on mobile for readability */
-  .mod-list .text-xs,
-  .virtualized-mod-list .text-xs {
-    font-size: 0.8rem;
+  .mod-list [class*="text-[13px]"],
+  .virtualized-mod-list [class*="text-[13px]"] {
+    font-size: 0.9rem;
   }
 
   /* Ensure control panel has enough padding below for sticky behavior */
+  .control-panel-sticky,
   .sticky.top-0 {
     padding-bottom: 12px;
   }
@@ -571,8 +589,8 @@ body {
   /* Origin badges with icons: ensure icon doesn't shrink on small screens */
   .virtualized-mod-list img,
   .mod-list img {
-    max-width: 16px;
-    max-height: 16px;
+    max-width: 20px;
+    max-height: 20px;
   }
 
   /* Smooth scroll behavior on mobile */

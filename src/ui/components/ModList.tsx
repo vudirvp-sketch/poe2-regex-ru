@@ -128,11 +128,11 @@ const ModSubGroupSection: React.FC<{
   return (
     <div className="mb-2">
       {subGroup.label && (
-        <div className={`block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
+        <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
           {subGroup.label} ({subGroup.groups.length})
         </div>
       )}
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {subGroup.groups.map((group) => (
           <FilterChip
             key={group.familyKey}
@@ -175,7 +175,7 @@ const AffixColumn: React.FC<{
 
   return (
     <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
-      <h4 className={`text-sm font-bold uppercase tracking-wider mb-2 ${headerColor} ${isPrefix ? 'affix-header-prefix' : 'affix-header-suffix'}`}>
+      <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${isPrefix ? 'affix-header-prefix' : 'affix-header-suffix'}`}>
         {t('affix.' + affix)} ({totalCount})
       </h4>
 
@@ -185,13 +185,13 @@ const AffixColumn: React.FC<{
           const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
           return (
             <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
-              <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
+              <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
                 {section.iconPath && (
                   <img
                     src={`${import.meta.env.BASE_URL}${section.iconPath}`}
                     alt=""
-                    width={14}
-                    height={14}
+                    width={17}
+                    height={17}
                     className="shrink-0 object-contain"
                   />
                 )}
@@ -362,10 +362,10 @@ export const ModList: React.FC<ModListProps> = ({
       })
       .map(sg => (
         <div key={sg.key} className="mb-1.5">
-          <div className={`block ml-4 mb-1.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
+          <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
             {sg.label} ({sg.groups.length})
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {sg.groups.map(group => (
               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} onToggleTokens={onToggleTokens} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
             ))}
@@ -384,14 +384,14 @@ export const ModList: React.FC<ModListProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
-          className="flex-1 min-w-[180px] px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-2 bg-gray-800 border border-gray-600 rounded text-[15px] text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
           aria-label={t('filter.all_types')}
-          className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+          className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
         >
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
@@ -403,7 +403,7 @@ export const ModList: React.FC<ModListProps> = ({
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
             aria-label={t('filter.all_origins')}
-            className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+            className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
           >
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
@@ -417,7 +417,7 @@ export const ModList: React.FC<ModListProps> = ({
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
+            className="px-2.5 py-1.5 bg-gray-700 border border-gray-600 rounded text-[13px] text-gray-300 hover:bg-gray-600 transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
@@ -425,7 +425,7 @@ export const ModList: React.FC<ModListProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="text-xs text-gray-500">
+      <div className="text-[13px] text-gray-500">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
@@ -436,7 +436,7 @@ export const ModList: React.FC<ModListProps> = ({
           <div className="flex flex-col gap-2">
             {classifyGroups(priorityFilteredGroups, 'origin').map((sg) => (
               <div key={sg.key}>
-                <div className={`block ml-2 mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass} flex items-center gap-1.5`}>
+                <div className={`block ml-2 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass} flex items-center gap-1.5`}>
                   {(() => {
                     const originKey = sg.key as ModOrigin;
                     const labelConfig = ORIGIN_SECTION_LABELS[originKey];
@@ -444,8 +444,8 @@ export const ModList: React.FC<ModListProps> = ({
                       <img
                         src={`${import.meta.env.BASE_URL}${labelConfig.iconPath}`}
                         alt=""
-                        width={14}
-                        height={14}
+                        width={17}
+                        height={17}
                         className="shrink-0 object-contain"
                       />
                     ) : null;
@@ -460,7 +460,7 @@ export const ModList: React.FC<ModListProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-2">
                       {originPrefix.length > 0 && (
                         <div className="border-l-2 border-blue-800/50 pl-3">
-                          <h5 className="text-xs font-semibold text-blue-400 uppercase mb-1 affix-header-prefix">{t('affix.prefix')} ({originPrefix.length})</h5>
+                          <h5 className="text-[13px] font-semibold text-blue-400 uppercase mb-1 affix-header-prefix">{t('affix.prefix')} ({originPrefix.length})</h5>
                           {showJewelTypeSubGroups
                             ? renderJewelTypeSubGroups(originPrefix)
                             : <div className="flex flex-wrap gap-1.5">
@@ -473,7 +473,7 @@ export const ModList: React.FC<ModListProps> = ({
                       )}
                       {originSuffix.length > 0 && (
                         <div className="border-l-2 border-orange-800/50 pl-3">
-                          <h5 className="text-xs font-semibold text-orange-400 uppercase mb-1 affix-header-suffix">{t('affix.suffix')} ({originSuffix.length})</h5>
+                          <h5 className="text-[13px] font-semibold text-orange-400 uppercase mb-1 affix-header-suffix">{t('affix.suffix')} ({originSuffix.length})</h5>
                           {showJewelTypeSubGroups
                             ? renderJewelTypeSubGroups(originSuffix)
                             : <div className="flex flex-wrap gap-1.5">

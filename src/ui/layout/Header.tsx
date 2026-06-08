@@ -55,12 +55,12 @@ export function Header() {
         borderColor: 'var(--poe-border)',
       }}
     >
-      <h2 className="text-base font-semibold flex-1" style={{ color: 'var(--poe-gold)' }}>
+      <h2 className="text-lg font-semibold flex-1" style={{ color: 'var(--poe-gold)' }}>
         {t(titleKey)}
       </h2>
       <button
         onClick={toggleTheme}
-        className="p-2 rounded text-sm transition-colors hover:opacity-80"
+        className="p-2 rounded text-[15px] transition-colors hover:opacity-80"
         style={{ color: 'var(--poe-text)' }}
         title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
         aria-label="Toggle theme"

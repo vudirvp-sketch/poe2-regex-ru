@@ -325,14 +325,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
-          className="flex-1 min-w-[180px] px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-2 bg-gray-800 border border-gray-600 rounded text-[15px] text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
           aria-label={t('filter.all_types')}
-          className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+          className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
         >
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
@@ -344,7 +344,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
             aria-label={t('filter.all_origins')}
-            className="px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-xs text-white focus:outline-none focus:border-blue-500"
+            className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
           >
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
@@ -358,7 +358,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
+            className="px-2.5 py-1.5 bg-gray-700 border border-gray-600 rounded text-[13px] text-gray-300 hover:bg-gray-600 transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
@@ -366,7 +366,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="text-xs text-gray-500">
+      <div className="text-[13px] text-gray-500">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
@@ -397,7 +397,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 }}
               >
                 {row.type === 'column-header' && (
-                  <div className={`text-sm font-bold uppercase tracking-wider ${
+                  <div className={`text-base font-bold uppercase tracking-wider ${
                     row.affix === 'prefix' ? 'affix-header-prefix text-blue-400' : 'affix-header-suffix text-orange-400'
                   }`}>
                     {t('affix.' + row.affix)} ({row.count})
@@ -405,13 +405,13 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 )}
 
                 {row.type === 'origin-header' && (
-                  <div className={`block ml-2 mt-4 mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
+                  <div className={`block ml-2 mt-4 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
                     {row.iconPath && (
                       <img
                         src={`${import.meta.env.BASE_URL}${row.iconPath}`}
                         alt=""
-                        width={14}
-                        height={14}
+                        width={17}
+                        height={17}
                         className="shrink-0 object-contain"
                       />
                     )}
@@ -420,7 +420,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 )}
 
                 {row.type === 'jewel-type-header' && (
-                  <div className={`block ml-4 mb-1.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
+                  <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
                     {row.label} ({row.count})
                   </div>
                 )}
@@ -428,11 +428,11 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 {row.type === 'subgroup' && (
                   <div className="mb-2">
                     {row.subGroup.label && (
-                      <div className={`block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+                      <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
                         {row.subGroup.label} ({row.subGroup.groups.length})
                       </div>
                     )}
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {row.subGroup.groups.map((group) => (
                         <FilterChip
                           key={group.familyKey}

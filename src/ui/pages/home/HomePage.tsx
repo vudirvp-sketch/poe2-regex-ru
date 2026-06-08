@@ -69,7 +69,7 @@ export function HomePage() {
         <p className="mb-6 text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
           {t('home.description_full')}
         </p>
-        <div className="flex flex-wrap justify-center gap-3 text-xs" style={{ color: 'var(--poe-text)', opacity: 0.5 }}>
+        <div className="flex flex-wrap justify-center gap-3 text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.5 }}>
           <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
             {loaded ? `${formatCount(totalMods)} модов` : '...'}
           </span>
@@ -109,14 +109,14 @@ export function HomePage() {
                   style={{ imageRendering: 'auto' }}
                 />
               </div>
-              <h3 className="mb-1 text-sm font-semibold" style={{ color: 'var(--poe-gold)' }}>
+              <h3 className="mb-1 text-[15px] font-semibold" style={{ color: 'var(--poe-gold)' }}>
                 {t(cat.labelKey)}
               </h3>
-              <p className="text-xs" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+              <p className="text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
                 {t(cat.descKey)}
               </p>
               {tagText && (
-                <span className="mt-2 inline-block rounded px-1.5 py-0.5 text-[10px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
+                <span className="mt-2 inline-block rounded px-1.5 py-0.5 text-[12px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
                   {tagText}
                 </span>
               )}
@@ -128,33 +128,33 @@ export function HomePage() {
       {/* Features section */}
       <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-lg font-semibold" style={{ color: 'var(--poe-gold)' }}>
+          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_data_title')}
           </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_data_desc')}
           </p>
         </div>
         <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-lg font-semibold" style={{ color: 'var(--poe-gold)' }}>
+          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_optimize_title')}
           </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_optimize_desc')}
           </p>
         </div>
         <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-lg font-semibold" style={{ color: 'var(--poe-gold)' }}>
+          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_share_title')}
           </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_share_desc')}
           </p>
         </div>
       </div>
 
       {/* Footer info */}
-      <div className="mt-8 text-center text-xs" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>
+      <div className="mt-8 text-center text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>
         <p>{t('home.footer')}</p>
       </div>
     </div>

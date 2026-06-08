@@ -142,7 +142,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
     >
       {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-300">{t('regex.title')}</h3>
+        <h3 className="text-[15px] font-medium text-gray-300">{t('regex.title')}</h3>
         <div className="flex items-center gap-2">
           {/* Auto-copy toggle */}
           <label className="flex items-center gap-1 cursor-pointer" title={t('regex.auto')}>
@@ -150,15 +150,15 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               type="checkbox"
               checked={autoCopy}
               onChange={(e) => setAutoCopy(e.target.checked)}
-              className="w-3 h-3 rounded bg-gray-700 border-gray-600 text-blue-500"
+              className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500"
             />
-            <span className="text-[10px] text-gray-500">{t('regex.auto')}</span>
+            <span className="text-[12px] text-gray-500">{t('regex.auto')}</span>
           </label>
           {/* Share button */}
           {filterStore && regex && (
             <button
               onClick={handleShare}
-              className={`px-2 py-1 text-xs rounded font-medium transition-colors ${
+              className={`px-2.5 py-1 text-[13px] rounded font-medium transition-colors ${
                 shareCopied
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
@@ -172,7 +172,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
           <button
             onClick={handleCopy}
             disabled={!regex || isOverflow}
-            className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
+            className={`px-3 py-1.5 text-[13px] rounded font-medium transition-colors ${
               copyError
                 ? 'bg-red-600 text-white'
                 : copied
@@ -191,14 +191,14 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       {/* Character Health Bar — visual green/yellow/red indicator */}
       <div className="mb-2" role="progressbar" aria-valuenow={Math.min(charCount, MAX_CHARS)} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
         <div className="flex items-center justify-between mb-1">
-          <span className={`text-xs font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
+          <span className={`text-[13px] font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
             {isOverflow ? t('regex.overflow') : healthConfig.label}
           </span>
-          <span className={`text-xs font-mono ${healthConfig.text}`}>
+          <span className={`text-[13px] font-mono ${healthConfig.text}`}>
             {charCount}/{MAX_CHARS}
           </span>
         </div>
-        <div className={`h-2 rounded-full overflow-hidden ${healthConfig.barBg}`}>
+        <div className={`h-2.5 rounded-full overflow-hidden ${healthConfig.barBg}`}>
           <div
             className={`h-full rounded-full transition-all duration-300 ease-out ${
               isOverflow ? 'bg-red-500 animate-pulse' : healthConfig.bar
@@ -210,14 +210,14 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
 
       {/* Overflow warning */}
       {isOverflow && (
-        <div className="mb-2 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-xs">
+        <div className="mb-2 p-2.5 bg-red-900/50 border border-red-700 rounded text-red-300 text-[13px]">
           {t('regex.overflow_detail')}
         </div>
       )}
 
       {/* Regex display area */}
       <div
-        className={`p-3 rounded font-mono text-sm break-all min-h-[60px] ${
+        className={`p-3 rounded font-mono text-base break-all min-h-[60px] ${
           isOverflow
             ? 'bg-red-950/50 border border-red-800 text-red-300'
             : regex

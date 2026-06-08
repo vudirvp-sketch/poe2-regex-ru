@@ -117,10 +117,10 @@ export function Sidebar() {
             height={52}
             className="mb-1 object-contain"
           />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--poe-gold)' }}>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--poe-gold)' }}>
             PoE2 Regex
           </h1>
-          <p className="text-xs" style={{ color: 'var(--poe-text)' }}>
+          <p className="text-[13px]" style={{ color: 'var(--poe-text)' }}>
             {t('sidebar.client')}
           </p>
         </div>
@@ -132,7 +132,7 @@ export function Sidebar() {
               end={item.path === '/'}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors ${
+                `flex items-center gap-3 rounded px-3 py-2 text-[15px] transition-colors ${
                   isActive
                     ? 'font-bold'
                     : 'hover:opacity-80'
@@ -146,8 +146,8 @@ export function Sidebar() {
               <img
                 src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
                 alt=""
-                width={32}
-                height={32}
+                width={36}
+                height={36}
                 className="shrink-0 object-contain"
                 style={{ imageRendering: 'auto' }}
               />

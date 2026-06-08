@@ -3,7 +3,7 @@ import type { Locale } from './types';
 const translations: Record<Locale, Record<string, string>> = {
   ru: {
     'app.title': 'PoE2 Regex — Русский',
-    'app.subtitle': 'Поиск модов для русского клиента',
+    'app.subtitle': 'Поиск модов',
     'waystone.title': 'Путевые камни',
     'waystone.tier': 'Тир',
     'waystone.tier_min': 'Мин. тир',
@@ -42,7 +42,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'home.title': 'PoE2 Regex для русского клиента',
     'home.subtitle': 'Генератор поисковых строк для Path of Exile 2',
     'home.description': 'Выберите категорию для начала работы',
-    'home.description_full': 'Создавайте поисковые regex-строки для русского клиента Path of Exile 2. Данные автоматически обновляются с poe2db.tw, regex оптимизируется для лимита 250 символов, фильтры можно сохранять и делиться ими через URL.',
+    'home.description_full': 'Создавайте поисковые regex-строки для Path of Exile 2 (русский клиент). Данные автоматически обновляются с poe2db.tw, regex оптимизируется для лимита 250 символов, фильтры можно сохранять и делиться ими через URL.',
     'home.feature_data_title': 'Данные из poe2db.tw',
     'home.feature_data_desc': 'Моды автоматически загружаются и нормализуются с poe2db.tw. Русский текст модов, числовые диапазоны, формы склонения — всё учитывается.',
     'home.feature_optimize_title': 'Оптимизация regex',
