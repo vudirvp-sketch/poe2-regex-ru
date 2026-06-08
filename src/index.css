@@ -263,17 +263,61 @@ body {
   border-color: #2563eb !important;
 }
 
-/* Light theme: origin sub-section labels */
-[data-theme="light"] .text-purple-400 {
-  color: #9333ea !important;
+/* Light theme: origin sub-section labels (updated palette v4) */
+[data-theme="light"] .text-emerald-400 {
+  color: #059669 !important;
 }
 
-[data-theme="light"] .text-cyan-400 {
-  color: #0891b2 !important;
+[data-theme="light"] .bg-emerald-900\/30 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
 }
 
-[data-theme="light"] .text-yellow-400 {
-  color: #d97706 !important;
+[data-theme="light"] .border-emerald-500\/25 {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+[data-theme="light"] .border-l-emerald-400 {
+  border-left-color: #34d399 !important;
+}
+
+[data-theme="light"] .text-violet-400 {
+  color: #7c3aed !important;
+}
+
+[data-theme="light"] .bg-violet-900\/30 {
+  background-color: rgba(139, 92, 246, 0.1) !important;
+}
+
+[data-theme="light"] .border-violet-500\/25 {
+  border-color: rgba(139, 92, 246, 0.25) !important;
+}
+
+[data-theme="light"] .border-l-violet-400 {
+  border-left-color: #a78bfa !important;
+}
+
+[data-theme="light"] .bg-amber-900\/30 {
+  background-color: rgba(217, 119, 6, 0.1) !important;
+}
+
+[data-theme="light"] .border-amber-500\/25 {
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+[data-theme="light"] .border-l-amber-400 {
+  border-left-color: #fbbf24 !important;
+}
+
+[data-theme="light"] .bg-red-900\/30 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+[data-theme="light"] .border-red-500\/25 {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+[data-theme="light"] .border-l-red-400 {
+  border-left-color: #f87171 !important;
 }
 
 /* Light theme: affix column borders */
@@ -315,12 +359,13 @@ body {
   color: #dc2626 !important;
 }
 
-[data-theme="light"] .text-purple-400 {
-  color: #9333ea !important;
-}
-
 [data-theme="light"] .text-green-400 {
   color: #16a34a !important;
+}
+
+/* Keep purple/cyan for VendorChip/TabletPage (not origin colors) */
+[data-theme="light"] .text-purple-400 {
+  color: #9333ea !important;
 }
 
 [data-theme="light"] .text-cyan-400 {

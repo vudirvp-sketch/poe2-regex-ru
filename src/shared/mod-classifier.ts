@@ -54,11 +54,11 @@ export const SENTIMENT_LABELS: Record<SentimentCategory, CategoryLabel> = {
 };
 
 export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
-  normal:     { label: 'Обычные',       colorClass: 'text-gray-300',   bgClass: 'bg-gray-900/30',   borderClass: 'border-gray-500/25',   borderLClass: 'border-l-gray-400' },
-  desecrated: { label: 'Очернённые',    colorClass: 'text-purple-400', bgClass: 'bg-purple-900/30', borderClass: 'border-purple-500/25', borderLClass: 'border-l-purple-400' },
-  corrupted:  { label: 'Осквернённые',  colorClass: 'text-orange-400', bgClass: 'bg-orange-900/30', borderClass: 'border-orange-500/25', borderLClass: 'border-l-orange-400' },
-  essence:    { label: 'Сущность',      colorClass: 'text-yellow-400', bgClass: 'bg-yellow-900/30', borderClass: 'border-yellow-500/25', borderLClass: 'border-l-yellow-400' },
-  breachborn: { label: 'Разлом',        colorClass: 'text-cyan-400',   bgClass: 'bg-cyan-900/30',   borderClass: 'border-cyan-500/25',   borderLClass: 'border-l-cyan-400' },
+  normal:     { label: 'Обычные',       colorClass: 'text-gray-300',    bgClass: 'bg-gray-900/30',    borderClass: 'border-gray-500/25',    borderLClass: 'border-l-gray-400' },
+  desecrated: { label: 'Очернённые',    colorClass: 'text-emerald-400', bgClass: 'bg-emerald-900/30',  borderClass: 'border-emerald-500/25', borderLClass: 'border-l-emerald-400' },
+  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',     bgClass: 'bg-red-900/30',     borderClass: 'border-red-500/25',     borderLClass: 'border-l-red-400' },
+  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',   bgClass: 'bg-amber-900/30',   borderClass: 'border-amber-500/25',   borderLClass: 'border-l-amber-400' },
+  breachborn: { label: 'Разлом',        colorClass: 'text-violet-400',  bgClass: 'bg-violet-900/30',  borderClass: 'border-violet-500/25',  borderLClass: 'border-l-violet-400' },
 };
 
 // ─── Tags-based classification (preferred) ───

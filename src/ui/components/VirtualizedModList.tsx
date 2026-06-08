@@ -396,7 +396,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 }}
               >
                 {row.type === 'column-header' && (
-                  <div className={`text-xs font-bold uppercase tracking-wider mb-2 mt-2 ${
+                  <div className={`text-sm font-bold uppercase tracking-wider mb-2 mt-2 ${
                     row.affix === 'prefix' ? 'text-blue-400 border-l-2 border-blue-800/50 pl-3' : 'text-orange-400 border-l-2 border-orange-800/50 pl-3'
                   }`}>
                     {t('affix.' + row.affix)} ({row.count})
@@ -404,13 +404,13 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 )}
 
                 {row.type === 'origin-header' && (
-                  <div className={`inline-block ml-2 mt-2.5 mb-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass}`}>
+                  <div className={`block ml-2 mt-4 mb-2 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass}`}>
                     {row.label} ({row.count})
                   </div>
                 )}
 
                 {row.type === 'jewel-type-header' && (
-                  <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
+                  <div className={`block ml-4 mb-1.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
                     {row.label} ({row.count})
                   </div>
                 )}
@@ -418,7 +418,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 {row.type === 'subgroup' && (
                   <div className="mb-2">
                     {row.subGroup.label && (
-                      <div className={`inline-block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-px rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+                      <div className={`block ml-4 mb-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
                         {row.subGroup.label} ({row.subGroup.groups.length})
                       </div>
                     )}

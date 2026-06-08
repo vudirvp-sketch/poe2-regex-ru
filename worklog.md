@@ -4,34 +4,40 @@
 
 ---
 
-## Current State (Session 73 — 2026-06-08)
+## Current State (Session 74 — 2026-06-08)
 
-**Build:** `pnpm build` passes, `npx vitest run --root .` passes (576/576 tests)
+**Build:** `pnpm build` passes, `npx vitest run` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
 **Jewel heuristic:** 100% accuracy (193/193) vs ETL ground truth
 
 **Key Changes This Session:**
 
-1. **Build fix — ModSubGroup.borderLClass** — Added `borderLClass` field to `ModSubGroup` interface and populated it in all `classifyGroups()` branches. This was the TS2551 error blocking the GitHub Actions deploy (`Property 'borderLClass' does not exist on type 'ModSubGroup'`).
-2. **Bug fix — First origin section hidden** — Removed `idx > 0 &&` guard that was hiding the Level 2 badge for the first origin section (Обычные). Now all origin sections display their badge header.
-3. **Origin color scheme update** — Changed origin colors per new design spec:
-   - Очернённые: green → purple
-   - Осквернённые: red → orange
-   - Сущность: amber → yellow
-   - Разлом: purple → cyan
+1. **Fix: inline-block мешанина** — All Level 1/2/3 headers changed from `inline-block` to `block` to prevent text concatenation ("Очернённые (33)Рубин (10)" → each header on its own line). Fixed in both `VirtualizedModList.tsx` and `ModList.tsx`.
+2. **Visual hierarchy sizes increased** — Level 1 (Префикс/Суффикс): `text-xs` → `text-sm` (14px). Level 2 (Origin): `text-[11px]` → `text-xs` (12px). Level 3 unchanged `text-[10px]`. Level 1 affix headers inside origin mode: `text-[10px]` → `text-xs`.
+3. **Origin color palette v4** — Updated `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`:
+   - Очернённые: purple → emerald (dark-green)
+   - Осквернённые: orange → red (crimson)
+   - Сущность: yellow → amber (noble gold)
+   - Разлом: cyan → violet (purple)
+4. **Light theme CSS** — Added overrides for new origin colors (emerald, violet, amber, red backgrounds/borders) in `index.css`.
+5. **Documentation** — Updated `AGENT_NAVIGATION.md` (v74), `новый_план.md` (v15), `worklog.md`.
 
 **Files changed this session:**
-- `src/shared/mod-classifier.ts` — Added `borderLClass` to `ModSubGroup`; populated in all classifyGroups branches; updated `ORIGIN_SECTION_LABELS` colors
-- `src/ui/components/ModList.tsx` — Fixed first origin section hidden by removing `idx > 0 &&` guard
-- `docs/ARCHITECTURE.md` — Updated origin color table
-- `AGENT_NAVIGATION.md` — Updated origin color mapping description
+- `src/shared/mod-classifier.ts` — Updated `ORIGIN_SECTION_LABELS` color palette
+- `src/ui/components/VirtualizedModList.tsx` — Fixed inline-block→block, text-sm for column headers
+- `src/ui/components/ModList.tsx` — Fixed inline-block→block, text-sm for affix headers, text-xs for origin mode affix headers
+- `src/index.css` — Added light theme overrides for emerald/violet/amber/red origin colors
+- `AGENT_NAVIGATION.md` — v74, added Section 18 (Visual Hierarchy), updated origin color mapping
+- `новый_план.md` — v15, added Session 74 status
 - `worklog.md` — Updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing of priority tier filter — NEEDS HUMAN
+- ⬜ Browser functional testing — verify new origin colors, visual hierarchy, block-level headers across all tabs
+- ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
+- ⬜ Mobile testing — touch targets, scroll behavior
+- ⬜ Origin icons — User preparing icons for очернение/разлом/сущность/осквернение
+- ⬜ Textured frames for Level 1 (Префикс/Суффикс) categories
 - ⬜ Validate priority tier classifications against live trade data
-- ⬜ Mobile-specific testing — NEEDS REAL DEVICE
-- ⬜ Visual testing — Verify 3-level badge rendering across all category tabs (especially new origin colors)
 
 ---
 
@@ -57,6 +63,7 @@
 18. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code, but essential for ETL scripts. Do NOT delete.
 19. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers (jewel/relic/vendor) must NOT pass these props. Show toggle only when `showPriorityFilter` is set.
 20. **ModSubGroup.borderLClass is required:** All `classifyGroups()` branches must populate `borderLClass`. Level 2 (origin) uses `ORIGIN_SECTION_LABELS[origin].borderLClass`; Level 3 (semantic/sentiment/tablet/jewel-type) uses `''`.
+21. **Level headers MUST be `block`, never `inline-block`:** Using `inline-block` causes headers to concatenate on the same line (e.g., "Очернённые (33)Рубин (10)"), creating visual mush. All Level 1/2/3 headers must use `block` display.
 
 ## Build & Run Commands
 

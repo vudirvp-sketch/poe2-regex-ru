@@ -305,14 +305,12 @@ Each level is visually subordinate to the previous: smaller text, more indentati
 
 | | Level 1: АФФИКС | Level 2: ORIGIN | Level 3: СЕМАНТИКА |
 |---|---|---|---|
-| Font size | 12px (`text-xs`) | 11px (`text-[11px]`) | 10px (`text-[10px]`) |
+| Font size | 14px (`text-sm`) | 12px (`text-xs`) | 10px (`text-[10px]`) |
 | Font weight | bold | bold | semibold |
 | Transform | uppercase | uppercase | uppercase |
+| Display | block | block | block |
 | Background | none | `bg-{color}-900/30` (notable) | `bg-{color}-900/15` (muted) |
 | Border | `border-l-2` (full-width) | `border + border-l-2` (badge) | `border` (thin, badge) |
-| Left indent | 0 | `ml-2` | `ml-4` |
-| Width | 100% column | inline (by content) | inline (by content) |
-| Decorators | none | none (removed `···`) | none (removed `──`) |
 
 ### Level 1 — АФФИКС (Prefix / Suffix)
 
@@ -322,28 +320,28 @@ No changes from v2. Full-width column header with `border-l-2` and left padding.
 
 ### Level 2 — ORIGIN (Обычные / Очернённые / Осквернённые / Сущность / Разлом)
 
-Badge-style header with background, visible but clearly subordinate to Level 1:
-- `text-[11px] font-bold uppercase tracking-wider`
-- `bg-{color}-900/30 border border-{color}-500/25 rounded-sm px-2.5 py-0.5 border-l-2 border-l-{color}-400`
-- `inline-block ml-2 mt-2.5 mb-1.5`
+Badge-style header with background, clearly subordinate to Level 1:
+- `text-xs font-bold uppercase tracking-wider` (12px)
+- `bg-{color}-900/30 border border-{color}-500/25 rounded-sm px-2.5 py-1 border-l-2 border-l-{color}-400`
+- `block ml-2 mt-4 mb-2`
 
-**Origin colors** (aligned with in-game color associations):
+**Origin colors (v4 palette):**
 
 | Origin | Text | Background | Border | border-l | In-game association |
 |--------|------|-----------|--------|----------|-------------------|
 | Обычные | `gray-300` | `gray-900/30` | `gray-500/25` | `gray-400` | Default |
-| Очернённые | `purple-400` | `purple-900/30` | `purple-500/25` | `purple-400` | Desecrated |
-| Осквернённые | `orange-400` | `orange-900/30` | `orange-500/25` | `orange-400` | Corrupted/Vaal |
-| Сущность | `yellow-400` | `yellow-900/30` | `yellow-500/25` | `yellow-400` | Essence |
-| Разлом | `cyan-400` | `cyan-900/30` | `cyan-500/25` | `cyan-400` | Breachborn |
+| Очернённые | `emerald-400` | `emerald-900/30` | `emerald-500/25` | `emerald-400` | Desecrated |
+| Осквернённые | `red-400` | `red-900/30` | `red-500/25` | `red-400` | Corrupted/Vaal |
+| Сущность | `amber-400` | `amber-900/30` | `amber-500/25` | `amber-400` | Essence |
+| Разлом | `violet-400` | `violet-900/30` | `violet-500/25` | `violet-400` | Breachborn |
 
 ### Level 3 — СЕМАНТИКА (Атакующие / Защитные / Характеристики / Прочие)
 
-Compact inline label, even smaller and more muted. Subordinate to Origin:
+Compact block label, even smaller and more muted. Subordinate to Origin:
 
 - `text-[10px] font-semibold uppercase tracking-wider`
-- `bg-{color}-900/15 border border-{color}-500/15 rounded px-2 py-px`
-- `inline-block ml-4 mb-1`
+- `bg-{color}-900/15 border border-{color}-500/15 rounded px-2 py-0.5`
+- `block ml-4 mb-1`
 - No `border-l-2` (to avoid competing with Levels 1 and 2)
 
 **Semantic colors:**

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 73.0 | **Date:** 2026-06-08
+> **Version:** 74.0 | **Date:** 2026-06-08
 
 ---
 
@@ -67,16 +67,17 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — VirtualizedModList needs manual testing: scroll, search, chip clicks, per-token ranges, dual-slot ranges, jewel type sub-headers, priority tier filter.
+1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt (showOriginSubSections=true), Jewel (origin mode), Waystone, Tablet, Relic. Check that origin badges render on separate lines, jewel type sub-headers are visually distinct, and the 3-level hierarchy has clear size separation.
 2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device).
 3. **Priority tier refinement** — Validate tier classifications against live trade data.
-4. **Visual hierarchy testing** — Verify 3-level badge rendering (Level 2 origin badges, Level 3 semantic badges) across all category tabs, especially in VirtualizedModList.
+4. **Origin icons** — User plans to provide icons for очернение/разлом/сущность/осквернение sub-categories to replace or augment text badges. Placeholder: `public/icons/` has `осквернение.webp`, `разлом.webp`, `очернение абис.webp`, `сущность.webp`.
+5. **Textured frames for prefix/suffix** — User requested decorative borders for Level 1 (Префикс/Суффикс) categories to differentiate from Level 2 origin badges.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
 3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
-4. **Origin color mapping** — Очернённые=purple (Desecrated), Осквернённые=orange (Corrupted/Vaal), Сущность=yellow (Essence), Разлом=cyan (Breachborn). Aligned with 3-level visual hierarchy.
+4. **Origin color mapping (v4 palette)** — Очернённые=emerald/dark-green (Desecrated), Осквернённые=red/crimson (Corrupted/Vaal), Сущность=amber/noble-gold (Essence), Разлом=violet/purple (Breachborn). Defined in `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`.
 
 ## 7. Regex Strategy Pipeline
 
@@ -180,3 +181,25 @@ Affix popularity tiers (S/A/B/C) integrated into UI based on research (`реги
 | `filter-store.ts` | `priorityFilter` persisted in URL via `p` key |
 
 **Categories with priority classification:** ring, amulet, belt, waystone, tablet (show toggle in CategoryControlPanel). Others (jewel, relic, vendor) return 'C' for all mods — no toggle shown, no priorityFilter passed to ModList.
+
+## 18. Visual Hierarchy (3-Level)
+
+All category pages use a 3-level visual hierarchy. Headers are **block-level** (never inline-block) to prevent text concatenation bugs.
+
+| Level | Label | Font Size | Style |
+|-------|-------|-----------|-------|
+| 1 — Affix | ПРЕФИКС / СУФФИКС | `text-sm` (14px) | Bold uppercase, border-l-2 accent, blue/orange |
+| 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-xs` (12px) | Bold uppercase badge, bg+border+border-l, origin-specific color |
+| 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / Рубин / ... | `text-[10px]` (10px) | Semibold uppercase badge, bg+border, category-specific color |
+
+**Origin color palette (v4):**
+
+| Origin | Color | Tailwind Base |
+--------|-------|--------------|
+| Обычные (normal) | Gray | `text-gray-300` |
+| Очернённые (desecrated) | Dark green | `text-emerald-400` |
+| Осквернённые (corrupted) | Crimson red | `text-red-400` |
+| Сущность (essence) | Noble gold | `text-amber-400` |
+| Разлом (breachborn) | Purple/Violet | `text-violet-400` |
+
+All origin colors defined in `ORIGIN_SECTION_LABELS` (`mod-classifier.ts`). Light theme overrides in `index.css`.
