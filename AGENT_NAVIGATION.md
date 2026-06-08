@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 71.0 | **Date:** 2026-06-08
+> **Version:** 72.0 | **Date:** 2026-06-08
 
 ---
 

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 71 — 2026-06-08)
+## Current State (Session 72 — 2026-06-08)
 
 **Build:** `pnpm build` passes, `npx vitest run --root .` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,23 +12,10 @@
 
 **Key Changes This Session:**
 
-1. **Dead code cleanup — VendorPage** — Removed unused `priorityFilter`/`setPriorityFilter` state and props (VendorPage uses VendorChip, not ModList — priority tiers don't apply).
-
-2. **Dead code cleanup — JewelPage/RelicPage** — Removed `priorityFilter`/`setPriorityFilter` from CategoryControlPanel and ModList/VirtualizedModList (jewel/relic categories return 'C' for all mods — filter is meaningless).
-
-3. **Waystone suffix tier fix** — Negative suffixes (monster damage, resist, etc.) now correctly classify as C-tier instead of B-tier. B-tier reserved for gold/additional splinters (nice-to-have). Updated test.
-
-4. **Documentation cleanup** — worklog.md, AGENT_NAVIGATION.md, новый_план.md updated and cleaned.
+1. **Build fix — CategoryControlPanelProps** — Made `priorityFilter` and `setPriorityFilter` optional props (were required but removed from JewelPage/RelicPage/VendorPage in Session 71). Added default `'all'` for `priorityFilter` and `() => {}` fallback for `setPriorityFilter`. This was the root cause of the failing GitHub Actions deploy.
 
 **Files changed this session:**
-- `src/ui/pages/vendor/VendorPage.tsx` — Removed dead priorityFilter state and props
-- `src/ui/pages/jewel/JewelPage.tsx` — Removed priorityFilter from CategoryControlPanel + VirtualizedModList
-- `src/ui/pages/relic/RelicPage.tsx` — Removed priorityFilter from CategoryControlPanel + ModList
-- `src/shared/mod-classifier.ts` — Fixed waystone suffix: B-tier only for gold/splinters, everything else C
-- `tests/shared/mod-classifier.test.ts` — Updated negative suffix test: B→C
-- `worklog.md` — Updated
-- `AGENT_NAVIGATION.md` — Cleaned up
-- `новый_план.md` — Cleaned up
+- `src/ui/components/CategoryControlPanel.tsx` — Made `priorityFilter`/`setPriorityFilter` optional, added defaults and safe callback
 
 **NOT YET DONE (next iteration):**
 - ⬜ Browser functional testing of priority tier filter — NEEDS HUMAN
@@ -57,6 +44,7 @@
 16. **All number inputs must have step={1}:** PoE2 mod values are always integers; fractional input produces invalid regex.
 17. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
 18. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code, but essential for ETL scripts. Do NOT delete.
+19. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers (jewel/relic/vendor) must NOT pass these props. Show toggle only when `showPriorityFilter` is set.
 
 ## Build & Run Commands
 

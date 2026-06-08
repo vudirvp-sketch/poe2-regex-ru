@@ -34,10 +34,10 @@ interface CategoryControlPanelProps {
   rangedSuffixes: string[];
   round10Enabled: boolean;
   setRound10Enabled: (v: boolean) => void;
-  /** Priority tier filter state */
-  priorityFilter: PriorityFilter;
-  /** Set priority tier filter */
-  setPriorityFilter: (v: PriorityFilter) => void;
+  /** Priority tier filter state. Optional — not needed for jewel/relic/vendor pages. */
+  priorityFilter?: PriorityFilter;
+  /** Set priority tier filter. Optional — not needed for jewel/relic/vendor pages. */
+  setPriorityFilter?: (v: PriorityFilter) => void;
   /** Whether to show priority tier filter toggle. Only shown for categories
    *   that have priority classification (ring, amulet, belt, waystone, tablet). */
   showPriorityFilter?: boolean;
@@ -96,7 +96,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   extraControls,
   showRound10,
   clearButton,
-  priorityFilter,
+  priorityFilter = 'all',
   setPriorityFilter,
   showPriorityFilter,
 }) => {
@@ -115,10 +115,11 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   ];
 
   // Priority filter options for arrow key navigation
+  const onSetPriorityFilter = setPriorityFilter ?? (() => {});
   const priorityOptions = [
-    { value: 'all' as PriorityFilter, action: () => setPriorityFilter('all') },
-    { value: 'S+A' as PriorityFilter, action: () => setPriorityFilter('S+A') },
-    { value: 'S' as PriorityFilter, action: () => setPriorityFilter('S') },
+    { value: 'all' as PriorityFilter, action: () => onSetPriorityFilter('all') },
+    { value: 'S+A' as PriorityFilter, action: () => onSetPriorityFilter('S+A') },
+    { value: 'S' as PriorityFilter, action: () => onSetPriorityFilter('S') },
   ];
 
   return (
@@ -260,7 +261,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               onKeyDown={(e) => handleRadioKeyDown(e, priorityOptions, priorityFilter)}
             >
               <button
-                onClick={() => setPriorityFilter('all')}
+                onClick={() => onSetPriorityFilter('all')}
                 role="radio"
                 aria-checked={priorityFilter === 'all'}
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
@@ -270,7 +271,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 {t('priority.all')}
               </button>
               <button
-                onClick={() => setPriorityFilter('S+A')}
+                onClick={() => onSetPriorityFilter('S+A')}
                 role="radio"
                 aria-checked={priorityFilter === 'S+A'}
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
@@ -280,7 +281,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 {t('priority.sa')}
               </button>
               <button
-                onClick={() => setPriorityFilter('S')}
+                onClick={() => onSetPriorityFilter('S')}
                 role="radio"
                 aria-checked={priorityFilter === 'S'}
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
