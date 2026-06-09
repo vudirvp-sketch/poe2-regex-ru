@@ -5,6 +5,8 @@
  * - Extract gender inflection forms (supports both lowercase and UPPERCASE keys)
  * - Mark E positions for yofication
  * - Split multi-line mods (<br> segments) into separate tokens
+ * - Identify and filter implicit-set bonuses (not searchable in-game)
+ * - Generate implicit tokens for waystone/tablet categories
  */
 import type { Locale, AffixType, ModOrigin, GenderForms } from '../../src/shared/types.js';
 import type { RawModData } from './parse-tables.js';
@@ -359,4 +361,253 @@ function inferAffix(text: string): AffixType {
   }
 
   return 'suffix';
+}
+
+// ─── Implicit-Set Bonus Detection ────────────────────────────────────────────
+
+/**
+ * Family keys of implicit-set bonus tokens that are NOT searchable in-game.
+ *
+ * In PoE2, waystones and tablets have two types of searchable text:
+ * 1. Mods (prefix/suffix): Format `##% description` — number BEFORE text
+ * 2. Implicits: Format `Description: +##%` — number AFTER text (REVERSED regex)
+ *
+ * Implicit-set bonus tokens correspond to implicit properties but were listed as
+ * mod text in poe2db's tables. They are NOT searchable as mod text in-game.
+ * These tokens must be removed from the mod list and replaced with proper implicit
+ * tokens that have reversed regex format.
+ */
+export const WAYSTONE_IMPLICIT_SET_FAMILY_KEYS: string[] = [
+  'На #% больше находимых в области путевых камней',
+  '#% увеличение эффективности монстров',
+  'На #% больше редкости находимых в этой области предметов',
+  'На #% больше размера групп монстров',
+];
+
+export const TABLET_IMPLICIT_SET_FAMILY_KEYS: string[] = [
+  '% увеличение количества находимых на карте путевых камней',
+];
+
+/** All implicit-set bonus family keys by category */
+const IMPLICIT_SET_FAMILY_KEYS_BY_CATEGORY: Record<string, string[]> = {
+  waystone: WAYSTONE_IMPLICIT_SET_FAMILY_KEYS,
+  'waystone-desecrated': WAYSTONE_IMPLICIT_SET_FAMILY_KEYS,
+  tablet: TABLET_IMPLICIT_SET_FAMILY_KEYS,
+};
+
+/**
+ * Check if a normalized mod's familyKey matches an implicit-set bonus pattern.
+ * Implicit-set bonuses are NOT searchable as mod text in-game.
+ */
+export function isImplicitSetBonus(mod: NormalizedMod): boolean {
+  const familyKeys = IMPLICIT_SET_FAMILY_KEYS_BY_CATEGORY[mod.category];
+  if (!familyKeys) return false;
+  return familyKeys.includes(mod.rawTextTemplate.ru
+    .replace(/##/g, '#')
+    .replace(/\s+/g, ' ')
+    .trim());
+}
+
+/**
+ * Filter out implicit-set bonus tokens from a normalized mod list.
+ * Returns the filtered list with implicit-set bonuses removed.
+ */
+export function filterImplicitSetBonuses(mods: NormalizedMod[]): NormalizedMod[] {
+  return mods.filter(mod => !isImplicitSetBonus(mod));
+}
+
+// ─── Implicit Token Generation ───────────────────────────────────────────────
+
+/**
+ * Range config for implicit tokens.
+ * Using unrestricted ranges (0-250) since exact in-game ranges are unconfirmed.
+ */
+const IMPLICIT_RANGE_UNRESTRICTED = [0, 250] as const;
+
+/**
+ * Generate implicit tokens for waystone categories.
+ * These tokens have `affix: 'implicit'` and reversed regex format
+ * (text BEFORE number: `"suffix.*(number)%"` instead of `"(number)%.*suffix"`).
+ *
+ * @param category - 'waystone' or 'waystone-desecrated'
+ * @param origin - 'normal' or 'desecrated'
+ */
+export function generateWaystoneImplicitTokens(category: string, origin: ModOrigin): NormalizedMod[] {
+  return [
+    {
+      id: `${category}.implicit.waystone_drop_chance`,
+      category,
+      origin,
+      rawText: { ru: 'Шанс выпадения путевого камня: +##%' },
+      rawTextTemplate: { ru: 'Шанс выпадения путевого камня: +##%' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [[...IMPLICIT_RANGE_UNRESTRICTED]],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [5, 20],
+      level: 1,
+    },
+    {
+      id: `${category}.implicit.item_rarity`,
+      category,
+      origin,
+      rawText: { ru: 'Редкость предметов: +##%' },
+      rawTextTemplate: { ru: 'Редкость предметов: +##%' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [[...IMPLICIT_RANGE_UNRESTRICTED]],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [8],
+      level: 1,
+    },
+    {
+      id: `${category}.implicit.pack_size`,
+      category,
+      origin,
+      rawText: { ru: 'Размер групп монстров: +##%' },
+      rawTextTemplate: { ru: 'Размер групп монстров: +##%' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [[...IMPLICIT_RANGE_UNRESTRICTED]],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [16],
+      level: 1,
+    },
+    {
+      id: `${category}.implicit.monster_effectiveness`,
+      category,
+      origin,
+      rawText: { ru: 'Эффективность монстров: +##%' },
+      rawTextTemplate: { ru: 'Эффективность монстров: +##%' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [[...IMPLICIT_RANGE_UNRESTRICTED]],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [18],
+      level: 1,
+    },
+    {
+      id: `${category}.implicit.revives`,
+      category,
+      origin,
+      rawText: { ru: 'Доступно возрождений: #' },
+      rawTextTemplate: { ru: 'Доступно возрождений: #' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [0, 6],
+      hasYofication: true,
+      yoficationPositions: [4, 11],
+      level: 1,
+    },
+  ];
+}
+
+/**
+ * Generate implicit tokens for tablet category.
+ */
+export function generateTabletImplicitTokens(): NormalizedMod[] {
+  return [
+    {
+      id: 'tablet.implicit.charges',
+      category: 'tablet',
+      origin: 'normal',
+      rawText: { ru: 'Осталось зарядов - #' },
+      rawTextTemplate: { ru: 'Осталось зарядов - #' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [1, 2, 3, 4, 5, 7, 8, 10],
+      hasYofication: true,
+      yoficationPositions: [6],
+      level: 1,
+    },
+    {
+      id: 'tablet.implicit.ritual_altars',
+      category: 'tablet',
+      origin: 'normal',
+      rawText: { ru: 'Добавляет алтари Ритуала на карту' },
+      rawTextTemplate: { ru: 'Добавляет алтари Ритуала на карту' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [4, 12],
+      level: 1,
+    },
+    {
+      id: 'tablet.implicit.breach',
+      category: 'tablet',
+      origin: 'normal',
+      rawText: { ru: 'Добавляет Заражение на карту' },
+      rawTextTemplate: { ru: 'Добавляет Заражение на карту' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [4],
+      level: 1,
+    },
+    {
+      id: 'tablet.implicit.abyss',
+      category: 'tablet',
+      origin: 'normal',
+      rawText: { ru: 'Добавляет Бездны на карту' },
+      rawTextTemplate: { ru: 'Добавляет Бездны на карту' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [4, 12],
+      level: 1,
+    },
+    {
+      id: 'tablet.implicit.vaal',
+      category: 'tablet',
+      origin: 'normal',
+      rawText: { ru: 'Добавляет маяки ваал на карту' },
+      rawTextTemplate: { ru: 'Добавляет маяки ваал на карту' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [4, 13],
+      level: 1,
+    },
+  ];
+}
+
+/**
+ * Get implicit tokens for a given category.
+ * Returns empty array for categories that don't have implicit tokens.
+ */
+export function getImplicitTokensForCategory(category: string): NormalizedMod[] {
+  switch (category) {
+    case 'waystone':
+      return generateWaystoneImplicitTokens('waystone', 'normal');
+    case 'waystone-desecrated':
+      return generateWaystoneImplicitTokens('waystone-desecrated', 'desecrated');
+    case 'tablet':
+      return generateTabletImplicitTokens();
+    default:
+      return [];
+  }
 }

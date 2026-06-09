@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 693 (Vitest) | **ETL токенов:** 1672 | **Cross-family FP:** 0
+> **Тестов:** 693 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
 
 ---
 
@@ -9,41 +9,42 @@
 
 - ✅ Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
 - ✅ Sessions 50-82: Oracle validation, cross-family FP repair, ETL audit, VirtualizedModList, dual-slot ranges, jewel sub-headers, UI audit, profile panel, Ctrl+Shift+X, anchorStart (^), anchorEnd (%), chip-with-range CSS
-- ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor РАБОТАЕТ. Regex syntax валидирован.
+- ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor РАБОТАЕТ.
 - ✅ % anchor RE-ENABLED: восстановлен в useCategoryPage.ts. Dual-indexing подтверждён на всех категориях.
 - ✅ Waystone root cause FOUND: имплисет-бонусы не searchable. Моды и имплисеты — подтверждены в игре.
-- ✅ **Waystone ETL реструктуризация DONE**: убраны 160 implicit-set бонусов из waystone.json, добавлены 5 waystone implicit + 5 tablet implicit + 5 waystone-desecrated implicit токенов с reversed regex.
-- ✅ **AffixType 'implicit'**: добавлен в типы, классификатор, family-grouper, UI. Implicit токены отображаются в секции "ИМПЛИСЕТ".
-- ✅ **Reversed RANGE**: compiler поддерживает `reversed: true` на RANGE-нодах → `"suffix.*(range)%"` вместо `"(range)%.*suffix"`.
+- ✅ Waystone ETL реструктуризация: убраны implicit-set бонусы, добавлены implicit токены с reversed regex.
+- ✅ AffixType 'implicit': добавлен в типы, классификатор, family-grouper, UI.
+- ✅ Reversed RANGE: compiler поддерживает `reversed: true` → `"suffix.*(range)%"`.
+- ✅ **ETL pipeline автоматизация**: `normalize.ts` + `run-etl.ts` автоматически фильтруют implicit-set бонусы и генерируют implicit токены. Скрипт `restructure-implicits.ts` больше не нужен при будущих ETL-запусках.
+- ✅ **Waystone implicit ranges**: диапазоны установлены 0-250 (не подтверждены в игре, используются свободные).
 
 ---
 
 ## Активные проблемы
 
-### P2: % anchor — РЕШЕНО
+### P3: Block model ретест B1-B2 (MEDIUM)
 
-RE-ENABLED. Работает на модах и имплисетах.
+`"35%.*к сопротивлению молнии"` матчит кольцо с +35% cold + +41% lightning (разные аффиксы). Нужен ретест в игре:
 
-### P3: Block model ретест (MEDIUM)
-
-`"35%.*к сопротивлению молнии"` матчит кольцо с +35% cold + +41% lightning (разные аффиксы). Нужен ретест B1-B2.
+| # | Regex | Цель | Статус |
+|---|-------|------|--------|
+| B1 | `"35%.*к сопротивлению холоду"` | `.*` в пределах одного блока? | ⬜ Требуется проверка в игре |
+| B2 | `"+66.*к силе"` | `.*` через prefix→suffix? | ⬜ Требуется проверка в игре |
 
 ---
 
 ## Известные ограничения
 
 1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring
-2. **Block model может быть неполной** — `.*` может пересекать аффикс-блоки
-3. **ETL pipeline не автоматизирован** для implicit-токенов — реструктуризация выполнена скриптом `restructure-implicits.ts`, но будущие ETL-запуски нужно обновить
+2. **Waystone implicit ranges не подтверждены** — используются 0-250, точные диапазоны требуют проверки в игре
 
 ---
 
 ## Следующие шаги
 
-1. Block model ретест B1-B2
-2. Обновить ETL pipeline (normalize.ts, run-etl.ts) для автоматического разделения implicit-set бонусов
-3. Проверить waystone implicit regex в игре (reversed regex)
-4. Проверить tablet implicit regex в игре
+1. Проверить waystone implicit regex в игре (reversed regex)
+2. Проверить tablet implicit regex в игре
+3. Block model ретест B1-B2 в игре
 
 ---
 

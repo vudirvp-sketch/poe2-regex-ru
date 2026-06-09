@@ -10,6 +10,7 @@
 poe2db.tw/ru/*
     → Step 1: Fetch HTML (fetch-poe2db.ts + parse-tables.ts / parse-modifiers-calc.ts)
     → Step 2: Normalize (normalize.ts) — clean text, extract ranges/values, generate internal_id, gender forms, yofication
+    → Step 2b: Implicit-set bonus filter (normalize.ts) — remove non-searchable implicit-set bonuses, add implicit tokens with reversed regex
     → Step 3: Compute Regex (compute-regex.ts) — minimal unique substrings per token
     → Step 4: Compute Optimizations (compute-optimizations.ts) — shared regex groups for multi-token combos
     → Step 5: Generate JSON (generate-dictionary.ts) — assemble CategoryData → public/generated/*.json
@@ -60,6 +61,27 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 **Gender inflection template:** Russian mod names use UPPERCASE keys: `<if:MS>{...}<elif:FS>{...}...`. Keys: MS/FS/NS/MP/FP/NP.
 
 **Numeric range encoding:** Parse with `/\((\d+)<span class="ndash">—<\/span>(\d+)\)/`. Fractional ranges via `parseFloat`.
+
+## 5b. Implicit-Set Bonus Filter (Step 2b)
+
+**Problem:** poe2db.tw lists implicit-set bonuses as mod text, but these are NOT searchable in-game. Example: `"На ##% больше находимых в области путевых камней"` — the game doesn't index this text for search.
+
+**Solution:** `normalize.ts` provides:
+- `filterImplicitSetBonuses()` — removes tokens matching known implicit-set bonus familyKey patterns
+- `getImplicitTokensForCategory()` — generates proper implicit tokens with `affix: 'implicit'` and reversed regex format
+
+**FamilyKey patterns removed:**
+- Waystone: `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`, `На #% больше редкости находимых в этой области предметов`, `На #% больше размера групп монстров`
+- Tablet: `% увеличение количества находимых на карте путевых камней`
+
+**Implicit tokens added (reversed regex format):**
+- Waystone: Шанс выпадения путевого камня, Редкость предметов, Размер групп монстров, Эффективность монстров, Доступно возрождений
+- Waystone-desecrated: Same 5 tokens with origin='desecrated'
+- Tablet: Осталось зарядов, алтари Ритуала, Заражение, Бездны, маяки ваал
+
+**Range config:** Waystone implicit ranges use [0, 250] (unrestricted) since exact in-game ranges are unconfirmed. Tablet implicit tokens use fixed values where applicable.
+
+**`run-etl.ts` integration:** After Step 2 (normalize), `runEtl()` calls `filterImplicitSetBonuses()` and `getImplicitTokensForCategory()`, appending implicit tokens to the normalized mod list before regex computation.
 
 ## 6. Compute Regex Algorithm
 

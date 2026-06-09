@@ -23,7 +23,7 @@
 |  fetch public/generated/*.json -> typed objects                   |
 +------------------------------------------------------------------+
 |                     ETL Pipeline (build-time)                    |
-|  Cheerio scraper -> normalize -> compute-regex -> compute-opt   |
+|  Cheerio scraper -> normalize -> filter implicit-set -> compute  |
 |  -> generate JSON -> i18n overrides -> FP repair -> public/gen  |
 +------------------------------------------------------------------+
 |                     External Data Source                         |
@@ -37,6 +37,7 @@
 poe2db.tw/ru/*
     → fetch-poe2db.ts (Cheerio + fetch)
     → normalize.ts (clean text, extract ranges/values)
+    → filterImplicitSetBonuses() + getImplicitTokensForCategory() (remove non-searchable implicit-set bonuses, add implicit tokens)
     → compute-regex.ts (minimal unique substrings)
     → compute-optimizations.ts (shared regex groups)
     → generate-dictionary.ts (assemble CategoryData)

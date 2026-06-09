@@ -15,7 +15,7 @@
 import { fetchPage } from './etl/fetch-poe2db.js';
 import { parseTypeAPage } from './etl/parse-tables.js';
 import { parseTypeBPage, getModCategoryStats } from './etl/parse-modifiers-calc.js';
-import { normalizeTypeA, normalizeTypeB, extractTextAndRanges } from './etl/normalize.js';
+import { normalizeTypeA, normalizeTypeB, extractTextAndRanges, filterImplicitSetBonuses, getImplicitTokensForCategory } from './etl/normalize.js';
 import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
@@ -605,6 +605,26 @@ async function runEtl() {
       if (normalized.length === 0) {
         console.warn(`  WARNING: No mods found for ${cat.name}. Skipping.`);
         continue;
+      }
+
+      // Step 2b: Filter implicit-set bonuses and add implicit tokens
+      // Implicit-set bonus tokens (e.g., "На ##% больше находимых в области путевых камней")
+      // are NOT searchable as mod text in-game. They must be removed and replaced
+      // with proper implicit tokens that use reversed regex format.
+      const beforeImplicitFilter = normalized.length;
+      const filteredMods = filterImplicitSetBonuses(normalized);
+      const implicitTokens = getImplicitTokensForCategory(cat.name);
+
+      if (beforeImplicitFilter !== filteredMods.length || implicitTokens.length > 0) {
+        const removedCount = beforeImplicitFilter - filteredMods.length;
+        if (removedCount > 0) {
+          console.log(`  Filtered implicit-set bonuses: removed ${removedCount} non-searchable tokens`);
+        }
+        if (implicitTokens.length > 0) {
+          console.log(`  Adding ${implicitTokens.length} implicit tokens (reversed regex)`);
+        }
+        normalized = [...filteredMods, ...implicitTokens];
+        console.log(`  Tokens after implicit processing: ${normalized.length}`);
       }
 
       // Collect jewel mods for type mapping
