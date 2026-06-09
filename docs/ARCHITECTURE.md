@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 34.0 | **Date:** 2026-06-08 | **Language:** RU-first
+> **Version:** 35.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -266,8 +266,11 @@ Without wrapping: `"([1-9][0-9]).*огню|холоду|молнии"` would par
 Per-token numeric overrides set `exact=true` on the RANGE node, producing precise regex without rounding. Global ranges use the `round10` option.
 
 ### AND/OR Search Logic
-- **AND mode** (default): Each OR-group gets its own quoted group. Space between quotes = AND. Item must have ALL selected mods.
+- **AND mode** (default): Tokens are grouped by `familyKey`. Within the same family (different tiers of the same mod), tokens are OR'd — any tier matches. Across different families, tokens are AND'd — all selected mod families must be present. Example: selecting "fire res T1" + "fire res T2" + "cold res T1" in AND mode → `"fireRes1|fireRes2" "coldRes"` (fire res at any tier AND cold res).
 - **OR mode**: All LITERAL and RANGE nodes go into a single OR group. Item needs ANY selected mod.
+
+### Orphaned Ranged Tokens
+When some ranged tokens have effective min/max (per-token or global) and others don't, the ones without effective range are not silently dropped. They are treated as LITERAL suffix nodes and added using the same family-based AND/OR logic.
 
 ## 8. Family Pooling (Modifier Grouping)
 
@@ -440,6 +443,14 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v35.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| AND mode: different-family tokens OR'd instead of AND'd | **Critical** | In AND mode, tokens from different `familyKey` groups were all put into one OR group, producing `"suffix1\|suffix2"` (matches ANY mod). Fixed: group by `familyKey`, OR within same family, AND across families → `"suffix1" "suffix2"` (matches ALL mods). |
+| AND/OR toggle had no effect on output | **Critical** | Both AND and OR modes produced identical regex. Root cause: same as above — `or(...literals)` was always used regardless of `searchLogic`. Fixed with family-based grouping. |
+| Ranged tokens without effective range silently dropped | **High** | When `anyHasRange=true` but some ranged tokens had no effective min/max, those tokens were skipped entirely. Fixed: collect orphaned tokens and add as LITERAL nodes with family-based AND/OR logic. |
 
 ### v33.0 (2026-06-08)
 

@@ -139,6 +139,10 @@ export interface CategoryPageState {
  * - Selected tokens with excludeMode=true → EXCLUDE(OR group) (unwanted mods)
  * - Ranged tokens with min/max set → RANGE(min, max, suffix)
  *   (compiler normalizes RANGE(min,max) into AND(RANGE(min), RANGE(undefined,max)))
+ * - AND mode: group by familyKey, OR within family, AND across families.
+ *   Same-family tokens (different tiers) → OR (any tier matches).
+ *   Different-family tokens → AND (all selected mods must be present).
+ * - OR mode: all tokens go into one OR group (any mod matches).
  * - All combined with AND
  */
 /**
@@ -262,6 +266,90 @@ function getPrefixForSlot(
   return prefix;
 }
 
+/**
+ * Build a literal AST node for a token, wrapping with context/exclude as needed.
+ * Shared by non-ranged and orphaned ranged token handling.
+ */
+function buildLiteralNode(
+  token: GameToken,
+  locale: Locale,
+  excludeMode: boolean
+): ASTNode {
+  const baseLiteral = literal(token.regex[locale], token.id);
+
+  // If this token has a prefix context, wrap in AND with context LITERAL:
+  // AND(LITERAL(context), LITERAL(regex)) compiles to "context" "regex"
+  const prefixContext = token.regexPrefixContext?.[locale];
+  const contextNode = prefixContext
+    ? and(literal(prefixContext), baseLiteral)
+    : baseLiteral;
+
+  // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
+  const excludes = token.regexExclude?.[locale];
+  if (excludes && excludes.length > 0 && !excludeMode) {
+    if (excludes.length === 1) {
+      return and(contextNode, exclude(literal(excludes[0])));
+    } else {
+      const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
+      return and(contextNode, excludeOrNode);
+    }
+  }
+  return contextNode;
+}
+
+/**
+ * Push literal nodes into andChildren/orChildren respecting AND/OR family logic.
+ *
+ * - excludeMode: all nodes go into EXCLUDE(OR(...))
+ * - OR mode: all nodes go into orChildren (single OR group)
+ * - AND mode: group by familyKey, OR within family, AND across families.
+ *   Same-family tokens (different tiers) → OR (any tier matches).
+ *   Different-family tokens → AND (all selected mods must be present).
+ *
+ * @param tokens - Tokens corresponding 1:1 to nodes (for familyKey lookup)
+ * @param nodes  - AST nodes corresponding 1:1 to tokens
+ */
+function pushLiteralsWithFamilyLogic(
+  tokens: GameToken[],
+  nodes: ASTNode[],
+  locale: Locale,
+  searchLogic: SearchLogic,
+  excludeMode: boolean,
+  andChildren: ASTNode[],
+  orChildren: ASTNode[]
+): void {
+  if (nodes.length === 0) return;
+
+  if (excludeMode) {
+    andChildren.push(exclude(or(...nodes)));
+    return;
+  }
+
+  if (searchLogic === 'or') {
+    orChildren.push(...nodes);
+    return;
+  }
+
+  // AND mode: group by familyKey, OR within family, AND across families
+  const familyGroups = new Map<string, ASTNode[]>();
+  for (let i = 0; i < nodes.length; i++) {
+    const family = tokens[i].familyKey[locale];
+    if (!familyGroups.has(family)) {
+      familyGroups.set(family, []);
+    }
+    familyGroups.get(family)!.push(nodes[i]);
+  }
+
+  for (const [, familyNodes] of familyGroups) {
+    if (familyNodes.length === 1) {
+      andChildren.push(familyNodes[0]);
+    } else {
+      // Same family, different tiers → OR (any tier matches)
+      andChildren.push(or(...familyNodes));
+    }
+  }
+}
+
 function buildAstFromSelections(
   selectedTokens: GameToken[],
   excludeMode: boolean,
@@ -289,48 +377,10 @@ function buildAstFromSelections(
   const andChildren: ASTNode[] = [];
   const orChildren: ASTNode[] = []; // For OR logic: all items go into one OR group
 
-  // Handle non-ranged tokens: group them into OR
+  // Handle non-ranged tokens
   if (nonRangedTokens.length > 0) {
-    const literals = nonRangedTokens.map(t => {
-      const baseLiteral = literal(t.regex[locale], t.id);
-
-      // If this token has a prefix context, wrap in AND with context LITERAL:
-      // AND(LITERAL(context), LITERAL(regex)) compiles to "context" "regex"
-      // Both must appear on the item (AND across blocks), eliminating FP.
-      const prefixContext = t.regexPrefixContext?.[locale];
-      const contextNode = prefixContext
-        ? and(literal(prefixContext), baseLiteral)
-        : baseLiteral;
-
-      // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
-      const excludes = t.regexExclude?.[locale];
-      if (excludes && excludes.length > 0 && !excludeMode) {
-        // Combine multiple excludes into single EXCLUDE(OR([...])) for shorter regex:
-        // "!A|B" is shorter than "!A" "!B" and semantically equivalent
-        // (both exclude items containing A OR B in any block)
-        if (excludes.length === 1) {
-          return and(contextNode, exclude(literal(excludes[0])));
-        } else {
-          const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
-          return and(contextNode, excludeOrNode);
-        }
-      }
-      return contextNode;
-    });
-
-    if (excludeMode) {
-      andChildren.push(exclude(or(...literals)));
-    } else {
-      if (searchLogic === 'or') {
-        orChildren.push(...literals);
-      } else {
-        if (literals.length === 1) {
-          andChildren.push(literals[0]);
-        } else {
-          andChildren.push(or(...literals));
-        }
-      }
-    }
+    const literals = nonRangedTokens.map(t => buildLiteralNode(t, locale, excludeMode));
+    pushLiteralsWithFamilyLogic(nonRangedTokens, literals, locale, searchLogic, excludeMode, andChildren, orChildren);
   }
 
   // Handle ranged tokens with per-token or global numeric ranges
@@ -346,12 +396,12 @@ function buildAstFromSelections(
     );
 
     if (anyHasRange) {
+      // Track which tokens are handled by range groups (have effective min/max)
+      const handledTokenIds = new Set<string>();
+
       // Group ranged tokens by (prefix, min, max, exact, slotIndex) — NOT by suffix.
       // This allows merging tokens with different suffixes but the same numeric
-      // range into a single RANGE node with OR-joined suffixes, e.g.:
-      //   RANGE(10, undefined, "огню|холоду|молнии") → "([1-9][0-9][0-9]?).*(огню|холоду|молнии)"
-      // instead of three separate AND-joined RANGEs which would require the item
-      // to have ALL three mods simultaneously (wrong for typical use case).
+      // range into a single RANGE node with OR-joined suffixes.
       const rangeGroups = new Map<string, {
         suffixes: string[];
         prefix: string;
@@ -365,11 +415,13 @@ function buildAstFromSelections(
         const suffix = token.regex[locale];
         const isPerToken = !!perTokenRanges[token.id];
 
+        let tokenHasEffectiveSlot = false;
         for (const slot of slots) {
           const hasMin = slot.min !== null && slot.min > 0;
           const hasMax = slot.max !== null && slot.max > 0;
           if (!hasMin && !hasMax) continue;
 
+          tokenHasEffectiveSlot = true;
           const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
 
           // Group by (prefix, min, max, exact, slotIndex) — NOT by suffix
@@ -394,6 +446,9 @@ function buildAstFromSelections(
             });
           }
         }
+        if (tokenHasEffectiveSlot) {
+          handledTokenIds.add(token.id);
+        }
       }
 
       // For each unique (prefix, min, max, exact) group, create a RANGE node
@@ -406,39 +461,18 @@ function buildAstFromSelections(
 
         const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined);
 
-        // Phase 8: Wrap RANGE in AND with EXCLUDE nodes if tokens have regexExclude.
-        // When the suffix has cross-family FP (e.g., "к си" matching compound mods),
-        // the RANGE regex must include negation: "numRegex.*suffix" "!exclude"
-        // Phase 9: Also add regexPrefixContext as AND(LITERAL(context), RANGE(...))
+        // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;
         if (!excludeMode) {
           // Add prefix context if available (only when all tokens share the same context)
           const contexts = [...new Set(
             group.tokens.map(t => t.regexPrefixContext?.[locale] ?? '').filter(c => c.length > 0)
           )];
-          // Only add context if all tokens that have context share the SAME value
           if (contexts.length === 1) {
             nodeWithExcludes = and(literal(contexts[0]), nodeWithExcludes);
           }
 
-          // Collect unique exclude patterns from all tokens in this range group.
-          //
-          // IMPORTANT: When ranged tokens with same (min,max) but different suffixes
-          // are merged into a single RANGE with OR-joined suffixes, ALL excludes from
-          // ALL tokens in the group are unioned. This is intentional and correct:
-          //
-          // - `!X` is item-wide in PoE2 — if an item contains X in ANY block, it's excluded.
-          // - `!(A|B)` = "exclude items containing A OR B" is safer than no exclusion.
-          // - Example: token1 (огню) has exclude "Приспеш", token2 (холоду) has exclude "состояния"
-          //   → `"numRegex.*(огню|холоду)" "!Приспеш|состояния"`
-          //   This correctly excludes items with minions OR DOT effects, even though
-          //   each exclude was originally targeted at a specific suffix.
-          // - Over-excluding is acceptable: it prevents false positives (matching wrong items)
-          //   at the cost of potentially excluding some valid items. This is the safer tradeoff
-          //   for PoE2 regex where the 250 char limit means we can't afford separate ranges.
-          //
-          // If per-suffix exclude scoping were needed, it would require separate RANGE nodes
-          // AND-joined together, which would double the character count for the number regex.
+          // Collect unique exclude patterns from all tokens in this range group
           const allExcludes: string[] = [];
           for (const token of group.tokens) {
             const excludes = token.regexExclude?.[locale];
@@ -451,7 +485,6 @@ function buildAstFromSelections(
             }
           }
           if (allExcludes.length > 0) {
-            // Combine multiple excludes into single EXCLUDE(OR([...])) for shorter regex
             if (allExcludes.length === 1) {
               nodeWithExcludes = and(rangeNode, exclude(literal(allExcludes[0])));
             } else {
@@ -464,61 +497,30 @@ function buildAstFromSelections(
         if (searchLogic === 'or') {
           orChildren.push(nodeWithExcludes);
         } else {
-          // AND mode: ranged tokens with same (min, max, prefix) go into ONE
-          // RANGE node with OR-suffix, NOT separate AND-joined RANGE nodes.
-          // This is the fix for the "regex collapses when numeric value is set" bug.
           andChildren.push(nodeWithExcludes);
         }
       }
+
+      // Handle orphaned ranged tokens (have ranges but no effective min/max).
+      // These tokens are not covered by any range group — treat as LITERAL suffix.
+      const orphanedTokens = rangedTokens.filter(t => !handledTokenIds.has(t.id));
+      if (orphanedTokens.length > 0) {
+        const uniqueSuffixOrphans = [...new Map(orphanedTokens.map(t => [t.regex[locale], t])).values()];
+        const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, excludeMode));
+        pushLiteralsWithFamilyLogic(uniqueSuffixOrphans, orphanLiterals, locale, searchLogic, excludeMode, andChildren, orChildren);
+      }
     } else {
       // No effective min/max: just use the family suffix regex as LITERAL
-      // Phase 8: Apply regexExclude to these literals too (same as non-ranged tokens)
       const uniqueSuffixTokens = [...new Map(rangedTokens.map(t => [t.regex[locale], t])).values()];
-      const literals = uniqueSuffixTokens.map(token => {
-        const baseLiteral = literal(token.regex[locale], token.id);
-
-        // If this token has a prefix context, wrap in AND with context LITERAL
-        const prefixContext = token.regexPrefixContext?.[locale];
-        const contextNode = prefixContext
-          ? and(literal(prefixContext), baseLiteral)
-          : baseLiteral;
-
-        const excludes = token.regexExclude?.[locale];
-        if (excludes && excludes.length > 0 && !excludeMode) {
-          // Combine multiple excludes into single EXCLUDE(OR([...])) for shorter regex
-          if (excludes.length === 1) {
-            return and(contextNode, exclude(literal(excludes[0])));
-          } else {
-            const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
-            return and(contextNode, excludeOrNode);
-          }
-        }
-        return contextNode;
-      });
-
-      if (excludeMode) {
-        andChildren.push(exclude(or(...literals)));
-      } else {
-        if (searchLogic === 'or') {
-          orChildren.push(...literals);
-        } else {
-          if (literals.length === 1) {
-            andChildren.push(literals[0]);
-          } else {
-            andChildren.push(or(...literals));
-          }
-        }
-      }
+      const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, excludeMode));
+      pushLiteralsWithFamilyLogic(uniqueSuffixTokens, literals, locale, searchLogic, excludeMode, andChildren, orChildren);
     }
   }
 
-  // Combine children based on search logic
+  // Combine orChildren into andChildren
   if (searchLogic === 'or' && orChildren.length > 0) {
     // OR mode: all selected mods go into a single OR group
-    // This means the item only needs to match ANY ONE of the selected mods
-    // The compiler will produce a single quoted group: "A|B|C|D"
     if (excludeMode) {
-      // In exclude mode with OR logic: exclude any of the selected mods
       andChildren.push(exclude(or(...orChildren)));
     } else {
       if (orChildren.length === 1) {
