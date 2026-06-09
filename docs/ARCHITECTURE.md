@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 36.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 37.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -233,14 +233,28 @@ shared <- core <- strategies <- store <- data <- ui
 - `data` -> imports from `shared`
 - `ui` -> imports from everyone
 
-## 7. Compiler: Enumerated Range (Phase 9) + AND Fallback
+## 7. Compiler: Enumerated Range (Phase 9-10) + AND Fallback
 
-### Enumerated Range (preferred, Phase 9)
-When both `min` and `max` are specified AND the range has ≤ `MAX_ENUMERATE_RANGE` (50) values, the compiler produces a **single quoted group** with all valid values enumerated:
+### Enumerated Range (preferred, Phase 9-10)
+When both `min` and `max` are specified AND the range has ≤ `MAX_ENUMERATE_RANGE` (50) values, the compiler produces a **single quoted group** with all valid values in a compact pattern:
 ```
-RANGE(27, 30, 'откладывания наград')  →  "(27|28|29|30).*откладывания наград"
+RANGE(27, 30, 'откладывания наград')  →  "(2[7-9]|30).*откладывания наград"
 ```
 This approach is **immune to false positives from secondary numbers** in PoE2's range notation (e.g., `"26(26-50)% шанс откладывания наград"` where `50` would satisfy `≥27` and `26` would satisfy `≤30` in the AND approach).
+
+**Decade grouping optimization (Phase 10):**
+Instead of flat enumeration `(27|28|29|30)`, values are grouped by tens digit using character classes:
+- Full decade (30-39) → `3[0-9]`
+- Partial decade at start (27-29) → `2[7-9]`
+- Partial decade at end (50-52) → `5[0-2]`
+- Single value → literal (e.g., `30`)
+- Cross-digit-boundary (98-102) → split and group each part: `(9[8-9]|10[0-2])`
+
+This dramatically reduces regex length:
+- Old: `(40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80)` = ~163 chars
+- New: `(4[0-9]|5[0-9]|6[0-9]|7[0-9]|80)` = ~35 chars
+
+Same precision, ~4.5x shorter. Semantically equivalent — matches exactly the same set of numbers.
 
 **Why enumeration is needed (verified in-game, Phase 9):**
 - PoE2 item text contains range notation like `"26(26-50)% шанс откладывания наград"`
@@ -461,6 +475,15 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v37.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Flat enumeration too long for medium ranges (40-80 = ~163 chars) | **High** | Phase 10: decade grouping optimization. `generateEnumeratedRangeRegex()` now groups consecutive values by tens digit using character classes: `(4[0-9]\|5[0-9]\|6[0-9]\|7[0-9]\|80)` instead of 41 flat values. ~4.5x shorter, same precision. |
+| No integration tests for buildAstFromSelections with familyKey | **Medium** | Added `tests/ui/buildAstFromSelections.test.ts` — 16 tests covering AND/OR family grouping, exclude mode, ranged tokens, and orphaned ranged tokens. |
+| No tests for orphaned ranged tokens regression | **Medium** | Added tests verifying that ranged tokens without effective min/max are not silently dropped when other tokens have ranges (regression from v35). |
+| No in-game verification tests for tablet patterns | **Low** | Added `tests/core/tablet-in-game.test.ts` — 7 tests using real item data to verify enumeration vs AND fallback behavior. |
 
 ### v36.0 (2026-06-09)
 

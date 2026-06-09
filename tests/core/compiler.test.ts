@@ -59,18 +59,18 @@ describe('compile', () => {
 
   // ─── Min+Max RANGE tests ───
 
-  it('compiles RANGE with both min and max (2-digit) — enumeration', () => {
-    // range(40, 80, 'm q') → single enumerated quoted group (Phase 9)
-    // Enumeration: 41 values ≤ MAX_ENUMERATE_RANGE (50), so uses enumeration
+  it('compiles RANGE with both min and max (2-digit) — compact enumeration', () => {
+    // range(40, 80, 'm q') → single compact enumerated quoted group (Phase 10)
+    // Decade grouping: 41 values ≤ MAX_ENUMERATE_RANGE (50), uses compact form
     // round10 is ignored for enumerated ranges — values are always precise
     const result = compile(range(40, 80, 'm q'), { round10: true });
-    expect(result).toBe('"(40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80).*m q"');
+    expect(result).toBe('"(4[0-9]|5[0-9]|6[0-9]|7[0-9]|80).*m q"');
   });
 
-  it('compiles RANGE with both min and max (1-digit) — enumeration', () => {
-    // range(3, 7) → single enumerated quoted group
+  it('compiles RANGE with both min and max (1-digit) — compact enumeration', () => {
+    // range(3, 7) → single character class (Phase 10: compact form)
     const result = compile(range(3, 7), { round10: false });
-    expect(result).toBe('"(3|4|5|6|7)"');
+    expect(result).toBe('"[3-7]"');
   });
 
   it('compiles RANGE with both min and max inside AND — enumeration', () => {
@@ -80,7 +80,7 @@ describe('compile', () => {
       and(literal('огн'), range(40, 80, 'm q')),
       { round10: true }
     );
-    expect(result).toBe('"огн" "(40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80).*m q"');
+    expect(result).toBe('"огн" "(4[0-9]|5[0-9]|6[0-9]|7[0-9]|80).*m q"');
   });
 
   it('compiles RANGE with max-only', () => {
@@ -112,11 +112,11 @@ describe('compile', () => {
     expect(result).toBe('"увеличенное на ([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
   });
 
-  it('compiles RANGE with prefix and both min+max — enumeration', () => {
+  it('compiles RANGE with prefix and both min+max — compact enumeration', () => {
     // range(25, 30, 'количество дани', 'даруют увеличенное на')
-    // → single enumerated quoted group with prefix (Phase 9)
+    // → single compact enumerated quoted group with prefix (Phase 10)
     const result = compile(range(25, 30, 'количество дани', 'даруют увеличенное на'), { round10: false });
-    expect(result).toBe('"даруют увеличенное на (25|26|27|28|29|30).*количество дани"');
+    expect(result).toBe('"даруют увеличенное на (2[5-9]|30).*количество дани"');
   });
 
   it('compiles RANGE without prefix (original behavior)', () => {
@@ -216,10 +216,10 @@ describe('compile', () => {
     expect(result).toBe('"От ([1-9][0-9]|[0-9][0-9][0-9]).*(урона от молнии|урона от огня)"');
   });
 
-  it('compiles RANGE with OR-suffix and both min+max — enumeration', () => {
-    // min+max with OR-suffix: single enumerated quoted group
+  it('compiles RANGE with OR-suffix and both min+max — compact enumeration', () => {
+    // min+max with OR-suffix: single compact enumerated quoted group (Phase 10)
     const result = compile(range(10, 50, 'огню|холоду'), { round10: false });
-    expect(result).toBe('"(10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50).*(огню|холоду)"');
+    expect(result).toBe('"(1[0-9]|2[0-9]|3[0-9]|4[0-9]|50).*(огню|холоду)"');
   });
 
   it('compiles RANGE with OR-suffix and max-only', () => {
@@ -269,12 +269,12 @@ describe('compile', () => {
 
   // ─── Phase 9: Enumerated range tests (verified in-game) ───
 
-  it('enumerates narrow range [27, 30] — the exact case from Phase 9 tests', () => {
+  it('enumerates narrow range [27, 30] — compact decade grouping (Phase 10)', () => {
     // This was the key test case: AND of two quoted groups for numeric range
     // didn't work in PoE2 because of secondary numbers in range notation.
-    // Enumeration produces a single precise quoted group.
+    // Phase 10: compact decade grouping produces (2[7-9]|30) instead of (27|28|29|30)
     const result = compile(range(27, 30, 'откладывания наград'), { round10: false });
-    expect(result).toBe('"(27|28|29|30).*откладывания наград"');
+    expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
   });
 
   it('enumerated range ignores round10 — precise by design', () => {
@@ -282,7 +282,7 @@ describe('compile', () => {
     // making the range [20,30] instead of [27,30]. But enumeration
     // always uses precise values, ignoring round10.
     const result = compile(range(27, 30, 'откладывания наград'), { round10: true });
-    expect(result).toBe('"(27|28|29|30).*откладывания наград"');
+    expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
     // Should NOT contain "20" or any rounded value
     expect(result).not.toContain('20');
   });

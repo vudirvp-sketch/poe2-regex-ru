@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateNumberRegex, generateEnumeratedRangeRegex, MAX_ENUMERATE_RANGE } from '@core/number-regex';
+import { generateNumberRegex, generateEnumeratedRangeRegex } from '@core/number-regex';
 
 /**
  * Tests for generateNumberRegex() — the "at least N" pattern generator.
@@ -75,11 +75,13 @@ describe('generateNumberRegex', () => {
     });
   });
 
-  // ─── Phase 9: Enumerated range regex tests ───
+  // ─── Phase 9-10: Enumerated range regex tests (with decade grouping) ───
 
   describe('generateEnumeratedRangeRegex', () => {
-    it('narrow range [27, 30] → (27|28|29|30)', () => {
-      expect(generateEnumeratedRangeRegex(27, 30)).toBe('(27|28|29|30)');
+    it('narrow range [27, 30] → compact decade grouping (2[7-9]|30)', () => {
+      // Phase 10: decade grouping produces compact character-class patterns
+      // instead of flat enumeration (27|28|29|30)
+      expect(generateEnumeratedRangeRegex(27, 30)).toBe('(2[7-9]|30)');
     });
 
     it('single value [5, 5] → "5" (no parens)', () => {
@@ -87,19 +89,22 @@ describe('generateNumberRegex', () => {
     });
 
     it('two values [9, 10] → (9|10)', () => {
+      // Two values: simple alternation is shorter than character class grouping
       expect(generateEnumeratedRangeRegex(9, 10)).toBe('(9|10)');
     });
 
-    it('cross-digit boundary [98, 102] → (98|99|100|101|102)', () => {
-      expect(generateEnumeratedRangeRegex(98, 102)).toBe('(98|99|100|101|102)');
+    it('cross-digit boundary [98, 102] → compact (9[8-9]|10[0-2])', () => {
+      // Phase 10: cross-digit-boundary splits at 100 and groups each part
+      expect(generateEnumeratedRangeRegex(98, 102)).toBe('(9[8-9]|10[0-2])');
     });
 
-    it('range at MAX_ENUMERATE_RANGE boundary → succeeds', () => {
-      // Exactly 50 values → should work
+    it('range at MAX_ENUMERATE_RANGE boundary → succeeds with compact form', () => {
+      // Exactly 50 values → should work with decade grouping
       const result = generateEnumeratedRangeRegex(1, 50);
       expect(result).not.toBeNull();
-      expect(result).toContain('1|2|');
-      expect(result).toContain('|50');
+      // Phase 10: compact format uses character classes, not flat enumeration
+      expect(result).toContain('[1-9]');
+      expect(result).toContain('50');
     });
 
     it('range exceeding MAX_ENUMERATE_RANGE → returns null', () => {
@@ -113,6 +118,50 @@ describe('generateNumberRegex', () => {
 
     it('large range clearly over limit → returns null', () => {
       expect(generateEnumeratedRangeRegex(10, 200)).toBeNull();
+    });
+
+    // ─── Phase 10: Decade grouping tests ───
+
+    it('full decade [30, 39] → 3[0-9]', () => {
+      expect(generateEnumeratedRangeRegex(30, 39)).toBe('3[0-9]');
+    });
+
+    it('two full decades [30, 49] → (3[0-9]|4[0-9])', () => {
+      expect(generateEnumeratedRangeRegex(30, 49)).toBe('(3[0-9]|4[0-9])');
+    });
+
+    it('medium range [40, 80] → compact decade grouping', () => {
+      // Phase 10: (4[0-9]|5[0-9]|6[0-9]|7[0-9]|80) instead of 41 flat values
+      const result = generateEnumeratedRangeRegex(40, 80);
+      expect(result).not.toBeNull();
+      expect(result).toContain('4[0-9]');
+      expect(result).toContain('80');  // Single value at decade boundary, not 8[0]
+      // Compact form is much shorter than flat enumeration
+      expect(result!.length).toBeLessThan(50);
+    });
+
+    it('partial decade at start [27, 49] → (2[7-9]|3[0-9]|4[0-9])', () => {
+      expect(generateEnumeratedRangeRegex(27, 49)).toBe('(2[7-9]|3[0-9]|4[0-9])');
+    });
+
+    it('partial decade at end [30, 52] → (3[0-9]|4[0-9]|5[0-2])', () => {
+      expect(generateEnumeratedRangeRegex(30, 52)).toBe('(3[0-9]|4[0-9]|5[0-2])');
+    });
+
+    it('single-digit range [3, 7] → [3-7]', () => {
+      expect(generateEnumeratedRangeRegex(3, 7)).toBe('[3-7]');
+    });
+
+    it('full single-digit range [0, 9] → [0-9]', () => {
+      expect(generateEnumeratedRangeRegex(0, 9)).toBe('[0-9]');
+    });
+
+    it('three-digit range [100, 149] → compact grouping (within MAX_ENUMERATE_RANGE)', () => {
+      // 50 values = exactly MAX_ENUMERATE_RANGE
+      const result = generateEnumeratedRangeRegex(100, 149);
+      expect(result).not.toBeNull();
+      expect(result).toContain('10[0-9]');
+      expect(result).toContain('14[0-9]');
     });
   });
 });

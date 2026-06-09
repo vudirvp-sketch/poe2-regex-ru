@@ -309,7 +309,7 @@ function buildLiteralNode(
  * @param tokens - Tokens corresponding 1:1 to nodes (for familyKey lookup)
  * @param nodes  - AST nodes corresponding 1:1 to tokens
  */
-function pushLiteralsWithFamilyLogic(
+export function pushLiteralsWithFamilyLogic(
   tokens: GameToken[],
   nodes: ASTNode[],
   locale: Locale,
@@ -350,7 +350,7 @@ function pushLiteralsWithFamilyLogic(
   }
 }
 
-function buildAstFromSelections(
+export function buildAstFromSelections(
   selectedTokens: GameToken[],
   excludeMode: boolean,
   minValue: number | null,

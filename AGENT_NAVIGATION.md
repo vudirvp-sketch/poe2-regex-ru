@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 77.0 | **Date:** 2026-06-09
+> **Version:** 78.0 | **Date:** 2026-06-09
 
 ---
 
@@ -18,7 +18,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 595 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 626 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports + affix hierarchy. | Reference data for cross-validation. Priority tiers for affix popularity. |
 
 ## 2. Build Commands
@@ -47,7 +47,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (595 tests)
+- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (626 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories

@@ -209,14 +209,26 @@ export const MAX_ENUMERATE_RANGE = 50;
 
 /**
  * Generate a PoE2 regex pattern that matches EXACTLY the values in [min, max].
- * Produces enumeration patterns like (27|28|29|30) which are immune to
- * false positives from secondary numbers in range notation (e.g., "26(26-50)%...").
+ * Uses compact "decade grouping" for ranges spanning multiple tens,
+ * falling back to flat enumeration for small or cross-digit-boundary ranges.
  *
  * WHY ENUMERATION: The character-class-based approach (e.g., (2[7-9]|[3-9][0-9]))
  * can produce false positives when PoE2 item text contains range notation like
  * "26(26-50)% шанс откладывания наград". The number "50" in the range notation
  * matches the ≥27 pattern, creating a false positive. Enumeration avoids this by
  * listing only the exact valid values.
+ *
+ * DECade GROUPING OPTIMIZATION (Phase 10):
+ * Instead of listing every value (e.g., "(27|28|29|30|31|...|52)" = ~95 chars),
+ * groups consecutive values by tens digit using character classes:
+ *   (2[7-9]|3[0-9]|4[0-9]|5[0-2])  = ~28 chars
+ * This is semantically equivalent (matches exactly the same set of numbers)
+ * but dramatically shorter, allowing precise enumeration for wider ranges.
+ *
+ * Full decades (e.g., 30-39) become "3[0-9]"; partial decades (e.g., 27-29)
+ * become "2[7-9]". Single-digit partial decades use just the digit, e.g., 50-52
+ * becomes "5[0-2]". Cross-digit-boundary ranges (e.g., 95-105 spanning 2→3 digits)
+ * fall back to flat enumeration for those boundary segments.
  *
  * VERIFIED IN-GAME (Phase 9):
  * - OR of literals "A|B|C" inside a single quoted group works correctly
@@ -232,13 +244,174 @@ export function generateEnumeratedRangeRegex(min: number, max: number): string |
   const range = max - min + 1;
   if (range > MAX_ENUMERATE_RANGE) return null;
 
+  // Single value — no grouping needed
+  if (min === max) return min.toString();
+
+  // Two values — simple alternation is shorter than character class grouping
+  if (range === 2) return `(${min}|${max})`;
+
+  // Try compact decade grouping for ranges spanning multiple tens
+  const compact = generateCompactEnumeration(min, max);
+  if (compact) return compact;
+
+  // Fallback: flat enumeration for cross-digit-boundary or small ranges
   const values: string[] = [];
   for (let v = min; v <= max; v++) {
     values.push(v.toString());
   }
-
-  if (values.length === 1) return values[0];
   return `(${values.join('|')})`;
+}
+
+/**
+ * Generate compact enumeration using decade grouping.
+ *
+ * Groups values by their tens digit (decade) and generates character-class
+ * patterns for each decade:
+ *   27-52 → (2[7-9]|3[0-9]|4[0-9]|5[0-2])
+ *   40-80 → (4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0])
+ *
+ * Rules:
+ * - Full decade (X0-X9) → "X[0-9]"
+ * - Partial decade at start (Xd1-X9) → "X[d1-9]"
+ * - Partial decade at end (X0-Xd2) → "X[0-d2]"
+ * - Single value in decade (Xd) → "Xd" (literal, no char class)
+ * - Two consecutive values in decade (Xd1|Xd2) → "X[d1-d2]"
+ *
+ * Returns null if the range spans different digit lengths (e.g., 95-105)
+ * and cannot be compactly represented — caller falls back to flat enumeration.
+ */
+function generateCompactEnumeration(min: number, max: number): string | null {
+  // All values must have the same number of digits for decade grouping to work.
+  // Cross-digit-boundary ranges (e.g., 95-105) need special handling.
+  const minDigits = min.toString().length;
+  const maxDigits = max.toString().length;
+
+  if (minDigits !== maxDigits) {
+    // Split at digit boundary: process each digit-length separately
+    const boundary = Math.pow(10, minDigits); // e.g., 100 for 2-digit min
+    const lowerPart = generateCompactEnumeration(min, boundary - 1);
+    const upperPart = generateCompactEnumeration(boundary, max);
+
+    if (lowerPart && upperPart) {
+      // Unwrap outer parens from each part and combine
+      const lowerInner = unwrapParens(lowerPart);
+      const upperInner = unwrapParens(upperPart);
+      return `(${lowerInner}|${upperInner})`;
+    }
+    // If either part can't be compact, return null (fall back to flat)
+    return null;
+  }
+
+  // Same digit length — group by decade
+  const segments: string[] = [];
+
+  if (minDigits === 1) {
+    // Single-digit range: [3, 7] → "[3-7]", [3, 9] → "[3-9]"
+    if (min === max) return min.toString();
+    if (min === 0 && max === 9) return '[0-9]';
+    return `[${min}-${max}]`;
+  }
+
+  if (minDigits === 2) {
+    // Two-digit range: group by tens digit
+    let current = min;
+    while (current <= max) {
+      const tensDigit = Math.floor(current / 10);
+      const decadeStart = tensDigit * 10;
+      const decadeEnd = decadeStart + 9;
+      const segEnd = Math.min(decadeEnd, max);
+
+      const segment = generateDecadeSegment(tensDigit, current % 10, segEnd % 10, segEnd - current + 1);
+      segments.push(segment);
+
+      current = segEnd + 1;
+    }
+  } else if (minDigits === 3) {
+    // Three-digit range: group by hundreds+tens digit
+    let current = min;
+    while (current <= max) {
+      const hundredsDigit = Math.floor(current / 100);
+      const tensDigit = Math.floor((current % 100) / 10);
+      const decadeStart = hundredsDigit * 100 + tensDigit * 10;
+      const decadeEnd = decadeStart + 9;
+      const segEnd = Math.min(decadeEnd, max);
+
+      const prefix = `${hundredsDigit}${tensDigit}`;
+      const segment = generateDecadeSegment2(prefix, current % 10, segEnd % 10, segEnd - current + 1);
+      segments.push(segment);
+
+      current = segEnd + 1;
+    }
+  } else {
+    // 4+ digit ranges — fall back to flat enumeration
+    return null;
+  }
+
+  if (segments.length === 0) return null;
+
+  if (segments.length === 1) {
+    // Single segment — no need for grouping parens
+    // A character class like "3[0-9]" or "2[7-9]" works without outer parens
+    return segments[0];
+  }
+
+  return `(${segments.join('|')})`;
+}
+
+/**
+ * Unwrap outer parentheses from a regex pattern string.
+ * "(2[7-9]|30)" → "2[7-9]|30"
+ * "[1-9]" → "[1-9]" (no outer parens, returned as-is)
+ * "27" → "27" (no parens, returned as-is)
+ */
+function unwrapParens(s: string): string {
+  if (s.startsWith('(') && s.endsWith(')')) {
+    return s.slice(1, -1);
+  }
+  return s;
+}
+
+/**
+ * Generate a decade segment for a two-digit number range.
+ * @param tensDigit - The tens digit (e.g., 3 for 30-39)
+ * @param startOnes - The starting ones digit within this decade
+ * @param endOnes - The ending ones digit within this decade
+ * @param count - Number of values in this segment
+ */
+function generateDecadeSegment(tensDigit: number, startOnes: number, endOnes: number, count: number): string {
+  if (count === 1) {
+    // Single value: "27"
+    return `${tensDigit}${startOnes}`;
+  }
+  if (startOnes === 0 && endOnes === 9) {
+    // Full decade: "3[0-9]"
+    return `${tensDigit}[0-9]`;
+  }
+  // Partial decade: "2[7-9]", "5[0-2]"
+  if (startOnes === endOnes) {
+    return `${tensDigit}${startOnes}`;
+  }
+  return `${tensDigit}[${startOnes}-${endOnes}]`;
+}
+
+/**
+ * Generate a decade segment for a three-digit number range.
+ * @param prefix - The first two digits as string (e.g., "12" for 120-129)
+ * @param startOnes - The starting ones digit within this decade
+ * @param endOnes - The ending ones digit within this decade
+ * @param count - Number of values in this segment
+ */
+function generateDecadeSegment2(prefix: string, startOnes: number, endOnes: number, count: number): string {
+  if (count === 1) {
+    return `${prefix}${startOnes}`;
+  }
+  if (startOnes === 0 && endOnes === 9) {
+    return `${prefix}[0-9]`;
+  }
+  if (startOnes === endOnes) {
+    return `${prefix}${startOnes}`;
+  }
+  return `${prefix}[${startOnes}-${endOnes}]`;
 }
 
 function threeDigitMin(n: number): string {
