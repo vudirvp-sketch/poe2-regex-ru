@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 80.0 | **Date:** 2026-06-09
+> **Version:** 81.0 | **Date:** 2026-06-09
 
 ---
 
@@ -18,7 +18,7 @@
 | `scripts/analyze-fn.ts` | FN/FP analysis per category. | Run via `pnpm analyze-fn`. |
 | `scripts/etl/iterative-optimizer.ts` | Iterative regex optimizer (Phase 5). | Run via `pnpm optimize` or `pnpm optimize:dry`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files. | Mirror `src/` structure. 626 tests. |
+| `tests/` | Test files. | Mirror `src/` structure. 663 tests. |
 | `регис/` | Manual Russian mod lists + analysis reports + affix hierarchy. | Reference data for cross-validation. Priority tiers for affix popularity. |
 
 ## 2. Build Commands
@@ -27,7 +27,7 @@
 pnpm install         # Install dependencies
 pnpm dev             # Start dev server
 pnpm build           # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (595 tests, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru  # Run tests (663 tests, Vitest)
 pnpm etl             # Run ETL pipeline (requires network or .etl-cache/)
 pnpm etl -- --validate       # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item  # Run ETL + block-based Oracle validation (accurate in-game sim)
@@ -47,7 +47,7 @@ pnpm optimize:dry    # Dry-run optimizer with verbose output
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (626 tests)
+- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (663 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories
@@ -64,11 +64,10 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Suffix anchoring investigation** — Test in-game whether `"(2[7-9]|30)%.*suffix"` prevents FP. Caution: items with range notation on the actual roll (e.g. `50(27-50)%...`) would have `50(` not `50%`, causing FN.
-2. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
-3. **Priority tier refinement** — Validate tier classifications against live trade data.
-4. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
-5. **Accessory range notation FP** — For `+`-prefix mods (rings, amulets, belts), `^` is not added because the block starts with `+`, not a digit. These mods may still have FP from range notation numbers. Suffix anchoring or accepting the limitation are the options.
+1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
+2. **Priority tier refinement** — Validate tier classifications against live trade data.
+3. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
+4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` suffix anchoring is available. These mods may still have FP from range notation numbers. No current solution — may need to accept as known limitation.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
@@ -285,6 +284,37 @@ Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапа�
 - Template starts with `-##` (negative values) → `anchorStart=false` → no `^`
 
 **Test coverage:** 14 tests in `compiler.test.ts` (6) and `phase-9b-anchor-start.test.ts` (8).
+
+## 22b. % Suffix Anchor / anchorEnd (Session 79)
+
+**Verified in-game (Phase 9c):** `%` suffix anchor prevents range notation FP for `+##%` accessory mods where `^` cannot be used. Implementation:
+
+| Component | Role |
+|-----------|------|
+| `ASTNode.anchorEnd` | Optional string on RANGE node. Typically `'%'` for `##%` or `+##%` mods. |
+| `range()` builder | `range(min, max, suffix, prefix, exact, anchorStart, anchorEnd)` in `ast.ts` |
+| Compiler | Inserts `anchorEnd` string after number pattern, before `.*suffix` |
+| `useCategoryPage.ts` | Detects `numberFollowedByPercent` via `/^[\+]?##%/` on `rawTextTemplate[locale]` |
+| `normalizeAst` | Propagates `anchorEnd` to both children in AND fallback |
+
+**When `%` suffix anchor is added:**
+- Template matches `+##%` (accessory mods) AND `anchorStart=false` → `anchorEnd='%'`
+- Example: ring mod `+##% к сопротивлению огню` → `"(2[7-9]|30)%.*к сопротивлению огню"`
+
+**When `%` suffix anchor is NOT added:**
+- Template starts with `##%` (tablet/waystone mods) → `anchorStart=true` with `^` is sufficient, `%` not needed (avoids FN risk)
+- Template doesn't have `%` after number (e.g. `+## к силе`) → no character to anchor on
+- Template has `prefix` set (dual-number mods) → prefix anchors instead
+
+**Three-level FP prevention strategy:**
+
+| Level | Method | When | FP prevented | FN risk |
+|-------|--------|------|-------------|---------|
+| 1 | `^` (anchorStart) | `##%` mods | Range notation at non-position-0 | None |
+| 2 | `%` (anchorEnd) | `+##%` mods, anchorStart=false | Range notation numbers not followed by `%` | Items with range notation on actual roll |
+| 3 | Enumeration | Range ≤ 50 | Secondary numbers not matching enumerated values | None |
+
+**Test coverage:** 23 tests in `compiler.test.ts` (7 anchorEnd), `phase-9c-anchor-end.test.ts` (13), `buildAstFromSelections.test.ts` (3 anchorEnd integration).
 
 ## 23. i18n Conventions
 

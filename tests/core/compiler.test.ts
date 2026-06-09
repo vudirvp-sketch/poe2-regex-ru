@@ -369,4 +369,50 @@ describe('compile', () => {
     expect(groups[0]).toContain('^');
     expect(groups[1]).toContain('^');
   });
+
+  // ─── Phase 9c: anchorEnd (%) suffix anchoring tests ───
+
+  it('RANGE with anchorEnd="%" adds % after number pattern (enumerated)', () => {
+    // Phase 9c: % after number prevents FP from range notation numbers
+    // For +##% accessory mods where anchorStart=false
+    const result = compile(range(27, 30, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
+    expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
+  });
+
+  it('RANGE with anchorEnd="%" adds % after number pattern (≥min)', () => {
+    const result = compile(range(27, undefined, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
+    expect(result).toBe('"(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9])%.*к сопротивлению огню"');
+  });
+
+  it('RANGE with anchorEnd="%" adds % after number pattern (≤max)', () => {
+    const result = compile(range(undefined, 30, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
+    expect(result).toBe('"([0-9]|[1-2][0-9]|30)%.*к сопротивлению огню"');
+  });
+
+  it('RANGE without anchorEnd does NOT add % (backward compatible)', () => {
+    const result = compile(range(27, 30, 'к сопротивлению огню'), { round10: false });
+    expect(result).toBe('"(2[7-9]|30).*к сопротивлению огню"');
+    expect(result).not.toContain('%');
+  });
+
+  it('RANGE with both anchorStart=true and anchorEnd="%" produces ^ and %', () => {
+    // Maximum protection: ^ + % for ##% mods
+    const result = compile(range(27, 30, 'откладывания наград', undefined, undefined, true, '%'), { round10: false });
+    expect(result).toBe('"^(2[7-9]|30)%.*откладывания наград"');
+  });
+
+  it('RANGE with anchorEnd="%" and prefix produces % after number', () => {
+    // Dual-number mod: prefix anchors, % goes after number
+    const result = compile(range(25, 30, 'количество дани', 'даруют увеличенное на', undefined, false, '%'), { round10: false });
+    expect(result).toBe('"даруют увеличенное на (2[5-9]|30)%.*количество дани"');
+  });
+
+  it('RANGE with anchorEnd="%" preserved in AND fallback for wide ranges', () => {
+    // Wide range >50 values: AND(RANGE(min), RANGE(max)) with anchorEnd
+    const result = compile(range(10, 200, 'суфф', undefined, undefined, false, '%'), { round10: false });
+    const groups = result.split('" "');
+    expect(groups.length).toBe(2);
+    expect(groups[0]).toContain('%');
+    expect(groups[1]).toContain('%');
+  });
 });

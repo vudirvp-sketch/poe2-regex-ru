@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 39.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 40.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -122,6 +122,7 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 | `()` | Grouping | `([5-9]\|\d..)` | Yes (verified M-02, M-04) |
 | `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes (verified M-08) |
 | `%` / `+` | Literals (not special) | `"+66"`, `"% к сопротивлению"` | Yes |
+| `%` as suffix anchor | Number% disambiguates from range notation | `"(2[7-9]\|30)%.*suffix"` prevents FP from "(27-50)" | Yes (Phase 9c) |
 | `(` unmatched | Literal (when not paired) | `"(60"` matches literal "(60" | Yes |
 
 **NOT supported (verified in-game, Phase 7):**
@@ -277,22 +278,37 @@ RANGE(100, 200, 'жизн')  →  AND(RANGE(100, ∅, 'жизн'), RANGE(∅, 20
 ```
 **Known limitation:** Wide-range AND can produce false positives from secondary numbers in range notation. This is acceptable for broad filters where precision is less critical.
 
-### Prefix anchoring (dual-number disambiguation only — UPDATED Phase 9b)
+### Prefix anchoring (dual-number disambiguation only — UPDATED Phase 9c)
 Since `.*` does NOT cross block boundaries (verified in-game Phase 7), cross-mod FP is impossible. Prefix anchoring is only needed for **dual-number mods** where the template has "до" between ## placeholders (e.g., "От ## до ## урона"). The prefix "От" ensures the number regex targets the first placeholder, not the second.
 
 For single-number mods where the template starts with `##` (number at position 0 of the block), the `anchorStart` flag adds `^` to prevent range notation FP:
 ```
 Tablet mod (##% suffix...): "^(2[7-9]|30).*откладывания наград"  ← ^ prevents FP from range notation
-Accessory mod (+## suffix...): "([2-9][0-9]|[0-9][0-9][0-9]).*к сопротивлению огню"  ← no ^, "+" prefix prevents FP
+Accessory mod (+##% suffix...): "(2[7-9]|30)%.*к сопротивлению огню"  ← % suffix anchor prevents FP
+Accessory mod (+## suffix...): "([2-9][0-9]|[0-9][0-9][0-9]).*к силе"  ← no ^, no % (no suffix anchor available)
 Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to first number
 ```
+
+**Three-level FP prevention strategy:**
+
+| Level | Method | When used | FP prevented | FN risk |
+|-------|--------|-----------|-------------|---------|
+| 1 | `^` anchor (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
+| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` or `+##%` AND anchorStart=false | Numbers from range notation not followed by `%` | Items where actual roll has range notation (e.g. `27(22-27)%`) |
+| 3 | Enumeration (compact decade grouping) | Range ≤ MAX_ENUMERATE_RANGE (50) | Secondary numbers that don't overlap with enumerated values | None |
+
 **Phase 9b verification:** `^` anchor reliably prevents range notation FP when the number is at position 0 of the mod block. The `anchorStart` flag is set on RANGE nodes when `rawTextTemplate` starts with `##`. The compiler adds `^` only when there is no `prefix` (dual-number mods use prefix anchoring instead).
+
+**Phase 9c verification:** `%` suffix anchor prevents range notation FP for `+##%` accessory mods. Verified in-game: `"(2[7-9]|30)%.*откладывания наград"` correctly highlights only 27% and 30% items. The `anchorEnd` flag is set on RANGE nodes when `rawTextTemplate` matches `/^[\+]?##%/` AND `anchorStart=false`. The compiler inserts the `anchorEnd` string (typically `%`) between the number pattern and `.*suffix`.
 
 **When NOT to use `^`:**
 - Mods with `prefix` set (dual-number) — prefix already anchors within the block
 - Mods where block starts with a non-digit character (e.g., "+", "-") — `^` would prevent matching at position 0
 
-**Why `+`-prefix mods don't need `^`:** In text like `+26(27-50)% к сопротивлению огню`, the `+` before the number acts as implicit anchoring. The pattern `([2-9][0-9]).*к сопротивлению огню` can match "27" from `(27-50)` at a later position, but the actual roll "26" at position 0 also matches `[0-9][0-9]`, creating correct matches. For `%`-suffix mods specifically, suffix anchoring (`(2[7-9]|30)%.*suffix`) may provide additional protection — this needs separate investigation.
+**When NOT to use `%` suffix anchor:**
+- Mods where `anchorStart=true` (##% tablet/waystone mods) — `^` is sufficient and doesn't have FN risk
+- Mods where template doesn't have `%` after number (e.g., `+## к силе`) — no character to anchor on
+- Acceptable FN risk assessment: suffix anchoring creates FN on items where the actual roll has range notation (e.g. `27(22-27)%` — after `27` is `(`, not `%`). This is relatively rare for narrow ranges where the user is filtering for specific values.
 
 ### OR-suffix RANGE (Session 60: ranged tokens with different suffixes)
 When multiple ranged tokens share the same numeric range (min, max) but have different suffixes, they are merged into a single RANGE node with OR-joined suffixes. The compiler wraps OR-suffixes in `()` to scope the `|` correctly within the quoted group:
@@ -486,6 +502,14 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v40.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Accessory `+##%` mods have range notation FP (no `^` anchor available) | **High** | Phase 9c: `anchorEnd` flag on RANGE AST node. For `+##%` accessory mods where `anchorStart=false` (template starts with `+`), the compiler now inserts `%` after the number pattern: `(2[7-9]\|30)%.*suffix`. This prevents FP because numbers in range notation (e.g. `27` from `(27-50)`) are NOT followed by `%`. Verified in-game. |
+| Suffix anchoring not investigated (P4) | **Medium** | Investigated and implemented. `%` suffix anchor works for `+##%` mods. NOT used for `##%` tablet/waystone mods where `^` is sufficient (avoids FN risk on items with range notation on actual roll). |
+| No three-level FP prevention strategy documented | **Low** | Added strategy table in §7: Level 1 (^ anchor), Level 2 (% suffix anchor), Level 3 (enumeration). |
 
 ### v39.0 (2026-06-09)
 

@@ -468,7 +468,22 @@ export function buildAstFromSelections(
           return template && /^##/.test(template);
         });
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined);
+        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
+        // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
+        // Verified in-game (Phase 9c): (2[7-9]|30)%.*suffix prevents FP because
+        // numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
+        // Only set when anchorStart=false (for +##% mods where ^ cannot be used),
+        // because ^ already prevents FP for ##% mods and anchorEnd has FN risk
+        // on items where the actual roll has range notation (e.g. 27(22-27)%).
+        const numberFollowedByPercent = group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /^[\+]?##%/.test(template);
+        });
+        // Use anchorEnd only when anchorStart is false — for +##% accessory mods.
+        // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.
+        const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined, anchorEndValue);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

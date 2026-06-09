@@ -20,6 +20,12 @@ export interface CompileOptions {
  *   Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2 search.
  *   This prevents matching secondary numbers inside range notation like "(27-50)".
  *   Only set when rawTextTemplate starts with ## (number at position 0).
+ * - RANGE + anchorEnd: inserts a string (typically '%') after the number pattern,
+ *   before .*suffix. Verified in-game (Phase 9c): suffix anchoring prevents FP
+ *   because numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
+ *   ⚠️ FN risk: items where actual roll has range notation (e.g. 27(22-27)%)
+ *   have '(' after the roll, not '%' — suffix anchoring would miss these.
+ *   Used ONLY when anchorStart=false (for +##% mods where ^ cannot be used).
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
  *
@@ -87,8 +93,8 @@ function normalizeAst(node: ASTNode): ASTNode {
         return {
           type: 'AND',
           children: [
-            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart },
-            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart },
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd },
           ],
         };
       }
@@ -148,17 +154,24 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         ? (ast.suffix.includes('|') ? `(${ast.suffix})` : ast.suffix)
         : undefined;
 
+      // anchorStart: ^ before number pattern (Phase 9b)
+      const anchor = ast.anchorStart ? '^' : '';
+      // anchorEnd: string after number pattern, before .*suffix (Phase 9c)
+      // Typically '%' for ##% mods. Prevents FP from range notation numbers
+      // that are NOT followed by this character (e.g. 27 from (27-50) is
+      // followed by '-', not '%').
+      const endAnchor = ast.anchorEnd ?? '';
+
       // Both min and max → enumerated range (single quoted group)
       if (isEnumerated) {
         const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
         if (!numRegex) return ''; // Should not happen after normalizeAst check
-        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
-          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}.*${compiledSuffix}`;
+          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return `${anchor}${numRegex}`;
+        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
+        return `${anchor}${numRegex}${endAnchor}`;
       }
 
       // ≥ min: generate regex matching numbers ≥ min
@@ -166,13 +179,12 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const minStr = ast.min.toString();
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
-        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
-          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}.*${compiledSuffix}`;
+          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return `${anchor}${numRegex}`;
+        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
+        return `${anchor}${numRegex}${endAnchor}`;
       }
 
       // ≤ max: generate regex matching numbers ≤ max
@@ -180,13 +192,12 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const maxStr = ast.max.toString();
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
-        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
-          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}.*${compiledSuffix}`;
+          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return `${anchor}${numRegex}`;
+        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
+        return `${anchor}${numRegex}${endAnchor}`;
       }
 
       return '';

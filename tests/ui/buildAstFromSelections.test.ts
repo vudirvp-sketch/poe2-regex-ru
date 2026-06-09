@@ -321,4 +321,58 @@ describe('buildAstFromSelections', () => {
     const ast = buildAstFromSelections([], false, null, null, true, LOCALE, {}, 'and');
     expect(ast).toBeNull();
   });
+
+  // ─── anchorEnd (%) suffix anchoring tests (Phase 9c) ───
+
+  it('+##% token gets anchorEnd="%" (accessory mod, anchorStart=false)', () => {
+    // For +##% mods (accessories), anchorStart=false (template starts with +)
+    // but anchorEnd='%' should be set to prevent range notation FP
+    const tokens = [
+      makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]], {
+        rawTextTemplate: { ru: '+##% к сопротивлению огню' },
+      }),
+    ];
+
+    const ast = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // Should have % after number pattern: (2[7-9]|30)%.*к сопротивлению огню
+    expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
+  });
+
+  it('##% token gets anchorStart=true but NOT anchorEnd (tablet/waystone mod)', () => {
+    // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.
+    // anchorEnd is NOT set because ^ already prevents FP and % has FN risk
+    // on items where the actual roll has range notation.
+    const tokens = [
+      makeRangedToken('ritual_t1', 'откладывания наград', 'откладывания наград', [[22, 50]], {
+        rawTextTemplate: { ru: '##% уменьшение количества дани, требуемой для откладывания наград' },
+      }),
+    ];
+
+    const ast = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // Should have ^ but NOT %: ^(2[7-9]|30).*откладывания наград
+    expect(result).toBe('"^(2[7-9]|30).*откладывания наград"');
+    expect(result).not.toContain('%');
+  });
+
+  it('+## token (non-%) does NOT get anchorEnd', () => {
+    // For +## mods without % (e.g. "+## к силе"), no suffix anchoring
+    const tokens = [
+      makeRangedToken('str_t1', 'к силе', 'к силе', [[10, 50]], {
+        rawTextTemplate: { ru: '+## к силе' },
+      }),
+    ];
+
+    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // No % after number pattern
+    expect(result).not.toContain('%');
+  });
 });
