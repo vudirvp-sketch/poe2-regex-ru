@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 81.0 | **Date:** 2026-06-09
+> **Version:** 82.0 | **Date:** 2026-06-09
 
 ---
 
@@ -64,10 +64,10 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
+1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing. Verify waystone values-only tokens now produce numeric range regex.
 2. **Priority tier refinement** — Validate tier classifications against live trade data.
-3. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
-4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` suffix anchoring is available. These mods may still have FP from range notation numbers. No current solution — may need to accept as known limitation.
+3. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` suffix anchoring is available. These mods may still have FP from range notation numbers. No current solution — may need to accept as known limitation.
+4. **Icon normalization** — Current icons have different aspect ratios (relic 45×89, belt 94×39, vendor 93×77). CSS maxHeight/maxWidth constraints handle display, but icons could be pre-normalized to square canvases in a future iteration for pixel-perfect consistency.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
@@ -234,10 +234,11 @@ All origin colors defined in `ORIGIN_SECTION_LABELS` (`mod-classifier.ts`). Ligh
 | Search input | `text-[15px] py-2` | Was `text-sm py-1.5` |
 | Select dropdowns | `text-[13px]` | Was `text-xs` |
 | Sidebar nav items | `text-[15px]` | Was `text-sm` |
-| Sidebar icons | `36×36px` | Was `32×32px` |
+| Sidebar icons | `28×28px` (maxHeight/maxWidth constrained) | Was `36×36px` (inconsistent aspect ratios) |
 | Header title | `text-lg` (18px) | Was `text-base` (16px) |
 | Home card titles | `text-[15px]` | Was `text-sm` |
 | Home card descriptions | `text-[13px]` | Was `text-xs` |
+| Home card icons | `44×44px` (maxHeight/maxWidth constrained) | Was `56×56px` (inconsistent aspect ratios) |
 | Home feature titles | `text-xl` (20px) | Was `text-lg` (18px) |
 | Origin badge icons | `17×17px` | Was `14×14px` |
 | Origin badge padding | `px-3 py-1.5` | Was `px-2.5 py-1` |
@@ -318,6 +319,8 @@ Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапа�
 
 ## 23. i18n Conventions
 
-- "для русского клиента" appears **only** in `home.title` (landing page hero)
+- `home.title` = "Генератор поисковых строк" (no "PoE2 Regex" — avoids triple duplication)
+- `home.subtitle` = "Для Path of Exile 2 — русский клиент" (shorter subtitle with client qualifier)
+- Sidebar: "PoE2 Regex" appears once in logo, "Русский клиент" as muted subtitle
 - `app.subtitle` = "Поиск модов" (concise, no redundant mention)
 - All other labels use generic Russian without client qualifiers

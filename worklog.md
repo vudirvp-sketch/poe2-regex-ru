@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 79 — 2026-06-09)
+## Current State (Session 80 — 2026-06-09)
 
 **Build:** `pnpm build` passes, `npx vitest run` passes (663/663 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,29 +12,28 @@
 
 **Key Changes This Session:**
 
-1. **Phase 9c: `%` suffix anchor verified in-game** — `"(2[7-9]|30)%.*откладывания наград"` highlights only 27% and 30% items. `%` after number prevents FP from range notation numbers that are NOT followed by `%`.
-2. **`anchorEnd` flag on RANGE AST node** — New optional `anchorEnd?: string` field. Set to `'%'` when `rawTextTemplate` matches `/^[\+]?##%/` AND `anchorStart=false`. Compiler inserts `anchorEnd` string between number pattern and `.*suffix`.
-3. **Three-level FP prevention strategy** — Level 1: `^` anchor (##% mods), Level 2: `%` suffix anchor (+##% mods), Level 3: enumeration (≤50 values). Documented in ARCHITECTURE.md §7.
-4. **23 new tests** — Compiler (7 anchorEnd), matcher (13 in phase-9c-anchor-end.test.ts), integration (3 in buildAstFromSelections.test.ts). Total: 663 tests.
+1. **Values-only tokens now support numeric filtering** — `buildAstFromSelections` now checks `token.ranges.length > 0 || token.values.length > 0`. Waystone mods like "На #% больше находимых в области путевых камней" (which have `values: [15]` but `ranges: []`) now produce proper RANGE AST nodes with numeric filters instead of plain LITERAL suffixes.
+2. **FilterChip overflow fix** — Added `maxWidth: '100%'`, `overflowWrap: 'break-word'` to chip container; `min-w-0 overflow-hidden` to switch element; CSS rules in `index.css` for overflow prevention in chip containers.
+3. **"PoE2 Regex" duplication removed** — `home.title` changed to "Генератор поисковых строк", `home.subtitle` to "Для Path of Exile 2 — русский клиент". Sidebar subtitle dimmed. "PoE2 Regex" now appears only once (sidebar logo).
+4. **Tab icons normalized** — Sidebar icons constrained to 28×28px with `maxHeight`/`maxWidth`, home card icons to 44×44px. Fixes relic (45×89) sticking out and belt (94×39)/vendor (93×77) appearing too small.
 
 **Files changed this session:**
-- `src/shared/types.ts` — Added `anchorEnd?: string` to RANGE AST node
-- `src/core/ast.ts` — Updated `range()` builder with `anchorEnd` parameter
-- `src/core/compiler.ts` — `anchorEnd` insertion between number pattern and `.*suffix`; propagation in normalizeAst
-- `src/ui/hooks/useCategoryPage.ts` — `numberFollowedByPercent` detection, `anchorEndValue` logic
-- `tests/core/compiler.test.ts` — 7 new anchorEnd tests
-- `tests/core/phase-9c-anchor-end.test.ts` — 13 new matcher tests (new file)
-- `tests/ui/buildAstFromSelections.test.ts` — 3 new anchorEnd integration tests
-- `docs/ARCHITECTURE.md` — v40: §5 updated (% suffix anchor), §7 updated (three-level strategy), bug fix log
-- `docs/IN_GAME_TESTS.md` — Phase 9c results added, 9b-2 updated (verified ✅)
-- `новый_план.md` — v20: P4 done, bug profile updated
+- `src/ui/hooks/useCategoryPage.ts` — Values-only token detection fix
+- `src/ui/components/FilterChip.tsx` — Overflow prevention (maxWidth, overflowWrap, min-w-0)
+- `src/ui/layout/Sidebar.tsx` — Icon size constraints (28×28), subtitle dimming
+- `src/ui/pages/home/HomePage.tsx` — Icon size constraints (44×44), container height
+- `src/shared/i18n.ts` — home.title, home.subtitle updated
+- `src/index.css` — FilterChip overflow prevention rules
+- `docs/ARCHITECTURE.md` — v41 bug fix log
+- `AGENT_NAVIGATION.md` — v82: icon sizing updated, i18n conventions updated, TODO updated
+- `новый_план.md` — v21: Session 80 entry
 - `worklog.md` — This update
-- `AGENT_NAVIGATION.md` — v81: §22b added, test count updated, TODO updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing — verify all tabs, range warnings, visual hierarchy
+- ⬜ Browser functional testing — verify all tabs, range warnings, visual hierarchy, waystone values-only numeric regex
 - ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
 - ⬜ +## non-% mods range notation FP — no current solution, may accept as known limitation
+- ⬜ Icon pre-normalization — square canvas for consistent pixel-perfect display
 
 ---
 
@@ -60,6 +59,7 @@
 18. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers must NOT pass these props.
 19. **Level headers MUST be `block`, never `inline-block`:** Prevents header concatenation on same line.
 20. **anchorEnd NOT used for ##% mods (tablets/waystones):** `^` is sufficient and doesn't have FN risk. `%` has FN risk on items with range notation on actual roll.
+21. **Values-only tokens MUST be treated as ranged:** Tokens with `values[]` but `ranges: []` (single-# template like "На #% больше...") need numeric filtering. Check `token.ranges.length > 0 || token.values.length > 0`.
 
 ## Build & Run Commands
 

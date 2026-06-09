@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 40.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 41.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -502,6 +502,15 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v41.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Values-only tokens (waystone `На #% больше...`) not treated as ranged | **High** | `buildAstFromSelections` now checks `token.ranges.length > 0 || token.values.length > 0` to classify tokens as ranged. Previously, tokens with `values[]` but empty `ranges[]` (single-# template) were treated as non-ranged literals, ignoring numeric min/max filters. This caused "области путевых камней" instead of a proper numeric range regex like `"(15|20).*области путевых камней"`. |
+| FilterChip text overflows parent container and overlaps neighbors | **High** | Added `maxWidth: '100%'` and `overflowWrap: 'break-word'` to chip container, `min-w-0 overflow-hidden` to switch element, and CSS rules in `index.css` for chip overflow prevention. |
+| "PoE2 Regex для русского клиента" appears 3-4 times on home page | **Medium** | Changed `home.title` to "Генератор поисковых строк" and `home.subtitle` to "Для Path of Exile 2 — русский клиент". Dimmed sidebar subtitle. Now "PoE2 Regex" appears only once in sidebar logo. |
+| Tab icons inconsistent sizes (Relic sticks out, Belt/Vendor too small) | **Medium** | Added `maxHeight`/`maxWidth` CSS constraints to sidebar icons (28×28) and home page card icons (44×44) with `object-contain` for uniform display regardless of aspect ratio. |
 
 ### v40.0 (2026-06-09)
 

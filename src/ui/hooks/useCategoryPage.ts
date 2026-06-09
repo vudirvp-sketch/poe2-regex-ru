@@ -362,12 +362,14 @@ export function buildAstFromSelections(
 ): ASTNode | null {
   if (selectedTokens.length === 0) return null;
 
-  // Separate tokens into: ranged (have numeric ranges) and non-ranged
+  // Separate tokens into: ranged (have numeric ranges/values) and non-ranged
+  // Values-only tokens (e.g., waystone "На #% больше...") also support numeric
+  // filtering — they have a single value per tier but the family spans a range.
   const rangedTokens: GameToken[] = [];
   const nonRangedTokens: GameToken[] = [];
 
   for (const token of selectedTokens) {
-    if (token.ranges.length > 0 && token.regex[locale]) {
+    if ((token.ranges.length > 0 || token.values.length > 0) && token.regex[locale]) {
       rangedTokens.push(token);
     } else {
       nonRangedTokens.push(token);

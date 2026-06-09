@@ -99,14 +99,14 @@ export function HomePage() {
                 borderColor: 'var(--poe-border)',
               }}
             >
-              <div className="mb-2 flex items-center justify-center" style={{ height: 56 }}>
+              <div className="mb-2 flex items-center justify-center" style={{ height: 48 }}>
                 <img
                   src={`${import.meta.env.BASE_URL}icons/${cat.icon}.png`}
                   alt=""
-                  width={56}
-                  height={56}
+                  width={44}
+                  height={44}
                   className="object-contain"
-                  style={{ imageRendering: 'auto' }}
+                  style={{ imageRendering: 'auto', maxHeight: '44px', maxWidth: '44px' }}
                 />
               </div>
               <h3 className="mb-1 text-[15px] font-semibold" style={{ color: 'var(--poe-gold)' }}>

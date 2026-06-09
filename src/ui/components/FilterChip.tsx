@@ -283,6 +283,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   return (
     <div
       className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border-l-2 transition-colors ${bgClass}`}
+      style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
       title={tooltip}
     >
       {/* Switch element: just the label + badges, clickable */}
@@ -293,7 +294,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-        className="flex items-center gap-1 cursor-pointer leading-tight"
+        className="flex items-center gap-1 cursor-pointer leading-tight min-w-0 overflow-hidden"
       >
         <span>{displayText}</span>
         {isCollapsed && isSelected && (

@@ -426,6 +426,30 @@ body {
 }
 
 /* ─── Sticky control panel: cover gap above ─── */
+
+/* ─── FilterChip overflow prevention ─── */
+.mod-list .flex.flex-wrap.gap-2,
+.virtualized-mod-list .flex.flex-wrap.gap-2,
+.mod-list .flex.flex-wrap.gap-1\.5,
+.virtualized-mod-list .flex.flex-wrap.gap-1\.5 {
+  /* Ensure chip containers don't overflow their parent columns */
+  overflow: hidden;
+}
+
+.mod-list [role="switch"] span:first-child,
+.virtualized-mod-list [role="switch"] span:first-child {
+  /* Allow long mod text to wrap within the chip instead of overflowing */
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* Prevent range input rows from overflowing chip containers */
+.mod-list .inline-flex .flex.items-center.gap-1,
+.mod-list .inline-flex .flex.flex-col.gap-0\.5 {
+  min-width: 0;
+  flex-shrink: 1;
+}
 .control-panel-sticky {
   position: relative;
   padding-top: 4px;
