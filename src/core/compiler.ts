@@ -1,5 +1,5 @@
 import type { ASTNode, Locale } from '@shared/types';
-import { generateNumberRegex, generateMaxNumberRegex } from './number-regex';
+import { generateNumberRegex, generateMaxNumberRegex, generateEnumeratedRangeRegex, MAX_ENUMERATE_RANGE } from './number-regex';
 
 export interface CompileOptions {
   locale?: Locale;
@@ -19,25 +19,38 @@ export interface CompileOptions {
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
  *
- * Min+max RANGE (min ≤ x ≤ max) is handled via AST normalization:
- * RANGE(min, max, suffix) is expanded into AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix))
- * before compilation. This produces two AND-joined quoted groups:
- *   "≥min.*suffix" "≤max.*suffix"
- * Both conditions must match on the item, which effectively constrains the
- * matched number to the [min, max] range. There is a theoretical edge case
- * where two different numbers on the same item could satisfy the conditions
- * independently, but this is extremely rare in practice and matches the
- * approach used by poe2.re.
+ * Min+max RANGE (min ≤ x ≤ max) compilation strategy (Phase 9):
+ *
+ * 1. ENUMERATION (preferred): For narrow ranges (≤ MAX_ENUMERATE_RANGE values),
+ *    RANGE(min, max, suffix) compiles to a SINGLE quoted group with all valid
+ *    values enumerated: "(27|28|29|30).*suffix". This is immune to false positives
+ *    from secondary numbers in range notation like "26(26-50)%...suffix".
+ *    VERIFIED IN-GAME: enumeration works correctly (Phase 9 tests 1-3).
+ *
+ * 2. AND FALLBACK: For wide ranges (> MAX_ENUMERATE_RANGE), RANGE(min, max)
+ *    is expanded into AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix)),
+ *    producing two AND-joined quoted groups: "≥min.*suffix" "≤max.*suffix".
+ *    KNOWN LIMITATION: If item text contains range notation with a secondary
+ *    number, each quoted group may match a different number, creating false
+ *    positives. This is acceptable for wide ranges where the user typically
+ *    wants a broad filter.
+ *
+ * round10 is ALWAYS disabled for enumerated ranges — enumeration is inherently
+ * precise, so rounding would only widen the range unnecessarily.
  */
 
 /**
- * Normalize the AST: expand RANGE nodes that have both min and max
- * into AND(RANGE(min, undefined, suffix), RANGE(undefined, max, suffix)).
+ * Normalize the AST for compilation.
+ *
+ * For RANGE(min, max) nodes:
+ * - Narrow range (≤ MAX_ENUMERATE_RANGE values): keep as-is.
+ *   compileInner will use enumeration for precise matching.
+ * - Wide range (> MAX_ENUMERATE_RANGE values): expand into
+ *   AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix)).
+ *   This falls back to two AND-joined quoted groups with known limitations.
+ *
  * Nested AND nodes are flattened so the parent AND directly contains
  * the expanded children (avoiding double-quoting during compilation).
- *
- * This keeps compileInner simple — each RANGE node it processes has
- * at most one bound (min OR max, never both).
  */
 function normalizeAst(node: ASTNode): ASTNode {
   switch (node.type) {
@@ -61,9 +74,12 @@ function normalizeAst(node: ASTNode): ASTNode {
       return { ...node, child: normalizeAst(node.child) };
     case 'RANGE': {
       if (node.min !== undefined && node.max !== undefined) {
-        // Expand RANGE(min, max, suffix, prefix, exact) →
-        // AND(RANGE(min, ∅, suffix, prefix, exact), RANGE(∅, max, suffix, prefix, exact))
-        // This AND will be flattened into the parent AND during normalization
+        const range = node.max - node.min + 1;
+        if (range <= MAX_ENUMERATE_RANGE) {
+          // Narrow range: keep as RANGE(min, max) for enumeration in compileInner
+          return node;
+        }
+        // Wide range: expand to AND(min, max) fallback
         return {
           type: 'AND',
           children: [
@@ -115,17 +131,30 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       // - exact=true  → never round (precise regex for per-token ranges)
       // - exact=false → use global round10 (for global ranges)
       // - exact=undefined → use global round10 (default behavior)
-      const useRound10 = ast.exact === true ? false : round10;
+      //
+      // EXCEPTION: For enumerated ranges (both min and max), round10 is ALWAYS
+      // disabled. Enumeration is inherently precise — rounding would only widen
+      // the range unnecessarily (e.g., RANGE(27,30) with round10 → [20,30]).
+      const isEnumerated = ast.min !== undefined && ast.max !== undefined;
+      const useRound10 = isEnumerated ? false : (ast.exact === true ? false : round10);
 
       // Compile the suffix: if it contains '|' (OR of multiple suffixes),
       // wrap in () so the '|' is scoped correctly within the quoted group.
-      // Example: suffix="огню|холоду" → "(огню|холоду)"
-      // Without wrapping: "([1-9][0-9]).*огню|холоду" would parse as
-      //   "([1-9][0-9]).*огню" OR "холоду" — wrong!
-      // With wrapping: "([1-9][0-9]).*(огню|холоду)" — correct!
       const compiledSuffix = ast.suffix
         ? (ast.suffix.includes('|') ? `(${ast.suffix})` : ast.suffix)
         : undefined;
+
+      // Both min and max → enumerated range (single quoted group)
+      if (isEnumerated) {
+        const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
+        if (!numRegex) return ''; // Should not happen after normalizeAst check
+        if (compiledSuffix) {
+          if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
+          return `${numRegex}.*${compiledSuffix}`;
+        }
+        if (ast.prefix) return `${ast.prefix} ${numRegex}`;
+        return numRegex;
+      }
 
       // ≥ min: generate regex matching numbers ≥ min
       if (ast.min !== undefined) {
@@ -133,11 +162,9 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          // With prefix: "prefix numRegex.*suffix" — anchors number within same block (dual-number only)
           if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
           return `${numRegex}.*${compiledSuffix}`;
         }
-        // No suffix: just prefix + numRegex or numRegex alone
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
         return numRegex;
       }

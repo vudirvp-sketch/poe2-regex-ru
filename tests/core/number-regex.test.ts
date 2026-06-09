@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateNumberRegex } from '@core/number-regex';
+import { generateNumberRegex, generateEnumeratedRangeRegex, MAX_ENUMERATE_RANGE } from '@core/number-regex';
 
 /**
  * Tests for generateNumberRegex() — the "at least N" pattern generator.
@@ -72,6 +72,47 @@ describe('generateNumberRegex', () => {
       // round10 with single digit: floor(5/10)*10 = 0, but the original
       // returns '.' for this case. Now we return [0-9] which is correct.
       expect(generateNumberRegex('5', true)).toBe('[0-9]');
+    });
+  });
+
+  // ─── Phase 9: Enumerated range regex tests ───
+
+  describe('generateEnumeratedRangeRegex', () => {
+    it('narrow range [27, 30] → (27|28|29|30)', () => {
+      expect(generateEnumeratedRangeRegex(27, 30)).toBe('(27|28|29|30)');
+    });
+
+    it('single value [5, 5] → "5" (no parens)', () => {
+      expect(generateEnumeratedRangeRegex(5, 5)).toBe('5');
+    });
+
+    it('two values [9, 10] → (9|10)', () => {
+      expect(generateEnumeratedRangeRegex(9, 10)).toBe('(9|10)');
+    });
+
+    it('cross-digit boundary [98, 102] → (98|99|100|101|102)', () => {
+      expect(generateEnumeratedRangeRegex(98, 102)).toBe('(98|99|100|101|102)');
+    });
+
+    it('range at MAX_ENUMERATE_RANGE boundary → succeeds', () => {
+      // Exactly 50 values → should work
+      const result = generateEnumeratedRangeRegex(1, 50);
+      expect(result).not.toBeNull();
+      expect(result).toContain('1|2|');
+      expect(result).toContain('|50');
+    });
+
+    it('range exceeding MAX_ENUMERATE_RANGE → returns null', () => {
+      // 51 values > 50 → null (fallback to AND)
+      expect(generateEnumeratedRangeRegex(1, 51)).toBeNull();
+    });
+
+    it('invalid range (min > max) → returns null', () => {
+      expect(generateEnumeratedRangeRegex(30, 27)).toBeNull();
+    });
+
+    it('large range clearly over limit → returns null', () => {
+      expect(generateEnumeratedRangeRegex(10, 200)).toBeNull();
     });
   });
 });

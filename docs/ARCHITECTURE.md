@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 35.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 36.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -233,14 +233,32 @@ shared <- core <- strategies <- store <- data <- ui
 - `data` -> imports from `shared`
 - `ui` -> imports from everyone
 
-## 7. Compiler: Min+Max RANGE + Prefix Anchoring
+## 7. Compiler: Enumerated Range (Phase 9) + AND Fallback
 
-### RANGE normalization
-When both `min` and `max` are specified, the compiler expands `RANGE(min, max, suffix)` into `AND(RANGE(min, ∅, suffix), RANGE(∅, max, suffix))`, producing two AND-joined quoted groups:
+### Enumerated Range (preferred, Phase 9)
+When both `min` and `max` are specified AND the range has ≤ `MAX_ENUMERATE_RANGE` (50) values, the compiler produces a **single quoted group** with all valid values enumerated:
 ```
-RANGE(40, 80, 'm q')  →  "([4-9].|\d..).*m q" "([0-9]|[1-7].|80).*m q"
+RANGE(27, 30, 'откладывания наград')  →  "(27|28|29|30).*откладывания наград"
 ```
-When a RANGE(min,max) is a child of AND, the expansion flattens into the parent AND to avoid double-quoting.
+This approach is **immune to false positives from secondary numbers** in PoE2's range notation (e.g., `"26(26-50)% шанс откладывания наград"` where `50` would satisfy `≥27` and `26` would satisfy `≤30` in the AND approach).
+
+**Why enumeration is needed (verified in-game, Phase 9):**
+- PoE2 item text contains range notation like `"26(26-50)% шанс откладывания наград"`
+- The AND approach produces two quoted groups that each match independently
+- `"50"` in the range notation satisfies the `≥27` condition
+- `"26"` (the actual roll) satisfies the `≤30` condition
+- Both groups match → false positive for value 26 which is NOT in [27,30]
+- Enumeration avoids this by listing exact values that must match
+
+**round10 is always disabled for enumerated ranges** — enumeration is inherently precise. Using round10 with RANGE(27,30) would produce [20,30] instead of [27,30], defeating the purpose of precise filtering.
+
+### AND Fallback (wide ranges)
+For ranges with > `MAX_ENUMERATE_RANGE` (50) values, the compiler falls back to AND expansion:
+```
+RANGE(100, 200, 'жизн')  →  AND(RANGE(100, ∅, 'жизн'), RANGE(∅, 200, 'жизн'))
+                          →  "([1-9][0-9][0-9]).*жизн" "([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200).*жизн"
+```
+**Known limitation:** Wide-range AND can produce false positives from secondary numbers in range notation. This is acceptable for broad filters where precision is less critical.
 
 ### Prefix anchoring (dual-number disambiguation only)
 Since `.*` does NOT cross block boundaries (verified in-game Phase 7), cross-mod FP is impossible. Prefix anchoring is only needed for **dual-number mods** where the template has "до" between ## placeholders (e.g., "От ## до ## урона"). The prefix "От" ensures the number regex targets the first placeholder, not the second.
@@ -443,6 +461,13 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v36.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| AND of two quoted groups for numeric range produces false positives | **Critical** | RANGE(min, max) with ≤50 values now uses enumeration: `"(27\|28\|29\|30).*suffix"` instead of AND. Verified in-game (Phase 9): AND approach fails because secondary numbers in range notation (e.g., "26(26-50)%") satisfy each group independently. Enumeration lists exact values, immune to secondary numbers. |
+| round10 + narrow range [27,30] widens to [20,30] | **High** | Enumerated ranges always disable round10 — enumeration is inherently precise. RANGE(27,30) with round10=true now produces `"(27\|28\|29\|30).*suffix"` (precise), not the rounded AND equivalent. |
 
 ### v35.0 (2026-06-09)
 

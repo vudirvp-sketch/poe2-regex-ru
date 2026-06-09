@@ -59,25 +59,28 @@ describe('compile', () => {
 
   // ─── Min+Max RANGE tests ───
 
-  it('compiles RANGE with both min and max (2-digit)', () => {
-    // range(40, 80, 'm q') → AND(≥40.*m q, ≤80.*m q) → two AND-joined quoted groups
+  it('compiles RANGE with both min and max (2-digit) — enumeration', () => {
+    // range(40, 80, 'm q') → single enumerated quoted group (Phase 9)
+    // Enumeration: 41 values ≤ MAX_ENUMERATE_RANGE (50), so uses enumeration
+    // round10 is ignored for enumerated ranges — values are always precise
     const result = compile(range(40, 80, 'm q'), { round10: true });
-    expect(result).toBe('"([4-9][0-9]|[0-9][0-9][0-9]).*m q" "([0-9]|[1-7][0-9]|80).*m q"');
+    expect(result).toBe('"(40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80).*m q"');
   });
 
-  it('compiles RANGE with both min and max (1-digit)', () => {
-    // range(3, 7) → AND(≥3, ≤7) → two AND-joined quoted groups (no suffix)
+  it('compiles RANGE with both min and max (1-digit) — enumeration', () => {
+    // range(3, 7) → single enumerated quoted group
     const result = compile(range(3, 7), { round10: false });
-    expect(result).toBe('"([3-9]|[0-9][0-9][0-9]?)" "([0-7])"');
+    expect(result).toBe('"(3|4|5|6|7)"');
   });
 
-  it('compiles RANGE with both min and max inside AND', () => {
-    // AND(literal('огн'), range(40, 80, 'm q')) → three AND-joined quoted groups
+  it('compiles RANGE with both min and max inside AND — enumeration', () => {
+    // AND(literal('огн'), range(40, 80, 'm q')) → two AND-joined quoted groups
+    // (literal + single enumerated RANGE, not three groups)
     const result = compile(
       and(literal('огн'), range(40, 80, 'm q')),
       { round10: true }
     );
-    expect(result).toBe('"огн" "([4-9][0-9]|[0-9][0-9][0-9]).*m q" "([0-9]|[1-7][0-9]|80).*m q"');
+    expect(result).toBe('"огн" "(40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80).*m q"');
   });
 
   it('compiles RANGE with max-only', () => {
@@ -86,8 +89,9 @@ describe('compile', () => {
     expect(result).toBe('"([0-9]|[1-4][0-9]|50).*m q"');
   });
 
-  it('compiles RANGE with both min and max (3-digit)', () => {
-    // range(100, 200, 'жизн') → AND(≥100.*жизн, ≤200.*жизн)
+  it('compiles RANGE with both min and max (3-digit) — AND fallback', () => {
+    // range(100, 200, 'жизн') → 101 values > MAX_ENUMERATE_RANGE (50)
+    // Falls back to AND(≥100, ≤200) with two quoted groups
     const result = compile(range(100, 200, 'жизн'), { round10: false });
     expect(result).toBe('"([1-9][0-9][0-9]).*жизн" "([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200).*жизн"');
   });
@@ -108,12 +112,11 @@ describe('compile', () => {
     expect(result).toBe('"увеличенное на ([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
   });
 
-  it('compiles RANGE with prefix and both min+max', () => {
+  it('compiles RANGE with prefix and both min+max — enumeration', () => {
     // range(25, 30, 'количество дани', 'даруют увеличенное на')
-    // → AND(≥25.*количество дани, ≤30.*количество дани) with prefix on both
-    // Note: without round10, ≥25 → (2[5-9]|[3-9].|\d..), ≤30 → ([0-9]|[1-2].|30)
+    // → single enumerated quoted group with prefix (Phase 9)
     const result = compile(range(25, 30, 'количество дани', 'даруют увеличенное на'), { round10: false });
-    expect(result).toBe('"даруют увеличенное на (2[5-9]|[3-9][0-9]|[0-9][0-9][0-9]).*количество дани" "даруют увеличенное на ([0-9]|[1-2][0-9]|30).*количество дани"');
+    expect(result).toBe('"даруют увеличенное на (25|26|27|28|29|30).*количество дани"');
   });
 
   it('compiles RANGE without prefix (original behavior)', () => {
@@ -213,10 +216,10 @@ describe('compile', () => {
     expect(result).toBe('"От ([1-9][0-9]|[0-9][0-9][0-9]).*(урона от молнии|урона от огня)"');
   });
 
-  it('compiles RANGE with OR-suffix and both min+max', () => {
-    // min+max with OR-suffix: both RANGE nodes get the OR-suffix wrapped
+  it('compiles RANGE with OR-suffix and both min+max — enumeration', () => {
+    // min+max with OR-suffix: single enumerated quoted group
     const result = compile(range(10, 50, 'огню|холоду'), { round10: false });
-    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" "([0-9]|[1-4][0-9]|50).*(огню|холоду)"');
+    expect(result).toBe('"(10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50).*(огню|холоду)"');
   });
 
   it('compiles RANGE with OR-suffix and max-only', () => {
@@ -262,5 +265,59 @@ describe('compile', () => {
     );
     expect(result).toBe('"всем стихи" "!Приспеш| и"');
     expect(result).not.toMatch(/!"/);
+  });
+
+  // ─── Phase 9: Enumerated range tests (verified in-game) ───
+
+  it('enumerates narrow range [27, 30] — the exact case from Phase 9 tests', () => {
+    // This was the key test case: AND of two quoted groups for numeric range
+    // didn't work in PoE2 because of secondary numbers in range notation.
+    // Enumeration produces a single precise quoted group.
+    const result = compile(range(27, 30, 'откладывания наград'), { round10: false });
+    expect(result).toBe('"(27|28|29|30).*откладывания наград"');
+  });
+
+  it('enumerated range ignores round10 — precise by design', () => {
+    // range(27, 30) with round10=true: round10 would round ≥27→≥20,
+    // making the range [20,30] instead of [27,30]. But enumeration
+    // always uses precise values, ignoring round10.
+    const result = compile(range(27, 30, 'откладывания наград'), { round10: true });
+    expect(result).toBe('"(27|28|29|30).*откладывания наград"');
+    // Should NOT contain "20" or any rounded value
+    expect(result).not.toContain('20');
+  });
+
+  it('single-value range [27, 27] produces no parentheses', () => {
+    const result = compile(range(27, 27, 'суффикс'), { round10: false });
+    expect(result).toBe('"27.*суффикс"');
+  });
+
+  it('wide range > MAX_ENUMERATE_RANGE falls back to AND approach', () => {
+    // range(10, 200) = 191 values > 50 → AND fallback
+    const result = compile(range(10, 200, 'суфф'), { round10: false });
+    // Should have two quoted groups (AND)
+    expect(result).toContain('" "');
+    expect(result).toContain('суфф');
+  });
+
+  it('AND mode with different-family tokens → separate quoted groups', () => {
+    // Simulates AND mode: tokens from different familyKeys produce AND output
+    // This tests the compilation of the AST that useCategoryPage would build
+    const result = compile(
+      and(
+        or(literal('к сопротивлению огню'), literal('к сопротивлению огню T2')),
+        literal('к силе')
+      )
+    );
+    // Different families → AND: each family gets its own quoted group
+    expect(result).toBe('"к сопротивлению огню|к сопротивлению огню T2" "к силе"');
+  });
+
+  it('OR mode with different-family tokens → single OR group', () => {
+    // Simulates OR mode: all tokens go into one OR group
+    const result = compile(
+      or(literal('к сопротивлению огню'), literal('к силе'))
+    );
+    expect(result).toBe('"к сопротивлению огню|к силе"');
   });
 });

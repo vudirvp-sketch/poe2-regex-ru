@@ -761,3 +761,67 @@ describe('Block-based matching: getItemSearchBlocks + matchPoE2RegexItem', () =>
     expect(matchPoE2RegexItem('"Требуется.*Уровень предмета"', item)).toBe(false);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 12: PHASE 9 — Enumerated numeric range (verified in-game)
+//
+// KEY FINDING: AND of two quoted groups for numeric range on the SAME suffix
+// does NOT work correctly in PoE2. Items with range notation like
+// "26(26-50)% шанс откладывания наград" have secondary numbers (e.g., "50")
+// that satisfy the ≥27 condition, while the primary number "26" satisfies ≤30.
+// Each quoted group can match a DIFFERENT number in the same block.
+//
+// SOLUTION: Enumeration — single quoted group "(27|28|29|30).*suffix" —
+// matches only the exact values, immune to secondary numbers.
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Phase 9: Enumerated numeric range [27, 30]', () => {
+  it('enumerated range (27|28|29|30) matches 27% and 30% items', () => {
+    // Simulated tablet items with "откладывания наград" mod
+    const item27 = { mods: ['27% шанс откладывания наград'] };
+    const item30 = { mods: ['30% шанс откладывания наград'] };
+    const regex = '"(27|28|29|30).*откладывания наград"';
+
+    expect(matchPoE2RegexItem(regex, item27)).toBe(true);
+    expect(matchPoE2RegexItem(regex, item30)).toBe(true);
+  });
+
+  it('enumerated range (27|28|29|30) does NOT match 26% item', () => {
+    // Even with range notation "26(26-50)%..." where 50 appears,
+    // the enumeration (27|28|29|30) won't match "26" or "50"
+    const item26 = { mods: ['26% шанс откладывания наград'] };
+    const regex = '"(27|28|29|30).*откладывания наград"';
+
+    expect(matchPoE2RegexItem(regex, item26)).toBe(false);
+  });
+
+  it('enumerated range does NOT match 22% item', () => {
+    const item22 = { mods: ['22% шанс откладывания наград'] };
+    const regex = '"(27|28|29|30).*откладывания наград"';
+
+    expect(matchPoE2RegexItem(regex, item22)).toBe(false);
+  });
+
+  it('AND of two quoted groups for SAME suffix has false positive — known limitation', () => {
+    // This test documents the KNOWN ISSUE that AND(min, max) for same suffix
+    // produces false positives when item text contains range notation.
+    // The item "26(26-50)% шанс откладывания наград" has both "50" (≥27) and "26" (≤30).
+    const itemWithRangeNotation = { mods: ['26(26-50)% шанс откладывания наград'] };
+    // AND approach: two separate quoted groups
+    const andRegex = '"(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
+    // This WILL match because "50" satisfies ≥27 group and "26" satisfies ≤30 group
+    // This is a FALSE POSITIVE — the item's actual value is 26, not in [27,30]
+    expect(matchPoE2RegexItem(andRegex, itemWithRangeNotation)).toBe(true);
+  });
+
+  it('enumerated range correctly rejects item with range notation', () => {
+    // Same item but with enumeration — no false positive
+    const itemWithRangeNotation = { mods: ['26(26-50)% шанс откладывания наград'] };
+    const enumRegex = '"(27|28|29|30).*откладывания наград"';
+    // Enumeration correctly rejects — "26" and "50" are not in (27|28|29|30)
+    // Note: "50" won't match any of 27|28|29|30, and "26" won't either
+    // But we need to be careful: does "26(" contain "27"? No.
+    // Does "50)" contain "27" or "28" or "29" or "30"? No.
+    expect(matchPoE2RegexItem(enumRegex, itemWithRangeNotation)).toBe(false);
+  });
+});

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 6.0 | **Date:** 2026-06-08
+> **Version:** 7.0 | **Date:** 2026-06-09
 
 ---
 
@@ -125,8 +125,9 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 | `EXCLUDE(LITERAL(A))` | `"!A"` | `"!проклят"` | Yes |
 | `EXCLUDE(OR([A,B]))` | `"!A\|B"` | `"!проклят\|сопротивлен"` | Yes |
 | `LITERAL("цепя")` | `"цепя"` | (from pre-computed regex) | Yes |
-| `RANGE(min=40, suffix="m q")` | `"([4-9].\|\d..).*m q"` | (with round10) | Yes |
-| `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9].\|\d..).*m q"` | (dual-number prefix) | Yes |
+| `RANGE(min=40, suffix="m q")` | `"([4-9][0-9]\|[0-9][0-9][0-9]).*m q"` | (with round10) | Yes |
+| `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9][0-9]\|[0-9][0-9][0-9]).*m q"` | (dual-number prefix) | Yes |
+| `RANGE(min=27, max=30, suffix="суфф")` | `"(27\|28\|29\|30).*суфф"` | (enumeration, Phase 9) | Yes |
 | `AND([RANGE(...), LITERAL(...)])` | `"rangeRegex" "literal"` | | Yes |
 | AND-composed `regexPrefixContext` | `"context" "suffix"` | `"имеют" "увеличение урона"` | Yes |
 
@@ -136,6 +137,9 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 - `.*` does NOT cross block boundaries — safe for number + suffix within the SAME mod block
 - `.*` is ONLY safe for number + suffix within the SAME block
 - `!` must be INSIDE quotes: `"!A|B"` not `!"A|B"`
+- RANGE(min, max) with ≤50 values uses enumeration: `"(27|28|29|30).*suffix"` (Phase 9)
+- RANGE(min, max) with >50 values falls back to AND: `"≥min.*suffix" "≤max.*suffix"`
+- Enumerated ranges always disable round10 — enumeration is inherently precise
 
 ## 8. JSON File Format (public/generated/*.json)
 

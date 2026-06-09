@@ -198,6 +198,49 @@ function threeDigitMax(n: number): string {
   return `([0-9]|[1-9][0-9]|${prevDigits}|${d0}[0-${prevD1}][0-9]|${d0}${d1}[0-${d2}])`;
 }
 
+/**
+ * Maximum number of values to enumerate in a range.
+ * Beyond this threshold, fall back to AND(min, max) approach.
+ * The value 50 balances precision vs regex length:
+ * - 50 two-digit values → ~200 chars (fits 250-char budget with short suffix)
+ * - Narrow ranges [27,30] → 4 values → ~15 chars (very compact)
+ */
+export const MAX_ENUMERATE_RANGE = 50;
+
+/**
+ * Generate a PoE2 regex pattern that matches EXACTLY the values in [min, max].
+ * Produces enumeration patterns like (27|28|29|30) which are immune to
+ * false positives from secondary numbers in range notation (e.g., "26(26-50)%...").
+ *
+ * WHY ENUMERATION: The character-class-based approach (e.g., (2[7-9]|[3-9][0-9]))
+ * can produce false positives when PoE2 item text contains range notation like
+ * "26(26-50)% шанс откладывания наград". The number "50" in the range notation
+ * matches the ≥27 pattern, creating a false positive. Enumeration avoids this by
+ * listing only the exact valid values.
+ *
+ * VERIFIED IN-GAME (Phase 9):
+ * - OR of literals "A|B|C" inside a single quoted group works correctly
+ * - Single enumerated group "(27|28|29|30).*suffix" matches precisely [27,30]
+ * - AND of two quoted groups for the SAME suffix does NOT work as numeric range
+ *   (each group can match a different number in the same block)
+ *
+ * Returns null if the range exceeds MAX_ENUMERATE_RANGE — caller should fall
+ * back to the AND(min, max) approach with documented limitations.
+ */
+export function generateEnumeratedRangeRegex(min: number, max: number): string | null {
+  if (min > max) return null;
+  const range = max - min + 1;
+  if (range > MAX_ENUMERATE_RANGE) return null;
+
+  const values: string[] = [];
+  for (let v = min; v <= max; v++) {
+    values.push(v.toString());
+  }
+
+  if (values.length === 1) return values[0];
+  return `(${values.join('|')})`;
+}
+
 function threeDigitMin(n: number): string {
   const str = n.toString();
   const d0 = str[0], d1 = str[1], d2 = str[2];
