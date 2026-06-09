@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 41.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 42.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -294,12 +294,12 @@ Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to f
 | Level | Method | When used | FP prevented | FN risk |
 |-------|--------|-----------|-------------|---------|
 | 1 | `^` anchor (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
-| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` or `+##%` AND anchorStart=false | Numbers from range notation not followed by `%` | Items where actual roll has range notation (e.g. `27(22-27)%`) |
+| 2 | `%` suffix anchor (anchorEnd) | Template has `##%`, `+##%`, or `#%` AND anchorStart=false | Numbers from range notation not followed by `%` | Items where actual roll has range notation (e.g. `27(22-27)%`) |
 | 3 | Enumeration (compact decade grouping) | Range ≤ MAX_ENUMERATE_RANGE (50) | Secondary numbers that don't overlap with enumerated values | None |
 
 **Phase 9b verification:** `^` anchor reliably prevents range notation FP when the number is at position 0 of the mod block. The `anchorStart` flag is set on RANGE nodes when `rawTextTemplate` starts with `##`. The compiler adds `^` only when there is no `prefix` (dual-number mods use prefix anchoring instead).
 
-**Phase 9c verification:** `%` suffix anchor prevents range notation FP for `+##%` accessory mods. Verified in-game: `"(2[7-9]|30)%.*откладывания наград"` correctly highlights only 27% and 30% items. The `anchorEnd` flag is set on RANGE nodes when `rawTextTemplate` matches `/^[\+]?##%/` AND `anchorStart=false`. The compiler inserts the `anchorEnd` string (typically `%`) between the number pattern and `.*suffix`.
+**Phase 9c verification:** `%` suffix anchor prevents range notation FP for `+##%` accessory mods and `#%` waystone mods. Verified in-game: `"(2[7-9]|30)%.*откладывания наград"` correctly highlights only 27% and 30% items. The `anchorEnd` flag is set on RANGE nodes when `rawTextTemplate` matches `/##?%/` (detects `#%` or `##%` anywhere in template) AND `anchorStart=false`. The compiler inserts the `anchorEnd` string (typically `%`) between the number pattern and `.*suffix`.
 
 **When NOT to use `^`:**
 - Mods with `prefix` set (dual-number) — prefix already anchors within the block
@@ -503,14 +503,22 @@ Waystone base properties (Уровень путевого камня, разме
 
 ## 12. Bug Fix Log
 
+### v42.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Per-chip range override only applied to first family member, others become orphaned LITERALs | **Critical** | `buildAstFromSelections` now propagates `perTokenRanges` from the first ranged member to all other members of the same `familyKey` group. Previously, only `firstRangedMember.id` got the range override in the store, but the AST builder processed each token independently — tokens without overrides became orphaned LITERAL nodes, producing duplicate quoted groups like `"(1[5-9]\|2[0-4]).*области путевых камней" "области путевых камней"` instead of a single RANGE node. |
+| `anchorEnd` detection only matches `##%` at template start, misses `#%` in middle | **High** | Changed `numberFollowedByPercent` regex from `/^[\+]?##%/` to `/##?%/` — now detects both `#%` (values-only tokens like "На #% больше...") and `##%` (ranged tokens like "+##% к сопротивлению") anywhere in the template. This enables `%` suffix anchoring for waystone mods where the number is not at position 0 but IS followed by `%`. |
+| FilterChip selected with range inputs overlaps neighbors in flex-wrap layout | **High** | Removed `overflow: hidden` from chip containers (which clipped chips instead of wrapping them). Added `chip-with-range` CSS class to chips displaying range inputs, with `flex-basis: 100%` to force them onto their own line. Prevents chips with ≥/≤ inputs from overlapping adjacent chips. |
+
 ### v41.0 (2026-06-09)
 
 | Bug | Severity | Fix |
 |-----|----------|-----|
-| Values-only tokens (waystone `На #% больше...`) not treated as ranged | **High** | `buildAstFromSelections` now checks `token.ranges.length > 0 || token.values.length > 0` to classify tokens as ranged. Previously, tokens with `values[]` but empty `ranges[]` (single-# template) were treated as non-ranged literals, ignoring numeric min/max filters. This caused "области путевых камней" instead of a proper numeric range regex like `"(15|20).*области путевых камней"`. |
+| Values-only tokens (waystone `На #% больше...`) not treated as ranged | **High** | `buildAstFromSelections` now checks `token.ranges.length > 0 \|\| token.values.length > 0` to classify tokens as ranged. Previously, tokens with `values[]` but empty `ranges[]` (single-# template) were treated as non-ranged literals, ignoring numeric min/max filters. |
 | FilterChip text overflows parent container and overlaps neighbors | **High** | Added `maxWidth: '100%'` and `overflowWrap: 'break-word'` to chip container, `min-w-0 overflow-hidden` to switch element, and CSS rules in `index.css` for chip overflow prevention. |
-| "PoE2 Regex для русского клиента" appears 3-4 times on home page | **Medium** | Changed `home.title` to "Генератор поисковых строк" and `home.subtitle` to "Для Path of Exile 2 — русский клиент". Dimmed sidebar subtitle. Now "PoE2 Regex" appears only once in sidebar logo. |
-| Tab icons inconsistent sizes (Relic sticks out, Belt/Vendor too small) | **Medium** | Added `maxHeight`/`maxWidth` CSS constraints to sidebar icons (28×28) and home page card icons (44×44) with `object-contain` for uniform display regardless of aspect ratio. |
+| "PoE2 Regex для русского клиента" appears 3-4 times on home page | **Medium** | Changed `home.title` to "Генератор поисковых строк" and `home.subtitle` to "Для Path of Exile 2 — русский клиент". Dimmed sidebar subtitle. |
+| Tab icons inconsistent sizes (Relic sticks out, Belt/Vendor too small) | **Medium** | Added `maxHeight`/`maxWidth` CSS constraints to sidebar icons (28×28) and home page card icons (44×44). |
 
 ### v40.0 (2026-06-09)
 

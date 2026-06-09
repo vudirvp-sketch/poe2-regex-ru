@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 80 — 2026-06-09)
+## Current State (Session 81 — 2026-06-09)
 
 **Build:** `pnpm build` passes, `npx vitest run` passes (663/663 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,28 +12,24 @@
 
 **Key Changes This Session:**
 
-1. **Values-only tokens now support numeric filtering** — `buildAstFromSelections` now checks `token.ranges.length > 0 || token.values.length > 0`. Waystone mods like "На #% больше находимых в области путевых камней" (which have `values: [15]` but `ranges: []`) now produce proper RANGE AST nodes with numeric filters instead of plain LITERAL suffixes.
-2. **FilterChip overflow fix** — Added `maxWidth: '100%'`, `overflowWrap: 'break-word'` to chip container; `min-w-0 overflow-hidden` to switch element; CSS rules in `index.css` for overflow prevention in chip containers.
-3. **"PoE2 Regex" duplication removed** — `home.title` changed to "Генератор поисковых строк", `home.subtitle` to "Для Path of Exile 2 — русский клиент". Sidebar subtitle dimmed. "PoE2 Regex" now appears only once (sidebar logo).
-4. **Tab icons normalized** — Sidebar icons constrained to 28×28px with `maxHeight`/`maxWidth`, home card icons to 44×44px. Fixes relic (45×89) sticking out and belt (94×39)/vendor (93×77) appearing too small.
+1. **Per-chip range propagation fix** — `buildAstFromSelections` now propagates `perTokenRanges` from the first ranged member of a family group to ALL other members sharing the same `familyKey`. Previously, only `firstRangedMember.id` got the range override, causing other tokens in the same family to become orphaned LITERAL nodes, producing duplicate quoted groups like `"(1[5-9]|2[0-4]).*области путевых камней" "области путевых камней"`.
+2. **anchorEnd detection expanded** — Changed `numberFollowedByPercent` regex from `/^[\+]?##%/` to `/##?%/`. Now detects `#%` (values-only tokens like "На #% больше...") AND `##%` (ranged tokens) anywhere in the template, not just at the start. Enables `%` suffix anchoring for waystone mods where the number is not at position 0 but IS followed by `%`.
+3. **FilterChip overflow fix (v2)** — Removed `overflow: hidden` from chip containers (which clipped chips). Added `chip-with-range` CSS class with `flex-basis: 100%` to force selected chips with range inputs onto their own line, preventing overlap with adjacent chips.
 
 **Files changed this session:**
-- `src/ui/hooks/useCategoryPage.ts` — Values-only token detection fix
-- `src/ui/components/FilterChip.tsx` — Overflow prevention (maxWidth, overflowWrap, min-w-0)
-- `src/ui/layout/Sidebar.tsx` — Icon size constraints (28×28), subtitle dimming
-- `src/ui/pages/home/HomePage.tsx` — Icon size constraints (44×44), container height
-- `src/shared/i18n.ts` — home.title, home.subtitle updated
-- `src/index.css` — FilterChip overflow prevention rules
-- `docs/ARCHITECTURE.md` — v41 bug fix log
-- `AGENT_NAVIGATION.md` — v82: icon sizing updated, i18n conventions updated, TODO updated
-- `новый_план.md` — v21: Session 80 entry
+- `src/ui/hooks/useCategoryPage.ts` — Per-chip range propagation + anchorEnd detection fix
+- `src/ui/components/FilterChip.tsx` — Added `chip-with-range` class when range inputs visible
+- `src/index.css` — Removed `overflow: hidden`, added `chip-with-range` full-width rule
+- `docs/ARCHITECTURE.md` — v42: bug fix log + anchorEnd documentation update
+- `AGENT_NAVIGATION.md` — v83: anchorEnd detection updated, TODO updated
+- `новый_план.md` — v22: Session 81 entry
 - `worklog.md` — This update
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing — verify all tabs, range warnings, visual hierarchy, waystone values-only numeric regex
+- ⬜ Browser functional testing — verify all tabs, per-chip range produces single RANGE node, `%` suffix anchor works in-game for waystone "На #% больше..." mods
 - ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
+- ⬜ In-game testing — verify `"(1[5-9]|2[0-4])%.*области путевых камней"` matches waystone items
 - ⬜ +## non-% mods range notation FP — no current solution, may accept as known limitation
-- ⬜ Icon pre-normalization — square canvas for consistent pixel-perfect display
 
 ---
 
@@ -58,8 +54,9 @@
 17. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
 18. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers must NOT pass these props.
 19. **Level headers MUST be `block`, never `inline-block`:** Prevents header concatenation on same line.
-20. **anchorEnd NOT used for ##% mods (tablets/waystones):** `^` is sufficient and doesn't have FN risk. `%` has FN risk on items with range notation on actual roll.
+20. **anchorEnd NOT used for ##% mods (tablets/waystones):** `^` is sufficient and doesn't have FN risk. `%` has FN risk on items with range notation on actual roll. Exception: `%` IS used for `#%` mods where number is NOT at position 0 (e.g., "На #% больше...") because `^` can't be used and `%` prevents FP from range notation.
 21. **Values-only tokens MUST be treated as ranged:** Tokens with `values[]` but `ranges: []` (single-# template like "На #% больше...") need numeric filtering. Check `token.ranges.length > 0 || token.values.length > 0`.
+22. **Per-chip range MUST propagate to all family members:** `buildAstFromSelections` propagates `perTokenRanges` from first ranged member to all others with same `familyKey`. Without this, only one token gets the range override, others become orphaned LITERALs producing duplicate quoted groups.
 
 ## Build & Run Commands
 

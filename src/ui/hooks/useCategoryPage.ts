@@ -387,10 +387,33 @@ export function buildAstFromSelections(
 
   // Handle ranged tokens with per-token or global numeric ranges
   if (rangedTokens.length > 0) {
+    // Propagate perTokenRanges across family groups:
+    // FilterChip stores range overrides only on the first ranged member of a family
+    // group. Other members with the same familyKey need the same override to avoid
+    // becoming orphaned LITERAL nodes (which produce duplicate quoted groups).
+    const propagatedRanges: Record<string, TokenRangeOverride> = { ...perTokenRanges };
+    const familyGroups = new Map<string, GameToken[]>();
+    for (const token of rangedTokens) {
+      const family = token.familyKey[locale];
+      if (!familyGroups.has(family)) familyGroups.set(family, []);
+      familyGroups.get(family)!.push(token);
+    }
+    for (const [, members] of familyGroups) {
+      const overrideMember = members.find(t => perTokenRanges[t.id]);
+      if (overrideMember) {
+        const override = perTokenRanges[overrideMember.id];
+        for (const member of members) {
+          if (!propagatedRanges[member.id]) {
+            propagatedRanges[member.id] = override;
+          }
+        }
+      }
+    }
+
     // Determine if ANY token has an effective min/max (including slot overrides)
     const tokensWithSlots = rangedTokens.map(token => ({
       token,
-      slots: getEffectiveRangePerSlot(token, minValue, maxValue, perTokenRanges),
+      slots: getEffectiveRangePerSlot(token, minValue, maxValue, propagatedRanges),
     }));
 
     const anyHasRange = tokensWithSlots.some(
@@ -415,7 +438,7 @@ export function buildAstFromSelections(
       }>();
       for (const { token, slots } of tokensWithSlots) {
         const suffix = token.regex[locale];
-        const isPerToken = !!perTokenRanges[token.id];
+        const isPerToken = !!propagatedRanges[token.id];
 
         let tokenHasEffectiveSlot = false;
         for (const slot of slots) {
@@ -470,16 +493,17 @@ export function buildAstFromSelections(
           return template && /^##/.test(template);
         });
 
-        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
+        // Determine anchorEnd: when rawTextTemplate has ##% or #% (number followed by %),
         // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
         // Verified in-game (Phase 9c): (2[7-9]|30)%.*suffix prevents FP because
         // numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
         // Only set when anchorStart=false (for +##% mods where ^ cannot be used),
         // because ^ already prevents FP for ##% mods and anchorEnd has FN risk
         // on items where the actual roll has range notation (e.g. 27(22-27)%).
+        // Also detects #% in the middle of templates (e.g., "На #% больше...").
         const numberFollowedByPercent = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
-          return template && /^[\+]?##%/.test(template);
+          return template && /##?%/.test(template);
         });
         // Use anchorEnd only when anchorStart is false — for +##% accessory mods.
         // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.

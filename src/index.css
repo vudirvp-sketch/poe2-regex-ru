@@ -428,20 +428,30 @@ body {
 /* ─── Sticky control panel: cover gap above ─── */
 
 /* ─── FilterChip overflow prevention ─── */
+
+/* Chip containers: allow wrapping, NO overflow:hidden (which clips chips) */
 .mod-list .flex.flex-wrap.gap-2,
 .virtualized-mod-list .flex.flex-wrap.gap-2,
 .mod-list .flex.flex-wrap.gap-1\.5,
 .virtualized-mod-list .flex.flex-wrap.gap-1\.5 {
-  /* Ensure chip containers don't overflow their parent columns */
-  overflow: hidden;
+  overflow: visible;
 }
 
+/* Allow long mod text to wrap within the chip instead of overflowing */
 .mod-list [role="switch"] span:first-child,
 .virtualized-mod-list [role="switch"] span:first-child {
-  /* Allow long mod text to wrap within the chip instead of overflowing */
   overflow-wrap: break-word;
   word-break: break-word;
   min-width: 0;
+}
+
+/* Selected chips with range inputs: force full-width to prevent overlap.
+   When a chip expands to show ≥/≤ inputs, it needs its own line
+   so it doesn't overlap with the next chip in the flex-wrap container. */
+.mod-list .chip-with-range,
+.virtualized-mod-list .chip-with-range {
+  flex-basis: 100%;
+  max-width: 100%;
 }
 
 /* Prevent range input rows from overflowing chip containers */
