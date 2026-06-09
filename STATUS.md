@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 691 (Vitest) | **ETL токенов:** 1823 | **Cross-family FP:** 0
+> **Тестов:** 693 (Vitest) | **ETL токенов:** 1823 | **Cross-family FP:** 0
 
 ---
 
@@ -9,55 +9,56 @@
 
 - ✅ Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
 - ✅ Sessions 50-82: Oracle validation, cross-family FP repair, ETL audit, VirtualizedModList, dual-slot ranges, jewel sub-headers, UI audit, profile panel, Ctrl+Shift+X, anchorStart (^), anchorEnd (%), chip-with-range CSS
-- ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor WORKS on tablets. Regex syntax validated. Waystone problem isolated as waystone-specific.
+- ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor РАБОТАЕТ. Regex syntax валидирован.
+- ✅ % anchor RE-ENABLED: восстановлен в useCategoryPage.ts. Dual-indexing подтверждён на всех категориях.
+- ✅ Waystone root cause FOUND: имплисет-бонусы не searchable. Моды и имплисеты — подтверждены в игре.
 
 ---
 
 ## Активные проблемы
 
-### P1: Waystone number range regex не работает в игре (CRITICAL)
+### P1: Waystone ETL реструктуризация (CRITICAL)
 
-`"(1[5-9]|2[0-4]).*области путевых камней"` не работает в PoE2.
+**Корень найден.** Waystone токены содержат несуществующие моды (имплисет-бонусы). Нужно:
 
-**Обновление (2026-06-10):** Regex syntax `(3[0-6]%|39%).*suffix` работает на плитках. Проблема НЕ в синтаксисе. Waystone-специфичная причина:
-- Waystone mod text может не индексироваться поиском
-- Формат waystone модов может отличаться от плиток
-- Нужны путевые камни в тайнике для теста W1-W4 (IN_GAME_TESTS.md)
+1. Убрать из списка модов строки, влияющие на имплисет:
+   - `"На #% больше находимых в области путевых камней"` → удалить
+   - `"##% увеличение эффективности монстров"` → удалить
+   - `"На #% больше редкости находимых в этой области предметов"` → удалить
+   - `"На #% больше размера групп монстров"` → удалить
 
-### P2: `%` suffix anchor — CONTRADICTION (NEEDS RETEST)
+2. Добавить имплисеты как отдельную категорию с REVERSED regex:
+   - `"Шанс выпадения путевого камня"` + range → `"Шанс выпадения путевого камня.*(range)%"`
+   - `"Редкость предметов"` + range → `"Редкость предметов.*(range)%"`
+   - `"Размер групп монстров"` + range → `"Размер групп монстров.*(range)%"`
+   - `"Эффективность монстров"` + range → `"Эффективность монстров.*(range)%"`
 
-**Предыдущее:** `%` anchor disabled из-за FN на аксессуарах (`+27(22-27)%` → `27` не следует за `%`).
-**Новое (Tablet Battery):** `%` anchor РАБОТАЕТ на плитках: `"39%.*suffix"` ✅, `"12%.*suffix"` ✅.
+3. Имплисеты НЕ имеют dual-indexing (нет range notation в поиске), `%` anchor безопасен.
 
-**Причина:** PoE2 dual-indexing — индексируются оба формата: simplified `39%` И detailed `39(30-40)%`. `%` матчит simplified.
+### P2: % anchor — РЕШЕНО
 
-**Противоречие:** Если PoE2 dual-indexing универсален, `%` должен работать и на аксессуарах. Предыдущий FN мог быть ошибкой теста или accessory-специфичным поведением.
+RE-ENABLED. Работает на модах и имплисетах.
 
-**Действие:** Ретест `%` на аксессуарах (A1-A5 в IN_GAME_TESTS.md). Если ✅ → откатить disable.
+### P3: Block model ретест (MEDIUM)
 
-**% anchor механизм (подтверждён на плитках):**
-- `"39%.*suffix"` → matches simplified display ✅
-- `"39.*suffix"` → matches simplified + range notation → FP
-- `(30|39).*suffix` → 6 tiles (3 FP от `30` в `(30-40)%`)
-- `(30%|39%).*suffix` → 3 tiles (correct, `%` фильтрует range FP)
+`"35%.*к сопротивлению молнии"` матчит кольцо с +35% cold + +41% lightning (разные аффиксы). Нужен ретест B1-B2.
 
 ---
 
 ## Известные ограничения
 
-1. **Range notation FP без `%` anchor** — `(30|39).*suffix` ловит `30` из `(30-40)%`. Решение: `%` anchor.
-2. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен.
-3. **Waystone #% enumeration** — нужна диагностика waystone-специфичного поведения.
-4. **VendorPage numeric-only без чекбокса** — свойство с numericInput но без selectedIds.
+1. **Waystone ETL данные содержат несуществующие моды** — нужна реструктуризация
+2. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring
+3. **Block model может быть неполной** — `.*` может пересекать аффикс-блоки
 
 ---
 
 ## Следующие шаги
 
-- Ретест `%` anchor на аксессуарях (A1-A5)
-- Waystone-специфичные тесты W1-W4 (нужны путевые камни в тайнике)
-- Если `%` ✅ на аксессуарях → откатить disable `anchorEnd` в коде
-- Если `%` ❌ на аксессуарях → разобраться почему dual-indexing работает на плитках но не на аксессуарах
+1. Реструктурировать waystone ETL (убрать имплисет-бонусы, добавить имплисеты с reversed regex)
+2. Обновить waystone.json с корректными модами + имплисетами
+3. Block model ретест B1-B2
+4. Аналогичная проверка для tablet: есть ли там имплисет-бонусы в модах?
 
 ---
 
