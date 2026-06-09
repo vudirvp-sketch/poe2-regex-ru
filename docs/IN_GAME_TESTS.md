@@ -19,7 +19,7 @@
 | `?` optional | ❌ | NOT supported |
 | `[её]?` | ❌ | NOT supported |
 | `.*` is directional (forward only) | ✅ | Reverse order → ❌ |
-| `.*` across affix blocks | ⚠️ | See Block Model section |
+| `.*` does NOT cross block boundaries | ✅ | B1-B2 verified — see Block Model |
 | `.` matches literal dot | ✅ | `"15.9"` matches fractional |
 | `[.]` for exact dot match | ✅ | `"15[.]9"` |
 | `-` literal outside `[]` | ✅ | `"-11"` matches negative values |
@@ -36,7 +36,7 @@ PoE2 индексирует ДВА формата текста **для модо
 1. **Simplified:** `39% увеличение количества...` (rolled value без range)
 2. **Detailed:** `39(30-40)% увеличение количества...` (с range notation)
 
-Оба searchable. `.*` матчит оба. Подтверждено на плитках и аксессуарах.
+Оба searchable. `.*` матчит оба.
 
 **Имплисеты: NO dual-indexing.** Только simplified формат: `Шанс выпадения путевого камня: +85%`
 
@@ -52,7 +52,7 @@ PoE2 индексирует ДВА формата текста **для модо
 | Method | Status | Notes |
 |--------|--------|-------|
 | `%` suffix anchor (anchorEnd) | ✅ RE-ENABLED | Works on mods. Prevents range notation FP. |
-| `%` on implicits (reversed) | ✅ | `"Шанс выпадения путевого камня.*85%"` works |
+| `%` on implicits (reversed) | ✅ VERIFIED | `"Шанс выпадения путевого камня.*85%"` works in-game |
 | `^` anchor (anchorStart) | ✅ | For ##% mods where number starts the block |
 | Enumeration without `%` | ⚠️ FP risk | `(30\|39).*suffix` → FP from `(30-40)%` |
 
@@ -64,12 +64,28 @@ PoE2 индексирует ДВА формата текста **для модо
 
 | Feature | Status | Key test |
 |---------|--------|----------|
-| `.*` within single block only | ✅ | Directional, forward only |
-| `.*` crosses mod→implicit sections | ⬜ | Not tested yet |
+| `.*` within single block only | ✅ VERIFIED | B1-B2: `"35%.*к сопротивлению молнии"` matches ONLY +35% lightning ring, NOT +35% cold + +41% lightning ring (different affixes = different blocks) |
 | AND works across blocks | ✅ | `"максимуму здоровья" "к силе"` |
-| Implicits indexed | ✅ | Waystone WV2 ✅ |
+| Implicits indexed | ✅ VERIFIED | Waystone `"Шанс выпадения путевого камня.*85%"` → ✅ |
 | State text indexed ("Осквернено") | ✅ | Block K4 |
 | Multi-line mods: `.*` crosses newline | ✅ | `"повышение шанса.*бонусу"` works |
+
+### Waystone Implicit Regex — VERIFIED
+
+| # | Regex | Result | Notes |
+|---|-------|--------|-------|
+| WV1 | `"повышение шанса критического удара"` | ✅ | Waystone mods indexed |
+| WV2 | `"Шанс выпадения путевого камня"` | ✅ | Waystone implicits indexed |
+| WV3a | `"Шанс выпадения путевого камня.*85%"` | ✅ | Reversed regex + % anchor works |
+| WV3b | `"Шанс выпадения путевого камня.*85[(]"` | ❌ | No dual-indexing on implicits |
+| WV5a | `"Шанс выпадения путевого камня" "85%"` | ✅ | AND across blocks works |
+
+### Tablet Implicit Regex — VERIFIED
+
+| # | Regex | Result | Notes |
+|---|-------|--------|-------|
+| T1 | `"Осталось зарядов.*3"` | ✅ | Reversed regex for charges works |
+| T2 | `"алтари Ритуала"` | ✅ | Literal implicit text works |
 
 ### Regex Syntax — VERIFIED
 
@@ -82,71 +98,30 @@ PoE2 индексирует ДВА формата текста **для модо
 
 ---
 
-## Waystone — FULL MODEL
+## Waystone — Searchable Text Model
 
-### Корень проблемы (FOUND)
-
-`"На #% больше находимых в области путевых камней"` — НЕ мод. Это имплисет-бонус, который в поиске не индексируется как мод-текст.
-
-In-game: `"находимых в области путевых камней"` → ❌ Ничего.
-
-### Что реально searchable на путевых камнях
-
-**Моды (префиксы/суффиксы):**
+### Моды (префиксы/суффиксы)
 
 Формат: `##% описание` (число ПЕРЕД текстом)
 Regex: `число%.*суффикс` или `^число.*суффикс`
 
-- `"Монстры с ##% шансом могут наложить отравление при нанесении удара"`
-- `"Монстры имеют ###% повышение шанса критического удара"` + `"+##% к бонусу критического урона монстров"`
-- `"##% максимум сопротивлений игроков"`
-- `"Область имеет участки замерзшей земли"`
-- и т.д.
-
-**Имплисеты (отдельная секция):**
+### Имплисеты (отдельная секция)
 
 Формат: `Описание: +##%` (число ПОСЛЕ текста)
 Regex: `суффикс.*число%`
 
-- `"Шанс выпадения путевого камня: +##%"`
-- `"Редкость предметов: +##%"`
-- `"Размер групп монстров: +##%"`
-- `"Эффективность монстров: +##%"`
-- `"Доступно возрождений: #"`
+- `"Шанс выпадения путевого камня: +##%"` — ranges [0, 350]
+- `"Редкость предметов: +##%"` — ranges [0, 350]
+- `"Размер групп монстров: +##%"` — ranges [0, 350]
+- `"Эффективность монстров: +##%"` — ranges [0, 350]
+- `"Доступно возрождений: #"` — values [0, 6]
 
-**НЕ моды (имплисет-бонусы, не searchable):**
+### НЕ моды (имплисет-бонусы, не searchable)
+
 - `"На ##% больше находимых в области путевых камней"` ← НЕ searchable
 - `"##% увеличение эффективности монстров"` ← НЕ searchable
 - `"На ##% больше редкости находимых в этой области предметов"` ← НЕ searchable
 - `"На ##% больше размера групп монстров"` ← НЕ searchable
-
-### Waystone in-game verification — ALL PASSED
-
-| # | Regex | Result | Conclusion |
-|---|-------|--------|------------|
-| WV1 | `"повышение шанса критического удара"` | ✅ | Waystone mods indexed |
-| WV2 | `"Шанс выпадения путевого камня"` | ✅ | Waystone implicits indexed |
-| WV3 | `"85%.*Шанс выпадения путевого камня"` | ❌ | Wrong direction (number after text) |
-| WV3a | `"Шанс выпадения путевого камня.*85%"` | ✅ | Correct direction for implicits |
-| WV3b | `"Шанс выпадения путевого камня.*85%"` | ✅ | `%` anchor works on implicits |
-| WV3c | `"Шанс выпадения путевого камня.*85[(]"` | ❌ | No dual-indexing on implicits |
-| WV4 | `"276%.*повышение шанса критического удара"` | ✅ | `%` anchor works on waystone mods |
-| WV5a | `"Шанс выпадения путевого камня" "85%"` | ✅ | AND across blocks works |
-
-### Regex patterns for waystone generation
-
-**Моды (number BEFORE text):**
-```
-"(1[5-9]|2[0-4])%.*порога состояний"     ← anchorEnd %
-"^(1[5-9]|2[0-4]).*порога состояний"     ← anchorStart ^
-```
-
-**Имплисеты (text BEFORE number):**
-```
-"Шанс выпадения путевого камня.*([0-9]|[1-9][0-9]|[1-2][0-9][0-9]|250)%"    ← reversed: suffix.*number% (range 0-250 unrestricted)
-"Редкость предметов.*([0-9]|[1-9][0-9]|[1-2][0-9][0-9]|250)%"
-"Эффективность монстров.*([0-9]|[1-9][0-9]|[1-2][0-9][0-9]|250)%"
-```
 
 ### Правило для ETL
 
@@ -154,19 +129,6 @@ Regex: `суффикс.*число%`
 2. Имплисет-бонусы (`"На ##% больше..."`, `"##% увеличение эффективности монстров"`) — не searchable.
 3. Имплисеты (`"Шанс выпадения путевого камня: +##%"`) — searchable, но regex REVERSED (text.*number%).
 4. Только ПЕРВАЯ строка каждой мод-группы — это мод.
-
----
-
-## Active Test Battery
-
-### B1: Block Model Re-investigation — PRIORITY: MEDIUM
-
-`"35%.*к сопротивлению молнии"` матчит кольцо с +35% cold res И +41% lightning res (разные аффиксы).
-
-| # | Regex | Purpose | Actual |
-|---|-------|---------|--------|
-| B1 | `"35%.*к сопротивлению холоду"` | `.*` within same block? | ⬜ |
-| B2 | `"+66.*к силе"` | `.*` across prefix-suffix? | ⬜ |
 
 ---
 

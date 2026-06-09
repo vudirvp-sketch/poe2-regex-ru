@@ -70,7 +70,7 @@ poe2db.tw/ru/*
 | `\d` | Digit shorthand | `\d..` | Yes |
 | `%` `+` | Literals (not special) | `"+66"`, `"% к сопр"` | Yes |
 
-**NOT supported:** `?` (optional), `.*` across blocks, negative lookahead, non-greedy quantifiers, backreferences.
+**NOT supported:** `?` (optional), `.*` across blocks (VERIFIED B1-B2), negative lookahead, non-greedy quantifiers, backreferences.
 
 **Critical syntax rules:**
 

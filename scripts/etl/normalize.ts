@@ -420,9 +420,9 @@ export function filterImplicitSetBonuses(mods: NormalizedMod[]): NormalizedMod[]
 
 /**
  * Range config for implicit tokens.
- * Using unrestricted ranges (0-250) since exact in-game ranges are unconfirmed.
+ * Using unrestricted ranges (0-350) — in-game values can exceed 250 for high-tier waystones.
  */
-const IMPLICIT_RANGE_UNRESTRICTED = [0, 250] as const;
+const IMPLICIT_RANGE_UNRESTRICTED = [0, 350] as const;
 
 /**
  * Generate implicit tokens for waystone categories.

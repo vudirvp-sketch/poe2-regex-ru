@@ -79,7 +79,7 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 - Waystone-desecrated: Same 5 tokens with origin='desecrated'
 - Tablet: Осталось зарядов, алтари Ритуала, Заражение, Бездны, маяки ваал
 
-**Range config:** Waystone implicit ranges use [0, 250] (unrestricted) since exact in-game ranges are unconfirmed. Tablet implicit tokens use fixed values where applicable.
+**Range config:** Waystone implicit ranges use [0, 350] (unrestricted, with margin for high-tier waystones). Reversed regex for implicits verified in-game (`"Шанс выпадения путевого камня.*85%"` works). Tablet implicit tokens use fixed values where applicable.
 
 **`run-etl.ts` integration:** After Step 2 (normalize), `runEtl()` calls `filterImplicitSetBonuses()` and `getImplicitTokensForCategory()`, appending implicit tokens to the normalized mod list before regex computation.
 

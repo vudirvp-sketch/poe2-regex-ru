@@ -100,11 +100,9 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **In-game testing of waystone #% mods** — Regex `"(1[5-9]|2[0-4]).*области путевых камней"` (without `%` anchor) needs in-game verification. The `%` anchor was removed for `#%` values-only mods because it caused 100% FN (items always have range notation like "На 15(15-24)%..."). Enumeration without `%` may have FP from range notation numbers.
-2. **Priority tier refinement** — Validate tier classifications against live trade data.
-3. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, no current solution.
-4. **Icon normalization** — Icons have different aspect ratios (relic 45×89, belt 94×39). CSS maxHeight/maxWidth handles display, but could pre-normalize to square canvases.
-5. **PoE2 regex dialect `()` + `|` inside quoted groups** — Simulation says it works, but waystone mods didn't highlight in-game. After removing `%` anchor, re-test. If still broken, may need separate quoted groups.
+1. **Priority tier refinement** — Validate tier classifications against live trade data.
+2. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, no current solution.
+3. **Icon normalization** — Icons have different aspect ratios (relic 45×89, belt 94×39). CSS maxHeight/maxWidth handles display, but could pre-normalize to square canvases.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.

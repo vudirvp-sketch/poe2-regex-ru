@@ -15,36 +15,17 @@
 - ✅ Waystone ETL реструктуризация: убраны implicit-set бонусы, добавлены implicit токены с reversed regex.
 - ✅ AffixType 'implicit': добавлен в типы, классификатор, family-grouper, UI.
 - ✅ Reversed RANGE: compiler поддерживает `reversed: true` → `"suffix.*(range)%"`.
-- ✅ **ETL pipeline автоматизация**: `normalize.ts` + `run-etl.ts` автоматически фильтруют implicit-set бонусы и генерируют implicit токены. Скрипт `restructure-implicits.ts` больше не нужен при будущих ETL-запусках.
-- ✅ **Waystone implicit ranges**: диапазоны установлены 0-250 (не подтверждены в игре, используются свободные).
-
----
-
-## Активные проблемы
-
-### P3: Block model ретест B1-B2 (MEDIUM)
-
-`"35%.*к сопротивлению молнии"` матчит кольцо с +35% cold + +41% lightning (разные аффиксы). Нужен ретест в игре:
-
-| # | Regex | Цель | Статус |
-|---|-------|------|--------|
-| B1 | `"35%.*к сопротивлению холоду"` | `.*` в пределах одного блока? | ⬜ Требуется проверка в игре |
-| B2 | `"+66.*к силе"` | `.*` через prefix→suffix? | ⬜ Требуется проверка в игре |
+- ✅ ETL pipeline автоматизация: `normalize.ts` + `run-etl.ts` автоматически фильтруют implicit-set бонусы и генерируют implicit токены.
+- ✅ **Block model B1-B2 VERIFIED**: `.*` НЕ пересекает границы аффикс-блоков. Подтверждено в игре: `"35%.*к сопротивлению молнии"` → только кольцо с +35% lightning, НЕ кольцо с +35% cold + +41% lightning (разные аффиксы/блоки).
+- ✅ **Waystone implicit reversed regex VERIFIED**: `"Шанс выпадения путевого камня.*85%"` работает в игре.
+- ✅ **Tablet implicit regex VERIFIED**: `"Осталось зарядов.*3"` и `"алтари Ритуала"` работают в игре.
+- ✅ **Waystone implicit ranges**: обновлены до [0, 350] (с запасом для high-tier путевых камней).
 
 ---
 
 ## Известные ограничения
 
-1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring
-2. **Waystone implicit ranges не подтверждены** — используются 0-250, точные диапазоны требуют проверки в игре
-
----
-
-## Следующие шаги
-
-1. Проверить waystone implicit regex в игре (reversed regex)
-2. Проверить tablet implicit regex в игре
-3. Block model ретест B1-B2 в игре
+1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен от range notation в описательной строке мода.
 
 ---
 
