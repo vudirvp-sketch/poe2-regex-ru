@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 84.0 | **Date:** 2026-06-09 | **Tests:** 666 (Vitest)
+> **Version:** 85.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -16,7 +16,7 @@
 | `src/shared/` | Types, i18n, classifier, priority tiers. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `tests/` | Test files mirror `src/` structure. | 22 files, 666 tests. |
+| `tests/` | Test files mirror `src/` structure. | 23 files, 693 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -36,7 +36,7 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru               # Run tests (666, Vitest)
+npx vitest run --root /home/z/my-project/poe2-regex-ru               # Run tests (693, Vitest)
 pnpm etl                                                              # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate                                                # ETL + flat-text Oracle validation
 pnpm etl -- --validate-item                                           # ETL + block-based Oracle validation
@@ -60,7 +60,7 @@ pnpm optimize:dry                                                     # Dry-run 
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (666 tests)
+- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (693 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -94,6 +94,7 @@ shared <- core <- strategies <- store <- data <- ui
 - pnpm is the ONLY package manager. Never use npm or yarn.
 - Locale type is `'ru'` now. Type system must support extension (`Locale = 'ru' | 'en' | ...`).
 - PoE2 regex dialect is NOT standard PCRE — see `docs/ARCHITECTURE.md` §5.
+- **tsconfig.app.json includes ONLY `src/`** — tests and scripts are NOT compiled by `tsc -b` (production build). Tests run via vitest, scripts via tsx.
 
 ---
 

@@ -157,11 +157,9 @@ describe('% Anchor FN: realistic in-game text with range notation', () => {
   const ring26FP = { mods: ['+26(27-50)% к сопротивлению огню'] };
 
   // Belt items
-  const belt27Simple = { mods: ['+27% к сопротивлению хаосу'] };
   const belt27Range = { mods: ['+27(22-27)% к сопротивлению хаосу'] };
 
   // Amulet items
-  const amulet25Simple = { mods: ['+25% к сопротивлению холоду'] };
   const amulet25Range = { mods: ['+25(21-25)% к сопротивлению холоду'] };
 
   describe('WITHOUT % anchor: enumeration matches both plain and range notation', () => {

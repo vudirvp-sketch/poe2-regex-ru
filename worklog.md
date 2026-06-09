@@ -48,3 +48,22 @@ Stage Summary:
 - Waystone implicit ranges updated to [0, 350]
 - Documentation cleaned and all in-game test results documented
 - All 693 tests pass
+
+---
+Task ID: 3
+Agent: Main
+Task: Fix broken GitHub Actions deployment (run #124, exit code 2)
+
+Work Log:
+- Analyzed failed CI run: `tsc -b` fails with TS6133 on 2 unused variables in test file
+- Root cause: `tsconfig.app.json` included `["src", "tests", "scripts"]` — production build type-checked test files
+- Fix: Changed `tsconfig.app.json` include to `["src"]` only — tests run via vitest, scripts via tsx
+- Removed `@etl/*` path from tsconfig.app.json (not used by src/)
+- Removed unused `belt27Simple` and `amulet25Simple` from waystone-anchor-tests.test.ts
+- Verified: `pnpm build` succeeds, all 693 tests pass
+- Updated docs: STATUS.md (cleaned), AGENT_NAVIGATION.md (test count, tsconfig invariant)
+
+Stage Summary:
+- Deploy fix: tsconfig.app.json include restricted to `["src"]` — architectural fix, not a workaround
+- Build passes, 693 tests pass
+- Documentation updated and cleaned

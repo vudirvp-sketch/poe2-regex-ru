@@ -25,9 +25,8 @@
       "@store/*": ["src/store/*"],
       "@data/*": ["src/data/*"],
       "@shared/*": ["src/shared/*"],
-      "@strategies/*": ["src/strategies/*"],
-      "@etl/*": ["scripts/etl/*"]
+      "@strategies/*": ["src/strategies/*"]
     }
   },
-  "include": ["src", "tests", "scripts"]
+  "include": ["src"]
 }
