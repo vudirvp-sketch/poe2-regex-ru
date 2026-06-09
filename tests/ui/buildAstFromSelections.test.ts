@@ -375,4 +375,69 @@ describe('buildAstFromSelections', () => {
     // No % after number pattern
     expect(result).not.toContain('%');
   });
+
+  it('#% values-only token does NOT get anchorEnd (waystone "На #% больше...")', () => {
+    // Bug fix: #% single-hash values-only mods (like "На #% больше находимых в области путевых камней")
+    // always display range notation in-game (e.g. "На 15(15-24)%..."), so anchorEnd='%'
+    // would cause 100% FN because % never immediately follows the number.
+    // Only ##% (double hash) templates should get anchorEnd='%'.
+    const tokens = [
+      makeRangedToken('ws_t1', 'области путевых камней', 'области путевых камней', [], {
+        rawTextTemplate: { ru: 'На #% больше находимых в области путевых камней' },
+        values: [15],
+        ranges: [],
+      }),
+    ];
+
+    // Need per-token range since values-only tokens need overrides
+    const perTokenRanges = { 'ws_t1': { min: 15, max: 24, filterSlotIndex: 0 } };
+    const ast = buildAstFromSelections(tokens, false, null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // Should NOT have % after the number pattern — enumeration only
+    expect(result).not.toContain('%');
+    expect(result).toContain('области путевых камней');
+    // Should be: "(1[5-9]|2[0-4]).*области путевых камней" (without %)
+    expect(result).toBe('"(1[5-9]|2[0-4]).*области путевых камней"');
+  });
+
+  // ─── excludeMode with ranged tokens (Bug fix) ───
+
+  it('excludeMode with ranged token wraps RANGE in EXCLUDE(OR)', () => {
+    // Bug: when excludeMode=true, ranged tokens were NOT wrapped in EXCLUDE,
+    // producing the same regex as excludeMode=false.
+    const tokens = [
+      makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
+    ];
+
+    const astExclude = buildAstFromSelections(tokens, true, 27, 30, false, LOCALE, {}, 'and');
+    expect(astExclude).not.toBeNull();
+
+    const resultExclude = compile(astExclude!, { round10: false });
+    // Exclude mode should wrap the range pattern in !(...|...)
+    expect(resultExclude).toContain('!');
+    expect(resultExclude).toContain('к сопротивлению огню');
+
+    // Verify it's DIFFERENT from non-exclude mode
+    const astNormal = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    const resultNormal = compile(astNormal!, { round10: false });
+    expect(resultExclude).not.toBe(resultNormal);
+  });
+
+  it('excludeMode with mixed ranged and non-ranged tokens produces single EXCLUDE(OR)', () => {
+    const tokens = [
+      makeToken('life_t1', 'к максимуму здоровья', 'к максимуму здоровья'),
+      makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
+    ];
+
+    const ast = buildAstFromSelections(tokens, true, 25, null, false, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // Both ranged and non-ranged should be inside a single !A|B quoted group
+    expect(result).toContain('!');
+    expect(result).toContain('к максимуму здоровья');
+    expect(result).toContain('к сопротивлению огню');
+  });
 });

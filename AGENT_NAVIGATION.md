@@ -64,16 +64,18 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing. Verify waystone values-only tokens now produce numeric range regex with `%` suffix anchor (e.g., `"(1[5-9]|2[0-4])%.*области путевых камней"`). Verify per-chip range no longer produces duplicate quoted groups.
+1. **In-game testing of waystone #% mods** — Regex `"(1[5-9]|2[0-4]).*области путевых камней"` (without `%` anchor) needs in-game verification. The `%` anchor was removed for `#%` values-only mods because it caused 100% FN (items always have range notation like "На 15(15-24)%..."). The enumeration without `%` anchor may have FP from range notation numbers — needs testing.
 2. **Priority tier refinement** — Validate tier classifications against live trade data.
 3. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` suffix anchoring is available. These mods may still have FP from range notation numbers. No current solution — may need to accept as known limitation.
 4. **Icon normalization** — Current icons have different aspect ratios (relic 45×89, belt 94×39, vendor 93×77). CSS maxHeight/maxWidth constraints handle display, but icons could be pre-normalized to square canvases in a future iteration for pixel-perfect consistency.
+5. **PoE2 regex dialect `()` + `|` inside quoted groups** — Our simulation says `(1[5-9]|2[0-4])%.*suffix` works, but in-game testing of waystone mods showed it didn't highlight. After removing `%` anchor, re-test in-game. If still broken, may need to split into separate quoted groups or investigate PoE2's handling of `()` + `|`.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough for tablet category; no cross-family FP expected.
 3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, so priority filter toggle is not shown.
 4. **Origin color mapping (v4 palette)** — Очернённые=emerald/dark-green, Осквернённые=red/crimson, Сущность=amber/noble-gold, Разлом=violet/purple. Defined in `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`.
+5. **GitHub Pages 404 in DevTools** — SPA routes like `/jewel` show 404 in Chrome DevTools Network tab on GitHub Pages (with `:1` line annotation). This is expected — `404.html` handles the redirect. Not an app bug.
 
 ## 7. Regex Strategy Pipeline
 
@@ -286,28 +288,27 @@ Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапа�
 
 **Test coverage:** 14 tests in `compiler.test.ts` (6) and `phase-9b-anchor-start.test.ts` (8).
 
-## 22b. % Suffix Anchor / anchorEnd (Session 79)
+## 22b. % Suffix Anchor / anchorEnd (Session 79, updated Session 84)
 
 **Verified in-game (Phase 9c):** `%` suffix anchor prevents range notation FP for `+##%` accessory mods where `^` cannot be used. Implementation:
 
 | Component | Role |
 |-----------|------|
-| `ASTNode.anchorEnd` | Optional string on RANGE node. Typically `'%'` for `##%` or `+##%` mods. |
+| `ASTNode.anchorEnd` | Optional string on RANGE node. Typically `'%'` for `##%` mods. |
 | `range()` builder | `range(min, max, suffix, prefix, exact, anchorStart, anchorEnd)` in `ast.ts` |
 | Compiler | Inserts `anchorEnd` string after number pattern, before `.*suffix` |
-| `useCategoryPage.ts` | Detects `numberFollowedByPercent` via `/##?%/` on `rawTextTemplate[locale]` — matches `#%` or `##%` anywhere in template |
+| `useCategoryPage.ts` | Detects `numberFollowedByDoubleHashPercent` via `/##%/` on `rawTextTemplate[locale]` — matches only `##%` (double hash) |
 | `normalizeAst` | Propagates `anchorEnd` to both children in AND fallback |
 
 **When `%` suffix anchor is added:**
 - Template matches `+##%` (accessory mods) AND `anchorStart=false` → `anchorEnd='%'`
-- Template contains `#%` (values-only mods like "На #% больше...") AND `anchorStart=false` → `anchorEnd='%'`
 - Example: ring mod `+##% к сопротивлению огню` → `"(2[7-9]|30)%.*к сопротивлению огню"`
-- Example: waystone mod `На #% больше находимых в области путевых камней` → `"(1[5-9]|2[0-4])%.*области путевых камней"`
 
 **When `%` suffix anchor is NOT added:**
 - Template starts with `##%` (tablet/waystone mods) → `anchorStart=true` with `^` is sufficient, `%` not needed (avoids FN risk)
 - Template doesn't have `%` after number (e.g. `+## к силе`) → no character to anchor on
 - Template has `prefix` set (dual-number mods) → prefix anchors instead
+- Template has `#%` (single hash, values-only like "На #% больше...") → `anchorEnd` causes 100% FN because items ALWAYS have range notation (e.g. "На 15(15-24)%..."). Only `##%` (double hash) templates get `anchorEnd`.
 
 **Three-level FP prevention strategy:**
 
@@ -317,7 +318,7 @@ Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапа�
 | 2 | `%` (anchorEnd) | `+##%` mods, anchorStart=false | Range notation numbers not followed by `%` | Items with range notation on actual roll |
 | 3 | Enumeration | Range ≤ 50 | Secondary numbers not matching enumerated values | None |
 
-**Test coverage:** 23 tests in `compiler.test.ts` (7 anchorEnd), `phase-9c-anchor-end.test.ts` (13), `buildAstFromSelections.test.ts` (3 anchorEnd integration).
+**Test coverage:** 24 tests in `compiler.test.ts` (7 anchorEnd), `phase-9c-anchor-end.test.ts` (13), `buildAstFromSelections.test.ts` (4 anchorEnd integration).
 
 ## 23. i18n Conventions
 

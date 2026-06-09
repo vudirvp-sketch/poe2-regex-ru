@@ -447,16 +447,23 @@ body {
 
 /* Selected chips with range inputs: force full-width to prevent overlap.
    When a chip expands to show ≥/≤ inputs, it needs its own line
-   so it doesn't overlap with the next chip in the flex-wrap container. */
+   so it doesn't overlap with the next chip in the flex-wrap container.
+   Uses display:flex (not inline-flex) + flex-wrap:wrap so range inputs
+   can flow naturally within the chip without overflowing. */
 .mod-list .chip-with-range,
 .virtualized-mod-list .chip-with-range {
+  display: flex;
+  flex-wrap: wrap;
   flex-basis: 100%;
   max-width: 100%;
+  width: 100%;
 }
 
 /* Prevent range input rows from overflowing chip containers */
-.mod-list .inline-flex .flex.items-center.gap-1,
-.mod-list .inline-flex .flex.flex-col.gap-0\.5 {
+.mod-list .chip-with-range .flex.items-center.gap-1,
+.mod-list .chip-with-range .flex.flex-col.gap-0\.5,
+.virtualized-mod-list .chip-with-range .flex.items-center.gap-1,
+.virtualized-mod-list .chip-with-range .flex.flex-col.gap-0\.5 {
   min-width: 0;
   flex-shrink: 1;
 }

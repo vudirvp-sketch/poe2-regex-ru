@@ -493,21 +493,29 @@ export function buildAstFromSelections(
           return template && /^##/.test(template);
         });
 
-        // Determine anchorEnd: when rawTextTemplate has ##% or #% (number followed by %),
+        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
         // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
         // Verified in-game (Phase 9c): (2[7-9]|30)%.*suffix prevents FP because
         // numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
         // Only set when anchorStart=false (for +##% mods where ^ cannot be used),
         // because ^ already prevents FP for ##% mods and anchorEnd has FN risk
         // on items where the actual roll has range notation (e.g. 27(22-27)%).
-        // Also detects #% in the middle of templates (e.g., "На #% больше...").
-        const numberFollowedByPercent = group.tokens.some(t => {
+        //
+        // CRITICAL: Only set anchorEnd for ##% (double hash) templates, NOT for
+        // #% (single hash) values-only templates. Reason: values-only mods like
+        // "На #% больше..." always display range notation in-game (e.g. "На 15(15-24)%..."),
+        // meaning the % never immediately follows the number — anchorEnd='%' causes
+        // 100% FN for these mods. For ##% ranged mods (e.g. "+##% к сопротивлению"),
+        // some items DON'T have range notation (showing just "+27%..."), so the %
+        // anchor works for those items (known FN risk on items with range notation).
+        const numberFollowedByDoubleHashPercent = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
-          return template && /##?%/.test(template);
+          return template && /##%/.test(template);
         });
-        // Use anchorEnd only when anchorStart is false — for +##% accessory mods.
-        // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.
-        const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
+        // Use anchorEnd only when:
+        // 1. anchorStart is false (for +##% accessory mods where ^ can't be used)
+        // 2. Template has ##% (double hash), NOT #% (single hash values-only)
+        const anchorEndValue = (!numberAtStart && numberFollowedByDoubleHashPercent) ? '%' : undefined;
 
         const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined, anchorEndValue);
 
@@ -543,8 +551,10 @@ export function buildAstFromSelections(
             }
           }
         }
+        // In exclude mode: nodeWithExcludes stays as raw rangeNode.
+        // It will be collected into orChildren and wrapped in EXCLUDE(OR) at the end.
 
-        if (searchLogic === 'or') {
+        if (excludeMode || searchLogic === 'or') {
           orChildren.push(nodeWithExcludes);
         } else {
           andChildren.push(nodeWithExcludes);
@@ -568,15 +578,23 @@ export function buildAstFromSelections(
   }
 
   // Combine orChildren into andChildren
-  if (searchLogic === 'or' && orChildren.length > 0) {
-    // OR mode: all selected mods go into a single OR group
+  if (orChildren.length > 0) {
     if (excludeMode) {
+      // Exclude mode: wrap ALL orChildren in a single EXCLUDE(OR(...))
+      // This applies to both ranged and non-ranged tokens.
       andChildren.push(exclude(or(...orChildren)));
-    } else {
+    } else if (searchLogic === 'or') {
+      // OR mode: all selected mods go into a single OR group
       if (orChildren.length === 1) {
         andChildren.push(orChildren[0]);
       } else {
         andChildren.push(or(...orChildren));
+      }
+    } else {
+      // AND mode: orChildren should have been pushed to andChildren individually,
+      // but if any ended up here, handle them
+      for (const child of orChildren) {
+        andChildren.push(child);
       }
     }
   }
