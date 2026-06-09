@@ -1,26 +1,26 @@
-# Worklog
-
 ---
-Task ID: doc-audit-1
-Agent: Main Agent
-Task: Audit and rewrite documentation for LLM/agent optimization
+Task ID: 1
+Agent: main
+Task: In-game testing batch for waystone regex + % anchor FN fix
 
 Work Log:
-- Read all documentation files: AGENT_NAVIGATION.md, docs/ARCHITECTURE.md, docs/DATA_CONTRACTS.md, docs/ETL_GUIDE.md, docs/IN_GAME_TESTS.md, новый_план.md, worklog.md, регис/* files
-- Verified code vs docs consistency (types.ts, filter-store.ts, compiler.ts, ast.ts, useCategoryPage.ts, mod-classifier.ts, vendor-properties.ts, package.json, etc.)
-- Found test count discrepancy: docs said 663, actual is 666
-- Found anchorEnd regex mismatch: ARCHITECTURE §7 said `/##?%/` but code uses `/##%/`
-- Found CategoryLabel missing `iconPath` field in docs
-- Found TokenRangeOverride/SlotRangeOverride not documented in DATA_CONTRACTS
-- Found duplicated info across docs (bug fix logs in both AGENT_NAVIGATION and ARCHITECTURE)
-- Found AGENT_NAVIGATION.md bloated with UI sizing details, ARIA patterns, visual hierarchy — all belong in ARCHITECTURE
-- Found IN_GAME_TESTS.md very verbose with already-verified results
+- Cloned repo https://github.com/vudirvp-sketch/poe2-regex-ru
+- Analyzed project structure: compiler.ts, poe2-regex-matcher.ts, useCategoryPage.ts, number-regex.ts
+- Identified root cause of % anchor FN: PoE2 indexes text WITH range notation, so `+27(22-27)%` means number is followed by `(` not `%`
+- Created test battery in IN_GAME_TESTS.md: W1-W12 (waystone), P1-P8 (% anchor), C1-C6 (cross-category)
+- Created waystone-anchor-tests.test.ts with 30 unit tests using realistic in-game text
+- Fixed % anchor: disabled anchorEnd='%' in useCategoryPage.ts (line 518 → const anchorEndValue = undefined)
+- Updated phase-9c-anchor-end.test.ts to reflect the REVISED decision
+- Updated buildAstFromSelections.test.ts to expect no % in compiled regex
+- All 691 tests pass
+- Verified chip-with-range CSS is correct (flex-basis: 100%, flex-wrap: wrap)
+- Updated STATUS.md with active problems and known limitations
+- Packaged archive and uploaded to tmpfiles.org
 
 Stage Summary:
-- Rewrote AGENT_NAVIGATION.md: 330→180 lines, moved UI details to ARCHITECTURE, fixed test count, fixed anchorEnd description, renumbered sections
-- Rewrote ARCHITECTURE.md: removed historical bug fix log (v33-v42), added CategoryLabel.iconPath, fixed anchorEnd detection to match code (`/##%/`), compressed visual hierarchy, added documentation map reference
-- Rewrote DATA_CONTRACTS.md: added TokenRangeOverride, SlotRangeOverride, CategoryLabel, FamilyGroup.priorityTier, OptimizationEntry.regexPrefixContext/regexExclude, updated ASTNode with anchorStart/anchorEnd
-- Rewrote ETL_GUIDE.md: added Steps 7-8 (FP repair, optimization entry patching), added runtime consumption section, added CONFLICT_MARKERS
-- Rewrote IN_GAME_TESTS.md: 530→120 lines, compressed verified tests to summary tables, kept only unresolved items in full detail
-- Created STATUS.md (replacing новый_план.md): clean project status, removed completed items, current bugs/limitations
-- Deleted новый_план.md (replaced by STATUS.md)
+- % anchor FN fix: anchorEnd disabled for +##% accessory mods (useCategoryPage.ts)
+- Waystone regex: test battery created for in-game diagnosis (IN_GAME_TESTS.md W1-W12)
+- 30 new unit tests added (waystone-anchor-tests.test.ts)
+- Phase 9c tests revised (8 tests, was 14)
+- Archive: https://tmpfiles.org/api/v1/download/w4wmZW4PDgbR/poe2-regex-ru-iter1.zip
+- Stopping point: Waystone regex root cause still unknown — needs in-game testing with W1-W12 battery

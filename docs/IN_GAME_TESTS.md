@@ -11,7 +11,7 @@
 
 | Feature | Status | Key test |
 |---------|--------|----------|
-| `|` OR without `()` | ✅ | `"огня\|холоду"` → 3 items |
+| `\|` OR without `()` | ✅ | `"огня\|холоду"` → 3 items |
 | `()` grouping | ✅ | `"(огня\|холоду)"` → same as without |
 | `\|` inside `()` with number ranges | ✅ | `"([3-9][0-9]\|[0-9][0-9][0-9]).*к сопротивлению молнии"` |
 | `\d` digit shorthand | ✅ | `"\d.*к максимуму здоровья"` |
@@ -47,26 +47,76 @@
 | Method | Status | Key test | Regex |
 |--------|--------|----------|-------|
 | `^` anchor (anchorStart) | ✅ | Phase 9b | `"^(2[7-9]\|30).*откладывания наград"` → only 27%, 30% |
-| `%` suffix anchor (anchorEnd) | ✅ | Phase 9c | `"(2[7-9]\|30)%.*откладывания наград"` → only 27%, 30% |
-| Enumeration without anchors | ⚠️ | Phase 9a | Compact and flat both FP when range notation contains matching number |
+| `%` suffix anchor (anchorEnd) | ❌ | Phase 9c REVISED | `"(2[7-9]\|30)%.*suffix"` → FN on items with range notation |
+| Enumeration without anchors | ⚠️ | Phase 9a | FP when range notation contains matching number |
 
-**Key discovery:** AND of two quoted groups for same suffix does NOT work as numeric range — secondary numbers from range notation satisfy each group independently. Enumeration solves this for non-overlapping values. `^` and `%` anchors solve remaining FP.
+**Key discovery:** `%` suffix anchor causes FN (false negatives) on items where in-game text shows range notation — e.g., `+27(22-27)%` means `27` is followed by `(` not `%`. In-game testing confirms this FN is widespread. **`%` anchor is now DISABLED for `+##%` accessory mods.** Enumeration alone provides FP protection for narrow ranges.
 
 ---
 
-## Unresolved Tests
+## Active Test Battery
 
-### Waystone #% values-only mods (PRIORITY: HIGH)
+### Waystone Number Range Regex — PRIORITY: CRITICAL
 
-Regex `"(1[5-9]|2[0-4]).*области путевых камней"` (without `%` anchor) needs in-game verification. `%` anchor was removed for `#%` values-only tokens because it causes 100% FN.
+**Problem:** `"(1[5-9]|2[0-4]).*области путевых камней"` doesn't work in-game. Neither does the alternative split into separate quoted groups. Need to isolate the root cause.
 
-### Groups A-F (fundamental, partially verified)
+**Test items needed:** Waystones with "На #% больше находимых в области путевых камней" mod (values 15, 18, 20, 24).
 
-These hypothesis tests are largely covered by the verified results above. Remaining unverified:
+| # | Hypothesis | Regex to test | Expected | Actual |
+|---|-----------|---------------|----------|--------|
+| W1 | Simple suffix match | `"области путевых камней"` | Matches any waystone with this mod | ⬜ |
+| W2 | Number literal + suffix | `"15.*области путевых камней"` | Matches waystone with value 15 | ⬜ |
+| W3 | Char class + suffix | `"1[5-9].*области путевых камней"` | Matches 15-19 | ⬜ |
+| W4 | `()` + 2 literal OR | `"(15\|16).*области путевых камней"` | Matches 15 or 16 | ⬜ |
+| W5 | `()` + char class OR | `"(1[5-9]\|2[0-4]).*области путевых камней"` | Matches 15-24 | ⬜ |
+| W6 | OR without `()` | `"1[5-9]\|2[0-4].*области путевых камней"` | Ambiguous binding — test behavior | ⬜ |
+| W7 | Separate AND groups (incorrect) | `"1[5-9].*области путевых камней" "2[0-4].*области путевых камней"` | Should NOT work (AND, not OR) | ⬜ |
+| W8 | Shorter suffix | `"(1[5-9]\|2[0-4]).*путевых камней"` | Shorter regex — test length limits | ⬜ |
+| W9 | Enumeration flat | `"(15\|16\|17\|18\|19\|20\|21\|22\|23\|24).*области путевых камней"` | Test length limit | ⬜ |
+| W10 | Char class without `()` | `"1[5-9].*области путевых камней"` | Single decade — simpler pattern | ⬜ |
+| W11 | `^` anchor + `#%` mod | `"^(1[5-9]\|2[0-4]).*области путевых камней"` | Number at start of block? | ⬜ |
+| W12 | Suffix-only fallback | `"путевых камней"` | Minimal match — verify text indexed | ⬜ |
 
-- **C1/C2:** Cross-category conflicts ("молнии", "к силе") — likely fine but no direct in-game confirmation
-- **E1-E3:** Waystone-specific patterns — partial coverage from M-group tests
-- **F1-F3:** Edge cases (empty search, very long regex, special chars) — low priority
+**Diagnosis flow:**
+1. If W1 fails → waystone mod text not indexed / text format different than expected
+2. If W1 ✅ but W2 fails → number + `.*` + suffix combination broken for waystones
+3. If W2 ✅ but W3 fails → char class `[]` broken with `.*` + suffix
+4. If W3 ✅ but W5 fails → `()` + `|` + char class + `.*` binding issue
+5. If W5 ✅ but not in practice → length limit or item text format issue
+6. If W8 ✅ but W5 fails → regex length limit in PoE2
+7. If W9 fails but W5 ✅ → flat enumeration too long
+
+### % Suffix Anchor — PRIORITY: HIGH
+
+**Problem:** `anchorEnd='%'` causes FN on `+##%` accessory mods because in-game text shows range notation where `%` never immediately follows the number.
+
+**Test items needed:** Ring/amulet/belt with `+##% к сопротивлению ...` mods.
+
+| # | Hypothesis | Regex to test | Expected | Actual |
+|---|-----------|---------------|----------|--------|
+| P1 | `%` after number WITHOUT range notation | `"27%.*к сопротивлению огню"` | Matches item showing `+27%` without range | ⬜ |
+| P2 | `%` after number WITH range notation | `"27%.*к сопротивлению огню"` | Does NOT match `+27(22-27)%...` | ⬜ |
+| P3 | Enumeration without `%` anchor | `"(2[7-9]\|30).*к сопротивлению огню"` | Matches both plain and range notation items | ⬜ |
+| P4 | `)%` as flexible anchor | `")%.*к сопротивлению огню"` | Matches `+(22—27)%...` format | ⬜ |
+| P5 | Does game always show range notation? | `"27%.*к сопротивлению"` | If 0 matches → always range notation in search | ⬜ |
+| P6 | Enumeration on ring with range notation | `"(2[7-9]\|30).*к сопротивлению огню"` | FP on `+26(27-50)%...`? | ⬜ |
+| P7 | Belt `+##%` mod | `"30%.*к сопротивлению хаосу"` | Test belt specifically | ⬜ |
+| P8 | Amulet `+##%` mod | `"25%.*к сопротивлению холоду"` | Test amulet specifically | ⬜ |
+
+**Key question:** Does PoE2's search index text WITH or WITHOUT range notation? If always WITH → `%` anchor is 100% FN.
+
+### Cross-Category % Anchor — PRIORITY: MEDIUM
+
+**Problem:** User reports `%` anchor breaks matching "not only there" — need to identify all affected categories.
+
+| # | Category | Template pattern | anchorEnd set? | Test result |
+|---|----------|-----------------|----------------|-------------|
+| C1 | Ring `+##%` | `+##% к сопротивлению ...` | Yes → '%' | ⬜ |
+| C2 | Amulet `+##%` | `+##% к сопротивлению ...` | Yes → '%' | ⬜ |
+| C3 | Belt `+##%` | `+##% к сопротивлению ...` | Yes → '%' | ⬜ |
+| C4 | Waystone `#%` | `На #% больше ...` | No (correct) | ⬜ |
+| C5 | Tablet `##%` | `##% уменьшение ...` | No (^ only) | ⬜ |
+| C6 | Jewel `##%` | `##% повышение ...` | Depends on template | ⬜ |
 
 ---
 

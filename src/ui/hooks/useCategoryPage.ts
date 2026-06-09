@@ -493,29 +493,26 @@ export function buildAstFromSelections(
           return template && /^##/.test(template);
         });
 
-        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
-        // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
-        // Verified in-game (Phase 9c): (2[7-9]|30)%.*suffix prevents FP because
-        // numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
-        // Only set when anchorStart=false (for +##% mods where ^ cannot be used),
-        // because ^ already prevents FP for ##% mods and anchorEnd has FN risk
-        // on items where the actual roll has range notation (e.g. 27(22-27)%).
+        // Determine anchorEnd: DISABLED for +##% accessory mods.
         //
-        // CRITICAL: Only set anchorEnd for ##% (double hash) templates, NOT for
-        // #% (single hash) values-only templates. Reason: values-only mods like
-        // "На #% больше..." always display range notation in-game (e.g. "На 15(15-24)%..."),
-        // meaning the % never immediately follows the number — anchorEnd='%' causes
-        // 100% FN for these mods. For ##% ranged mods (e.g. "+##% к сопротивлению"),
-        // some items DON'T have range notation (showing just "+27%..."), so the %
-        // anchor works for those items (known FN risk on items with range notation).
-        const numberFollowedByDoubleHashPercent = group.tokens.some(t => {
-          const template = t.rawTextTemplate[locale];
-          return template && /##%/.test(template);
-        });
-        // Use anchorEnd only when:
-        // 1. anchorStart is false (for +##% accessory mods where ^ can't be used)
-        // 2. Template has ##% (double hash), NOT #% (single hash values-only)
-        const anchorEndValue = (!numberAtStart && numberFollowedByDoubleHashPercent) ? '%' : undefined;
+        // REASON (in-game testing, Phase 9c REVISED):
+        // PoE2's search indexes text WITH range notation. In-game text format:
+        //   "+27(22-27)% к сопротивлению огню"
+        // Here "27" is followed by "(" not "%" — so anchorEnd='%' causes FN
+        // on ALL items with range notation (which is most items in practice).
+        //
+        // Previous Phase 9c verification used simplified text without range
+        // notation ("+27% ..."), which passed. But real in-game items always
+        // show range notation in search results, making % anchor 100% FN.
+        //
+        // Tradeoff: WITHOUT % anchor, enumeration has potential FP from range
+        // notation secondary numbers (e.g., "+26(27-50)%" matches "(2[7-9]|30)"),
+        // but this is better than 100% FN. Enumeration alone provides adequate
+        // FP protection for narrow ranges.
+        //
+        // anchorStart (^) is still used for ##% mods where number starts the block
+        // (tablets, waystones) because ^ doesn't have this FN issue.
+        const anchorEndValue = undefined;
 
         const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined, anchorEndValue);
 

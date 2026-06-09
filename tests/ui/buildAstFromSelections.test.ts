@@ -324,9 +324,11 @@ describe('buildAstFromSelections', () => {
 
   // ─── anchorEnd (%) suffix anchoring tests (Phase 9c) ───
 
-  it('+##% token gets anchorEnd="%" (accessory mod, anchorStart=false)', () => {
-    // For +##% mods (accessories), anchorStart=false (template starts with +)
-    // but anchorEnd='%' should be set to prevent range notation FP
+  it('+##% token does NOT get anchorEnd="%" (disabled due to FN on range notation)', () => {
+    // For +##% mods (accessories), anchorStart=false (template starts with +).
+    // anchorEnd='%' was DISABLED after in-game testing confirmed it causes FN:
+    // PoE2 indexes text WITH range notation, e.g., "+27(22-27)%", where "27"
+    // is followed by "(" not "%" → % anchor = 100% FN on range notation items.
     const tokens = [
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]], {
         rawTextTemplate: { ru: '+##% к сопротивлению огню' },
@@ -337,8 +339,8 @@ describe('buildAstFromSelections', () => {
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
-    // Should have % after number pattern: (2[7-9]|30)%.*к сопротивлению огню
-    expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
+    // No % after number pattern — anchorEnd disabled
+    expect(result).toBe('"(2[7-9]|30).*к сопротивлению огню"');
   });
 
   it('##% token gets anchorStart=true but NOT anchorEnd (tablet/waystone mod)', () => {
