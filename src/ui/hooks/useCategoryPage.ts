@@ -493,26 +493,24 @@ export function buildAstFromSelections(
           return template && /^##/.test(template);
         });
 
-        // Determine anchorEnd: DISABLED for +##% accessory mods.
+        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
+        // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
         //
-        // REASON (in-game testing, Phase 9c REVISED):
-        // PoE2's search indexes text WITH range notation. In-game text format:
-        //   "+27(22-27)% к сопротивлению огню"
-        // Here "27" is followed by "(" not "%" — so anchorEnd='%' causes FN
-        // on ALL items with range notation (which is most items in practice).
+        // RE-ENABLED (in-game testing, Tablet Battery + Accessory Retest 2026-06-10):
+        // PoE2 dual-indexes BOTH simplified ("39% suffix") AND detailed ("39(30-40)% suffix").
+        // The % anchor matches the simplified display, preventing FP from range notation
+        // secondary numbers (e.g., "30" in "(30-40)%" is NOT followed by "%").
         //
-        // Previous Phase 9c verification used simplified text without range
-        // notation ("+27% ..."), which passed. But real in-game items always
-        // show range notation in search results, making % anchor 100% FN.
+        // Verified: "39%.*suffix" → exact match. "39.*suffix" → FP from range notation.
+        // Verified on tablets AND accessories (rings, amulets).
         //
-        // Tradeoff: WITHOUT % anchor, enumeration has potential FP from range
-        // notation secondary numbers (e.g., "+26(27-50)%" matches "(2[7-9]|30)"),
-        // but this is better than 100% FN. Enumeration alone provides adequate
-        // FP protection for narrow ranges.
-        //
-        // anchorStart (^) is still used for ##% mods where number starts the block
-        // (tablets, waystones) because ^ doesn't have this FN issue.
-        const anchorEndValue = undefined;
+        // Use anchorEnd only when anchorStart is false — for +##% accessory mods.
+        // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.
+        const numberFollowedByPercent = group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /^[\+]?##%/.test(template);
+        });
+        const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
 
         const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined, anchorEndValue);
 

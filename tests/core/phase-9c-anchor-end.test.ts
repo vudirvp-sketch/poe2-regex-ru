@@ -1,43 +1,70 @@
 /**
- * Phase 9c: Suffix Anchoring (anchorEnd) — REVISED after in-game testing.
+ * Phase 9c: Suffix Anchoring (anchorEnd) — RE-ENABLED after dual-indexing verification.
  *
  * ORIGINAL FINDING (Phase 9c): For +##%-prefix mods (accessories),
  * '%' after the number can prevent range notation FP. Pattern:
  *   "(2[7-9]|30)%.*suffix" — prevents FP because numbers in range
  *   notation (e.g. 27 from (27-50)) are NOT followed by %.
  *
- * REVISED FINDING (in-game testing): % anchor causes FN (false negatives)
- * on ALL items with range notation because PoE2's search indexes text
- * WITH range notation. In-game text format:
- *   "+27(22-27)% к сопротивлению огню"
- * Here "27" is followed by "(" not "%" → % anchor = 100% FN.
+ * INTERIM DISABLE (Phase 9c REVISED): % anchor was disabled because
+ * in-game testing appeared to show FN on range notation items.
+ * Assumption was: PoE2 indexes ONLY detailed text like "+27(22-27)%".
  *
- * DECISION: anchorEnd='%' is DISABLED for +##% accessory mods.
- * Enumeration without % anchor provides FP protection for narrow ranges.
- * The FN from % anchor is worse than the FP it prevents.
+ * RE-ENABLED (Tablet Battery + Accessory Retest, 2026-06-10):
+ * PoE2 DUAL-INDEXES both simplified AND detailed text:
+ *   Simplified: "+27% к сопротивлению огню" (matches "%" anchor)
+ *   Detailed:   "+27(22-27)% к сопротивлению огню" (doesn't match "%" anchor)
+ * Both are searchable. The simplified display makes "%" anchor work.
  *
- * The compiler still supports anchorEnd as a parameter for potential
- * future use, but the runtime (useCategoryPage.ts) no longer sets it.
- * This file documents the behavior for reference.
+ * Verified results:
+ *   "39%.*suffix" → exact match (tablets) ✅
+ *   "35%.*к сопротивлению молнии" → matches ring R1 ✅
+ *   "34%.*к сопротивлению молнии" → matches amulet A3 ✅
+ *   "39.*suffix" → FP from range notation secondary numbers ❌
+ *   "(30|39).*suffix" → 6 items (3 FP from "(30-40)%") ❌
+ *   "(30%|39%).*suffix" → 3 items (correct) ✅
  */
 import { describe, it, expect } from 'vitest';
 import { matchPoE2RegexItem } from '@core/poe2-regex-matcher';
 import { compile } from '@core/compiler';
 import { range } from '@core/ast';
 
-describe('Phase 9c REVISED: anchorEnd (%) disabled due to FN on range notation', () => {
-  // Items WITHOUT range notation (simple format — how Phase 9c originally tested)
+describe('Phase 9c RE-ENABLED: anchorEnd (%) works with dual-indexing', () => {
+  // Items WITHOUT range notation (simplified display)
   const ring27Simple = { mods: ['+27% к сопротивлению огню'] };
   const ring30Simple = { mods: ['+30% к сопротивлению огню'] };
 
-  // Items WITH range notation (how PoE2 actually displays them in search)
+  // Items WITH range notation (detailed display — also indexed by PoE2)
   const ring27Range = { mods: ['+27(22-27)% к сопротивлению огню'] };
   const ring30Range = { mods: ['+30(26-30)% к сопротивлению огню'] };
 
   // FP item: actual roll is 26 but range notation contains 27
   const ring26FP = { mods: ['+26(27-50)% к сопротивлению огню'] };
 
-  // ─── WITHOUT % anchor (current behavior after fix) ───
+  // ─── WITH % anchor (RE-ENABLED) ───
+
+  it('WITH anchorEnd %: matches simplified display items', () => {
+    const regex = '"(2[7-9]|30)%.*к сопротивлению огню"';
+    expect(matchPoE2RegexItem(regex, ring27Simple)).toBe(true);
+    expect(matchPoE2RegexItem(regex, ring30Simple)).toBe(true);
+  });
+
+  it('WITH anchorEnd %: does NOT match range notation detailed display', () => {
+    const regex = '"(2[7-9]|30)%.*к сопротивлению огню"';
+    // In PoE2, simplified display IS indexed → matches via simplified.
+    // Our test harness only has the detailed string → FN in test (but not in game).
+    // This test documents the test harness limitation.
+    expect(matchPoE2RegexItem(regex, ring27Range)).toBe(false);
+    expect(matchPoE2RegexItem(regex, ring30Range)).toBe(false);
+  });
+
+  it('WITH anchorEnd %: prevents FP from range notation secondary numbers', () => {
+    const regex = '"(2[7-9]|30)%.*к сопротивлению огню"';
+    // "27" in "(27-50)" is NOT followed by "%" → correctly rejected
+    expect(matchPoE2RegexItem(regex, ring26FP)).toBe(false);
+  });
+
+  // ─── WITHOUT % anchor (shows FP risk) ───
 
   it('WITHOUT anchorEnd: enumeration matches both plain and range notation items', () => {
     const regex = '"(2[7-9]|30).*к сопротивлению огню"';
@@ -47,39 +74,26 @@ describe('Phase 9c REVISED: anchorEnd (%) disabled due to FN on range notation',
     expect(matchPoE2RegexItem(regex, ring30Range)).toBe(true);
   });
 
-  it('WITHOUT anchorEnd: known FP from range notation (acceptable tradeoff)', () => {
+  it('WITHOUT anchorEnd: known FP from range notation', () => {
     const regex = '"(2[7-9]|30).*к сопротивлению огню"';
-    // FP: "27" from "(27-50)" matches — acceptable because % anchor causes worse FN
+    // FP: "27" from "(27-50)" matches
     expect(matchPoE2RegexItem(regex, ring26FP)).toBe(true);
   });
 
-  // ─── WITH % anchor (old behavior — causes FN) ───
+  // ─── Compiler: anchorEnd parameter ───
 
-  it('WITH anchorEnd %: works on plain text but FN on range notation', () => {
-    const regex = '"(2[7-9]|30)%.*к сопротивлению огню"';
-    // Plain text: works
-    expect(matchPoE2RegexItem(regex, ring27Simple)).toBe(true);
-    expect(matchPoE2RegexItem(regex, ring30Simple)).toBe(true);
-    // Range notation: FN! "27" followed by "(" not "%"
-    expect(matchPoE2RegexItem(regex, ring27Range)).toBe(false);
-    expect(matchPoE2RegexItem(regex, ring30Range)).toBe(false);
-  });
-
-  // ─── Compiler: anchorEnd still supported as parameter but not used by runtime ───
-
-  it('compiler: RANGE without anchorEnd produces no % (current default)', () => {
+  it('compiler: RANGE without anchorEnd produces no %', () => {
     const result = compile(range(27, 30, 'к сопротивлению огню'), { round10: false });
     expect(result).toBe('"(2[7-9]|30).*к сопротивлению огню"');
     expect(result).not.toContain('%');
   });
 
-  it('compiler: RANGE with anchorEnd="%" still works (parameter preserved)', () => {
-    // The parameter is still supported for potential future use or manual override
+  it('compiler: RANGE with anchorEnd="%" inserts % after number pattern', () => {
     const result = compile(range(27, 30, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
     expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
   });
 
-  // ─── Tablet-specific: ^ anchor still used (no FN issue) ───
+  // ─── Tablet-specific: ^ anchor (no FN issue) ───
 
   it('tablet mods use ^ anchor only (no anchorEnd) — ^ is sufficient', () => {
     const result = compile(range(27, 30, 'откладывания наград', undefined, undefined, true), { round10: false });
@@ -100,7 +114,6 @@ describe('Phase 9c REVISED: anchorEnd (%) disabled due to FN on range notation',
       mods: ['26(27-50)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'],
     };
     const regex = '"^(2[7-9]|30).*откладывания наград"';
-    // "^" at position 0: "26" ≠ (2[7-9]|30) → correctly rejected
     expect(matchPoE2RegexItem(regex, item)).toBe(false);
   });
 });
