@@ -16,6 +16,7 @@ import React from 'react';
 import { RegexOutput } from './RegexOutput';
 import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
 import type { SearchLogic, PriorityFilter } from '@shared/types';
+import { MAX_ENUMERATE_RANGE } from '@core/number-regex';
 import { t } from '@shared/i18n';
 
 interface CategoryControlPanelProps {
@@ -232,6 +233,21 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             {minValue !== null && minValue >= 40 && (
               <span className="text-[12px] text-amber-500/80" title={t('range.boundary_warning')}>
                 ⚠ ≥40
+              </span>
+            )}
+            {/* Round10 + AND fallback warning: range >50 values uses AND fallback,
+                where round10 expands each side independently */}
+            {round10Enabled && minValue !== null && maxValue !== null && (maxValue - minValue + 1) > MAX_ENUMERATE_RANGE && (
+              <span className="text-[12px] text-amber-500/80" title={t('range.round10_and_warning')}>
+                ⚠ Округл.
+              </span>
+            )}
+            {/* Range notation FP warning: numbers in item range notation (e.g., 27 from «27-50»)
+                can match the enumeration pattern, causing false positives in-game.
+                Show when any range filter is active. */}
+            {(minValue !== null || maxValue !== null) && (
+              <span className="text-[12px] text-amber-500/60" title={t('range.notation_fp_warning')}>
+                ⚠ Диапазон
               </span>
             )}
           </>

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (Session 75 — 2026-06-08)
+## Current State (Session 77 — 2026-06-09)
 
 **Build:** `pnpm build` passes, `npx vitest run` passes (576/576 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
@@ -12,25 +12,26 @@
 
 **Key Changes This Session:**
 
-1. **Origin icons integration** — Added `iconPath` field to `CategoryLabel` interface and `ORIGIN_SECTION_LABELS` in `mod-classifier.ts`. Icons rendered in Level 2 origin badges (VirtualizedModList + ModList). Icons: очернение абис.webp, осквернение.webp, сущность.webp, разлом.webp from `public/icons/`.
-2. **Level 1 decorative frames** — CSS classes `affix-header-prefix` (blue) and `affix-header-suffix` (orange) with gradient backgrounds, full borders, thicker left accent, and decorative corner accents via `::before`/`::after` pseudo-elements. Applied to all Level 1 headers in VirtualizedModList and ModList (including origin mode).
-3. **Mobile improvements** — Extended mobile CSS rules to cover `.virtualized-mod-list` in addition to `.mod-list`. Added touch target rules for `[role="switch"]` (min-height 32px, min-width 44px), control panel buttons, origin badge icons (max 16px), and `-webkit-overflow-scrolling: touch` for smooth mobile scroll.
-4. **Documentation** — Updated AGENT_NAVIGATION.md (v75), worklog.md.
+1. **Phase 9a: Range notation FP confirmed in-game** — Both flat `(27|28|29|30)` and compact `(2[7-9]|30)` enumeration highlight 26% and 22% items. Numbers in range notation (e.g., "27" from "(27-50)") match enumerated values. Enumeration is NOT a complete solution for range notation FP.
+2. **UI warning: round10 + AND fallback** — Added ⚠ Округл. indicator in CategoryControlPanel when round10=true AND range > MAX_ENUMERATE_RANGE (50 values). Tooltip explains that rounding expands the range in AND fallback mode.
+3. **UI warning: range notation FP** — Added ⚠ Диапазон indicator in CategoryControlPanel when any range filter is active. Tooltip explains that numbers in item range notation can cause false positives.
+4. **Documentation** — Updated ARCHITECTURE.md (v38), IN_GAME_TESTS.md (Phase 9a), новый_план.md (v18), worklog.md.
 
 **Files changed this session:**
-- `src/shared/mod-classifier.ts` — Added `iconPath` field to `CategoryLabel`, populated in `ORIGIN_SECTION_LABELS`
-- `src/ui/components/VirtualizedModList.tsx` — Origin header icon rendering, Level 1 decorative frame classes
-- `src/ui/components/ModList.tsx` — Origin section icon rendering, Level 1 decorative frame classes, origin mode icons
-- `src/index.css` — Level 1 decorative frame CSS, extended mobile rules, virtualized-mod-list support
-- `AGENT_NAVIGATION.md` — v75, updated Section 18 (Visual Hierarchy) with icons + frames, updated TODO list
+- `src/ui/components/CategoryControlPanel.tsx` — Added range warnings (round10+AND fallback, range notation FP), imported MAX_ENUMERATE_RANGE
+- `src/shared/i18n.ts` — Added i18n keys for range warnings
+- `docs/ARCHITECTURE.md` — v38: updated enumeration section with Phase 9a findings, updated prefix anchoring section
+- `docs/IN_GAME_TESTS.md` — Added Phase 9a test results (compact enumeration FP confirmed)
+- `новый_план.md` — v18: updated status, P2 done, P3 updated with `^` anchor verification
 - `worklog.md` — Updated
+- `AGENT_NAVIGATION.md` — Updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ Browser functional testing — verify icons render correctly, decorative frames look good, all tabs
+- ⬜ In-game verification of `^` anchor for range notation FP prevention
+- ⬜ Browser functional testing — verify all tabs, range warnings, visual hierarchy
 - ⬜ Mobile testing on real device — verify touch targets, scroll behavior
 - ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
-- ⬜ Origin icon sizing refinement — may need per-viewport adjustments
-- ⬜ Validate priority tier classifications against live trade data
+- ⬜ Suffix anchoring investigation — does `"(2[7-9]|30)%.*suffix"` prevent FP?
 
 ---
 
@@ -43,20 +44,17 @@
 5. **`()` in regex = PoE2 grouping:** `containsPoE2Grouping()` filters at generation time.
 6. **Negate syntax `"!X"` only:** `!"X"` does NOT work — `!` must be inside quotes.
 7. **Word truncation = trailing substring only:** Mid-word extraction does NOT work.
-8. **i18n overrides cause cross-family FP:** `repairCrossFamilyFP()` + `regexPrefixContext` fix this.
+8. **Range notation FP (Phase 9a):** Enumeration doesn't fully prevent FP when range notation contains matching numbers. `^` anchor might help — needs in-game verification.
 9. **regexExclude format must be locale-object:** Always `{ru: [...]}` not plain array.
 10. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
-11. **Multi-line sub-lines may share text with standalone mods:** Use `—` exclude/context to disambiguate.
-12. **OR-suffix RANGE must wrap `|` in `()`:** Without this, `".*огню|холоду"` parses wrong.
-13. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates.
-14. **ARIA: interactive elements must not be children of role="switch":** Use sibling pattern.
-15. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur.
-16. **All number inputs must have step={1}:** PoE2 mod values are always integers; fractional input produces invalid regex.
-17. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
-18. **dp-factorizer/trie-factorizer are ETL-only:** Not imported by runtime code, but essential for ETL scripts. Do NOT delete.
-19. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers (jewel/relic/vendor) must NOT pass these props. Show toggle only when `showPriorityFilter` is set.
-20. **ModSubGroup.borderLClass is required:** All `classifyGroups()` branches must populate `borderLClass`. Level 2 (origin) uses `ORIGIN_SECTION_LABELS[origin].borderLClass`; Level 3 (semantic/sentiment/tablet/jewel-type) uses `''`.
-21. **Level headers MUST be `block`, never `inline-block`:** Using `inline-block` causes headers to concatenate on the same line (e.g., "Очернённые (33)Рубин (10)"), creating visual mush. All Level 1/2/3 headers must use `block` display.
+11. **OR-suffix RANGE must wrap `|` in `()`:** Without this, `".*огню|холоду"` parses wrong.
+12. **VendorProperty interface is ONLY in `@data/vendor-properties`:** Never create local duplicates.
+13. **ARIA: interactive elements must not be children of role="switch":** Use sibling pattern.
+14. **ProfilePanel: confirm button must use onMouseDown, not onClick:** onClick fires AFTER onBlur.
+15. **All number inputs must have step={1}:** PoE2 mod values are always integers.
+16. **Russian е/ё dialect in classifier patterns:** Always use `[её]` in regex patterns for words that can be spelled with ё.
+17. **CategoryControlPanel priorityFilter/setPriorityFilter are optional:** Pages without priority tiers must NOT pass these props.
+18. **Level headers MUST be `block`, never `inline-block`:** Prevents header concatenation on same line.
 
 ## Build & Run Commands
 

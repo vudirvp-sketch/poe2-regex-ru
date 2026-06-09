@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 78.0 | **Date:** 2026-06-09
+> **Version:** 79.0 | **Date:** 2026-06-09
 
 ---
 
@@ -64,10 +64,12 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs: Amulet, Ring, Belt, Jewel, Waystone, Tablet, Relic. Check origin badges, Level 1 frames, 3-level hierarchy sizing.
-2. **Mobile-specific testing** — touch targets, scroll behavior (needs real device). CSS is prepared but needs manual verification.
-3. **Priority tier refinement** — Validate tier classifications against live trade data.
-4. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
+1. **`^` anchor verification** — Test in-game whether `"^(2[7-9]|30).*suffix"` prevents range notation FP. Phase 9a confirmed that enumeration alone doesn't solve this.
+2. **Suffix anchoring investigation** — Test whether `"(2[7-9]|30)%.*suffix"` (adding `%` after number) prevents FP from range notation.
+3. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
+4. **Mobile-specific testing** — touch targets, scroll behavior (needs real device). CSS is prepared but needs manual verification.
+5. **Priority tier refinement** — Validate tier classifications against live trade data.
+6. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
@@ -249,7 +251,20 @@ The `CategoryControlPanel` uses `sticky top-0 z-10` with `control-panel-sticky` 
 
 **Gap fix (v76):** A `::before` pseudo-element extends the background 16px above the element to prevent scroll text from peeking through the gap above the sticky panel. Defined in `index.css` under `.control-panel-sticky::before`.
 
-## 21. i18n Conventions
+## 21. Range Warnings (Session 77)
+
+CategoryControlPanel shows two range-related warning indicators:
+
+| Indicator | Condition | Meaning |
+|-----------|-----------|---------|
+| ⚠ Округл. | round10=true AND both min+max set AND range > MAX_ENUMERATE_RANGE (50) | Rounding expands range in AND fallback mode |
+| ⚠ Диапазон | Any range filter active (min or max set) | Numbers in item range notation (e.g., "27" from "(27-50)") can match the number pattern, causing false positives |
+
+Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапазон) with tooltips containing full explanation text.
+
+**Phase 9a finding:** Enumeration `(2[7-9]|30).*suffix` does NOT fully prevent FP when the item's range notation contains a matching number. This is a known limitation documented in ARCHITECTURE.md §7 and IN_GAME_TESTS.md Phase 9a.
+
+## 22. i18n Conventions
 
 - "для русского клиента" appears **only** in `home.title` (landing page hero)
 - `app.subtitle` = "Поиск модов" (concise, no redundant mention)

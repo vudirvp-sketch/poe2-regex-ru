@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 37.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 38.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -240,7 +240,9 @@ When both `min` and `max` are specified AND the range has ≤ `MAX_ENUMERATE_RAN
 ```
 RANGE(27, 30, 'откладывания наград')  →  "(2[7-9]|30).*откладывания наград"
 ```
-This approach is **immune to false positives from secondary numbers** in PoE2's range notation (e.g., `"26(26-50)% шанс откладывания наград"` where `50` would satisfy `≥27` and `26` would satisfy `≤30` in the AND approach).
+This approach reduces false positives from secondary numbers that **don't overlap** with enumerated values (e.g., `50` from `(26-50)` doesn't match `27|28|29|30`).
+
+**⚠️ Known limitation (Phase 9a, confirmed in-game):** Enumeration does NOT fully prevent FP when the item's range notation contains a number that matches an enumerated value. For example, item text `"26(27-50)% шанс откладывания наград"` contains `27` from the `(27-50)` range notation, which matches the enumeration pattern. Both flat `(27|28|29|30)` and compact `(2[7-9]|30)` produce the same FP. Possible mitigations (need in-game verification): `^` anchor (unreliable per §5), suffix anchoring (`%` after number), or accepting the limitation.
 
 **Decade grouping optimization (Phase 10):**
 Instead of flat enumeration `(27|28|29|30)`, values are grouped by tens digit using character classes:
@@ -274,14 +276,15 @@ RANGE(100, 200, 'жизн')  →  AND(RANGE(100, ∅, 'жизн'), RANGE(∅, 20
 ```
 **Known limitation:** Wide-range AND can produce false positives from secondary numbers in range notation. This is acceptable for broad filters where precision is less critical.
 
-### Prefix anchoring (dual-number disambiguation only)
+### Prefix anchoring (dual-number disambiguation only — UPDATED Phase 9a)
 Since `.*` does NOT cross block boundaries (verified in-game Phase 7), cross-mod FP is impossible. Prefix anchoring is only needed for **dual-number mods** where the template has "до" between ## placeholders (e.g., "От ## до ## урона"). The prefix "От" ensures the number regex targets the first placeholder, not the second.
 
-For single-number mods, prefix is always empty — `.*` within a single block cannot accidentally match a number from a different mod.
+For single-number mods, prefix is always empty — `.*` within a single block cannot accidentally match a number from a different mod. However, **range notation within the same block** can still cause FP (see Phase 9a finding above). Prefix anchoring with `^` could potentially solve this, but `^`/$ anchors are unreliable in PoE2.
 ```
 Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to first number
 Single-number: "(numRegex).*к сопротивлению огню"  ← no prefix needed, .* stays within block
 ```
+**Open question:** Can `^` anchor reliably prevent range notation FP in-game? E.g., `"^(2[7-9]|30).*откладывания наград"` to anchor number to start of block. Needs in-game verification.
 
 ### OR-suffix RANGE (Session 60: ranged tokens with different suffixes)
 When multiple ranged tokens share the same numeric range (min, max) but have different suffixes, they are merged into a single RANGE node with OR-joined suffixes. The compiler wraps OR-suffixes in `()` to scope the `|` correctly within the quoted group:
@@ -475,6 +478,14 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v38.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Enumeration doesn't fully prevent range notation FP | **High** | Phase 9a confirmed: numbers in range notation (e.g., "27" from "(27-50)") match enumerated values. Added UI warning in CategoryControlPanel for range notation FP. Documented as known limitation. |
+| No UI warning for round10 + AND fallback | **Medium** | Added warning when round10=true AND range > MAX_ENUMERATE_RANGE (AND fallback mode). Shows ⚠ Округл. indicator. |
+| No UI warning for range notation FP in general | **Medium** | Added ⚠ Диапазон indicator when any range filter is active, with tooltip explaining that numbers in item range notation can cause false positives. |
 
 ### v37.0 (2026-06-09)
 

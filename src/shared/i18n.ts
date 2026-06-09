@@ -158,6 +158,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'jewel.hidden_mods': '{n} скрытых модов влияют на regex, но не видны',
     'jewel.deselect_hidden': 'Снять скрытые',
 
+    // Range warnings
+    'range.round10_and_warning': 'Округление расширяет диапазон при И-фальбэке (>50 значений)',
+    'range.notation_fp_warning': 'Числа в диапазоне предмета (напр. 27 из «27-50») могут давать ложные совпадения',
+
     // Priority tier filter
     'priority.all': 'Все',
     'priority.sa': 'S+A',
