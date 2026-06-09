@@ -81,7 +81,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   const tierCount = group.members.length;
 
   // Affix color for left border
-  const affixColor = group.affix === 'prefix' ? 'border-l-blue-500' : 'border-l-orange-500';
+  const affixColor = group.affix === 'prefix' ? 'border-l-blue-500' : group.affix === 'implicit' ? 'border-l-amber-500' : 'border-l-orange-500';
 
   // Priority tier visual differentiation:
   // S-tier: brighter border accent (amber/gold tint)

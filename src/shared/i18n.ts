@@ -105,6 +105,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'vendor.selected': 'выбрано',
     'affix.prefix': 'Префикс',
     'affix.suffix': 'Суффикс',
+    'affix.implicit': 'Имплисет',
     'origin.normal': 'Обычные',
     'origin.desecrated': 'Очернённые',
     'origin.corrupted': 'Осквернённые',

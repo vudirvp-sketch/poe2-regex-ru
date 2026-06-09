@@ -512,7 +512,10 @@ export function buildAstFromSelections(
         });
         const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined, anchorEndValue);
+        // Determine if this range group is for implicit tokens (reversed regex: suffix.*number%)
+        const isImplicit = group.tokens.some(t => t.affix === 'implicit');
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isImplicit ? false : (numberAtStart || undefined), anchorEndValue, isImplicit || undefined);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

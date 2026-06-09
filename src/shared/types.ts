@@ -1,5 +1,6 @@
 export type Locale = 'ru';  // Future: | 'en'
-export type AffixType = 'prefix' | 'suffix';
+// 'implicit' = item implicit properties (waystone implicits, tablet charges, etc.)
+export type AffixType = 'prefix' | 'suffix' | 'implicit';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
 export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
@@ -93,7 +94,7 @@ export interface CategoryData {
 export interface FamilyGroup {
   /** familyKey.ru — normalized key for grouping */
   familyKey: string;
-  /** Affix type of the group (prefix or suffix) */
+  /** Affix type of the group (prefix, suffix, or implicit) */
   affix: AffixType;
   /** All tokens in this family group (after filtering) */
   members: GameToken[];
@@ -121,7 +122,7 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean };
 // prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block
 // anchorStart: when true, adds ^ before the number pattern to prevent range notation FP.
 //   Set when rawTextTemplate starts with ## (number at position 0 of the mod block).

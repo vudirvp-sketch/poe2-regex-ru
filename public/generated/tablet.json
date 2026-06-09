@@ -81,48 +81,6 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_od9m77.h4ipty",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "familyKey": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8,
-        18,
-        41,
-        46,
-        55
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "—"
-        ]
-      }
-    },
-    {
       "id": "tablet.mod_od9m77.giiz25",
       "category": "tablet",
       "origin": "normal",
@@ -234,48 +192,6 @@
         "ru": [
           "без",
           "бездну"
-        ]
-      }
-    },
-    {
-      "id": "tablet.mod_vc6g4q.h4ipty",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "familyKey": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8,
-        18,
-        41,
-        46,
-        55
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "—"
         ]
       }
     },
@@ -2307,48 +2223,6 @@
       }
     },
     {
-      "id": "tablet.mod_as23xk.h4ipty",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "familyKey": {
-        "ru": "% увеличение количества находимых на карте путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8,
-        18,
-        41,
-        46,
-        55
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "—"
-        ]
-      }
-    },
-    {
       "id": "tablet.mod_xpt1fq",
       "category": "tablet",
       "origin": "normal",
@@ -3260,26 +3134,186 @@
         56
       ],
       "level": 1
+    },
+    {
+      "id": "tablet.implicit.charges",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Осталось зарядов - #"
+      },
+      "rawTextTemplate": {
+        "ru": "Осталось зарядов - #"
+      },
+      "regex": {
+        "ru": "Осталось зарядов"
+      },
+      "familyKey": {
+        "ru": "Осталось зарядов - #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        10
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        6
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.implicit.ritual_altars",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Добавляет алтари Ритуала на карту"
+      },
+      "rawTextTemplate": {
+        "ru": "Добавляет алтари Ритуала на карту"
+      },
+      "regex": {
+        "ru": "алтари Ритуала"
+      },
+      "familyKey": {
+        "ru": "Добавляет алтари Ритуала на карту"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        12
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.implicit.breach",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Добавляет Заражение на карту"
+      },
+      "rawTextTemplate": {
+        "ru": "Добавляет Заражение на карту"
+      },
+      "regex": {
+        "ru": "Заражение на карту"
+      },
+      "familyKey": {
+        "ru": "Добавляет Заражение на карту"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.implicit.abyss",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Добавляет Бездны на карту"
+      },
+      "rawTextTemplate": {
+        "ru": "Добавляет Бездны на карту"
+      },
+      "regex": {
+        "ru": "Бездны на карту"
+      },
+      "familyKey": {
+        "ru": "Добавляет Бездны на карту"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        12
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.implicit.vaal",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Добавляет маяки ваал на карту"
+      },
+      "rawTextTemplate": {
+        "ru": "Добавляет маяки ваал на карту"
+      },
+      "regex": {
+        "ru": "маяки ваал"
+      },
+      "familyKey": {
+        "ru": "Добавляет маяки ваал на карту"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        13
+      ],
+      "level": 1
     }
   ],
   "optimizationTable": {
-    "tablet.mod_as23xk.h4ipty:tablet.mod_od9m77.h4ipty:tablet.mod_vc6g4q.h4ipty": {
-      "ids": [
-        "tablet.mod_as23xk.h4ipty",
-        "tablet.mod_od9m77.h4ipty",
-        "tablet.mod_vc6g4q.h4ipty"
-      ],
-      "regex": {
-        "ru": "увеличение количества находимых"
-      },
-      "weight": 31,
-      "count": 3,
-      "regexExclude": {
-        "ru": [
-          "—"
-        ]
-      }
-    },
     "tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
       "ids": [
         "tablet.mod_vc6g4q",
@@ -3455,9 +3489,6 @@
     },
     "tablet.mod_as23xk.h4ipty:tablet.mod_od9m77.h4ipty:tablet.mod_vc6g4q.h4ipty:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
       "ids": [
-        "tablet.mod_as23xk.h4ipty",
-        "tablet.mod_od9m77.h4ipty",
-        "tablet.mod_vc6g4q.h4ipty",
         "tablet.mod_wrlukt",
         "tablet.mod_yr6d7c"
       ],
@@ -3465,7 +3496,7 @@
         "ru": "увеличение (количества находимых|эффективности монстров|размера групп монстров на карте)"
       },
       "weight": 88,
-      "count": 5
+      "count": 2
     },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [

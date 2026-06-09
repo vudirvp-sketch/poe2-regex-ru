@@ -159,6 +159,9 @@ const NEGATIVE_KEYWORDS = /(?:увеличен.*урон.*монстр|повы�
  * Positive = beneficial for the player, Negative = makes the map harder.
  */
 export function classifyWaystoneSentiment(group: FamilyGroup): SentimentCategory {
+  // Implicit mods are always positive (they benefit the player)
+  if (group.affix === 'implicit') return 'positive';
+
   const text = group.displayText;
 
   if (POSITIVE_KEYWORDS.test(text)) return 'positive';
@@ -201,6 +204,15 @@ const EXPEDITION_KEYWORDS = /(?:экспедици|руническ|взрывч
  * Based on text heuristics — tablet tokens have no tags.
  */
 export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
+  // Implicit mods: classify by text keywords
+  if (group.affix === 'implicit') {
+    const text = group.displayText;
+    if (RITUAL_KEYWORDS.test(text)) return 'ritual';
+    if (BREACH_KEYWORDS.test(text)) return 'breach';
+    if (VAAL_KEYWORDS.test(text)) return 'vaal';
+    return 'generic';
+  }
+
   const text = group.displayText;
 
   // Check specific types first (more specific → less specific order)

@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 693 (Vitest) | **ETL токенов:** 1823 | **Cross-family FP:** 0
+> **Тестов:** 693 (Vitest) | **ETL токенов:** 1672 | **Cross-family FP:** 0
 
 ---
 
@@ -12,28 +12,13 @@
 - ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor РАБОТАЕТ. Regex syntax валидирован.
 - ✅ % anchor RE-ENABLED: восстановлен в useCategoryPage.ts. Dual-indexing подтверждён на всех категориях.
 - ✅ Waystone root cause FOUND: имплисет-бонусы не searchable. Моды и имплисеты — подтверждены в игре.
+- ✅ **Waystone ETL реструктуризация DONE**: убраны 160 implicit-set бонусов из waystone.json, добавлены 5 waystone implicit + 5 tablet implicit + 5 waystone-desecrated implicit токенов с reversed regex.
+- ✅ **AffixType 'implicit'**: добавлен в типы, классификатор, family-grouper, UI. Implicit токены отображаются в секции "ИМПЛИСЕТ".
+- ✅ **Reversed RANGE**: compiler поддерживает `reversed: true` на RANGE-нодах → `"suffix.*(range)%"` вместо `"(range)%.*suffix"`.
 
 ---
 
 ## Активные проблемы
-
-### P1: Waystone ETL реструктуризация (CRITICAL)
-
-**Корень найден.** Waystone токены содержат несуществующие моды (имплисет-бонусы). Нужно:
-
-1. Убрать из списка модов строки, влияющие на имплисет:
-   - `"На #% больше находимых в области путевых камней"` → удалить
-   - `"##% увеличение эффективности монстров"` → удалить
-   - `"На #% больше редкости находимых в этой области предметов"` → удалить
-   - `"На #% больше размера групп монстров"` → удалить
-
-2. Добавить имплисеты как отдельную категорию с REVERSED regex:
-   - `"Шанс выпадения путевого камня"` + range → `"Шанс выпадения путевого камня.*(range)%"`
-   - `"Редкость предметов"` + range → `"Редкость предметов.*(range)%"`
-   - `"Размер групп монстров"` + range → `"Размер групп монстров.*(range)%"`
-   - `"Эффективность монстров"` + range → `"Эффективность монстров.*(range)%"`
-
-3. Имплисеты НЕ имеют dual-indexing (нет range notation в поиске), `%` anchor безопасен.
 
 ### P2: % anchor — РЕШЕНО
 
@@ -47,18 +32,18 @@ RE-ENABLED. Работает на модах и имплисетах.
 
 ## Известные ограничения
 
-1. **Waystone ETL данные содержат несуществующие моды** — нужна реструктуризация
-2. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring
-3. **Block model может быть неполной** — `.*` может пересекать аффикс-блоки
+1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring
+2. **Block model может быть неполной** — `.*` может пересекать аффикс-блоки
+3. **ETL pipeline не автоматизирован** для implicit-токенов — реструктуризация выполнена скриптом `restructure-implicits.ts`, но будущие ETL-запуски нужно обновить
 
 ---
 
 ## Следующие шаги
 
-1. Реструктурировать waystone ETL (убрать имплисет-бонусы, добавить имплисеты с reversed regex)
-2. Обновить waystone.json с корректными модами + имплисетами
-3. Block model ретест B1-B2
-4. Аналогичная проверка для tablet: есть ли там имплисет-бонусы в модах?
+1. Block model ретест B1-B2
+2. Обновить ETL pipeline (normalize.ts, run-etl.ts) для автоматического разделения implicit-set бонусов
+3. Проверить waystone implicit regex в игре (reversed regex)
+4. Проверить tablet implicit regex в игре
 
 ---
 
@@ -73,7 +58,7 @@ RE-ENABLED. Работает на модах и имплисетах.
 | jewel-desecrated | 47 | 0 |
 | relic | 58 | 0 |
 | ring | 369 | 0 |
-| tablet | 82 | 0 |
-| waystone | 311 | 0 |
-| waystone-desecrated | 27 | 0 |
-| **Итого** | **1823** | **0** |
+| tablet | 84 | 0 |
+| waystone | 156 | 0 |
+| waystone-desecrated | 32 | 0 |
+| **Итого** | **1675** | **0** |

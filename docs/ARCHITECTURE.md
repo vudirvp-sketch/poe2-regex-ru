@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 43.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 44.0 | **Date:** 2026-06-10 | **Language:** RU-first
 
 ---
 
@@ -95,6 +95,11 @@ PoE2 search is block-based. Each piece of item text is an independent searchable
 - `.*` works ONLY within a single block
 - AND (`"X" "Y"`) works ACROSS blocks
 - `!X` is item-wide
+
+**Implicit vs Mod blocks:**
+- **Mod blocks** (prefix/suffix): Format `##% description` — number BEFORE text. Regex: `(number)%.*suffix`. Dual-indexed (simplified + range notation).
+- **Implicit blocks**: Format `Description: +##%` — number AFTER text. Regex: `suffix.*(number)%` (REVERSED). NOT dual-indexed (only simplified format).
+- **Implicit-set bonuses** (e.g., `"На ##% больше..."`, `"##% увеличение эффективности монстров"`) are NOT searchable in-game — they affect the implicit section but have no searchable mod text.
 
 ## 5. Compiler: Enumerated Range + AND Fallback
 

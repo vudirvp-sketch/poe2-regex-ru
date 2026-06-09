@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 8.0 | **Date:** 2026-06-09
+> **Version:** 9.0 | **Date:** 2026-06-10
 
 ---
 
@@ -10,7 +10,8 @@
 // src/shared/types.ts
 
 export type Locale = 'ru';  // Future: | 'en'
-export type AffixType = 'prefix' | 'suffix';
+export type AffixType = 'prefix' | 'suffix' | 'implicit';
+// 'implicit' = item implicit properties (waystone implicits, tablet charges, etc.)
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
 export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
@@ -110,13 +111,14 @@ export type ASTNode =
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
   | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string;
-      exact?: boolean; anchorStart?: boolean; anchorEnd?: string };
+      exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean };
 ```
 
 - `prefix`: text before number, only for dual-number mods ("От ## до ## ...")
 - `exact`: when true, skip round10 for precise per-token numeric filter
 - `anchorStart`: when true, adds `^` before number pattern (template starts with `##`)
 - `anchorEnd`: when set, inserts this string after number pattern (typically `'%'` for `##%` mods)
+- `reversed`: when true, produces `"suffix.*(number)%"` instead of `"(number)%.*suffix"` — used for implicit tokens where text comes BEFORE number
 
 ## 6. SlotRangeOverride & TokenRangeOverride
 
@@ -197,6 +199,7 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 | `RANGE(min=27, max=30, suffix="суфф")` | `"(2[7-9]\|30).*суфф"` | enumeration (Phase 9) |
 | `RANGE(min=27, max=30, suffix="суфф", anchorStart=true)` | `"^(2[7-9]\|30).*суфф"` | ^ anchor (Phase 9b) |
 | `RANGE(min=27, max=30, suffix="суфф", anchorEnd='%')` | `"(2[7-9]\|30)%.*суфф"` | % anchor (Phase 9c) |
+| `RANGE(min=80, max=99, suffix="Шанс выпадения", reversed=true)` | `"Шанс выпадения.*(8[0-9]\|9[0-9])%"` | reversed (implicit) |
 | AND-composed `regexPrefixContext` | `"context" "suffix"` | `"имеют" "увеличение урона"` |
 
 **Key rules:**

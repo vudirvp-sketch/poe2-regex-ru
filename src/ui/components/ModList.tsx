@@ -170,13 +170,14 @@ const AffixColumn: React.FC<{
   if (totalCount === 0) return null;
 
   const isPrefix = affix === 'prefix';
-  const headerColor = isPrefix ? 'text-blue-400' : 'text-orange-400';
-  const borderColor = isPrefix ? 'border-blue-800/50' : 'border-orange-800/50';
+  const isImplicit = affix === 'implicit';
+  const headerColor = isImplicit ? 'text-amber-400' : isPrefix ? 'text-blue-400' : 'text-orange-400';
+  const borderColor = isImplicit ? 'border-amber-800/50' : isPrefix ? 'border-blue-800/50' : 'border-orange-800/50';
 
   return (
     <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
-      <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${isPrefix ? 'affix-header-prefix' : 'affix-header-suffix'}`}>
-        {t('affix.' + affix)} ({totalCount})
+      <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix'}`}>
+        {isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + affix)} ({totalCount})
       </h4>
 
       {showOriginSubSections ? (
@@ -302,6 +303,10 @@ export const ModList: React.FC<ModListProps> = ({
   }, [familyGroups, priorityFilter]);
 
   // Separate groups by affix type (after priority filter)
+  const implicitGroups = useMemo(
+    () => priorityFilteredGroups.filter((g) => g.affix === 'implicit'),
+    [priorityFilteredGroups]
+  );
   const prefixGroups = useMemo(
     () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
     [priorityFilteredGroups]
@@ -312,6 +317,10 @@ export const ModList: React.FC<ModListProps> = ({
   );
 
   // Classify groups into sub-groups based on mode
+  const implicitSubGroups = useMemo(
+    () => classifyGroups(implicitGroups, groupMode),
+    [implicitGroups, groupMode]
+  );
   const prefixSubGroups = useMemo(
     () => classifyGroups(prefixGroups, groupMode),
     [prefixGroups, groupMode]
@@ -322,6 +331,10 @@ export const ModList: React.FC<ModListProps> = ({
   );
 
   // When showOriginSubSections, also compute origin-then-semantic groupings
+  const implicitOriginSections = useMemo(
+    () => showOriginSubSections ? splitByOriginThenSemantic(implicitGroups, groupMode) : [],
+    [implicitGroups, groupMode, showOriginSubSections]
+  );
   const prefixOriginSections = useMemo(
     () => showOriginSubSections ? splitByOriginThenSemantic(prefixGroups, groupMode) : [],
     [prefixGroups, groupMode, showOriginSubSections]
@@ -345,8 +358,9 @@ export const ModList: React.FC<ModListProps> = ({
     [onOriginFilterChange]
   );
 
-  // Determine if we need two columns or one
+  // Determine if we need two columns or one (prefix/suffix only, implicit always full width)
   const hasBothAffixes = prefixGroups.length > 0 && suffixGroups.length > 0;
+  const hasImplicit = implicitGroups.length > 0;
   const isOriginMode = groupMode === 'origin';
 
   /** Render jewel type sub-groups within an affix column of an origin section */
@@ -396,6 +410,7 @@ export const ModList: React.FC<ModListProps> = ({
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
           <option value="suffix">{t('affix.suffix')}</option>
+          {hasImplicit && <option value="implicit">{t('affix.implicit')}</option>}
         </select>
 
         {availableOrigins.length > 1 && (
@@ -431,10 +446,42 @@ export const ModList: React.FC<ModListProps> = ({
 
       {/* Mod groups area */}
       {priorityFilteredGroups.length > 0 ? (
-        isOriginMode ? (
+        <>
+          {/* Implicit section: always full width, above prefix/suffix */}
+          {hasImplicit && affixFilter !== 'prefix' && affixFilter !== 'suffix' && (
+            <AffixColumn
+              affix="implicit"
+              subGroups={implicitSubGroups}
+              originSections={implicitOriginSections}
+              selectedIds={selectedIds}
+              onToggleTokens={onToggleTokens}
+              showOriginSubSections={showOriginSubSections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={onSetTokenRange}
+              onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+            />
+          )}
+          {/* Also show implicit when affixFilter is 'implicit' */}
+          {affixFilter === 'implicit' && hasImplicit && (
+            <AffixColumn
+              affix="implicit"
+              subGroups={implicitSubGroups}
+              originSections={implicitOriginSections}
+              selectedIds={selectedIds}
+              onToggleTokens={onToggleTokens}
+              showOriginSubSections={showOriginSubSections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={onSetTokenRange}
+              onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+            />
+          )}
+
+        {isOriginMode ? (
           /* Origin mode: single column, sub-grouped by origin */
           <div className="flex flex-col gap-2">
-            {classifyGroups(priorityFilteredGroups, 'origin').map((sg) => (
+            {classifyGroups(priorityFilteredGroups.filter(g => g.affix !== 'implicit'), 'origin').map((sg) => (
               <div key={sg.key}>
                 <div className={`block ml-2 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass} flex items-center gap-1.5`}>
                   {(() => {
@@ -550,7 +597,8 @@ export const ModList: React.FC<ModListProps> = ({
               />
             )}
           </div>
-        )
+        )}
+        </>
       ) : (
         <div className="text-center text-gray-500 py-8">
           {t('filter.no_results')}

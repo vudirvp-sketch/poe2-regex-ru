@@ -63,16 +63,19 @@ describe('ETL vs регис cross-validation', () => {
       expect(coverage).toBeGreaterThan(0.7);
     });
 
-    it('waystone token count matches expected range (280-350 with multi-line splits)', () => {
+    it('waystone token count matches expected range (150-200 after implicit-set removal)', () => {
       const waystoneData = loadCategoryData('waystone.json');
-      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(280);
-      expect(waystoneData.tokens.length).toBeLessThanOrEqual(350);
+      // After removing implicit-set bonus tokens (not searchable as mods)
+      // and adding 5 implicit tokens, count dropped from 311 to ~156
+      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(150);
+      expect(waystoneData.tokens.length).toBeLessThanOrEqual(200);
     });
 
-    it('waystone-desecrated has 25-35 tokens', () => {
+    it('waystone-desecrated has 27-40 tokens', () => {
       const data = loadCategoryData('waystone-desecrated.json');
-      expect(data.tokens.length).toBeGreaterThanOrEqual(25);
-      expect(data.tokens.length).toBeLessThanOrEqual(35);
+      // After adding 5 implicit tokens to desecrated
+      expect(data.tokens.length).toBeGreaterThanOrEqual(27);
+      expect(data.tokens.length).toBeLessThanOrEqual(40);
     });
   });
 
@@ -101,10 +104,11 @@ describe('ETL vs регис cross-validation', () => {
       expect(coverage).toBeGreaterThan(0.75);
     });
 
-    it('tablet token count matches expected range (70-90)', () => {
+    it('tablet token count matches expected range (80-95)', () => {
       const data = loadCategoryData('tablet.json');
-      expect(data.tokens.length).toBeGreaterThanOrEqual(70);
-      expect(data.tokens.length).toBeLessThanOrEqual(90);
+      // After removing 3 implicit-set bonus tokens and adding 5 implicit tokens
+      expect(data.tokens.length).toBeGreaterThanOrEqual(80);
+      expect(data.tokens.length).toBeLessThanOrEqual(95);
     });
   });
 

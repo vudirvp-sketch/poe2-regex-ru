@@ -155,78 +155,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_69f90c.cikt99",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "16% увеличение эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regex": {
-        "ru": "увеличение эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_69f90c.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_o2qq9u.1cpcjl",
       "category": "waystone",
       "origin": "normal",
@@ -263,78 +191,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o2qq9u.cikt99",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "16% увеличение эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regex": {
-        "ru": "увеличение эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o2qq9u.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -379,78 +235,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_v7b3by.cikt99",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "16% увеличение эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regex": {
-        "ru": "увеличение эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_v7b3by.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_makhsy.u5lm1r",
       "category": "waystone",
       "origin": "normal",
@@ -487,78 +271,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_makhsy.cikt99",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "16% увеличение эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regex": {
-        "ru": "увеличение эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_makhsy.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -603,81 +315,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_9v0l0z.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_9v0l0z.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_t2n4fj.p1z2he",
       "category": "waystone",
       "origin": "normal",
@@ -714,81 +351,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_t2n4fj.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_t2n4fj.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -833,81 +395,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_l91d8v.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_l91d8v.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_xmq641.4ld0he",
       "category": "waystone",
       "origin": "normal",
@@ -944,81 +431,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_xmq641.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_xmq641.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -1063,79 +475,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_pqhy2v.80qzhd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 8% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        8
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_pqhy2v.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_d75rdn.kskgam",
       "category": "waystone",
       "origin": "normal",
@@ -1172,79 +511,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_d75rdn.80qzhd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 8% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        8
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_d75rdn.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -1289,79 +555,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_5dk06z.80qzhd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 8% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        8
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_5dk06z.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_liwit7.byeam",
       "category": "waystone",
       "origin": "normal",
@@ -1398,79 +591,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_liwit7.80qzhd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 8% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        8
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_liwit7.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -1587,43 +707,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_i1gkuy.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_453bd0.l28urr",
       "category": "waystone",
       "origin": "normal",
@@ -1732,43 +815,6 @@
         12,
         25,
         41
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_453bd0.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -1885,43 +931,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_9svl5o.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_phffvg.ev4djt",
       "category": "waystone",
       "origin": "normal",
@@ -2034,43 +1043,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_phffvg.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_zbjr94.cv8ywl",
       "category": "waystone",
       "origin": "normal",
@@ -2109,79 +1081,6 @@
         36,
         41,
         60
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_zbjr94.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_zbjr94.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -2264,79 +1163,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_dv8kwa.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_dv8kwa.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_y4nnlv.rpj316",
       "category": "waystone",
       "origin": "normal",
@@ -2411,79 +1237,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         25
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_y4nnlv.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_y4nnlv.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -2566,79 +1319,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_uns37d.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_uns37d.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_eokrsq.v508lf",
       "category": "waystone",
       "origin": "normal",
@@ -2713,79 +1393,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         25
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_eokrsq.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_eokrsq.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -2902,43 +1509,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_62dygh.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_chnob5.ihp41g",
       "category": "waystone",
       "origin": "normal",
@@ -3047,43 +1617,6 @@
         12,
         25,
         41
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_chnob5.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -3200,43 +1733,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vkdkr4.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_k10uf8.j51fup",
       "category": "waystone",
       "origin": "normal",
@@ -3349,43 +1845,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_k10uf8.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_o2lima.isuz7l",
       "category": "waystone",
       "origin": "normal",
@@ -3420,81 +1879,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         21
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o2lima.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o2lima.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -3537,81 +1921,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_v6fsrm.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_v6fsrm.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_vb57mm.mlqbj3",
       "category": "waystone",
       "origin": "normal",
@@ -3650,81 +1959,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vb57mm.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_vb57mm.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_pmwgig.9dehzp",
       "category": "waystone",
       "origin": "normal",
@@ -3759,81 +1993,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         21
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_pmwgig.tbjh5m",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 14% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        14
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_pmwgig.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -3943,43 +2102,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_wmq5d4.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_dz26j3.ej2fdg",
       "category": "waystone",
       "origin": "normal",
@@ -4008,79 +2130,6 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_dz26j3.3h5xlv",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 6% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        6
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_dz26j3.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
       "level": 1
     },
     {
@@ -4125,81 +2174,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_7j1vfk.2ivdut",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_7j1vfk.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_39zmx7.isxi7c",
       "category": "waystone",
       "origin": "normal",
@@ -4236,79 +2210,6 @@
         47,
         59,
         61
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_39zmx7.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_39zmx7.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -4353,79 +2254,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_la7tcb.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_la7tcb.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_b6htj4.k8vav7",
       "category": "waystone",
       "origin": "normal",
@@ -4466,79 +2294,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_b6htj4.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_b6htj4.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_6tqcw0.hf8soz",
       "category": "waystone",
       "origin": "normal",
@@ -4575,79 +2330,6 @@
         47,
         59,
         61
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6tqcw0.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6tqcw0.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -4728,43 +2410,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2xv8m4.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_5j3ahj.8mhogc",
       "category": "waystone",
       "origin": "normal",
@@ -4837,43 +2482,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         12
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_5j3ahj.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -4954,43 +2562,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2368r0.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_ux3o8n.gmxw9g",
       "category": "waystone",
       "origin": "normal",
@@ -5063,43 +2634,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         12
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_ux3o8n.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -5218,43 +2752,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_kp15r6.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_nx4wv2.d4k3tx",
       "category": "waystone",
       "origin": "normal",
@@ -5369,43 +2866,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_nx4wv2.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_2ht2hu.3pn6w5",
       "category": "waystone",
       "origin": "normal",
@@ -5516,43 +2976,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         12
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2ht2hu.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -5713,43 +3136,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_3700im.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_j4aki5.7fd7l6",
       "category": "waystone",
       "origin": "normal",
@@ -5862,43 +3248,6 @@
         12,
         25,
         41
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_j4aki5.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -6019,43 +3368,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_cgdb7m.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_htl5cc.rnhkjb",
       "category": "waystone",
       "origin": "normal",
@@ -6172,43 +3484,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_htl5cc.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_rwfvov.hpj7ma",
       "category": "waystone",
       "origin": "normal",
@@ -6244,79 +3519,6 @@
       "yoficationPositions": [
         1,
         23
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_rwfvov.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_rwfvov.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -6360,79 +3562,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_51te7l.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_51te7l.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_x11dv3.nyqzxq",
       "category": "waystone",
       "origin": "normal",
@@ -6472,79 +3601,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_x11dv3.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_x11dv3.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_2s3yn.9ac2q6",
       "category": "waystone",
       "origin": "normal",
@@ -6580,79 +3636,6 @@
       "yoficationPositions": [
         1,
         23
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2s3yn.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2s3yn.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -6697,81 +3680,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_o10rnx.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o10rnx.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_6qjped.39ryk2",
       "category": "waystone",
       "origin": "normal",
@@ -6808,81 +3716,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6qjped.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6qjped.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -6927,81 +3760,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_yqotx1.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_yqotx1.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_iivvbf.kwzu26",
       "category": "waystone",
       "origin": "normal",
@@ -7038,81 +3796,6 @@
         5,
         46,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_iivvbf.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_iivvbf.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -7193,43 +3876,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_l7rwtj.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_omospl.wzz77g",
       "category": "waystone",
       "origin": "normal",
@@ -7302,43 +3948,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         12
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_omospl.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -7419,43 +4028,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_goqcn2.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_u6ht6b.fdx9pm",
       "category": "waystone",
       "origin": "normal",
@@ -7532,43 +4104,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_u6ht6b.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_j15ym2.5zjvw7",
       "category": "waystone",
       "origin": "normal",
@@ -7604,81 +4139,6 @@
       "yoficationPositions": [
         13,
         23
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_j15ym2.4tey3h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 11% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        11
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_j15ym2.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -7722,81 +4182,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_kggkhy.4tey3h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 11% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        11
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_kggkhy.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_mfedkw.gt494t",
       "category": "waystone",
       "origin": "normal",
@@ -7832,81 +4217,6 @@
       "yoficationPositions": [
         15,
         25
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_mfedkw.4tey3h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 11% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        11
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_mfedkw.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -7950,81 +4260,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_byn019.4tey3h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 11% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        11
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_byn019.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_bq7ynf.9sn360",
       "category": "waystone",
       "origin": "normal",
@@ -8056,79 +4291,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         26
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_bq7ynf.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_bq7ynf.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -8168,79 +4330,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_uh9m9i.p80ikg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 9% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        9
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_uh9m9i.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_jlc6j9.binxji",
       "category": "waystone",
       "origin": "normal",
@@ -8274,43 +4363,6 @@
         10,
         24,
         38
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_jlc6j9.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -8381,43 +4433,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vgw675.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_vrb77a.s9xmcz",
       "category": "waystone",
       "origin": "normal",
@@ -8452,79 +4467,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vrb77a.80qzhd",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 8% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        8
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_vrb77a.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_9qki3k.omwkm5",
       "category": "waystone",
       "origin": "normal",
@@ -8553,81 +4495,6 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_9qki3k.2ivdut",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_9qki3k.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
       "level": 1
     },
     {
@@ -8699,43 +4566,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2195hd.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_4nen09.bp4oiy",
       "category": "waystone",
       "origin": "normal",
@@ -8771,81 +4601,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_4nen09.yda8v8",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 12% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        12
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_4nen09.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_g88u2c.yhlc21",
       "category": "waystone",
       "origin": "normal",
@@ -8876,79 +4631,6 @@
       "yoficationPositions": [
         11,
         30
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_g88u2c.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_g88u2c.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -8991,81 +4673,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_6j3xkx.lz957c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 16% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6j3xkx.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_arwr8m.nszmll",
       "category": "waystone",
       "origin": "normal",
@@ -9100,81 +4707,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         41
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_arwr8m.lz957c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 16% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_arwr8m.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -9217,81 +4749,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_zhrsdh.lz957c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 16% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_zhrsdh.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_q2uvfp.90zite",
       "category": "waystone",
       "origin": "normal",
@@ -9326,81 +4783,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         42
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_q2uvfp.lz957c",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 16% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_q2uvfp.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -9443,79 +4825,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_1kh81h.m91hnk",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_1kh81h.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_6ozv78.vwbm4v",
       "category": "waystone",
       "origin": "normal",
@@ -9550,79 +4859,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6ozv78.m91hnk",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6ozv78.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -9665,79 +4901,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_k6xeoc.m91hnk",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_k6xeoc.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_8bvhdx.54e72",
       "category": "waystone",
       "origin": "normal",
@@ -9772,79 +4935,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         28
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_8bvhdx.m91hnk",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_8bvhdx.habf4n",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -9888,79 +4978,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_6flpgb.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_6flpgb.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_o33ait.fei5wi",
       "category": "waystone",
       "origin": "normal",
@@ -10000,79 +5017,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_o33ait.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o33ait.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_n9nlno.33bfmp",
       "category": "waystone",
       "origin": "normal",
@@ -10108,79 +5052,6 @@
       "yoficationPositions": [
         18,
         22
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_n9nlno.trlkfy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 7% больше размера групп монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regex": {
-        "ru": "групп монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше размера групп монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        7
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_n9nlno.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -10227,81 +5098,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_dsfj18.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_dsfj18.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_hp5nbc.l6thl7",
       "category": "waystone",
       "origin": "normal",
@@ -10344,81 +5140,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_hp5nbc.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_hp5nbc.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_qfi1os.le5g95",
       "category": "waystone",
       "origin": "normal",
@@ -10457,81 +5178,6 @@
         44,
         77,
         81
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_qfi1os.9v5pt3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_qfi1os.3l1qnm",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 20% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        20
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -10579,81 +5225,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_m28f6y.yda8v8",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 12% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        12
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_m28f6y.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_e7qzo5.gppbbi",
       "category": "waystone",
       "origin": "normal",
@@ -10697,81 +5268,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_e7qzo5.yda8v8",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 12% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        12
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_e7qzo5.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_2d2vey.9i1nbb",
       "category": "waystone",
       "origin": "normal",
@@ -10811,81 +5307,6 @@
         42,
         44,
         55
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2d2vey.yda8v8",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 12% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        12
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2d2vey.au9cmg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -11005,43 +5426,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_eebmyy.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_klpqrv.3fnpnc",
       "category": "waystone",
       "origin": "normal",
@@ -11153,43 +5537,6 @@
         12,
         25,
         41
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_klpqrv.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -11309,43 +5656,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_ags7hd.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_o5y5e2.i26cg7",
       "category": "waystone",
       "origin": "normal",
@@ -11381,81 +5691,6 @@
       "yoficationPositions": [
         13,
         17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o5y5e2.r0zwwy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_o5y5e2.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
       ],
       "level": 1
     },
@@ -11499,81 +5734,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_c387me.r0zwwy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше редкости находимых в этой области предметов"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regex": {
-        "ru": "предметов"
-      },
-      "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_c387me.ojj13h",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regex": {
-        "ru": "области путевых камней"
-      },
-      "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        37,
-        46
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_mophca.q30fnd",
       "category": "waystone",
       "origin": "normal",
@@ -11613,20 +5773,20 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_mophca.r0zwwy",
+      "id": "waystone.implicit.waystone_drop_chance",
       "category": "waystone",
       "origin": "normal",
       "rawText": {
-        "ru": "На 10% больше редкости находимых в этой области предметов"
+        "ru": "Шанс выпадения путевого камня: +##%"
       },
       "rawTextTemplate": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
+        "ru": "Шанс выпадения путевого камня: +##%"
       },
       "regex": {
-        "ru": "предметов"
+        "ru": "Шанс выпадения путевого камня"
       },
       "familyKey": {
-        "ru": "На #% больше редкости находимых в этой области предметов"
+        "ru": "Шанс выпадения путевого камня: +##%"
       },
       "regexPrefix": {
         "ru": ""
@@ -11635,36 +5795,37 @@
       "genderForms": {
         "ru": {}
       },
-      "affix": "suffix",
+      "affix": "implicit",
       "tags": [],
-      "ranges": [],
-      "values": [
-        10
+      "ranges": [
+        [
+          50,
+          120
+        ]
       ],
+      "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        12,
-        15,
-        50,
-        53
+        5,
+        20
       ],
       "level": 1
     },
     {
-      "id": "waystone.mod_mophca.ojj13h",
+      "id": "waystone.implicit.item_rarity",
       "category": "waystone",
       "origin": "normal",
       "rawText": {
-        "ru": "На 10% больше находимых в области путевых камней"
+        "ru": "Редкость предметов: +##%"
       },
       "rawTextTemplate": {
-        "ru": "На #% больше находимых в области путевых камней"
+        "ru": "Редкость предметов: +##%"
       },
       "regex": {
-        "ru": "области путевых камней"
+        "ru": "Редкость предметов"
       },
       "familyKey": {
-        "ru": "На #% больше находимых в области путевых камней"
+        "ru": "Редкость предметов: +##%"
       },
       "regexPrefix": {
         "ru": ""
@@ -11673,17 +5834,131 @@
       "genderForms": {
         "ru": {}
       },
-      "affix": "suffix",
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone.implicit.pack_size",
+      "category": "waystone",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "regex": {
+        "ru": "Размер групп монстров"
+      },
+      "familyKey": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          50
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        16
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone.implicit.monster_effectiveness",
+      "category": "waystone",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "regex": {
+        "ru": "Эффективность монстров"
+      },
+      "familyKey": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          70
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone.implicit.revives",
+      "category": "waystone",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Доступно возрождений: #"
+      },
+      "rawTextTemplate": {
+        "ru": "Доступно возрождений: #"
+      },
+      "regex": {
+        "ru": "Доступно возрождений"
+      },
+      "familyKey": {
+        "ru": "Доступно возрождений: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
       "tags": [],
       "ranges": [],
       "values": [
-        10
+        0,
+        6
       ],
       "hasYofication": true,
       "yoficationPositions": [
-        12,
-        37,
-        46
+        4,
+        11
       ],
       "level": 1
     }
@@ -11702,123 +5977,6 @@
       "weight": 3,
       "count": 4
     },
-    "waystone.mod_69f90c.cikt99:waystone.mod_makhsy.cikt99:waystone.mod_o2qq9u.cikt99:waystone.mod_v7b3by.cikt99": {
-      "ids": [
-        "waystone.mod_69f90c.cikt99",
-        "waystone.mod_makhsy.cikt99",
-        "waystone.mod_o2qq9u.cikt99",
-        "waystone.mod_v7b3by.cikt99"
-      ],
-      "regex": {
-        "ru": "увеличение эффективности монст"
-      },
-      "weight": 30,
-      "count": 4
-    },
-    "waystone.mod_1kh81h.habf4n:waystone.mod_2195hd.au9cmg:waystone.mod_2368r0.ojj13h:waystone.mod_2d2vey.au9cmg:waystone.mod_2ht2hu.ojj13h:waystone.mod_2s3yn.ojj13h:waystone.mod_2xv8m4.ojj13h:waystone.mod_3700im.ojj13h:waystone.mod_39zmx7.ojj13h:waystone.mod_453bd0.3l1qnm:waystone.mod_4nen09.au9cmg:waystone.mod_51te7l.ojj13h:waystone.mod_5dk06z.au9cmg:waystone.mod_5j3ahj.ojj13h:waystone.mod_62dygh.au9cmg:waystone.mod_69f90c.au9cmg:waystone.mod_6flpgb.au9cmg:waystone.mod_6j3xkx.3l1qnm:waystone.mod_6ozv78.habf4n:waystone.mod_6qjped.au9cmg:waystone.mod_6tqcw0.ojj13h:waystone.mod_7j1vfk.au9cmg:waystone.mod_8bvhdx.habf4n:waystone.mod_9qki3k.3l1qnm:waystone.mod_9svl5o.3l1qnm:waystone.mod_9v0l0z.au9cmg:waystone.mod_ags7hd.ojj13h:waystone.mod_arwr8m.3l1qnm:waystone.mod_b6htj4.ojj13h:waystone.mod_bq7ynf.habf4n:waystone.mod_byn019.au9cmg:waystone.mod_c387me.ojj13h:waystone.mod_cgdb7m.ojj13h:waystone.mod_chnob5.au9cmg:waystone.mod_d75rdn.au9cmg:waystone.mod_dsfj18.3l1qnm:waystone.mod_dv8kwa.au9cmg:waystone.mod_dz26j3.au9cmg:waystone.mod_e7qzo5.au9cmg:waystone.mod_eebmyy.ojj13h:waystone.mod_eokrsq.au9cmg:waystone.mod_g88u2c.au9cmg:waystone.mod_goqcn2.au9cmg:waystone.mod_hp5nbc.3l1qnm:waystone.mod_htl5cc.ojj13h:waystone.mod_i1gkuy.3l1qnm:waystone.mod_iivvbf.au9cmg:waystone.mod_j15ym2.au9cmg:waystone.mod_j4aki5.ojj13h:waystone.mod_jlc6j9.3l1qnm:waystone.mod_k10uf8.au9cmg:waystone.mod_k6xeoc.habf4n:waystone.mod_kggkhy.au9cmg:waystone.mod_klpqrv.ojj13h:waystone.mod_kp15r6.ojj13h:waystone.mod_l7rwtj.au9cmg:waystone.mod_l91d8v.au9cmg:waystone.mod_la7tcb.ojj13h:waystone.mod_liwit7.au9cmg:waystone.mod_m28f6y.au9cmg:waystone.mod_makhsy.au9cmg:waystone.mod_mfedkw.au9cmg:waystone.mod_mophca.ojj13h:waystone.mod_n9nlno.au9cmg:waystone.mod_nx4wv2.ojj13h:waystone.mod_o10rnx.au9cmg:waystone.mod_o2lima.ojj13h:waystone.mod_o2qq9u.au9cmg:waystone.mod_o33ait.au9cmg:waystone.mod_o5y5e2.ojj13h:waystone.mod_omospl.au9cmg:waystone.mod_phffvg.3l1qnm:waystone.mod_pmwgig.ojj13h:waystone.mod_pqhy2v.au9cmg:waystone.mod_q2uvfp.3l1qnm:waystone.mod_qfi1os.3l1qnm:waystone.mod_rwfvov.ojj13h:waystone.mod_t2n4fj.au9cmg:waystone.mod_u6ht6b.au9cmg:waystone.mod_uh9m9i.habf4n:waystone.mod_uns37d.au9cmg:waystone.mod_ux3o8n.ojj13h:waystone.mod_v6fsrm.ojj13h:waystone.mod_v7b3by.au9cmg:waystone.mod_vb57mm.ojj13h:waystone.mod_vgw675.3l1qnm:waystone.mod_vkdkr4.au9cmg:waystone.mod_vrb77a.3l1qnm:waystone.mod_wmq5d4.au9cmg:waystone.mod_x11dv3.ojj13h:waystone.mod_xmq641.au9cmg:waystone.mod_y4nnlv.au9cmg:waystone.mod_yqotx1.au9cmg:waystone.mod_zbjr94.habf4n:waystone.mod_zhrsdh.3l1qnm": {
-      "ids": [
-        "waystone.mod_1kh81h.habf4n",
-        "waystone.mod_2195hd.au9cmg",
-        "waystone.mod_2368r0.ojj13h",
-        "waystone.mod_2d2vey.au9cmg",
-        "waystone.mod_2ht2hu.ojj13h",
-        "waystone.mod_2s3yn.ojj13h",
-        "waystone.mod_2xv8m4.ojj13h",
-        "waystone.mod_3700im.ojj13h",
-        "waystone.mod_39zmx7.ojj13h",
-        "waystone.mod_453bd0.3l1qnm",
-        "waystone.mod_4nen09.au9cmg",
-        "waystone.mod_51te7l.ojj13h",
-        "waystone.mod_5dk06z.au9cmg",
-        "waystone.mod_5j3ahj.ojj13h",
-        "waystone.mod_62dygh.au9cmg",
-        "waystone.mod_69f90c.au9cmg",
-        "waystone.mod_6flpgb.au9cmg",
-        "waystone.mod_6j3xkx.3l1qnm",
-        "waystone.mod_6ozv78.habf4n",
-        "waystone.mod_6qjped.au9cmg",
-        "waystone.mod_6tqcw0.ojj13h",
-        "waystone.mod_7j1vfk.au9cmg",
-        "waystone.mod_8bvhdx.habf4n",
-        "waystone.mod_9qki3k.3l1qnm",
-        "waystone.mod_9svl5o.3l1qnm",
-        "waystone.mod_9v0l0z.au9cmg",
-        "waystone.mod_ags7hd.ojj13h",
-        "waystone.mod_arwr8m.3l1qnm",
-        "waystone.mod_b6htj4.ojj13h",
-        "waystone.mod_bq7ynf.habf4n",
-        "waystone.mod_byn019.au9cmg",
-        "waystone.mod_c387me.ojj13h",
-        "waystone.mod_cgdb7m.ojj13h",
-        "waystone.mod_chnob5.au9cmg",
-        "waystone.mod_d75rdn.au9cmg",
-        "waystone.mod_dsfj18.3l1qnm",
-        "waystone.mod_dv8kwa.au9cmg",
-        "waystone.mod_dz26j3.au9cmg",
-        "waystone.mod_e7qzo5.au9cmg",
-        "waystone.mod_eebmyy.ojj13h",
-        "waystone.mod_eokrsq.au9cmg",
-        "waystone.mod_g88u2c.au9cmg",
-        "waystone.mod_goqcn2.au9cmg",
-        "waystone.mod_hp5nbc.3l1qnm",
-        "waystone.mod_htl5cc.ojj13h",
-        "waystone.mod_i1gkuy.3l1qnm",
-        "waystone.mod_iivvbf.au9cmg",
-        "waystone.mod_j15ym2.au9cmg",
-        "waystone.mod_j4aki5.ojj13h",
-        "waystone.mod_jlc6j9.3l1qnm",
-        "waystone.mod_k10uf8.au9cmg",
-        "waystone.mod_k6xeoc.habf4n",
-        "waystone.mod_kggkhy.au9cmg",
-        "waystone.mod_klpqrv.ojj13h",
-        "waystone.mod_kp15r6.ojj13h",
-        "waystone.mod_l7rwtj.au9cmg",
-        "waystone.mod_l91d8v.au9cmg",
-        "waystone.mod_la7tcb.ojj13h",
-        "waystone.mod_liwit7.au9cmg",
-        "waystone.mod_m28f6y.au9cmg",
-        "waystone.mod_makhsy.au9cmg",
-        "waystone.mod_mfedkw.au9cmg",
-        "waystone.mod_mophca.ojj13h",
-        "waystone.mod_n9nlno.au9cmg",
-        "waystone.mod_nx4wv2.ojj13h",
-        "waystone.mod_o10rnx.au9cmg",
-        "waystone.mod_o2lima.ojj13h",
-        "waystone.mod_o2qq9u.au9cmg",
-        "waystone.mod_o33ait.au9cmg",
-        "waystone.mod_o5y5e2.ojj13h",
-        "waystone.mod_omospl.au9cmg",
-        "waystone.mod_phffvg.3l1qnm",
-        "waystone.mod_pmwgig.ojj13h",
-        "waystone.mod_pqhy2v.au9cmg",
-        "waystone.mod_q2uvfp.3l1qnm",
-        "waystone.mod_qfi1os.3l1qnm",
-        "waystone.mod_rwfvov.ojj13h",
-        "waystone.mod_t2n4fj.au9cmg",
-        "waystone.mod_u6ht6b.au9cmg",
-        "waystone.mod_uh9m9i.habf4n",
-        "waystone.mod_uns37d.au9cmg",
-        "waystone.mod_ux3o8n.ojj13h",
-        "waystone.mod_v6fsrm.ojj13h",
-        "waystone.mod_v7b3by.au9cmg",
-        "waystone.mod_vb57mm.ojj13h",
-        "waystone.mod_vgw675.3l1qnm",
-        "waystone.mod_vkdkr4.au9cmg",
-        "waystone.mod_vrb77a.3l1qnm",
-        "waystone.mod_wmq5d4.au9cmg",
-        "waystone.mod_x11dv3.ojj13h",
-        "waystone.mod_xmq641.au9cmg",
-        "waystone.mod_y4nnlv.au9cmg",
-        "waystone.mod_yqotx1.au9cmg",
-        "waystone.mod_zbjr94.habf4n",
-        "waystone.mod_zhrsdh.3l1qnm"
-      ],
-      "regex": {
-        "ru": "области путевых кам"
-      },
-      "weight": 19,
-      "count": 95
-    },
     "waystone.mod_9v0l0z.rdlceo:waystone.mod_l91d8v.snk51q:waystone.mod_t2n4fj.p1z2he:waystone.mod_xmq641.4ld0he": {
       "ids": [
         "waystone.mod_9v0l0z.rdlceo",
@@ -11832,47 +5990,6 @@
       "weight": 3,
       "count": 4
     },
-    "waystone.mod_2d2vey.yda8v8:waystone.mod_4nen09.yda8v8:waystone.mod_6j3xkx.lz957c:waystone.mod_6qjped.9v5pt3:waystone.mod_7j1vfk.2ivdut:waystone.mod_9qki3k.2ivdut:waystone.mod_9v0l0z.tbjh5m:waystone.mod_arwr8m.lz957c:waystone.mod_byn019.4tey3h:waystone.mod_c387me.r0zwwy:waystone.mod_dsfj18.9v5pt3:waystone.mod_e7qzo5.yda8v8:waystone.mod_hp5nbc.9v5pt3:waystone.mod_iivvbf.9v5pt3:waystone.mod_j15ym2.4tey3h:waystone.mod_kggkhy.4tey3h:waystone.mod_l91d8v.tbjh5m:waystone.mod_m28f6y.yda8v8:waystone.mod_mfedkw.4tey3h:waystone.mod_mophca.r0zwwy:waystone.mod_o10rnx.9v5pt3:waystone.mod_o2lima.tbjh5m:waystone.mod_o5y5e2.r0zwwy:waystone.mod_pmwgig.tbjh5m:waystone.mod_q2uvfp.lz957c:waystone.mod_qfi1os.9v5pt3:waystone.mod_t2n4fj.tbjh5m:waystone.mod_v6fsrm.tbjh5m:waystone.mod_vb57mm.tbjh5m:waystone.mod_xmq641.tbjh5m:waystone.mod_yqotx1.9v5pt3:waystone.mod_zhrsdh.lz957c": {
-      "ids": [
-        "waystone.mod_2d2vey.yda8v8",
-        "waystone.mod_4nen09.yda8v8",
-        "waystone.mod_6j3xkx.lz957c",
-        "waystone.mod_6qjped.9v5pt3",
-        "waystone.mod_7j1vfk.2ivdut",
-        "waystone.mod_9qki3k.2ivdut",
-        "waystone.mod_9v0l0z.tbjh5m",
-        "waystone.mod_arwr8m.lz957c",
-        "waystone.mod_byn019.4tey3h",
-        "waystone.mod_c387me.r0zwwy",
-        "waystone.mod_dsfj18.9v5pt3",
-        "waystone.mod_e7qzo5.yda8v8",
-        "waystone.mod_hp5nbc.9v5pt3",
-        "waystone.mod_iivvbf.9v5pt3",
-        "waystone.mod_j15ym2.4tey3h",
-        "waystone.mod_kggkhy.4tey3h",
-        "waystone.mod_l91d8v.tbjh5m",
-        "waystone.mod_m28f6y.yda8v8",
-        "waystone.mod_mfedkw.4tey3h",
-        "waystone.mod_mophca.r0zwwy",
-        "waystone.mod_o10rnx.9v5pt3",
-        "waystone.mod_o2lima.tbjh5m",
-        "waystone.mod_o5y5e2.r0zwwy",
-        "waystone.mod_pmwgig.tbjh5m",
-        "waystone.mod_q2uvfp.lz957c",
-        "waystone.mod_qfi1os.9v5pt3",
-        "waystone.mod_t2n4fj.tbjh5m",
-        "waystone.mod_v6fsrm.tbjh5m",
-        "waystone.mod_vb57mm.tbjh5m",
-        "waystone.mod_xmq641.tbjh5m",
-        "waystone.mod_yqotx1.9v5pt3",
-        "waystone.mod_zhrsdh.lz957c"
-      ],
-      "regex": {
-        "ru": "предме"
-      },
-      "weight": 6,
-      "count": 32
-    },
     "waystone.mod_5dk06z.wwyr8i:waystone.mod_d75rdn.kskgam:waystone.mod_liwit7.byeam:waystone.mod_pqhy2v.vmzylg": {
       "ids": [
         "waystone.mod_5dk06z.wwyr8i",
@@ -11885,44 +6002,6 @@
       },
       "weight": 3,
       "count": 4
-    },
-    "waystone.mod_1kh81h.m91hnk:waystone.mod_2s3yn.trlkfy:waystone.mod_39zmx7.trlkfy:waystone.mod_51te7l.trlkfy:waystone.mod_5dk06z.80qzhd:waystone.mod_6flpgb.trlkfy:waystone.mod_6ozv78.m91hnk:waystone.mod_6tqcw0.trlkfy:waystone.mod_8bvhdx.m91hnk:waystone.mod_b6htj4.trlkfy:waystone.mod_bq7ynf.p80ikg:waystone.mod_d75rdn.80qzhd:waystone.mod_dv8kwa.p80ikg:waystone.mod_dz26j3.3h5xlv:waystone.mod_eokrsq.p80ikg:waystone.mod_g88u2c.trlkfy:waystone.mod_k6xeoc.m91hnk:waystone.mod_la7tcb.trlkfy:waystone.mod_liwit7.80qzhd:waystone.mod_n9nlno.trlkfy:waystone.mod_o33ait.trlkfy:waystone.mod_pqhy2v.80qzhd:waystone.mod_rwfvov.trlkfy:waystone.mod_uh9m9i.p80ikg:waystone.mod_uns37d.p80ikg:waystone.mod_vrb77a.80qzhd:waystone.mod_x11dv3.trlkfy:waystone.mod_y4nnlv.p80ikg:waystone.mod_zbjr94.p80ikg": {
-      "ids": [
-        "waystone.mod_1kh81h.m91hnk",
-        "waystone.mod_2s3yn.trlkfy",
-        "waystone.mod_39zmx7.trlkfy",
-        "waystone.mod_51te7l.trlkfy",
-        "waystone.mod_5dk06z.80qzhd",
-        "waystone.mod_6flpgb.trlkfy",
-        "waystone.mod_6ozv78.m91hnk",
-        "waystone.mod_6tqcw0.trlkfy",
-        "waystone.mod_8bvhdx.m91hnk",
-        "waystone.mod_b6htj4.trlkfy",
-        "waystone.mod_bq7ynf.p80ikg",
-        "waystone.mod_d75rdn.80qzhd",
-        "waystone.mod_dv8kwa.p80ikg",
-        "waystone.mod_dz26j3.3h5xlv",
-        "waystone.mod_eokrsq.p80ikg",
-        "waystone.mod_g88u2c.trlkfy",
-        "waystone.mod_k6xeoc.m91hnk",
-        "waystone.mod_la7tcb.trlkfy",
-        "waystone.mod_liwit7.80qzhd",
-        "waystone.mod_n9nlno.trlkfy",
-        "waystone.mod_o33ait.trlkfy",
-        "waystone.mod_pqhy2v.80qzhd",
-        "waystone.mod_rwfvov.trlkfy",
-        "waystone.mod_uh9m9i.p80ikg",
-        "waystone.mod_uns37d.p80ikg",
-        "waystone.mod_vrb77a.80qzhd",
-        "waystone.mod_x11dv3.trlkfy",
-        "waystone.mod_y4nnlv.p80ikg",
-        "waystone.mod_zbjr94.p80ikg"
-      ],
-      "regex": {
-        "ru": "групп монст"
-      },
-      "weight": 11,
-      "count": 29
     },
     "waystone.mod_453bd0.l28urr:waystone.mod_9svl5o.gt6q1l:waystone.mod_i1gkuy.mctyuh:waystone.mod_phffvg.ev4djt": {
       "ids": [
@@ -12276,51 +6355,34 @@
     },
     "waystone.mod_1kh81h.m91hnk:waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2s3yn.trlkfy:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_39zmx7.trlkfy:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_51te7l.trlkfy:waystone.mod_5dk06z.80qzhd:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_69f90c.cikt99:waystone.mod_6flpgb.trlkfy:waystone.mod_6ozv78.m91hnk:waystone.mod_6tqcw0.trlkfy:waystone.mod_8bvhdx.m91hnk:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_b6htj4.trlkfy:waystone.mod_bq7ynf.p80ikg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_d75rdn.80qzhd:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.p80ikg:waystone.mod_dz26j3.3h5xlv:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.p80ikg:waystone.mod_g88u2c.trlkfy:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_k6xeoc.m91hnk:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_la7tcb.trlkfy:waystone.mod_liwit7.80qzhd:waystone.mod_makhsy.cikt99:waystone.mod_mfedkw.gt494t:waystone.mod_n9nlno.trlkfy:waystone.mod_nx4wv2.x4tupj:waystone.mod_o2qq9u.cikt99:waystone.mod_o33ait.trlkfy:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_pqhy2v.80qzhd:waystone.mod_rwfvov.trlkfy:waystone.mod_u6ht6b.x4tupj:waystone.mod_uh9m9i.p80ikg:waystone.mod_uns37d.p80ikg:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_v7b3by.cikt99:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_vrb77a.80qzhd:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_x11dv3.trlkfy:waystone.mod_y4nnlv.asn09:waystone.mod_y4nnlv.p80ikg:waystone.mod_zbjr94.p80ikg": {
       "ids": [
-        "waystone.mod_1kh81h.m91hnk",
         "waystone.mod_2195hd.xcp5e3",
         "waystone.mod_2368r0.x4tupj",
         "waystone.mod_2ht2hu.x4tupj",
-        "waystone.mod_2s3yn.trlkfy",
         "waystone.mod_2xv8m4.x4tupj",
         "waystone.mod_3700im.1gskvl",
         "waystone.mod_3700im.irs8zf",
-        "waystone.mod_39zmx7.trlkfy",
         "waystone.mod_453bd0.7bkmne",
         "waystone.mod_453bd0.dkzoww",
         "waystone.mod_453bd0.l28urr",
-        "waystone.mod_51te7l.trlkfy",
-        "waystone.mod_5dk06z.80qzhd",
         "waystone.mod_5j3ahj.x4tupj",
         "waystone.mod_62dygh.ajq93o",
         "waystone.mod_62dygh.ohnqoy",
         "waystone.mod_62dygh.u5rs9k",
-        "waystone.mod_69f90c.cikt99",
-        "waystone.mod_6flpgb.trlkfy",
-        "waystone.mod_6ozv78.m91hnk",
-        "waystone.mod_6tqcw0.trlkfy",
-        "waystone.mod_8bvhdx.m91hnk",
         "waystone.mod_9svl5o.7bkmne",
         "waystone.mod_9svl5o.dkzoww",
         "waystone.mod_9svl5o.gt6q1l",
         "waystone.mod_ags7hd.k7gsc2",
         "waystone.mod_ags7hd.o849vg",
-        "waystone.mod_b6htj4.trlkfy",
-        "waystone.mod_bq7ynf.p80ikg",
         "waystone.mod_byn019.7bxq5y",
         "waystone.mod_cgdb7m.1gskvl",
         "waystone.mod_cgdb7m.irs8zf",
         "waystone.mod_chnob5.ihp41g",
         "waystone.mod_chnob5.ohnqoy",
         "waystone.mod_chnob5.u5rs9k",
-        "waystone.mod_d75rdn.80qzhd",
         "waystone.mod_dv8kwa.mtgbg2",
-        "waystone.mod_dv8kwa.p80ikg",
-        "waystone.mod_dz26j3.3h5xlv",
         "waystone.mod_eebmyy.k7gsc2",
         "waystone.mod_eebmyy.o849vg",
         "waystone.mod_eokrsq.mde121",
-        "waystone.mod_eokrsq.p80ikg",
-        "waystone.mod_g88u2c.trlkfy",
         "waystone.mod_goqcn2.x4tupj",
         "waystone.mod_htl5cc.1gskvl",
         "waystone.mod_htl5cc.irs8zf",
@@ -12333,100 +6395,67 @@
         "waystone.mod_k10uf8.j51fup",
         "waystone.mod_k10uf8.ohnqoy",
         "waystone.mod_k10uf8.u5rs9k",
-        "waystone.mod_k6xeoc.m91hnk",
         "waystone.mod_kggkhy.tcq2o9",
         "waystone.mod_khqk4q.uaugx5",
         "waystone.mod_klpqrv.k7gsc2",
         "waystone.mod_klpqrv.o849vg",
         "waystone.mod_kp15r6.x4tupj",
         "waystone.mod_l7rwtj.x4tupj",
-        "waystone.mod_la7tcb.trlkfy",
-        "waystone.mod_liwit7.80qzhd",
-        "waystone.mod_makhsy.cikt99",
         "waystone.mod_mfedkw.gt494t",
-        "waystone.mod_n9nlno.trlkfy",
         "waystone.mod_nx4wv2.x4tupj",
-        "waystone.mod_o2qq9u.cikt99",
-        "waystone.mod_o33ait.trlkfy",
         "waystone.mod_omospl.x4tupj",
         "waystone.mod_phffvg.7bkmne",
         "waystone.mod_phffvg.dkzoww",
         "waystone.mod_phffvg.ev4djt",
-        "waystone.mod_pqhy2v.80qzhd",
-        "waystone.mod_rwfvov.trlkfy",
         "waystone.mod_u6ht6b.x4tupj",
-        "waystone.mod_uh9m9i.p80ikg",
-        "waystone.mod_uns37d.p80ikg",
         "waystone.mod_uns37d.quxea",
         "waystone.mod_ux3o8n.x4tupj",
-        "waystone.mod_v7b3by.cikt99",
         "waystone.mod_vgw675.4fnej8",
         "waystone.mod_vkdkr4.fg1k8d",
         "waystone.mod_vkdkr4.ohnqoy",
         "waystone.mod_vkdkr4.u5rs9k",
-        "waystone.mod_vrb77a.80qzhd",
         "waystone.mod_wmq5d4.k7gsc2",
         "waystone.mod_wmq5d4.o849vg",
-        "waystone.mod_x11dv3.trlkfy",
-        "waystone.mod_y4nnlv.asn09",
-        "waystone.mod_y4nnlv.p80ikg",
-        "waystone.mod_zbjr94.p80ikg"
+        "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
         "ru": "(количества редких|увеличение (эффективности|урона)|групп|и редких|появления свойств у редких|критического урона|здоровья|больше эффективности|у) монстров"
       },
       "weight": 154,
-      "count": 95
+      "count": 62
     },
     "waystone.mod_1kh81h.m91hnk:waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2s3yn.trlkfy:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_39zmx7.trlkfy:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_51te7l.trlkfy:waystone.mod_5dk06z.80qzhd:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_69f90c.cikt99:waystone.mod_6flpgb.trlkfy:waystone.mod_6ozv78.m91hnk:waystone.mod_6tqcw0.trlkfy:waystone.mod_8bvhdx.m91hnk:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.j328n0:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_b6htj4.trlkfy:waystone.mod_bq7ynf.p80ikg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_d75rdn.80qzhd:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.p80ikg:waystone.mod_dz26j3.3h5xlv:waystone.mod_eebmyy.hlk855:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.p80ikg:waystone.mod_g88u2c.trlkfy:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_k6xeoc.m91hnk:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.3fnpnc:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_la7tcb.trlkfy:waystone.mod_liwit7.80qzhd:waystone.mod_makhsy.cikt99:waystone.mod_mfedkw.gt494t:waystone.mod_n9nlno.trlkfy:waystone.mod_nx4wv2.x4tupj:waystone.mod_o2qq9u.cikt99:waystone.mod_o33ait.trlkfy:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_pqhy2v.80qzhd:waystone.mod_rwfvov.trlkfy:waystone.mod_u6ht6b.x4tupj:waystone.mod_uh9m9i.p80ikg:waystone.mod_uns37d.p80ikg:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_v7b3by.cikt99:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_vrb77a.80qzhd:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_x11dv3.trlkfy:waystone.mod_y4nnlv.asn09:waystone.mod_y4nnlv.p80ikg:waystone.mod_zbjr94.p80ikg": {
       "ids": [
-        "waystone.mod_1kh81h.m91hnk",
         "waystone.mod_2195hd.xcp5e3",
         "waystone.mod_2368r0.x4tupj",
         "waystone.mod_2ht2hu.x4tupj",
-        "waystone.mod_2s3yn.trlkfy",
         "waystone.mod_2xv8m4.x4tupj",
         "waystone.mod_3700im.1gskvl",
         "waystone.mod_3700im.irs8zf",
-        "waystone.mod_39zmx7.trlkfy",
         "waystone.mod_453bd0.7bkmne",
         "waystone.mod_453bd0.dkzoww",
         "waystone.mod_453bd0.l28urr",
-        "waystone.mod_51te7l.trlkfy",
-        "waystone.mod_5dk06z.80qzhd",
         "waystone.mod_5j3ahj.x4tupj",
         "waystone.mod_62dygh.ajq93o",
         "waystone.mod_62dygh.ohnqoy",
         "waystone.mod_62dygh.u5rs9k",
-        "waystone.mod_69f90c.cikt99",
-        "waystone.mod_6flpgb.trlkfy",
-        "waystone.mod_6ozv78.m91hnk",
-        "waystone.mod_6tqcw0.trlkfy",
-        "waystone.mod_8bvhdx.m91hnk",
         "waystone.mod_9svl5o.7bkmne",
         "waystone.mod_9svl5o.dkzoww",
         "waystone.mod_9svl5o.gt6q1l",
         "waystone.mod_ags7hd.j328n0",
         "waystone.mod_ags7hd.k7gsc2",
         "waystone.mod_ags7hd.o849vg",
-        "waystone.mod_b6htj4.trlkfy",
-        "waystone.mod_bq7ynf.p80ikg",
         "waystone.mod_byn019.7bxq5y",
         "waystone.mod_cgdb7m.1gskvl",
         "waystone.mod_cgdb7m.irs8zf",
         "waystone.mod_chnob5.ihp41g",
         "waystone.mod_chnob5.ohnqoy",
         "waystone.mod_chnob5.u5rs9k",
-        "waystone.mod_d75rdn.80qzhd",
         "waystone.mod_dv8kwa.mtgbg2",
-        "waystone.mod_dv8kwa.p80ikg",
-        "waystone.mod_dz26j3.3h5xlv",
         "waystone.mod_eebmyy.hlk855",
         "waystone.mod_eebmyy.k7gsc2",
         "waystone.mod_eebmyy.o849vg",
         "waystone.mod_eokrsq.mde121",
-        "waystone.mod_eokrsq.p80ikg",
-        "waystone.mod_g88u2c.trlkfy",
         "waystone.mod_goqcn2.x4tupj",
         "waystone.mod_htl5cc.1gskvl",
         "waystone.mod_htl5cc.irs8zf",
@@ -12439,7 +6468,6 @@
         "waystone.mod_k10uf8.j51fup",
         "waystone.mod_k10uf8.ohnqoy",
         "waystone.mod_k10uf8.u5rs9k",
-        "waystone.mod_k6xeoc.m91hnk",
         "waystone.mod_kggkhy.tcq2o9",
         "waystone.mod_khqk4q.uaugx5",
         "waystone.mod_klpqrv.3fnpnc",
@@ -12447,43 +6475,28 @@
         "waystone.mod_klpqrv.o849vg",
         "waystone.mod_kp15r6.x4tupj",
         "waystone.mod_l7rwtj.x4tupj",
-        "waystone.mod_la7tcb.trlkfy",
-        "waystone.mod_liwit7.80qzhd",
-        "waystone.mod_makhsy.cikt99",
         "waystone.mod_mfedkw.gt494t",
-        "waystone.mod_n9nlno.trlkfy",
         "waystone.mod_nx4wv2.x4tupj",
-        "waystone.mod_o2qq9u.cikt99",
-        "waystone.mod_o33ait.trlkfy",
         "waystone.mod_omospl.x4tupj",
         "waystone.mod_phffvg.7bkmne",
         "waystone.mod_phffvg.dkzoww",
         "waystone.mod_phffvg.ev4djt",
-        "waystone.mod_pqhy2v.80qzhd",
-        "waystone.mod_rwfvov.trlkfy",
         "waystone.mod_u6ht6b.x4tupj",
-        "waystone.mod_uh9m9i.p80ikg",
-        "waystone.mod_uns37d.p80ikg",
         "waystone.mod_uns37d.quxea",
         "waystone.mod_ux3o8n.x4tupj",
-        "waystone.mod_v7b3by.cikt99",
         "waystone.mod_vgw675.4fnej8",
         "waystone.mod_vkdkr4.fg1k8d",
         "waystone.mod_vkdkr4.ohnqoy",
         "waystone.mod_vkdkr4.u5rs9k",
-        "waystone.mod_vrb77a.80qzhd",
         "waystone.mod_wmq5d4.k7gsc2",
         "waystone.mod_wmq5d4.o849vg",
-        "waystone.mod_x11dv3.trlkfy",
-        "waystone.mod_y4nnlv.asn09",
-        "waystone.mod_y4nnlv.p80ikg",
-        "waystone.mod_zbjr94.p80ikg"
+        "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
         "ru": "(критическ(их уда|ого урона монст)|количества редких монст|увеличение (эффективности|урона) монст|групп монст|и редких монст|появления свойств у редких монст|здоровья монст|больше эффективности монст|у монст)ров"
       },
       "weight": 211,
-      "count": 98
+      "count": 65
     },
     "waystone.mod_2368r0.5ee2t3:waystone.mod_2xv8m4.9i43dz:waystone.mod_39zmx7.isxi7c:waystone.mod_5j3ahj.8mhogc:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_la7tcb.lmk0dk:waystone.mod_ux3o8n.gmxw9g": {
       "ids": [
@@ -12525,19 +6538,15 @@
     "waystone.mod_453bd0.l28urr:waystone.mod_69f90c.cikt99:waystone.mod_9svl5o.gt6q1l:waystone.mod_i1gkuy.mctyuh:waystone.mod_makhsy.cikt99:waystone.mod_o2qq9u.cikt99:waystone.mod_phffvg.ev4djt:waystone.mod_v7b3by.cikt99": {
       "ids": [
         "waystone.mod_453bd0.l28urr",
-        "waystone.mod_69f90c.cikt99",
         "waystone.mod_9svl5o.gt6q1l",
         "waystone.mod_i1gkuy.mctyuh",
-        "waystone.mod_makhsy.cikt99",
-        "waystone.mod_o2qq9u.cikt99",
-        "waystone.mod_phffvg.ev4djt",
-        "waystone.mod_v7b3by.cikt99"
+        "waystone.mod_phffvg.ev4djt"
       ],
       "regex": {
         "ru": "увеличение (эффективности|урона) монстров"
       },
       "weight": 41,
-      "count": 8
+      "count": 4
     },
     "waystone.mod_1kh81h.413pny:waystone.mod_6j3xkx.tr2esi:waystone.mod_6ozv78.vwbm4v:waystone.mod_8bvhdx.54e72:waystone.mod_arwr8m.nszmll:waystone.mod_k6xeoc.5ozbbj:waystone.mod_q2uvfp.90zite:waystone.mod_zhrsdh.2xc6v6": {
       "ids": [

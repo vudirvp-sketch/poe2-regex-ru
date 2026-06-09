@@ -1126,6 +1126,196 @@
         27
       ],
       "level": 0
+    },
+    {
+      "id": "waystone-desecrated.implicit.waystone_drop_chance",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Шанс выпадения путевого камня: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Шанс выпадения путевого камня: +##%"
+      },
+      "regex": {
+        "ru": "Шанс выпадения путевого камня"
+      },
+      "familyKey": {
+        "ru": "Шанс выпадения путевого камня: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          120
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        5,
+        20
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone-desecrated.implicit.item_rarity",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Редкость предметов: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Редкость предметов: +##%"
+      },
+      "regex": {
+        "ru": "Редкость предметов"
+      },
+      "familyKey": {
+        "ru": "Редкость предметов: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          40
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone-desecrated.implicit.pack_size",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "regex": {
+        "ru": "Размер групп монстров"
+      },
+      "familyKey": {
+        "ru": "Размер групп монстров: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          50
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        16
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone-desecrated.implicit.monster_effectiveness",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "regex": {
+        "ru": "Эффективность монстров"
+      },
+      "familyKey": {
+        "ru": "Эффективность монстров: +##%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          70
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone-desecrated.implicit.revives",
+      "category": "waystone-desecrated",
+      "origin": "desecrated",
+      "rawText": {
+        "ru": "Доступно возрождений: #"
+      },
+      "rawTextTemplate": {
+        "ru": "Доступно возрождений: #"
+      },
+      "regex": {
+        "ru": "Доступно возрождений"
+      },
+      "familyKey": {
+        "ru": "Доступно возрождений: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [],
+      "values": [
+        0,
+        6
+      ],
+      "hasYofication": true,
+      "yoficationPositions": [
+        4,
+        11
+      ],
+      "level": 1
     }
   ],
   "optimizationTable": {

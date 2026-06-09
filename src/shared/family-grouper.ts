@@ -147,10 +147,11 @@ export function groupTokensByFamily(tokens: GameToken[], category?: string): Fam
     groups.push(buildFamilyGroup(familyKey, affix, members, category));
   }
 
-  // Sort groups: prefixes first, then suffixes; within each group, sort by priority tier then familyKey
+  // Sort groups: implicits first, then prefixes, then suffixes; within each group, sort by priority tier then familyKey
+  const AFFIX_ORDER: Record<string, number> = { implicit: 0, prefix: 1, suffix: 2 };
   groups.sort((a, b) => {
     if (a.affix !== b.affix) {
-      return a.affix === 'prefix' ? -1 : 1;
+      return (AFFIX_ORDER[a.affix] ?? 3) - (AFFIX_ORDER[b.affix] ?? 3);
     }
     // Sort by priority tier (S→A→B→C) then alphabetically
     const tierDiff = TIER_SORT_ORDER[a.priorityTier] - TIER_SORT_ORDER[b.priorityTier];
