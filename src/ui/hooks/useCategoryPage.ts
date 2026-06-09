@@ -459,7 +459,16 @@ export function buildAstFromSelections(
           ? group.suffixes.join('|')
           : group.suffixes[0];
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined);
+        // Determine anchorStart: true when rawTextTemplate starts with ##
+        // (number at position 0 of the mod block).
+        // This enables ^ anchor in the compiled regex, preventing range notation FP.
+        // Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2.
+        const numberAtStart = group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /^##/.test(template);
+        });
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, numberAtStart || undefined);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

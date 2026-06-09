@@ -320,4 +320,53 @@ describe('compile', () => {
     );
     expect(result).toBe('"к сопротивлению огню|к силе"');
   });
+
+  // ─── Phase 9b: anchorStart (^) anchor tests ───
+
+  it('RANGE with anchorStart=true adds ^ before number pattern (enumerated)', () => {
+    // Phase 9b: ^ anchors to start of mod block, preventing range notation FP.
+    // Verified in-game: "^(2[7-9]|30).*откладывания наград" highlights only 27% and 30%
+    const result = compile(range(27, 30, 'откладывания наград', undefined, undefined, true), { round10: false });
+    expect(result).toBe('"^(2[7-9]|30).*откладывания наград"');
+  });
+
+  it('RANGE with anchorStart=true adds ^ before number pattern (≥min)', () => {
+    // ≥27 with anchorStart → "^([2-9][0-9]|[0-9][0-9][0-9]).*suffix"
+    const result = compile(range(27, undefined, 'откладывания наград', undefined, undefined, true), { round10: false });
+    expect(result).toBe('"^(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград"');
+  });
+
+  it('RANGE with anchorStart=true adds ^ before number pattern (≤max)', () => {
+    // ≤30 with anchorStart → "^([0-9]|[1-2][0-9]|30).*suffix"
+    const result = compile(range(undefined, 30, 'откладывания наград', undefined, undefined, true), { round10: false });
+    expect(result).toBe('"^([0-9]|[1-2][0-9]|30).*откладывания наград"');
+  });
+
+  it('RANGE with anchorStart=false (default) does NOT add ^', () => {
+    // Default behavior — no ^ anchor (backward compatible)
+    const result = compile(range(27, 30, 'откладывания наград'), { round10: false });
+    expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
+    expect(result).not.toContain('^');
+  });
+
+  it('RANGE with prefix does NOT add ^ even with anchorStart=true', () => {
+    // When prefix is set (dual-number mods), ^ is not added because
+    // the number is NOT at position 0 — the prefix is.
+    // The prefix already provides anchoring within the block.
+    const result = compile(range(25, 30, 'количество дани', 'даруют увеличенное на', undefined, true), { round10: false });
+    expect(result).toBe('"даруют увеличенное на (2[5-9]|30).*количество дани"');
+    expect(result).not.toContain('^');
+  });
+
+  it('RANGE with anchorStart=true AND wide range (>50) preserves ^ on both AND groups', () => {
+    // Wide range: AND fallback. anchorStart should be preserved on both children.
+    // range(10, 200, 'суфф', undefined, undefined, true) → "^≥10.*суфф" "^≤200.*суфф"
+    const result = compile(range(10, 200, 'суфф', undefined, undefined, true), { round10: false });
+    expect(result).toContain('^');
+    // Both AND groups should have ^
+    const groups = result.split('" "');
+    expect(groups.length).toBe(2);
+    expect(groups[0]).toContain('^');
+    expect(groups[1]).toContain('^');
+  });
 });

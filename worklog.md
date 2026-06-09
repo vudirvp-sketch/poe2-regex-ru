@@ -4,34 +4,38 @@
 
 ---
 
-## Current State (Session 77 — 2026-06-09)
+## Current State (Session 78 — 2026-06-09)
 
-**Build:** `pnpm build` passes, `npx vitest run` passes (576/576 tests)
+**Build:** `pnpm build` passes, `npx vitest run` passes (640/640 tests)
 **Oracle:** 1823/1823 valid, **0 cross-family FP**, 1309 family-tier FP (by design)
 **Jewel heuristic:** 100% accuracy (193/193) vs ETL ground truth
 
 **Key Changes This Session:**
 
-1. **Phase 9a: Range notation FP confirmed in-game** — Both flat `(27|28|29|30)` and compact `(2[7-9]|30)` enumeration highlight 26% and 22% items. Numbers in range notation (e.g., "27" from "(27-50)") match enumerated values. Enumeration is NOT a complete solution for range notation FP.
-2. **UI warning: round10 + AND fallback** — Added ⚠ Округл. indicator in CategoryControlPanel when round10=true AND range > MAX_ENUMERATE_RANGE (50 values). Tooltip explains that rounding expands the range in AND fallback mode.
-3. **UI warning: range notation FP** — Added ⚠ Диапазон indicator in CategoryControlPanel when any range filter is active. Tooltip explains that numbers in item range notation can cause false positives.
-4. **Documentation** — Updated ARCHITECTURE.md (v38), IN_GAME_TESTS.md (Phase 9a), новый_план.md (v18), worklog.md.
+1. **Phase 9b: `^` anchor verified in-game** — `"^(2[7-9]|30).*откладывания наград"` highlights only 27% and 30% items. `^` reliably anchors to start of mod block. Range notation FP eliminated for tablet/waystone mods.
+2. **`anchorStart` flag on RANGE AST node** — New optional `anchorStart?: boolean` field. Set when `rawTextTemplate` starts with `##` (number at position 0 of mod block). Compiler adds `^` before number pattern when `anchorStart=true` and no `prefix` is set.
+3. **Compiler: `^` generation** — Three compilation paths updated: enumerated range, ≥min, ≤max. AND fallback preserves `anchorStart` on both children. Prefix presence suppresses `^`.
+4. **AST builder: `numberAtStart` detection** — `useCategoryPage.ts` checks `/^##/` on `rawTextTemplate[locale]` for tokens in each range group.
+5. **14 new tests** — Compiler (6), matcher (8) in `phase-9b-anchor-start.test.ts`. Total: 640 tests.
 
 **Files changed this session:**
-- `src/ui/components/CategoryControlPanel.tsx` — Added range warnings (round10+AND fallback, range notation FP), imported MAX_ENUMERATE_RANGE
-- `src/shared/i18n.ts` — Added i18n keys for range warnings
-- `docs/ARCHITECTURE.md` — v38: updated enumeration section with Phase 9a findings, updated prefix anchoring section
-- `docs/IN_GAME_TESTS.md` — Added Phase 9a test results (compact enumeration FP confirmed)
-- `новый_план.md` — v18: updated status, P2 done, P3 updated with `^` anchor verification
-- `worklog.md` — Updated
+- `src/shared/types.ts` — Added `anchorStart?: boolean` to RANGE AST node
+- `src/core/ast.ts` — Updated `range()` builder with `anchorStart` parameter
+- `src/core/compiler.ts` — `^` generation for enumerated, ≥min, ≤max ranges; `anchorStart` propagation in normalizeAst
+- `src/ui/hooks/useCategoryPage.ts` — `numberAtStart` detection from `rawTextTemplate`
+- `tests/core/compiler.test.ts` — 6 new anchorStart tests
+- `tests/core/phase-9b-anchor-start.test.ts` — 8 new matcher tests (new file)
+- `docs/ARCHITECTURE.md` — v39: §5 updated (^ reliable), §7 updated (anchorStart), bug fix log
+- `docs/IN_GAME_TESTS.md` — Phase 9b results added
+- `новый_план.md` — v19: P3 done, P4 suffix anchoring
+- `worklog.md` — This update
 - `AGENT_NAVIGATION.md` — Updated
 
 **NOT YET DONE (next iteration):**
-- ⬜ In-game verification of `^` anchor for range notation FP prevention
+- ⬜ Suffix anchoring investigation — test `"(2[7-9]|30)%.*suffix"` in-game (P4)
 - ⬜ Browser functional testing — verify all tabs, range warnings, visual hierarchy
-- ⬜ Mobile testing on real device — verify touch targets, scroll behavior
 - ⬜ Priority tier filter testing — S/A/S+A toggle on ring/amulet/belt/waystone/tablet
-- ⬜ Suffix anchoring investigation — does `"(2[7-9]|30)%.*suffix"` prevent FP?
+- ⬐ Accessory range notation FP — `+`-prefix mods may still have FP (harder to fix without suffix anchoring)
 
 ---
 
@@ -44,7 +48,7 @@
 5. **`()` in regex = PoE2 grouping:** `containsPoE2Grouping()` filters at generation time.
 6. **Negate syntax `"!X"` only:** `!"X"` does NOT work — `!` must be inside quotes.
 7. **Word truncation = trailing substring only:** Mid-word extraction does NOT work.
-8. **Range notation FP (Phase 9a):** Enumeration doesn't fully prevent FP when range notation contains matching numbers. `^` anchor might help — needs in-game verification.
+8. **`^` anchor is reliable for mod block start:** Verified Phase 9b. Only use when number is at position 0 (rawTextTemplate starts with `##`). NOT for mods with `prefix` or `+`-prefixed templates.
 9. **regexExclude format must be locale-object:** Always `{ru: [...]}` not plain array.
 10. **regexPrefixContext format must be locale-object:** Always `{ru: "..."}` not plain string.
 11. **OR-suffix RANGE must wrap `|` in `()`:** Without this, `".*огню|холоду"` parses wrong.
@@ -61,7 +65,7 @@
 ```bash
 pnpm install                     # Install dependencies
 pnpm build                       # Production build
-npx vitest run --root .          # Run all tests (576)
+npx vitest run --root .          # Run all tests (640)
 pnpm etl                         # Run ETL pipeline (needs network or .etl-cache/)
 pnpm etl -- --validate           # Run ETL + flat-text Oracle validation
 pnpm etl -- --validate-item      # Run ETL + block-based Oracle validation

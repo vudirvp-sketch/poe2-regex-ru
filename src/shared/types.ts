@@ -121,5 +121,8 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean };
 // prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block
+// anchorStart: when true, adds ^ before the number pattern to prevent range notation FP.
+//   Set when rawTextTemplate starts with ## (number at position 0 of the mod block).
+//   Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2 search.

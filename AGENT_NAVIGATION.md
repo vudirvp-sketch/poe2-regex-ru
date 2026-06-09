@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 79.0 | **Date:** 2026-06-09
+> **Version:** 80.0 | **Date:** 2026-06-09
 
 ---
 
@@ -64,12 +64,11 @@ shared <- core <- strategies <- store <- data <- ui
 ## 6. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **`^` anchor verification** — Test in-game whether `"^(2[7-9]|30).*suffix"` prevents range notation FP. Phase 9a confirmed that enumeration alone doesn't solve this.
-2. **Suffix anchoring investigation** — Test whether `"(2[7-9]|30)%.*suffix"` (adding `%` after number) prevents FP from range notation.
-3. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
-4. **Mobile-specific testing** — touch targets, scroll behavior (needs real device). CSS is prepared but needs manual verification.
-5. **Priority tier refinement** — Validate tier classifications against live trade data.
-6. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
+1. **Suffix anchoring investigation** — Test in-game whether `"(2[7-9]|30)%.*suffix"` prevents FP. Caution: items with range notation on the actual roll (e.g. `50(27-50)%...`) would have `50(` not `50%`, causing FN.
+2. **Browser functional testing** — Run `pnpm dev` and verify rendering on all tabs. Check range warnings (⚠ Округл., ⚠ Диапазон), origin badges, Level 1 frames, 3-level hierarchy sizing.
+3. **Priority tier refinement** — Validate tier classifications against live trade data.
+4. **Origin icon sizing refinement** — Current 17px icons may need adjustment per device/viewport. CSS sets max-width/height: 20px on mobile.
+5. **Accessory range notation FP** — For `+`-prefix mods (rings, amulets, belts), `^` is not added because the block starts with `+`, not a digit. These mods may still have FP from range notation numbers. Suffix anchoring or accepting the limitation are the options.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both can be selected simultaneously; a waystone CAN be both corrupted AND delirious in-game. Regex `"оскверн" "делир"` is correct.
@@ -262,9 +261,32 @@ CategoryControlPanel shows two range-related warning indicators:
 
 Both use `text-amber-500/80` (Округл.) or `text-amber-500/60` (Диапазон) with tooltips containing full explanation text.
 
-**Phase 9a finding:** Enumeration `(2[7-9]|30).*suffix` does NOT fully prevent FP when the item's range notation contains a matching number. This is a known limitation documented in ARCHITECTURE.md §7 and IN_GAME_TESTS.md Phase 9a.
+**Phase 9b finding:** Enumeration `(2[7-9]|30).*suffix` does NOT fully prevent FP when the item's range notation contains a matching number. This is a known limitation documented in ARCHITECTURE.md §7 and IN_GAME_TESTS.md Phase 9a.
 
-## 22. i18n Conventions
+## 22. ^ Anchor / anchorStart (Session 78)
+
+**Verified in-game (Phase 9b):** `^` anchor reliably prevents range notation FP when the number is at position 0 of the mod block. Implementation:
+
+| Component | Role |
+|-----------|------|
+| `ASTNode.anchorStart` | Optional boolean on RANGE node. Set when `rawTextTemplate` starts with `##`. |
+| `range()` builder | `range(min, max, suffix, prefix, exact, anchorStart)` in `ast.ts` |
+| Compiler | Adds `^` before number pattern when `anchorStart=true` AND no `prefix` |
+| `useCategoryPage.ts` | Detects `numberAtStart` via `/^##/` on `rawTextTemplate[locale]` |
+| `normalizeAst` | Propagates `anchorStart` to both children in AND fallback |
+
+**When `^` is added:**
+- `rawTextTemplate` starts with `##` → number at position 0 → `anchorStart=true` → `^` in output
+- Example: tablet mod `##% уменьшение...` → `"^(2[7-9]|30).*откладывания наград"`
+
+**When `^` is NOT added:**
+- Template starts with `+##` (accessory mods) → `anchorStart=false` → no `^`
+- Template has `prefix` set (dual-number mods like "От ## до ##") → no `^` (prefix anchors instead)
+- Template starts with `-##` (negative values) → `anchorStart=false` → no `^`
+
+**Test coverage:** 14 tests in `compiler.test.ts` (6) and `phase-9b-anchor-start.test.ts` (8).
+
+## 23. i18n Conventions
 
 - "для русского клиента" appears **only** in `home.title` (landing page hero)
 - `app.subtitle` = "Поиск модов" (concise, no redundant mention)

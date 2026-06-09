@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 38.0 | **Date:** 2026-06-09 | **Language:** RU-first
+> **Version:** 39.0 | **Date:** 2026-06-09 | **Language:** RU-first
 
 ---
 
@@ -118,7 +118,7 @@ P9. Regex validation               -> poe2-regex-matcher.ts simulates in-game se
 | `.` | Any single character (wildcard) | `Б.здн` matches "Бездн" | Yes |
 | `.*` | Any sequence WITHIN a single block | `"Бездн.*монстр"` within one mod | Yes |
 | `[]` | Character class | `Делири[уф]` matches either | Yes |
-| `^` / `$` | Anchors (start/end) | `огня$` matches end of line | Yes |
+| `^` / `$` | Anchors (start/end) | `^(2[7-9]\|30).*suffix` anchors to start of block | Yes (Phase 9b: ^ verified for range notation FP prevention) |
 | `()` | Grouping | `([5-9]\|\d..)` | Yes (verified M-02, M-04) |
 | `\d` | Digit shorthand | `\d..` matches digit + 2 chars | Yes (verified M-08) |
 | `%` / `+` | Literals (not special) | `"+66"`, `"% к сопротивлению"` | Yes |
@@ -186,8 +186,9 @@ When a token has multiple exclude patterns, they are combined into a single `EXC
 | `умения` | Skill variants | "эффекта умения" vs "эффекта умений" |
 
 **NOT supported (verified in-game, Phase 8):**
-- `^` / `$` anchors — unreliable for practical use
 - Character class for word alternatives: `[сило]` ≠ «сило»
+
+**Revised (Phase 9b):** `^` anchor IS reliable for anchoring to the start of a mod block. Verified in-game: `"^(2[7-9]|30).*откладывания наград"` correctly highlights only 27% and 30% items, preventing range notation FP. `^` should be used when `rawTextTemplate` starts with `##` (number at position 0). `$` remains unreliable.
 
 **Verified in-game (Group M, Phase 8):**
 - `|` inside `()` for number ranges — WORKS. `([3-9][0-9]|[0-9][0-9][0-9])` confirmed in M-04.
@@ -276,15 +277,22 @@ RANGE(100, 200, 'жизн')  →  AND(RANGE(100, ∅, 'жизн'), RANGE(∅, 20
 ```
 **Known limitation:** Wide-range AND can produce false positives from secondary numbers in range notation. This is acceptable for broad filters where precision is less critical.
 
-### Prefix anchoring (dual-number disambiguation only — UPDATED Phase 9a)
+### Prefix anchoring (dual-number disambiguation only — UPDATED Phase 9b)
 Since `.*` does NOT cross block boundaries (verified in-game Phase 7), cross-mod FP is impossible. Prefix anchoring is only needed for **dual-number mods** where the template has "до" between ## placeholders (e.g., "От ## до ## урона"). The prefix "От" ensures the number regex targets the first placeholder, not the second.
 
-For single-number mods, prefix is always empty — `.*` within a single block cannot accidentally match a number from a different mod. However, **range notation within the same block** can still cause FP (see Phase 9a finding above). Prefix anchoring with `^` could potentially solve this, but `^`/$ anchors are unreliable in PoE2.
+For single-number mods where the template starts with `##` (number at position 0 of the block), the `anchorStart` flag adds `^` to prevent range notation FP:
 ```
+Tablet mod (##% suffix...): "^(2[7-9]|30).*откладывания наград"  ← ^ prevents FP from range notation
+Accessory mod (+## suffix...): "([2-9][0-9]|[0-9][0-9][0-9]).*к сопротивлению огню"  ← no ^, "+" prefix prevents FP
 Dual-number: "От (numRegex).*до.*урона"  ← prefix "От" anchors to first number
-Single-number: "(numRegex).*к сопротивлению огню"  ← no prefix needed, .* stays within block
 ```
-**Open question:** Can `^` anchor reliably prevent range notation FP in-game? E.g., `"^(2[7-9]|30).*откладывания наград"` to anchor number to start of block. Needs in-game verification.
+**Phase 9b verification:** `^` anchor reliably prevents range notation FP when the number is at position 0 of the mod block. The `anchorStart` flag is set on RANGE nodes when `rawTextTemplate` starts with `##`. The compiler adds `^` only when there is no `prefix` (dual-number mods use prefix anchoring instead).
+
+**When NOT to use `^`:**
+- Mods with `prefix` set (dual-number) — prefix already anchors within the block
+- Mods where block starts with a non-digit character (e.g., "+", "-") — `^` would prevent matching at position 0
+
+**Why `+`-prefix mods don't need `^`:** In text like `+26(27-50)% к сопротивлению огню`, the `+` before the number acts as implicit anchoring. The pattern `([2-9][0-9]).*к сопротивлению огню` can match "27" from `(27-50)` at a later position, but the actual roll "26" at position 0 also matches `[0-9][0-9]`, creating correct matches. For `%`-suffix mods specifically, suffix anchoring (`(2[7-9]|30)%.*suffix`) may provide additional protection — this needs separate investigation.
 
 ### OR-suffix RANGE (Session 60: ranged tokens with different suffixes)
 When multiple ranged tokens share the same numeric range (min, max) but have different suffixes, they are merged into a single RANGE node with OR-joined suffixes. The compiler wraps OR-suffixes in `()` to scope the `|` correctly within the quoted group:
@@ -478,6 +486,14 @@ Oracle results distinguish two types of false positives:
 Waystone base properties (Уровень путевого камня, размер групп, количество предметов, редкость, возрождения, шанс выпадения, золото, опыт, волшебные монстры, редкие монстры) are NOT affixes — they are implicit properties of the base item type. They are NOT scraped by the ETL pipeline and NOT present in `waystone.json`. The UI handles them separately via the WaystonePage component.
 
 ## 12. Bug Fix Log
+
+### v39.0 (2026-06-09)
+
+| Bug | Severity | Fix |
+|-----|----------|-----|
+| Range notation FP not fully prevented by enumeration | **Critical** | Phase 9b: `^` anchor verified in-game as reliable for mod block start anchoring. Added `anchorStart` flag to RANGE AST node. Compiler generates `^` prefix when `anchorStart=true` and no `prefix` is set. AST builder sets `anchorStart=true` when `rawTextTemplate` starts with `##`. This prevents FP from secondary numbers in range notation like "(27-50)". |
+| `^` anchor listed as "unreliable" in §5 | **High** | Updated: `^` IS reliable for anchoring to start of mod block (Phase 9b verified). `$` remains unreliable. |
+| No mechanism to distinguish number-at-start vs prefixed mods | **Medium** | `anchorStart` flag on RANGE node: set when template starts with `##`, not set when template has prefix chars like "+". Compiler only adds `^` when `anchorStart=true` AND no `prefix`. |
 
 ### v38.0 (2026-06-09)
 

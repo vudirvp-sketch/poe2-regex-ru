@@ -16,6 +16,10 @@ export interface CompileOptions {
  * - RANGE + prefix: prefix is only used for dual-number mods ("От ## до ## ...")
  *   to anchor the number to the correct position within the same block.
  *   Since .* does NOT cross block boundaries, prefix is not needed for single-number mods.
+ * - RANGE + anchorStart: adds ^ before the number pattern to prevent range notation FP.
+ *   Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2 search.
+ *   This prevents matching secondary numbers inside range notation like "(27-50)".
+ *   Only set when rawTextTemplate starts with ## (number at position 0).
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
  *
@@ -83,8 +87,8 @@ function normalizeAst(node: ASTNode): ASTNode {
         return {
           type: 'AND',
           children: [
-            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact },
-            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact },
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart },
           ],
         };
       }
@@ -148,12 +152,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       if (isEnumerated) {
         const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
         if (!numRegex) return ''; // Should not happen after normalizeAst check
+        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
           if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${numRegex}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}.*${compiledSuffix}`;
         }
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return numRegex;
+        return `${anchor}${numRegex}`;
       }
 
       // ≥ min: generate regex matching numbers ≥ min
@@ -161,12 +166,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const minStr = ast.min.toString();
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
+        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
           if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${numRegex}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}.*${compiledSuffix}`;
         }
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return numRegex;
+        return `${anchor}${numRegex}`;
       }
 
       // ≤ max: generate regex matching numbers ≤ max
@@ -174,12 +180,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const maxStr = ast.max.toString();
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
+        const anchor = ast.anchorStart ? '^' : '';
         if (compiledSuffix) {
           if (ast.prefix) return `${ast.prefix} ${numRegex}.*${compiledSuffix}`;
-          return `${numRegex}.*${compiledSuffix}`;
+          return `${anchor}${numRegex}.*${compiledSuffix}`;
         }
         if (ast.prefix) return `${ast.prefix} ${numRegex}`;
-        return numRegex;
+        return `${anchor}${numRegex}`;
       }
 
       return '';
