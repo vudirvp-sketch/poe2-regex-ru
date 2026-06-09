@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 7.0 | **Date:** 2026-06-09
+> **Version:** 8.0 | **Date:** 2026-06-09
 
 ---
 
@@ -14,6 +14,8 @@ export type AffixType = 'prefix' | 'suffix';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
 export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
+export type PriorityTier = 'S' | 'A' | 'B' | 'C';
+export type PriorityFilter = 'all' | 'S+A' | 'S';
 
 export interface GenderForms {
   ms?: string;  // masculine singular
@@ -27,26 +29,22 @@ export interface GenderForms {
 export interface GameToken {
   id: string;                              // "waystone.temporal_chains"
   category: string;                        // "waystone" | "tablet" | "relic" | ...
-  origin: ModOrigin;                       // "normal" | "desecrated" | "corrupted" | "essence" | "breachborn"
+  origin: ModOrigin;                       // Item origin classification
   rawText: Record<Locale, string>;         // RU text as it appears in game
   rawTextTemplate: Record<Locale, string>; // with ## for ranges, # for values
   regex: Record<Locale, string>;           // pre-computed minimal unique substring
-  familyKey: Record<Locale, string>;       // normalized rawTextTemplate for grouping mods of the same family
+  familyKey: Record<Locale, string>;       // normalized rawTextTemplate for grouping
   regexPrefix: Record<Locale, string>;     // text before number placeholder, dual-number mods only
   hasMultiPlaceholder: boolean;            // template has multiple ##/# (dual-number or dual-stat)
-  /** Exclusion patterns for cross-family FP prevention */
-  regexExclude?: Record<Locale, string[]>;
-  /** AND-composed prefix context for cross-family FP prevention.
-   *  Short substring appearing in ALL target-family tokens but NOT in conflicts.
-   *  UI compiles: AND(LITERAL(context), LITERAL(regex)) → "context" "suffix" */
-  regexPrefixContext?: Record<Locale, string>;
-  jewelType?: JewelType;                   // only for jewel category; populated by ETL from ModCalc pages
+  regexExclude?: Record<Locale, string[]>; // exclusion patterns for cross-family FP prevention
+  regexPrefixContext?: Record<Locale, string>; // AND-composed context for FP prevention
+  jewelType?: JewelType;                   // only for jewel category
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];                          // ["curse", "slow", "life"]
   ranges: number[][];                      // [[5, 20]] — numeric ranges; [[2.1, 3]] for fractional
   values: number[];                        // fixed values
-  hasYofication: boolean;                  // contains E in root morpheme
+  hasYofication: boolean;                  // contains Е in root morpheme
   yoficationPositions: number[];           // character positions where e->[её] applies
   level: number;                           // required item level (0 if N/A)
   tradeStatId?: string;                    // "explicit.stat_XXXX" for trade link
@@ -56,6 +54,8 @@ export interface GameToken {
 ## 2. FamilyGroup
 
 ```typescript
+// src/shared/types.ts
+
 export interface FamilyGroup {
   familyKey: string;          // familyKey.ru — normalized key for grouping
   affix: AffixType;
@@ -66,15 +66,20 @@ export interface FamilyGroup {
   hasMultiPlaceholder: boolean;
   rangeSlots: number[][];     // [[min1,max1],[min2,max2]] for multi-##
   filterSlotIndex: number;    // which slot is used for numeric filtering (0=first placeholder)
+  priorityTier: PriorityTier; // S/A/B/C based on popularity, 'C' if unclassified
 }
 ```
 
 ## 3. OptimizationEntry
 
 ```typescript
+// src/shared/types.ts
+
 export interface OptimizationEntry {
   ids: string[];                           // Token IDs in this group
   regex: Record<Locale, string>;           // shared substring for the group
+  regexPrefixContext?: Record<Locale, string>; // AND-composed context (if all tokens share same)
+  regexExclude?: Record<Locale, string[]>;     // exclusion patterns (if all tokens share same)
   weight: number;                          // length of regex string
   count: number;                           // number of tokens covered
 }
@@ -83,6 +88,8 @@ export interface OptimizationEntry {
 ## 4. CategoryData
 
 ```typescript
+// src/shared/types.ts
+
 export interface CategoryData {
   version: string;                         // ETL run timestamp
   category: string;                        // "waystone" | "tablet" | ...
@@ -95,18 +102,78 @@ export interface CategoryData {
 ## 5. ASTNode
 
 ```typescript
+// src/shared/types.ts
+
 export type ASTNode =
   | { type: 'AND'; children: ASTNode[] }
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string;
+      exact?: boolean; anchorStart?: boolean; anchorEnd?: string };
 ```
 
-- `prefix`: text before number, only for dual-number mods ("От ## до ## ..."). Empty for single-number mods since .* can't cross blocks.
+- `prefix`: text before number, only for dual-number mods ("От ## до ## ...")
 - `exact`: when true, skip round10 for precise per-token numeric filter
+- `anchorStart`: when true, adds `^` before number pattern (template starts with `##`)
+- `anchorEnd`: when set, inserts this string after number pattern (typically `'%'` for `##%` mods)
 
-## 6. Internal ID Schema
+## 6. SlotRangeOverride & TokenRangeOverride
+
+```typescript
+// src/store/filter-store.ts
+
+export interface SlotRangeOverride {
+  min?: number;
+  max?: number;
+}
+
+export interface TokenRangeOverride {
+  min?: number;
+  max?: number;
+  filterSlotIndex?: number;          // 0=first placeholder, 1=second (single-slot mode)
+  slotOverrides?: Record<number, SlotRangeOverride>; // dual-slot mode (both placeholders simultaneously)
+}
+```
+
+- When `slotOverrides` is set, `filterSlotIndex`/`min`/`max` are ignored
+- AST builder generates separate RANGE nodes for each active slot, ANDed together
+- FilterChip shows two rows of inputs (1е/2е) for multi-placeholder mods
+- Serialization: `[tokenId, min, max, filterSlotIndex, slotIdx, sMin, sMax, ...]`
+
+## 7. VendorProperty
+
+```typescript
+// src/data/vendor-properties.ts — CANONICAL SOURCE, do not duplicate
+
+export interface VendorProperty {
+  id: string;
+  label: string;
+  regex: string;
+  group: string;
+  hasNumericInput?: boolean;
+  numericSuffix?: string;
+}
+```
+
+## 8. CategoryLabel
+
+```typescript
+// src/shared/mod-classifier.ts
+
+interface CategoryLabel {
+  label: string;          // Display text
+  colorClass: string;     // Text color (e.g. 'text-red-400')
+  bgClass: string;        // Background for badge (e.g. 'bg-red-900/30')
+  borderClass: string;    // Border for badge (e.g. 'border-red-500/25')
+  borderLClass: string;   // Left accent for Level 2 only (e.g. 'border-l-red-400')
+  iconPath?: string;      // Origin icon path (e.g. 'icons/осквернение.webp')
+}
+```
+
+Used by `ORIGIN_SECTION_LABELS` (Record<ModOrigin, CategoryLabel>) and semantic classifiers.
+
+## 9. Internal ID Schema
 
 ```
 {category}.{short_english_description}
@@ -116,32 +183,31 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 
 **Rule:** Use English description from poe2db.tw (`data-code` or canonical English name) in snake_case. Stable across ETL re-runs.
 
-## 7. AST → Regex Compilation Rules — VERIFIED IN-GAME
+## 10. AST → Regex Compilation Rules — VERIFIED IN-GAME
 
-| AST Node | Compilation Output | Example | Verified |
-|----------|-------------------|---------|----------|
-| `AND([A, B, C])` | `"A" "B" "C"` | `"огня" "приспеш" "!проклят"` | Yes |
-| `OR([A, B])` | `"A\|B"` | `"огн\|хол"` | Yes |
-| `EXCLUDE(LITERAL(A))` | `"!A"` | `"!проклят"` | Yes |
-| `EXCLUDE(OR([A,B]))` | `"!A\|B"` | `"!проклят\|сопротивлен"` | Yes |
-| `LITERAL("цепя")` | `"цепя"` | (from pre-computed regex) | Yes |
-| `RANGE(min=40, suffix="m q")` | `"([4-9][0-9]\|[0-9][0-9][0-9]).*m q"` | (with round10) | Yes |
-| `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9][0-9]\|[0-9][0-9][0-9]).*m q"` | (dual-number prefix) | Yes |
-| `RANGE(min=27, max=30, suffix="суфф")` | `"(27\|28\|29\|30).*суфф"` | (enumeration, Phase 9) | Yes |
-| `AND([RANGE(...), LITERAL(...)])` | `"rangeRegex" "literal"` | | Yes |
-| AND-composed `regexPrefixContext` | `"context" "suffix"` | `"имеют" "увеличение урона"` | Yes |
+| AST Node | Compilation Output | Example |
+|----------|-------------------|---------|
+| `AND([A, B, C])` | `"A" "B" "C"` | `"огня" "приспеш" "!проклят"` |
+| `OR([A, B])` | `"A\|B"` | `"огн\|хол"` |
+| `EXCLUDE(LITERAL(A))` | `"!A"` | `"!проклят"` |
+| `EXCLUDE(OR([A,B]))` | `"!A\|B"` | `"!проклят\|сопротивлен"` |
+| `LITERAL("цепя")` | `"цепя"` | from pre-computed regex |
+| `RANGE(min=40, suffix="m q")` | `"([4-9][0-9]\|[0-9][0-9][0-9]).*m q"` | with round10 |
+| `RANGE(min=40, suffix="m q", prefix="От")` | `"От ([4-9][0-9]\|...).*m q"` | dual-number prefix |
+| `RANGE(min=27, max=30, suffix="суфф")` | `"(2[7-9]\|30).*суфф"` | enumeration (Phase 9) |
+| `RANGE(min=27, max=30, suffix="суфф", anchorStart=true)` | `"^(2[7-9]\|30).*суфф"` | ^ anchor (Phase 9b) |
+| `RANGE(min=27, max=30, suffix="суфф", anchorEnd='%')` | `"(2[7-9]\|30)%.*суфф"` | % anchor (Phase 9c) |
+| AND-composed `regexPrefixContext` | `"context" "suffix"` | `"имеют" "увеличение урона"` |
 
 **Key rules:**
-- Each AND child gets its own quoted group. Space between groups = AND (order-independent)
+- Each AND child gets its own quoted group. Space between = AND (order-independent)
 - OR children share a single quoted group, separated by `|`
-- `.*` does NOT cross block boundaries — safe for number + suffix within the SAME mod block
-- `.*` is ONLY safe for number + suffix within the SAME block
+- `.*` does NOT cross block boundaries — safe for number + suffix within SAME block
 - `!` must be INSIDE quotes: `"!A|B"` not `!"A|B"`
-- RANGE(min, max) with ≤50 values uses enumeration: `"(27|28|29|30).*suffix"` (Phase 9)
-- RANGE(min, max) with >50 values falls back to AND: `"≥min.*suffix" "≤max.*suffix"`
-- Enumerated ranges always disable round10 — enumeration is inherently precise
+- RANGE with ≤50 values: enumeration. >50 values: AND fallback
+- Enumerated ranges always disable round10
 
-## 8. JSON File Format (public/generated/*.json)
+## 11. JSON File Format (public/generated/*.json)
 
 ```json
 {
@@ -160,4 +226,4 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 }
 ```
 
-Optimization table key: colon-joined sorted token IDs → O(1) lookup for combination checks.
+Optimization table key: colon-joined sorted token IDs → O(1) lookup.
