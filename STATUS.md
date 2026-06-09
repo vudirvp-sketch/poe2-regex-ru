@@ -9,7 +9,7 @@
 
 - ✅ Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
 - ✅ Sessions 50-82: Oracle validation, cross-family FP repair, ETL audit, VirtualizedModList, dual-slot ranges, jewel sub-headers, UI audit, profile panel, Ctrl+Shift+X, anchorStart (^), anchorEnd (%), chip-with-range CSS
-- ✅ Phase 9c REVISED: `anchorEnd='%'` DISABLED for `+##%` accessory mods. In-game testing confirmed: PoE2 indexes text WITH range notation → `%` after number = 100% FN. Enumeration without `%` anchor is the correct approach.
+- ✅ Tablet Battery 2026-06-10: PoE2 dual-indexing confirmed. `%` anchor WORKS on tablets. Regex syntax validated. Waystone problem isolated as waystone-specific.
 
 ---
 
@@ -17,41 +17,47 @@
 
 ### P1: Waystone number range regex не работает в игре (CRITICAL)
 
-`"(1[5-9]|2[0-4]).*области путевых камней"` не работает в PoE2. Оба варианта (с `()` и с отдельными quoted groups) не дают результатов.
+`"(1[5-9]|2[0-4]).*области путевых камней"` не работает в PoE2.
 
-**Диагностика:** См. IN_GAME_TESTS.md — тест-батарея W1-W12 для изоляции корня проблемы.
+**Обновление (2026-06-10):** Regex syntax `(3[0-6]%|39%).*suffix` работает на плитках. Проблема НЕ в синтаксисе. Waystone-специфичная причина:
+- Waystone mod text может не индексироваться поиском
+- Формат waystone модов может отличаться от плиток
+- Нужны путевые камни в тайнике для теста W1-W4 (IN_GAME_TESTS.md)
 
-**Возможные причины:**
-- PoE2 regex length/complexity limit
-- `|` binding issue с `()` + char class + `.*` + длинным suffix
-- Waystone mod text format отличается от ожидаемого
-- PoE2 не индексирует waystone мод текст так как мы думаем
+### P2: `%` suffix anchor — CONTRADICTION (NEEDS RETEST)
 
-### P2: `%` suffix anchor FN (RESOLVED — anchor disabled)
+**Предыдущее:** `%` anchor disabled из-за FN на аксессуарах (`+27(22-27)%` → `27` не следует за `%`).
+**Новое (Tablet Battery):** `%` anchor РАБОТАЕТ на плитках: `"39%.*suffix"` ✅, `"12%.*suffix"` ✅.
 
-**Было:** `anchorEnd='%'` на `+##%` модах аксессуаров вызывал FN (false negatives).
-**Причина:** PoE2 индексирует текст С range notation: `+27(22-27)%` — число `27` следует за `(`, не `%`.
-**Решение:** `anchorEnd` отключён в runtime. Enumeration без `%` обеспечивает FP-защиту для узких диапазонов.
+**Причина:** PoE2 dual-indexing — индексируются оба формата: simplified `39%` И detailed `39(30-40)%`. `%` матчит simplified.
 
-**Остаточный риск:** FP от range notation secondary numbers (напр. `+26(27-50)%` матчит `(2[7-9]|30)`). Приемлемый компромисс.
+**Противоречие:** Если PoE2 dual-indexing универсален, `%` должен работать и на аксессуарах. Предыдущий FN мог быть ошибкой теста или accessory-специфичным поведением.
+
+**Действие:** Ретест `%` на аксессуарах (A1-A5 в IN_GAME_TESTS.md). Если ✅ → откатить disable.
+
+**% anchor механизм (подтверждён на плитках):**
+- `"39%.*suffix"` → matches simplified display ✅
+- `"39.*suffix"` → matches simplified + range notation → FP
+- `(30|39).*suffix` → 6 tiles (3 FP от `30` в `(30-40)%`)
+- `(30%|39%).*suffix` → 3 tiles (correct, `%` фильтрует range FP)
 
 ---
 
 ## Известные ограничения
 
-1. **+## non-% mods range notation FP** — `+##` без `%` (напр. "+## к силе") — ни `^`, ни `%` anchoring. FP возможен.
-2. **Waystone #% enumeration FP** — enumeration без `%` anchor может иметь FP от range notation.
-3. **VendorPage numeric-only без чекбокса** — свойство с numericInput но без selectedIds может не попасть в regex.
+1. **Range notation FP без `%` anchor** — `(30|39).*suffix` ловит `30` из `(30-40)%`. Решение: `%` anchor.
+2. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен.
+3. **Waystone #% enumeration** — нужна диагностика waystone-специфичного поведения.
+4. **VendorPage numeric-only без чекбокса** — свойство с numericInput но без selectedIds.
 
 ---
 
 ## Следующие шаги
 
-- Провести in-game тестирование по тест-батарее W1-W12 из IN_GAME_TESTS.md
-- Провести in-game тестирование P1-P8 для % anchor
-- На основе результатов — скорректировать waystone regex стратегию
-- P5: Priority tier валидация (отложено)
-- P6: Мобильное тестирование
+- Ретест `%` anchor на аксессуарях (A1-A5)
+- Waystone-специфичные тесты W1-W4 (нужны путевые камни в тайнике)
+- Если `%` ✅ на аксессуарях → откатить disable `anchorEnd` в коде
+- Если `%` ❌ на аксессуарях → разобраться почему dual-indexing работает на плитках но не на аксессуарах
 
 ---
 
