@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 89.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 90.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -105,12 +105,8 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Visual verification** — Open /belt, /ring, /amulet, /jewel in browser, click mods with ranges (≥/≤), verify chip expansion without overlap in two-column layout. Only verifiable after deploy.
-2. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
-
-### DONE (this iteration)
-1. **JewelPage two-column** — Switched from `groupMode="origin"` + `showJewelTypeSubGroups` to `groupMode="affix-semantic"` + `showOriginSubSections` + `priorityFilter`. Now matches BeltPage/RingPage/AmuletPage layout.
-2. **SPA hash fix** — `index.html` `history.replaceState` now preserves `window.location.hash` when restoring SPA route after GitHub Pages 404 redirect. Fixes 404 error on `/jewel#q=...` URLs.
+1. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
+2. **Mobile adaptation** — Not a priority per user request.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -195,10 +191,13 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 - Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
 - **Never** use `virtualizer.getSize(i)` — it's private in newer @tanstack/react-virtual
 
-### Chip expansion
+### Chip expansion (scroll-safe)
 - FilterChip adds `chip-with-range` CSS class when selected with range inputs
 - CSS forces `flex-basis: 100%` for expanded chips (prevents overlap)
-- Animation: `transition-all duration-200` on chip + `chip-range-slide-in` keyframe on range inputs
+- **Instant expansion** — no CSS transitions on layout properties (flex-basis/width/max-width)
+- `transition-[background-color,border-color,color,opacity]` — only visual properties animate
+- `virtualizer.measure()` preserves scroll position (capture before, restore after)
+- `chip-range-slide-in` keyframe: subtle opacity+translateY for range inputs only
 
 ---
 

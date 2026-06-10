@@ -450,7 +450,8 @@ body {
    so it doesn't overlap with the next chip in the flex-wrap container.
    Uses display:flex (not inline-flex) + flex-wrap:wrap so range inputs
    can flow naturally within the chip without overflowing.
-   Smooth transition on flex-basis change for expansion animation. */
+   NO transition on layout properties (flex-basis/width/max-width) —
+   instant expansion prevents scroll jumping in virtualized lists. */
 .mod-list .chip-with-range,
 .virtualized-mod-list .chip-with-range {
   display: flex;
@@ -458,7 +459,6 @@ body {
   flex-basis: 100%;
   max-width: 100%;
   width: 100%;
-  transition: flex-basis 0.2s ease-in-out, width 0.2s ease-in-out, max-width 0.2s ease-in-out;
 }
 
 /* Prevent range input rows from overflowing chip containers */

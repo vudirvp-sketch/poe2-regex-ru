@@ -299,14 +299,21 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     overscan: 10,
   });
 
-  // Re-measure when selection or range overrides change
+  // Re-measure when selection or range overrides change.
+  // Preserves scroll position to prevent jumping when chips expand/collapse.
   useEffect(() => {
     if (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0)) {
+      const el = scrollElement;
+      if (!el) return;
+      // Capture scroll position before measurement
+      const scrollTop = el.scrollTop;
+      virtualizer.measure();
+      // Restore scroll position after measurement (may shift due to layout reflow)
       requestAnimationFrame(() => {
-        virtualizer.measure();
+        el.scrollTop = scrollTop;
       });
     }
-  }, [selectedIds, perTokenRanges, virtualizer]);
+  }, [selectedIds, perTokenRanges, virtualizer, scrollElement]);
 
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
@@ -499,14 +506,19 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     overscan: 10,
   });
 
-  // Re-measure single-column virtualizer
+  // Re-measure single-column virtualizer.
+  // Preserves scroll position to prevent jumping when chips expand/collapse.
   useEffect(() => {
     if (!hasBothAffixes && (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0))) {
+      const el = scrollElement;
+      if (!el) return;
+      const scrollTop = el.scrollTop;
+      singleVirtualizer.measure();
       requestAnimationFrame(() => {
-        singleVirtualizer.measure();
+        el.scrollTop = scrollTop;
       });
     }
-  }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes]);
+  }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes, scrollElement]);
 
   const singleVirtualItems = singleVirtualizer.getVirtualItems();
   const singleTotalSize = singleVirtualizer.getTotalSize();

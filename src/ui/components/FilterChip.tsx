@@ -282,7 +282,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border-l-2 transition-all duration-200 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
       style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
       title={tooltip}
     >
