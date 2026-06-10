@@ -15,6 +15,11 @@
  *
  * The virtualizer uses the <main> scroll container (id="main-content"),
  * so the page scrolls naturally without nested scroll containers.
+ *
+ * Layout v4: Uses normal flow positioning instead of absolute positioning.
+ * This prevents overlap bugs when FilterChip height changes on selection
+ * (range inputs expand the chip). The virtualizer uses padding-top/padding-bottom
+ * spacers to create the virtual scroll area, while rendered items flow naturally.
  */
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -66,10 +71,10 @@ const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 's
 
 /** Estimated heights for virtualizer (will be dynamically measured) */
 const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
-  'column-header': 36,
-  'origin-header': 28,
-  'jewel-type-header': 26,
-  'subgroup': 100, // varies by chip count; estimated high to reduce jump
+  'column-header': 44,
+  'origin-header': 36,
+  'jewel-type-header': 30,
+  'subgroup': 120, // varies by chip count; estimated high to reduce jump
 };
 
 /**
@@ -90,6 +95,82 @@ function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
   }
   return null;
 }
+
+/**
+ * Render a single virtual row's content (without positioning wrapper).
+ * Extracted as a separate component for clarity.
+ */
+const VirtualRowContent: React.FC<{
+  row: VirtualRow;
+  selectedIds: Set<string>;
+  onToggleTokens: (ids: string[]) => void;
+  perTokenRanges?: Record<string, TokenRangeOverride>;
+  onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
+  onClearTokenRange?: (tokenId: string) => void;
+  collapsedTokenIds?: Set<string>;
+}> = React.memo(({ row, selectedIds, onToggleTokens, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
+  if (row.type === 'column-header') {
+    return (
+      <div className={`text-base font-bold uppercase tracking-wider ${
+        row.affix === 'prefix' ? 'affix-header-prefix text-blue-400' : 'affix-header-suffix text-orange-400'
+      }`}>
+        {t('affix.' + row.affix)} ({row.count})
+      </div>
+    );
+  }
+
+  if (row.type === 'origin-header') {
+    return (
+      <div className={`block ml-2 mt-4 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
+        {row.iconPath && (
+          <img
+            src={`${import.meta.env.BASE_URL}${row.iconPath}`}
+            alt=""
+            width={17}
+            height={17}
+            className="shrink-0 object-contain"
+          />
+        )}
+        <span>{row.label} ({row.count})</span>
+      </div>
+    );
+  }
+
+  if (row.type === 'jewel-type-header') {
+    return (
+      <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
+        {row.label} ({row.count})
+      </div>
+    );
+  }
+
+  // subgroup
+  return (
+    <div className="mb-2">
+      {row.subGroup.label && (
+        <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+          {row.subGroup.label} ({row.subGroup.groups.length})
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2">
+        {row.subGroup.groups.map((group) => (
+          <FilterChip
+            key={group.familyKey}
+            group={group}
+            selectedIds={selectedIds}
+            onToggleTokens={onToggleTokens}
+            perTokenRanges={perTokenRanges}
+            onSetTokenRange={onSetTokenRange}
+            onClearTokenRange={onClearTokenRange}
+            collapsedTokenIds={collapsedTokenIds}
+          />
+        ))}
+      </div>
+    </div>
+  );
+});
+
+VirtualRowContent.displayName = 'VirtualRowContent';
 
 export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   tokens,
@@ -283,7 +364,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     return rows;
   }, [prefixGroups, suffixGroups, prefixSubGroups, suffixSubGroups, showOriginSubSections, showJewelTypeSubGroups, groupMode]);
 
-  // Virtualizer
+  // Virtualizer — uses measureElement for dynamic size tracking
   const virtualizer = useVirtualizer({
     count: virtualRows.length,
     getScrollElement: () => scrollElement,
@@ -292,13 +373,18 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       if (!row) return 40;
       return ROW_ESTIMATES[row.type];
     },
-    overscan: 8,
+    overscan: 10,
   });
 
   // Re-measure all visible items when selection or range overrides change,
   // because chip height changes when range inputs appear/disappear.
+  // Using requestAnimationFrame to ensure DOM has updated before measuring.
   useEffect(() => {
-    virtualizer.measure();
+    if (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0)) {
+      requestAnimationFrame(() => {
+        virtualizer.measure();
+      });
+    }
   }, [selectedIds, perTokenRanges, virtualizer]);
 
   const handleAffixFilter = useCallback(
@@ -314,6 +400,29 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     },
     [onOriginFilterChange]
   );
+
+  // Compute spacer heights for virtual scrolling
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalCount = virtualRows.length;
+
+  // Calculate top and bottom spacer heights
+  let paddingTop = 0;
+  let paddingBottom = 0;
+
+  if (virtualItems.length > 0 && totalCount > 0) {
+    const firstIndex = virtualItems[0].index;
+    const lastIndex = virtualItems[virtualItems.length - 1].index;
+
+    // Top spacer: sum estimated sizes of all items before the first visible item
+    for (let i = 0; i < firstIndex; i++) {
+      paddingTop += virtualizer.getSize(i);
+    }
+
+    // Bottom spacer: sum estimated sizes of all items after the last visible item
+    for (let i = lastIndex + 1; i < totalCount; i++) {
+      paddingBottom += virtualizer.getSize(i);
+    }
+  }
 
   return (
     <div className="virtualized-mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')} ref={containerRef}>
@@ -370,16 +479,16 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
-      {/* Virtualized list */}
+      {/* Virtualized list — normal flow layout with spacer divs */}
       {virtualRows.length > 0 ? (
-        <div
-          style={{
-            height: `${virtualizer.getTotalSize()}px`,
-            width: '100%',
-            position: 'relative',
-          }}
-        >
-          {virtualizer.getVirtualItems().map((virtualItem) => {
+        <div style={{ width: '100%' }}>
+          {/* Top spacer: reserves space for items above the viewport */}
+          {paddingTop > 0 && (
+            <div style={{ height: paddingTop }} aria-hidden="true" />
+          )}
+
+          {/* Visible items — normal document flow, no absolute positioning */}
+          {virtualItems.map((virtualItem) => {
             const row = virtualRows[virtualItem.index];
             if (!row) return null;
 
@@ -388,69 +497,24 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={virtualizer.measureElement}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  transform: `translateY(${virtualItem.start}px)`,
-                }}
               >
-                {row.type === 'column-header' && (
-                  <div className={`text-base font-bold uppercase tracking-wider ${
-                    row.affix === 'prefix' ? 'affix-header-prefix text-blue-400' : 'affix-header-suffix text-orange-400'
-                  }`}>
-                    {t('affix.' + row.affix)} ({row.count})
-                  </div>
-                )}
-
-                {row.type === 'origin-header' && (
-                  <div className={`block ml-2 mt-4 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
-                    {row.iconPath && (
-                      <img
-                        src={`${import.meta.env.BASE_URL}${row.iconPath}`}
-                        alt=""
-                        width={17}
-                        height={17}
-                        className="shrink-0 object-contain"
-                      />
-                    )}
-                    <span>{row.label} ({row.count})</span>
-                  </div>
-                )}
-
-                {row.type === 'jewel-type-header' && (
-                  <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
-                    {row.label} ({row.count})
-                  </div>
-                )}
-
-                {row.type === 'subgroup' && (
-                  <div className="mb-2">
-                    {row.subGroup.label && (
-                      <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
-                        {row.subGroup.label} ({row.subGroup.groups.length})
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      {row.subGroup.groups.map((group) => (
-                        <FilterChip
-                          key={group.familyKey}
-                          group={group}
-                          selectedIds={selectedIds}
-                          onToggleTokens={onToggleTokens}
-                          perTokenRanges={perTokenRanges}
-                          onSetTokenRange={onSetTokenRange}
-                          onClearTokenRange={onClearTokenRange}
-                          collapsedTokenIds={collapsedTokenIds}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <VirtualRowContent
+                  row={row}
+                  selectedIds={selectedIds}
+                  onToggleTokens={onToggleTokens}
+                  perTokenRanges={perTokenRanges}
+                  onSetTokenRange={onSetTokenRange}
+                  onClearTokenRange={onClearTokenRange}
+                  collapsedTokenIds={collapsedTokenIds}
+                />
               </div>
             );
           })}
+
+          {/* Bottom spacer: reserves space for items below the viewport */}
+          {paddingBottom > 0 && (
+            <div style={{ height: paddingBottom }} aria-hidden="true" />
+          )}
         </div>
       ) : (
         <div className="text-center text-gray-500 py-8">

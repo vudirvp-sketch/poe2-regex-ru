@@ -104,3 +104,33 @@ Stage Summary:
 - Icon normalization: all 13 icons → 128x128 square canvas with transparent padding
 - Documentation cleaned and updated
 - All 693 tests pass, build succeeds
+
+---
+Task ID: 5
+Agent: Main
+Task: UI/UX fix — layout breakdown on jewel/belt/ring/amulet tabs when clicking mods
+
+Work Log:
+- Cloned repo and verified baseline: 693 tests pass, build succeeds
+- Analyzed VirtualizedModList.tsx — identified root cause of layout overlap bug:
+  - Virtualizer used `position: absolute` + `transform: translateY()` for row positioning
+  - When FilterChip expands on selection (range inputs appear), row height changes
+  - Absolute positioning causes rows to overlap until virtualizer recalculates
+  - Race condition: visual glitch visible before `virtualizer.measure()` takes effect
+  - Previous 3 fix attempts addressed CSS (chip-with-range) but missed the positioning model
+- Fixed VirtualizedModList.tsx (v4):
+  - Replaced absolute positioning with normal document flow
+  - Added padding-top/padding-bottom spacer divs for virtual scroll area
+  - Kept `measureElement` ref for dynamic size tracking
+  - Increased `ROW_ESTIMATES` for better initial estimates (column-header: 44, origin-header: 36, jewel-type-header: 30, subgroup: 120)
+  - Increased overscan from 8 to 10 for smoother scrolling
+  - Used `requestAnimationFrame` for measure after selection changes
+  - Extracted `VirtualRowContent` as `React.memo` component for cleaner rendering
+- Verified: build succeeds, 693 tests pass
+- Updated documentation: STATUS.md (added v4 fix note), AGENT_NAVIGATION.md (version bump, updated TODO)
+
+Stage Summary:
+- Root cause: absolute positioning in virtualizer → rows overlap when chip height changes
+- Fix: normal flow layout with spacer divs for virtual scroll
+- Build passes, 693 tests pass
+- Documentation updated

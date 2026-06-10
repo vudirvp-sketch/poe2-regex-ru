@@ -15,12 +15,13 @@
 - Deploy починен: tsconfig.app.json — только `src/` в include
 - ETL refresh: `--fresh` (очистка кеша), `--check-stale` (проверка устаревания), sourceHash в JSON
 - Icon normalization: все иконки приведены к 128x128 квадратным canvas с прозрачным padding
+- **VirtualizedModList layout fix v4**: переход с absolute на normal flow — устраняет наезжание категорий и модов при клике на чипах с диапазонами (belt, ring, amulet, jewel)
 
 ---
 
 ## Известные ограничения
 
-1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен от range notation в описательной строке моды. Принято как ограничение.
+1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен от range notation в описательной строке моды. Принято как ограничение. Требуется тест в игре для подтверждения.
 
 ---
 

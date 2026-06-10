@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 86.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 87.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -107,8 +107,8 @@ shared <- core <- strategies <- store <- data <- ui
 ### TODO (next iterations)
 1. **New categories** — Add support for new item types if poe2db adds them.
 2. **Priority tier refinement** — Validate tier classifications against live trade data.
-3. **UI/UX improvements** — Polish interaction patterns.
-4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, no current solution.
+3. **UI/UX improvements** — Further polish (VirtualizedModList v4 layout fix applied; verify in browser).
+4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, needs in-game test to confirm.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
