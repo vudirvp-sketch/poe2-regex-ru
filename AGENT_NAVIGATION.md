@@ -1,6 +1,6 @@
-# PoE2 Regex Architect — Agent Navigation Guide
+# PoE2 Market Dashboard — Agent Navigation Guide
 
-> **Version:** 97.0 | **Date:** 2026-06-10 | **Tests:** 761 (Vitest)
+> **Version:** 1.34 | **Date:** 2026-06-10
 
 ---
 
@@ -8,196 +8,273 @@
 
 | Directory | Purpose | Rules |
 |-----------|---------|-------|
-| `src/core/` | Business logic. Pure TS, no React. | **Tests mandatory.** No DOM/React/Zustand imports. |
-| `src/strategies/` | Locale-specific logic. Currently only RU. | Can import from `src/shared/` and `src/core/`. |
-| `src/ui/` | React components. | Each file < 300 lines. Import from `@core`, `@shared`, `@data`, `@store`. |
-| `src/store/` | Zustand stores. | One store per domain. Import from `@shared`. |
-| `src/data/` | JSON loading + vendor-properties. | Proxies `fetch()` → typed objects. Import from `@shared`. |
-| `src/shared/` | Types, i18n, classifier, priority tiers. | **No imports from other src/ directories.** |
-| `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
-| `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
-| `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 25 files, 761 tests. |
-| `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
+| `backend/` | Python FastAPI analytics engine | Tests mandatory (pytest) |
+| `backend/api/` | Route handlers | Import from `arbitrage/`, `economy/`, `predictors/`, `data/` |
+| `backend/arbitrage/` | Scorer, triangular, portfolio, recipe, quick_filter | No direct API imports |
+| `backend/economy/` | Events, lifecycle, momentum, benchmarks, tiers | Import from `data/` |
+| `backend/predictors/` | Time-series, anomaly, clustering, storage_value, model_store | Import from `data/` |
+| `backend/data/` | Providers, cache, schemas, historical, pipeline_cache, daily_stats_cache | Import nothing from `api/` |
+| `backend/models/` | Core dataclass models | No framework imports |
+| `src/app/api/flipper/` | Next.js proxy routes → FastAPI | **Only proxy, no business logic** |
+| `src/app/api/poe2/` | Direct POE2Scout routes | Server-side fetch + cache |
+| `src/components/dashboard/` | Tab components, dialogs, sidebar, sticky bar | Import from `@lib`, `@hooks` |
+| `src/components/ui/` | shadcn/ui primitives | **NO dashboard imports** |
+| `src/lib/` | Shared utilities, types, store, i18n, proxy, poe2api, currency-optimal | **Types in `types.ts` ONLY** |
+| `src/hooks/` | React hooks | Import from `@lib` |
+| `src/lib/i18n/` | Locales (en, ru, zh, ko) | No code imports from other `src/` |
+| `src/data/` | `cache-snapshot.json` | **READ-ONLY artifact — NEVER edit manually** |
+| `src/__tests__/` | Jest unit tests | Mirror usage patterns |
+| `e2e/` | Playwright E2E tests | Mirror user flows |
+| `tests/` | Python pytest backend tests | Backend-only |
+| `cloudflare-worker/` | CORS proxy | Deployed independently |
+| `scripts/` | `generate-cache-snapshot.ts`, `dump-live-data.ts`, `verify-flips-vs-fixtures.py`, `bump-sw-cache.js`, `flipper-backend-bridge.ts` | TS scripts: `npx tsx scripts/<name>.ts`; Python: `python scripts/<name>.py`; JS: `node scripts/<name>.js` |
+| `instrumentation.ts` | Next.js instrumentation hook — starts flipper-backend-bridge on server startup | Auto-runs, no manual action needed |
 
-**Key source files:**
-- `src/shared/types.ts` — All public types (GameToken, FamilyGroup, ASTNode, CategoryData with sourceHash)
-- `src/shared/mod-classifier.ts` — Origin/semantic classification, ORIGIN_SECTION_LABELS
-- `src/store/filter-store.ts` — FilterStore, TokenRangeOverride, SlotRangeOverride
-- `src/data/vendor-properties.ts` — VendorProperty interface (canonical source, do not duplicate)
-- `src/core/compiler.ts` — AST → regex string compilation
-- `src/core/ast.ts` — AST node builders including `range()` with anchors
-- `src/core/regex-oracle.ts` — Validation (flat-text + block-based)
-- `src/ui/hooks/useCategoryPage.ts` — Shared page hook; reversed regex logic for non-% mods
-- `scripts/etl/fetch-poe2db.ts` — Fetch with cache, `clearCache()`, `getCacheInfo()`, `hashContent()`
-
----
-
-## 2. Build & Test Commands
+## 2. Build & Run Commands
 
 ```bash
-pnpm install                                                          # Install dependencies
-pnpm dev                                                              # Start dev server
-pnpm build                                                            # Production build
-npx vitest run                                                        # Run tests (761, Vitest)
-pnpm etl                                                              # Run ETL pipeline + iterative optimizer (Step 10)
-pnpm etl:fresh                                                        # Clear cache + full re-fetch + optimizer
-pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
-pnpm etl:no-optimize                                                  # ETL without Step 10 (skip optimizer)
-pnpm etl -- --validate                                                # ETL + flat-text Oracle validation
-pnpm etl -- --validate-item                                           # ETL + block-based Oracle validation
-pnpm optimize                                                         # Run iterative optimizer on generated JSON
-pnpm optimize:dry                                                     # Dry-run optimizer with verbose output
-pnpm optimize:no-oracle                                               # Optimizer without Oracle validation
-```
+# Frontend
+npm install
+npm run dev              # Start dev server (port 3000)
+npm run build            # Production build (auto-bumps SW cache via postbuild)
+npm run start            # Start production server
+npm run test             # Jest unit tests
+npm run test:e2e         # Playwright E2E tests
+npm run lint             # Lint check
 
----
+# Backend (uses .venv automatically via start.sh)
+pip install -r requirements.txt          # System-wide install (may fail on PEP 668)
+python3 -m venv .venv                    # Create venv (start.sh does this automatically)
+.venv/bin/python -m pip install -r requirements.txt  # Install into venv
+PYTHONPATH=. .venv/bin/python -m uvicorn backend.main:app --reload --port 8000
+
+# Backend tests
+pytest tests/ -v
+
+# Cache snapshot regeneration (requires VPN)
+npx tsx scripts/generate-cache-snapshot.ts
+
+# Live data dump (requires VPN/API access)
+npx tsx scripts/dump-live-data.ts
+
+# Flip verification against fixtures (no VPN needed)
+python scripts/verify-flips-vs-fixtures.py
+
+# Both (Windows)
+start.bat
+```
 
 ## 3. Agent Workflow
 
-1. Read `AGENT_NAVIGATION.md` (this file)
-2. Execute the current iteration's tasks
+1. Read `AGENT_NAVIGATION.md`
+2. Execute current iteration tasks
 3. Write tests for new code
-4. Run `npx vitest run` and `pnpm build` — both must pass
-5. **NEVER** touch `public/generated/` manually
-
----
+4. Run `npm run build && npm run test` (frontend) + `pytest tests/` (backend)
+5. **NEVER** touch `src/data/cache-snapshot.json` manually (generated by script)
+6. **NEVER** hardcode league names — use `config.yaml` / `FALLBACK` values
+7. **NEVER** hardcode currency categories — use `config.yaml`
+8. Update documentation (this file + `worklog.md`) at end of iteration
 
 ## 4. Pre-Commit Checklist
 
-- [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run` passes (761 tests)
-- [ ] No `any` types (except merge functions)
-- [ ] No hardcoded mod strings in UI/Engine code
-- [ ] New files are in the correct directories per §1
-
----
+- [ ] `npm run build` passes
+- [ ] `npm run test` passes (Jest)
+- [ ] `pytest tests/` passes
+- [ ] No `any` types in TypeScript (`noImplicitAny: false` in tsconfig — intentional; `strict: true` covers most cases, but explicit `any` is allowed when needed for third-party interop)
+- [ ] No hardcoded league names or currency categories
+- [ ] New API fields documented in `docs/DATA_CONTRACTS.md`
+- [ ] Backend config changes reflected in `config.yaml`
+- [ ] `AGENT_NAVIGATION.md` version/date updated
 
 ## 5. Dependency Rules
 
 ```
-shared <- core <- strategies <- store <- data <- ui
-  ^        ^        ^          ^       ^      ^
-  +--------+--------+----------+-------+------+
-  (shared can be imported by everyone, nothing imports from ui)
+Frontend: ui/ → hooks/ → lib/ (types, store, i18n, proxy, poe2api)
+Backend:  api/ → arbitrage/ → economy/ → predictors/ → data/ (providers, schemas)
+Cross:    Frontend NEVER imports from backend/ directly (only via /api/flipper/* proxy)
 ```
 
-- `shared` → imports nothing from `src/`
-- `core` → imports only from `shared`
-- `strategies` → imports from `shared`, `core`
-- `store` → imports from `shared`, `core`, `strategies`
-- `data` → imports from `shared`
-- `ui` → imports from everyone
+**Key rule:** `/api/flipper/*` routes are pure proxies. All business logic lives in the FastAPI backend. All POE2Scout fetching happens server-side in `poe2api.ts` or `backend/data/providers/`.
 
----
+## 6. Known Issues & Remaining Work
 
-## 6. Invariants (NEVER VIOLATE)
+### TODO (next iterations)
+1. **Liquid Chain module (Iteration 19+)** — New module for tracking liquid item conversion chain profit/loss. See §12 for detailed plan. Status: **plan designed, implementation pending**.
+   - Etap 1: `config.yaml` + `backend/models/currency.py` (LiquidChainStep, LiquidChainResult) + `backend/arbitrage/liquid_chain.py` + `backend/api/routes_liquid_chain.py`
+   - Etap 2: `src/app/api/flipper/liquid-chain/` proxy routes + `src/lib/types.ts` additions
+   - Etap 3: `src/components/dashboard/liquid-chain-tab.tsx` + i18n keys
+   - Etap 4: Tests + docs
+2. **Real-world Windows end-to-end smoke test** — Run `start.bat` (no --no-bridge) and verify all 6 sub-tests pass.
+3. **Consider ProcessPoolExecutor for triangular arbitrage** — GIL contention with ThreadPoolExecutor.
+4. **Linux CI build with .venv** — Turbopack panics on `.venv/bin/python` symlinks.
 
-- Character limit = 250 (`str.length`, NOT `TextEncoder`)
-- Core Layer (`src/core/`) — ZERO dependencies. No React, DOM, or Zustand imports.
-- `public/generated/` — READ-ONLY. Created ONLY by ETL scripts.
-- No hardcoded mod strings in UI or Engine code. Only internal_id references and i18n lookups.
-- pnpm is the ONLY package manager. Never use npm or yarn.
-- Locale type is `'ru'` now. Type system must support extension (`Locale = 'ru' | 'en' | ...`).
-- PoE2 regex dialect is NOT standard PCRE — see `docs/ARCHITECTURE.md` §5.
-- **tsconfig.app.json includes ONLY `src/`** — tests and scripts are NOT compiled by `tsc -b`.
-- **@tanstack/react-virtual: `getSize()` is private** — use `virtualItem.start`/`.end` + `getTotalSize()` instead.
+### COMPLETED (v1.33 — Iteration 18)
+1. ~~**Proxy timeout causes triangular 503 cascade**~~ — `flipper-proxy.ts` had a hardcoded 15s timeout. Triangular arbitrage with 600+ currencies takes 30-60s (Bellman-Ford + cross-rate validation). The proxy timed out → 503 → circuit breaker opened → all requests failed. Fix: Added `timeoutMs` parameter to `proxyToFlipper()` and `proxyWithFallback()` (default 15s). Triangular route now passes 45s timeout.
+2. ~~**Bridge health check too aggressive (5s)**~~ — During heavy CPU computation in executor threads, the Python GIL starves the asyncio event loop of CPU time. The 5s bridge health check timeout caused false-positive "unhealthy" detections during normal operation. Fix: Increased bridge health check timeout to 10s.
+3. ~~**Health endpoint slow during GIL contention**~~ — `/api/health` used lazy `from X import Y` statements inside the handler, adding import overhead during each call. Fix: Pre-imported all health-check dependencies at module level (`_get_event_manager`, `_get_pipeline_cache`, `_get_snapshot_manager`, `_get_daily_stats_cache`). Added `_snapshot_manager_ref` cached reference set during lifespan.
+4. **326/326 pytest tests pass** — Full test suite confirmed after changes.
+5. **npm run build passes** — NFT warning appears (expected, harmless), build succeeds, bridge chunk created.
 
----
+### COMPLETED (v1.32 — Iteration 17)
+1. ~~**`/api/arbitrage/triangular` returns 500: `NameError: name 'pipeline_cache' is not defined`**~~ — `pipeline_cache.get(cache_key)` called without `get_pipeline_cache()`. Fix: Added `pipeline_cache = get_pipeline_cache()` before cache lookup.
+2. ~~**Missing `ExchangeRate` import**~~ — Added to imports in `routes_arbitrage.py`.
 
-## 7. FP Prevention Strategy (4 Levels)
+### COMPLETED (v1.31 — Iteration 16)
+1. ~~**Bridge fails to start: `Cannot find module`**~~ — Removed `/* turbopackIgnore: true */` from `instrumentation.ts` and bridge. NFT warning is harmless.
+2. ~~**Bridge stderr logs all output as ERROR**~~ — Added regex log-level parsing: only ERROR/CRITICAL/TRACEBACK tagged as errors.
+3. ~~**`_build_flip_opportunities()` blocks event loop**~~ — Extracted CPU-bound logic into `_build_flip_opportunities_sync()`, called via `run_in_executor()`.
 
-| Level | Method | When used | FP prevented | FN risk |
-|-------|--------|-----------|-------------|---------|
-| 1 | `^` (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
-| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
-| 3 | `: ` colon anchor (colonAnchor) | Reversed non-% mods with `: ##` template | Range notation secondary numbers after rolled value | None |
-| 4 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
-
----
-
-## 8. CRITICAL RULES (in-game verified)
-
-- `!` MUST be inside quotes: `"!text"` works, `!"text"` does NOT work in PoE2
-- This applies to OR combinations too: `"!A|B"` works, `!"A|B"` does NOT
-- `!X` is item-wide — excludes entire item if X in ANY block
-- `.*` does NOT cross block boundaries — forward only within a single block
-- Compiler already generates correct format — regression tests added
+### COMPLETED (v1.29–v1.30 — Iterations 14–15)
+- Cross-rate validation: O(n³) → O(E²) adjacency-list algorithm
+- Bellman-Ford + cross-rate validation offloaded to `run_in_executor()`
+- `find_triangular_arbitrage()` made `async def`, tests use `@pytest.mark.asyncio`
+- Cross-rate threshold raised 5% → 10% (613 currencies, 5% = 1962 false positives)
+- Triangular results cached in `pipeline_cache`
+- Bridge health check: 30s → 45s interval, 3 → 5 consecutive failures
 
 ### CONFIRMED INTENTIONAL
-1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
-2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough.
-3. **Origin color mapping** — Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
-4. **GitHub Pages 404 in DevTools** — SPA routes show 404 in Network tab; `404.html` handles redirect. Not a bug.
+1. **7d change returns 0 for young leagues** — Not a bug; no data from 7 days ago
+2. **Gold fees permanently excluded** — All gold-related code removed in v1.18–v1.19
+3. **R_buy=bid, R_sell=ask** — Correct market-maker model
+4. **Correlation min_overlap=2** — Intentionally low for early-league compatibility
+5. **Globe button doesn't close More menu** — Intentional UX: allows cycling locales without re-opening menu
+6. **React 19 "script tag" warnings in dev console** — Upstream Next.js 16 bug (#72213). Harmless.
+7. **Divine pricing ~10% premium** — Market inefficiency, not a bug
+8. **NFT warning during build** — Turbopack traces `fs`/`path` in bridge script. Harmless (build-time only). Do NOT add `/* turbopackIgnore: true */`.
 
----
+## 7. Architecture & API References
 
-## 9. ETL Refresh & Source Change Detection
+| Topic | Document | Section |
+|-------|----------|---------|
+| Architecture layers & data flow | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | §1-2 |
+| API endpoint reference (frontend + backend) | [`docs/DATA_FLOW.md`](docs/DATA_FLOW.md) | §7 |
+| Scanner endpoint (advanced flip filters) | [`docs/BACKEND_GUIDE.md`](docs/BACKEND_GUIDE.md) | §6.11 |
+| Config.yaml structure & defaults | [`config.yaml`](config.yaml) + [`backend/config.py`](backend/config.py) | — |
+| CORS proxy & fallback chain | [`docs/CORS_PROXY_GUIDE.md`](docs/CORS_PROXY_GUIDE.md) | Full doc |
+| Graceful degradation rules | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | §8 |
 
-### Cache Management
-- ETL caches HTML pages in `.etl-cache/` with 24h TTL
-- `--fresh` clears all cache before fetching
-- `--check-stale` reports cache status per URL, exits with code 1 if any stale
+## 8. i18n Conventions
 
-### Source Hash (Change Detection)
-- Each ETL run computes a `sourceHash` — SHA-256 prefix of all cached HTML
-- Stored in `CategoryData.sourceHash` in generated JSON
-- When hashes differ → source data changed → re-run ETL
+- 4 locales: **en**, **ru**, **zh**, **ko** (~460 keys each)
+- Canonical source: `src/lib/i18n/locales/en.ts`
+- Globe button in header cycles locales
+- E2E tests use i18n-aware selectors (e.g., `Обзор|Overview|概覧|개요`)
+- Russian pluralization: 3-form (1, 2-4, 5+); Chinese/Korean: no inflection
 
----
+## 9. New League Checklist
 
-## 10. VirtualizedModList Architecture (v8)
+When a new league launches, update these 7 files:
 
-### Three-section layout: Implicit | Prefix | Suffix
-- Implicit section renders above prefix/suffix as full-width column (amber border)
-- Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
-- Each column has its own `@tanstack/react-virtual` virtualizer
-- All virtualizers share the same scroll container (`<main id="main-content">`)
-- When affix filter narrows to one type → falls back to single full-width column
-- Affix filter dropdown includes "Имплисет" option when implicit tokens exist
+1. `config.yaml` — `league_name`, `league_start_date`, `currency_categories` (if new categories)
+2. `src/lib/poe2api.ts` — `FALLBACK_LEAGUES`: add new league `active: true`, old `active: false`; `FALLBACK_REALMS`: update `defaultLeague`; `DEFAULT_LEAGUE_OVERRIDES`: add new mapping
+3. `src/lib/store.ts` — `DEFAULT_UI_STATE.league` → new ShortName
+4. `src/data/cache-snapshot.json` — Regenerate: `npx tsx scripts/generate-cache-snapshot.ts`
+5. `backend/data/providers/official.py` — `_poe2scout_to_ggg_league` mapping
+6. `e2e/fixtures.ts` — `MOCK_LEAGUES`, `MOCK_REALMS`
+7. `AGENT_NAVIGATION.md` — Update version + date
 
-### Scroll preservation
-- Continuous scroll position tracking via `scrollTopRef`
-- `useLayoutEffect` fires when `selectedIds.size` or `perTokenRanges` key count changes
-- Strategy: save scroll → measure → restore (progressive: immediate → RAF → RAF → setTimeout(0))
+## 10. Frequent Bugs
 
-### Spacer calculation
-- Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
-- **Never** use `virtualizer.getSize(i)` — it's private in newer @tanstack/react-virtual
+1. **`default_league_value` format mismatch:** POE2Scout `/Realms` returns displayName or stale ShortName. Fix: `DEFAULT_LEAGUE_OVERRIDES` + dual matching in `getLeagues()`.
+2. **R_buy/R_sell swapped:** Must be `R_buy=bid, R_sell=ask`. If reversed, all `gross_profit_pct` ≈ −3.5%.
+3. **Correlation matrix 0 valid pairs:** `min_overlap=10` impossible for young leagues. Fix: `min_overlap=max(2, 0.3*min_len)`.
+4. **`cache-snapshot.json` too large:** Fix: truncation to max 8 pairs per item category + max 15 currency pairs.
+5. **PriceLogs are REVERSE chronological:** Always sort before charting.
+6. **Gold fees permanently excluded** — Do NOT re-add gold fee deductions.
+7. **npm is the package manager** — not pnpm/yarn.
+8. **Frontend types are in `src/lib/types.ts` ONLY** — no duplicates elsewhere.
+9. **Backend Pydantic schemas use PascalCase aliases** — Python attrs are snake_case, serialized as PascalCase.
+10. **`_math` must be module-level import** — `_find_optimal_payment()` uses `_math.isfinite()`.
+11. **`item_categories` must stay in sync** — `config.yaml`, `config.py`, `currency-optimal.ts` all must contain the same categories.
+12. **CPU-bound Python code MUST run in `run_in_executor()`** — Any sync CPU-heavy loop blocks the event loop, triggers bridge kill + circuit breaker cascade.
+13. **Triangular arbitrage results are cached** — Key: `triangular_arbitrage_{min_profit_pct}`. Do not remove — without it, every request triggers O(E²) cross-rate validation.
+14. **`find_triangular_arbitrage()` is async** — Since v1.30. Calling without `await` returns coroutine. Tests must use `@pytest.mark.asyncio`.
+15. **Cross-rate threshold is 10%** — Do not lower to 5% without measuring false-positive impact.
+16. **Do NOT use `/* turbopackIgnore: true */`** — Prevents chunk creation for bridge module → `Cannot find module` at runtime. NFT warning is harmless.
+17. **`pipeline_cache` must be obtained via `get_pipeline_cache()` in every endpoint** — NOT a module-level variable. Missing this causes `NameError` at runtime (broke `/api/arbitrage/triangular` in v1.31).
+18. **Proxy timeout is configurable** — `proxyToFlipper()` and `proxyWithFallback()` accept `timeoutMs` param (default 15s). Heavy endpoints (triangular) must pass a longer timeout (45s).
+19. **Bridge health check timeout is 10s** — During GIL contention from executor threads, 5s was too short. Do not lower back to 5s.
+20. **Health endpoint uses pre-imported modules** — `_get_event_manager`, `_get_pipeline_cache`, `_get_snapshot_manager`, `_get_daily_stats_cache` are imported at module level, not lazily inside the handler. `_snapshot_manager_ref` is set during lifespan.
+21. **Linux build requires `.venv` removal** — Turbopack panics on `.venv/bin/python` symlinks. Run `rm -rf .venv` before `npm run build` on Linux. Windows builds are unaffected.
+22. **Bridge must use `python -m uvicorn`** — `getUvicornArgs()` must always return `["-m", "uvicorn"]`. Returning `[]` causes ENOENT + Cyrillic path issues.
+23. **Python venv required** — `start.sh`/`start.bat` create `.venv/` automatically. System pip may fail (PEP 668).
+24. **Root main.py is a re-export** — `./main.py` → `from backend.main import app`. Never edit directly.
 
----
+## 11. Documentation Map
 
-## 11. Regex Strategy Pipeline (ETL)
+| File | Content | When to Update |
+|------|---------|----------------|
+| `AGENT_NAVIGATION.md` | This file — agent entry point | Every iteration |
+| `worklog.md` | Current state delta (last iteration only) | End of iteration |
+| `docs/ARCHITECTURE.md` | Layers, data flow, invariants, principles | On structural changes |
+| `docs/DATA_CONTRACTS.md` | TypeScript types, API contracts, response shapes | On new API fields |
+| `docs/DATA_FLOW.md` | Data flow traces, field transforms, API path reference | On data flow changes |
+| `docs/BACKEND_GUIDE.md` | FastAPI backend internals | On backend changes |
+| `docs/CORS_PROXY_GUIDE.md` | CORS proxy setup + fallback mechanisms | On proxy changes |
+| `PoE2_Flipper_Canonical_Formulas.md` | All mathematical formulas (§1-§14) | On algorithm changes |
+| `src/lib/currency-optimal.ts` | §11: Cross-currency arbitrage helpers | On flip logic changes |
 
-| Strategy | Name | Description |
-|----------|------|-------------|
-| 1 | Template-family suffix | Text after last `##` |
-| 1b | Suffix lengthening | Include text between `##` and suffix |
-| 1c | Full second stat | Dual-stat suffix join |
-| 1d | Negation | Suffix + short exclude patterns |
-| 1e | Word Truncation | Truncate words + optional negate |
-| 1f | AND-composed Context | regexPrefixContext + regex |
-| 2 | Substring fallback | Brute-force unique substring search |
+## 12. Liquid Chain Module (Planned — Iteration 19+)
 
-**Iterative optimizer strategies (Step 10, post-ETL):**
+### Overview
 
-| # | Strategy | Description |
-|---|----------|-------------|
-| 1 | fn-repair | Fix false negatives |
-| 2 | dialect | `[её]`, `[юя]`, `ь?` optimizations |
-| 3 | fp-reduce | Reduce FP >2 by extending regex |
-| 4 | suffix-shorten | Trim words from left (min 5/7/10 chars) |
-| 5 | short-regex-context | Add regexPrefixContext for regex < MIN_REGEX_LEN |
+A module for tracking the profitability of the **Liquid Item conversion chain** — a sequence of 10 PoE2 items where 3 units of item N can be reforged into 1 unit of item N+1 at the vendor. The module computes per-step and cumulative profit/loss to help users decide whether reforging is worthwhile.
 
----
+### Item Chain
 
-## 12. Documentation Map
+```
+1.  Разбавленный жидкий гнев           → 3:1 →
+2.  Разбавленная жидкая вина           → 3:1 →
+3.  Разбавленная жидкая жадность       → 3:1 →
+4.  Жидкая паранойя                    → 3:1 →
+5.  Жидкая зависть                     → 3:1 →
+6.  Жидкое отвращение                  → 3:1 →
+7.  Жидкое отчаяние                    → 3:1 →
+8.  Концентрированный жидкий страх     → 3:1 →
+9.  Концентрированное жидкое страдание → 3:1 →
+10. Концентрированное жидкое отчуждение
+```
 
-| File | Purpose |
-|------|---------|
-| `AGENT_NAVIGATION.md` | This file — start here, rules, structure |
-| `docs/ARCHITECTURE.md` | Layer diagram, data flow, PoE2 regex dialect, compiler |
-| `docs/DATA_CONTRACTS.md` | TypeScript interfaces for all data types |
-| `docs/ETL_GUIDE.md` | ETL pipeline, source URLs, parsers, i18n overrides |
-| `docs/IN_GAME_TESTS.md` | In-game regex verification results |
-| `STATUS.md` | Project status summary |
+### Formulas
+
+For each step `i → i+1`:
+- `input_cost = ratio × price(item_i)` — cost to buy input items
+- `output_value = 1 × price(item_{i+1})` — value of output item
+- `profit = output_value − input_cost`
+- `profit_pct = profit / input_cost × 100`
+
+Cumulative (position j to k): `cost = ratio^(k-j) × price(item_j)`, `value = price(item_k)`
+
+### Implementation Plan
+
+| Step | Files | Description |
+|------|-------|-------------|
+| 1 | `config.yaml`, `backend/models/currency.py`, `backend/arbitrage/liquid_chain.py`, `backend/api/routes_liquid_chain.py` | Config + models + backend logic + API endpoint |
+| 2 | `src/app/api/flipper/liquid-chain/`, `src/lib/types.ts` | Frontend proxy routes + TypeScript types |
+| 3 | `src/components/dashboard/liquid-chain-tab.tsx`, `src/lib/i18n/locales/*.ts` | UI component + i18n |
+| 4 | `tests/test_liquid_chain.py`, `src/__tests__/liquid-chain-tab.test.tsx`, docs | Tests + documentation |
+
+### Key Design Decisions
+
+1. **Chain config in `config.yaml`** — No hardcoded item names. Each step has `api_id`, `name_en`, `name_ru`, `ratio`.
+2. **Prices from existing providers** — `Poe2ScoutProvider` already fetches currency prices. Liquid items are normal currency items with category `ritual`.
+3. **Backend-first** — Computation on FastAPI, frontend only displays via `/api/flipper/liquid-chain/*` proxy.
+4. **Extensible** — Config supports multiple chains (not just Liquids).
+5. **api_id discovery** — Exact POE2Scout `api_id` values TBD; must be confirmed from API response.
+
+### New API Endpoints (Planned)
+
+```
+GET /api/liquid-chain/analysis     → LiquidChainResult (all steps + cumulative paths)
+GET /api/liquid-chain/opportunities → Only profitable step/cumulative combinations
+```
+
+### New Data Models (Planned)
+
+**Backend (`backend/models/currency.py`):**
+- `LiquidChainStep` — one step: api_id, name, price, input_cost, output_value, profit, profit_pct
+- `LiquidChainResult` — full chain: steps[], totals, best/worst step, data_available
+
+**Frontend (`src/lib/types.ts`):**
+- `LiquidChainStep` (camelCase mirror)
+- `LiquidChainResult` (camelCase mirror)
