@@ -9,45 +9,36 @@
 ## Выполнено
 
 - Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
-- Per-mod want/exclude toggle — каждый FilterChip имеет кнопку ✗/✓ для переключения в режим «не хочу»
+- Per-mod want/exclude toggle — каждый FilterChip имеет кнопку ✗/✓
 - Budget-aware UI feedback — amber-предупреждение при 6+ модах и >180 chars, health bar
 - Colon anchor — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
-- Real testing of optimizer — `pnpm etl:fresh` выполнен, FP=8224, FN=0, avgLen=18.7
-- ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
-- **In-game верификация ЗАВЕРШЕНА** — все regex-паттерны проверены в RU клиенте PoE2
+- In-game верификация ЗАВЕРШЕНА — все regex-паттерны проверены в RU клиенте PoE2
 
 ---
 
-## In-game verified patterns
+## Известные баги
 
-| Паттерн | Формат | Результат |
-|---------|--------|-----------|
-| Want + AND | `"A" "B"` | ✅ Предметы с A и B |
-| Want + OR | `"A\|B"` | ✅ Предметы с A или B |
-| Want + OR + Exclude | `"A\|B" "!C"` | ✅ Предметы с A или B, но без C |
-| OR — none found | `"A\|B"` (нет совпадений) | ✅ 0 предметов |
-| AND — one not found | `"A" "B"` (нет предмета с обоими) | ✅ 0 предметов |
-| Want + Exclude | `"A" "!B"` | ✅ Предметы с A, но без B |
-| Exclude (wrong) | `"A" !"B"` | ❌ Ничего не подсвечивает |
-| Exclude OR | `"A" "!B\|C"` | ✅ Предметы с A, но без B и C |
-| Colon anchor (non-%) | `"suffix.*: N"` | ✅ Предотвращает FP от range notation |
-| ^ anchor | `"^(N).*suffix"` | ✅ Число в начале блока |
-| % suffix anchor | `"(N)%.*suffix"` | ✅ % после числа |
-| Enumerated range | `"(N1\|N2)%.*suffix"` | ✅ Значения вне диапазона не матчат |
-| Dual-number prefix | `"От ([1-9][0-9]).*suffix"` | ✅ Число после «От» проверяется |
-| Digit count filter | `"От ([1-9][0-9]).*suffix"` | ✅ 2-значное матчит, 1-значное нет |
-| .* forward only | `"A.*B"` forward | ✅ Совпадает только в прямом порядке |
-| .* block boundary | `"A.*B"` across blocks | ❌ НЕ пересекает блоки |
+| # | Баг | Критичность | Статус |
+|---|-----|-------------|--------|
+| B1 | VirtualizedModList не отображает implicit-секции (belt/ring/amulet/jewel если есть implicit-токены) | Высокая | Открыт |
+| B2 | VendorChip: числовые свойства (Ур. предмета, Треб. уровень) не имеют кнопки exclude | Средняя | Открыт |
+| B3 | FilterChip aria-checked не отражает excluded-состояние для screen readers | Низкая | Открыт |
 
 ---
 
-## Известные ограничения
+## Мусор (к удалению)
 
-Нет активных.
+- `package-lock.json` — проект использует pnpm
+- `scripts/restructure-implicits.ts` — неиспользуемый одноразовый скрипт
+- ~20 мёртвых i18n-ключей (waystone.tier, result.*, match.*, mod.search и др.)
+- Дубли CSS-правил в index.css (text-emerald-400, bg-emerald-900/30)
 
 ---
 
-## Next Steps
+## Следующие шаги
 
-1. **Поддержка** — обновлять ETL при изменении модов в новых лигах/патчах
-2. **Расширение** — новые категории предметов при появлении в игре
+1. Исправить B1: добавить implicit-рендеринг в VirtualizedModList
+2. Исправить B2: добавить exclude-кнопку для числовых vendor-свойств
+3. Рефакторинг VendorPage: использовать useCategoryPage вместо дублирующего FilterStoreApi
+4. Почистить мёртвые i18n-ключи и дубли CSS
+5. Обновлять ETL при изменении модов в новых лигах/патчах

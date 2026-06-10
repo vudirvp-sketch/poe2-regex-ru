@@ -107,16 +107,20 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 7. Known Issues & Remaining Work
 
-### DONE
-1. **Per-mod want/exclude toggle** — ✅ FilterChip ✗/✓ button, excludedIds Set, EXCLUDE(OR) in AST
-2. **Budget-aware UI feedback** — ✅ Amber warning at 6+ mods & >180 chars, health bar
-3. **In-game verification of want + exclude** — ✅ `"want" "!dontwant"` confirmed working (2026-06-10)
-4. **Real testing of optimizer** — ✅ `pnpm etl:fresh` выполнен, FN=0, FP=8224, avgLen=18.7
-5. **In-game test plan + verification** — ✅ 6 тестов в one-tab формате, все верифицированы (T1-T6)
+### OPEN BUGS
+1. **B1: VirtualizedModList missing implicit sections** — VirtualizedModList only renders prefix/suffix groups; implicit tokens are filtered out. Affects belt/ring/amulet/jewel pages if JSON contains implicit tokens. ModList has implicit support but VirtualizedModList does not.
+2. **B2: VendorChip numeric exclude missing** — `VendorChip` hides the ✕ exclude button for `hasNumericInput` properties (Ур. предмета, Треб. уровень). Users cannot exclude these from search.
+3. **B3: FilterChip aria-checked excludes** — `aria-checked` returns `'false'` for `excluded`/`partial-excluded` states; screen readers don't announce exclusion.
 
 ### TODO (next iterations)
-1. **Обновлять ETL при изменении модов** — новые лиги/патчи могут менять аффиксы
-2. **Расширять категории** — при появлении новых типов предметов в игре
+1. Fix B1: add implicit rendering to VirtualizedModList
+2. Fix B2: add exclude button for numeric vendor properties
+3. Refactor VendorPage to use useCategoryPage instead of duplicate FilterStoreApi
+4. Clean dead i18n keys (~20 keys: waystone.tier, result.*, match.*, mod.search, sidebar.client, vendor.selected, chip.dual_number_filter_note, etc.)
+5. Clean duplicate CSS rules in index.css (text-emerald-400, bg-emerald-900/30 defined twice)
+6. Remove `package-lock.json` (project uses pnpm only)
+7. Remove `scripts/restructure-implicits.ts` (unused one-off script)
+8. Update ETL when mods change in new leagues/patches
 
 ### CRITICAL RULES (in-game verified)
 - `!` MUST be inside quotes: `"!text"` works, `!"text"` does NOT work in PoE2

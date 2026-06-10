@@ -322,9 +322,9 @@ PoE2's `!` negation supports combining "want" and "don't want" mods in a single 
 - `!X` is item-wide: excludes entire item if X appears in ANY block
 - AND works across blocks: `"want" "want2"` finds items where BOTH quoted groups match (possibly different blocks)
 
-**Current UI limitation:** Exclude mode is a global toggle — you can't simultaneously select
-both "want" and "don't want" mods in a single operation. Future improvement: per-mod
-want/exclude toggle.
+**UI implementation:** Per-mod want/exclude toggle — each FilterChip has a ✗/✓ button
+that switches between "want" (selectedIds) and "don't want" (excludedIds). Both states
+can coexist across different mods in a single search.
 
 ## 18. 250-Char Budget for 6+ Mods
 
