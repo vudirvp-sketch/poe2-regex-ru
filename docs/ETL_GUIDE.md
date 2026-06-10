@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 11.0 | **Date:** 2026-06-10
+> **Version:** 12.0 | **Date:** 2026-06-10
 
 ---
 
@@ -17,6 +17,8 @@ poe2db.tw/ru/*
     → Step 6: i18n overrides (i18n-overrides.json, applied by run-etl.ts) — patch missing translations, recompute fields
     → Step 7: FP repair (repairCrossFamilyFP in run-etl.ts) — suffix lengthening + excludes + prefix context
     → Step 8: Patch optimization entries (patchOptimizationEntries) — copy context/excludes to optimization entries
+    → Step 9: Validation (--validate / --validate-item) — flat-text and block-based Oracle
+    → Step 10: Iterative Optimizer (iterative-optimizer.ts) — dialect opt, suffix shorten, FN fix, short-regex context + Oracle validation
     → public/generated/waystone.json, tablet.json, etc.
 ```
 
@@ -26,11 +28,21 @@ poe2db.tw/ru/*
 
 | Flag | Command | Description |
 |------|---------|-------------|
-| (default) | `pnpm etl` | Run ETL with cache (24h TTL) |
-| `--fresh` | `pnpm etl:fresh` | Clear all cached HTML before fetching |
+| (default) | `pnpm etl` | Run ETL with cache (24h TTL) + optimizer (Step 10) |
+| `--fresh` | `pnpm etl:fresh` | Clear all cached HTML before fetching + optimizer |
 | `--check-stale` | `pnpm etl:check-stale` | Report cache staleness per URL, exit 1 if stale |
+| `--no-optimize` | `pnpm etl:no-optimize` | ETL without Step 10 (skip iterative optimizer) |
 | `--validate` | `pnpm etl -- --validate` | ETL + flat-text Oracle validation |
 | `--validate-item` | `pnpm etl -- --validate-item` | ETL + block-based Oracle validation |
+| `--verbose` | `pnpm etl -- --verbose` | ETL with verbose optimizer output |
+
+### Standalone Optimizer
+
+| Command | Description |
+|---------|-------------|
+| `pnpm optimize` | Run iterative optimizer separately |
+| `pnpm optimize:dry` | Dry-run optimizer (verbose, no file changes) |
+| `pnpm optimize:no-oracle` | Run without Oracle validation (faster, less safe) |
 
 ### Source Hash (Change Detection)
 
@@ -193,7 +205,47 @@ After FP repair, `patchOptimizationEntries()` enriches optimization entries with
 - With both: combined
 - Without either: plain `LITERAL(regex)`
 
-## 12. Fallback Procedures
+## 12. Iterative Optimizer (Step 10)
+
+`runIterativeOptimization()` in `iterative-optimizer.ts` — integrated into ETL pipeline as Step 10.
+
+**Strategies (in priority order):**
+
+| # | Strategy | Description |
+|---|----------|-------------|
+| 1 | fn-repair | Fix false negatives by finding alternative unique substrings |
+| 2 | dialect | Apply `[её]`, `[юя]`, `ь?` dialect optimizations |
+| 3 | fp-reduce | Reduce FP >2 by extending regex with adjacent words from rawText |
+| 4 | suffix-shorten | Trim words from left while keeping regex unique (min 5/7/10 chars by category) |
+| 5 | short-regex-context | Add `regexPrefixContext` for regexes < MIN_REGEX_LEN (e.g., "огня" = 4 chars) |
+
+**Oracle validation (enabled by default):**
+- After each iteration, ALL changed regexes are validated using block-based Oracle
+- Changes introducing cross-family FP or FN are automatically reverted
+- Prevents iterative improvements from degrading regex quality
+
+**Short-regex context mechanism:**
+- For tokens with regex < MIN_REGEX_LEN (e.g., "огня" = 4 chars below min 5)
+- Finds a distinctive word from the rawText prefix unique to the target family
+- Adds as `regexPrefixContext` → compiled regex: `"distinctive_word" "огня"`
+- AND across blocks eliminates cross-family FP
+
+**Configuration:**
+```typescript
+interface OptimizerConfig {
+  maxIterations: number;     // default: 10 (ETL uses 5)
+  dryRun: boolean;           // default: false
+  verbose: boolean;          // default: false
+  oracleValidation: boolean; // default: true (revert invalid changes)
+  budgetAware: boolean;      // default: true (prefer shorter near 250 limit)
+}
+```
+
+**Standalone usage:** `pnpm optimize` — runs optimizer on existing generated JSON files.
+**Skip in ETL:** `pnpm etl:no-optimize` — runs ETL without Step 10.
+
+## 13. Fallback Procedures
 
 If poe2db.tw adds anti-bot: manual HTML save → local file → parse from file.
 If some mods not translated: add manual translations to `i18n-overrides.json`.
+If optimizer introduces regression: run `pnpm optimize:no-oracle` to skip Oracle validation for faster iteration, then validate with `pnpm etl -- --validate-item`.

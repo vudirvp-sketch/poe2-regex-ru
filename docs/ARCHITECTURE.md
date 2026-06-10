@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 45.0 | **Date:** 2026-06-10 | **Language:** RU-first
+> **Version:** 46.0 | **Date:** 2026-06-10 | **Language:** RU-first
 
 ---
 
@@ -24,7 +24,8 @@
 +------------------------------------------------------------------+
 |                     ETL Pipeline (build-time)                    |
 |  Cheerio scraper -> normalize -> filter implicit-set -> compute  |
-|  -> generate JSON -> i18n overrides -> FP repair -> public/gen  |
+|  -> generate JSON -> i18n overrides -> FP repair -> optimize    |
+|  -> Oracle validation -> public/gen                              |
 +------------------------------------------------------------------+
 |                     External Data Source                         |
 |  poe2db.tw/ru/* (server-rendered HTML, no anti-bot)             |
@@ -44,10 +45,11 @@ poe2db.tw/ru/*
     → i18n-overrides.json (patch missing translations)
     → repairCrossFamilyFP() (suffix lengthening + excludes + context)
     → patchOptimizationEntries() (copy context/excludes to opt entries)
+    → iterative-optimizer.ts (Step 10: dialect opt, suffix shorten, FN fix, short-regex context + Oracle validation)
     → public/generated/waystone.json, tablet.json, etc.
     → loader.ts (fetch at runtime)
-    → UI: user selects filters
-    → ast.ts (build AST from selections)
+    → UI: user selects filters (want + don't-want via exclude mode)
+    → ast.ts (build AST from selections — AND/OR + EXCLUDE)
     → optimizer.ts (apply optimizationTable)
     → compiler.ts (compile AST → regex string)
     → Regex displayed in UI → copied → pasted in PoE2 search
@@ -272,7 +274,83 @@ When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears o
 | B | DP factorization | Cross-family groups via `batchDPFactorize()` |
 | C | Dialect optimization | `[её]`, `[юя]`, `ь?` applied to all regexes |
 
-## 16. Number Regex Correctness
+## 16. Iterative Optimizer (Step 10)
+
+`runIterativeOptimization()` in `iterative-optimizer.ts`:
+
+Runs after all ETL steps as Step 10. Iteratively optimizes regexes using multiple
+strategies, with Oracle validation after each iteration.
+
+| Strategy | Priority | Description |
+|----------|----------|-------------|
+| fn-repair | 1 (highest) | Fix FN by broadening regex (find alternative substring) |
+| dialect | 2 | Apply `[её]`, `[юя]`, `ь?` optimizations |
+| fp-reduce | 3 | Reduce FP >2 by extending regex with adjacent words |
+| suffix-shorten | 4 | Trim words from left while keeping regex unique (min 5 chars, 7 for waystone, 10 for tablet) |
+| short-regex-context | 5 | Add `regexPrefixContext` for regexes < MIN_REGEX_LEN |
+
+**Oracle validation** (enabled by default):
+- After each iteration, ALL changed regexes are validated using block-based Oracle (`matchPoE2RegexItem`)
+- Changes that introduce cross-family FP or FN are automatically reverted
+- Ensures iterative improvements never degrade regex quality
+
+**Short-regex context:**
+- Regexes shorter than MIN_REGEX_LEN_DEFAULT (5) like "огня" (4 chars) can match too broadly
+- The optimizer finds a distinctive word from the rawText prefix that is unique to the target family
+- Adds it as `regexPrefixContext`, so the compiled regex becomes: `"огня" "distinctive_word"`
+- This AND across blocks eliminates cross-family FP while keeping the short suffix
+
+## 17. Positive + Negative Mods (Want + Don't-Want)
+
+PoE2's `!` negation supports combining "want" and "don't want" mods in a single regex.
+
+**Pattern:** `"want1|want2" !"dontwant1|dontwant2"`
+
+**Example:** Tablet with ≥8 charges + waystone find bonus, but NO gold bonus:
+```
+"зарядов.*([89]|[1-9][0-9])" "путевых камн" !"золот"
+```
+
+**Architecture:**
+- `excludeMode=false`: Selected tokens → AND/OR groups (positive matches)
+- `excludeMode=true`: Selected tokens → EXCLUDE(OR(...)) (negative matches)
+- Combined in `buildAstFromSelections()`: `AND(OR(want1, want2), EXCLUDE(OR(dontwant1, dontwant2)))`
+- Compiler output: `"want1|want2" "!dontwant1|dontwant2"`
+
+**Key rules (verified in-game):**
+- `!` must be INSIDE quotes when combined with `|`: `"!A|B"` works, `!"A|B"` does NOT
+- `!X` is item-wide: excludes entire item if X appears in ANY block
+- AND works across blocks: `"want" "want2"` finds items where BOTH quoted groups match (possibly different blocks)
+
+**Current UI limitation:** Exclude mode is a global toggle — you can't simultaneously select
+both "want" and "don't want" mods in a single operation. Future improvement: per-mod
+want/exclude toggle.
+
+## 18. 250-Char Budget for 6+ Mods
+
+When 6+ mods are selected, the combined regex can exceed PoE2's 250-char limit.
+
+**Budget estimation functions** (in `limits.ts`):
+- `estimateMultiModLength(regexes, hasRange, contexts, excludes)` — estimated total compiled length
+- `wouldExceedBudget(currentLen, newModRegex, ...)` — check before adding a mod
+
+**Optimization layers that help stay under budget:**
+
+| Layer | Mechanism | Savings |
+|-------|-----------|---------|
+| ETL Step 4 | Family-based grouping | 10-50 chars/family |
+| ETL Step 4 | DP factorization | 5-30 chars/cross-family group |
+| ETL Step 10 | Suffix shortening | 2-10 chars/token |
+| Runtime | Family deduplication (Phase 1) | 10-50 chars/family |
+| Runtime | Yofication [её] | 2-5 chars/position |
+| Runtime | Optimization table (Phase 2) | 5-30 chars/entry |
+
+**Practical guidance for 6+ mods:**
+- Each mod averages ~15-20 chars in compiled regex (including quotes + separator)
+- 6 mods ≈ 90-120 chars (safe), 10 mods ≈ 150-200 chars (yellow), 12+ mods → likely overflow
+- Mods with `regexPrefixContext` or `regexExclude` add extra chars per mod
+
+## 19. Number Regex Correctness
 
 `threeDigitMax()` generates correct PoE2 regex for all 3-digit max values:
 - Round hundreds: `([0-9]|[1-9][0-9]|N[0-9][0-9]|N00)`

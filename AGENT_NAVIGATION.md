@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 93.0 | **Date:** 2026-06-10 | **Tests:** 757 (Vitest)
+> **Version:** 94.0 | **Date:** 2026-06-10 | **Tests:** 757 (Vitest)
 
 ---
 
@@ -40,13 +40,15 @@ pnpm install                                                          # Install 
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
 npx vitest run                                                        # Run tests (757, Vitest)
-pnpm etl                                                              # Run ETL pipeline (uses cache, 24h TTL)
-pnpm etl:fresh                                                        # Clear cache + full re-fetch from poe2db
+pnpm etl                                                              # Run ETL pipeline + iterative optimizer (Step 10)
+pnpm etl:fresh                                                        # Clear cache + full re-fetch + optimizer
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
+pnpm etl:no-optimize                                                  # ETL without Step 10 (skip optimizer)
 pnpm etl -- --validate                                                # ETL + flat-text Oracle validation
 pnpm etl -- --validate-item                                           # ETL + block-based Oracle validation
 pnpm optimize                                                         # Run iterative optimizer on generated JSON
 pnpm optimize:dry                                                     # Dry-run optimizer with verbose output
+pnpm optimize:no-oracle                                               # Optimizer without Oracle validation
 ```
 
 ---
@@ -106,7 +108,8 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Scroll fix polish** — улучшить scroll preservation при клике на моды с ≥/≤ (v7 работает, но не идеально)
+1. **Per-mod want/exclude toggle** — сейчас exclude mode глобальный, нужен per-mod переключатель для одновременного выбора «хочу» + «не хочу» модов
+2. **Budget-aware UI feedback** — показывать оценку длины регекса при выборе 6+ модов
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -164,6 +167,16 @@ All icons in `public/icons/` are **128x128** square canvases with transparent pa
 | 1e | Word Truncation | Truncate words + optional negate |
 | 1f | AND-composed Context | regexPrefixContext + regex |
 | 2 | Substring fallback | Brute-force unique substring search |
+
+**Iterative optimizer strategies (Step 10, post-ETL):**
+
+| # | Strategy | Description |
+|---|----------|-------------|
+| 1 | fn-repair | Fix false negatives |
+| 2 | dialect | `[её]`, `[юя]`, `ь?` optimizations |
+| 3 | fp-reduce | Reduce FP >2 by extending regex |
+| 4 | suffix-shorten | Trim words from left (min 5/7/10 chars) |
+| 5 | short-regex-context | Add regexPrefixContext for regex < MIN_REGEX_LEN |
 
 ---
 

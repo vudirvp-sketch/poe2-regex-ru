@@ -810,6 +810,22 @@ async function runEtl() {
     validateGeneratedRegexesItem();
   }
 
+  // Step 10: Iterative optimizer (integrated from Phase 5)
+  // Runs the iterative optimizer on all generated JSON files to further
+  // shorten regexes, fix FN/FP, and apply dialect optimizations.
+  // Skipped if --no-optimize flag is provided.
+  if (!process.argv.includes('--no-optimize')) {
+    const { runIterativeOptimization } = await import('./etl/iterative-optimizer.js');
+    console.log('\n=== Step 10: Iterative Optimization ===');
+    runIterativeOptimization(OUTPUT_DIR, {
+      maxIterations: 5,
+      oracleValidation: true,
+      budgetAware: true,
+      verbose: process.argv.includes('--verbose'),
+      dryRun: false,
+    });
+  }
+
   console.log('\n=== ETL Pipeline Complete ===');
 }
 

@@ -14,9 +14,11 @@
     "etl": "tsx scripts/run-etl.ts",
     "etl:fresh": "tsx scripts/run-etl.ts --fresh",
     "etl:check-stale": "tsx scripts/run-etl.ts --check-stale",
+    "etl:no-optimize": "tsx scripts/run-etl.ts --no-optimize",
     "analyze-fn": "tsx scripts/analyze-fn.ts",
     "optimize": "tsx scripts/etl/iterative-optimizer.ts",
-    "optimize:dry": "tsx scripts/etl/iterative-optimizer.ts --dry-run --verbose"
+    "optimize:dry": "tsx scripts/etl/iterative-optimizer.ts --dry-run --verbose",
+    "optimize:no-oracle": "tsx scripts/etl/iterative-optimizer.ts --no-oracle"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.14.2",
