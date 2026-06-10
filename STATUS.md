@@ -12,19 +12,9 @@
 - **Budget-aware UI feedback** — amber-предупреждение при 6+ модах и >180 chars, health bar
 - **In-game verification: want + exclude pattern** — `"want" "!dontwant"` подтверждён (2026-06-10)
 - **Colon anchor** — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
+- **Real testing of optimizer** — `pnpm etl:fresh` выполнен, FP=8224, FN=0, avgLen=18.7 (2026-06-10)
 - ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
 - Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
-
----
-
-## Per-mod want/exclude toggle
-
-- Каждый FilterChip имеет кнопку ✗/✓ для переключения мода в режим «не хочу»
-- `selectedIds` и `excludedIds` — взаимоисключающие множества
-- AST: `AND(want_nodes, EXCLUDE(OR(exclude_nodes)))`
-- Компилируется в `"want1|want2" "!dontwant1|dontwant2"` — `!` внутри кавычек
-- URL-сериализация: ключ `e` содержит массив excludedIds
-- Визуальные стили: excluded = красный фон + красная левая граница
 
 ---
 
@@ -37,6 +27,7 @@
 | Want + Exclude | `"A" "!B"` | ✅ Предметы с A, но без B |
 | Exclude (wrong) | `"A" !"B"` | ❌ Ничего не подсвечивает |
 | Exclude OR | `"A" "!B\|C"` | ✅ Предметы с A, но без B и C |
+| Colon anchor (non-%) | `"suffix.*: N"` | ✅ Предотвращает FP от range notation |
 
 ---
 
@@ -77,18 +68,25 @@
 
 ---
 
-## ETL Results
+## ETL Results (pnpm etl:fresh, 2026-06-10)
 
-| Категория | Токенов | Cross-family FP |
-|-----------|---------|-----------------|
-| amulet | 428 | 0 |
-| belt | 298 | 0 |
-| jewel | 193 | 0 |
-| jewel-corrupted | 10 | 0 |
-| jewel-desecrated | 47 | 0 |
-| relic | 58 | 0 |
-| ring | 369 | 0 |
-| tablet | 84 | 0 |
-| waystone | 156 | 0 |
-| waystone-desecrated | 32 | 0 |
-| **Итого** | **1675** | **0** |
+| Категория | Токенов | FN | FP | avgLen | Optimizations |
+|-----------|---------|-----|-----|--------|---------------|
+| amulet | 428 | 0 | 2997 | 19.0 | 104 |
+| belt | 298 | 0 | 1731 | 18.4 | 74 |
+| jewel-corrupted | 10 | 0 | 0 | 12.2 | 1 |
+| jewel-desecrated | 47 | 0 | 79 | 14.9 | 21 |
+| jewel | 193 | 0 | 83 | 17.5 | 112 |
+| relic | 58 | 0 | 182 | 19.8 | 17 |
+| ring | 369 | 0 | 2510 | 17.3 | 93 |
+| tablet | 84 | 0 | 11 | 21.1 | 30 |
+| waystone-desecrated | 32 | 0 | 8 | 17.3 | 9 |
+| waystone | 156 | 0 | 623 | 23.2 | 43 |
+| **Итого** | **1675** | **0** | **8224** | **18.7** | **504** |
+
+---
+
+## Next Steps
+
+1. **Расширенное in-game тестирование** — `регис/плитки для теста в игре.md` (12 групп, ~50 тест-кейсов)
+2. **Дефицит предметов** — нужны пояса, самоцветы и breachborn-моды для тестов групп E, H, L
