@@ -112,10 +112,10 @@ shared <- core <- strategies <- store <- data <- ui
 2. **Budget-aware UI feedback** — ✅ Amber warning at 6+ mods & >180 chars, health bar
 3. **In-game verification of want + exclude** — ✅ `"want" "!dontwant"` confirmed working (2026-06-10)
 4. **Real testing of optimizer** — ✅ `pnpm etl:fresh` выполнен, FN=0, FP=8224, avgLen=18.7
-5. **In-game test plan** — ✅ `регис/плитки для теста в игре.md` (10 групп, 28 тестов, без дубликатов)
+5. **In-game test plan** — ✅ `регис/плитки для теста в игре.md` (one-tab формат, 6 неверифицированных тестов)
 
 ### TODO (next iterations)
-1. **In-game тестирование** — выполнить тесты из `регис/плитки для теста в игре.md` (10 групп, 28 тестов)
+1. **In-game тестирование** — выполнить 6 тестов из `регис/плитки для теста в игре.md` (one-tab формат: T1-T6)
 2. **Обновить IN_GAME_TESTS.md** — внести результаты тестирования
 
 ### CRITICAL RULES (in-game verified)
