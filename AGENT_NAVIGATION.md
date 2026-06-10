@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 90.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 91.0 | **Date:** 2026-06-10 | **Tests:** 729 (Vitest)
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 23 files, 693 tests. |
+| `tests/` | Test files mirror `src/` structure. | 24 files, 729 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -28,6 +28,7 @@
 - `src/core/compiler.ts` — AST → regex string compilation
 - `src/core/ast.ts` — AST node builders including `range()` with anchors
 - `src/core/regex-oracle.ts` — Validation (flat-text + block-based)
+- `src/ui/hooks/useCategoryPage.ts` — Shared page hook; reversed regex logic for non-% mods (lines 515-528)
 - `scripts/etl/fetch-poe2db.ts` — Fetch with cache, `clearCache()`, `getCacheInfo()`, `hashContent()`
 
 ---
@@ -38,7 +39,7 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run                                                        # Run tests (693, Vitest)
+npx vitest run                                                        # Run tests (729, Vitest)
 pnpm etl                                                              # Run ETL pipeline (uses cache, 24h TTL)
 pnpm etl:fresh                                                        # Clear cache + full re-fetch from poe2db
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
@@ -63,7 +64,7 @@ pnpm optimize:dry                                                     # Dry-run 
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run` passes (693 tests)
+- [ ] `npx vitest run` passes (729 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -105,8 +106,9 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
-2. **Mobile adaptation** — Not a priority per user request.
+1. **Non-% mods in-game FP testing** — 6 specific checks in `tests/core/tablet-non-percent-fp.test.ts`
+2. **Visual verification of scroll fix on prod** — /belt, /ring, /amulet pages
+3. **Context anchoring optimization** — add `:` before `.*` in non-% reversed regex (e.g. `"азмири:.*([2-9]...")` instead of `"азмири.*([2-9]...")`)
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -179,13 +181,19 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 13. VirtualizedModList Architecture (v5)
+## 13. VirtualizedModList Architecture (v6)
 
 ### Two-column layout
 - Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
 - Each column has its own `@tanstack/react-virtual` virtualizer
 - Both virtualizers share the same scroll container (`<main id="main-content">`)
 - When affix filter narrows to one type → falls back to single full-width column
+
+### Scroll preservation (shared for ALL categories)
+- Continuous scroll position tracking via `scrollTopRef`
+- `useLayoutEffect` fires before browser paint when `selectedIds.size` or `perTokenRanges` key count changes
+- Saves `scrollTop`, calls `virtualizer.measure()`, restores `scrollTop` immediately + double RAF
+- Works identically for jewel, belt, ring, amulet, waystone, tablet — all use the same component
 
 ### Spacer calculation
 - Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
@@ -201,7 +209,33 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 14. Documentation Map
+## 14. Non-% Mod Reversed Regex
+
+### When reversed regex is generated
+For mods where `##` appears at the END of the template (number after suffix text):
+- Template: `"Из Бездн на карте появляется дополнительных редких монстров: ##"`
+- Regex direction: `suffix.*number` (reversed) instead of `number.*suffix` (normal)
+- `isReversed = true` when `isImplicit || numberAtEnd` (useCategoryPage.ts, line 526)
+
+### Tablet non-% mods at FP risk
+| Mod | Template suffix | Regex | Range | FP threshold |
+|-----|----------------|-------|-------|-------------|
+| дополнительных редких монстров | `: ##` | `появляется` | [1,2] | ≥2 |
+| дополнительных свойств | `: #` | `уникальные` | [1] | ≥2 |
+| дополнительных редких сундуков | `: ##` | `х редких с` | [2,3] | ≥3 |
+| дополнительных духов азмири | `: #` | `ьных духов` | [1] | ≥2 |
+
+### Belt/Amulet non-% mods at FP risk
+| Category | Mod | Range |
+|----------|-----|-------|
+| belt | Флаконы получают зарядов в секунду: ## | varied |
+| belt | Обереги получают зарядов в секунду: ## (desecrated) | varied |
+| amulet | Флаконы здоровья получают зарядов в секунду: ## (corrupted) | varied |
+| amulet | Обереги получают зарядов в секунду: ## (corrupted) | varied |
+
+---
+
+## 15. Documentation Map
 
 | File | Purpose |
 |------|---------|

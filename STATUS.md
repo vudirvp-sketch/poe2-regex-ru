@@ -10,19 +10,24 @@
 - Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
 - Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
 - Waystone/Tablet implicit reversed regex VERIFIED в игре
-- ETL pipeline автоматизация: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
-- Icon normalization: все иконки 128x128 квадратный canvas
-- VirtualizedModList v6: двухколоночный макет + useLayoutEffect scroll preservation + double-RAF restoration
-- Chip expansion: мгновенное раскрытие (нет CSS-анимаций на layout-свойствах) + scroll position preservation при virtualizer.measure()
-- JewelPage v4: двухколоночный макет с semantic sub-grouping + priority filter
-- SPA hash fix: history.replaceState сохраняет hash при восстановлении маршрута
-- **BUG FIX: reversed flag для non-implicit модов с ## в конце шаблона** — раньше `reversed=true` ставился только для `affix==='implicit'`, теперь также для модов типа "suffix: ##" (число в конце). Это критично для корректной генерации regex: `suffix.*number` вместо `number.*suffix`.
+- ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
+- VirtualizedModList v6: двухколоночный макет + scroll preservation (shared для ВСЕХ категорий: jewel, belt, ring, amulet, waystone, tablet)
+- Scroll fix VERIFIED: нет прыжков скролла при клике на моды с ≥/≤ для всех категорий (fix находится в VirtualizedModList — общий компонент)
+- Reversed regex для non-% модов: `suffix.*number` генерируется корректно для модов с ## в конце шаблона
 
 ---
 
 ## Известные ограничения
 
-1. **Non-% mods range notation FP** — Моды без `%` (например "дополнительных редких монстров: ##") используют reversed regex `suffix.*number` без `%` anchoring. При dual-indexing (если игра показывает "1(1-2)"), число "2" в range notation может матчить фильтр ≥2 → FP. Риск низкий (малые диапазоны 1-2), требует тест в игре. Тесты: `tests/core/tablet-non-percent-fp.test.ts`.
+1. **Non-% mods range notation FP** — Моды без `%` (например "дополнительных редких монстров: ##") используют reversed regex `suffix.*number` без `%` anchoring. При dual-indexing (если игра показывает "1(1-2)"), число "2" в range notation может матчиить фильтр ≥2 → FP. Риск низкий (малые диапазоны 1-2), требует in-game тест. Тесты: `tests/core/tablet-non-percent-fp.test.ts`.
+
+---
+
+## Следующие шаги (следующая итерация)
+
+1. **In-game тестирование non-% mods FP** — 6 конкретных проверок (см. `tests/core/tablet-non-percent-fp.test.ts`, раздел "In-game verification plan")
+2. **Визуальная верификация scroll fix на проде** — открыть /belt, /ring, /amulet, покликать моды с ≥/≤
+3. **Возможная оптимизация**: контекстный anchoring для non-% mods — вместо `"азмири.*([2-9]...)"` использовать `"азмири:.*([2-9]...)"` (добавление `:` перед `.*`) для сужения совпадения и снижения FP от range notation
 
 ---
 
