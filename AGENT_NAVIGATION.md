@@ -112,11 +112,11 @@ shared <- core <- strategies <- store <- data <- ui
 2. **Budget-aware UI feedback** — ✅ Amber warning at 6+ mods & >180 chars, health bar
 3. **In-game verification of want + exclude** — ✅ `"want" "!dontwant"` confirmed working (2026-06-10)
 4. **Real testing of optimizer** — ✅ `pnpm etl:fresh` выполнен, FN=0, FP=8224, avgLen=18.7
-5. **In-game test plan** — ✅ `регис/плитки для теста в игре.md` (one-tab формат, 6 неверифицированных тестов)
+5. **In-game test plan + verification** — ✅ 6 тестов в one-tab формате, все верифицированы (T1-T6)
 
 ### TODO (next iterations)
-1. **In-game тестирование** — выполнить 6 тестов из `регис/плитки для теста в игре.md` (one-tab формат: T1-T6)
-2. **Обновить IN_GAME_TESTS.md** — внести результаты тестирования
+1. **Обновлять ETL при изменении модов** — новые лиги/патчи могут менять аффиксы
+2. **Расширять категории** — при появлении новых типов предметов в игре
 
 ### CRITICAL RULES (in-game verified)
 - `!` MUST be inside quotes: `"!text"` works, `!"text"` does NOT work in PoE2

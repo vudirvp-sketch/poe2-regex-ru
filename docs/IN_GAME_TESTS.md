@@ -1,7 +1,7 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Тест-план (one-tab):** `регис/плитки для теста в игре.md`
+> **Все паттерны верифицированы** — 2026-06-10.
 
 ---
 
@@ -9,12 +9,12 @@
 
 | Feature | Status | Key test |
 |---------|--------|----------|
-| `\|` OR without `()` | ✅ | `"огня\|холоду"` → 3 items |
-| `()` grouping | ✅ | `"(огня\|холоду)"` → same as without |
-| `\|` inside `()` with number ranges | ✅ | `"([3-9][0-9]\|[0-9][0-9][0-9]).*к сопротивлению молнии"` |
+| `|` OR without `()` | ✅ | `"огня|холоду"` → 3 items |
+| `()` grouping | ✅ | `"(огня|холоду)"` → same as without |
+| `|` inside `()` with number ranges | ✅ | `"([3-9][0-9]|[0-9][0-9][0-9]).*к сопротивлению молнии"` |
 | `\d` digit shorthand | ✅ | `"\d.*к максимуму здоровья"` |
-| `!` + `\|` = `!(A\|B)` | ✅ | `"к сопротивлению" "!молнии\|хаосу"` |
-| `()` + `\|` + `.*` scoped OR | ✅ | `"(огня\|молнии).*к атакам"` |
+| `!` + `|` = `!(A|B)` | ✅ | `"к сопротивлению" "!молнии|хаосу"` |
+| `()` + `|` + `.*` scoped OR | ✅ | `"(огня|молнии).*к атакам"` |
 | `?` optional | ❌ | NOT supported |
 | `.*` is directional (forward only) | ✅ | Reverse order → ❌ |
 | `.*` does NOT cross block boundaries | ✅ | Verified |
@@ -26,6 +26,12 @@
 | Case insensitive | ✅ | Verified with Cyrillic |
 | `!X` is item-wide | ✅ | Excludes item if X in ANY block |
 | AND across blocks | ✅ | `"максимуму здоровья" "к силе"` → ✅ |
+| `"A|B" "!C"` OR + exclude | ✅ | T1: молния|холод, !хаос — correctly excludes items with chaos |
+| `"A|B"` OR — none found | ✅ | T2: огню|мудрость → 0 items (neither exists) |
+| `"A" "B"` AND — one not found | ✅ | T3: здоровье + интеллект → 0 items (no item has both) |
+| Enumerated range out-of-bounds | ✅ | T4: `(2[5-9]|3[0-5])%.*редких монстров` — 27% matches, 39% excluded |
+| `"От N.*suffix"` dual-number prefix | ✅ | T5: `От ([1-9][0-9]).*огня к атакам` — matches 17, not 5 |
+| `"От N.*suffix"` digit count filter | ✅ | T6: `От ([1-9][0-9]).*к атакам` — 2-digit matches, 1-digit doesn't |
 
 **Critical syntax rules:**
 1. `!` must be INSIDE quotes: `"!A|B"` works, `!"A|B"` does NOT
