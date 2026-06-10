@@ -1,7 +1,8 @@
 {
-  "version": "2026-06-08T10:28:11.627Z",
+  "version": "2026-06-10T09:17:39.555Z",
   "category": "tablet",
   "source": "poe2db.tw",
+  "sourceHash": "no-cache",
   "tokens": [
     {
       "id": "tablet.mod_5xy54",
@@ -728,7 +729,7 @@
         "ru": "На карте можно встретить дополнительный алтарь"
       },
       "regex": {
-        "ru": " можно встретить дополнительный"
+        "ru": " можно встретить дополнительный а"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный алтарь"
@@ -769,7 +770,7 @@
         "ru": "На карте можно встретить дополнительный ларец"
       },
       "regex": {
-        "ru": " можно встретить дополнительный"
+        "ru": " можно встретить дополнительный л"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный ларец"
@@ -1013,7 +1014,7 @@
         "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
       },
       "regex": {
-        "ru": "ри ритуала"
+        "ru": "т обновить"
       },
       "familyKey": {
         "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
@@ -1761,7 +1762,10 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "regexPrefixContext": {
+        "ru": "провал,"
+      }
     },
     {
       "id": "tablet.mod_7jrajl",
@@ -2191,7 +2195,7 @@
         "ru": "На карте можно встретить дополнительный ларец"
       },
       "regex": {
-        "ru": " можно встретить дополнительный"
+        "ru": " можно встретить дополнительный л"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный ларец"
@@ -2273,7 +2277,7 @@
         "ru": "На карте можно встретить дополнительный алтарь"
       },
       "regex": {
-        "ru": " можно встретить дополнительный"
+        "ru": " можно встретить дополнительный а"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительный алтарь"
@@ -2397,7 +2401,7 @@
         "ru": "##% увеличение количества находимых на карте путевых камней"
       },
       "regex": {
-        "ru": "увеличение количества находимых на карте путевых камней"
+        "ru": "карте путевых камней"
       },
       "familyKey": {
         "ru": "#% увеличение количества находимых на карте путевых камней"
@@ -2426,13 +2430,7 @@
         53,
         62
       ],
-      "level": 1,
-      "regexExclude": {
-        "ru": []
-      },
-      "regexPrefixContext": {
-        "ru": "—"
-      }
+      "level": 1
     },
     {
       "id": "tablet.mod_i5eb4b",
@@ -3146,7 +3144,7 @@
         "ru": "Осталось зарядов - #"
       },
       "regex": {
-        "ru": "Осталось зарядов"
+        "ru": "сь зарядов"
       },
       "familyKey": {
         "ru": "Осталось зарядов - #"
@@ -3188,7 +3186,7 @@
         "ru": "Добавляет алтари Ритуала на карту"
       },
       "regex": {
-        "ru": "алтари Ритуала"
+        "ru": "яет алтари"
       },
       "familyKey": {
         "ru": "Добавляет алтари Ритуала на карту"
@@ -3222,7 +3220,7 @@
         "ru": "Добавляет Заражение на карту"
       },
       "regex": {
-        "ru": "Заражение на карту"
+        "ru": "ражение на"
       },
       "familyKey": {
         "ru": "Добавляет Заражение на карту"
@@ -3255,7 +3253,7 @@
         "ru": "Добавляет Бездны на карту"
       },
       "regex": {
-        "ru": "Бездны на карту"
+        "ru": "яет бездны"
       },
       "familyKey": {
         "ru": "Добавляет Бездны на карту"
@@ -3289,7 +3287,7 @@
         "ru": "Добавляет маяки ваал на карту"
       },
       "regex": {
-        "ru": "маяки ваал"
+        "ru": "ляет маяки"
       },
       "familyKey": {
         "ru": "Добавляет маяки ваал на карту"
@@ -3487,16 +3485,42 @@
       "weight": 94,
       "count": 4
     },
-    "tablet.mod_as23xk.h4ipty:tablet.mod_od9m77.h4ipty:tablet.mod_vc6g4q.h4ipty:tablet.mod_wrlukt:tablet.mod_yr6d7c": {
+    "tablet.mod_ld06px:tablet.mod_mug63h": {
       "ids": [
-        "tablet.mod_wrlukt",
-        "tablet.mod_yr6d7c"
+        "tablet.mod_ld06px",
+        "tablet.mod_mug63h"
       ],
       "regex": {
-        "ru": "увеличение (количества находимых|эффективности монстров|размера групп монстров на карте)"
+        "ru": "карт[ые] путевых камней"
       },
-      "weight": 88,
+      "weight": 23,
       "count": 2
+    },
+    "tablet.implicit.abyss:tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
+      "ids": [
+        "tablet.implicit.abyss",
+        "tablet.mod_1vman9",
+        "tablet.mod_iz241m",
+        "tablet.mod_l616q8"
+      ],
+      "regex": {
+        "ru": "(яет б|дополнительные Б|свойствами Б|Глубинам Б)ездны"
+      },
+      "weight": 53,
+      "count": 4
+    },
+    "tablet.mod_5xy54:tablet.mod_ld06px:tablet.mod_mug63h:tablet.mod_xfrnuy": {
+      "ids": [
+        "tablet.mod_5xy54",
+        "tablet.mod_ld06px",
+        "tablet.mod_mug63h",
+        "tablet.mod_xfrnuy"
+      ],
+      "regex": {
+        "ru": "карт(е (предметов|золота|путевых камней)|ы путевых камней)"
+      },
+      "weight": 58,
+      "count": 4
     },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [
@@ -3532,6 +3556,17 @@
       "weight": 33,
       "count": 2
     },
+    "tablet.mod_wrlukt:tablet.mod_yr6d7c": {
+      "ids": [
+        "tablet.mod_wrlukt",
+        "tablet.mod_yr6d7c"
+      ],
+      "regex": {
+        "ru": "увеличение (эффективности монстров|размера групп монстров на карте)"
+      },
+      "weight": 67,
+      "count": 2
+    },
     "tablet.mod_9l6crt:tablet.mod_gnrsv2": {
       "ids": [
         "tablet.mod_9l6crt",
@@ -3565,18 +3600,6 @@
       "weight": 46,
       "count": 2
     },
-    "tablet.mod_5xy54:tablet.mod_mug63h:tablet.mod_xfrnuy": {
-      "ids": [
-        "tablet.mod_5xy54",
-        "tablet.mod_mug63h",
-        "tablet.mod_xfrnuy"
-      ],
-      "regex": {
-        "ru": "карт(е предметов|е золота|ы путевых камней)"
-      },
-      "weight": 43,
-      "count": 3
-    },
     "tablet.mod_93pla5:tablet.mod_gztigx": {
       "ids": [
         "tablet.mod_93pla5",
@@ -3586,6 +3609,17 @@
         "ru": "волшебны(х монстров на карте|ми)"
       },
       "weight": 32,
+      "count": 2
+    },
+    "tablet.implicit.ritual_altars:tablet.mod_swvjcv": {
+      "ids": [
+        "tablet.implicit.ritual_altars",
+        "tablet.mod_swvjcv"
+      ],
+      "regex": {
+        "ru": "(встретить|яет) алтари"
+      },
+      "weight": 22,
       "count": 2
     },
     "tablet.mod_4ej297:tablet.mod_ypihik": {
@@ -3622,6 +3656,17 @@
       "weight": 24,
       "count": 2
     },
+    "tablet.implicit.abyss:tablet.implicit.ritual_altars": {
+      "ids": [
+        "tablet.implicit.abyss",
+        "tablet.implicit.ritual_altars"
+      ],
+      "regex": {
+        "ru": "яет (алтари|бездны)"
+      },
+      "weight": 19,
+      "count": 2
+    },
     "tablet.mod_4ej297:tablet.mod_7ms10f": {
       "ids": [
         "tablet.mod_4ej297",
@@ -3631,17 +3676,6 @@
         "ru": "(появля|ссеива)ется"
       },
       "weight": 19,
-      "count": 2
-    },
-    "tablet.mod_6nl4q9:tablet.mod_a1jzo3": {
-      "ids": [
-        "tablet.mod_6nl4q9",
-        "tablet.mod_a1jzo3"
-      ],
-      "regex": {
-        "ru": "(ри риту|до Зерк)ала"
-      },
-      "weight": 20,
       "count": 2
     },
     "tablet.mod_8rpt3p:tablet.mod_kbdifj": {
@@ -3657,6 +3691,63 @@
       "regexPrefixContext": {
         "ru": "снова"
       }
+    },
+    "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_l616q8:tablet.mod_umh3r9": {
+      "ids": [
+        "tablet.mod_h8udqa",
+        "tablet.mod_i7llgb",
+        "tablet.mod_l616q8",
+        "tablet.mod_umh3r9"
+      ],
+      "regex": {
+        "ru": "дополнительны(е Бездны|х (монстров|групп монстров вокруг Маяков Ваал) на карте|м свойством)"
+      },
+      "weight": 91,
+      "count": 4
+    },
+    "tablet.mod_q7wgu2:tablet.mod_vx5kd7": {
+      "ids": [
+        "tablet.mod_q7wgu2",
+        "tablet.mod_vx5kd7"
+      ],
+      "regex": {
+        "ru": "разме(ра групп монстров вокруг Маяков Ваал|щения взрывчатки в событии Экспедиции) на карте"
+      },
+      "weight": 90,
+      "count": 2
+    },
+    "tablet.mod_2pzo3q:tablet.mod_g8qfur": {
+      "ids": [
+        "tablet.mod_2pzo3q",
+        "tablet.mod_g8qfur"
+      ],
+      "regex": {
+        "ru": "осколков (зеркал|Симулякра)"
+      },
+      "weight": 27,
+      "count": 2
+    },
+    "tablet.mod_jkqo0p:tablet.mod_vj1bxt": {
+      "ids": [
+        "tablet.mod_jkqo0p",
+        "tablet.mod_vj1bxt"
+      ],
+      "regex": {
+        "ru": "(стать|окажутся) редкими"
+      },
+      "weight": 24,
+      "count": 2
+    },
+    "tablet.mod_24pi7h:tablet.mod_2pzo3q": {
+      "ids": [
+        "tablet.mod_24pi7h",
+        "tablet.mod_2pzo3q"
+      ],
+      "regex": {
+        "ru": "(осколков|хрупких) зеркал"
+      },
+      "weight": 25,
+      "count": 2
     }
   }
 }

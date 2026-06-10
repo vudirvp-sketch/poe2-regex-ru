@@ -1,7 +1,8 @@
 {
-  "version": "2026-06-08T10:28:12.900Z",
+  "version": "2026-06-10T09:17:42.337Z",
   "category": "relic",
   "source": "poe2db.tw",
+  "sourceHash": "no-cache",
   "tokens": [
     {
       "id": "relic.sanctummaximumlife1",
@@ -2259,7 +2260,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "сопротивлению чести"
+        "ru": "22)% к сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"

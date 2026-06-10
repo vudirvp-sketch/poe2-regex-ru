@@ -1,7 +1,8 @@
 {
-  "version": "2026-06-08T10:28:10.597Z",
+  "version": "2026-06-10T09:17:38.477Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
+  "sourceHash": "no-cache",
   "tokens": [
     {
       "id": "waystone-desecrated.mod_tmrm3c",
@@ -598,7 +599,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "количества редких монстров"
+        "ru": "30% увеличение количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -684,7 +685,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "количества редких монстров"
+        "ru": "30% увеличение количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -842,7 +843,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "количества редких монстров"
+        "ru": "50% увеличение количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -1101,7 +1102,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "количества редких монстров"
+        "ru": "50% увеличение количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -1138,10 +1139,10 @@
         "ru": "Шанс выпадения путевого камня: +##%"
       },
       "regex": {
-        "ru": "Шанс выпадения путевого камня"
+        "ru": "падения"
       },
       "familyKey": {
-        "ru": "Шанс выпадения путевого камня: +##%"
+        "ru": "Шанс выпадения путевого камня: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -1177,10 +1178,10 @@
         "ru": "Редкость предметов: +##%"
       },
       "regex": {
-        "ru": "Редкость предметов"
+        "ru": "едкость"
       },
       "familyKey": {
-        "ru": "Редкость предметов: +##%"
+        "ru": "Редкость предметов: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -1215,10 +1216,10 @@
         "ru": "Размер групп монстров: +##%"
       },
       "regex": {
-        "ru": "Размер групп монстров"
+        "ru": "р групп"
       },
       "familyKey": {
-        "ru": "Размер групп монстров: +##%"
+        "ru": "Размер групп монстров: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -1253,10 +1254,10 @@
         "ru": "Эффективность монстров: +##%"
       },
       "regex": {
-        "ru": "Эффективность монстров"
+        "ru": "ивность"
       },
       "familyKey": {
-        "ru": "Эффективность монстров: +##%"
+        "ru": "Эффективность монстров: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -1291,7 +1292,7 @@
         "ru": "Доступно возрождений: #"
       },
       "regex": {
-        "ru": "Доступно возрождений"
+        "ru": "оступно"
       },
       "familyKey": {
         "ru": "Доступно возрождений: #"
@@ -1376,6 +1377,18 @@
       "weight": 58,
       "count": 7
     },
+    "waystone-desecrated.implicit.item_rarity:waystone-desecrated.implicit.monster_effectiveness:waystone-desecrated.mod_9crcta": {
+      "ids": [
+        "waystone-desecrated.implicit.item_rarity",
+        "waystone-desecrated.implicit.monster_effectiveness",
+        "waystone-desecrated.mod_9crcta"
+      ],
+      "regex": {
+        "ru": "(едк|ожн|ивн)ость"
+      },
+      "weight": 17,
+      "count": 3
+    },
     "waystone-desecrated.mod_34v9ul:waystone-desecrated.mod_cmq708.mhmuy1": {
       "ids": [
         "waystone-desecrated.mod_34v9ul",
@@ -1385,6 +1398,17 @@
         "ru": "одерж(а|и)т"
       },
       "weight": 11,
+      "count": 2
+    },
+    "waystone-desecrated.implicit.monster_effectiveness:waystone-desecrated.mod_9crcta": {
+      "ids": [
+        "waystone-desecrated.implicit.monster_effectiveness",
+        "waystone-desecrated.mod_9crcta"
+      ],
+      "regex": {
+        "ru": "(ож|ив)ность"
+      },
+      "weight": 12,
       "count": 2
     },
     "waystone-desecrated.mod_sbcpi5.mp9l1p:waystone-desecrated.mod_z1e94l.z94mfv": {
@@ -1408,6 +1432,18 @@
       },
       "weight": 14,
       "count": 2
+    },
+    "waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
+      "ids": [
+        "waystone-desecrated.mod_cmq708.rl8it4",
+        "waystone-desecrated.mod_jdkriz",
+        "waystone-desecrated.mod_tmrm3c"
+      ],
+      "regex": {
+        "ru": "количеств(о опыта|о монстров|а волшебных монстров)"
+      },
+      "weight": 50,
+      "count": 3
     }
   }
 }

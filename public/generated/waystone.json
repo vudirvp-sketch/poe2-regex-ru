@@ -1,7 +1,8 @@
 {
-  "version": "2026-06-08T10:28:10.399Z",
+  "version": "2026-06-10T09:17:38.291Z",
   "category": "waystone",
   "source": "poe2db.tw",
+  "sourceHash": "no-cache",
   "tokens": [
     {
       "id": "waystone.mod_khqk4q.4qe09f",
@@ -14,7 +15,7 @@
         "ru": "Дополнительных свойств у редких монстров: #"
       },
       "regex": {
-        "ru": "нстров:"
+        "ru": "тров: 1"
       },
       "familyKey": {
         "ru": "Дополнительных свойств у редких монстров: #"
@@ -87,7 +88,7 @@
         "ru": "#% увеличение количества путевых камней, находимых в области"
       },
       "regex": {
-        "ru": "камней, находимых в области"
+        "ru": "находимых в области"
       },
       "familyKey": {
         "ru": "#% увеличение количества путевых камней, находимых в области"
@@ -643,7 +644,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "5% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -755,7 +756,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "5% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -867,7 +868,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "5% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -979,7 +980,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "5% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1213,7 +1214,7 @@
         "ru": "+##% к бонусу критического урона монстров"
       },
       "regex": {
-        "ru": "критического урона монстров"
+        "ru": "6—20)% к бонусу критического урона монстров"
       },
       "familyKey": {
         "ru": "+#% к бонусу критического урона монстров"
@@ -1291,7 +1292,7 @@
         "ru": "+##% к бонусу критического урона монстров"
       },
       "regex": {
-        "ru": "критического урона монстров"
+        "ru": "1—25)% к бонусу критического урона монстров"
       },
       "familyKey": {
         "ru": "+#% к бонусу критического урона монстров"
@@ -1445,7 +1446,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "3% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1557,7 +1558,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "3% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1669,7 +1670,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "3% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1781,7 +1782,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "3% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -2038,7 +2039,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "8% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -2385,7 +2386,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2461,7 +2462,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2537,7 +2538,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2613,7 +2614,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2727,7 +2728,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2801,7 +2802,7 @@
         "ru": "Монстры имеют ##% увеличение порога оглушения"
       },
       "regex": {
-        "ru": "порога оглушения"
+        "ru": "49)% увеличение порога оглушения"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога оглушения"
@@ -2841,7 +2842,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2915,7 +2916,7 @@
         "ru": "Монстры имеют ##% увеличение порога оглушения"
       },
       "regex": {
-        "ru": "порога оглушения"
+        "ru": "69)% увеличение порога оглушения"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога оглушения"
@@ -2955,7 +2956,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -3072,7 +3073,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "9% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3188,7 +3189,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "9% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3304,7 +3305,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "9% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3378,7 +3379,7 @@
         "ru": "Монстры разрушают броню в размере ##% от нанесенного физического урона"
       },
       "regex": {
-        "ru": "физического урона"
+        "ru": "45)% от нанесенного физического урона"
       },
       "familyKey": {
         "ru": "Монстры разрушают броню в размере #% от нанесенного физического урона"
@@ -3420,7 +3421,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "9% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3851,7 +3852,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -3927,7 +3928,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4003,7 +4004,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4079,7 +4080,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "3% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4408,7 +4409,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "6% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4541,7 +4542,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "больше эффективности монстров"
+        "ru": "5% больше эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4721,7 +4722,7 @@
         "ru": "Урон монстров пробивает ##% сопротивлений стихиям"
       },
       "regex": {
-        "ru": "сопротивлений стихиям"
+        "ru": "2—14)% сопротивлений стихиям"
       },
       "familyKey": {
         "ru": "Урон монстров пробивает #% сопротивлений стихиям"
@@ -4797,7 +4798,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "сопротивлений игроков"
+        "ru": "-3)% максимум сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4835,7 +4836,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "сопротивлений игроков"
+        "ru": "-4)% максимум сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4873,7 +4874,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "сопротивлений игроков"
+        "ru": "-6)% максимум сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4911,7 +4912,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "сопротивлений игроков"
+        "ru": "-8)% максимум сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -5362,7 +5363,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "8% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -5477,7 +5478,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "8% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -5592,7 +5593,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "и редких монстров"
+        "ru": "8% больше волшебных и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -5783,10 +5784,10 @@
         "ru": "Шанс выпадения путевого камня: +##%"
       },
       "regex": {
-        "ru": "Шанс выпадения путевого камня"
+        "ru": "падения"
       },
       "familyKey": {
-        "ru": "Шанс выпадения путевого камня: +##%"
+        "ru": "Шанс выпадения путевого камня: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -5822,10 +5823,10 @@
         "ru": "Редкость предметов: +##%"
       },
       "regex": {
-        "ru": "Редкость предметов"
+        "ru": "едкость"
       },
       "familyKey": {
-        "ru": "Редкость предметов: +##%"
+        "ru": "Редкость предметов: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -5860,10 +5861,10 @@
         "ru": "Размер групп монстров: +##%"
       },
       "regex": {
-        "ru": "Размер групп монстров"
+        "ru": "р групп"
       },
       "familyKey": {
-        "ru": "Размер групп монстров: +##%"
+        "ru": "Размер групп монстров: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -5898,10 +5899,10 @@
         "ru": "Эффективность монстров: +##%"
       },
       "regex": {
-        "ru": "Эффективность монстров"
+        "ru": "ивность"
       },
       "familyKey": {
-        "ru": "Эффективность монстров: +##%"
+        "ru": "Эффективность монстров: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -5936,7 +5937,7 @@
         "ru": "Доступно возрождений: #"
       },
       "regex": {
-        "ru": "Доступно возрождений"
+        "ru": "оступно"
       },
       "familyKey": {
         "ru": "Доступно возрождений: #"
@@ -6161,9 +6162,9 @@
         "waystone.mod_vgw675.4fnej8"
       ],
       "regex": {
-        "ru": "больше эффективности монст"
+        "ru": "эффективности монст"
       },
-      "weight": 26,
+      "weight": 19,
       "count": 13
     },
     "waystone.mod_2ht2hu.3pn6w5:waystone.mod_kp15r6.mjh0rp:waystone.mod_nx4wv2.d4k3tx": {
@@ -6353,7 +6354,7 @@
       "weight": 7,
       "count": 3
     },
-    "waystone.mod_1kh81h.m91hnk:waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2s3yn.trlkfy:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_39zmx7.trlkfy:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_51te7l.trlkfy:waystone.mod_5dk06z.80qzhd:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_69f90c.cikt99:waystone.mod_6flpgb.trlkfy:waystone.mod_6ozv78.m91hnk:waystone.mod_6tqcw0.trlkfy:waystone.mod_8bvhdx.m91hnk:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_b6htj4.trlkfy:waystone.mod_bq7ynf.p80ikg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_d75rdn.80qzhd:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.p80ikg:waystone.mod_dz26j3.3h5xlv:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.p80ikg:waystone.mod_g88u2c.trlkfy:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_k6xeoc.m91hnk:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_la7tcb.trlkfy:waystone.mod_liwit7.80qzhd:waystone.mod_makhsy.cikt99:waystone.mod_mfedkw.gt494t:waystone.mod_n9nlno.trlkfy:waystone.mod_nx4wv2.x4tupj:waystone.mod_o2qq9u.cikt99:waystone.mod_o33ait.trlkfy:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_pqhy2v.80qzhd:waystone.mod_rwfvov.trlkfy:waystone.mod_u6ht6b.x4tupj:waystone.mod_uh9m9i.p80ikg:waystone.mod_uns37d.p80ikg:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_v7b3by.cikt99:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_vrb77a.80qzhd:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_x11dv3.trlkfy:waystone.mod_y4nnlv.asn09:waystone.mod_y4nnlv.p80ikg:waystone.mod_zbjr94.p80ikg": {
+    "waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_dv8kwa.mtgbg2:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_mfedkw.gt494t:waystone.mod_nx4wv2.x4tupj:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_u6ht6b.x4tupj:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_y4nnlv.asn09": {
       "ids": [
         "waystone.mod_2195hd.xcp5e3",
         "waystone.mod_2368r0.x4tupj",
@@ -6419,12 +6420,12 @@
         "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
-        "ru": "(количества редких|увеличение (эффективности|урона)|групп|и редких|появления свойств у редких|критического урона|здоровья|больше эффективности|у) монстров"
+        "ru": "(количества редких|увеличение урона|и редких|появления свойств у редких|критического урона|здоровья|эффективности|у) монстров"
       },
-      "weight": 154,
+      "weight": 125,
       "count": 62
     },
-    "waystone.mod_1kh81h.m91hnk:waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2s3yn.trlkfy:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_39zmx7.trlkfy:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_51te7l.trlkfy:waystone.mod_5dk06z.80qzhd:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_69f90c.cikt99:waystone.mod_6flpgb.trlkfy:waystone.mod_6ozv78.m91hnk:waystone.mod_6tqcw0.trlkfy:waystone.mod_8bvhdx.m91hnk:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.j328n0:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_b6htj4.trlkfy:waystone.mod_bq7ynf.p80ikg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_d75rdn.80qzhd:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.p80ikg:waystone.mod_dz26j3.3h5xlv:waystone.mod_eebmyy.hlk855:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.p80ikg:waystone.mod_g88u2c.trlkfy:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_k6xeoc.m91hnk:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.3fnpnc:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_la7tcb.trlkfy:waystone.mod_liwit7.80qzhd:waystone.mod_makhsy.cikt99:waystone.mod_mfedkw.gt494t:waystone.mod_n9nlno.trlkfy:waystone.mod_nx4wv2.x4tupj:waystone.mod_o2qq9u.cikt99:waystone.mod_o33ait.trlkfy:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_pqhy2v.80qzhd:waystone.mod_rwfvov.trlkfy:waystone.mod_u6ht6b.x4tupj:waystone.mod_uh9m9i.p80ikg:waystone.mod_uns37d.p80ikg:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_v7b3by.cikt99:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_vrb77a.80qzhd:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_x11dv3.trlkfy:waystone.mod_y4nnlv.asn09:waystone.mod_y4nnlv.p80ikg:waystone.mod_zbjr94.p80ikg": {
+    "waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.j328n0:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_dv8kwa.mtgbg2:waystone.mod_eebmyy.hlk855:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.3fnpnc:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_mfedkw.gt494t:waystone.mod_nx4wv2.x4tupj:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_u6ht6b.x4tupj:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_y4nnlv.asn09": {
       "ids": [
         "waystone.mod_2195hd.xcp5e3",
         "waystone.mod_2368r0.x4tupj",
@@ -6493,9 +6494,9 @@
         "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
-        "ru": "(критическ(их уда|ого урона монст)|количества редких монст|увеличение (эффективности|урона) монст|групп монст|и редких монст|появления свойств у редких монст|здоровья монст|больше эффективности монст|у монст)ров"
+        "ru": "(критическ(их уда|ого урона монст)|количества редких монст|увеличение урона монст|и редких монст|появления свойств у редких монст|здоровья монст|эффективности монст|у монст)ров"
       },
-      "weight": 211,
+      "weight": 176,
       "count": 65
     },
     "waystone.mod_2368r0.5ee2t3:waystone.mod_2xv8m4.9i43dz:waystone.mod_39zmx7.isxi7c:waystone.mod_5j3ahj.8mhogc:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_la7tcb.lmk0dk:waystone.mod_ux3o8n.gmxw9g": {
@@ -6535,19 +6536,6 @@
       "weight": 46,
       "count": 11
     },
-    "waystone.mod_453bd0.l28urr:waystone.mod_69f90c.cikt99:waystone.mod_9svl5o.gt6q1l:waystone.mod_i1gkuy.mctyuh:waystone.mod_makhsy.cikt99:waystone.mod_o2qq9u.cikt99:waystone.mod_phffvg.ev4djt:waystone.mod_v7b3by.cikt99": {
-      "ids": [
-        "waystone.mod_453bd0.l28urr",
-        "waystone.mod_9svl5o.gt6q1l",
-        "waystone.mod_i1gkuy.mctyuh",
-        "waystone.mod_phffvg.ev4djt"
-      ],
-      "regex": {
-        "ru": "увеличение (эффективности|урона) монстров"
-      },
-      "weight": 41,
-      "count": 4
-    },
     "waystone.mod_1kh81h.413pny:waystone.mod_6j3xkx.tr2esi:waystone.mod_6ozv78.vwbm4v:waystone.mod_8bvhdx.54e72:waystone.mod_arwr8m.nszmll:waystone.mod_k6xeoc.5ozbbj:waystone.mod_q2uvfp.90zite:waystone.mod_zhrsdh.2xc6v6": {
       "ids": [
         "waystone.mod_1kh81h.413pny",
@@ -6564,6 +6552,25 @@
       },
       "weight": 31,
       "count": 8
+    },
+    "waystone.implicit.waystone_drop_chance:waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_goqcn2.69pj5x:waystone.mod_kp15r6.85wna8:waystone.mod_l7rwtj.e4a1oc:waystone.mod_nx4wv2.cvd3r4:waystone.mod_omospl.wzz77g:waystone.mod_u6ht6b.fdx9pm:waystone.mod_zbjr94.cv8ywl": {
+      "ids": [
+        "waystone.implicit.waystone_drop_chance",
+        "waystone.mod_2ht2hu.maa0ow",
+        "waystone.mod_2ht2hu.qzqh5s",
+        "waystone.mod_goqcn2.69pj5x",
+        "waystone.mod_kp15r6.85wna8",
+        "waystone.mod_l7rwtj.e4a1oc",
+        "waystone.mod_nx4wv2.cvd3r4",
+        "waystone.mod_omospl.wzz77g",
+        "waystone.mod_u6ht6b.fdx9pm",
+        "waystone.mod_zbjr94.cv8ywl"
+      ],
+      "regex": {
+        "ru": "(вор|порога оглуш|шкалы оглуш|пад)ения"
+      },
+      "weight": 38,
+      "count": 10
     },
     "waystone.mod_2368r0.5ee2t3:waystone.mod_2xv8m4.9i43dz:waystone.mod_39zmx7.isxi7c:waystone.mod_5j3ahj.8mhogc:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_dv8kwa.nnkbcj:waystone.mod_eokrsq.v508lf:waystone.mod_la7tcb.lmk0dk:waystone.mod_uns37d.slejo:waystone.mod_ux3o8n.gmxw9g:waystone.mod_y4nnlv.rpj316": {
       "ids": [
@@ -6602,24 +6609,6 @@
       },
       "weight": 24,
       "count": 8
-    },
-    "waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_goqcn2.69pj5x:waystone.mod_kp15r6.85wna8:waystone.mod_l7rwtj.e4a1oc:waystone.mod_nx4wv2.cvd3r4:waystone.mod_omospl.wzz77g:waystone.mod_u6ht6b.fdx9pm:waystone.mod_zbjr94.cv8ywl": {
-      "ids": [
-        "waystone.mod_2ht2hu.maa0ow",
-        "waystone.mod_2ht2hu.qzqh5s",
-        "waystone.mod_goqcn2.69pj5x",
-        "waystone.mod_kp15r6.85wna8",
-        "waystone.mod_l7rwtj.e4a1oc",
-        "waystone.mod_nx4wv2.cvd3r4",
-        "waystone.mod_omospl.wzz77g",
-        "waystone.mod_u6ht6b.fdx9pm",
-        "waystone.mod_zbjr94.cv8ywl"
-      ],
-      "regex": {
-        "ru": "(вор|порога оглуш|шкалы оглуш)ения"
-      },
-      "weight": 34,
-      "count": 9
     },
     "waystone.mod_6j3xkx.tr2esi:waystone.mod_arwr8m.nszmll:waystone.mod_o2lima.isuz7l:waystone.mod_pmwgig.9dehzp:waystone.mod_q2uvfp.90zite:waystone.mod_v6fsrm.wqtvq9:waystone.mod_vb57mm.mlqbj3:waystone.mod_zhrsdh.2xc6v6": {
       "ids": [
@@ -6716,6 +6705,87 @@
       },
       "weight": 33,
       "count": 6
+    },
+    "waystone.implicit.item_rarity:waystone.implicit.monster_effectiveness": {
+      "ids": [
+        "waystone.implicit.item_rarity",
+        "waystone.implicit.monster_effectiveness"
+      ],
+      "regex": {
+        "ru": "(едк|ивн)ость"
+      },
+      "weight": 13,
+      "count": 2
+    },
+    "waystone.mod_ags7hd.j328n0:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.nnkbcj:waystone.mod_eebmyy.hlk855:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.v508lf:waystone.mod_klpqrv.3fnpnc:waystone.mod_uns37d.slejo:waystone.mod_y4nnlv.rpj316": {
+      "ids": [
+        "waystone.mod_ags7hd.j328n0",
+        "waystone.mod_dv8kwa.mtgbg2",
+        "waystone.mod_dv8kwa.nnkbcj",
+        "waystone.mod_eebmyy.hlk855",
+        "waystone.mod_eokrsq.mde121",
+        "waystone.mod_eokrsq.v508lf",
+        "waystone.mod_klpqrv.3fnpnc",
+        "waystone.mod_uns37d.slejo",
+        "waystone.mod_y4nnlv.rpj316"
+      ],
+      "regex": {
+        "ru": "критическ(ого у(дара|рона монстров)|их ударов)"
+      },
+      "weight": 46,
+      "count": 9
+    },
+    "waystone.mod_2195hd.xcp5e3:waystone.mod_453bd0.dkzoww:waystone.mod_9svl5o.dkzoww:waystone.mod_i1gkuy.dkzoww:waystone.mod_phffvg.dkzoww": {
+      "ids": [
+        "waystone.mod_2195hd.xcp5e3",
+        "waystone.mod_453bd0.dkzoww",
+        "waystone.mod_9svl5o.dkzoww",
+        "waystone.mod_i1gkuy.dkzoww",
+        "waystone.mod_phffvg.dkzoww"
+      ],
+      "regex": {
+        "ru": "5% больше (волшебных и редких|эффективности) монстров"
+      },
+      "weight": 53,
+      "count": 5
+    },
+    "waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2xv8m4.x4tupj:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ohnqoy:waystone.mod_chnob5.ohnqoy:waystone.mod_goqcn2.x4tupj:waystone.mod_k10uf8.ohnqoy:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_nx4wv2.x4tupj:waystone.mod_omospl.x4tupj:waystone.mod_u6ht6b.x4tupj:waystone.mod_ux3o8n.x4tupj:waystone.mod_vkdkr4.ohnqoy": {
+      "ids": [
+        "waystone.mod_2368r0.x4tupj",
+        "waystone.mod_2ht2hu.x4tupj",
+        "waystone.mod_2xv8m4.x4tupj",
+        "waystone.mod_5j3ahj.x4tupj",
+        "waystone.mod_62dygh.ohnqoy",
+        "waystone.mod_chnob5.ohnqoy",
+        "waystone.mod_goqcn2.x4tupj",
+        "waystone.mod_k10uf8.ohnqoy",
+        "waystone.mod_kp15r6.x4tupj",
+        "waystone.mod_l7rwtj.x4tupj",
+        "waystone.mod_nx4wv2.x4tupj",
+        "waystone.mod_omospl.x4tupj",
+        "waystone.mod_u6ht6b.x4tupj",
+        "waystone.mod_ux3o8n.x4tupj",
+        "waystone.mod_vkdkr4.ohnqoy"
+      ],
+      "regex": {
+        "ru": "3% больше (волшебных и редких|эффективности) монстров"
+      },
+      "weight": 53,
+      "count": 15
+    },
+    "waystone.mod_2ht2hu.3pn6w5:waystone.mod_2ht2hu.qzqh5s:waystone.mod_kp15r6.85wna8:waystone.mod_kp15r6.mjh0rp:waystone.mod_nx4wv2.d4k3tx": {
+      "ids": [
+        "waystone.mod_2ht2hu.3pn6w5",
+        "waystone.mod_2ht2hu.qzqh5s",
+        "waystone.mod_kp15r6.85wna8",
+        "waystone.mod_kp15r6.mjh0rp",
+        "waystone.mod_nx4wv2.d4k3tx"
+      ],
+      "regex": {
+        "ru": "порога (состояний|оглушения)"
+      },
+      "weight": 28,
+      "count": 5
     }
   }
 }

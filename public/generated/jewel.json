@@ -1,7 +1,8 @@
 {
-  "version": "2026-06-08T10:28:12.544Z",
+  "version": "2026-06-10T09:17:40.664Z",
   "category": "jewel",
   "source": "poe2db.tw",
+  "sourceHash": "no-cache",
   "tokens": [
     {
       "id": "jewel.mod_665j7w",
@@ -2203,7 +2204,7 @@
         "ru": "Приспешники имеют ##% увеличение области действия"
       },
       "regex": {
-        "ru": "увеличение области действия"
+        "ru": "5—8)% увеличение области действия"
       },
       "familyKey": {
         "ru": "Приспешники имеют #% увеличение области действия"
@@ -9108,13 +9109,10 @@
         "jewel.mod_ba414f"
       ],
       "regex": {
-        "ru": "((повышение скорост|атаки )и )?сотворения чар"
+        "ru": "(повышение скорост|атаки )и сотворения чар"
       },
-      "weight": 45,
-      "count": 3,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "weight": 42,
+      "count": 3
     },
     "jewel.mod_fktkkd:jewel.mod_kgc2ed:jewel.mod_pk8bwh:jewel.mod_ppjbmq:jewel.mod_r2zyq:jewel.mod_v2r1wr": {
       "ids": [
@@ -9490,13 +9488,10 @@
         "jewel.mod_ba414f"
       ],
       "regex": {
-        "ru": "(дл|повышение скорости сотворени|сотворени|атаки и сотворени)я чар"
+        "ru": "(дл|повышение скорости сотворени|атаки и сотворени)я чар"
       },
-      "weight": 66,
-      "count": 4,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "weight": 56,
+      "count": 4
     },
     "jewel.mod_vr3sas:jewel.mod_w5oqnz": {
       "ids": [
@@ -10265,6 +10260,53 @@
         "ru": "(ур|пл)яет"
       },
       "weight": 10,
+      "count": 2
+    },
+    "jewel.mod_1jeatc:jewel.mod_4mxucf:jewel.mod_4yzy57:jewel.mod_7jm1s2:jewel.mod_ank8rj:jewel.mod_aqkyv5:jewel.mod_cggkw1:jewel.mod_fsam8f:jewel.mod_jo4ch9:jewel.mod_yzxktz": {
+      "ids": [
+        "jewel.mod_1jeatc",
+        "jewel.mod_4mxucf",
+        "jewel.mod_4yzy57",
+        "jewel.mod_7jm1s2",
+        "jewel.mod_ank8rj",
+        "jewel.mod_aqkyv5",
+        "jewel.mod_cggkw1",
+        "jewel.mod_fsam8f",
+        "jewel.mod_jo4ch9",
+        "jewel.mod_yzxktz"
+      ],
+      "regex": {
+        "ru": "увеличение (области действия|максимума (энергетического щита|здоровья)|уклонения|урона в ближнем бою|бонуса к критическому урону|количества получаемых зарядов флакона|длительности эффекта умения|порога оглушения)"
+      },
+      "weight": 212,
+      "count": 10
+    },
+    "jewel.mod_7dzvh0:jewel.mod_7spjc9:jewel.mod_am4lla:jewel.mod_b618b2:jewel.mod_is2jx9:jewel.mod_sioc8h:jewel.mod_wkqo4a:jewel.mod_zel2yn": {
+      "ids": [
+        "jewel.mod_7dzvh0",
+        "jewel.mod_7spjc9",
+        "jewel.mod_am4lla",
+        "jewel.mod_b618b2",
+        "jewel.mod_is2jx9",
+        "jewel.mod_sioc8h",
+        "jewel.mod_wkqo4a",
+        "jewel.mod_zel2yn"
+      ],
+      "regex": {
+        "ru": "повышение (брони|скорости (атаки|сотворения чар|накопления шкалы (заморозки|оглушения))|шанса критического удара)"
+      },
+      "weight": 113,
+      "count": 8
+    },
+    "jewel.mod_1pakh0:jewel.mod_4mxucf": {
+      "ids": [
+        "jewel.mod_1pakh0",
+        "jewel.mod_4mxucf"
+      ],
+      "regex": {
+        "ru": "(5—8)% )?увеличение области действия"
+      },
+      "weight": 36,
       "count": 2
     }
   }
