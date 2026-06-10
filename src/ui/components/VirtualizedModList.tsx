@@ -1,25 +1,22 @@
 /**
- * VirtualizedModList — Virtualized version of ModList for large categories.
+ * VirtualizedModList — Virtualized two-column mod list for large categories.
  *
  * Uses @tanstack/react-virtual to render only visible sub-groups,
  * significantly reducing DOM nodes for categories with 200+ tokens
  * (belt: 298, ring: 366, amulet: 427, jewel: 235).
  *
- * Strategy: flatten the hierarchical structure (column → origin section →
- * jewel-type sub-group → sub-group) into a flat list of "virtual rows".
- * Each row is either:
- * - A column header (ПРЕФИКС / СУФФИКС)
- * - An origin section header (··· Осквернённые ···)
- * - A jewel type sub-header (── Рубин ── / ── Сапфир ──)
- * - A sub-group with its header and flex-wrap chips
+ * Layout v5: Two-column layout (Prefix | Suffix) with independent
+ * virtualizers per column. Both virtualizers share the same scroll
+ * container (<main id="main-content">), so scrolling is natural.
  *
- * The virtualizer uses the <main> scroll container (id="main-content"),
- * so the page scrolls naturally without nested scroll containers.
+ * When both prefix and suffix exist and no affix filter is applied,
+ * columns render side by side in a CSS grid (2fr | 3fr).
+ * When an affix filter narrows to one type, or only one affix type
+ * exists, a single full-width column is used.
  *
- * Layout v4: Uses normal flow positioning instead of absolute positioning.
- * This prevents overlap bugs when FilterChip height changes on selection
- * (range inputs expand the chip). The virtualizer uses padding-top/padding-bottom
- * spacers to create the virtual scroll area, while rendered items flow naturally.
+ * Each column's virtualizer uses normal flow positioning (padding-top/
+ * padding-bottom spacers) to prevent overlap when FilterChip height
+ * changes on selection (range inputs expand the chip).
  */
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -84,7 +81,6 @@ const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
 function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
   let current = el;
   while (current) {
-    // Check for <main id="main-content"> first — known scroll container
     if (current.id === 'main-content') return current;
     const style = getComputedStyle(current);
     const overflowY = style.overflowY;
@@ -97,8 +93,102 @@ function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
 }
 
 /**
+ * Build flat row list for a single affix column.
+ */
+function buildColumnRows(
+  affix: AffixType,
+  groups: FamilyGroup[],
+  subGroups: ModSubGroup[],
+  groupMode: ModGroupMode,
+  showOriginSubSections: boolean,
+  showJewelTypeSubGroups: boolean,
+): VirtualRow[] {
+  const rows: VirtualRow[] = [];
+  if (groups.length === 0) return rows;
+
+  // Column header
+  rows.push({ type: 'column-header', affix, count: groups.length });
+
+  if (showOriginSubSections) {
+    const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
+    for (const group of groups) {
+      const splits = splitGroupByOrigin(group);
+      for (const { origin, group: splitGroup } of splits) {
+        const list = byOrigin.get(origin) || [];
+        list.push(splitGroup);
+        byOrigin.set(origin, list);
+      }
+    }
+
+    for (const origin of ORIGIN_ORDER) {
+      const originGroups = byOrigin.get(origin);
+      if (!originGroups || originGroups.length === 0) continue;
+
+      const labelConfig = ORIGIN_SECTION_LABELS[origin];
+      const originSubGroups = classifyGroups(originGroups, groupMode);
+      const sectionCount = originSubGroups.reduce((s, sg) => s + sg.groups.length, 0);
+
+      // Origin section header (skip for normal-only — already implied by column header)
+      if (origin !== 'normal' || byOrigin.size > 1) {
+        rows.push({
+          type: 'origin-header',
+          origin,
+          label: labelConfig?.label ?? t('origin.' + origin),
+          colorClass: labelConfig?.colorClass ?? 'text-gray-400',
+          bgClass: labelConfig?.bgClass ?? '',
+          borderClass: labelConfig?.borderClass ?? '',
+          borderLClass: labelConfig?.borderLClass ?? '',
+          count: sectionCount,
+          iconPath: labelConfig?.iconPath,
+        });
+      }
+
+      if (showJewelTypeSubGroups) {
+        const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
+        for (const group of originGroups) {
+          const jewelType = classifyJewelType(group);
+          const list = byJewelType.get(jewelType) || [];
+          list.push(group);
+          byJewelType.set(jewelType, list);
+        }
+
+        for (const jewelType of JEWEL_TYPE_ORDER) {
+          const jtGroups = byJewelType.get(jewelType);
+          if (!jtGroups || jtGroups.length === 0) continue;
+
+          const jtLabelConfig = JEWEL_TYPE_LABELS[jewelType];
+          rows.push({
+            type: 'jewel-type-header',
+            jewelType,
+            label: jtLabelConfig.label,
+            colorClass: jtLabelConfig.colorClass,
+            bgClass: jtLabelConfig.bgClass,
+            borderClass: jtLabelConfig.borderClass,
+            count: jtGroups.length,
+          });
+
+          const jtSubGroups = classifyGroups(jtGroups, groupMode);
+          for (const sg of jtSubGroups) {
+            rows.push({ type: 'subgroup', subGroup: sg, affix });
+          }
+        }
+      } else {
+        for (const sg of originSubGroups) {
+          rows.push({ type: 'subgroup', subGroup: sg, affix });
+        }
+      }
+    }
+  } else {
+    for (const sg of subGroups) {
+      rows.push({ type: 'subgroup', subGroup: sg, affix });
+    }
+  }
+
+  return rows;
+}
+
+/**
  * Render a single virtual row's content (without positioning wrapper).
- * Extracted as a separate component for clarity.
  */
 const VirtualRowContent: React.FC<{
   row: VirtualRow;
@@ -171,6 +261,105 @@ const VirtualRowContent: React.FC<{
 });
 
 VirtualRowContent.displayName = 'VirtualRowContent';
+
+/** Props shared by VirtualizedColumn */
+interface VirtualizedColumnProps {
+  rows: VirtualRow[];
+  scrollElement: HTMLElement | null;
+  selectedIds: Set<string>;
+  onToggleTokens: (ids: string[]) => void;
+  perTokenRanges?: Record<string, TokenRangeOverride>;
+  onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
+  onClearTokenRange?: (tokenId: string) => void;
+  collapsedTokenIds?: Set<string>;
+  /** Border color class for left border (affix-specific) */
+  borderClass: string;
+}
+
+/** A single virtualized column (prefix or suffix) */
+const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
+  rows,
+  scrollElement,
+  selectedIds,
+  onToggleTokens,
+  perTokenRanges,
+  onSetTokenRange,
+  onClearTokenRange,
+  collapsedTokenIds,
+  borderClass,
+}) => {
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollElement,
+    estimateSize: (index) => {
+      const row = rows[index];
+      if (!row) return 40;
+      return ROW_ESTIMATES[row.type];
+    },
+    overscan: 10,
+  });
+
+  // Re-measure when selection or range overrides change
+  useEffect(() => {
+    if (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0)) {
+      requestAnimationFrame(() => {
+        virtualizer.measure();
+      });
+    }
+  }, [selectedIds, perTokenRanges, virtualizer]);
+
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
+
+  let paddingTop = 0;
+  let paddingBottom = 0;
+
+  if (virtualItems.length > 0) {
+    const firstItem = virtualItems[0];
+    const lastItem = virtualItems[virtualItems.length - 1];
+    paddingTop = firstItem.start;
+    paddingBottom = totalSize - lastItem.end;
+  }
+
+  if (rows.length === 0) return null;
+
+  return (
+    <div className={`flex flex-col min-w-0 border-l-2 pl-3 ${borderClass}`}>
+      <div style={{ width: '100%' }}>
+        {paddingTop > 0 && (
+          <div style={{ height: paddingTop }} aria-hidden="true" />
+        )}
+
+        {virtualItems.map((virtualItem) => {
+          const row = rows[virtualItem.index];
+          if (!row) return null;
+
+          return (
+            <div
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
+            >
+              <VirtualRowContent
+                row={row}
+                selectedIds={selectedIds}
+                onToggleTokens={onToggleTokens}
+                perTokenRanges={perTokenRanges}
+                onSetTokenRange={onSetTokenRange}
+                onClearTokenRange={onClearTokenRange}
+                collapsedTokenIds={collapsedTokenIds}
+              />
+            </div>
+          );
+        })}
+
+        {paddingBottom > 0 && (
+          <div style={{ height: paddingBottom }} aria-hidden="true" />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   tokens,
@@ -264,128 +453,18 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [suffixGroups, groupMode]
   );
 
-  // Build flat row list
-  const virtualRows = useMemo(() => {
-    const rows: VirtualRow[] = [];
+  // Build separate row lists for each column
+  const prefixRows = useMemo(
+    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
+    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+  );
+  const suffixRows = useMemo(
+    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
+    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+  );
 
-    const addColumn = (affix: AffixType, groups: FamilyGroup[], subGroups: ModSubGroup[]) => {
-      if (groups.length === 0) return;
-
-      // Column header
-      rows.push({ type: 'column-header', affix, count: groups.length });
-
-      if (showOriginSubSections) {
-        // Group by origin first
-        const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
-        for (const group of groups) {
-          const splits = splitGroupByOrigin(group);
-          for (const { origin, group: splitGroup } of splits) {
-            const list = byOrigin.get(origin) || [];
-            list.push(splitGroup);
-            byOrigin.set(origin, list);
-          }
-        }
-
-        for (const origin of ORIGIN_ORDER) {
-          const originGroups = byOrigin.get(origin);
-          if (!originGroups || originGroups.length === 0) continue;
-
-          const labelConfig = ORIGIN_SECTION_LABELS[origin];
-          const originSubGroups = classifyGroups(originGroups, groupMode);
-          const sectionCount = originSubGroups.reduce((s, sg) => s + sg.groups.length, 0);
-
-          // Origin section header (skip for normal-only — already implied by column header)
-          if (origin !== 'normal' || byOrigin.size > 1) {
-            rows.push({
-              type: 'origin-header',
-              origin,
-              label: labelConfig?.label ?? t('origin.' + origin),
-              colorClass: labelConfig?.colorClass ?? 'text-gray-400',
-              bgClass: labelConfig?.bgClass ?? '',
-              borderClass: labelConfig?.borderClass ?? '',
-              borderLClass: labelConfig?.borderLClass ?? '',
-              count: sectionCount,
-              iconPath: labelConfig?.iconPath,
-            });
-          }
-
-          // Jewel type sub-groups within origin section
-          if (showJewelTypeSubGroups) {
-            // Classify origin groups by jewel type
-            const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
-            for (const group of originGroups) {
-              const jewelType = classifyJewelType(group);
-              const list = byJewelType.get(jewelType) || [];
-              list.push(group);
-              byJewelType.set(jewelType, list);
-            }
-
-            for (const jewelType of JEWEL_TYPE_ORDER) {
-              const jtGroups = byJewelType.get(jewelType);
-              if (!jtGroups || jtGroups.length === 0) continue;
-
-              const labelConfig = JEWEL_TYPE_LABELS[jewelType];
-
-              // Jewel type sub-header
-              rows.push({
-                type: 'jewel-type-header',
-                jewelType,
-                label: labelConfig.label,
-                colorClass: labelConfig.colorClass,
-                bgClass: labelConfig.bgClass,
-                borderClass: labelConfig.borderClass,
-                count: jtGroups.length,
-              });
-
-              // Sub-groups within this jewel type
-              const jtSubGroups = classifyGroups(jtGroups, groupMode);
-              for (const sg of jtSubGroups) {
-                rows.push({ type: 'subgroup', subGroup: sg, affix });
-              }
-            }
-          } else {
-            // No jewel type sub-headers: just sub-groups within origin
-            for (const sg of originSubGroups) {
-              rows.push({ type: 'subgroup', subGroup: sg, affix });
-            }
-          }
-        }
-      } else {
-        // No origin sub-sections: just sub-groups
-        for (const sg of subGroups) {
-          rows.push({ type: 'subgroup', subGroup: sg, affix });
-        }
-      }
-    };
-
-    addColumn('prefix', prefixGroups, prefixSubGroups);
-    addColumn('suffix', suffixGroups, suffixSubGroups);
-
-    return rows;
-  }, [prefixGroups, suffixGroups, prefixSubGroups, suffixSubGroups, showOriginSubSections, showJewelTypeSubGroups, groupMode]);
-
-  // Virtualizer — uses measureElement for dynamic size tracking
-  const virtualizer = useVirtualizer({
-    count: virtualRows.length,
-    getScrollElement: () => scrollElement,
-    estimateSize: (index) => {
-      const row = virtualRows[index];
-      if (!row) return 40;
-      return ROW_ESTIMATES[row.type];
-    },
-    overscan: 10,
-  });
-
-  // Re-measure all visible items when selection or range overrides change,
-  // because chip height changes when range inputs appear/disappear.
-  // Using requestAnimationFrame to ensure DOM has updated before measuring.
-  useEffect(() => {
-    if (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0)) {
-      requestAnimationFrame(() => {
-        virtualizer.measure();
-      });
-    }
-  }, [selectedIds, perTokenRanges, virtualizer]);
+  // Determine layout: two columns when both affixes exist and no affix filter
+  const hasBothAffixes = prefixRows.length > 0 && suffixRows.length > 0 && !affixFilter;
 
   const handleAffixFilter = useCallback(
     (value: string) => {
@@ -401,28 +480,55 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [onOriginFilterChange]
   );
 
-  // Compute spacer heights for virtual scrolling
-  const virtualItems = virtualizer.getVirtualItems();
-  const totalCount = virtualRows.length;
+  // For single-column mode (affix filter applied or only one affix type),
+  // merge both row lists and use a single virtualizer
+  const mergedRows = useMemo(() => {
+    if (hasBothAffixes) return []; // not used in two-column mode
+    return [...prefixRows, ...suffixRows];
+  }, [hasBothAffixes, prefixRows, suffixRows]);
 
-  // Calculate top and bottom spacer heights
-  let paddingTop = 0;
-  let paddingBottom = 0;
+  // Single-column virtualizer for when affix filter is applied
+  const singleVirtualizer = useVirtualizer({
+    count: mergedRows.length,
+    getScrollElement: () => scrollElement,
+    estimateSize: (index) => {
+      const row = mergedRows[index];
+      if (!row) return 40;
+      return ROW_ESTIMATES[row.type];
+    },
+    overscan: 10,
+  });
 
-  if (virtualItems.length > 0 && totalCount > 0) {
-    const firstIndex = virtualItems[0].index;
-    const lastIndex = virtualItems[virtualItems.length - 1].index;
-
-    // Top spacer: sum estimated sizes of all items before the first visible item
-    for (let i = 0; i < firstIndex; i++) {
-      paddingTop += virtualizer.getSize(i);
+  // Re-measure single-column virtualizer
+  useEffect(() => {
+    if (!hasBothAffixes && (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0))) {
+      requestAnimationFrame(() => {
+        singleVirtualizer.measure();
+      });
     }
+  }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes]);
 
-    // Bottom spacer: sum estimated sizes of all items after the last visible item
-    for (let i = lastIndex + 1; i < totalCount; i++) {
-      paddingBottom += virtualizer.getSize(i);
-    }
+  const singleVirtualItems = singleVirtualizer.getVirtualItems();
+  const singleTotalSize = singleVirtualizer.getTotalSize();
+
+  let singlePaddingTop = 0;
+  let singlePaddingBottom = 0;
+  if (singleVirtualItems.length > 0) {
+    const firstItem = singleVirtualItems[0];
+    const lastItem = singleVirtualItems[singleVirtualItems.length - 1];
+    singlePaddingTop = firstItem.start;
+    singlePaddingBottom = singleTotalSize - lastItem.end;
   }
+
+  const columnProps = {
+    scrollElement,
+    selectedIds,
+    onToggleTokens,
+    perTokenRanges,
+    onSetTokenRange,
+    onClearTokenRange,
+    collapsedTokenIds,
+  };
 
   return (
     <div className="virtualized-mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')} ref={containerRef}>
@@ -479,24 +585,36 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
-      {/* Virtualized list — normal flow layout with spacer divs */}
-      {virtualRows.length > 0 ? (
+      {/* Two-column layout (Prefix | Suffix) */}
+      {hasBothAffixes ? (
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4">
+          <VirtualizedColumn
+            rows={prefixRows}
+            borderClass="border-blue-800/50"
+            {...columnProps}
+          />
+          <VirtualizedColumn
+            rows={suffixRows}
+            borderClass="border-orange-800/50"
+            {...columnProps}
+          />
+        </div>
+      ) : mergedRows.length > 0 ? (
+        /* Single-column layout (affix filter applied or only one type) */
         <div style={{ width: '100%' }}>
-          {/* Top spacer: reserves space for items above the viewport */}
-          {paddingTop > 0 && (
-            <div style={{ height: paddingTop }} aria-hidden="true" />
+          {singlePaddingTop > 0 && (
+            <div style={{ height: singlePaddingTop }} aria-hidden="true" />
           )}
 
-          {/* Visible items — normal document flow, no absolute positioning */}
-          {virtualItems.map((virtualItem) => {
-            const row = virtualRows[virtualItem.index];
+          {singleVirtualItems.map((virtualItem) => {
+            const row = mergedRows[virtualItem.index];
             if (!row) return null;
 
             return (
               <div
                 key={virtualItem.key}
                 data-index={virtualItem.index}
-                ref={virtualizer.measureElement}
+                ref={singleVirtualizer.measureElement}
               >
                 <VirtualRowContent
                   row={row}
@@ -511,9 +629,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             );
           })}
 
-          {/* Bottom spacer: reserves space for items below the viewport */}
-          {paddingBottom > 0 && (
-            <div style={{ height: paddingBottom }} aria-hidden="true" />
+          {singlePaddingBottom > 0 && (
+            <div style={{ height: singlePaddingBottom }} aria-hidden="true" />
           )}
         </div>
       ) : (

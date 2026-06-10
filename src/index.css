@@ -449,7 +449,8 @@ body {
    When a chip expands to show ≥/≤ inputs, it needs its own line
    so it doesn't overlap with the next chip in the flex-wrap container.
    Uses display:flex (not inline-flex) + flex-wrap:wrap so range inputs
-   can flow naturally within the chip without overflowing. */
+   can flow naturally within the chip without overflowing.
+   Smooth transition on flex-basis change for expansion animation. */
 .mod-list .chip-with-range,
 .virtualized-mod-list .chip-with-range {
   display: flex;
@@ -457,6 +458,7 @@ body {
   flex-basis: 100%;
   max-width: 100%;
   width: 100%;
+  transition: flex-basis 0.2s ease-in-out, width 0.2s ease-in-out, max-width 0.2s ease-in-out;
 }
 
 /* Prevent range input rows from overflowing chip containers */
@@ -466,6 +468,19 @@ body {
 .virtualized-mod-list .chip-with-range .flex.flex-col.gap-0\.5 {
   min-width: 0;
   flex-shrink: 1;
+  animation: chip-range-slide-in 0.2s ease-out;
+}
+
+/* Animation: range inputs slide in from above and fade in */
+@keyframes chip-range-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .control-panel-sticky {
   position: relative;

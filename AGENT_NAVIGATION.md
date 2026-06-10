@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 87.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 88.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -38,13 +38,12 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run --root /home/z/my-project/poe2-regex-ru               # Run tests (693, Vitest)
+npx vitest run                                                        # Run tests (693, Vitest)
 pnpm etl                                                              # Run ETL pipeline (uses cache, 24h TTL)
 pnpm etl:fresh                                                        # Clear cache + full re-fetch from poe2db
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
 pnpm etl -- --validate                                                # ETL + flat-text Oracle validation
 pnpm etl -- --validate-item                                           # ETL + block-based Oracle validation
-pnpm analyze-fn                                                       # Analyze FN/FP per category
 pnpm optimize                                                         # Run iterative optimizer on generated JSON
 pnpm optimize:dry                                                     # Dry-run optimizer with verbose output
 ```
@@ -56,7 +55,7 @@ pnpm optimize:dry                                                     # Dry-run 
 1. Read `AGENT_NAVIGATION.md` (this file)
 2. Execute the current iteration's tasks
 3. Write tests for new code
-4. Run `npx vitest run --root /home/z/my-project/poe2-regex-ru` and `pnpm build` — both must pass
+4. Run `npx vitest run` and `pnpm build` — both must pass
 5. **NEVER** touch `public/generated/` manually
 
 ---
@@ -64,7 +63,7 @@ pnpm optimize:dry                                                     # Dry-run 
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run --root /home/z/my-project/poe2-regex-ru` passes (693 tests)
+- [ ] `npx vitest run` passes (693 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -98,17 +97,17 @@ shared <- core <- strategies <- store <- data <- ui
 - pnpm is the ONLY package manager. Never use npm or yarn.
 - Locale type is `'ru'` now. Type system must support extension (`Locale = 'ru' | 'en' | ...`).
 - PoE2 regex dialect is NOT standard PCRE — see `docs/ARCHITECTURE.md` §5.
-- **tsconfig.app.json includes ONLY `src/`** — tests and scripts are NOT compiled by `tsc -b` (production build). Tests run via vitest, scripts via tsx.
+- **tsconfig.app.json includes ONLY `src/`** — tests and scripts are NOT compiled by `tsc -b`.
+- **@tanstack/react-virtual: `getSize()` is private** — use `virtualItem.start`/`.end` + `getTotalSize()` instead.
 
 ---
 
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **New categories** — Add support for new item types if poe2db adds them.
-2. **Priority tier refinement** — Validate tier classifications against live trade data.
-3. **UI/UX improvements** — Further polish (VirtualizedModList v4 layout fix applied; verify in browser).
-4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, needs in-game test to confirm.
+1. **Visual verification** — Open /belt, /ring, /amulet, /jewel in browser, click mods with ranges (≥/≤), verify chip expansion without overlap in two-column layout.
+2. **JewelPage two-column** — Currently uses single-column origin mode. Could add prefix/suffix split within origin sections.
+3. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -133,37 +132,29 @@ shared <- core <- strategies <- store <- data <- ui
 
 ### Cache Management
 - ETL caches HTML pages in `.etl-cache/` with 24h TTL
-- `--fresh` clears all cache before fetching (forces re-download from poe2db.tw)
-- `--check-stale` reports cache status per URL and exits (exit 1 if any stale/missing)
+- `--fresh` clears all cache before fetching
+- `--check-stale` reports cache status per URL, exits with code 1 if any stale
 
 ### Source Hash (Change Detection)
-- Each ETL run computes a `sourceHash` — SHA-256 prefix of all cached HTML content
-- Stored in `CategoryData.sourceHash` field in generated JSON files
-- `--check-stale` compares current cache hash against stored sourceHash
-- When hashes differ → source data has changed → re-run ETL
+- Each ETL run computes a `sourceHash` — SHA-256 prefix of all cached HTML
+- Stored in `CategoryData.sourceHash` in generated JSON
+- When hashes differ → source data changed → re-run ETL
 
 ### API (`scripts/etl/fetch-poe2db.ts`)
 - `fetchPage(url, useCache)` — fetch with retry + cache
-- `clearCache()` — delete all cached HTML files, returns count
-- `getCacheInfo(url)` — returns `CacheEntryInfo` (age, hash, stale status)
-- `hashContent(content)` — SHA-256 16-char prefix for change detection
+- `clearCache()` — delete all cached HTML files
+- `getCacheInfo(url)` — returns `CacheEntryInfo`
+- `hashContent(content)` — SHA-256 16-char prefix
 
 ---
 
 ## 10. Icon Normalization
 
-All icons in `public/icons/` are pre-normalized to **128x128** square canvases with transparent padding. This ensures consistent rendering across:
-- Sidebar: 28x28px (`maxHeight/maxWidth`)
-- Home cards: 44x44px (`maxHeight/maxWidth`)
-- Origin badges: 17px inline icons
-
-**Normalization process:** Python PIL → scale to fit within 128x128 → center on transparent canvas → save in original format (PNG/WebP).
+All icons in `public/icons/` are **128x128** square canvases with transparent padding.
 
 ---
 
 ## 11. Regex Strategy Pipeline (ETL)
-
-`computeMinimalUniqueSubstring()` in `scripts/etl/compute-regex.ts`:
 
 | Strategy | Name | Description |
 |----------|------|-------------|
@@ -179,8 +170,6 @@ All icons in `public/icons/` are pre-normalized to **128x128** square canvases w
 
 ## 12. Oracle API
 
-Two validation modes in `src/core/regex-oracle.ts`:
-
 | Function | Matching | Use case |
 |----------|----------|----------|
 | `validateRegex()` | Flat-text | ETL single-mod validation |
@@ -192,16 +181,22 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 13. Cross-Family FP Repair (Post-ETL)
+## 13. VirtualizedModList Architecture (v5)
 
-After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` iterates per token:
-1. **Suffix lengthening** — upgrade to full template suffix
-2. **Exclude patterns** — add short negation markers (CONFLICT_MARKERS)
-3. **regexPrefixContext** — AND-composed context substring
+### Two-column layout
+- Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
+- Each column has its own `@tanstack/react-virtual` virtualizer
+- Both virtualizers share the same scroll container (`<main id="main-content">`)
+- When affix filter narrows to one type → falls back to single full-width column
 
-**Known exclude markers:** Приспеш, и, состояния, заканчив, воскреш, во время, флакона, умения, and weapon types.
+### Spacer calculation
+- Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
+- **Never** use `virtualizer.getSize(i)` — it's private in newer @tanstack/react-virtual
 
-**Exclude limit:** 8 patterns per token.
+### Chip expansion
+- FilterChip adds `chip-with-range` CSS class when selected with range inputs
+- CSS forces `flex-basis: 100%` for expanded chips (prevents overlap)
+- Animation: `transition-all duration-200` on chip + `chip-range-slide-in` keyframe on range inputs
 
 ---
 
@@ -210,9 +205,9 @@ After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` iterates per token
 | File | Purpose |
 |------|---------|
 | `AGENT_NAVIGATION.md` | This file — start here, rules, structure, known issues |
-| `docs/ARCHITECTURE.md` | Layer diagram, data flow, PoE2 regex dialect, compiler, visual hierarchy |
+| `docs/ARCHITECTURE.md` | Layer diagram, data flow, PoE2 regex dialect, compiler |
 | `docs/DATA_CONTRACTS.md` | TypeScript interfaces for all data types |
 | `docs/ETL_GUIDE.md` | ETL pipeline, source URLs, parsers, i18n overrides |
 | `docs/IN_GAME_TESTS.md` | In-game regex verification results |
 | `STATUS.md` | Project status summary |
-| `регис/` | Reference data for cross-validation (Russian mod lists, affix hierarchy) |
+| `регис/` | Reference data for cross-validation |

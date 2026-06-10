@@ -133,4 +133,30 @@ Stage Summary:
 - Root cause: absolute positioning in virtualizer → rows overlap when chip height changes
 - Fix: normal flow layout with spacer divs for virtual scroll
 - Build passes, 693 tests pass
+
+---
+Task ID: 6
+Agent: Main
+Task: Fix build failure, implement two-column layout, add chip expansion animations
+
+Work Log:
+- Analyzed GitHub Actions build failure: `virtualizer.getSize()` is private in @tanstack/react-virtual v3
+- Fixed: replaced `getSize(i)` loop with `virtualItem.start`/`.end` + `getTotalSize()` (public API)
+- Implemented two-column layout (Prefix | Suffix) in VirtualizedModList v5:
+  - Split single virtualizer into two independent virtualizers (prefix column + suffix column)
+  - Both share same scroll container (`<main id="main-content">`)
+  - CSS grid `grid-cols-[2fr_3fr]` for side-by-side layout
+  - Falls back to single full-width column when affix filter narrows to one type
+  - Extracted `buildColumnRows()` helper and `VirtualizedColumn` sub-component
+- Added chip expansion animations:
+  - `transition-all duration-200 ease-in-out` on FilterChip container
+  - CSS `transition` on `flex-basis`/`width`/`max-width` for smooth expansion
+  - `chip-range-slide-in` keyframe animation for range inputs (slide + fade)
+- Updated documentation: STATUS.md (cleaned), AGENT_NAVIGATION.md (v88, §13 VirtualizedModList architecture, §6 invariant about getSize)
+
+Stage Summary:
+- Build fix: getSize() → start/end public API
+- Two-column layout implemented in VirtualizedModList v5
+- Chip expansion animations added
+- All 693 tests pass, build succeeds
 - Documentation updated
