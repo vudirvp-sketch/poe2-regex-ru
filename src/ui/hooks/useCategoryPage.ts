@@ -515,7 +515,17 @@ export function buildAstFromSelections(
         // Determine if this range group is for implicit tokens (reversed regex: suffix.*number%)
         const isImplicit = group.tokens.some(t => t.affix === 'implicit');
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isImplicit ? false : (numberAtStart || undefined), anchorEndValue, isImplicit || undefined);
+        // Determine if ## is at the END of the template (number after suffix text).
+        // For such mods, the regex must be reversed: "suffix.*number" instead of "number.*suffix".
+        // This applies to both implicits ("Осталось зарядов - #") AND non-implicit mods
+        // where the number follows the suffix text ("дополнительных редких монстров: ##").
+        const numberAtEnd = !numberAtStart && group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /##\s*$/.test(template);
+        });
+        const isReversed = isImplicit || numberAtEnd;
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

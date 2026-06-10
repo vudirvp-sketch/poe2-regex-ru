@@ -468,20 +468,13 @@ body {
 .virtualized-mod-list .chip-with-range .flex.flex-col.gap-0\.5 {
   min-width: 0;
   flex-shrink: 1;
-  animation: chip-range-slide-in 0.2s ease-out;
 }
 
-/* Animation: range inputs slide in from above and fade in */
-@keyframes chip-range-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Range inputs: no CSS animation on layout properties.
+   Previously used slide-in animation that caused virtualizer
+   scroll jumps because height changed during animation frames.
+   Now using instant display (no transition/animation) to keep
+   the virtualizer's measurements accurate. */
 .control-panel-sticky {
   position: relative;
   padding-top: 4px;

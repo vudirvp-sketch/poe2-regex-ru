@@ -55,10 +55,18 @@ PoE2 индексирует ДВА формата текста **для модо
 | `%` on implicits (reversed) | ✅ VERIFIED | `"Шанс выпадения путевого камня.*85%"` works in-game |
 | `^` anchor (anchorStart) | ✅ | For ##% mods where number starts the block |
 | Enumeration without `%` | ⚠️ FP risk | `(30\|39).*suffix` → FP from `(30-40)%` |
+| Non-% mods reversed regex | ⚠️ FP risk | `suffix.*(number)` без `%` anchor → FP от range notation вторичных чисел |
 
 **% anchor mechanism:**
 - Mods: `"(3[0-6]%\|39%).*suffix"` → correct, `%` filters range FP
 - Implicits: `"Label.*(range)%"` → correct, no range FP possible (no dual-indexing)
+
+**Non-% mods FP risk:**
+- Моды с `##` в конце шаблона ("suffix: ##") используют reversed regex `suffix.*number` без `%` anchor
+- Range notation вторичные числа (напр. "2" в "1(1-2)") могут матчить ≥2 фильтр → FP
+- Риск низкий: диапазоны маленькие (1-2), FP только для специфичных порогов
+- Implicits НЕ dual-indexed → нет range notation → нет FP
+- Тесты: `tests/core/tablet-non-percent-fp.test.ts`
 
 ### Block Model — VERIFIED
 

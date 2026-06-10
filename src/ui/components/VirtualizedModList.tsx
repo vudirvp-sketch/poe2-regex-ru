@@ -18,7 +18,7 @@
  * padding-bottom spacers) to prevent overlap when FilterChip height
  * changes on selection (range inputs expand the chip).
  */
-import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
@@ -299,20 +299,45 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     overscan: 10,
   });
 
-  // Re-measure when selection or range overrides change.
-  // Preserves scroll position to prevent jumping when chips expand/collapse.
+  // Continuously track scroll position so we can restore it accurately
+  // when chips expand/collapse and the virtualizer re-measures.
+  const scrollTopRef = useRef(0);
   useEffect(() => {
-    if (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0)) {
-      const el = scrollElement;
-      if (!el) return;
-      // Capture scroll position before measurement
-      const scrollTop = el.scrollTop;
-      virtualizer.measure();
-      // Restore scroll position after measurement (may shift due to layout reflow)
+    const el = scrollElement;
+    if (!el) return;
+    const handleScroll = () => { scrollTopRef.current = el.scrollTop; };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [scrollElement]);
+
+  // Preserve scroll position when selection or range overrides change.
+  // Uses useLayoutEffect (fires before browser paint) to prevent visible jumps.
+  // Falls back to double-RAF for cases where layout reflow is async.
+  const prevSelectedSizeRef = useRef(0);
+  const prevRangesSizeRef = useRef(0);
+  useLayoutEffect(() => {
+    const selSize = selectedIds.size;
+    const rngSize = perTokenRanges ? Object.keys(perTokenRanges).length : 0;
+    // Only act when these values actually changed (selections or ranges toggled)
+    const changed = selSize !== prevSelectedSizeRef.current || rngSize !== prevRangesSizeRef.current;
+    prevSelectedSizeRef.current = selSize;
+    prevRangesSizeRef.current = rngSize;
+    if (!changed) return;
+
+    const el = scrollElement;
+    if (!el) return;
+    const savedScrollTop = scrollTopRef.current;
+    virtualizer.measure();
+    // Immediate restore (covers synchronous layout changes)
+    el.scrollTop = savedScrollTop;
+    // Delayed restore (covers async ResizeObserver-driven reflows)
+    requestAnimationFrame(() => {
+      el.scrollTop = savedScrollTop;
+      // Second frame for late-settling layouts
       requestAnimationFrame(() => {
-        el.scrollTop = scrollTop;
+        el.scrollTop = savedScrollTop;
       });
-    }
+    });
   }, [selectedIds, perTokenRanges, virtualizer, scrollElement]);
 
   const virtualItems = virtualizer.getVirtualItems();
@@ -506,18 +531,40 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     overscan: 10,
   });
 
-  // Re-measure single-column virtualizer.
-  // Preserves scroll position to prevent jumping when chips expand/collapse.
+  // Continuously track scroll position for single-column mode
+  const singleScrollTopRef = useRef(0);
   useEffect(() => {
-    if (!hasBothAffixes && (selectedIds.size > 0 || (perTokenRanges && Object.keys(perTokenRanges).length > 0))) {
-      const el = scrollElement;
-      if (!el) return;
-      const scrollTop = el.scrollTop;
-      singleVirtualizer.measure();
+    const el = scrollElement;
+    if (!el) return;
+    const handleScroll = () => { singleScrollTopRef.current = el.scrollTop; };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [scrollElement]);
+
+  // Preserve scroll position when selection or range overrides change (single-column mode).
+  // Uses useLayoutEffect (fires before browser paint) to prevent visible jumps.
+  const singlePrevSelRef = useRef(0);
+  const singlePrevRngRef = useRef(0);
+  useLayoutEffect(() => {
+    if (hasBothAffixes) return;
+    const selSize = selectedIds.size;
+    const rngSize = perTokenRanges ? Object.keys(perTokenRanges).length : 0;
+    const changed = selSize !== singlePrevSelRef.current || rngSize !== singlePrevRngRef.current;
+    singlePrevSelRef.current = selSize;
+    singlePrevRngRef.current = rngSize;
+    if (!changed) return;
+
+    const el = scrollElement;
+    if (!el) return;
+    const savedScrollTop = singleScrollTopRef.current;
+    singleVirtualizer.measure();
+    el.scrollTop = savedScrollTop;
+    requestAnimationFrame(() => {
+      el.scrollTop = savedScrollTop;
       requestAnimationFrame(() => {
-        el.scrollTop = scrollTop;
+        el.scrollTop = savedScrollTop;
       });
-    }
+    });
   }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes, scrollElement]);
 
   const singleVirtualItems = singleVirtualizer.getVirtualItems();
