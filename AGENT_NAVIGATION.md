@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 88.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 89.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -105,16 +105,18 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Visual verification** — Open /belt, /ring, /amulet, /jewel in browser, click mods with ranges (≥/≤), verify chip expansion without overlap in two-column layout.
-2. **JewelPage two-column** — Currently uses single-column origin mode. Could add prefix/suffix split within origin sections.
-3. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
+1. **Visual verification** — Open /belt, /ring, /amulet, /jewel in browser, click mods with ranges (≥/≤), verify chip expansion without overlap in two-column layout. Only verifiable after deploy.
+2. **+## non-% mods range notation FP** — Known limitation, needs in-game test.
+
+### DONE (this iteration)
+1. **JewelPage two-column** — Switched from `groupMode="origin"` + `showJewelTypeSubGroups` to `groupMode="affix-semantic"` + `showOriginSubSections` + `priorityFilter`. Now matches BeltPage/RingPage/AmuletPage layout.
+2. **SPA hash fix** — `index.html` `history.replaceState` now preserves `window.location.hash` when restoring SPA route after GitHub Pages 404 redirect. Fixes 404 error on `/jewel#q=...` URLs.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough.
-3. **Jewel/relic/vendor no priority filter** — These categories return 'C' for all mods, toggle not shown.
-4. **Origin color mapping** — Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
-5. **GitHub Pages 404 in DevTools** — SPA routes show 404 in Network tab; `404.html` handles redirect. Not a bug.
+3. **Origin color mapping** — Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
+4. **GitHub Pages 404 in DevTools** — SPA routes show 404 in Network tab; `404.html` handles redirect. Not a bug.
 
 ---
 

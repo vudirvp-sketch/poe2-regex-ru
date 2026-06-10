@@ -33,7 +33,7 @@
         var redirect = sessionStorage.redirect;
         delete sessionStorage.redirect;
         if (redirect && redirect !== '/') {
-          history.replaceState(null, null, '/poe2-regex-ru' + redirect);
+          history.replaceState(null, null, '/poe2-regex-ru' + redirect + window.location.hash);
         }
       })();
     </script>

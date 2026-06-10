@@ -15,6 +15,8 @@
 - **VirtualizedModList v5**: двухколоночный макет (Префикс | Суффикс) с независимыми виртуализаторами на колонку. Обе колонки используют общий scroll-контейнер `<main>`.
 - **Build fix**: заменён приватный `virtualizer.getSize()` на публичные `start`/`end` свойства virtual items
 - **Chip expansion animations**: CSS transition + slide-in animation при раскрытии чипов с диапазонами
+- **JewelPage v4**: двухколоночный макет (Префикс | Суффикс) с semantic sub-grouping + priority filter, аналогично BeltPage/RingPage/AmuletPage. Убран `groupMode="origin"` + `showJewelTypeSubGroups` → `groupMode="affix-semantic"`.
+- **SPA hash fix**: `index.html` `history.replaceState` теперь сохраняет `window.location.hash` при восстановлении маршрута после 404 redirect на GitHub Pages.
 
 ---
 

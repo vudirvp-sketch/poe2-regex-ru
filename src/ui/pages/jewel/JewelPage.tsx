@@ -1,7 +1,8 @@
 /**
  * JewelPage — Category page for Jewels.
  *
- * Layout v3: Virtualized mod list with origin-based grouping.
+ * Layout v4: Virtualized two-column mod list (Prefix | Suffix)
+ * with semantic sub-grouping, matching BeltPage/RingPage/AmuletPage layout.
  * Uses VirtualizedModList for smooth rendering of 250+ tokens.
  *
  * Loads and merges three JSON files:
@@ -75,6 +76,7 @@ export function JewelPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    priorityFilter, setPriorityFilter,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -158,6 +160,9 @@ export function JewelPage() {
               setRound10Enabled={setRound10Enabled}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              showPriorityFilter
               extraControls={
                 <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
                   <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
@@ -207,10 +212,10 @@ export function JewelPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="origin"
+              groupMode="affix-semantic"
               showOriginSubSections
-              showJewelTypeSubGroups
               category="jewel"
+              priorityFilter={priorityFilter}
             />
 
             <div className="flex flex-col gap-3">
