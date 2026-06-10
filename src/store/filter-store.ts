@@ -32,8 +32,11 @@ export interface TokenRangeOverride {
 
 /** A single filter state for a category */
 export interface FilterState {
-  /** Set of selected token IDs */
+  /** Set of selected token IDs ("want" mods) */
   selectedIds: Set<string>;
+  /** Set of excluded token IDs ("don't want" mods).
+   *  Mutually exclusive with selectedIds — a token can be either wanted or excluded, not both. */
+  excludedIds: Set<string>;
   /** Text search filter */
   searchText: string;
   /** Affix type filter (null = all) */
@@ -52,13 +55,15 @@ export interface FilterState {
 
 /** Actions for the filter store */
 export interface FilterActions {
-  /** Toggle a token's selection */
+  /** Toggle a token's selection ("want"). Removes from excludedIds if present. */
   toggleToken: (id: string) => void;
-  /** Toggle multiple tokens at once (for FamilyGroup batch toggle) */
+  /** Toggle multiple tokens at once (for FamilyGroup batch toggle). Removes from excludedIds if present. */
   toggleTokens: (ids: string[]) => void;
+  /** Toggle a token's exclude state ("don't want"). Removes from selectedIds if present. */
+  toggleExclude: (ids: string[]) => void;
   /** Set multiple tokens as selected */
   setSelectedIds: (ids: Set<string>) => void;
-  /** Clear all selections */
+  /** Clear all selections (both want and exclude) */
   clearSelections: () => void;
   /** Set search text */
   setSearchText: (text: string) => void;
@@ -93,6 +98,7 @@ export type FilterStore = FilterState & FilterActions;
 export function createFilterStore() {
   return create<FilterStore>((set, get) => ({
     selectedIds: new Set<string>(),
+    excludedIds: new Set<string>(),
     searchText: '',
     affixFilter: null,
     originFilter: null,
@@ -103,23 +109,27 @@ export function createFilterStore() {
     toggleToken: (id: string) =>
       set((state) => {
         const newSet = new Set(state.selectedIds);
+        const newExcluded = new Set(state.excludedIds);
         const wasSelected = newSet.has(id);
         if (wasSelected) {
           newSet.delete(id);
           // Clean up perTokenRanges for deselected token to avoid ghost values
           if (id in state.perTokenRanges) {
             const { [id]: _, ...rest } = state.perTokenRanges;
-            return { selectedIds: newSet, perTokenRanges: rest };
+            return { selectedIds: newSet, excludedIds: newExcluded, perTokenRanges: rest };
           }
         } else {
           newSet.add(id);
+          // Remove from excludedIds — mutually exclusive
+          newExcluded.delete(id);
         }
-        return { selectedIds: newSet };
+        return { selectedIds: newSet, excludedIds: newExcluded };
       }),
 
     toggleTokens: (ids: string[]) =>
       set((state) => {
         const newSet = new Set(state.selectedIds);
+        const newExcluded = new Set(state.excludedIds);
         // If ALL ids are selected → deselect all; otherwise → select all
         const allSelected = ids.every((id) => newSet.has(id));
         let newRanges = state.perTokenRanges;
@@ -139,16 +149,38 @@ export function createFilterStore() {
         } else {
           for (const id of ids) {
             newSet.add(id);
+            // Remove from excludedIds — mutually exclusive
+            newExcluded.delete(id);
           }
         }
-        return { selectedIds: newSet, perTokenRanges: newRanges };
+        return { selectedIds: newSet, excludedIds: newExcluded, perTokenRanges: newRanges };
+      }),
+
+    toggleExclude: (ids: string[]) =>
+      set((state) => {
+        const newSet = new Set(state.selectedIds);
+        const newExcluded = new Set(state.excludedIds);
+        // If ALL ids are excluded → un-exclude all; otherwise → exclude all
+        const allExcluded = ids.every((id) => newExcluded.has(id));
+        if (allExcluded) {
+          for (const id of ids) {
+            newExcluded.delete(id);
+          }
+        } else {
+          for (const id of ids) {
+            newExcluded.add(id);
+            // Remove from selectedIds — mutually exclusive
+            newSet.delete(id);
+          }
+        }
+        return { selectedIds: newSet, excludedIds: newExcluded };
       }),
 
     setSelectedIds: (ids: Set<string>) =>
       set({ selectedIds: ids }),
 
     clearSelections: () =>
-      set({ selectedIds: new Set<string>(), perTokenRanges: {} }),
+      set({ selectedIds: new Set<string>(), excludedIds: new Set<string>(), perTokenRanges: {} }),
 
     setSearchText: (text: string) =>
       set({ searchText: text }),
@@ -181,6 +213,7 @@ export function createFilterStore() {
     resetFilters: () =>
       set({
         selectedIds: new Set<string>(),
+        excludedIds: new Set<string>(),
         searchText: '',
         affixFilter: null,
         originFilter: null,
@@ -193,6 +226,7 @@ export function createFilterStore() {
       const state = get();
       const result: Record<string, unknown> = {
         s: Array.from(state.selectedIds),
+        e: state.excludedIds.size > 0 ? Array.from(state.excludedIds) : undefined,
         t: state.searchText || undefined,
         a: state.affixFilter || undefined,
         o: state.originFilter || undefined,
@@ -231,6 +265,9 @@ export function createFilterStore() {
       const selectedIds = new Set<string>(
         Array.isArray(data.s) ? data.s as string[] : []
       );
+      const excludedIds = new Set<string>(
+        Array.isArray(data.e) ? data.e as string[] : []
+      );
       // Deserialize perTokenRanges from compact array format
       let perTokenRanges: Record<string, TokenRangeOverride> = {};
       if (Array.isArray(data.r)) {
@@ -268,6 +305,7 @@ export function createFilterStore() {
       }
       set({
         selectedIds,
+        excludedIds,
         searchText: (data.t as string) || '',
         affixFilter: (data.a as AffixType) || null,
         originFilter: (data.o as ModOrigin) || null,

@@ -23,8 +23,6 @@ interface CategoryControlPanelProps {
   regex: string;
   isOverflow: boolean;
   filterStore: FilterStoreApi;
-  excludeMode: boolean;
-  setExcludeMode: (v: boolean) => void;
   searchLogic: SearchLogic;
   setSearchLogic: (v: SearchLogic) => void;
   hasRangedTokens: boolean;
@@ -51,6 +49,10 @@ interface CategoryControlPanelProps {
   showRound10?: boolean;
   /** Slot for a clear/reset button (used by VendorPage) */
   clearButton?: React.ReactNode;
+  /** Count of excluded ("don't want") mods for summary */
+  excludedCount?: number;
+  /** Number of active (selected + excluded) tokens — for budget-aware warnings */
+  activeTokenCount?: number;
 }
 
 /**
@@ -82,8 +84,6 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   regex,
   isOverflow,
   filterStore,
-  excludeMode,
-  setExcludeMode,
   searchLogic,
   setSearchLogic,
   hasRangedTokens,
@@ -100,14 +100,10 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   priorityFilter = 'all',
   setPriorityFilter,
   showPriorityFilter,
+  excludedCount = 0,
+  activeTokenCount = 0,
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
-
-  // Mode toggle options for arrow key navigation
-  const modeOptions = [
-    { value: false, action: () => setExcludeMode(false) },
-    { value: true, action: () => setExcludeMode(true) },
-  ];
 
   // Logic toggle options for arrow key navigation
   const logicOptions = [
@@ -130,36 +126,10 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
       aria-label={t('control.panel')}
     >
       {/* Regex output */}
-      <RegexOutput regex={regex} isOverflow={isOverflow} filterStore={filterStore} />
+      <RegexOutput regex={regex} isOverflow={isOverflow} filterStore={filterStore} activeTokenCount={activeTokenCount} />
 
       {/* Controls row */}
       <div className="flex flex-wrap gap-2.5 items-center mt-2">
-        {/* Mode toggle */}
-        <div className="flex gap-1" role="radiogroup" aria-label={t('mode.want')}
-          onKeyDown={(e) => handleRadioKeyDown(e, modeOptions, excludeMode)}
-        >
-          <button
-            onClick={() => setExcludeMode(false)}
-            role="radio"
-            aria-checked={!excludeMode}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              !excludeMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-            }`}
-          >
-            {t('mode.want')}
-          </button>
-          <button
-            onClick={() => setExcludeMode(true)}
-            role="radio"
-            aria-checked={excludeMode}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              excludeMode ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-            }`}
-          >
-            {t('mode.dont_want')}
-          </button>
-        </div>
-
         {/* Search logic toggle: AND/OR */}
         <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}
           onKeyDown={(e) => handleRadioKeyDown(e, logicOptions, searchLogic)}
@@ -185,6 +155,13 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             {t('logic.or')}
           </button>
         </div>
+
+        {/* Exclude summary indicator */}
+        {excludedCount > 0 && (
+          <span className="text-[12px] text-red-400 font-medium">
+            {excludedCount} {t('summary.exclude').toLowerCase()}
+          </span>
+        )}
 
         {/* Range filter */}
         {hasRangedTokens && (

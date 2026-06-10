@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 757 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
+> **Тестов:** 758 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
 
 ---
 
@@ -20,48 +20,34 @@
 
 ---
 
-## Positive + Negative моды в одном регексе
+## Per-mod want/exclude toggle
 
-PoE2 поддерживает `!` (NOT) внутри поисковой строки — это позволяет комбинировать
-«хочу» и «точно не хочу» моды в одном регексе:
+Заменён глобальный переключатель «Хочу / Не хочу» на per-mod toggle:
+- Каждый FilterChip имеет кнопку ✗/✓ для переключения мода в режим «не хочу»
+- Выбранные моды (selectedIds) и исключённые (excludedIds) — взаимоисключающие множества
+- AST строится как `AND(want_nodes, EXCLUDE(OR(exclude_nodes)))`
+- Компилируется в `"want1|want2" !"dontwant1|dontwant2"`
+- URL-сериализация: ключ `e` содержит массив excludedIds
+- Визуальные стили: excluded = красный фон + красная левая граница
 
-```
-"хочу1|хочу2" !"нехочу1|нехочу2"
-```
-
-**Пример:** плитка ≥8 зарядов + находимые путевые камни, но БЕЗ % получаемого золота:
-```
-"зарядов.*8|9|1[0-9]" "путевых камн" !"золот"
-```
-
-**Как это работает в UI:**
-1. Выберите моды которые ХОТИТЕ (обычный выбор)
-2. Включите режим Exclude (переключатель в Control Panel)
-3. Выберите моды которые НЕ ХОТИТЕ
-4. Итог: `"want1|want2" !"dontwant1|dontwant2"`
-
-**Техническая реализация:**
-- AND + EXCLUDE в AST: `AND(OR(want1, want2), EXCLUDE(OR(dontwant1, dontwant2)))`
-- `!` negation — item-wide (проверяет ВСЕ блоки предмета)
-- `!` должно быть ВНУТРИ кавычек при комбинации с `|`: `"!A|B"` работает, `!"A|B"` НЕТ
+**Изменённые файлы:**
+- `src/store/filter-store.ts` — excludedIds Set, toggleExclude(), serialize/deserialize (`e:` key)
+- `src/ui/hooks/useCategoryPage.ts` — buildAstFromSelections(excludedIds), CategoryPageState
+- `src/ui/components/FilterChip.tsx` — excludedIds, onToggleExclude, ✗/✓ button, 5 selection states
+- `src/ui/components/CategoryControlPanel.tsx` — убран глобальный переключатель, добавлен excludedCount
+- `src/ui/components/ModList.tsx` — пропуск excludedIds/onToggleExclude
+- `src/ui/components/VirtualizedModList.tsx` — аналогично
+- `src/shared/i18n.ts` — chip.excluded, chip.partial_excluded, chip.exclude_tooltip и др.
+- Все page components (Ring, Belt, Amulet, Waystone, Tablet, Relic, Jewel, Vendor)
 
 ---
 
-## 250-char бюджет при 6+ модах
+## Budget-aware UI feedback
 
-При выборе 6+ мод суммарная длина регекса может превысить 250 символов (лимит PoE2).
-Механизмы оптимизации:
-
-| Уровень | Метод | Экономия |
-|---------|-------|----------|
-| ETL | Optimizer suffix shortening | 2-10 chars/мод |
-| ETL | DP factorization (OR-группы) | 5-30 chars/группа |
-| Runtime | Family deduplication | 10-50 chars/семья |
-| Runtime | Yofication ([её] вместо е\|ё) | 2-5 chars/позиция |
-
-Функции для оценки бюджета:
-- `estimateMultiModLength(regexes, hasRange, contexts, excludes)` — оценка длины
-- `wouldExceedBudget(currentLen, newModRegex, ...)` — проверка перед добавлением
+При выборе 6+ модов и приближении к лимиту 250 символов (>180 chars):
+- RegexOutput показывает amber-предупреждение: «Осталось N символов из 250 при M модах»
+- Health bar визуально показывает заполненность (green ≤200, yellow ≤240, red ≤250, pulse >250)
+- CategoryControlPanel передаёт `activeTokenCount` в RegexOutput для бюджетного индикатора
 
 ---
 

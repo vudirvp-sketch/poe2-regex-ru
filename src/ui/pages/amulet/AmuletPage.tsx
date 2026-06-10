@@ -17,11 +17,11 @@ export function AmuletPage() {
   const {
     data, loading, error,
     regex, isRegexOverflow,
-    excludeMode, setExcludeMode,
+    selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
     maxValue, setMaxValue,
-    selectedIds, searchText, affixFilter, originFilter,
+    searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
@@ -33,10 +33,12 @@ export function AmuletPage() {
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
       {(data) => {
-        const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
-        const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+        const allActiveTokens = data.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id));
+        const wantTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
+        const excludeTokens = data.tokens.filter(tok => excludedIds.has(tok.id));
+        const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
         const rangedSuffixes = [...new Set(
-          selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+          allActiveTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
         )];
 
         return (
@@ -53,8 +55,8 @@ export function AmuletPage() {
               regex={regex}
               isOverflow={isRegexOverflow}
               filterStore={filterStore}
-              excludeMode={excludeMode}
-              setExcludeMode={setExcludeMode}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
               hasRangedTokens={hasRangedTokens}
               minValue={minValue}
               setMinValue={setMinValue}
@@ -63,20 +65,22 @@ export function AmuletPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
-              searchLogic={searchLogic}
-              setSearchLogic={setSearchLogic}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter
+              excludedCount={excludeTokens.length}
+              activeTokenCount={allActiveTokens.length}
             />
 
             <VirtualizedModList
               tokens={data.tokens}
               selectedIds={selectedIds}
+              excludedIds={excludedIds}
               searchText={searchText}
               affixFilter={affixFilter}
               originFilter={originFilter}
               onToggleTokens={toggleTokens}
+              onToggleExclude={toggleExclude}
               onSearchChange={setSearchText}
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
@@ -98,12 +102,20 @@ export function AmuletPage() {
                 onRestore={restoreFilterState}
               />
 
-              {selectedTokens.length > 0 && (
+              {allActiveTokens.length > 0 && (
                 <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(selectedTokens)} {t('mods_word')}</div>
+                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-xs text-red-400 mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
+                  )}
                   <div className="text-[10px] text-gray-600">
-                    {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                    {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-[10px] text-red-500/60">
+                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

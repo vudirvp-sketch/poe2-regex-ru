@@ -31,10 +31,14 @@ import type { TokenRangeOverride } from '@store/filter-store';
 interface VirtualizedModListProps {
   tokens: GameToken[];
   selectedIds: Set<string>;
+  /** Set of excluded ("don't want") token IDs */
+  excludedIds?: Set<string>;
   searchText: string;
   affixFilter: AffixType | null;
   originFilter: ModOrigin | null;
   onToggleTokens: (ids: string[]) => void;
+  /** Toggle a family group to excluded state */
+  onToggleExclude?: (ids: string[]) => void;
   onSearchChange: (text: string) => void;
   onAffixFilterChange: (filter: AffixType | null) => void;
   onOriginFilterChange: (filter: ModOrigin | null) => void;
@@ -193,12 +197,14 @@ function buildColumnRows(
 const VirtualRowContent: React.FC<{
   row: VirtualRow;
   selectedIds: Set<string>;
+  excludedIds?: Set<string>;
   onToggleTokens: (ids: string[]) => void;
+  onToggleExclude?: (ids: string[]) => void;
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
   collapsedTokenIds?: Set<string>;
-}> = React.memo(({ row, selectedIds, onToggleTokens, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
   if (row.type === 'column-header') {
     return (
       <div className={`text-base font-bold uppercase tracking-wider ${
@@ -248,7 +254,9 @@ const VirtualRowContent: React.FC<{
             key={group.familyKey}
             group={group}
             selectedIds={selectedIds}
+            excludedIds={excludedIds}
             onToggleTokens={onToggleTokens}
+            onToggleExclude={onToggleExclude}
             perTokenRanges={perTokenRanges}
             onSetTokenRange={onSetTokenRange}
             onClearTokenRange={onClearTokenRange}
@@ -267,7 +275,9 @@ interface VirtualizedColumnProps {
   rows: VirtualRow[];
   scrollElement: HTMLElement | null;
   selectedIds: Set<string>;
+  excludedIds?: Set<string>;
   onToggleTokens: (ids: string[]) => void;
+  onToggleExclude?: (ids: string[]) => void;
   perTokenRanges?: Record<string, TokenRangeOverride>;
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
@@ -281,7 +291,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   rows,
   scrollElement,
   selectedIds,
+  excludedIds,
   onToggleTokens,
+  onToggleExclude,
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
@@ -408,7 +420,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
               <VirtualRowContent
                 row={row}
                 selectedIds={selectedIds}
+                excludedIds={excludedIds}
                 onToggleTokens={onToggleTokens}
+                onToggleExclude={onToggleExclude}
                 perTokenRanges={perTokenRanges}
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
@@ -429,10 +443,12 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
 export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   tokens,
   selectedIds,
+  excludedIds,
   searchText,
   affixFilter,
   originFilter,
   onToggleTokens,
+  onToggleExclude,
   onSearchChange,
   onAffixFilterChange,
   onOriginFilterChange,
@@ -640,7 +656,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   const columnProps = {
     scrollElement,
     selectedIds,
+    excludedIds,
     onToggleTokens,
+    onToggleExclude,
     perTokenRanges,
     onSetTokenRange,
     onClearTokenRange,
@@ -736,7 +754,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 <VirtualRowContent
                   row={row}
                   selectedIds={selectedIds}
+                  excludedIds={excludedIds}
                   onToggleTokens={onToggleTokens}
+                  onToggleExclude={onToggleExclude}
                   perTokenRanges={perTokenRanges}
                   onSetTokenRange={onSetTokenRange}
                   onClearTokenRange={onClearTokenRange}

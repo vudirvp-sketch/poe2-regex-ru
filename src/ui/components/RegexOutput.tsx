@@ -25,6 +25,8 @@ interface RegexOutputProps {
   isOverflow: boolean;
   /** Optional filter store reference for URL sharing */
   filterStore?: SerializableStore | null;
+  /** Number of active (selected + excluded) tokens — for budget-aware warnings */
+  activeTokenCount?: number;
 }
 
 /** Get health level for character count */
@@ -56,7 +58,7 @@ const HEALTH_COLORS = {
   },
 } as const;
 
-export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore }) => {
+export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore, activeTokenCount = 0 }) => {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
@@ -207,6 +209,14 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
           />
         </div>
       </div>
+
+      {/* Budget-aware warning: approaching limit with 6+ mods */}
+      {!isOverflow && charCount > 180 && activeTokenCount >= 6 && (
+        <div className="mb-2 p-2 bg-amber-900/40 border border-amber-700/60 rounded text-amber-300 text-[12px] flex items-center gap-1.5">
+          <span>\u26A0</span>
+          <span>{t('regex.budget_warning').replace('{chars}', String(MAX_CHARS - charCount)).replace('{mods}', String(activeTokenCount))}</span>
+        </div>
+      )}
 
       {/* Overflow warning */}
       {isOverflow && (

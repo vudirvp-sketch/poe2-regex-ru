@@ -67,10 +67,12 @@ export interface CategoryPageState {
   regex: string;
   /** Whether the regex overflows the 250 char limit */
   isRegexOverflow: boolean;
-  /** Toggle: whether "exclude" mode is active for selected mods */
-  excludeMode: boolean;
-  /** Set exclude mode */
-  setExcludeMode: (v: boolean) => void;
+  /** Selected (\"want\") token IDs */
+  selectedIds: Set<string>;
+  /** Excluded (\"don't want\") token IDs — per-mod exclude */
+  excludedIds: Set<string>;
+  /** Toggle a family group to excluded state */
+  toggleExclude: (ids: string[]) => void;
   /** Search logic: 'and' = all conditions, 'or' = any condition */
   searchLogic: SearchLogic;
   /** Set search logic */
@@ -93,8 +95,6 @@ export interface CategoryPageState {
   setTokenRange: (tokenId: string, range: TokenRangeOverride) => void;
   /** Clear per-token numeric range override */
   clearTokenRange: (tokenId: string) => void;
-  /** Selected token IDs */
-  selectedIds: Set<string>;
   /** Search text filter */
   searchText: string;
   /** Affix type filter */
@@ -135,8 +135,8 @@ export interface CategoryPageState {
  * Build an AST from the user's filter selections.
  *
  * Logic:
- * - Selected tokens with excludeMode=false → OR group of LITERALs (wanted mods)
- * - Selected tokens with excludeMode=true → EXCLUDE(OR group) (unwanted mods)
+ * - Tokens in selectedIds but NOT in excludedIds → "want" mods (LITERAL/OR/AND groups)
+ * - Tokens in excludedIds → EXCLUDE(OR group) (unwanted mods)
  * - Ranged tokens with min/max set → RANGE(min, max, suffix)
  *   (compiler normalizes RANGE(min,max) into AND(RANGE(min), RANGE(undefined,max)))
  * - AND mode: group by familyKey, OR within family, AND across families.
@@ -269,13 +269,17 @@ function getPrefixForSlot(
 /**
  * Build a literal AST node for a token, wrapping with context/exclude as needed.
  * Shared by non-ranged and orphaned ranged token handling.
+ * @param isExcluded - Whether this token is in the per-mod "exclude" set
  */
 function buildLiteralNode(
   token: GameToken,
   locale: Locale,
-  excludeMode: boolean
+  isExcluded: boolean
 ): ASTNode {
   const baseLiteral = literal(token.regex[locale], token.id);
+
+  // If this token is excluded by user, no need for FP-prevention wrapping
+  if (isExcluded) return baseLiteral;
 
   // If this token has a prefix context, wrap in AND with context LITERAL:
   // AND(LITERAL(context), LITERAL(regex)) compiles to "context" "regex"
@@ -286,7 +290,7 @@ function buildLiteralNode(
 
   // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
   const excludes = token.regexExclude?.[locale];
-  if (excludes && excludes.length > 0 && !excludeMode) {
+  if (excludes && excludes.length > 0) {
     if (excludes.length === 1) {
       return and(contextNode, exclude(literal(excludes[0])));
     } else {
@@ -300,7 +304,7 @@ function buildLiteralNode(
 /**
  * Push literal nodes into andChildren/orChildren respecting AND/OR family logic.
  *
- * - excludeMode: all nodes go into EXCLUDE(OR(...))
+ * - isExcluded: all nodes go into EXCLUDE(OR(...))
  * - OR mode: all nodes go into orChildren (single OR group)
  * - AND mode: group by familyKey, OR within family, AND across families.
  *   Same-family tokens (different tiers) → OR (any tier matches).
@@ -308,19 +312,20 @@ function buildLiteralNode(
  *
  * @param tokens - Tokens corresponding 1:1 to nodes (for familyKey lookup)
  * @param nodes  - AST nodes corresponding 1:1 to tokens
+ * @param isExcluded - Whether these tokens are in the "exclude" set
  */
 export function pushLiteralsWithFamilyLogic(
   tokens: GameToken[],
   nodes: ASTNode[],
   locale: Locale,
   searchLogic: SearchLogic,
-  excludeMode: boolean,
+  isExcluded: boolean,
   andChildren: ASTNode[],
   orChildren: ASTNode[]
 ): void {
   if (nodes.length === 0) return;
 
-  if (excludeMode) {
+  if (isExcluded) {
     andChildren.push(exclude(or(...nodes)));
     return;
   }
@@ -352,7 +357,7 @@ export function pushLiteralsWithFamilyLogic(
 
 export function buildAstFromSelections(
   selectedTokens: GameToken[],
-  excludeMode: boolean,
+  excludedIds: Set<string>,
   minValue: number | null,
   maxValue: number | null,
   _round10: boolean,
@@ -363,8 +368,7 @@ export function buildAstFromSelections(
   if (selectedTokens.length === 0) return null;
 
   // Separate tokens into: ranged (have numeric ranges/values) and non-ranged
-  // Values-only tokens (e.g., waystone "На #% больше...") also support numeric
-  // filtering — they have a single value per tier but the family spans a range.
+  // Also separate by exclude status (per-mod want/exclude)
   const rangedTokens: GameToken[] = [];
   const nonRangedTokens: GameToken[] = [];
 
@@ -378,11 +382,21 @@ export function buildAstFromSelections(
 
   const andChildren: ASTNode[] = [];
   const orChildren: ASTNode[] = []; // For OR logic: all items go into one OR group
+  const excludedRangeChildren: ASTNode[] = []; // For excluded ranged tokens: wrapped in EXCLUDE(OR) at the end
 
-  // Handle non-ranged tokens
+  // Handle non-ranged tokens — split by exclude status
   if (nonRangedTokens.length > 0) {
-    const literals = nonRangedTokens.map(t => buildLiteralNode(t, locale, excludeMode));
-    pushLiteralsWithFamilyLogic(nonRangedTokens, literals, locale, searchLogic, excludeMode, andChildren, orChildren);
+    const wantTokens = nonRangedTokens.filter(t => !excludedIds.has(t.id));
+    const exclTokens = nonRangedTokens.filter(t => excludedIds.has(t.id));
+
+    if (wantTokens.length > 0) {
+      const literals = wantTokens.map(t => buildLiteralNode(t, locale, false));
+      pushLiteralsWithFamilyLogic(wantTokens, literals, locale, searchLogic, false, andChildren, orChildren);
+    }
+    if (exclTokens.length > 0) {
+      const literals = exclTokens.map(t => buildLiteralNode(t, locale, true));
+      pushLiteralsWithFamilyLogic(exclTokens, literals, locale, searchLogic, true, andChildren, orChildren);
+    }
   }
 
   // Handle ranged tokens with per-token or global numeric ranges
@@ -424,7 +438,7 @@ export function buildAstFromSelections(
       // Track which tokens are handled by range groups (have effective min/max)
       const handledTokenIds = new Set<string>();
 
-      // Group ranged tokens by (prefix, min, max, exact, slotIndex) — NOT by suffix.
+      // Group ranged tokens by (prefix, min, max, exact, slotIndex, isExcluded) — NOT by suffix.
       // This allows merging tokens with different suffixes but the same numeric
       // range into a single RANGE node with OR-joined suffixes.
       const rangeGroups = new Map<string, {
@@ -435,10 +449,12 @@ export function buildAstFromSelections(
         exact: boolean;
         slotIndex: number;
         tokens: GameToken[];
+        isExcluded: boolean;
       }>();
       for (const { token, slots } of tokensWithSlots) {
         const suffix = token.regex[locale];
         const isPerToken = !!propagatedRanges[token.id];
+        const isExcluded = excludedIds.has(token.id);
 
         let tokenHasEffectiveSlot = false;
         for (const slot of slots) {
@@ -449,8 +465,8 @@ export function buildAstFromSelections(
           tokenHasEffectiveSlot = true;
           const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
 
-          // Group by (prefix, min, max, exact, slotIndex) — NOT by suffix
-          const groupKey = `${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}`;
+          // Group by (prefix, min, max, exact, slotIndex, isExcluded) — NOT by suffix
+          const groupKey = `${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}::${isExcluded ? 'excl' : 'want'}`;
 
           const existing = rangeGroups.get(groupKey);
           if (existing) {
@@ -468,6 +484,7 @@ export function buildAstFromSelections(
               exact: isPerToken,
               slotIndex: slot.slotIndex,
               tokens: [token],
+              isExcluded,
             });
           }
         }
@@ -476,7 +493,7 @@ export function buildAstFromSelections(
         }
       }
 
-      // For each unique (prefix, min, max, exact) group, create a RANGE node
+      // For each unique (prefix, min, max, exact, isExcluded) group, create a RANGE node
       // with OR-joined suffixes if multiple unique suffixes exist
       for (const [, group] of rangeGroups) {
         // Join multiple suffixes with | — compiler will wrap in () when needed
@@ -485,52 +502,25 @@ export function buildAstFromSelections(
           : group.suffixes[0];
 
         // Determine anchorStart: true when rawTextTemplate starts with ##
-        // (number at position 0 of the mod block).
-        // This enables ^ anchor in the compiled regex, preventing range notation FP.
-        // Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2.
         const numberAtStart = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
           return template && /^##/.test(template);
         });
 
-        // Determine anchorEnd: when rawTextTemplate has ##% (number followed by %),
-        // suffix anchoring adds '%' after the number pattern to prevent range notation FP.
-        //
-        // RE-ENABLED (in-game testing, Tablet Battery + Accessory Retest 2026-06-10):
-        // PoE2 dual-indexes BOTH simplified ("39% suffix") AND detailed ("39(30-40)% suffix").
-        // The % anchor matches the simplified display, preventing FP from range notation
-        // secondary numbers (e.g., "30" in "(30-40)%" is NOT followed by "%").
-        //
-        // Verified: "39%.*suffix" → exact match. "39.*suffix" → FP from range notation.
-        // Verified on tablets AND accessories (rings, amulets).
-        //
-        // Use anchorEnd only when anchorStart is false — for +##% accessory mods.
-        // For ##% mods (tablets/waystones), anchorStart=true with ^ is sufficient.
         const numberFollowedByPercent = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
           return template && /^[\+]?##%/.test(template);
         });
         const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
 
-        // Determine if this range group is for implicit tokens (reversed regex: suffix.*number%)
         const isImplicit = group.tokens.some(t => t.affix === 'implicit');
 
-        // Determine if ## is at the END of the template (number after suffix text).
-        // For such mods, the regex must be reversed: "suffix.*number" instead of "number.*suffix".
-        // This applies to both implicits ("Осталось зарядов - #") AND non-implicit mods
-        // where the number follows the suffix text ("дополнительных редких монстров: ##").
         const numberAtEnd = !numberAtStart && group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
           return template && /##\s*$/.test(template);
         });
         const isReversed = isImplicit || numberAtEnd;
 
-        // Determine colon anchor: when template ends with ": ##" (colon-space before number),
-        // add ': ' between .* and number pattern in reversed regex to prevent FP from range notation.
-        // In-game verified: "1(1-2)" → "2" in range notation matches ≥2 filter without anchor.
-        // With ': ' anchor: "suffix.*: (number)" — number must appear right after ': ',
-        // which is where the rolled value sits, not in range notation like "(1-2)".
-        // Only applies to non-implicit reversed mods (implicits are not dual-indexed, no range notation).
         const colonAnchor = !isImplicit && isReversed && !anchorEndValue && group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
           return template && /:\s*##\s*$/.test(template);
@@ -540,7 +530,7 @@ export function buildAstFromSelections(
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;
-        if (!excludeMode) {
+        if (!group.isExcluded) {
           // Add prefix context if available (only when all tokens share the same context)
           const contexts = [...new Set(
             group.tokens.map(t => t.regexPrefixContext?.[locale] ?? '').filter(c => c.length > 0)
@@ -570,10 +560,12 @@ export function buildAstFromSelections(
             }
           }
         }
-        // In exclude mode: nodeWithExcludes stays as raw rangeNode.
+        // When isExcluded: nodeWithExcludes stays as raw rangeNode.
         // It will be collected into orChildren and wrapped in EXCLUDE(OR) at the end.
 
-        if (excludeMode || searchLogic === 'or') {
+        if (group.isExcluded) {
+          excludedRangeChildren.push(nodeWithExcludes);
+        } else if (searchLogic === 'or') {
           orChildren.push(nodeWithExcludes);
         } else {
           andChildren.push(nodeWithExcludes);
@@ -584,25 +576,41 @@ export function buildAstFromSelections(
       // These tokens are not covered by any range group — treat as LITERAL suffix.
       const orphanedTokens = rangedTokens.filter(t => !handledTokenIds.has(t.id));
       if (orphanedTokens.length > 0) {
-        const uniqueSuffixOrphans = [...new Map(orphanedTokens.map(t => [t.regex[locale], t])).values()];
-        const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, excludeMode));
-        pushLiteralsWithFamilyLogic(uniqueSuffixOrphans, orphanLiterals, locale, searchLogic, excludeMode, andChildren, orChildren);
+        const wantOrphans = orphanedTokens.filter(t => !excludedIds.has(t.id));
+        const exclOrphans = orphanedTokens.filter(t => excludedIds.has(t.id));
+
+        if (wantOrphans.length > 0) {
+          const uniqueSuffixOrphans = [...new Map(wantOrphans.map(t => [t.regex[locale], t])).values()];
+          const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, false));
+          pushLiteralsWithFamilyLogic(uniqueSuffixOrphans, orphanLiterals, locale, searchLogic, false, andChildren, orChildren);
+        }
+        if (exclOrphans.length > 0) {
+          const uniqueSuffixOrphans = [...new Map(exclOrphans.map(t => [t.regex[locale], t])).values()];
+          const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, true));
+          pushLiteralsWithFamilyLogic(uniqueSuffixOrphans, orphanLiterals, locale, searchLogic, true, andChildren, orChildren);
+        }
       }
     } else {
       // No effective min/max: just use the family suffix regex as LITERAL
-      const uniqueSuffixTokens = [...new Map(rangedTokens.map(t => [t.regex[locale], t])).values()];
-      const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, excludeMode));
-      pushLiteralsWithFamilyLogic(uniqueSuffixTokens, literals, locale, searchLogic, excludeMode, andChildren, orChildren);
+      const wantRanged = rangedTokens.filter(t => !excludedIds.has(t.id));
+      const exclRanged = rangedTokens.filter(t => excludedIds.has(t.id));
+
+      if (wantRanged.length > 0) {
+        const uniqueSuffixTokens = [...new Map(wantRanged.map(t => [t.regex[locale], t])).values()];
+        const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, false));
+        pushLiteralsWithFamilyLogic(uniqueSuffixTokens, literals, locale, searchLogic, false, andChildren, orChildren);
+      }
+      if (exclRanged.length > 0) {
+        const uniqueSuffixTokens = [...new Map(exclRanged.map(t => [t.regex[locale], t])).values()];
+        const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, true));
+        pushLiteralsWithFamilyLogic(uniqueSuffixTokens, literals, locale, searchLogic, true, andChildren, orChildren);
+      }
     }
   }
 
   // Combine orChildren into andChildren
   if (orChildren.length > 0) {
-    if (excludeMode) {
-      // Exclude mode: wrap ALL orChildren in a single EXCLUDE(OR(...))
-      // This applies to both ranged and non-ranged tokens.
-      andChildren.push(exclude(or(...orChildren)));
-    } else if (searchLogic === 'or') {
+    if (searchLogic === 'or') {
       // OR mode: all selected mods go into a single OR group
       if (orChildren.length === 1) {
         andChildren.push(orChildren[0]);
@@ -616,6 +624,14 @@ export function buildAstFromSelections(
         andChildren.push(child);
       }
     }
+  }
+
+  // Wrap excluded ranged tokens in EXCLUDE(OR(...))
+  if (excludedRangeChildren.length > 0) {
+    const excludedOrNode = excludedRangeChildren.length === 1
+      ? excludedRangeChildren[0]
+      : or(...excludedRangeChildren);
+    andChildren.push(exclude(excludedOrNode));
   }
 
   if (andChildren.length === 0) return null;
@@ -731,13 +747,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // Initialize React state from the filter store (which may have URL data).
   // These are generic state values shared by ALL category pages.
   // They are synced to extraState for inclusion in share URLs.
-  const [excludeMode, setExcludeMode] = useState(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('excludeMode');
-      if (typeof val === 'boolean') return val;
-    }
-    return false;
-  });
   const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
     if (urlRestored) {
       const val = useStore.getState().getExtraState('searchLogic');
@@ -780,11 +789,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const syncReadyRef = useRef(false);
 
   const selectedIds = useStore(state => state.selectedIds);
+  const excludedIds = useStore(state => state.excludedIds);
   const searchText = useStore(state => state.searchText);
   const affixFilter = useStore(state => state.affixFilter);
   const originFilter = useStore(state => state.originFilter);
   const toggleToken = useStore(state => state.toggleToken);
   const toggleTokens = useStore(state => state.toggleTokens);
+  const toggleExclude = useStore(state => state.toggleExclude);
   const setSearchText = useStore(state => state.setSearchText);
   const setAffixFilter = useStore(state => state.setAffixFilter);
   const setOriginFilter = useStore(state => state.setOriginFilter);
@@ -828,7 +839,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     };
   }, [categoryId, mergeCategories]);
 
-  // Sync excludeMode/minValue/round10Enabled to filter store's extraState
+  // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
   useEffect(() => {
@@ -837,7 +848,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       return;
     }
     // 1. Sync React state → store extraState (so they're included in serialization)
-    useStore.getState().setExtraState('excludeMode', excludeMode);
     useStore.getState().setExtraState('searchLogic', searchLogic);
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
@@ -845,14 +855,14 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('priorityFilter', priorityFilter);
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
-  }, [selectedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      excludeMode, searchLogic, round10Enabled, minValue, maxValue, priorityFilter, useStore]);
+  }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
+      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, useStore]);
 
-  // Build selected tokens list
+  // Build selected tokens list (includes both want + exclude tokens)
   const selectedTokens = useMemo(() => {
     if (!data) return [];
-    return data.tokens.filter(t => selectedIds.has(t.id));
-  }, [data, selectedIds]);
+    return data.tokens.filter(t => selectedIds.has(t.id) || excludedIds.has(t.id));
+  }, [data, selectedIds, excludedIds]);
 
   // Build AST, optimize, compile
   const { regex, isRegexOverflow, collapsedIds: collapsedTokenIds } = useMemo(() => {
@@ -870,7 +880,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     if (hasModSelections) {
       const modAst = buildAstFromSelections(
         selectedTokens,
-        excludeMode,
+        excludedIds,
         minValue,
         maxValue,
         round10Enabled,
@@ -915,19 +925,16 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       isRegexOverflow: isOverflow(compiledRegex),
       collapsedIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
-  }, [data, selectedTokens, excludeMode, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
+  }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
     useStore.getState().deserialize(data);
 
     // Sync React state from the restored store values.
-    // Without this, the UI controls (excludeMode, searchLogic, etc.) would
-    // show stale values even though the Zustand store has been updated.
+    // excludedIds is stored in the Zustand store directly (not extraState),
+    // so it's automatically restored via deserialize().
     const restored = useStore.getState();
-    const restoredExclude = restored.getExtraState('excludeMode');
-    if (typeof restoredExclude === 'boolean') setExcludeMode(restoredExclude);
-    else setExcludeMode(false);
 
     const restoredLogic = restored.getExtraState('searchLogic');
     if (restoredLogic === 'and' || restoredLogic === 'or') setSearchLogic(restoredLogic);
@@ -967,8 +974,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     error,
     regex,
     isRegexOverflow,
-    excludeMode,
-    setExcludeMode,
+    selectedIds,
+    excludedIds,
+    toggleExclude,
     searchLogic,
     setSearchLogic,
     round10Enabled,
@@ -982,7 +990,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     perTokenRanges,
     setTokenRange,
     clearTokenRange,
-    selectedIds,
     searchText,
     affixFilter,
     originFilter,

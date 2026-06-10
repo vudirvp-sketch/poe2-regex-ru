@@ -85,12 +85,12 @@ export function VendorPage() {
     }
     return new Set();
   });
-  const [excludeMode, setExcludeMode] = useState(() => {
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(() => {
     if (urlRestored) {
-      const extraMode = useStore.getState().getExtraState('vendorExcludeMode');
-      if (typeof extraMode === 'boolean') return extraMode;
+      const extra = useStore.getState().getExtraState('vendorExcludedIds');
+      if (Array.isArray(extra)) return new Set(extra as string[]);
     }
-    return false;
+    return new Set();
   });
   const [numericInputs, setNumericInputs] = useState<Record<string, number>>(() => {
     if (urlRestored) {
@@ -126,19 +126,25 @@ export function VendorPage() {
       return;
     }
     useStore.getState().setExtraState('vendorSelectedIds', [...selectedIds]);
-    useStore.getState().setExtraState('vendorExcludeMode', excludeMode);
+    useStore.getState().setExtraState('vendorExcludedIds', [...excludedIds]);
     useStore.getState().setExtraState('vendorNumericInputs', numericInputs);
     useStore.getState().setExtraState('vendorRound10', round10);
     useStore.getState().setExtraState('vendorSearchLogic', searchLogic);
     // Auto-sync to URL hash so refreshing the page preserves state
     syncToUrl(useStore.getState());
-  }, [selectedIds, excludeMode, numericInputs, round10, searchLogic, useStore]);
+  }, [selectedIds, excludedIds, numericInputs, round10, searchLogic, useStore]);
 
   const toggleProperty = useCallback((id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
+        // Also remove from excluded if it was excluded
+        setExcludedIds(prevExcl => {
+          const nextExcl = new Set(prevExcl);
+          nextExcl.delete(id);
+          return nextExcl;
+        });
         // Clear ghost numeric value when unchecking a numeric property
         setNumericInputs(prevNum => {
           const nextNum = { ...prevNum };
@@ -147,6 +153,25 @@ export function VendorPage() {
         });
       } else {
         next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleExclude = useCallback((id: string) => {
+    setExcludedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        // Ensure it's also in selectedIds so it's considered "active"
+        setSelectedIds(prevSel => {
+          if (prevSel.has(id)) return prevSel;
+          const nextSel = new Set(prevSel);
+          nextSel.add(id);
+          return nextSel;
+        });
       }
       return next;
     });
@@ -166,8 +191,8 @@ export function VendorPage() {
 
   const clearAll = useCallback(() => {
     setSelectedIds(new Set());
+    setExcludedIds(new Set());
     setNumericInputs({});
-    setExcludeMode(false);
     setRound10(true);
     setSearchLogic('and');
   }, []);
@@ -199,7 +224,7 @@ export function VendorPage() {
 
       // Collect all non-numeric props and group them for efficiency
       // Using OR within one quoted group is more compact than separate quoted groups
-      if (excludeMode) {
+      if (excludedIds.has(prop.id)) {
         excludeLiterals.push(literal(prop.regex));
       } else {
         includeLiterals.push(literal(prop.regex));
@@ -216,7 +241,7 @@ export function VendorPage() {
     }
 
     // In OR mode: all items go into a single OR group (item needs ANY selected property)
-    if (searchLogic === 'or' && !excludeMode) {
+    if (searchLogic === 'or' && excludeLiterals.length === 0) {
       const orChildren: ASTNode[] = [];
       if (includeLiterals.length > 0) {
         orChildren.push(...includeLiterals);
@@ -256,7 +281,7 @@ export function VendorPage() {
     const ast = and(...astNodes);
     const result = compile(ast, { round10 });
     return { regex: result, isRegexOverflow: result.length > MAX_CHARS };
-  }, [selectedIds, excludeMode, numericInputs, round10, searchLogic]);
+  }, [selectedIds, excludedIds, numericInputs, round10, searchLogic]);
 
   // Group properties for UI display (ordered by GROUP_ORDER)
   const groupedProperties = useMemo(() => {
@@ -281,6 +306,8 @@ export function VendorPage() {
 
   const hasNumericSelected = Object.values(numericInputs).some(v => v > 0);
 
+  const excludeCount = excludedIds.size;
+
   return (
     <div className="flex flex-col gap-4">
       {/* Page header */}
@@ -299,8 +326,6 @@ export function VendorPage() {
         regex={regex}
         isOverflow={isRegexOverflow}
         filterStore={filterStore}
-        excludeMode={excludeMode}
-        setExcludeMode={setExcludeMode}
         hasRangedTokens={false}
         minValue={null}
         setMinValue={() => {}}
@@ -312,6 +337,8 @@ export function VendorPage() {
         searchLogic={searchLogic}
         setSearchLogic={setSearchLogic}
         showRound10={hasNumericSelected}
+        excludedCount={excludeCount}
+        activeTokenCount={selectedIds.size}
         clearButton={
           selectedIds.size > 0 ? (
             <button
@@ -338,9 +365,11 @@ export function VendorPage() {
                   <VendorChip
                     key={prop.id}
                     prop={prop}
-                    isSelected={selectedIds.has(prop.id)}
+                    isSelected={selectedIds.has(prop.id) && !excludedIds.has(prop.id)}
+                    isExcluded={excludedIds.has(prop.id)}
                     numericValue={numericInputs[prop.id] ?? null}
                     onToggle={toggleProperty}
+                    onToggleExclude={toggleExclude}
                     onNumericChange={setNumericValue}
                   />
                 ))}

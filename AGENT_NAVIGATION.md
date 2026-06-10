@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 94.0 | **Date:** 2026-06-10 | **Tests:** 757 (Vitest)
+> **Version:** 95.0 | **Date:** 2026-06-10 | **Tests:** 758 (Vitest)
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 25 files, 757 tests. |
+| `tests/` | Test files mirror `src/` structure. | 25 files, 758 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -39,7 +39,7 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run                                                        # Run tests (757, Vitest)
+npx vitest run                                                        # Run tests (758, Vitest)
 pnpm etl                                                              # Run ETL pipeline + iterative optimizer (Step 10)
 pnpm etl:fresh                                                        # Clear cache + full re-fetch + optimizer
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
@@ -66,7 +66,7 @@ pnpm optimize:no-oracle                                               # Optimize
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run` passes (757 tests)
+- [ ] `npx vitest run` passes (758 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -107,9 +107,13 @@ shared <- core <- strategies <- store <- data <- ui
 
 ## 7. Known Issues & Remaining Work
 
+### DONE (this iteration)
+1. **Per-mod want/exclude toggle** — ✅ Реализован: каждый FilterChip имеет кнопку ✗/✓, excludedIds Set в filter-store, EXCLUDE(OR) в AST
+2. **Budget-aware UI feedback** — ✅ Реализован: amber-предупреждение при 6+ модах и >180 chars, activeTokenCount передаётся в RegexOutput
+
 ### TODO (next iterations)
-1. **Per-mod want/exclude toggle** — сейчас exclude mode глобальный, нужен per-mod переключатель для одновременного выбора «хочу» + «не хочу» модов
-2. **Budget-aware UI feedback** — показывать оценку длины регекса при выборе 6+ модов
+1. **Real testing of optimizer on generated data** — запустить `pnpm etl:fresh` на машине с доступом к poe2db.tw
+2. **In-game verification of positive+negative pattern** — подтвердить `"want" !"dontwant"` работает в PoE2
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.

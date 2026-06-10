@@ -30,7 +30,11 @@ import type { TokenRangeOverride, SlotRangeOverride } from '@store/filter-store'
 interface FilterChipProps {
   group: FamilyGroup;
   selectedIds: Set<string>;
+  /** Set of excluded (\"don't want\") token IDs — per-mod exclude */
+  excludedIds?: Set<string>;
   onToggleTokens: (ids: string[]) => void;
+  /** Toggle a family group to excluded state */
+  onToggleExclude?: (ids: string[]) => void;
   /** Per-token numeric range overrides from filter store */
   perTokenRanges?: Record<string, TokenRangeOverride>;
   /** Set per-token numeric range override */
@@ -45,7 +49,9 @@ interface FilterChipProps {
 export const FilterChip: React.FC<FilterChipProps> = ({
   group,
   selectedIds,
+  excludedIds,
   onToggleTokens,
+  onToggleExclude,
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
@@ -56,16 +62,21 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     [group.members]
   );
 
-  // Determine selection state
+  // Determine selection state: want / exclude / none
   const selectionState = useMemo(() => {
+    const effectiveExcluded = excludedIds ?? new Set<string>();
     let selectedCount = 0;
+    let excludedCount = 0;
     for (const id of memberIds) {
       if (selectedIds.has(id)) selectedCount++;
+      if (effectiveExcluded.has(id)) excludedCount++;
     }
     if (selectedCount === memberIds.length) return 'full' as const;
     if (selectedCount > 0) return 'partial' as const;
+    if (excludedCount === memberIds.length) return 'excluded' as const;
+    if (excludedCount > 0) return 'partial-excluded' as const;
     return 'none' as const;
-  }, [memberIds, selectedIds]);
+  }, [memberIds, selectedIds, excludedIds]);
 
   // Display text: show full text for flex-wrap (no truncation — chip wraps)
   const displayText = group.displayText;
@@ -109,7 +120,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }, [group.members]);
 
   const hasPrefix = prefix.length > 0;
-  const isSelected = selectionState !== 'none';
+  const isSelected = selectionState === 'full' || selectionState === 'partial';
+  const isExcluded = selectionState === 'excluded' || selectionState === 'partial-excluded';
 
   // Check if any member token was collapsed by the optimizer
   const isCollapsed = useMemo(() => {
@@ -251,6 +263,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     bgClass = `bg-blue-900/40 ${effectiveBorderClass} text-white ${tierOpacity}`;
   } else if (selectionState === 'partial') {
     bgClass = `bg-blue-900/20 ${effectiveBorderClass} text-gray-300 ${tierOpacity}`;
+  } else if (selectionState === 'excluded') {
+    bgClass = `bg-red-900/40 border-l-red-500 text-white ${tierOpacity}`;
+  } else if (selectionState === 'partial-excluded') {
+    bgClass = `bg-red-900/20 border-l-red-500 text-gray-300 ${tierOpacity}`;
   } else {
     bgClass = `bg-gray-800/50 ${effectiveBorderClass} text-gray-300 hover:bg-gray-700/50 ${tierOpacity}`;
   }
@@ -271,9 +287,14 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     return `${slot0[0]}—${slot0[1]}`;
   }, [group]);
 
+  const handleExcludeClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleExclude?.(memberIds);
+  }, [onToggleExclude, memberIds]);
+
   // ARIA label for screen readers: include full text, selection state, and tier count
   const ariaLabel = useMemo(() => {
-    const stateText = selectionState === 'full' ? t('chip.selected') : selectionState === 'partial' ? t('chip.partial') : t('chip.unselected');
+    const stateText = selectionState === 'full' ? t('chip.selected') : selectionState === 'partial' ? t('chip.partial') : selectionState === 'excluded' ? t('chip.excluded') : selectionState === 'partial-excluded' ? t('chip.partial_excluded') : t('chip.unselected');
     const parts = [displayText, stateText];
     if (tierCount > 1) parts.push(`${tierCount} ${t('chip.levels')}`);
     if (rangeText) parts.push(`${t('chip.range')} ${rangeText}`);
@@ -317,12 +338,27 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             &times;{tierCount}
           </span>
         )}
-        {rangeText && !isSelected && (
+        {rangeText && !isSelected && !isExcluded && (
           <span className="text-[12px] text-gray-500 shrink-0" aria-hidden="true">
             ({rangeText})
           </span>
         )}
       </div>
+      {/* Per-mod exclude toggle button — small ✗/✓ */}
+      {onToggleExclude && (
+        <button
+          onClick={handleExcludeClick}
+          className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-[11px] font-bold transition-colors ${
+            isExcluded
+              ? 'bg-red-600 text-white hover:bg-red-500'
+              : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-red-400'
+          }`}
+          title={isExcluded ? t('chip.unexclude_tooltip') : t('chip.exclude_tooltip')}
+          aria-label={isExcluded ? t('chip.unexclude_aria') : t('chip.exclude_aria')}
+        >
+          {isExcluded ? '✓' : '✗'}
+        </button>
+      )}
       {/* Per-chip numeric range inputs — SIBLINGS of switch, not children — valid ARIA tree */}
       {hasRanges && isSelected && onSetTokenRange && !group.hasMultiPlaceholder && (
         <div className="flex items-center gap-1 text-[13px]" onClick={stopPropagation}>

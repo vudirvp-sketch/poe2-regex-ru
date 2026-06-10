@@ -4,7 +4,7 @@
  * These tests verify that the AST builder in useCategoryPage.ts correctly:
  * - Groups tokens by familyKey in AND mode (OR within family, AND across families)
  * - Produces a flat OR group in OR mode
- * - Handles excludeMode correctly
+ * - Handles per-mod exclude (excludedIds) correctly
  * - Handles ranged tokens with effective min/max
  * - Handles orphaned ranged tokens (have ranges but no effective min/max)
  *
@@ -146,7 +146,7 @@ describe('buildAstFromSelections', () => {
       makeToken('fire_res_t2', 'к сопротивлению огню', 'к сопротивлению огню'),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, null, null, true, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, true, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: true });
@@ -163,7 +163,7 @@ describe('buildAstFromSelections', () => {
       makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, null, null, true, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, true, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: true });
@@ -177,7 +177,7 @@ describe('buildAstFromSelections', () => {
       makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, null, null, true, LOCALE, {}, 'or');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, true, LOCALE, {}, 'or');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: true });
@@ -185,13 +185,15 @@ describe('buildAstFromSelections', () => {
     expect(result).toBe('"к сопротивлению огню|к сопротивлению холоду"');
   });
 
-  it('excludeMode: produces EXCLUDE(OR(...))', () => {
+  it('per-mod exclude: produces EXCLUDE(OR(...))', () => {
     const tokens = [
       makeToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню'),
       makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
     ];
 
-    const ast = buildAstFromSelections(tokens, true, null, null, true, LOCALE, {}, 'and');
+    // Both tokens excluded
+    const excludedIds = new Set(['fire_res_t1', 'cold_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, null, null, true, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: true });
@@ -203,7 +205,7 @@ describe('buildAstFromSelections', () => {
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 30]]),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -217,7 +219,7 @@ describe('buildAstFromSelections', () => {
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 27, 30, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -231,7 +233,7 @@ describe('buildAstFromSelections', () => {
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -252,7 +254,7 @@ describe('buildAstFromSelections', () => {
     ];
 
     // Only fire_res has effective min; life_t1 is orphaned (no min/max)
-    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -274,7 +276,7 @@ describe('buildAstFromSelections', () => {
       'fire_res_t1': { min: 25, filterSlotIndex: 0 },
     };
 
-    const ast = buildAstFromSelections(tokens, false, null, null, false, LOCALE, perTokenRanges, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -291,7 +293,7 @@ describe('buildAstFromSelections', () => {
     ];
 
     // No min/max set anywhere → all orphaned, treated as literals
-    const ast = buildAstFromSelections(tokens, false, null, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -309,7 +311,7 @@ describe('buildAstFromSelections', () => {
     ];
 
     // Both tokens share familyKey and suffix → merged into one RANGE node with same suffix
-    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -318,7 +320,7 @@ describe('buildAstFromSelections', () => {
   });
 
   it('returns null for empty selection', () => {
-    const ast = buildAstFromSelections([], false, null, null, true, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections([], new Set(), null, null, true, LOCALE, {}, 'and');
     expect(ast).toBeNull();
   });
 
@@ -335,7 +337,7 @@ describe('buildAstFromSelections', () => {
       }),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 27, 30, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -353,7 +355,7 @@ describe('buildAstFromSelections', () => {
       }),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 27, 30, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -370,7 +372,7 @@ describe('buildAstFromSelections', () => {
       }),
     ];
 
-    const ast = buildAstFromSelections(tokens, false, 25, null, false, LOCALE, {}, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -393,7 +395,7 @@ describe('buildAstFromSelections', () => {
 
     // Need per-token range since values-only tokens need overrides
     const perTokenRanges = { 'ws_t1': { min: 15, max: 24, filterSlotIndex: 0 } };
-    const ast = buildAstFromSelections(tokens, false, null, null, false, LOCALE, perTokenRanges, 'and');
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
@@ -404,42 +406,64 @@ describe('buildAstFromSelections', () => {
     expect(result).toBe('"(1[5-9]|2[0-4]).*области путевых камней"');
   });
 
-  // ─── excludeMode with ranged tokens (Bug fix) ───
+  // ─── per-mod exclude with ranged tokens ───
 
-  it('excludeMode with ranged token wraps RANGE in EXCLUDE(OR)', () => {
-    // Bug: when excludeMode=true, ranged tokens were NOT wrapped in EXCLUDE,
-    // producing the same regex as excludeMode=false.
+  it('per-mod exclude with ranged token wraps RANGE in EXCLUDE(OR)', () => {
     const tokens = [
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
     ];
 
-    const astExclude = buildAstFromSelections(tokens, true, 27, 30, false, LOCALE, {}, 'and');
+    const excludedIds = new Set(['fire_res_t1']);
+    const astExclude = buildAstFromSelections(tokens, excludedIds, 27, 30, false, LOCALE, {}, 'and');
     expect(astExclude).not.toBeNull();
 
     const resultExclude = compile(astExclude!, { round10: false });
-    // Exclude mode should wrap the range pattern in !(...|...)
+    // Exclude should wrap the range pattern in !(...|...)
     expect(resultExclude).toContain('!');
     expect(resultExclude).toContain('к сопротивлению огню');
 
     // Verify it's DIFFERENT from non-exclude mode
-    const astNormal = buildAstFromSelections(tokens, false, 27, 30, false, LOCALE, {}, 'and');
+    const astNormal = buildAstFromSelections(tokens, new Set(), 27, 30, false, LOCALE, {}, 'and');
     const resultNormal = compile(astNormal!, { round10: false });
     expect(resultExclude).not.toBe(resultNormal);
   });
 
-  it('excludeMode with mixed ranged and non-ranged tokens produces single EXCLUDE(OR)', () => {
+  it('per-mod exclude with mixed ranged and non-ranged tokens produces EXCLUDE(OR) + AND', () => {
     const tokens = [
       makeToken('life_t1', 'к максимуму здоровья', 'к максимуму здоровья'),
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
     ];
 
-    const ast = buildAstFromSelections(tokens, true, 25, null, false, LOCALE, {}, 'and');
+    // Exclude only fire_res, want life
+    const excludedIds = new Set(['fire_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, 25, null, false, LOCALE, {}, 'and');
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
-    // Both ranged and non-ranged should be inside a single !A|B quoted group
-    expect(result).toContain('!');
+    // life should be wanted, fire_res excluded
     expect(result).toContain('к максимуму здоровья');
+    expect(result).toContain('!');
     expect(result).toContain('к сопротивлению огню');
+  });
+
+  it('mixed want and exclude: want tokens ANDed, exclude tokens in EXCLUDE(OR)', () => {
+    const tokens = [
+      makeToken('life_t1', 'к максимуму здоровья', 'к максимуму здоровья'),
+      makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
+      makeToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню'),
+    ];
+
+    // Want life + cold_res, exclude fire_res
+    const excludedIds = new Set(['fire_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, null, null, true, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Should have wanted mods ANDed with excluded mod in EXCLUDE
+    expect(result).toContain('к максимуму здоровья');
+    expect(result).toContain('к сопротивлению холоду');
+    expect(result).toContain('!');
+    expect(result).toContain('к сопротивлению огню');
+    // Pattern: "want1" "want2" "!exclude1"
   });
 });

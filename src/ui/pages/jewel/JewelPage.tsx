@@ -66,11 +66,11 @@ export function JewelPage() {
   const {
     data, loading, error,
     regex, isRegexOverflow,
-    excludeMode, setExcludeMode,
+    selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
     maxValue, setMaxValue,
-    selectedIds, searchText, affixFilter, originFilter,
+    searchText, affixFilter, originFilter,
     toggleTokens, setSearchText, setAffixFilter, setOriginFilter, clearSelections,
     categoryId, filterStore, restoreFilterState,
     perTokenRanges, setTokenRange, clearTokenRange,
@@ -102,36 +102,46 @@ export function JewelPage() {
     return filterTokensByJewelType(data.tokens, jewelTypeFilter);
   }, [data, jewelTypeFilter]);
 
-  // Count selected tokens that are hidden by the current jewel type filter
-  const hiddenSelectedIds = useMemo(() => {
+  // Count active tokens (selected or excluded) that are hidden by the current jewel type filter
+  const hiddenActiveIds = useMemo(() => {
     if (!data || jewelTypeFilter === 'all') return new Set<string>();
     const filteredIdSet = new Set(filteredTokens.map(t => t.id));
     const hidden: string[] = [];
     for (const id of selectedIds) {
       if (!filteredIdSet.has(id)) hidden.push(id);
     }
+    for (const id of excludedIds) {
+      if (!filteredIdSet.has(id)) hidden.push(id);
+    }
     return new Set(hidden);
-  }, [data, jewelTypeFilter, selectedIds, filteredTokens]);
+  }, [data, jewelTypeFilter, selectedIds, excludedIds, filteredTokens]);
 
-  const hiddenSelectedCount = hiddenSelectedIds.size;
+  const hiddenActiveCount = hiddenActiveIds.size;
 
   // Deselect all tokens that are currently hidden by the jewel type filter
   const deselectHidden = useCallback(() => {
-    if (hiddenSelectedCount === 0) return;
-    const remaining = [...selectedIds].filter(id => !hiddenSelectedIds.has(id));
+    if (hiddenActiveCount === 0) return;
+    const remainingSelected = [...selectedIds].filter(id => !hiddenActiveIds.has(id));
+    const remainingExcluded = [...excludedIds].filter(id => !hiddenActiveIds.has(id));
     clearSelections();
-    if (remaining.length > 0) {
-      toggleTokens(remaining);
+    if (remainingSelected.length > 0) {
+      toggleTokens(remainingSelected);
     }
-  }, [hiddenSelectedCount, hiddenSelectedIds, selectedIds, clearSelections, toggleTokens]);
+    // Re-add excluded tokens that aren't hidden
+    if (remainingExcluded.length > 0) {
+      toggleExclude(remainingExcluded);
+    }
+  }, [hiddenActiveCount, hiddenActiveIds, selectedIds, excludedIds, clearSelections, toggleTokens, toggleExclude]);
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
       {(data) => {
-        const selectedTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
-        const hasRangedTokens = selectedTokens.some(tok => tok.ranges.length > 0);
+        const allActiveTokens = data.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id));
+        const wantTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
+        const excludeTokens = data.tokens.filter(tok => excludedIds.has(tok.id));
+        const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
         const rangedSuffixes = [...new Set(
-          selectedTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
+          allActiveTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
         )];
 
         return (
@@ -148,8 +158,8 @@ export function JewelPage() {
               regex={regex}
               isOverflow={isRegexOverflow}
               filterStore={filterStore}
-              excludeMode={excludeMode}
-              setExcludeMode={setExcludeMode}
+              searchLogic={searchLogic}
+              setSearchLogic={setSearchLogic}
               hasRangedTokens={hasRangedTokens}
               minValue={minValue}
               setMinValue={setMinValue}
@@ -158,11 +168,11 @@ export function JewelPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
-              searchLogic={searchLogic}
-              setSearchLogic={setSearchLogic}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter
+              excludedCount={excludeTokens.length}
+              activeTokenCount={allActiveTokens.length}
               extraControls={
                 <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
                   <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
@@ -184,10 +194,10 @@ export function JewelPage() {
               }
             />
 
-            {/* Hidden selected mods warning */}
-            {hiddenSelectedCount > 0 && (
+            {/* Hidden active mods warning */}
+            {hiddenActiveCount > 0 && (
               <div className="flex items-center gap-2 px-3 py-2 bg-amber-900/30 border border-amber-700/50 rounded text-xs text-amber-300" role="alert">
-                <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenSelectedCount))}</span>
+                <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
                 <button
                   onClick={deselectHidden}
                   className="px-2 py-0.5 bg-amber-800/50 border border-amber-600/50 rounded text-[10px] text-amber-200 hover:bg-amber-700/50 transition-colors"
@@ -200,10 +210,12 @@ export function JewelPage() {
             <VirtualizedModList
               tokens={filteredTokens}
               selectedIds={selectedIds}
+              excludedIds={excludedIds}
               searchText={searchText}
               affixFilter={affixFilter}
               originFilter={originFilter}
               onToggleTokens={toggleTokens}
+              onToggleExclude={toggleExclude}
               onSearchChange={setSearchText}
               onAffixFilterChange={setAffixFilter}
               onOriginFilterChange={setOriginFilter}
@@ -225,12 +237,20 @@ export function JewelPage() {
                 onRestore={restoreFilterState}
               />
 
-              {selectedTokens.length > 0 && (
+              {allActiveTokens.length > 0 && (
                 <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(selectedTokens)} {t('mods_word')}</div>
+                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-xs text-red-400 mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
+                  )}
                   <div className="text-[10px] text-gray-600">
-                    {excludeMode ? t('summary.exclude') : t('summary.include')}: {selectedTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                    {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-[10px] text-red-500/60">
+                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
