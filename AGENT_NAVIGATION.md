@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 91.0 | **Date:** 2026-06-10 | **Tests:** 729 (Vitest)
+> **Version:** 92.0 | **Date:** 2026-06-10 | **Tests:** 740 (Vitest)
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 24 files, 729 tests. |
+| `tests/` | Test files mirror `src/` structure. | 24 files, 740 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -106,9 +106,8 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Non-% mods in-game FP testing** — 6 specific checks in `tests/core/tablet-non-percent-fp.test.ts`
+1. **In-game verification of colon anchor fix** — повторить T1 и T3 с новым regex `suffix.*: (number)`, подтвердить отсутствие FP
 2. **Visual verification of scroll fix on prod** — /belt, /ring, /amulet pages
-3. **Context anchoring optimization** — add `:` before `.*` in non-% reversed regex (e.g. `"азмири:.*([2-9]...")` instead of `"азмири.*([2-9]...")`)
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -118,13 +117,14 @@ shared <- core <- strategies <- store <- data <- ui
 
 ---
 
-## 8. FP Prevention Strategy (3 Levels)
+## 8. FP Prevention Strategy (4 Levels)
 
 | Level | Method | When used | FP prevented | FN risk |
 |-------|--------|-----------|-------------|---------|
 | 1 | `^` (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
 | 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
-| 3 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
+| 3 | `: ` colon anchor (colonAnchor) | Reversed non-% mods with `: ##` template | Range notation secondary numbers after rolled value | None |
+| 4 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
 
 ---
 
@@ -209,23 +209,32 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 14. Non-% Mod Reversed Regex
+## 14. Non-% Mod Reversed Regex (with Colon Anchor)
 
 ### When reversed regex is generated
 For mods where `##` appears at the END of the template (number after suffix text):
 - Template: `"Из Бездн на карте появляется дополнительных редких монстров: ##"`
-- Regex direction: `suffix.*number` (reversed) instead of `number.*suffix` (normal)
+- Regex direction: `suffix.*: number` (reversed with colon anchor)
 - `isReversed = true` when `isImplicit || numberAtEnd` (useCategoryPage.ts, line 526)
+- `colonAnchor = true` when `!isImplicit && isReversed && !anchorEndValue && template.endsWith(': ##')`
 
-### Tablet non-% mods at FP risk
-| Mod | Template suffix | Regex | Range | FP threshold |
-|-----|----------------|-------|-------|-------------|
-| дополнительных редких монстров | `: ##` | `появляется` | [1,2] | ≥2 |
-| дополнительных свойств | `: #` | `уникальные` | [1] | ≥2 |
-| дополнительных редких сундуков | `: ##` | `х редких с` | [2,3] | ≥3 |
-| дополнительных духов азмири | `: #` | `ьных духов` | [1] | ≥2 |
+### Colon anchor mechanism
+For non-% reversed mods where template ends with `: ##`, the compiled regex includes
+`: ` between `.*` and the number pattern. This ensures the number appears right after
+the colon-space delimiter (where the rolled value sits), not in range notation.
 
-### Belt/Amulet non-% mods at FP risk
+Before: `"появляется.*([2-9]|[0-9][0-9][0-9]?)"` → FP on "1(1-2)"
+After:  `"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"` → no FP, "1" after `: ` doesn't match [2-9]
+
+### Tablet non-% mods (colon anchor applied)
+| Mod | Template suffix | Regex | Range | In-game FP |
+|-----|----------------|-------|-------|------------|
+| дополнительных редких монстров | `: ##` | `появляется.*: N` | [1,2] | T1 FP → FIXED |
+| дополнительных свойств | `: #` | `уникальные.*: N` | [1] | T2 OK |
+| дополнительных редких сундуков | `: ##` | `х редких с.*: N` | [2,3] | T3 FP → FIXED |
+| дополнительных духов азмири | `: #` | `ьных духов.*: N` | [1] | T4 OK |
+
+### Belt/Amulet non-% mods (colon anchor applied)
 | Category | Mod | Range |
 |----------|-----|-------|
 | belt | Флаконы получают зарядов в секунду: ## | varied |

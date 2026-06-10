@@ -93,8 +93,8 @@ function normalizeAst(node: ASTNode): ASTNode {
         return {
           type: 'AND',
           children: [
-            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed },
-            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed },
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor },
           ],
         };
       }
@@ -161,13 +161,18 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       // For normal: goes between number and .*suffix.
       // For reversed: goes after number at the end of the pattern.
       const endAnchor = ast.anchorEnd ?? '';
+      // colonAnchor: ': ' between .* and number pattern for reversed ranges.
+      // Prevents FP from range notation in non-% mods like "монстров: 1(1-2)".
+      // The ': ' anchors the number to appear right after the colon-space delimiter,
+      // which is where the rolled value sits — not in range notation like "(1-2)".
+      const colonPrefix = (ast.reversed && ast.colonAnchor) ? ': ' : '';
 
       // Both min and max → enumerated range (single quoted group)
       if (isEnumerated) {
         const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
         if (!numRegex) return ''; // Should not happen after normalizeAst check
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${numRegex}${endAnchor}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
           if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
@@ -181,7 +186,7 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${numRegex}${endAnchor}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
           if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
@@ -195,7 +200,7 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${numRegex}${endAnchor}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
           if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }

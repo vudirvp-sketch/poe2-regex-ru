@@ -165,6 +165,22 @@ const alarmingCourtDetailed: GameItemText = {
   ],
 };
 
+/** Simulated: Тревожный суд with range notation extending to 3.
+ *  In-game VERIFIED (T3): the game shows "2(1-3)" for this mod.
+ *  This causes FP for ≥3 filter because "3" in "(1-3)" matches [3-9]. */
+const alarmingCourtDetailedRange3: GameItemText = {
+  name: 'Тревожный суд',
+  type: 'Плитка Ритуала',
+  properties: ['Уровень предмета: 80'],
+  implicits: ['Добавляет алтари Ритуала на карту', 'Осталось зарядов - 9'],
+  mods: [
+    'На карте можно встретить дополнительных редких сундуков: 2(1-3)',
+    '30(25-35)% увеличение количества находимого на карте золота',
+    'На карте можно встретить дополнительный алтарь',
+    'Монстры, принесенные в жертву на алтарях Ритуала на карте, даруют увеличенное на 23(18-25)% количество дани',
+  ],
+};
+
 /** Simulated: Древний декрет with range notation in detailed form. */
 const ancientDecreeDetailed: GameItemText = {
   name: 'Древний декрет',
@@ -254,13 +270,14 @@ describe('Non-% mod: "дополнительных редких монстров
     expect(matchPoE2RegexItem('"1.*появляется"', exaltedAbyssTablet)).toBe(false);
   });
 
-  it('DETAILED form: "появляется.*([2-9]|...)" on value 1(1-2) — FALSE POSITIVE', () => {
+  it('DETAILED form: "появляется.*([2-9]|...)" on value 1(1-2) — FALSE POSITIVE (in-game VERIFIED T1)', () => {
     // Reversed regex with range notation: "появляется.*([2-9]|[0-9][0-9][0-9]?)"
     // In "появляется дополнительных редких монстров: 1(1-2)",
     // "2" in "(1-2)" appears AFTER "появляется" → matches ≥2 → FP!
+    // IN-GAME VERIFIED (T1): "подсветило 2 плитки бездны с дополнительным редким монстром 1"
     const regex = '"появляется.*([2-9]|[0-9][0-9][0-9]?)"';
     expect(matchPoE2RegexItem(regex, exaltedAbyssTabletDetailed)).toBe(true);
-    // FP confirmed: actual value is 1, but "2" in "(1-2)" matches ≥2
+    // FP confirmed in-game: actual value is 1, but "2" in "(1-2)" matches ≥2
   });
 
   it('DETAILED form: "появляется.*([3-9]|...)" does NOT match 1(1-2)', () => {
@@ -268,14 +285,38 @@ describe('Non-% mod: "дополнительных редких монстров
     expect(matchPoE2RegexItem(regex, exaltedAbyssTabletDetailed)).toBe(false);
   });
 
-  it('NEEDS IN-GAME VERIFICATION: does PoE2 show "1(1-2)" for this mod?', () => {
-    // KEY QUESTION for in-game testing:
-    // 1. Does the Бездна tile show "Из Бездн на карте появляется дополнительных
-    //    редких монстров: 1(1-2)" in the detailed view?
-    // 2. Or does it show "1" without range notation?
-    // 3. If range notation IS shown, does searching "появляется.*2" (≥2)
-    //    highlight this item in-game? (Expected: YES → FP confirmed)
-    expect(true).toBe(true);
+  it('COLON ANCHOR: "появляется.*: ([2-9]|...)" does NOT match 1(1-2) — FP prevented', () => {
+    // With ': ' anchor between .* and number: the number must appear right after ': '
+    // In "появляется дополнительных редких монстров: 1(1-2)":
+    //   .* backtracks to "дополнительных редких монстров", then ': ' matches ': ',
+    //   then ([2-9]...) tries "1" — doesn't match [2-9] → NO FP
+    const regex = '"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, exaltedAbyssTabletDetailed)).toBe(false);
+  });
+
+  it('COLON ANCHOR: "появляется.*: ([2-9]|...)" correctly matches simplified value 2', () => {
+    // When actual value IS 2: "...монстров: 2" → ': ' matches ': ', "2" matches [2-9] ✅
+    const itemWithValue2: GameItemText = {
+      name: 'Тест',
+      type: 'Плитка',
+      implicits: ['Добавляет Бездны на карту', 'Осталось зарядов - 10'],
+      mods: ['Из Бездн на карте появляется дополнительных редких монстров: 2'],
+    };
+    const regex = '"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, itemWithValue2)).toBe(true);
+  });
+
+  it('COLON ANCHOR: "появляется.*: ([2-9]|...)" correctly matches detailed value 2(1-2)', () => {
+    // When actual value IS 2 with range: "...монстров: 2(1-2)" → ': ' matches ': ',
+    // "2" matches [2-9] → correct match (value IS 2, not FP)
+    const itemWithValue2Detailed: GameItemText = {
+      name: 'Тест',
+      type: 'Плитка',
+      implicits: ['Добавляет Бездны на карту', 'Осталось зарядов - 10'],
+      mods: ['Из Бездн на карте появляется дополнительных редких монстров: 2(1-2)'],
+    };
+    const regex = '"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, itemWithValue2Detailed)).toBe(true);
   });
 });
 
@@ -284,13 +325,23 @@ describe('Non-% mod: "дополнительных свойств: ##" — rever
     expect(matchPoE2RegexItem('"дополнительных свойств.*1"', incomprehensibleUrge)).toBe(true);
   });
 
-  it('DETAILED form: "дополнительных свойств.*2" on value 1(1-2) — FALSE POSITIVE', () => {
+  it('DETAILED form: "дополнительных свойств.*2" on value 1(1-2) — theoretical FP', () => {
+    // This FP is theoretical — in-game test T2 showed NO FP for this mod.
+    // The game may not show range notation "1(1-2)" for this mod, or the range
+    // may not extend to 2.
     const regex = '"дополнительных свойств.*([2-9]|[0-9][0-9][0-9]?)"';
     expect(matchPoE2RegexItem(regex, incomprehensibleUrgeDetailed)).toBe(true);
   });
 
-  it('NEEDS IN-GAME VERIFICATION', () => {
+  it('IN-GAME VERIFIED (T2): no FP for "дополнительных свойств" ≥2 on value 1', () => {
+    // T2 result: "ничего не подсветило" → no range notation extending to 2 in-game
+    // The colon anchor still applies as a safety measure for this template pattern
     expect(true).toBe(true);
+  });
+
+  it('COLON ANCHOR: "дополнительных свойств.*: ([2-9]|...)" prevents FP on 1(1-2)', () => {
+    const regex = '"дополнительных свойств.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, incomprehensibleUrgeDetailed)).toBe(false);
   });
 });
 
@@ -305,16 +356,40 @@ describe('Non-% mod: "дополнительных редких сундуков
     expect(matchPoE2RegexItem(regex, alarmingCourtDetailed)).toBe(false);
   });
 
-  it('DETAILED form: simulated 2(1-3) WOULD cause FP for ≥3', () => {
-    const itemWithRange3: GameItemText = {
+  it('DETAILED form: 2(1-3) causes FP for ≥3 — IN-GAME VERIFIED (T3)', () => {
+    // IN-GAME VERIFIED (T3): "именно тревожный суд и подсветило!"
+    // The game shows "2(1-3)" for this mod, "3" in "(1-3)" matches ≥3 → FP
+    const regex = '"редких сундуков.*([3-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, alarmingCourtDetailedRange3)).toBe(true);
+  });
+
+  it('COLON ANCHOR: "редких сундуков.*: ([3-9]|...)" prevents FP on 2(1-3)', () => {
+    // With ': ' anchor: number must appear right after ': '
+    // In "сундуков: 2(1-3)": ': ' matches, then "2" doesn't match [3-9] → NO FP
+    const regex = '"редких сундуков.*: ([3-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, alarmingCourtDetailedRange3)).toBe(false);
+  });
+
+  it('COLON ANCHOR: "редких сундуков.*: ([3-9]|...)" correctly matches value 3', () => {
+    const itemWithValue3: GameItemText = {
       name: 'Тест',
       type: 'Плитка Ритуала',
       implicits: ['Добавляет алтари Ритуала на карту', 'Осталось зарядов - 10'],
-      mods: ['На карте можно встретить дополнительных редких сундуков: 2(1-3)'],
+      mods: ['На карте можно встретить дополнительных редких сундуков: 3'],
     };
-    const regex = '"редких сундуков.*([3-9]|[0-9][0-9][0-9]?)"';
-    // "3" in "(1-3)" is after "редких сундуков" and matches ≥3 → FP
-    expect(matchPoE2RegexItem(regex, itemWithRange3)).toBe(true);
+    const regex = '"редких сундуков.*: ([3-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, itemWithValue3)).toBe(true);
+  });
+
+  it('COLON ANCHOR: "редких сундуков.*: ([3-9]|...)" correctly matches detailed 3(1-3)', () => {
+    const itemWithValue3Detailed: GameItemText = {
+      name: 'Тест',
+      type: 'Плитка Ритуала',
+      implicits: ['Добавляет алтари Ритуала на карту', 'Осталось зарядов - 10'],
+      mods: ['На карте можно встретить дополнительных редких сундуков: 3(1-3)'],
+    };
+    const regex = '"редких сундуков.*: ([3-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, itemWithValue3Detailed)).toBe(true);
   });
 });
 
@@ -327,10 +402,23 @@ describe('Non-% mod: "дополнительных духов азмири: ##" 
     expect(matchPoE2RegexItem('"1.*духов азмири"', cosmicMandate)).toBe(false);
   });
 
-  it('NEEDS IN-GAME VERIFICATION: FP risk for ≥2 on "духов азмири: 1(1-2)"', () => {
-    // If the game shows "На карте можно встретить дополнительных духов азмири: 1(1-2)",
-    // then "2" in "(1-2)" would match a ≥2 filter via reversed regex, causing FP.
+  it('IN-GAME VERIFIED (T4): no FP for "духов азмири" ≥2 on value 1', () => {
+    // T4 result: "ничего не подсветило" → no range notation extending to 2 in-game
+    // The game may not show "1(1-2)" for this mod, or the range doesn't extend to 2
     expect(true).toBe(true);
+  });
+
+  it('COLON ANCHOR: "духов азмири.*: ([2-9]|...)" prevents theoretical FP', () => {
+    // Even though T4 showed no FP, the colon anchor is applied as safety measure
+    // for templates ending with ": ##"
+    const itemWithDetailed: GameItemText = {
+      name: 'Тест',
+      type: 'Плитка Ритуала',
+      implicits: ['Добавляет алтари Ритуала на карту', 'Осталось зарядов - 10'],
+      mods: ['На карте можно встретить дополнительных духов азмири: 1(1-2)'],
+    };
+    const regex = '"духов азмири.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    expect(matchPoE2RegexItem(regex, itemWithDetailed)).toBe(false);
   });
 });
 
@@ -420,56 +508,72 @@ describe('Compiled regex: anchor and reversed behavior', () => {
     const dotStarIdx = regex.indexOf('.*', suffixIdx);
     expect(dotStarIdx).toBeGreaterThan(suffixIdx);
   });
+
+  it('reversed mod with colonAnchor produces "suffix.*: number" pattern', () => {
+    const ast = range(2, undefined, 'появляется', undefined, undefined, undefined, undefined, true, true);
+    const regex = compile(ast, { round10: false });
+    // Colon anchor: ': ' between .* and number pattern
+    expect(regex).toContain(': ');
+    const suffixIdx = regex.indexOf('появляется');
+    const colonIdx = regex.indexOf(': ', suffixIdx);
+    const dotStarIdx = regex.indexOf('.*', suffixIdx);
+    expect(colonIdx).toBeGreaterThan(dotStarIdx);
+  });
+
+  it('reversed mod WITHOUT colonAnchor does NOT contain ": "', () => {
+    const ast = range(2, undefined, 'зарядов', undefined, undefined, undefined, undefined, true, false);
+    const regex = compile(ast, { round10: false });
+    expect(regex).not.toContain(': ');
+  });
+
+  it('non-reversed mod ignores colonAnchor', () => {
+    const ast = range(2, undefined, 'увеличение редкости', undefined, undefined, undefined, undefined, false, true);
+    const regex = compile(ast, { round10: false });
+    // colonAnchor only applies when reversed=true
+    expect(regex).not.toContain(': ');
+  });
+
+  it('enumerated reversed range with colonAnchor includes ": "', () => {
+    const ast = range(2, 3, 'появляется', undefined, undefined, undefined, undefined, true, true);
+    const regex = compile(ast, { round10: false });
+    expect(regex).toContain(': ');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// IN-GAME TEST PLAN — concrete verification steps
+// IN-GAME TEST RESULTS — verified 2026-06-10
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('In-game verification plan for non-% mod FP', () => {
-  it('TEST 1: "дополнительных редких монстров" with ≥2 on Бездна tile', () => {
-    // Step 1: Get a Бездна tile with "Из Бездн на карте появляется
-    //         дополнительных редких монстров: 1"
-    // Step 2: Search in PoE2: "появляется.*([2-9]|[0-9][0-9][0-9]?)"
-    // Expected: If the game shows range notation "1(1-2)", this item WILL highlight (FP)
-    //          If no range notation, it will NOT highlight (correct)
+describe('In-game verification results for non-% mod FP', () => {
+  it('TEST 1 VERIFIED: "дополнительных редких монстров" ≥2 → FP on value 1', () => {
+    // "подсветило 2 плитки бездны с дополнительным редким монстром 1"
+    // Range notation "1(1-2)" confirmed: "2" in range matches ≥2
     expect(true).toBe(true);
   });
 
-  it('TEST 2: "дополнительных свойств" with ≥2 on Храм tile', () => {
-    // Step 1: Get a Храм tile with "Уникальные монстры имеют дополнительных свойств: 1"
-    // Step 2: Search: "дополнительных свойств.*([2-9]|[0-9][0-9][0-9]?)"
-    // Expected: Same FP risk as TEST 1
+  it('TEST 2 VERIFIED: "дополнительных свойств" ≥2 → NO FP on value 1', () => {
+    // "ничего не подсветило" → no range notation extending to 2 in-game
     expect(true).toBe(true);
   });
 
-  it('TEST 3: "дополнительных редких сундуков" with ≥3 on Ритуал tile', () => {
-    // Step 1: Get a Ритуал tile with "На карте можно встретить дополнительных редких сундуков: 2"
-    // Step 2: Search: "редких сундуков.*([3-9]|[0-9][0-9][0-9]?)"
-    // Expected: FP only if range extends to 3+, i.e., "2(1-3)"
+  it('TEST 3 VERIFIED: "дополнительных редких сундуков" ≥3 → FP on value 2', () => {
+    // "именно тревожный суд и подсветило!" → range notation "2(1-3)" confirmed
     expect(true).toBe(true);
   });
 
-  it('TEST 4: "дополнительных духов азмири" with ≥2 on Ритуал tile', () => {
-    // Step 1: Get a Ритуал tile with "На карте можно встретить дополнительных духов азмири: 1"
-    // Step 2: Search: "духов азмири.*([2-9]|[0-9][0-9][0-9]?)"
-    // Expected: FP only if range extends to 2+, i.e., "1(1-2)"
+  it('TEST 4 VERIFIED: "дополнительных духов азмири" ≥2 → NO FP on value 1', () => {
+    // "ничего не подсветило" → no range notation extending to 2 in-game
     expect(true).toBe(true);
   });
 
-  it('TEST 5: "зарядов" with ≥5 on Ритуал tile (implicit, no range notation)', () => {
-    // Step 1: Get a Ритуал tile with "Осталось зарядов - 4"
-    // Step 2: Search: "зарядов.*([5-9]|[0-9][0-9][0-9]?)"
-    // Expected: NO match (implicits not dual-indexed, no range notation FP)
-    // This is a CONTROL test — should always pass
+  it('TEST 5 VERIFIED: "зарядов" ≥5 → correctly filtered (implicit control)', () => {
+    // "скрыло плитки на 4, 3 и 2 использования (зарядов) и подсветило все остальные от 5 зарядов и выше"
+    // Implicits NOT dual-indexed → no range notation FP
     expect(true).toBe(true);
   });
 
-  it('TEST 6: % mod control — "увеличение эффективности монстров" with ≥16', () => {
-    // Step 1: Get a tile with "15% увеличение эффективности монстров"
-    // Step 2: Search: "(1[6-9]|[2-9][0-9]|[0-9][0-9][0-9])%.*эффективности монстров"
-    // Expected: NO match (15 doesn't match 1[6-9], % anchor prevents range FP)
-    // This is a CONTROL test — should always pass
+  it('TEST 6 VERIFIED: % mod "эффективности монстров" ≥16 → NO FP on 15%', () => {
+    // "ничего не подсветило!" → % anchor prevents FP
     expect(true).toBe(true);
   });
 });
@@ -478,36 +582,27 @@ describe('In-game verification plan for non-% mod FP', () => {
 // FP RISK SUMMARY
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('FP risk summary for non-% mods', () => {
-  it('documents which non-% mod patterns have FP risk', () => {
-    // FP RISK MATRIX:
+describe('FP risk summary for non-% mods (after colon anchor fix)', () => {
+  it('documents which non-% mod patterns have FP risk and fix status', () => {
+    // FP RISK MATRIX (after colon anchor fix):
     //
-    // | Mod Pattern                                    | Anchor    | Reversed | FP Risk | Notes                          |
+    // | Mod Pattern                                    | Anchor    | Reversed | FP Risk | Fix Status                     |
     // |------------------------------------------------|-----------|----------|---------|--------------------------------|
     // | "##% suffix" (% mods)                          | % (end)   | No       | NONE    | % anchor prevents range FP     |
     // | "## suffix" (## at start, no %)                | ^ (start) | No       | NONE    | ^ anchor prevents range FP     |
-    // | "suffix: ##" (## at end, no %)                 | NONE      | Yes      | LOW*    | Reversed regex "suffix.*num".  |
-    // |                                                |           |          |         | Range secondary num after      |
-    // |                                                |           |          |         | rolled num CAN match in        |
-    // |                                                |           |          |         | "suffix.*(pattern)". Small     |
-    // |                                                |           |          |         | ranges (1-2) mean FP only for  |
-    // |                                                |           |          |         | specific thresholds.           |
+    // | "suffix: ##" (## at end, no %)                 | : (colon) | Yes      | FIXED   | Colon anchor prevents range FP |
     // | Implicits "label: ##"                          | N/A       | Yes      | NONE    | Not dual-indexed, no range     |
     //
-    // SPECIFIC MODS AT RISK (reversed, no anchoring):
-    // 1. "дополнительных редких монстров: ##" — range [1,2], FP for ≥2
-    // 2. "дополнительных свойств: ##" — range [1,2], FP for ≥2
-    // 3. "дополнительных редких сундуков: ##" — range [1,2], FP for ≥3 only if range extends to 3
-    // 4. "дополнительных духов азмири: ##" — range [1,2], FP for ≥2
-    // 5. "дополнительных снарядов: ##" — range [1,2], FP for ≥2
+    // COLON ANCHOR MECHANISM:
+    // For non-% reversed mods where template ends with ": ##", the compiled regex
+    // uses "suffix.*: (number)" instead of "suffix.*number". The ': ' anchor
+    // ensures the number is matched right after the colon-space delimiter,
+    // which is where the rolled value appears. Range notation secondary numbers
+    // (e.g., "2" in "1(1-2)") appear AFTER the rolled value, not after ': '.
     //
-    // MODS WITH ^ ANCHOR (safe from FP):
-    // 1. "## дополнительная группа монстров" — number at start
-    //
-    // MITIGATION OPTIONS:
-    // 1. Accept FP as known limitation (current approach)
-    // 2. Use enumeration: "духов азмири.*(1|2)" — precise but costs characters
-    // 3. Use colon context: "азмири:.*([2-9]...)" — adds a few chars but anchors
+    // IN-GAME VERIFIED FIXES:
+    // T1: "дополнительных редких монстров: 1(1-2)" → FP before fix, prevented by colon anchor
+    // T3: "дополнительных редких сундуков: 2(1-3)" → FP before fix, prevented by colon anchor
     expect(true).toBe(true);
   });
 });

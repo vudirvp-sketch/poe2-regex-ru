@@ -525,7 +525,18 @@ export function buildAstFromSelections(
         });
         const isReversed = isImplicit || numberAtEnd;
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined);
+        // Determine colon anchor: when template ends with ": ##" (colon-space before number),
+        // add ': ' between .* and number pattern in reversed regex to prevent FP from range notation.
+        // In-game verified: "1(1-2)" → "2" in range notation matches ≥2 filter without anchor.
+        // With ': ' anchor: "suffix.*: (number)" — number must appear right after ': ',
+        // which is where the rolled value sits, not in range notation like "(1-2)".
+        // Only applies to non-implicit reversed mods (implicits are not dual-indexed, no range notation).
+        const colonAnchor = !isImplicit && isReversed && !anchorEndValue && group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /:\s*##\s*$/.test(template);
+        });
+
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined, colonAnchor || undefined);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

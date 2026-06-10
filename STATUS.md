@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 729 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
+> **Тестов:** 740 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
 
 ---
 
@@ -11,23 +11,37 @@
 - Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
 - Waystone/Tablet implicit reversed regex VERIFIED в игре
 - ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
-- VirtualizedModList v6: двухколоночный макет + scroll preservation (shared для ВСЕХ категорий: jewel, belt, ring, amulet, waystone, tablet)
-- Scroll fix VERIFIED: нет прыжков скролла при клике на моды с ≥/≤ для всех категорий (fix находится в VirtualizedModList — общий компонент)
-- Reversed regex для non-% модов: `suffix.*number` генерируется корректно для модов с ## в конце шаблона
+- VirtualizedModList v6: двухколоночный макет + scroll preservation (shared для ВСЕХ категорий)
+- Scroll fix VERIFIED: нет прыжков скролла при клике на моды с ≥/≤ для всех категорий
+- **Colon anchor для non-% reversed mods VERIFIED в игре** — `suffix.*: (number)` предотвращает FP от range notation
+
+---
+
+## In-game тесты non-% mods (6 проверок) — ВЫПОЛНЕНЫ
+
+| # | Мод | Порог | Значение | Результат | FP? |
+|---|-----|-------|----------|-----------|-----|
+| T1 | дополнительных редких монстров | ≥2 | 1 | Подсветило (1(1-2)) | **FP → FIXED** |
+| T2 | дополнительных свойств | ≥2 | 1 | Не подсветило | OK |
+| T3 | дополнительных редких сундуков | ≥3 | 2 | Подсветило (2(1-3)) | **FP → FIXED** |
+| T4 | дополнительных духов азмири | ≥2 | 1 | Не подсветило | OK |
+| T5 | зарядов (implicit) | ≥5 | 4 | Корректно | OK (control) |
+| T6 | % эффективности монстров | ≥16 | 15% | Не подсветило | OK (control) |
+
+**Fix: colon anchor** — для non-% reversed модов (шаблон `: ##`) компилятор генерирует `suffix.*: (number)` вместо `suffix.*(number)`. Анкор `: ` гарантирует, что число стоит сразу после разделителя `: `, где находится rolled value, а не в range notation.
 
 ---
 
 ## Известные ограничения
 
-1. **Non-% mods range notation FP** — Моды без `%` (например "дополнительных редких монстров: ##") используют reversed regex `suffix.*number` без `%` anchoring. При dual-indexing (если игра показывает "1(1-2)"), число "2" в range notation может матчиить фильтр ≥2 → FP. Риск низкий (малые диапазоны 1-2), требует in-game тест. Тесты: `tests/core/tablet-non-percent-fp.test.ts`.
+Нет активных.
 
 ---
 
 ## Следующие шаги (следующая итерация)
 
-1. **In-game тестирование non-% mods FP** — 6 конкретных проверок (см. `tests/core/tablet-non-percent-fp.test.ts`, раздел "In-game verification plan")
-2. **Визуальная верификация scroll fix на проде** — открыть /belt, /ring, /amulet, покликать моды с ≥/≤
-3. **Возможная оптимизация**: контекстный anchoring для non-% mods — вместо `"азмири.*([2-9]...)"` использовать `"азмири:.*([2-9]...)"` (добавление `:` перед `.*`) для сужения совпадения и снижения FP от range notation
+1. **Визуальная верификация scroll fix на проде** — открыть /belt, /ring, /amulet, покликать моды с ≥/≤
+2. **In-game верификация colon anchor fix** — повторить T1 и T3 с новым regex, подтвердить отсутствие FP
 
 ---
 

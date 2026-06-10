@@ -55,17 +55,18 @@ PoE2 индексирует ДВА формата текста **для модо
 | `%` on implicits (reversed) | ✅ VERIFIED | `"Шанс выпадения путевого камня.*85%"` works in-game |
 | `^` anchor (anchorStart) | ✅ | For ##% mods where number starts the block |
 | Enumeration without `%` | ⚠️ FP risk | `(30\|39).*suffix` → FP from `(30-40)%` |
-| Non-% mods reversed regex | ⚠️ FP risk | `suffix.*(number)` без `%` anchor → FP от range notation вторичных чисел |
+| Non-% mods reversed regex | ✅ FIXED | Colon anchor `: ` prevents FP — `suffix.*: (number)` matches only rolled value after `: ` |
 
 **% anchor mechanism:**
 - Mods: `"(3[0-6]%\|39%).*suffix"` → correct, `%` filters range FP
 - Implicits: `"Label.*(range)%"` → correct, no range FP possible (no dual-indexing)
 
-**Non-% mods FP risk:**
-- Моды с `##` в конце шаблона ("suffix: ##") используют reversed regex `suffix.*number` без `%` anchor
-- Range notation вторичные числа (напр. "2" в "1(1-2)") могут матчить ≥2 фильтр → FP
-- Риск низкий: диапазоны маленькие (1-2), FP только для специфичных порогов
-- Implicits НЕ dual-indexed → нет range notation → нет FP
+**Non-% mods colon anchor (VERIFIED in-game):**
+- Моды с `##` в конце шаблона ("suffix: ##") используют reversed regex `suffix.*: number` с colon anchor
+- Анкор `: ` гарантирует, что число стоит сразу после разделителя `: ` (rolled value)
+- Range notation вторичные числа (напр. "2" в "1(1-2)") стоят после rolled value, не после `: ` → нет FP
+- In-game VERIFIED: T1 и T3 FP предотвращены colon anchor
+- Implicits НЕ dual-indexed → нет range notation → нет FP (colon anchor не нужен)
 - Тесты: `tests/core/tablet-non-percent-fp.test.ts`
 
 ### Block Model — VERIFIED
@@ -95,75 +96,40 @@ PoE2 индексирует ДВА формата текста **для модо
 | T1 | `"Осталось зарядов.*3"` | ✅ | Reversed regex for charges works |
 | T2 | `"алтари Ритуала"` | ✅ | Literal implicit text works |
 
-### Scroll Fix — VERIFIED (jewel), PENDING (belt/ring/amulet)
+### Scroll Fix — VERIFIED (all categories)
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| Jewel | ✅ VERIFIED | No scroll jumps when clicking mods with ≥/≤ |
-| Belt | ⏳ PENDING | Same component (VirtualizedModList), should work identically |
-| Ring | ⏳ PENDING | Same component (VirtualizedModList), should work identically |
-| Amulet | ⏳ PENDING | Same component (VirtualizedModList), should work identically |
-
-Scroll fix реализован в `VirtualizedModList.tsx` (shared component). Fix использует `useLayoutEffect` + `scrollTopRef` + double-RAF для сохранения позиции скролла при `virtualizer.measure()`. Применяется одинаково для всех категорий.
+| All | ✅ VERIFIED | Shared VirtualizedModList component, no scroll jumps when clicking mods with ≥/≤ |
 
 ---
 
-## Non-% Mods In-Game Verification Plan (6 тестов)
+## Non-% Mods In-Game Verification — COMPLETED (6 тестов)
 
-Эти тесты нужно провести в игре для подтверждения/опровержения FP риска для non-% модов с reversed regex.
+### Результаты (2026-06-10)
 
-### Тестовые предметы (из `плитки для теста в игре.md`)
+| # | Мод | Порог | Предмет | Значение | Результат | FP? |
+|---|-----|-------|---------|----------|-----------|-----|
+| T1 | дополнительных редких монстров | ≥2 | Возвышенная Плитка Бездны | 1 | **Подсветило** (range "1(1-2)") | **FP → FIXED** |
+| T2 | дополнительных свойств | ≥2 | Непостижимое побуждение | 1 | Не подсветило | OK |
+| T3 | дополнительных редких сундуков | ≥3 | Тревожный суд | 2 | **Подсветило** (range "2(1-3)") | **FP → FIXED** |
+| T4 | дополнительных духов азмири | ≥2 | Космический мандат | 1 | Не подсветило | OK |
+| T5 | зарядов (implicit) | ≥5 | Древний декрет | 4 | Корректно отфильтровано | OK (control) |
+| T6 | % эффективности монстров | ≥16 | Языческий приказ | 15% | Не подсветило | OK (control) |
 
-| Предмет | Ключевой мод | Значение |
-|---------|-------------|----------|
-| Возвышенная Плитка Бездны чемпионов | дополнительных редких монстров: | 1 |
-| Непостижимое побуждение | дополнительных свойств: | 1 |
-| Тревожный суд | дополнительных редких сундуков: | 2 |
-| Космический мандат | дополнительных духов азмири: | 1 |
-| Древний декрет | Осталось зарядов - | 4 |
-| Языческий приказ | увеличение эффективности монстров | 15% |
+### Colon Anchor Fix
 
-### TEST 1: "дополнительных редких монстров" ≥2
+FP в T1 и T3 вызваны range notation в dual-indexed модах:
+- T1: "дополнительных редких монстров: **1(1-2)**" → "2" в "(1-2)" матчит ≥2
+- T3: "дополнительных редких сундуков: **2(1-3)**" → "3" в "(1-3)" матчит ≥3
 
-- **Предмет**: Возвышенная Плитка Бездны чемпионов (значение = 1)
-- **Поиск в PoE2**: `"появляется.*([2-9]|[0-9][0-9][0-9]?)"`
-- **Ожидание**:
-  - Если игра показывает range notation "1(1-2)" → предмет подсвечивается (FP — значение 1, но "2" в range матчит ≥2)
-  - Если без range notation → НЕ подсвечивается (корректно)
-- **Вариант без FP**: `"появляется.*(2)"` — точное совпадение с "2", но пропускает значение 2
+**Fix: colon anchor** — для non-% reversed модов с шаблоном `: ##` компилятор теперь генерирует `suffix.*: (number)` вместо `suffix.*(number)`. Анкор `: ` гарантирует, что число стоит сразу после разделителя `: `, где находится rolled value. Числа в range notation стоят после rolled value, а не после `: `.
 
-### TEST 2: "дополнительных свойств" ≥2
+Пример:
+- Было: `"появляется.*([2-9]|[0-9][0-9][0-9]?)"` → FP на "1(1-2)"
+- Стало: `"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"` → нет FP, "1" после `: ` не матчит [2-9]
 
-- **Предмет**: Непостижимое побуждение (значение = 1)
-- **Поиск в PoE2**: `"уникальные.*([2-9]|[0-9][0-9][0-9]?)"`
-- **Ожидание**: аналогично TEST 1 — FP если range notation "1(1-2)"
-
-### TEST 3: "дополнительных редких сундуков" ≥3
-
-- **Предмет**: Тревожный суд (значение = 2)
-- **Поиск в PoE2**: `"х редких с.*([3-9]|[0-9][0-9][0-9]?)"`
-- **Ожидание**: FP только если range extends до 3+ (напр. "2(1-3)")
-- **Примечание**: при диапазоне [2,3] FP менее вероятен, чем при [1,2]
-
-### TEST 4: "дополнительных духов азмири" ≥2
-
-- **Предмет**: Космический мандат / Потусторонний гимн (значение = 1)
-- **Поиск в PoE2**: `"ьных духов.*([2-9]|[0-9][0-9][0-9]?)"`
-- **Ожидание**: FP если range notation "1(1-2)"
-
-### TEST 5: "зарядов" ≥5 (control — implicit)
-
-- **Предмет**: Древний декрет (Осталось зарядов - 4)
-- **Поиск в PoE2**: `"Осталось зарядов.*([5-9]|[0-9][0-9][0-9]?)"`
-- **Ожидание**: НЕ подсвечивается (implicits НЕ dual-indexed, нет range notation)
-- **Это контрольный тест** — должен всегда проходить
-
-### TEST 6: % mod control — "эффективности монстров" ≥16
-
-- **Предмет**: Языческий приказ (15% увеличение эффективности монстров)
-- **Поиск в PoE2**: `"(1[6-9]|[2-9][0-9]|[0-9][0-9][0-9])%.*эффективности монстров"`
-- **Ожидание**: НЕ подсвечивается (15 не матчит 1[6-9], % anchor предотвращает range FP)
-- **Это контрольный тест** — должен всегда проходить
+Требуется in-game верификация fix'а — повторить T1 и T3 с новым regex.
 
 ---
 

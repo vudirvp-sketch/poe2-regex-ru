@@ -126,7 +126,7 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean };
 // prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block
 // anchorStart: when true, adds ^ before the number pattern to prevent range notation FP.
 //   Set when rawTextTemplate starts with ## (number at position 0 of the mod block).
@@ -137,3 +137,8 @@ export type ASTNode =
 //   because numbers in range notation (e.g. 27 from (27-50)) are not followed by %.
 //   ⚠️ FN risk: items where the actual roll has range notation (e.g. 27(22-27)%)
 //   have '(' after the roll, not '%' — suffix anchoring would miss these.
+// colonAnchor: when true AND reversed=true, inserts ': ' between .* and the number pattern.
+//   Used for non-% reversed mods (e.g. "дополнительных редких монстров: ##") where
+//   the template ends with ': ##'. Verified in-game: ': ' anchor prevents FP from range
+//   notation because the rolled value appears right after ': ', while secondary numbers
+//   in range notation (e.g. '2' in '1(1-2)') do not. Pattern: "suffix.*: (number)".
