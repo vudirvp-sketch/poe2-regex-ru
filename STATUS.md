@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 740 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
+> **Тестов:** 757 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
 
 ---
 
@@ -12,36 +12,35 @@
 - Waystone/Tablet implicit reversed regex VERIFIED в игре
 - ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
 - VirtualizedModList v6: двухколоночный макет + scroll preservation (shared для ВСЕХ категорий)
-- Scroll fix VERIFIED: нет прыжков скролла при клике на моды с ≥/≤ для всех категорий
-- **Colon anchor для non-% reversed mods VERIFIED в игре** — `suffix.*: (number)` предотвращает FP от range notation
+- **Colon anchor VERIFIED в игре** — T1 и T3 подтверждены: `suffix.*: (number)` → FP больше не возникает
+- **Scroll fix v7** — улучшенное scroll preservation: cleanup pending RAF/timeout, progressive measure+restore, setTimeout(0) safety net
 
 ---
 
-## In-game тесты non-% mods (6 проверок) — ВЫПОЛНЕНЫ
+## In-game верификация colon anchor (T1, T3) — ПОДТВЕРЖДЕНО
 
-| # | Мод | Порог | Значение | Результат | FP? |
-|---|-----|-------|----------|-----------|-----|
-| T1 | дополнительных редких монстров | ≥2 | 1 | Подсветило (1(1-2)) | **FP → FIXED** |
-| T2 | дополнительных свойств | ≥2 | 1 | Не подсветило | OK |
-| T3 | дополнительных редких сундуков | ≥3 | 2 | Подсветило (2(1-3)) | **FP → FIXED** |
-| T4 | дополнительных духов азмири | ≥2 | 1 | Не подсветило | OK |
-| T5 | зарядов (implicit) | ≥5 | 4 | Корректно | OK (control) |
-| T6 | % эффективности монстров | ≥16 | 15% | Не подсветило | OK (control) |
+| # | Мод | Regex | Порог | Значение | Ожидание | Результат |
+|---|-----|-------|-------|----------|----------|-----------|
+| T1 | дополнительных редких монстров | `появляется.*: ([2-9]\|...)` | ≥2 | 1 | Не подсветить | ✅ Ничего не подсвечивает |
+| T3 | дополнительных редких сундуков | `х редких с.*: ([3-9]\|...)` | ≥3 | 2 | Не подсветить | ✅ Ничего не подсвечивает |
 
-**Fix: colon anchor** — для non-% reversed модов (шаблон `: ##`) компилятор генерирует `suffix.*: (number)` вместо `suffix.*(number)`. Анкор `: ` гарантирует, что число стоит сразу после разделителя `: `, где находится rolled value, а не в range notation.
+**Старый regex (без colon anchor):** `suffix.*(number)` → FP от range notation `1(1-2)`, `2(2-3)`
+**Новый regex (с colon anchor):** `suffix.*: (number)` → число обязано стоять после `: `, где rolled value
+
+---
+
+## Scroll fix верификация на проде
+
+Результат: **плюс минус работает, но не идеально**. Улучшения в v7:
+- Cleanup pending RAF/timeout при повторных кликах
+- Progressive `virtualizer.measure()` + `scrollTop` restore (immediate → RAF → RAF → setTimeout(0))
+- Оба режима (two-column и single-column) используют одинаковый паттерн
 
 ---
 
 ## Известные ограничения
 
 Нет активных.
-
----
-
-## Следующие шаги (следующая итерация)
-
-1. **Визуальная верификация scroll fix на проде** — открыть /belt, /ring, /amulet, покликать моды с ≥/≤
-2. **In-game верификация colon anchor fix** — повторить T1 и T3 с новым regex, подтвердить отсутствие FP
 
 ---
 

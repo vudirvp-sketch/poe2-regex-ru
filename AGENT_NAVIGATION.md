@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 92.0 | **Date:** 2026-06-10 | **Tests:** 740 (Vitest)
+> **Version:** 93.0 | **Date:** 2026-06-10 | **Tests:** 757 (Vitest)
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 24 files, 740 tests. |
+| `tests/` | Test files mirror `src/` structure. | 25 files, 757 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -39,7 +39,7 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run                                                        # Run tests (729, Vitest)
+npx vitest run                                                        # Run tests (757, Vitest)
 pnpm etl                                                              # Run ETL pipeline (uses cache, 24h TTL)
 pnpm etl:fresh                                                        # Clear cache + full re-fetch from poe2db
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
@@ -64,7 +64,7 @@ pnpm optimize:dry                                                     # Dry-run 
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run` passes (729 tests)
+- [ ] `npx vitest run` passes (757 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -106,8 +106,7 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **In-game verification of colon anchor fix** — повторить T1 и T3 с новым regex `suffix.*: (number)`, подтвердить отсутствие FP
-2. **Visual verification of scroll fix on prod** — /belt, /ring, /amulet pages
+1. **Scroll fix polish** — улучшить scroll preservation при клике на моды с ≥/≤ (v7 работает, но не идеально)
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -181,7 +180,7 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 13. VirtualizedModList Architecture (v6)
+## 13. VirtualizedModList Architecture (v7)
 
 ### Two-column layout
 - Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
@@ -189,10 +188,11 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 - Both virtualizers share the same scroll container (`<main id="main-content">`)
 - When affix filter narrows to one type → falls back to single full-width column
 
-### Scroll preservation (shared for ALL categories)
+### Scroll preservation (v7 — shared for ALL categories)
 - Continuous scroll position tracking via `scrollTopRef`
-- `useLayoutEffect` fires before browser paint when `selectedIds.size` or `perTokenRanges` key count changes
-- Saves `scrollTop`, calls `virtualizer.measure()`, restores `scrollTop` immediately + double RAF
+- `useLayoutEffect` fires when `selectedIds.size` or `perTokenRanges` key count changes
+- Strategy: save scroll → measure → restore (progressive: immediate → RAF → RAF → setTimeout(0))
+- Cleanup pending RAF/timeout on each new effect run to prevent stale restorations
 - Works identically for jewel, belt, ring, amulet, waystone, tablet — all use the same component
 
 ### Spacer calculation
@@ -204,7 +204,7 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 - CSS forces `flex-basis: 100%` for expanded chips (prevents overlap)
 - **Instant expansion** — no CSS transitions on layout properties (flex-basis/width/max-width)
 - `transition-[background-color,border-color,color,opacity]` — only visual properties animate
-- `virtualizer.measure()` preserves scroll position (capture before, restore after)
+- `virtualizer.measure()` + `scrollTop` restore at multiple timing points (immediate, RAF×2, setTimeout(0))
 - `chip-range-slide-in` keyframe: subtle opacity+translateY for range inputs only
 
 ---

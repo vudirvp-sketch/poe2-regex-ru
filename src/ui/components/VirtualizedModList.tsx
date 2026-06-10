@@ -311,10 +311,21 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   }, [scrollElement]);
 
   // Preserve scroll position when selection or range overrides change.
-  // Uses useLayoutEffect (fires before browser paint) to prevent visible jumps.
-  // Falls back to double-RAF for cases where layout reflow is async.
+  // Strategy: save scroll → let browser layout → measure → restore.
+  //
+  // The key insight is that chip expansion (range inputs appearing) changes
+  // row heights AFTER the React commit but BEFORE the browser paint.
+  // ResizeObserver from @tanstack/react-virtual fires asynchronously,
+  // so we need multiple restoration attempts:
+  //   1. Immediate: covers synchronous layout (useLayoutEffect, before paint)
+  //   2. RAF 1: covers first ResizeObserver batch
+  //   3. RAF 2: covers late-settling layouts (e.g., CSS transitions)
+  //   4. setTimeout(0): final safety net for edge cases
   const prevSelectedSizeRef = useRef(0);
   const prevRangesSizeRef = useRef(0);
+  const rafIdRef = useRef<number>(0);
+  const timeoutIdRef = useRef<ReturnType<typeof setTimeout>>(0);
+
   useLayoutEffect(() => {
     const selSize = selectedIds.size;
     const rngSize = perTokenRanges ? Object.keys(perTokenRanges).length : 0;
@@ -324,20 +335,42 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     prevRangesSizeRef.current = rngSize;
     if (!changed) return;
 
+    // Cancel any pending restoration from a previous effect
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
+
     const el = scrollElement;
     if (!el) return;
     const savedScrollTop = scrollTopRef.current;
-    virtualizer.measure();
-    // Immediate restore (covers synchronous layout changes)
-    el.scrollTop = savedScrollTop;
-    // Delayed restore (covers async ResizeObserver-driven reflows)
-    requestAnimationFrame(() => {
+
+    const restore = () => {
+      if (!el) return;
       el.scrollTop = savedScrollTop;
-      // Second frame for late-settling layouts
-      requestAnimationFrame(() => {
-        el.scrollTop = savedScrollTop;
+    };
+
+    // Immediate restore (covers synchronous layout changes)
+    virtualizer.measure();
+    restore();
+
+    // Schedule progressive restorations with cleanup
+    rafIdRef.current = requestAnimationFrame(() => {
+      virtualizer.measure();
+      restore();
+      rafIdRef.current = requestAnimationFrame(() => {
+        restore();
       });
     });
+
+    // Final safety net: setTimeout(0) runs after all microtasks and RAFs
+    timeoutIdRef.current = setTimeout(() => {
+      virtualizer.measure();
+      restore();
+    }, 0);
+
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
+    };
   }, [selectedIds, perTokenRanges, virtualizer, scrollElement]);
 
   const virtualItems = virtualizer.getVirtualItems();
@@ -542,9 +575,12 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   }, [scrollElement]);
 
   // Preserve scroll position when selection or range overrides change (single-column mode).
-  // Uses useLayoutEffect (fires before browser paint) to prevent visible jumps.
+  // Same strategy as the two-column version: save → layout → measure → restore.
   const singlePrevSelRef = useRef(0);
   const singlePrevRngRef = useRef(0);
+  const singleRafIdRef = useRef<number>(0);
+  const singleTimeoutIdRef = useRef<ReturnType<typeof setTimeout>>(0);
+
   useLayoutEffect(() => {
     if (hasBothAffixes) return;
     const selSize = selectedIds.size;
@@ -554,17 +590,39 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     singlePrevRngRef.current = rngSize;
     if (!changed) return;
 
+    // Cancel any pending restoration
+    if (singleRafIdRef.current) cancelAnimationFrame(singleRafIdRef.current);
+    if (singleTimeoutIdRef.current) clearTimeout(singleTimeoutIdRef.current);
+
     const el = scrollElement;
     if (!el) return;
     const savedScrollTop = singleScrollTopRef.current;
-    singleVirtualizer.measure();
-    el.scrollTop = savedScrollTop;
-    requestAnimationFrame(() => {
+
+    const restore = () => {
+      if (!el) return;
       el.scrollTop = savedScrollTop;
-      requestAnimationFrame(() => {
-        el.scrollTop = savedScrollTop;
+    };
+
+    singleVirtualizer.measure();
+    restore();
+
+    singleRafIdRef.current = requestAnimationFrame(() => {
+      singleVirtualizer.measure();
+      restore();
+      singleRafIdRef.current = requestAnimationFrame(() => {
+        restore();
       });
     });
+
+    singleTimeoutIdRef.current = setTimeout(() => {
+      singleVirtualizer.measure();
+      restore();
+    }, 0);
+
+    return () => {
+      if (singleRafIdRef.current) cancelAnimationFrame(singleRafIdRef.current);
+      if (singleTimeoutIdRef.current) clearTimeout(singleTimeoutIdRef.current);
+    };
   }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes, scrollElement]);
 
   const singleVirtualItems = singleVirtualizer.getVirtualItems();

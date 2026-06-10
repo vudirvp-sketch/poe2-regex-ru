@@ -100,7 +100,20 @@ PoE2 индексирует ДВА формата текста **для модо
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| All | ✅ VERIFIED | Shared VirtualizedModList component, no scroll jumps when clicking mods with ≥/≤ |
+| All | ✅ v7 | Shared VirtualizedModList component, progressive scroll restore (immediate → RAF → setTimeout) |
+
+---
+
+## Colon Anchor Fix — VERIFIED in-game (T1, T3)
+
+### In-game верификация (2026-06-10)
+
+| # | Мод | Regex | Порог | Значение | Ожидание | Результат |
+|---|-----|-------|-------|----------|----------|-----------|
+| T1 | дополнительных редких монстров | `появляется.*: ([2-9]\|...)` | ≥2 | 1 | Не подсветить | ✅ Ничего не подсвечивает |
+| T3 | дополнительных редких сундуков | `х редких с.*: ([3-9]\|...)` | ≥3 | 2 | Не подсветить | ✅ Ничего не подсвечивает |
+
+**Автоматические тесты:** `tests/core/colon-anchor-verification.test.ts` (17 тестов)
 
 ---
 
@@ -129,7 +142,7 @@ FP в T1 и T3 вызваны range notation в dual-indexed модах:
 - Было: `"появляется.*([2-9]|[0-9][0-9][0-9]?)"` → FP на "1(1-2)"
 - Стало: `"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"` → нет FP, "1" после `: ` не матчит [2-9]
 
-Требуется in-game верификация fix'а — повторить T1 и T3 с новым regex.
+Требуется in-game верификация fix'а — повторить T1 и T3 с новым regex. **ВЫПОЛНЕНО — см. "Colon Anchor Fix — VERIFIED in-game" выше.**
 
 ---
 

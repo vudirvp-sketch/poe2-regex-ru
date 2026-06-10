@@ -160,3 +160,33 @@ Stage Summary:
 - Chip expansion animations added
 - All 693 tests pass, build succeeds
 - Documentation updated
+
+---
+Task ID: 7
+Agent: Main
+Task: In-game верификация colon anchor fix (T1/T3) + scroll fix v7
+
+Work Log:
+- Cloned repo and verified baseline: 740 tests pass, build succeeds
+- Read uploaded tile test data (плитки для теста в игре.md)
+- Analyzed compiler.ts, ast.ts, useCategoryPage.ts — confirmed colon anchor logic is correct
+- Created colon-anchor-verification.test.ts with 17 tests:
+  - T1: "появляется.*: ([2-9]...)" does NOT match tile with value 1 (no FP)
+  - T1: NEW regex does NOT match "1(1-2)" range notation (no FP)
+  - T1: NEW regex DOES match tile with value 2 (correct match)
+  - T1: OLD regex DOES match "1(1-2)" (demonstrates the bug that was fixed)
+  - T3: Same pattern for "х редких с" with range [2,3]
+  - T2/T4: Other non-% colon-terminated mods
+  - Compiler integration: colonAnchor flag produces correct "suffix.*: number" pattern
+- All 17 new tests pass
+- Improved VirtualizedModList scroll preservation (v7):
+  - Added cleanup of pending RAF/timeout on each new effect run
+  - Progressive measure+restore: immediate → RAF → RAF → setTimeout(0)
+  - Applied same pattern to both two-column and single-column modes
+- Build succeeds, 757 tests pass (740 + 17 new)
+- Updated documentation: STATUS.md (cleaned), AGENT_NAVIGATION.md (v93.0, 757 tests, v7 scroll)
+
+Stage Summary:
+- Colon anchor fix VERIFIED via automated tests: T1 and T3 no longer produce FP
+- Scroll preservation improved to v7: progressive restore with cleanup
+- 757 tests pass, build succeeds
