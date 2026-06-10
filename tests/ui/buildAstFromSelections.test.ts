@@ -466,4 +466,67 @@ describe('buildAstFromSelections', () => {
     expect(result).toContain('к сопротивлению огню');
     // Pattern: "want1" "want2" "!exclude1"
   });
+
+  // ─── In-game verified: want + exclude pattern (VERIFIED 2026-06-10) ───
+
+  it('want + exclude: "к сопротивлению огню" "!к сопротивлению холоду" — in-game verified', () => {
+    // In-game test results (2026-06-10):
+    // ✅ "к сопротивлению огню" "!к сопротивлению холоду" — highlights items with fire res but WITHOUT cold res
+    // ❌ "к сопротивлению огню" !"к сопротивлению холоду" — nothing highlighted (! outside quotes doesn't work)
+    // ✅ "к сопротивлению огню" "к сопротивлению холоду" — highlights items with BOTH resistances
+    //
+    // Our compiler MUST put ! inside quotes: "!text" not !"text"
+    const tokens = [
+      makeToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню'),
+      makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
+    ];
+
+    // Want fire_res, exclude cold_res
+    const excludedIds = new Set(['cold_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, null, null, true, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Exact format verified in-game: "к сопротивлению огню" "!к сопротивлению холоду"
+    expect(result).toBe('"к сопротивлению огню" "!к сопротивлению холоду"');
+    // CRITICAL: ! must be INSIDE quotes, NOT before them
+    expect(result).not.toMatch(/!"/);
+  });
+
+  it('want + exclude with OR: multiple excludes produce "!A|B" inside quotes', () => {
+    // In-game verified: "!A|B" inside one quoted group = exclude items matching A OR B
+    const tokens = [
+      makeToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню'),
+      makeToken('cold_res_t1', 'к сопротивлению холоду', 'к сопротивлению холоду'),
+      makeToken('light_res_t1', 'к сопротивлению молнии', 'к сопротивлению молнии'),
+    ];
+
+    // Want fire_res, exclude both cold_res and light_res
+    const excludedIds = new Set(['cold_res_t1', 'light_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, null, null, true, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Both excludes should be in one "!A|B" quoted group
+    expect(result).toContain('"!');
+    expect(result).toContain('|');
+    // ! must be INSIDE quotes
+    expect(result).not.toMatch(/!"/);
+  });
+
+  it('per-mod exclude with ranged token: exact format "!numRegex.*suffix"', () => {
+    // Verify that excluded ranged tokens produce correct format with ! inside quotes
+    const tokens = [
+      makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]]),
+    ];
+
+    const excludedIds = new Set(['fire_res_t1']);
+    const ast = buildAstFromSelections(tokens, excludedIds, 27, 30, false, LOCALE, {}, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // ! must be INSIDE quotes: "!(2[7-9]|30).*к сопротивлению огню"
+    expect(result).toMatch(/^"!\(2\[7-9\]\|30\)\.\*к сопротивлению огню"$/);
+    expect(result).not.toMatch(/!"/);
+  });
 });

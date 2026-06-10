@@ -190,3 +190,34 @@ Stage Summary:
 - Colon anchor fix VERIFIED via automated tests: T1 and T3 no longer produce FP
 - Scroll preservation improved to v7: progressive restore with cleanup
 - 757 tests pass, build succeeds
+
+---
+Task ID: 8
+Agent: Main
+Task: Verify per-mod want/exclude toggle, budget-aware UI, in-game exclude pattern, update docs
+
+Work Log:
+- Cloned repo and verified baseline: 758 tests pass, build succeeds
+- Analyzed full codebase: AST builder, compiler, filter-store, URL-sync, FilterChip, ModList, VirtualizedModList, RegexOutput, CategoryControlPanel
+- Traced EXCLUDE compilation path: compiler already generates `"!text"` (not `!"text"`) — correct format
+- Verified in-game test results from user:
+  - `"к сопротивлению огню" "!к сопротивлению холоду"` — WORKS (our compiler generates this)
+  - `"к сопротивлению огню" !"к сопротивлению холоду"` — DOESN'T work (wrong format, ! outside quotes)
+  - `"к сопротивлению огню" "к сопротивлению холоду"` — WORKS (AND pattern)
+- Added 3 regression tests to buildAstFromSelections.test.ts:
+  - Exact format test for want + exclude: `"к сопротивлению огню" "!к сопротивлению холоду"`
+  - Multiple excludes in one quoted group: `"!A|B"`
+  - Excluded ranged token exact format: `"!(2[7-9]|30).*к сопротивлению огню"`
+- All tests check `result.not.toMatch(/!"/)` — ensures ! is never before opening quote
+- Updated documentation:
+  - IN_GAME_TESTS.md: Positive + Negative Pattern section updated from "NOT YET VERIFIED" to "VERIFIED IN-GAME"
+  - STATUS.md: Cleaned and updated with in-game verified patterns table
+  - AGENT_NAVIGATION.md: Version 96.0, 761 tests, added CRITICAL RULE section, updated known issues
+- All 761 tests pass, build succeeds
+
+Stage Summary:
+- Per-mod want/exclude toggle: VERIFIED working correctly
+- Budget-aware UI feedback: VERIFIED implemented
+- In-game exclude pattern: VERIFIED — compiler generates correct `"!text"` format
+- 3 new regression tests added (total 761)
+- Documentation cleaned and updated

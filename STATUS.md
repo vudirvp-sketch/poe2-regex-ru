@@ -1,53 +1,42 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тестов:** 758 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
+> **Тестов:** 761 (Vitest) | **ETL токенов:** 1675 | **Cross-family FP:** 0
 
 ---
 
 ## Выполнено
 
 - Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
-- **Iterative optimizer интегрирован в ETL pipeline** (Step 10): автоматический запуск после генерации JSON
-- **Oracle validation после каждой итерации**: изменения с cross-family FP/FN автоматически откатываются
-- **Suffix shortening стратегия**: синхронизирована с MIN_REGEX_LEN_DEFAULT=5 (вместо старого 3)
-- **Short-regex context**: для токенов с regex < MIN_REGEX_LEN (напр. "огня" = 4 chars) автоматически добавляется regexPrefixContext
-- **250-char budget awareness**: `estimateMultiModLength()` и `wouldExceedBudget()` для оценки бюджета
-- Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
-- Waystone/Tablet implicit reversed regex VERIFIED в игре
-- Colon anchor VERIFIED в игре
+- **Per-mod want/exclude toggle** — каждый FilterChip имеет кнопку ✗/✓ для переключения в режим «не хочу»
+- **Budget-aware UI feedback** — amber-предупреждение при 6+ модах и >180 chars, health bar
+- **In-game verification: want + exclude pattern** — `"want" "!dontwant"` подтверждён (2026-06-10)
+- **Colon anchor** — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
 - ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
+- Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
 
 ---
 
 ## Per-mod want/exclude toggle
 
-Заменён глобальный переключатель «Хочу / Не хочу» на per-mod toggle:
 - Каждый FilterChip имеет кнопку ✗/✓ для переключения мода в режим «не хочу»
-- Выбранные моды (selectedIds) и исключённые (excludedIds) — взаимоисключающие множества
-- AST строится как `AND(want_nodes, EXCLUDE(OR(exclude_nodes)))`
-- Компилируется в `"want1|want2" !"dontwant1|dontwant2"`
+- `selectedIds` и `excludedIds` — взаимоисключающие множества
+- AST: `AND(want_nodes, EXCLUDE(OR(exclude_nodes)))`
+- Компилируется в `"want1|want2" "!dontwant1|dontwant2"` — `!` внутри кавычек
 - URL-сериализация: ключ `e` содержит массив excludedIds
 - Визуальные стили: excluded = красный фон + красная левая граница
 
-**Изменённые файлы:**
-- `src/store/filter-store.ts` — excludedIds Set, toggleExclude(), serialize/deserialize (`e:` key)
-- `src/ui/hooks/useCategoryPage.ts` — buildAstFromSelections(excludedIds), CategoryPageState
-- `src/ui/components/FilterChip.tsx` — excludedIds, onToggleExclude, ✗/✓ button, 5 selection states
-- `src/ui/components/CategoryControlPanel.tsx` — убран глобальный переключатель, добавлен excludedCount
-- `src/ui/components/ModList.tsx` — пропуск excludedIds/onToggleExclude
-- `src/ui/components/VirtualizedModList.tsx` — аналогично
-- `src/shared/i18n.ts` — chip.excluded, chip.partial_excluded, chip.exclude_tooltip и др.
-- Все page components (Ring, Belt, Amulet, Waystone, Tablet, Relic, Jewel, Vendor)
-
 ---
 
-## Budget-aware UI feedback
+## In-game verified patterns
 
-При выборе 6+ модов и приближении к лимиту 250 символов (>180 chars):
-- RegexOutput показывает amber-предупреждение: «Осталось N символов из 250 при M модах»
-- Health bar визуально показывает заполненность (green ≤200, yellow ≤240, red ≤250, pulse >250)
-- CategoryControlPanel передаёт `activeTokenCount` в RegexOutput для бюджетного индикатора
+| Паттерн | Формат | Результат |
+|---------|--------|-----------|
+| Want + AND | `"A" "B"` | ✅ Предметы с A и B |
+| Want + OR | `"A\|B"` | ✅ Предметы с A или B |
+| Want + Exclude | `"A" "!B"` | ✅ Предметы с A, но без B |
+| Exclude (wrong) | `"A" !"B"` | ❌ Ничего не подсвечивает |
+| Exclude OR | `"A" "!B\|C"` | ✅ Предметы с A, но без B и C |
 
 ---
 

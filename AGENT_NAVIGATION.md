@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 95.0 | **Date:** 2026-06-10 | **Tests:** 758 (Vitest)
+> **Version:** 96.0 | **Date:** 2026-06-10 | **Tests:** 761 (Vitest)
 
 ---
 
@@ -17,7 +17,7 @@
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
 | `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
-| `tests/` | Test files mirror `src/` structure. | 25 files, 758 tests. |
+| `tests/` | Test files mirror `src/` structure. | 25 files, 761 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
@@ -66,7 +66,7 @@ pnpm optimize:no-oracle                                               # Optimize
 ## 4. Pre-Commit Checklist
 
 - [ ] `pnpm build` passes without errors
-- [ ] `npx vitest run` passes (758 tests)
+- [ ] `npx vitest run` passes (761 tests)
 - [ ] No `any` types (except merge functions)
 - [ ] No hardcoded mod strings in UI/Engine code
 - [ ] New files are in the correct directories per §1
@@ -108,18 +108,23 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### DONE (this iteration)
-1. **Per-mod want/exclude toggle** — ✅ Реализован: каждый FilterChip имеет кнопку ✗/✓, excludedIds Set в filter-store, EXCLUDE(OR) в AST
-2. **Budget-aware UI feedback** — ✅ Реализован: amber-предупреждение при 6+ модах и >180 chars, activeTokenCount передаётся в RegexOutput
+1. **Per-mod want/exclude toggle** — ✅ FilterChip ✗/✓ button, excludedIds Set, EXCLUDE(OR) in AST
+2. **Budget-aware UI feedback** — ✅ Amber warning at 6+ mods & >180 chars, health bar
+3. **In-game verification of want + exclude** — ✅ `"want" "!dontwant"` confirmed working (2026-06-10)
 
 ### TODO (next iterations)
 1. **Real testing of optimizer on generated data** — запустить `pnpm etl:fresh` на машине с доступом к poe2db.tw
-2. **In-game verification of positive+negative pattern** — подтвердить `"want" !"dontwant"` работает в PoE2
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough.
 3. **Origin color mapping** — Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
 4. **GitHub Pages 404 in DevTools** — SPA routes show 404 in Network tab; `404.html` handles redirect. Not a bug.
+
+### CRITICAL RULE (in-game verified)
+- `!` MUST be inside quotes: `"!text"` works, `!"text"` does NOT work in PoE2
+- This applies to OR combinations too: `"!A|B"` works, `!"A|B"` does NOT
+- Compiler already generates correct format — regression tests added
 
 ---
 
