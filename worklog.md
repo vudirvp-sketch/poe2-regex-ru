@@ -67,3 +67,40 @@ Stage Summary:
 - Deploy fix: tsconfig.app.json include restricted to `["src"]` — architectural fix, not a workaround
 - Build passes, 693 tests pass
 - Documentation updated and cleaned
+
+---
+Task ID: 4
+Agent: Main
+Task: ETL refresh when poe2db updates, icon normalization, documentation cleanup
+
+Work Log:
+- Cloned repo and verified baseline: 693 tests pass, build succeeds
+- Added ETL refresh capabilities to fetch-poe2db.ts:
+  - `clearCache()` — deletes all cached HTML files
+  - `getCacheInfo(url)` — returns CacheEntryInfo (age, size, hash, stale)
+  - `hashContent(content)` — SHA-256 16-char prefix for change detection
+  - Exported CACHE_TTL_MS constant (24h)
+- Added CLI flags to run-etl.ts:
+  - `--fresh` — clears cache before fetching (force re-download)
+  - `--check-stale` — reports cache staleness per URL, exits with code 1 if any stale
+  - `checkStale()` function — collects all source URLs, checks cache status, reports generated JSON sourceHash
+- Added `sourceHash` field to CategoryData type (src/shared/types.ts)
+- Updated generate-dictionary.ts: assembleCategoryData now accepts and stores sourceHash
+- Updated run-etl.ts: computes sourceHash from all cached HTML files, passes to assembleCategoryData
+- Added npm scripts: `etl:fresh`, `etl:check-stale`
+- Normalized all icons in public/icons/ to 128x128 square canvases with transparent padding (Python PIL)
+  - Previously: varying aspect ratios (belt 94x39, relic 45x89, etc.)
+  - Now: uniform 128x128 with centered content and transparent padding
+- Updated documentation:
+  - STATUS.md: Added ETL refresh section, icon normalization mention
+  - AGENT_NAVIGATION.md: Added §9 (ETL Refresh), §10 (Icon Normalization), cleaned TODO
+  - ETL_GUIDE.md: Added §2 (ETL Refresh & Change Detection), renumbered sections
+  - DATA_CONTRACTS.md: Added sourceHash to CategoryData
+  - ARCHITECTURE.md: Version bump
+- Verified: 693 tests pass, build succeeds
+
+Stage Summary:
+- ETL refresh: --fresh (clear cache), --check-stale (detect changes), sourceHash in generated JSON
+- Icon normalization: all 13 icons → 128x128 square canvas with transparent padding
+- Documentation cleaned and updated
+- All 693 tests pass, build succeeds

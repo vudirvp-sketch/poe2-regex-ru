@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 9.0 | **Date:** 2026-06-10
+> **Version:** 10.0 | **Date:** 2026-06-10
 
 ---
 
@@ -95,6 +95,10 @@ export interface CategoryData {
   version: string;                         // ETL run timestamp
   category: string;                        // "waystone" | "tablet" | ...
   source: string;                          // "poe2db.tw" | "manual"
+  /** SHA-256 hash (16-char prefix) of all poe2db.tw source HTML files.
+   *  Used by --check-stale to detect if source data has changed since last ETL run.
+   *  When sourceHash in generated JSON differs from current cache hash, re-run ETL. */
+  sourceHash?: string;
   tokens: GameToken[];
   optimizationTable: Record<string, OptimizationEntry>;
 }

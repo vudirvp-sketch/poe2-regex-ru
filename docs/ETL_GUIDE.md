@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 10.0 | **Date:** 2026-06-09
+> **Version:** 11.0 | **Date:** 2026-06-10
 
 ---
 
@@ -13,14 +13,59 @@ poe2db.tw/ru/*
     → Step 2b: Implicit-set bonus filter (normalize.ts) — remove non-searchable implicit-set bonuses, add implicit tokens with reversed regex
     → Step 3: Compute Regex (compute-regex.ts) — minimal unique substrings per token
     → Step 4: Compute Optimizations (compute-optimizations.ts) — shared regex groups for multi-token combos
-    → Step 5: Generate JSON (generate-dictionary.ts) — assemble CategoryData → public/generated/*.json
+    → Step 5: Generate JSON (generate-dictionary.ts) — assemble CategoryData with sourceHash → public/generated/*.json
     → Step 6: i18n overrides (i18n-overrides.json, applied by run-etl.ts) — patch missing translations, recompute fields
     → Step 7: FP repair (repairCrossFamilyFP in run-etl.ts) — suffix lengthening + excludes + prefix context
     → Step 8: Patch optimization entries (patchOptimizationEntries) — copy context/excludes to optimization entries
     → public/generated/waystone.json, tablet.json, etc.
 ```
 
-## 2. Source URLs
+## 2. ETL Refresh & Change Detection
+
+### CLI Flags
+
+| Flag | Command | Description |
+|------|---------|-------------|
+| (default) | `pnpm etl` | Run ETL with cache (24h TTL) |
+| `--fresh` | `pnpm etl:fresh` | Clear all cached HTML before fetching |
+| `--check-stale` | `pnpm etl:check-stale` | Report cache staleness per URL, exit 1 if stale |
+| `--validate` | `pnpm etl -- --validate` | ETL + flat-text Oracle validation |
+| `--validate-item` | `pnpm etl -- --validate-item` | ETL + block-based Oracle validation |
+
+### Source Hash (Change Detection)
+
+Each ETL run computes a `sourceHash` — a SHA-256 16-char prefix of all cached HTML files' content hashes. This hash is stored in the `sourceHash` field of each generated JSON file's `CategoryData`.
+
+When `--check-stale` runs:
+1. Computes current cache hash from all `.etl-cache/*.html` files
+2. Compares against `sourceHash` in each generated JSON
+3. Reports whether source data has changed since last ETL run
+
+When hashes differ → source data has changed → re-run `pnpm etl:fresh` to regenerate.
+
+### Cache API (`scripts/etl/fetch-poe2db.ts`)
+
+| Function | Description |
+|----------|-------------|
+| `fetchPage(url, useCache)` | Fetch with retry (3 attempts) + 24h cache |
+| `clearCache()` | Delete all cached HTML files, returns count |
+| `getCacheInfo(url)` | Returns `CacheEntryInfo` (age, size, hash, stale) |
+| `hashContent(content)` | SHA-256 16-char prefix for change detection |
+
+### CacheEntryInfo
+
+```typescript
+interface CacheEntryInfo {
+  url: string;
+  cached: boolean;
+  ageMs: number | null;
+  sizeBytes: number | null;
+  contentHash: string | null;
+  stale: boolean;  // true if age >= 24h
+}
+```
+
+## 3. Source URLs
 
 | Category | URL | Parser Type |
 |----------|-----|-------------|
@@ -31,7 +76,7 @@ poe2db.tw/ru/*
 | Jewels (normal/desecrated/corrupt) | `poe2db.tw/ru/Jewels#JewelMods` etc. | A |
 | Belts/Rings/Amulets | `poe2db.tw/ru/Belts#ModifiersCalc` etc. | B |
 
-## 3. Type A Parser (Waystones, Tablets, Jewels)
+## 4. Type A Parser (Waystones, Tablets, Jewels)
 
 HTML structure: `<table class="table table-hover table-striped mb-0 filters">` tables. All tab content in HTML (no lazy loading).
 
@@ -46,7 +91,7 @@ Tags from `<span class="badge" data-tag="...">`. Mod codes from `<i class="fas f
 
 **Known issue:** Type A parser doesn't extract modCode for jewels → `jewelType` always "shared".
 
-## 4. Type B Parser (Belts, Rings, Amulets, Relics)
+## 5. Type B Parser (Belts, Rings, Amulets, Relics)
 
 Mod data NOT in static HTML. Extract JSON from `new ModsView({...})` in a `<script>` tag.
 
@@ -54,7 +99,7 @@ Category arrays: `normal[]`, `corrupted[]`, `desecrated[]`, `breach_tree[]`, `br
 
 Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance, str, fossil_no, mod_no, hover, Code? }`
 
-## 5. Normalize Step — Key Details
+## 6. Normalize Step — Key Details
 
 **Multi-line description splitting:** poe2db.tw stores multiple properties in one cell separated by `<br>`. Only the first line is the actual affix. `extractTextAndRanges()` splits by `<br>` and takes first segment only.
 
@@ -62,7 +107,7 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 
 **Numeric range encoding:** Parse with `/\((\d+)<span class="ndash">—<\/span>(\d+)\)/`. Fractional ranges via `parseFloat`.
 
-## 5b. Implicit-Set Bonus Filter (Step 2b)
+## 7. Implicit-Set Bonus Filter (Step 2b)
 
 **Problem:** poe2db.tw lists implicit-set bonuses as mod text, but these are NOT searchable in-game. Example: `"На ##% больше находимых в области путевых камней"` — the game doesn't index this text for search.
 
@@ -83,7 +128,7 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 
 **`run-etl.ts` integration:** After Step 2 (normalize), `runEtl()` calls `filterImplicitSetBonuses()` and `getImplicitTokensForCategory()`, appending implicit tokens to the normalized mod list before regex computation.
 
-## 6. Compute Regex Algorithm
+## 8. Compute Regex Algorithm
 
 1. Get candidate texts: target rawText + genderForms, all other tokens' rawText + genderForms
 2. Build set of ALL substrings of exclusion texts (up to length 20) for O(1) lookup
@@ -96,7 +141,7 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 
 **Suffix lengthening:** When suffix not unique within category, `extractExtendedSuffix()` adds inter-placeholder text.
 
-## 7. i18n Override System
+## 9. i18n Override System
 
 Some tokens have English-only rawText on poe2db.tw. Override system patches with manually verified Russian translations.
 
@@ -121,7 +166,7 @@ Override format:
 
 If `regex` is specified, applied directly without recomputation. After overrides, `run-etl.ts` recomputes: `regex.ru`, `familyKey.ru`, `hasMultiPlaceholder`, `regexPrefix.ru` (unless `regex` explicitly provided).
 
-## 8. Cross-Family FP Repair (Post-Override)
+## 10. Cross-Family FP Repair (Post-Override)
 
 `repairCrossFamilyFP()` in `run-etl.ts` — 3 steps per token, iterating until convergence:
 
@@ -133,9 +178,7 @@ If `regex` is specified, applied directly without recomputation. After overrides
 
 **Exclude limit:** 8 patterns per token.
 
-**Expected impact:** −23 cross-family FP.
-
-## 9. Optimization Entry Patching (Post-Repair)
+## 11. Optimization Entry Patching (Post-Repair)
 
 After FP repair, `patchOptimizationEntries()` enriches optimization entries with `regexPrefixContext` and `regexExclude` from their covered tokens.
 
@@ -150,7 +193,7 @@ After FP repair, `patchOptimizationEntries()` enriches optimization entries with
 - With both: combined
 - Without either: plain `LITERAL(regex)`
 
-## 10. Fallback Procedures
+## 12. Fallback Procedures
 
 If poe2db.tw adds anti-bot: manual HTML save → local file → parse from file.
 If some mods not translated: add manual translations to `i18n-overrides.json`.

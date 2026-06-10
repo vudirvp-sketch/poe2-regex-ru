@@ -12,7 +12,7 @@
  *   Mod data is client-rendered via Mustache templates, but available as JSON
  * - Type A (RelicMods): Relics also have a #RelicMods tab with a static HTML table
  */
-import { fetchPage } from './etl/fetch-poe2db.js';
+import { fetchPage, clearCache, getCacheInfo, hashContent } from './etl/fetch-poe2db.js';
 import { parseTypeAPage } from './etl/parse-tables.js';
 import { parseTypeBPage, getModCategoryStats } from './etl/parse-modifiers-calc.js';
 import { normalizeTypeA, normalizeTypeB, extractTextAndRanges, filterImplicitSetBonuses, getImplicitTokensForCategory } from './etl/normalize.js';
@@ -514,14 +514,102 @@ async function buildJewelTypeMap(
   return jewelTypeMap;
 }
 
+/**
+ * Check staleness of all cached source pages vs generated JSON files.
+ * Reports which pages are stale and which generated JSON files may need re-generation.
+ * Returns true if any source page is stale or missing from cache.
+ */
+function checkStale(): boolean {
+  console.log('=== Checking ETL data staleness ===\n');
+
+  // Collect all unique URLs from category configs + jewel ModCalc pages
+  const allUrls = new Set<string>();
+  for (const cat of categories) {
+    for (const url of cat.urls) {
+      allUrls.add(url);
+    }
+  }
+  // Jewel ModCalc pages
+  allUrls.add('https://poe2db.tw/ru/Ruby#ModifiersCalc');
+  allUrls.add('https://poe2db.tw/ru/Emerald#ModifiersCalc');
+  allUrls.add('https://poe2db.tw/ru/Sapphire#ModifiersCalc');
+
+  let staleCount = 0;
+  let missingCount = 0;
+  let freshCount = 0;
+
+  for (const url of allUrls) {
+    const info = getCacheInfo(url);
+    const ageHours = info.ageMs ? (info.ageMs / (60 * 60 * 1000)).toFixed(1) : 'N/A';
+    if (!info.cached) {
+      console.log(`  [missing] ${url}`);
+      missingCount++;
+    } else if (info.stale) {
+      console.log(`  [stale]   ${url} (age: ${ageHours}h, hash: ${info.contentHash})`);
+      staleCount++;
+    } else {
+      console.log(`  [fresh]   ${url} (age: ${ageHours}h, hash: ${info.contentHash})`);
+      freshCount++;
+    }
+  }
+
+  // Check generated JSON files
+  console.log('\n  Generated JSON files:');
+  if (!fs.existsSync(OUTPUT_DIR)) {
+    console.log('    No generated/ directory found');
+  } else {
+    const jsonFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.json'));
+    for (const jsonFile of jsonFiles) {
+      const filePath = path.join(OUTPUT_DIR, jsonFile);
+      const stat = fs.statSync(filePath);
+      const ageMs = Date.now() - stat.mtimeMs;
+      const ageHours = (ageMs / (60 * 60 * 1000)).toFixed(1);
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const data = JSON.parse(content);
+      const sourceHash = data.sourceHash || 'N/A';
+      console.log(`    ${jsonFile}: age=${ageHours}h, sourceHash=${sourceHash}, tokens=${data.tokens?.length || 0}`);
+    }
+  }
+
+  console.log(`\n  Summary: ${freshCount} fresh, ${staleCount} stale, ${missingCount} missing`);
+  return staleCount > 0 || missingCount > 0;
+}
+
 async function runEtl() {
   console.log('=== PoE2 Regex RU — ETL Pipeline ===\n');
+
+  // Handle --fresh flag: clear cache before fetching
+  if (process.argv.includes('--fresh')) {
+    const deleted = clearCache();
+    console.log(`  --fresh: Cleared ${deleted} cached HTML files\n`);
+  }
+
+  // Handle --check-stale flag: report staleness and exit
+  if (process.argv.includes('--check-stale')) {
+    const hasStale = checkStale();
+    process.exit(hasStale ? 1 : 0);
+  }
+
   console.log(`Output directory: ${OUTPUT_DIR}\n`);
 
   // Ensure output directory exists
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
+
+  // Compute source hash from all cached HTML files for change detection
+  const sourceHashes: string[] = [];
+  const cacheDir = path.resolve(process.cwd(), '.etl-cache');
+  if (fs.existsSync(cacheDir)) {
+    const cacheFiles = fs.readdirSync(cacheDir).filter(f => f.endsWith('.html')).sort();
+    for (const cf of cacheFiles) {
+      const content = fs.readFileSync(path.join(cacheDir, cf), 'utf-8');
+      sourceHashes.push(hashContent(content));
+    }
+  }
+  const sourceHash = sourceHashes.length > 0
+    ? hashContent(sourceHashes.join(','))
+    : 'no-cache';
 
   // Collect all jewel mods across all jewel categories for building jewelTypeMap
   const allJewelMods: NormalizedMod[] = [];
@@ -661,7 +749,9 @@ async function runEtl() {
         normalized,
         regexResults,
         optimizations,
-        'ru'
+        'ru',
+        undefined,
+        sourceHash
       );
       writeCategoryJson(categoryData, OUTPUT_DIR);
 

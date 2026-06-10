@@ -86,6 +86,10 @@ export interface CategoryData {
   version: string;
   category: string;
   source: string;
+  /** SHA-256 hash (16-char prefix) of all poe2db.tw source HTML files.
+   *  Used by --check-stale to detect if source data has changed since last ETL run.
+   *  When sourceHash in generated JSON differs from current cache hash, re-run ETL. */
+  sourceHash?: string;
   tokens: GameToken[];
   optimizationTable: Record<string, OptimizationEntry>;
 }

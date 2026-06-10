@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 85.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
+> **Version:** 86.0 | **Date:** 2026-06-10 | **Tests:** 693 (Vitest)
 
 ---
 
@@ -16,17 +16,19 @@
 | `src/shared/` | Types, i18n, classifier, priority tiers. | **No imports from other src/ directories.** |
 | `scripts/etl/` | ETL pipeline + iterative optimizer. | Run via `pnpm etl`. Output to `public/generated/`. |
 | `public/generated/` | Read-only artifacts. | **NEVER edit manually.** Created only by ETL. |
+| `public/icons/` | Category + origin icons (128x128, square). | Pre-normalized with transparent padding. |
 | `tests/` | Test files mirror `src/` structure. | 23 files, 693 tests. |
 | `регис/` | Reference: Russian mod lists, analysis reports, affix hierarchy. | Cross-validation data for ETL. |
 
 **Key source files:**
-- `src/shared/types.ts` — All public types (GameToken, FamilyGroup, ASTNode, etc.)
+- `src/shared/types.ts` — All public types (GameToken, FamilyGroup, ASTNode, CategoryData with sourceHash)
 - `src/shared/mod-classifier.ts` — Origin/semantic classification, ORIGIN_SECTION_LABELS
 - `src/store/filter-store.ts` — FilterStore, TokenRangeOverride, SlotRangeOverride
 - `src/data/vendor-properties.ts` — VendorProperty interface (canonical source, do not duplicate)
 - `src/core/compiler.ts` — AST → regex string compilation
 - `src/core/ast.ts` — AST node builders including `range()` with anchors
 - `src/core/regex-oracle.ts` — Validation (flat-text + block-based)
+- `scripts/etl/fetch-poe2db.ts` — Fetch with cache, `clearCache()`, `getCacheInfo()`, `hashContent()`
 
 ---
 
@@ -37,7 +39,9 @@ pnpm install                                                          # Install 
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
 npx vitest run --root /home/z/my-project/poe2-regex-ru               # Run tests (693, Vitest)
-pnpm etl                                                              # Run ETL pipeline (needs network or .etl-cache/)
+pnpm etl                                                              # Run ETL pipeline (uses cache, 24h TTL)
+pnpm etl:fresh                                                        # Clear cache + full re-fetch from poe2db
+pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
 pnpm etl -- --validate                                                # ETL + flat-text Oracle validation
 pnpm etl -- --validate-item                                           # ETL + block-based Oracle validation
 pnpm analyze-fn                                                       # Analyze FN/FP per category
@@ -101,9 +105,10 @@ shared <- core <- strategies <- store <- data <- ui
 ## 7. Known Issues & Remaining Work
 
 ### TODO (next iterations)
-1. **Priority tier refinement** — Validate tier classifications against live trade data.
-2. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, no current solution.
-3. **Icon normalization** — Icons have different aspect ratios (relic 45×89, belt 94×39). CSS maxHeight/maxWidth handles display, but could pre-normalize to square canvases.
+1. **New categories** — Add support for new item types if poe2db adds them.
+2. **Priority tier refinement** — Validate tier classifications against live trade data.
+3. **UI/UX improvements** — Polish interaction patterns.
+4. **+## non-% mods range notation FP** — For `+##` mods without `%` (e.g. "+## к силе"), neither `^` nor `%` anchoring is available. FP from range notation possible. Known limitation, no current solution.
 
 ### CONFIRMED INTENTIONAL
 1. **Waystone corrupted+delirious** — Both selectable simultaneously; a waystone CAN be both.
@@ -122,13 +127,41 @@ shared <- core <- strategies <- store <- data <- ui
 | 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
 | 3 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
 
-**Detection logic in `useCategoryPage.ts`:**
-- `anchorStart=true` when `/^##/.test(rawTextTemplate[locale])`
-- `anchorEnd='%'` when `anchorStart=false` AND `/##%/.test(rawTextTemplate[locale])` (double-hash only — `#%` values-only excluded because it causes 100% FN)
+---
+
+## 9. ETL Refresh & Source Change Detection
+
+### Cache Management
+- ETL caches HTML pages in `.etl-cache/` with 24h TTL
+- `--fresh` clears all cache before fetching (forces re-download from poe2db.tw)
+- `--check-stale` reports cache status per URL and exits (exit 1 if any stale/missing)
+
+### Source Hash (Change Detection)
+- Each ETL run computes a `sourceHash` — SHA-256 prefix of all cached HTML content
+- Stored in `CategoryData.sourceHash` field in generated JSON files
+- `--check-stale` compares current cache hash against stored sourceHash
+- When hashes differ → source data has changed → re-run ETL
+
+### API (`scripts/etl/fetch-poe2db.ts`)
+- `fetchPage(url, useCache)` — fetch with retry + cache
+- `clearCache()` — delete all cached HTML files, returns count
+- `getCacheInfo(url)` — returns `CacheEntryInfo` (age, hash, stale status)
+- `hashContent(content)` — SHA-256 16-char prefix for change detection
 
 ---
 
-## 9. Regex Strategy Pipeline (ETL)
+## 10. Icon Normalization
+
+All icons in `public/icons/` are pre-normalized to **128x128** square canvases with transparent padding. This ensures consistent rendering across:
+- Sidebar: 28x28px (`maxHeight/maxWidth`)
+- Home cards: 44x44px (`maxHeight/maxWidth`)
+- Origin badges: 17px inline icons
+
+**Normalization process:** Python PIL → scale to fit within 128x128 → center on transparent canvas → save in original format (PNG/WebP).
+
+---
+
+## 11. Regex Strategy Pipeline (ETL)
 
 `computeMinimalUniqueSubstring()` in `scripts/etl/compute-regex.ts`:
 
@@ -144,7 +177,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 ---
 
-## 10. Oracle API
+## 12. Oracle API
 
 Two validation modes in `src/core/regex-oracle.ts`:
 
@@ -159,28 +192,7 @@ FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` 
 
 ---
 
-## 11. i18n Conventions
-
-- `home.title` = "Генератор поисковых строк" (no "PoE2 Regex" — avoids triple duplication)
-- `home.subtitle` = "Для Path of Exile 2 — русский клиент"
-- Sidebar: "PoE2 Regex" appears once in logo, "Русский клиент" as muted subtitle
-- All other labels use generic Russian without client qualifiers
-
----
-
-## 12. Numeric Input Rules
-
-All `<input type="number">` must include `step={1}` (or `step="1"`). PoE2 mod values are always integers. Applies to: FilterChip range inputs, CategoryControlPanel global range, VendorChip numeric threshold, TabletPage remaining input.
-
----
-
-## 13. Keyboard Shortcuts
-
-- **Ctrl+Shift+X** — Copy regex to clipboard (also handles Russian layout: X→Ч)
-
----
-
-## 14. Cross-Family FP Repair (Post-ETL)
+## 13. Cross-Family FP Repair (Post-ETL)
 
 After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` iterates per token:
 1. **Suffix lengthening** — upgrade to full template suffix
@@ -193,7 +205,7 @@ After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` iterates per token
 
 ---
 
-## 15. Documentation Map
+## 14. Documentation Map
 
 | File | Purpose |
 |------|---------|
@@ -202,4 +214,5 @@ After i18n overrides, `repairCrossFamilyFP()` in `run-etl.ts` iterates per token
 | `docs/DATA_CONTRACTS.md` | TypeScript interfaces for all data types |
 | `docs/ETL_GUIDE.md` | ETL pipeline, source URLs, parsers, i18n overrides |
 | `docs/IN_GAME_TESTS.md` | In-game regex verification results |
+| `STATUS.md` | Project status summary |
 | `регис/` | Reference data for cross-validation (Russian mod lists, affix hierarchy) |

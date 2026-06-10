@@ -12,13 +12,27 @@
 - Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
 - Waystone/Tablet implicit reversed regex VERIFIED в игре
 - ETL pipeline автоматизация: normalize.ts + run-etl.ts фильтруют implicit-set бонусы и генерируют implicit токены
-- Deploy починен: tsconfig.app.json — только `src/` в include (тесты и скрипты не компилируются в production build)
+- Deploy починен: tsconfig.app.json — только `src/` в include
+- ETL refresh: `--fresh` (очистка кеша), `--check-stale` (проверка устаревания), sourceHash в JSON
+- Icon normalization: все иконки приведены к 128x128 квадратным canvas с прозрачным padding
 
 ---
 
 ## Известные ограничения
 
 1. **+## non-% mods range notation FP** — `+##` без `%` — ни `^`, ни `%` anchoring. FP возможен от range notation в описательной строке моды. Принято как ограничение.
+
+---
+
+## ETL Refresh Commands
+
+| Команда | Описание |
+|---------|----------|
+| `pnpm etl` | Запуск ETL с кешем (24h TTL) |
+| `pnpm etl:fresh` | Очистка кеша + полный re-fetch |
+| `pnpm etl:check-stale` | Проверка устаревания кеша (exit 1 если stale) |
+| `pnpm etl -- --validate` | ETL + flat-text Oracle validation |
+| `pnpm etl -- --validate-item` | ETL + block-based Oracle validation |
 
 ---
 

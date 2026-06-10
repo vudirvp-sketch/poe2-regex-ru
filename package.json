@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "etl": "tsx scripts/run-etl.ts",
+    "etl:fresh": "tsx scripts/run-etl.ts --fresh",
+    "etl:check-stale": "tsx scripts/run-etl.ts --check-stale",
     "analyze-fn": "tsx scripts/analyze-fn.ts",
     "optimize": "tsx scripts/etl/iterative-optimizer.ts",
     "optimize:dry": "tsx scripts/etl/iterative-optimizer.ts --dry-run --verbose"

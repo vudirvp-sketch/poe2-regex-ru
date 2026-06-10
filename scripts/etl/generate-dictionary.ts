@@ -57,7 +57,8 @@ export function assembleCategoryData(
   regexResults: Map<string, RegexResult>,
   optimizations: Record<string, OptimizationEntry>,
   locale: Locale = 'ru',
-  jewelTypeMap?: Record<string, JewelType>
+  jewelTypeMap?: Record<string, JewelType>,
+  sourceHash?: string
 ): CategoryData {
   const tokens: GameToken[] = mods.map(mod => {
     const regexResult = regexResults.get(mod.id);
@@ -80,6 +81,7 @@ export function assembleCategoryData(
     version: new Date().toISOString(),
     category,
     source: 'poe2db.tw',
+    sourceHash,
     tokens,
     optimizationTable: optimizations,
   };
