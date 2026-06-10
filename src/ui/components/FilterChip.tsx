@@ -311,7 +311,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       <div
         onClick={handleClick}
         role="switch"
-        aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : 'false'}
+        aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : selectionState === 'excluded' ? 'true' : selectionState === 'partial-excluded' ? 'mixed' : 'false'}
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}

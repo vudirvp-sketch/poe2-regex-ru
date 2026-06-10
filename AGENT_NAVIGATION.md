@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Agent Navigation Guide
 
-> **Version:** 96.0 | **Date:** 2026-06-10 | **Tests:** 761 (Vitest)
+> **Version:** 97.0 | **Date:** 2026-06-10 | **Tests:** 761 (Vitest)
 
 ---
 
@@ -28,7 +28,7 @@
 - `src/core/compiler.ts` — AST → regex string compilation
 - `src/core/ast.ts` — AST node builders including `range()` with anchors
 - `src/core/regex-oracle.ts` — Validation (flat-text + block-based)
-- `src/ui/hooks/useCategoryPage.ts` — Shared page hook; reversed regex logic for non-% mods (lines 515-528)
+- `src/ui/hooks/useCategoryPage.ts` — Shared page hook; reversed regex logic for non-% mods
 - `scripts/etl/fetch-poe2db.ts` — Fetch with cache, `clearCache()`, `getCacheInfo()`, `hashContent()`
 
 ---
@@ -39,7 +39,7 @@
 pnpm install                                                          # Install dependencies
 pnpm dev                                                              # Start dev server
 pnpm build                                                            # Production build
-npx vitest run                                                        # Run tests (758, Vitest)
+npx vitest run                                                        # Run tests (761, Vitest)
 pnpm etl                                                              # Run ETL pipeline + iterative optimizer (Step 10)
 pnpm etl:fresh                                                        # Clear cache + full re-fetch + optimizer
 pnpm etl:check-stale                                                  # Check cache staleness (exit 1 if stale)
@@ -105,24 +105,19 @@ shared <- core <- strategies <- store <- data <- ui
 
 ---
 
-## 7. Known Issues & Remaining Work
+## 7. FP Prevention Strategy (4 Levels)
 
-### OPEN BUGS
-1. **B1: VirtualizedModList missing implicit sections** — VirtualizedModList only renders prefix/suffix groups; implicit tokens are filtered out. Affects belt/ring/amulet/jewel pages if JSON contains implicit tokens. ModList has implicit support but VirtualizedModList does not.
-2. **B2: VendorChip numeric exclude missing** — `VendorChip` hides the ✕ exclude button for `hasNumericInput` properties (Ур. предмета, Треб. уровень). Users cannot exclude these from search.
-3. **B3: FilterChip aria-checked excludes** — `aria-checked` returns `'false'` for `excluded`/`partial-excluded` states; screen readers don't announce exclusion.
+| Level | Method | When used | FP prevented | FN risk |
+|-------|--------|-----------|-------------|---------|
+| 1 | `^` (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
+| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
+| 3 | `: ` colon anchor (colonAnchor) | Reversed non-% mods with `: ##` template | Range notation secondary numbers after rolled value | None |
+| 4 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
 
-### TODO (next iterations)
-1. Fix B1: add implicit rendering to VirtualizedModList
-2. Fix B2: add exclude button for numeric vendor properties
-3. Refactor VendorPage to use useCategoryPage instead of duplicate FilterStoreApi
-4. Clean dead i18n keys (~20 keys: waystone.tier, result.*, match.*, mod.search, sidebar.client, vendor.selected, chip.dual_number_filter_note, etc.)
-5. Clean duplicate CSS rules in index.css (text-emerald-400, bg-emerald-900/30 defined twice)
-6. Remove `package-lock.json` (project uses pnpm only)
-7. Remove `scripts/restructure-implicits.ts` (unused one-off script)
-8. Update ETL when mods change in new leagues/patches
+---
 
-### CRITICAL RULES (in-game verified)
+## 8. CRITICAL RULES (in-game verified)
+
 - `!` MUST be inside quotes: `"!text"` works, `!"text"` does NOT work in PoE2
 - This applies to OR combinations too: `"!A|B"` works, `!"A|B"` does NOT
 - `!X` is item-wide — excludes entire item if X in ANY block
@@ -134,17 +129,6 @@ shared <- core <- strategies <- store <- data <- ui
 2. **Tablet rarity regex** — Patterns 'обычн', 'волшебн', 'редк' are specific enough.
 3. **Origin color mapping** — Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
 4. **GitHub Pages 404 in DevTools** — SPA routes show 404 in Network tab; `404.html` handles redirect. Not a bug.
-
----
-
-## 8. FP Prevention Strategy (4 Levels)
-
-| Level | Method | When used | FP prevented | FN risk |
-|-------|--------|-----------|-------------|---------|
-| 1 | `^` (anchorStart) | Template starts with `##` | Numbers from range notation at non-zero positions | None |
-| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
-| 3 | `: ` colon anchor (colonAnchor) | Reversed non-% mods with `: ##` template | Range notation secondary numbers after rolled value | None |
-| 4 | Enumeration | Range ≤ 50 (compact decade grouping) | Secondary numbers not matching enumerated values | None |
 
 ---
 
@@ -160,17 +144,26 @@ shared <- core <- strategies <- store <- data <- ui
 - Stored in `CategoryData.sourceHash` in generated JSON
 - When hashes differ → source data changed → re-run ETL
 
-### API (`scripts/etl/fetch-poe2db.ts`)
-- `fetchPage(url, useCache)` — fetch with retry + cache
-- `clearCache()` — delete all cached HTML files
-- `getCacheInfo(url)` — returns `CacheEntryInfo`
-- `hashContent(content)` — SHA-256 16-char prefix
-
 ---
 
-## 10. Icon Normalization
+## 10. VirtualizedModList Architecture (v8)
 
-All icons in `public/icons/` are **128x128** square canvases with transparent padding.
+### Three-section layout: Implicit | Prefix | Suffix
+- Implicit section renders above prefix/suffix as full-width column (amber border)
+- Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
+- Each column has its own `@tanstack/react-virtual` virtualizer
+- All virtualizers share the same scroll container (`<main id="main-content">`)
+- When affix filter narrows to one type → falls back to single full-width column
+- Affix filter dropdown includes "Имплисет" option when implicit tokens exist
+
+### Scroll preservation
+- Continuous scroll position tracking via `scrollTopRef`
+- `useLayoutEffect` fires when `selectedIds.size` or `perTokenRanges` key count changes
+- Strategy: save scroll → measure → restore (progressive: immediate → RAF → RAF → setTimeout(0))
+
+### Spacer calculation
+- Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
+- **Never** use `virtualizer.getSize(i)` — it's private in newer @tanstack/react-virtual
 
 ---
 
@@ -198,91 +191,13 @@ All icons in `public/icons/` are **128x128** square canvases with transparent pa
 
 ---
 
-## 12. Oracle API
-
-| Function | Matching | Use case |
-|----------|----------|----------|
-| `validateRegex()` | Flat-text | ETL single-mod validation |
-| `validateRegexItem()` | Block-based | In-game behavior simulation |
-| `batchValidate()` | Flat-text, batch | ETL `--validate` |
-| `batchValidateItem()` | Block-based, batch | ETL `--validate-item` |
-
-FP categorization: `familyTierFP` = same familyKey (by design), `crossFamilyFP` = different familyKey (real bugs).
-
----
-
-## 13. VirtualizedModList Architecture (v7)
-
-### Two-column layout
-- Prefix and suffix columns rendered side by side via `grid grid-cols-[2fr_3fr]`
-- Each column has its own `@tanstack/react-virtual` virtualizer
-- Both virtualizers share the same scroll container (`<main id="main-content">`)
-- When affix filter narrows to one type → falls back to single full-width column
-
-### Scroll preservation (v7 — shared for ALL categories)
-- Continuous scroll position tracking via `scrollTopRef`
-- `useLayoutEffect` fires when `selectedIds.size` or `perTokenRanges` key count changes
-- Strategy: save scroll → measure → restore (progressive: immediate → RAF → RAF → setTimeout(0))
-- Cleanup pending RAF/timeout on each new effect run to prevent stale restorations
-- Works identically for jewel, belt, ring, amulet, waystone, tablet — all use the same component
-
-### Spacer calculation
-- Uses `virtualItem.start` / `virtualItem.end` + `getTotalSize()` (public API)
-- **Never** use `virtualizer.getSize(i)` — it's private in newer @tanstack/react-virtual
-
-### Chip expansion (scroll-safe)
-- FilterChip adds `chip-with-range` CSS class when selected with range inputs
-- CSS forces `flex-basis: 100%` for expanded chips (prevents overlap)
-- **Instant expansion** — no CSS transitions on layout properties (flex-basis/width/max-width)
-- `transition-[background-color,border-color,color,opacity]` — only visual properties animate
-- `virtualizer.measure()` + `scrollTop` restore at multiple timing points (immediate, RAF×2, setTimeout(0))
-- `chip-range-slide-in` keyframe: subtle opacity+translateY for range inputs only
-
----
-
-## 14. Non-% Mod Reversed Regex (with Colon Anchor)
-
-### When reversed regex is generated
-For mods where `##` appears at the END of the template (number after suffix text):
-- Template: `"Из Бездн на карте появляется дополнительных редких монстров: ##"`
-- Regex direction: `suffix.*: number` (reversed with colon anchor)
-- `isReversed = true` when `isImplicit || numberAtEnd` (useCategoryPage.ts, line 526)
-- `colonAnchor = true` when `!isImplicit && isReversed && !anchorEndValue && template.endsWith(': ##')`
-
-### Colon anchor mechanism
-For non-% reversed mods where template ends with `: ##`, the compiled regex includes
-`: ` between `.*` and the number pattern. This ensures the number appears right after
-the colon-space delimiter (where the rolled value sits), not in range notation.
-
-Before: `"появляется.*([2-9]|[0-9][0-9][0-9]?)"` → FP on "1(1-2)"
-After:  `"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"` → no FP, "1" after `: ` doesn't match [2-9]
-
-### Tablet non-% mods (colon anchor applied)
-| Mod | Template suffix | Regex | Range | In-game FP |
-|-----|----------------|-------|-------|------------|
-| дополнительных редких монстров | `: ##` | `появляется.*: N` | [1,2] | T1 FP → FIXED |
-| дополнительных свойств | `: #` | `уникальные.*: N` | [1] | T2 OK |
-| дополнительных редких сундуков | `: ##` | `х редких с.*: N` | [2,3] | T3 FP → FIXED |
-| дополнительных духов азмири | `: #` | `ьных духов.*: N` | [1] | T4 OK |
-
-### Belt/Amulet non-% mods (colon anchor applied)
-| Category | Mod | Range |
-|----------|-----|-------|
-| belt | Флаконы получают зарядов в секунду: ## | varied |
-| belt | Обереги получают зарядов в секунду: ## (desecrated) | varied |
-| amulet | Флаконы здоровья получают зарядов в секунду: ## (corrupted) | varied |
-| amulet | Обереги получают зарядов в секунду: ## (corrupted) | varied |
-
----
-
-## 15. Documentation Map
+## 12. Documentation Map
 
 | File | Purpose |
 |------|---------|
-| `AGENT_NAVIGATION.md` | This file — start here, rules, structure, known issues |
+| `AGENT_NAVIGATION.md` | This file — start here, rules, structure |
 | `docs/ARCHITECTURE.md` | Layer diagram, data flow, PoE2 regex dialect, compiler |
 | `docs/DATA_CONTRACTS.md` | TypeScript interfaces for all data types |
 | `docs/ETL_GUIDE.md` | ETL pipeline, source URLs, parsers, i18n overrides |
 | `docs/IN_GAME_TESTS.md` | In-game regex verification results |
 | `STATUS.md` | Project status summary |
-| `регис/` | Reference data for cross-validation |

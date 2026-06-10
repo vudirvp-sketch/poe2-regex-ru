@@ -264,10 +264,6 @@ body {
 }
 
 /* Light theme: origin sub-section labels (updated palette v4) */
-[data-theme="light"] .text-emerald-400 {
-  color: #059669 !important;
-}
-
 [data-theme="light"] .bg-emerald-900\/30 {
   background-color: rgba(16, 185, 129, 0.1) !important;
 }
@@ -327,6 +323,10 @@ body {
 
 [data-theme="light"] .border-orange-800\/50 {
   border-color: rgba(194, 65, 12, 0.3) !important;
+}
+
+[data-theme="light"] .border-amber-800\/50 {
+  border-color: rgba(217, 119, 6, 0.3) !important;
 }
 
 /* Light theme: select dropdowns */
@@ -559,6 +559,42 @@ body {
   border-radius: 0 0 0 4px;
 }
 
+/* Implicit header: textured frame with amber accent */
+.affix-header-implicit {
+  position: relative;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%);
+  border: 1px solid rgba(217, 119, 6, 0.15);
+  border-left: 3px solid rgba(251, 191, 36, 0.5);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 8px 0;
+}
+
+.affix-header-implicit::before,
+.affix-header-implicit::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  opacity: 0.4;
+}
+
+.affix-header-implicit::before {
+  top: -1px;
+  right: -1px;
+  border-top: 2px solid rgba(251, 191, 36, 0.5);
+  border-right: 2px solid rgba(251, 191, 36, 0.5);
+  border-radius: 0 4px 0 0;
+}
+
+.affix-header-implicit::after {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.5);
+  border-left: 2px solid rgba(251, 191, 36, 0.5);
+  border-radius: 0 0 0 4px;
+}
+
 /* Light theme: Level 1 affix frames */
 [data-theme="light"] .affix-header-prefix {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%);
@@ -570,6 +606,12 @@ body {
   background: linear-gradient(135deg, rgba(234, 88, 12, 0.06) 0%, rgba(234, 88, 12, 0.02) 100%);
   border-color: rgba(234, 88, 12, 0.2);
   border-left-color: rgba(234, 88, 12, 0.5);
+}
+
+[data-theme="light"] .affix-header-implicit {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.06) 0%, rgba(217, 119, 6, 0.02) 100%);
+  border-color: rgba(217, 119, 6, 0.2);
+  border-left-color: rgba(217, 119, 6, 0.5);
 }
 
 /* ─── Mobile optimization ─── */
@@ -630,7 +672,8 @@ body {
 
   /* Level 1 affix frames: less padding on mobile */
   .affix-header-prefix,
-  .affix-header-suffix {
+  .affix-header-suffix,
+  .affix-header-implicit {
     padding: 4px 8px;
     margin: 6px 0;
   }

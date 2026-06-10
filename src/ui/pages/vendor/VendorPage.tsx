@@ -212,6 +212,14 @@ export function VendorPage() {
 
     for (const prop of selectedProps) {
       if (prop.hasNumericInput) {
+        // If excluded, use the numericSuffix or regex as literal for exclusion
+        if (excludedIds.has(prop.id)) {
+          const excludeText = prop.numericSuffix || prop.regex;
+          if (excludeText) {
+            excludeLiterals.push(literal(excludeText));
+          }
+          continue;
+        }
         const numValue = numericInputs[prop.id];
         if (numValue && numValue > 0 && prop.numericSuffix) {
           // Use core range() — generates correct number regex including 3-digit handling

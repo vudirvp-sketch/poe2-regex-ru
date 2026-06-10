@@ -206,11 +206,15 @@ const VirtualRowContent: React.FC<{
   collapsedTokenIds?: Set<string>;
 }> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
   if (row.type === 'column-header') {
+    const isImplicit = row.affix === 'implicit';
+    const headerClass = isImplicit
+      ? 'affix-header-implicit text-amber-400'
+      : row.affix === 'prefix'
+        ? 'affix-header-prefix text-blue-400'
+        : 'affix-header-suffix text-orange-400';
     return (
-      <div className={`text-base font-bold uppercase tracking-wider ${
-        row.affix === 'prefix' ? 'affix-header-prefix text-blue-400' : 'affix-header-suffix text-orange-400'
-      }`}>
-        {t('affix.' + row.affix)} ({row.count})
+      <div className={`text-base font-bold uppercase tracking-wider ${headerClass}`}>
+        {isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + row.affix)} ({row.count})
       </div>
     );
   }
@@ -516,6 +520,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     });
   }, [familyGroups, priorityFilter]);
 
+  const implicitGroups = useMemo(
+    () => priorityFilteredGroups.filter((g) => g.affix === 'implicit'),
+    [priorityFilteredGroups]
+  );
   const prefixGroups = useMemo(
     () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
     [priorityFilteredGroups]
@@ -525,6 +533,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [priorityFilteredGroups]
   );
 
+  const implicitSubGroups = useMemo(
+    () => classifyGroups(implicitGroups, groupMode),
+    [implicitGroups, groupMode]
+  );
   const prefixSubGroups = useMemo(
     () => classifyGroups(prefixGroups, groupMode),
     [prefixGroups, groupMode]
@@ -535,6 +547,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   );
 
   // Build separate row lists for each column
+  const implicitRows = useMemo(
+    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
+    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+  );
   const prefixRows = useMemo(
     () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
     [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
@@ -544,6 +560,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
   );
 
+  const hasImplicit = implicitGroups.length > 0;
   // Determine layout: two columns when both affixes exist and no affix filter
   const hasBothAffixes = prefixRows.length > 0 && suffixRows.length > 0 && !affixFilter;
 
@@ -562,11 +579,15 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   );
 
   // For single-column mode (affix filter applied or only one affix type),
-  // merge both row lists and use a single virtualizer
+  // merge all row lists and use a single virtualizer
   const mergedRows = useMemo(() => {
     if (hasBothAffixes) return []; // not used in two-column mode
+    // When affixFilter is null (all types shown), include implicit at the top
+    if (!affixFilter && hasImplicit) {
+      return [...implicitRows, ...prefixRows, ...suffixRows];
+    }
     return [...prefixRows, ...suffixRows];
-  }, [hasBothAffixes, prefixRows, suffixRows]);
+  }, [hasBothAffixes, implicitRows, prefixRows, suffixRows, affixFilter, hasImplicit]);
 
   // Single-column virtualizer for when affix filter is applied
   const singleVirtualizer = useVirtualizer({
@@ -687,6 +708,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
           <option value="suffix">{t('affix.suffix')}</option>
+          {hasImplicit && <option value="implicit">{t('affix.implicit')}</option>}
         </select>
 
         {availableOrigins.length > 1 && (
@@ -719,6 +741,15 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       <div className="text-[13px] text-gray-500">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
+
+      {/* Implicit section: always full width, above prefix/suffix */}
+      {hasImplicit && affixFilter !== 'prefix' && affixFilter !== 'suffix' && implicitRows.length > 0 && (
+        <VirtualizedColumn
+          rows={implicitRows}
+          borderClass="border-amber-800/50"
+          {...columnProps}
+        />
+      )}
 
       {/* Two-column layout (Prefix | Suffix) */}
       {hasBothAffixes ? (

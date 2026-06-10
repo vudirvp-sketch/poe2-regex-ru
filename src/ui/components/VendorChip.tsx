@@ -65,7 +65,7 @@ export const VendorChip: React.FC<VendorChipProps> = ({
       <div
         onClick={handleClick}
         role="switch"
-        aria-checked={isSelected || isExcluded}
+        aria-checked={isExcluded ? 'true' : isSelected ? 'true' : 'false'}
         aria-label={`${prop.label}${isSelected ? ', выбрано' : isExcluded ? ', исключено' : ', не выбрано'}`}
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
@@ -74,7 +74,7 @@ export const VendorChip: React.FC<VendorChipProps> = ({
         {prop.label}
       </div>
       {/* Exclude toggle: small "×" button to mark as exclude */}
-      {(isSelected || isExcluded) && !prop.hasNumericInput && (
+      {(isSelected || isExcluded) && (
         <button
           onClick={handleExcludeClick}
           className={`w-3.5 h-3.5 rounded text-[9px] font-bold leading-none flex items-center justify-center transition-colors ${
