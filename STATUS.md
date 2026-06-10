@@ -8,13 +8,14 @@
 ## Выполнено
 
 - Фазы 0-10: Regex Oracle, number-regex, Trie/DP factorization, dialect optimizations, iterative optimizer, AND-composed regex, word truncation, regexPrefixContext, decade grouping
-- **Per-mod want/exclude toggle** — каждый FilterChip имеет кнопку ✗/✓ для переключения в режим «не хочу»
-- **Budget-aware UI feedback** — amber-предупреждение при 6+ модах и >180 chars, health bar
-- **In-game verification: want + exclude pattern** — `"want" "!dontwant"` подтверждён (2026-06-10)
-- **Colon anchor** — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
-- **Real testing of optimizer** — `pnpm etl:fresh` выполнен, FP=8224, FN=0, avgLen=18.7 (2026-06-10)
+- Per-mod want/exclude toggle — каждый FilterChip имеет кнопку ✗/✓ для переключения в режим «не хочу»
+- Budget-aware UI feedback — amber-предупреждение при 6+ модах и >180 chars, health bar
+- In-game verification: want + exclude pattern — `"want" "!dontwant"` подтверждён
+- Colon anchor — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
+- Real testing of optimizer — `pnpm etl:fresh` выполнен, FP=8224, FN=0, avgLen=18.7
 - ETL pipeline: normalize.ts + run-etl.ts, --fresh, --check-stale, sourceHash
 - Block model B1-B2 VERIFIED: `.*` НЕ пересекает границы аффикс-блоков
+- In-game test plan — 10 групп, 28 тестов, покрывает все regex-паттерны (`регис/плитки для теста в игре.md`)
 
 ---
 
@@ -28,6 +29,10 @@
 | Exclude (wrong) | `"A" !"B"` | ❌ Ничего не подсвечивает |
 | Exclude OR | `"A" "!B\|C"` | ✅ Предметы с A, но без B и C |
 | Colon anchor (non-%) | `"suffix.*: N"` | ✅ Предотвращает FP от range notation |
+| ^ anchor | `"^(N).*suffix"` | ✅ Число в начале блока |
+| % suffix anchor | `"(N)%.*suffix"` | ✅ % после числа |
+| .* forward only | `"A.*B"` forward | ✅ Совпадает только в прямом порядке |
+| .* block boundary | `"A.*B"` across blocks | ❌ НЕ пересекает блоки |
 
 ---
 
@@ -88,5 +93,5 @@
 
 ## Next Steps
 
-1. **Расширенное in-game тестирование** — `регис/плитки для теста в игре.md` (12 групп, ~50 тест-кейсов)
-2. **Дефицит предметов** — нужны пояса, самоцветы и breachborn-моды для тестов групп E, H, L
+1. **In-game тестирование** — выполнить тесты из `регис/плитки для теста в игре.md` (10 групп, 28 тестов, все предметы в наличии)
+2. **Обновить IN_GAME_TESTS.md** — внести результаты тестирования

@@ -1,7 +1,7 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Расширенный тест-план:** `регис/плитки для теста в игре.md`
+> **Тест-план:** `регис/плитки для теста в игре.md` (10 групп, 28 тестов)
 
 ---
 
@@ -40,8 +40,6 @@
 
 ## Dual-Indexing — VERIFIED
 
-PoE2 индексирует ДВА формата текста для модов: simplified и detailed (с range notation). Оба searchable.
-
 | Context | Dual-indexed? | Verified |
 |---------|--------------|----------|
 | Tablet/Accessory mods | ✅ Yes | `"39[(]"` matches on tablets |
@@ -55,7 +53,7 @@ PoE2 индексирует ДВА формата текста для модов
 |--------|--------|--------|----------|
 | `^` (anchorStart) | Template starts with `##` | ✅ | `^(2[7-9]\|30).*suffix` |
 | `%` suffix (anchorEnd) | Template has `##%`, anchorStart=false | ✅ | `"(2[7-9]\|30)%.*suffix"` |
-| `: ` colon | Reversed non-% mods with `: ##` | ✅ VERIFIED | `"suffix.*: (number)"` |
+| `: ` colon | Reversed non-% mods with `: ##` | ✅ | `"suffix.*: (number)"` |
 
 ---
 
@@ -84,8 +82,8 @@ PoE2 индексирует ДВА формата текста для модов
 
 | Feature | Status | Key test |
 |---------|--------|----------|
-| `.*` within single block only | ✅ | B1-B2: +35% lightning only |
+| `.*` within single block only | ✅ | +35% lightning only |
 | AND works across blocks | ✅ | `"максимуму здоровья" "к силе"` |
 | Implicits indexed | ✅ | Waystone `"Шанс выпадения путевого камня.*85%"` |
-| State text indexed ("Осквернено") | ✅ | Block K4 |
+| State text indexed ("Осквернено") | ✅ | State block |
 | Multi-line mods: `.*` crosses newline | ✅ | `"повышение шанса.*бонусу"` works |
