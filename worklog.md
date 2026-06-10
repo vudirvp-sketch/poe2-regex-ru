@@ -1,24 +1,22 @@
 # Worklog
 
 ---
-Task ID: 19
+Task ID: 20
 Agent: main
-Task: Iteration 19 — Design Liquid Chain module plan (no code implementation)
+Task: Добавить блок контактов для баг-репортов (Discord: woonderdad) + восстановить документацию
 
 Work Log:
-- Cloned and explored full repo structure: Next.js 16 + FastAPI dual-process architecture
-- Analyzed existing recipe module (`backend/arbitrage/recipe.py`) — closest analog to liquid chain
-- Reviewed data models, config patterns, API routing, frontend types, i18n
-- Confirmed recipe module exists but is NOT wired to any API endpoint or UI yet
-- Identified that liquid items are currency items priced via existing POE2Scout provider
-- Designed complete implementation plan: 9 etapes across 4 iterations
-- Updated AGENT_NAVIGATION.md: v1.33 → v1.34, added §12 (Liquid Chain Module plan), updated TODO
-- No code implementation in this iteration — plan-only as requested
+- Клонировал репозиторий, изучил структуру и документацию
+- Обнаружил, что AGENT_NAVIGATION.md и worklog.md содержат данные от другого проекта (PoE2 Market Dashboard — FastAPI, POE2Scout, backend/)
+- Создал README.md — описание проекта + секция «Баг-репорты и предложения → Discord: woonderdad»
+- Добавил футер в Sidebar.tsx: «Баги и идеи → Discord: woonderdad» (i18n-ключ sidebar.feedback)
+- Добавил i18n-ключ в src/shared/i18n.ts
+- Обновил STATUS.md — добавлена секция «Контакты»
+- Восстановил docs/ARCHITECTURE.md, docs/ETL_GUIDE.md, docs/DATA_CONTRACTS.md, docs/IN_GAME_TESTS.md из коммита ea836ff (корректное содержимое для poe2-regex-ru)
+- Полностью переписал AGENT_NAVIGATION.md — убран мусор от чужого проекта, написан подробный навигационный гайд под реальный проект (структура директорий, path aliases, команды сборки, архитектура regex-движка, ETL pipeline, UI conventions, known issues, pitfalls)
+- Очистил worklog.md от записей чужого проекта
 
 Stage Summary:
-- Liquid Chain module plan fully designed and documented in AGENT_NAVIGATION.md §12
-- Key decisions: config.yaml for chain definition, backend-first computation, extensible for multiple chains
-- Formulas defined: per-step profit (3×price_in − 1×price_out) and cumulative (ratio^(k-j) × price_j)
-- 4 implementation etapes: (1) backend config+models+logic+API, (2) frontend proxy+types, (3) UI+i18n, (4) tests+docs
-- Stopping point: plan designed, implementation starts with Etap 1 in next iteration
-- Exact api_id values for liquid items TBD — need to query POE2Scout API
+- Контакт для баг-репортов добавлен в 4 места: README.md, Sidebar UI, STATUS.md, AGENT_NAVIGATION.md
+- Документация полностью восстановлена и актуализирована: docs/ из ea836ff, AGENT_NAVIGATION.md переписан корректно
+- Точка остановки: итерация завершена, всё готово к коммиту

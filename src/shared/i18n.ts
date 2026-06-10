@@ -144,6 +144,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'priority.sa': 'S+A',
     'priority.s_only': 'S',
     'priority.label': 'Приоритет:',
+
+    // Sidebar feedback
+    'sidebar.feedback': 'Баги и идеи → Discord: woonderdad',
   },
 };
 

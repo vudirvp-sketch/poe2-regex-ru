@@ -155,6 +155,12 @@ export function Sidebar() {
             </NavLink>
           ))}
         </nav>
+        <div
+          className="px-4 py-3 text-[11px] leading-snug"
+          style={{ borderTop: '1px solid var(--poe-border)', color: 'var(--poe-text)', opacity: 0.45 }}
+        >
+          {t('sidebar.feedback')}
+        </div>
       </aside>
     </>
   )

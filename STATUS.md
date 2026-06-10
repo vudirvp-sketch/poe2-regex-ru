@@ -17,12 +17,19 @@
 - **B2:** VendorChip ✕-кнопка доступна для числовых свойств (Ур. предмета, Треб. уровень)
 - **B3:** FilterChip aria-checked корректно отражает excluded (`true`) и partial-excluded (`mixed`)
 - Чистка: 31 мёртвый i18n-ключ удалён, дубли CSS устранены, package-lock.json и restructure-implicits.ts удалены
+- Feedback-контакт: Discord woonderdad добавлен в Sidebar, README, STATUS
 
 ---
 
 ## Известные баги
 
 Нет открытых багов.
+
+---
+
+## Контакты
+
+Баг-репорты и предложения → **Discord: woonderdad**
 
 ---
 
