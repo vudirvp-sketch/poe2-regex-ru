@@ -156,6 +156,13 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           </button>
         </div>
 
+        {/* Active tokens counter (overflow counter) */}
+        {activeTokenCount > 0 && (
+          <span className="text-[12px] text-muted font-medium">
+            {activeTokenCount} {t('selected')}
+          </span>
+        )}
+
         {/* Exclude summary indicator */}
         {excludedCount > 0 && (
           <span className="text-[12px] text-accent-red font-medium">

@@ -258,6 +258,24 @@
   --checkbox-border: #2563eb;
   --checkbox-text: #ffffff;
 
+  /* Indicator backgrounds (light theme — higher opacity for white bg) */
+  --indicator-green: rgba(16, 185, 129, 0.2);   /* emerald on white */
+  --indicator-yellow: rgba(234, 179, 8, 0.2);    /* yellow on white */
+  --indicator-red: rgba(239, 68, 68, 0.2);       /* red on white */
+  --indicator-red-deep: rgba(239, 68, 68, 0.12); /* red deeper on white */
+
+  /* Section backgrounds (light theme — slightly higher opacity for visibility) */
+  --section-yellow: rgba(234, 179, 8, 0.12);
+  --section-red: rgba(239, 68, 68, 0.12);
+  --section-emerald: rgba(16, 185, 129, 0.12);
+  --section-violet: rgba(139, 92, 246, 0.12);
+  --section-amber: rgba(217, 119, 6, 0.12);
+  --section-blue: rgba(59, 130, 246, 0.12);
+
+  /* Danger borders (light theme) */
+  --danger-border: #f87171;       /* red-400 */
+  --danger-border-strong: #ef4444; /* red-500 */
+
   /* Scrollbar */
   --scrollbar-hover: #b0b0ab;
 
@@ -495,6 +513,21 @@ main {
   background-color: var(--input-bg);
   border-color: var(--input-border);
   color: var(--poe-text);
+}
+
+/* Light theme: checkbox styling override */
+[data-theme="light"] input[type="checkbox"] {
+  accent-color: var(--checkbox-bg);
+}
+
+/* Light theme: control panel background (opaque, not semi-transparent) */
+[data-theme="light"] .control-panel-sticky {
+  background: var(--poe-bg);
+}
+
+/* Light theme: regex output area background */
+[data-theme="light"] .regex-output {
+  background: var(--poe-bg) !important;
 }
 
 /* ─── Sticky control panel ─── */

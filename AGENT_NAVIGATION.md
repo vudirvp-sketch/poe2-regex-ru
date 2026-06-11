@@ -236,6 +236,8 @@ Origin colors: Обычные=gray, Очернённые=emerald, Оскверн
 13. **Minimum regex length** — optimizer enforces min 5/7/10 chars by category; shorter gets `regexPrefixContext`
 14. **DIALECT_PAIRS** — only genuine phonological alternates (е/ё, ю/я, а/я, ы/е, и/е). Never add о→в or similar non-alternating pairs
 15. **VendorPage uses `useCategoryPage` with `customData`** — `buildVendorCategoryData()` converts VENDOR_PROPERTIES into CategoryData format. No separate `useVendorPage` hook. GROUP_COLORS derived from `tags: [group:${group}]`
+16. **Vendor numeric properties use reversed pattern** — `"suffix.*number"` not `"number.*suffix"` because game property lines have text before number (e.g. "Уровень предмета: 50"). Triggered by `affix: 'implicit'` in vendor-adapter
+17. **Vendor AND mode = true AND** — each property is separate AND condition (ALL must match). Legacy buildVendorRegex used OR-within-AND for non-numeric properties. Use OR mode for "any matches" behavior
 
 ## 12. Feedback
 

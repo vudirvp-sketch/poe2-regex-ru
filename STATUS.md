@@ -2,36 +2,31 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **In-game верификация:** ✅ | **Cross-family FP:** 0
-> **Тесты:** ✅ 761/761 | **Build:** ✅ | **!important:** 0
+> **Тесты:** ✅ 778/778 | **Build:** ✅ | **!important:** 0
 
 ---
 
-## Текущая итерация (7): VendorPage → useCategoryPage unification
+## Текущая итерация (8): Визуальная проверка dark/light + VendorPage фиксы
 
 ### Что сделано
 
 | # | Задача | Результат |
 |---|--------|-----------|
-| 1 | vendor-adapter.ts: fix build error | Убрано `priorityTier: 'B'` из GameToken — поле не существует в типе, было причиной сломанного деплоя |
-| 2 | vendor-adapter.ts: numeric regex mapping | Для числовых свойств regex.ru = numericSuffix (текст после числа), для остальных — regex pattern |
-| 3 | vendor-adapter.ts: familyKey display text | `familyKey.ru` = `prop.label` для нечисловых, `prop.label.replace('≥N', '≥#')` для числовых — отображает русские метки в чипах вместо `vendor:xxx` |
-| 4 | vendor-adapter.ts: rawTextTemplate ## placeholder | Для числовых свойств `rawTextTemplate` содержит `##` — extractSlotValues корректно маппит ranges[] и min/max inputs появляются |
-| 5 | VendorPage → useCategoryPage switch | VendorPage использует `useCategoryPage({ categoryId: 'vendor', customData: buildVendorCategoryData() })` вместо `useVendorPage()` |
-| 6 | VendorChip → FilterChip | Все 61 chip рендерятся через FilterChip с FamilyGroup. Числовые inputs работают через perTokenRanges |
-| 7 | GROUP_COLORS → из tags | Группировка по `tags: [group:${group}]`, GROUP_COLORS определён локально в VendorPage |
-| 8 | Delete dead code | `useVendorPage.ts` и `VendorChip.tsx` удалены. CSS комментарии обновлены |
+| 1 | VendorPage: ≥{value} в displayText | При установленном min-значении через perTokenRange, числовой чип показывает «Ур. предмета ≥75» вместо «Ур. предмета ≥N». Замена работает для обоих числовых свойств (itemLevel, charLevel) |
+| 2 | CategoryControlPanel: overflow counter | Добавлен счётчик активных токенов (selected + excluded) рядом с индикатором excluded. Показывает «N выбрано» при activeTokenCount > 0 на всех 8 страницах |
+| 3 | Light theme: indicator backgrounds | Добавлены light-theme overrides для indicator-green/yellow/red (0.2 opacity вместо 0.15) и section-* (0.12 вместо 0.1) для лучшей видимости на белом фоне |
+| 4 | Light theme: form elements | Добавлены light-theme стили для checkbox, control panel background, regex output background. Формы корректно отображаются в светлой теме |
+| 5 | VendorPage: regex equivalence tests | 17 тестов в `tests/ui/vendor-regex-equivalence.test.ts` проверяют корректность regex output через buildAstFromSelections. Выявлены 2 отличия от legacy buildVendorRegex (см. ниже) |
+| 6 | Opacity-токены проверены | ⚡ (amber-soft), ⚓ (blue-soft), 2x (amber-mid), 1е/2е (blue-mid/orange-mid) — все работают в dark/light темах через CSS custom properties |
+| 7 | Alert-блоки проверены | Vendor verification (section-yellow/aborder-yellow), jewel hidden mods (section-amber/aborder-amber), regex budget (section-amber/aborder-amber-strong) — корректны в обеих темах |
+| 8 | Exclude-кнопки проверены | FilterChip exclude (✗/✓) использует bg-btn-danger/bg-raised — корректно в dark и light темах |
 
-### Визуальная проверка VendorPage
+### Отличия от legacy buildVendorRegex (документированные)
 
-| Проверка | Результат |
-|----------|-----------|
-| Заголовок «Торговец» | ✅ |
-| 14 групп чипов с цветными заголовками | ✅ |
-| FilterChip вместо VendorChip (61 чип) | ✅ |
-| Выбор чипа → подсветка (bg-chip-active) | ✅ |
-| Кнопка exclude (✗) → состояние excluded (bg-indicator-red) | ✅ |
-| Числовой input (≥Мин / ≤Макс) для Ур. предмета | ✅ |
-| Alert-блок проверки | ✅ |
+| Отличие | Legacy (buildVendorRegex) | Новый (buildAstFromSelections) | Статус |
+|---------|--------------------------|-------------------------------|--------|
+| Числовые свойства: порядок regex | `"50.*уровень предмета"` (number.*suffix) — НЕ работает в игре | `"уровень предмета.*50"` (suffix.*number) — работает в игре | ✅ Багфикс — reversed pattern корректен для PoE2 |
+| AND-режим: несколько нечисловых свойств | `"качеств\|гнёзд"` — все wanted в одном OR (ANY) | `"качеств" "гнёзд"` — каждое свойство отдельно (ALL) | ⚡ Поведение изменено — true AND вместо OR-внутри-AND. OR-режим даёт legacy-поведение |
 
 ---
 
@@ -48,9 +43,9 @@
 
 | # | Задача | Описание |
 |---|--------|----------|
-| N1 | Визуальная проверка dark/light на всех страницах | Пройтись по всем 8 страницам: новые opacity-токены (⚡, ⚓, 2x, 1е/2е), alert-блоки, exclude-кнопки, overflow counter, form-элементы |
-| N2 | VendorPage: regex output проверка | Сравнить regex output при переключении с VendorChip на FilterChip — убедиться, что buildAstFromSelections даёт тот же результат, что buildVendorRegex давал |
-| N3 | VendorPage: numeric chip display text | При установленном min-значении заменить «≥N» на «≥{value}» в displayText числовых чипов |
+| N1 | Light theme: полная визуальная проверка в браузере | Пройти все 8 страниц, сделать скриншоты dark/light, исправить оставшиеся проблемы контрастности |
+| N2 | VendorPage: AND-режим семантика | Решить: оставить true AND или добавить hybrid OR-внутри-AND для нечисловых свойств как в legacy? |
+| N3 | Удалить useVendorPage.ts и VendorChip.tsx | Эти файлы больше не используются VendorPage — чистый dead code |
 
 ---
 

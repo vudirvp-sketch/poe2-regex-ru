@@ -1,6 +1,28 @@
 # Worklog
 
 ---
+Task ID: 8
+Agent: main
+Task: Итерация 8 — Визуальная проверка dark/light + VendorPage фиксы
+
+Work Log:
+- 1: VendorPage displayText ≥{value} — при установленном min через perTokenRange, числовой чип показывает «Ур. предмета ≥75» вместо «Ур. предмета ≥N». Замена ≥N → ≥{minValue} в groupedFamilies useMemo
+- 2: CategoryControlPanel overflow counter — добавлен activeTokenCount display (N выбрано) рядом с excludedCount
+- 3: Light theme indicator backgrounds — добавлены light-theme overrides для --indicator-green/yellow/red (0.2 opacity) и --section-* (0.12 opacity) для видимости на белом фоне
+- 4: Light theme form elements — добавлены стили для checkbox, control panel background, regex output background в light theme
+- 5: Light theme danger borders — добавлены --danger-border и --danger-border-strong overrides для light theme
+- 6: Vendor regex equivalence tests — 17 тестов в tests/ui/vendor-regex-equivalence.test.ts. Выявлено 2 отличия от legacy: (а) числовые свойства используют reversed pattern (багфикс), (б) AND-режим = true AND (поведение изменено)
+- 7: Обновлены STATUS.md и AGENT_NAVIGATION.md (pitfalls #16, #17)
+- Тесты: 778/778 ✅ | Build: ✅ | TypeScript: ✅ | !important: 0
+
+Stage Summary:
+- VendorPage numeric chip displayText динамически обновляется при установке min-значения
+- Overflow counter виден на всех 8 страницах (CategoryControlPanel)
+- Light theme: indicator/section backgrounds, form elements, danger borders корректны
+- Regex equivalence: buildAstFromSelections даёт корректный reversed pattern для числовых свойств (багфикс vs legacy)
+- AND-режим для vendor = true AND (поведение отличается от legacy OR-внутри-AND)
+
+---
 Task ID: 7
 Agent: main
 Task: Итерация 7 — VendorPage → useCategoryPage unification

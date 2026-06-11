@@ -108,19 +108,29 @@ export function VendorPage() {
   // duplicate range display (inline range + range badge). Use the raw label
   // (e.g., "Ур. предмета ≥N") instead of the generated text with inline range
   // (e.g., "Ур. предмета ≥(0—1000)").
+  // When a min value is set via perTokenRange, replace "≥N" with "≥{value}"
+  // in displayText so the chip reflects the actual threshold.
   const groupedFamilies = useMemo(() => {
     if (!data) return new Map<string, FamilyGroup[]>();
     const families = groupTokensByFamily(data.tokens, 'vendor').map(family => {
       if (family.rangeSlots.length > 0 && family.members[0]) {
+        const baseText = family.members[0].rawText.ru;
+        const memberId = family.members[0].id;
+        const rangeOverride = perTokenRanges[memberId];
+        const minValue = rangeOverride?.min;
+        // Replace ≥N with the actual min value if set
+        const displayText = minValue !== undefined && minValue > 0
+          ? baseText.replace('≥N', `≥${minValue}`)
+          : baseText;
         return {
           ...family,
-          displayText: family.members[0].rawText.ru,
+          displayText,
         };
       }
       return family;
     });
     return groupFamiliesByGroup(families);
-  }, [data]);
+  }, [data, perTokenRanges]);
 
   // Count active tokens
   const allActiveTokens = data?.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id)) ?? [];
