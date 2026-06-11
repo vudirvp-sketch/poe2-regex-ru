@@ -33,7 +33,21 @@ export type ProfileStore = {
   profiles: Record<string, SearchProfile>;
 } & ProfileActions;
 
-let profileCounter = 0;
+/** Extract the counter from a profile ID like "profile_1718012345_3" → 3.
+ *  Returns 0 if the ID format doesn't match. */
+function extractCounter(id: string): number {
+  const match = id.match(/^profile_\d+_(\d+)$/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+/** Derive the next counter value from existing profile IDs.
+ *  Scans all profile IDs and returns max(counter) + 1, or 1 if no profiles exist.
+ *  This ensures IDs are always unique even after page reload (counter is not persisted). */
+function deriveNextCounter(profiles: Record<string, SearchProfile>): number {
+  const ids = Object.keys(profiles);
+  if (ids.length === 0) return 1;
+  return Math.max(...ids.map(extractCounter)) + 1;
+}
 
 export const useProfileStore = create<ProfileStore>()(
   persist(
@@ -41,7 +55,8 @@ export const useProfileStore = create<ProfileStore>()(
       profiles: {},
 
       saveProfile: (name: string, category: string, filterData: Record<string, unknown>) => {
-        const id = `profile_${Date.now()}_${++profileCounter}`;
+        const counter = deriveNextCounter(get().profiles);
+        const id = `profile_${Date.now()}_${counter}`;
         const profile: SearchProfile = {
           id,
           name,

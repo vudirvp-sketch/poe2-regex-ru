@@ -4,317 +4,31 @@
  * Layout v2 (iteration 8): Uses shared CategoryControlPanel for sticky
  * regex output + mode toggle + round10. Chip groups below, verification note at bottom.
  *
+ * All business logic (state management, URL sync, regex compilation) is
+ * in useVendorPage hook — this component is rendering only.
+ *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.
  * The plan's invariant I4 targets mod strings from ETL, not vendor labels.
  */
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { VendorChip } from '@ui/components/VendorChip';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { t } from '@shared/i18n';
-import { MAX_CHARS } from '@core/limits';
-import { and, or, literal, exclude, range } from '@core/ast';
-import { compile } from '@core/compiler';
-import type { ASTNode, SearchLogic } from '@shared/types';
-import { createFilterStore } from '@store/filter-store';
-import { syncFromUrl, syncToUrl } from '@store/url-sync';
-import type { FilterStoreApi } from '@ui/hooks/useCategoryPage';
-import { VENDOR_PROPERTIES, type VendorProperty } from '@data/vendor-properties';
-
-// VENDOR_PROPERTIES is now imported from @data/vendor-properties
-
-// ─── Group order for consistent display ───
-
-const GROUP_ORDER = [
-  'Свойства предмета',
-  'Скорость',
-  'Скорость передвижения',
-  'Сопротивления',
-  'Модификаторы',
-  'Умения',
-  'Характеристики',
-  'Уровень',
-  'Редкость предмета',
-  'Класс — Украшения',
-  'Класс — Оружие 1H',
-  'Класс — Оружие 2H',
-  'Класс — Экипировка',
-  'Класс — Оффхэнд',
-];
-
-// ─── Group color config for visual differentiation ───
-
-const GROUP_COLORS: Record<string, { header: string; border: string }> = {
-  'Свойства предмета':    { header: 'text-gray-400',   border: 'border-l-gray-500' },
-  'Скорость':             { header: 'text-yellow-400',  border: 'border-l-yellow-500' },
-  'Скорость передвижения':{ header: 'text-yellow-400',  border: 'border-l-yellow-500' },
-  'Сопротивления':        { header: 'text-blue-400',    border: 'border-l-blue-500' },
-  'Модификаторы':         { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Умения':               { header: 'text-purple-400',  border: 'border-l-purple-500' },
-  'Характеристики':       { header: 'text-green-400',   border: 'border-l-green-500' },
-  'Уровень':              { header: 'text-cyan-400',    border: 'border-l-cyan-500' },
-  'Редкость предмета':    { header: 'text-orange-400',  border: 'border-l-orange-500' },
-  'Класс — Украшения':    { header: 'text-amber-400',   border: 'border-l-amber-500' },
-  'Класс — Оружие 1H':   { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Класс — Оружие 2H':   { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Класс — Экипировка':  { header: 'text-sky-400',     border: 'border-l-sky-500' },
-  'Класс — Оффхэнд':     { header: 'text-teal-400',    border: 'border-l-teal-500' },
-};
+import { useVendorPage, GROUP_COLORS } from '@ui/hooks/useVendorPage';
 
 export function VendorPage() {
-  // Create a filter store for URL sharing
-  const useStore = useMemo(() => createFilterStore(), []);
-
-  // Wrap Zustand store in FilterStoreApi for compatibility with CategoryControlPanel
-  const filterStore = useMemo<FilterStoreApi>(() => ({
-    getState: useStore.getState,
-    subscribe: useStore.subscribe,
-    serialize: () => useStore.getState().serialize(),
-    getExtraState: (key: string) => useStore.getState().getExtraState(key),
-    setExtraState: (key: string, value: unknown) => useStore.getState().setExtraState(key, value),
-  }), [useStore]);
-
-  // Restore from URL on first render (synchronous, before any effects)
-  const [urlRestored] = useState(() => syncFromUrl(useStore.getState()));
-
-  // Initialize vendor state from filter store (which may have URL data)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
-    if (urlRestored) {
-      const extra = useStore.getState().getExtraState('vendorSelectedIds');
-      if (Array.isArray(extra)) return new Set(extra as string[]);
-    }
-    return new Set();
-  });
-  const [excludedIds, setExcludedIds] = useState<Set<string>>(() => {
-    if (urlRestored) {
-      const extra = useStore.getState().getExtraState('vendorExcludedIds');
-      if (Array.isArray(extra)) return new Set(extra as string[]);
-    }
-    return new Set();
-  });
-  const [numericInputs, setNumericInputs] = useState<Record<string, number>>(() => {
-    if (urlRestored) {
-      const extraNums = useStore.getState().getExtraState('vendorNumericInputs');
-      if (extraNums && typeof extraNums === 'object') return extraNums as Record<string, number>;
-    }
-    return {};
-  });
-  const [round10, setRound10] = useState(() => {
-    if (urlRestored) {
-      const extraR10 = useStore.getState().getExtraState('vendorRound10');
-      if (typeof extraR10 === 'boolean') return extraR10;
-    }
-    return true;
-  });
-  const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
-    if (urlRestored) {
-      const extraSL = useStore.getState().getExtraState('vendorSearchLogic');
-      if (extraSL === 'and' || extraSL === 'or') return extraSL;
-    }
-    return 'and';
-  });
-
-  // Ref to skip the first sync-to-store cycle, preventing overwrite
-  // of URL-restored extraState values before the restore effect has run.
-  const syncReadyRef = useRef(false);
-
-  // Sync vendor state to filter store for URL sharing.
-  // Skips the first render to avoid overwriting URL-restored values.
-  useEffect(() => {
-    if (!syncReadyRef.current) {
-      syncReadyRef.current = true;
-      return;
-    }
-    useStore.getState().setExtraState('vendorSelectedIds', [...selectedIds]);
-    useStore.getState().setExtraState('vendorExcludedIds', [...excludedIds]);
-    useStore.getState().setExtraState('vendorNumericInputs', numericInputs);
-    useStore.getState().setExtraState('vendorRound10', round10);
-    useStore.getState().setExtraState('vendorSearchLogic', searchLogic);
-    // Auto-sync to URL hash so refreshing the page preserves state
-    syncToUrl(useStore.getState());
-  }, [selectedIds, excludedIds, numericInputs, round10, searchLogic, useStore]);
-
-  const toggleProperty = useCallback((id: string) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        // Also remove from excluded if it was excluded
-        setExcludedIds(prevExcl => {
-          const nextExcl = new Set(prevExcl);
-          nextExcl.delete(id);
-          return nextExcl;
-        });
-        // Clear ghost numeric value when unchecking a numeric property
-        setNumericInputs(prevNum => {
-          const nextNum = { ...prevNum };
-          delete nextNum[id];
-          return nextNum;
-        });
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const toggleExclude = useCallback((id: string) => {
-    setExcludedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-        // Ensure it's also in selectedIds so it's considered "active"
-        setSelectedIds(prevSel => {
-          if (prevSel.has(id)) return prevSel;
-          const nextSel = new Set(prevSel);
-          nextSel.add(id);
-          return nextSel;
-        });
-      }
-      return next;
-    });
-  }, []);
-
-  const setNumericValue = useCallback((id: string, value: number | null) => {
-    setNumericInputs(prev => {
-      const next = { ...prev };
-      if (value === null) {
-        delete next[id];
-      } else {
-        next[id] = value;
-      }
-      return next;
-    });
-  }, []);
-
-  const clearAll = useCallback(() => {
-    setSelectedIds(new Set());
-    setExcludedIds(new Set());
-    setNumericInputs({});
-    setRound10(true);
-    setSearchLogic('and');
-  }, []);
-
-  // Build regex using core AST + compiler (fixes 3-digit number bug,
-  // ensures consistent quoting, correct AND/OR/EXCLUDE handling)
-  const { regex, isRegexOverflow } = useMemo(() => {
-    const selectedProps = VENDOR_PROPERTIES.filter(p => selectedIds.has(p.id));
-    if (selectedProps.length === 0 && Object.keys(numericInputs).length === 0) {
-      return { regex: '', isRegexOverflow: false };
-    }
-
-    const astNodes: ASTNode[] = [];
-    const includeLiterals: ASTNode[] = [];
-    const excludeLiterals: ASTNode[] = [];
-    const numericNodes: ASTNode[] = [];
-
-    for (const prop of selectedProps) {
-      if (prop.hasNumericInput) {
-        // If excluded, use the numericSuffix or regex as literal for exclusion
-        if (excludedIds.has(prop.id)) {
-          const excludeText = prop.numericSuffix || prop.regex;
-          if (excludeText) {
-            excludeLiterals.push(literal(excludeText));
-          }
-          continue;
-        }
-        const numValue = numericInputs[prop.id];
-        if (numValue && numValue > 0 && prop.numericSuffix) {
-          // Use core range() — generates correct number regex including 3-digit handling
-          numericNodes.push(range(numValue, undefined, prop.numericSuffix));
-        }
-        continue;
-      }
-
-      if (!prop.regex) continue;
-
-      // Collect all non-numeric props and group them for efficiency
-      // Using OR within one quoted group is more compact than separate quoted groups
-      if (excludedIds.has(prop.id)) {
-        excludeLiterals.push(literal(prop.regex));
-      } else {
-        includeLiterals.push(literal(prop.regex));
-      }
-    }
-
-    // Also handle numeric-only properties that aren't in selectedIds
-    for (const [id, value] of Object.entries(numericInputs)) {
-      if (value <= 0) continue;
-      const prop = VENDOR_PROPERTIES.find(p => p.id === id);
-      if (prop?.hasNumericInput && !selectedIds.has(id) && prop.numericSuffix) {
-        numericNodes.push(range(value, undefined, prop.numericSuffix));
-      }
-    }
-
-    // In OR mode: all items go into a single OR group (item needs ANY selected property)
-    if (searchLogic === 'or' && excludeLiterals.length === 0) {
-      const orChildren: ASTNode[] = [];
-      if (includeLiterals.length > 0) {
-        orChildren.push(...includeLiterals);
-      }
-      if (numericNodes.length > 0) {
-        orChildren.push(...numericNodes);
-      }
-      if (orChildren.length > 0) {
-        astNodes.push(orChildren.length === 1 ? orChildren[0] : or(...orChildren));
-      }
-    } else {
-      // AND mode (default): literals as OR group, numeric as separate AND nodes
-      if (numericNodes.length > 0) {
-        astNodes.push(...numericNodes);
-      }
-
-      // Add included properties as a single OR group (compact: "A|B|C")
-      if (includeLiterals.length > 0) {
-        if (includeLiterals.length === 1) {
-          astNodes.push(includeLiterals[0]);
-        } else {
-          astNodes.push(or(...includeLiterals));
-        }
-      }
-    }
-
-    // Add excluded properties as EXCLUDE(OR(...)) — compact: "!A|B|C"
-    // Much more efficient than separate "!A" "!B" "!C" (saves 3+ chars per property)
-    if (excludeLiterals.length > 0) {
-      astNodes.push(exclude(or(...excludeLiterals)));
-    }
-
-    if (astNodes.length === 0) {
-      return { regex: '', isRegexOverflow: false };
-    }
-
-    const ast = and(...astNodes);
-    const result = compile(ast, { round10 });
-    return { regex: result, isRegexOverflow: result.length > MAX_CHARS };
-  }, [selectedIds, excludedIds, numericInputs, round10, searchLogic]);
-
-  // Group properties for UI display (ordered by GROUP_ORDER)
-  const groupedProperties = useMemo(() => {
-    const groups = new Map<string, VendorProperty[]>();
-    for (const prop of VENDOR_PROPERTIES) {
-      const group = groups.get(prop.group) || [];
-      group.push(prop);
-      groups.set(prop.group, group);
-    }
-    // Sort groups by GROUP_ORDER
-    const sorted = new Map<string, VendorProperty[]>();
-    for (const groupName of GROUP_ORDER) {
-      const props = groups.get(groupName);
-      if (props) sorted.set(groupName, props);
-    }
-    // Add any groups not in GROUP_ORDER
-    for (const [groupName, props] of groups) {
-      if (!sorted.has(groupName)) sorted.set(groupName, props);
-    }
-    return sorted;
-  }, []);
-
-  const hasNumericSelected = Object.values(numericInputs).some(v => v > 0);
-
-  const excludeCount = excludedIds.size;
+  const {
+    regex, isRegexOverflow,
+    selectedIds, excludedIds,
+    toggleProperty, toggleExclude, setNumericValue,
+    numericInputs,
+    round10Enabled, setRound10Enabled,
+    searchLogic, setSearchLogic,
+    clearAll,
+    hasNumericSelected, excludeCount,
+    groupedProperties,
+    filterStore,
+  } = useVendorPage();
 
   return (
     <div className="flex flex-col gap-4">
@@ -340,8 +54,8 @@ export function VendorPage() {
         maxValue={null}
         setMaxValue={() => {}}
         rangedSuffixes={[]}
-        round10Enabled={round10}
-        setRound10Enabled={setRound10}
+        round10Enabled={round10Enabled}
+        setRound10Enabled={setRound10Enabled}
         searchLogic={searchLogic}
         setSearchLogic={setSearchLogic}
         showRound10={hasNumericSelected}

@@ -441,14 +441,21 @@ export function applyDialectOptimizations(regex: string): string {
   return result;
 }
 
-/** Character pairs that can be merged into a character class */
+/** Character pairs that can be merged into a character class.
+ *
+ * Only includes pairs where both characters are genuine phonological
+ * alternates in Russian morphology. The optimizer merges top-level
+ * alternatives that differ by exactly one such pair into a character class
+ * (e.g., "молнию|молния" → "молни[юя]").
+ *
+ * Removed ['о', 'в', 'ов'] — о and в are not phonological alternates;
+ * they never naturally alternate in Russian inflection. */
 const DIALECT_PAIRS: [string, string, string][] = [
-  ['е', 'ё', 'её'],
-  ['ю', 'я', 'юя'],
-  ['а', 'я', 'ая'],
-  ['ы', 'е', 'ые'],
-  ['и', 'е', 'ие'],
-  ['о', 'в', 'ов'],
+  ['е', 'ё', 'её'],   // е/ё — always interchangeable in Russian
+  ['ю', 'я', 'юя'],   // ending alternation (молнию/молния)
+  ['а', 'я', 'ая'],   // ending alternation (сила/силе → context-dependent)
+  ['ы', 'е', 'ые'],   // ending alternation (карты/карте — confirmed in data)
+  ['и', 'е', 'ие'],   // ending alternation (умения/умение)
 ];
 
 /**
