@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 9.0 | **Date:** 2026-06-12
+> **Version:** 10.0 | **Date:** 2026-06-12
 
 ---
 
@@ -16,7 +16,7 @@
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `scripts/` | ETL pipeline + analysis utilities | `pnpm etl` to run |
-| `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
+| `tests/` | Vitest — core/, shared/, etl/, ui/ (unit + React component) | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests | Update on structural changes |
 
 ## 2. Core Optimizer Module Structure
@@ -67,11 +67,26 @@ Since iteration 18, `compute-regex.ts` is split into 3 modules:
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
 pnpm build                # tsc + vite build
-pnpm test                 # Vitest
+pnpm test                 # Vitest (all 936 tests)
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # Clear cache + re-fetch
 pnpm optimize             # Standalone iterative optimizer
 ```
+
+## 5a. Test Infrastructure
+
+- **Framework:** Vitest 4 with `globals: true`
+- **React tests:** jsdom environment — add `// @vitest-environment jsdom` at top of `.test.tsx` files
+- **Setup:** `tests/setup.ts` — auto-imports `@testing-library/jest-dom/vitest` matchers
+- **Pattern:** `tests/**/*.test.{ts,tsx}`
+- **Default env:** node (for unit tests); React tests override per-file
+
+| Test directory | Content | Count |
+|----------------|---------|-------|
+| `tests/core/` | Regex engine unit tests | ~17 files |
+| `tests/shared/` | mod-classifier, family-grouper | 2 files |
+| `tests/etl/` | ETL pipeline: normalize, compute-regex, schemas, sanitize, parse | 7 files |
+| `tests/ui/` | AST builder, vendor equivalence, React components | 5 files |
 
 ## 6. Dependency Rules
 

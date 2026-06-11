@@ -1,49 +1,55 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тесты:** ✅ 830/830 | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** ✅ 936/936 | **Build:** ✅ | **TypeScript:** ✅
 
 ---
 
-## Текущая итерация: 20 — Data safety & validation
+## Текущая итерация: 21 — Tests & deploy fix
 
-### Сделано в итерации 20
+### Сделано в итерации 21
 
-**1. Zod-схемы для CategoryData (`src/shared/schemas.ts`):**
+**1. Деплой починен:**
+- `pnpm-lock.yaml` обновлён — добавлена пропущенная зависимость `zod`
+- `package-lock.json` удалён (проект использует pnpm)
+- `.gitignore` обновлён — `package-lock.json` исключён
+- `deploy.yml` — улучшены шаги corepack
 
-| Схема | Покрытие |
-|-------|----------|
-| `CategoryDataSchema` | Валидация JSON на границе ETL→runtime |
-| `GameTokenSchema` | Все поля, включая optional (regexExclude, regexPrefixContext, jewelType, tradeStatId) |
-| `OptimizationEntrySchema` | ids, regex, weight, count + optional context/exclude |
-| `GenderFormsSchema` | 6 форм рода, все optional |
-| Enum schemas | Locale, AffixType, ModOrigin, JewelType, PriorityTier, PriorityFilter |
+**2. React component tests (47 тестов):**
 
-Интеграция: `loader.ts` → `CategoryDataSchema.parse(raw)` при каждой загрузке JSON.
-Все 10 файлов в `public/generated/` валидируются без ошибок.
+| Компонент | Файл | Тестов | Покрытие |
+|-----------|------|--------|----------|
+| `PageStateWrapper` | `tests/ui/PageStateWrapper.test.tsx` | 9 | loading/error/no-data/render-prop, приоритеты состояний |
+| `RegexOutput` | `tests/ui/RegexOutput.test.tsx` | 17 | health bar (green/yellow/red), overflow, copy, auto-copy, budget warning, ARIA |
+| `FilterChip` | `tests/ui/FilterChip.test.tsx` | 21 | 5 состояний, ARIA, toggle, exclude, tier count, 2x badge, range text, ⚡⚓ indicators, keyboard |
 
-**2. Удалён `new Function()` из `parse-modifiers-calc.ts`:**
+**3. ETL Zod-схемы + тесты (19 тестов):**
 
-Заменён на безопасный `sanitizeJsObjectLiteral()` — строковый санитайзер JS→JSON:
-- Удаляет trailing commas перед `}` / `]`
-- Котирует некотируемые ключи (`{name: ...}` → `{"name": ...}`)
-- Заменяет одинарные кавычки на двойные
+| Схема | Назначение |
+|-------|------------|
+| `RawModTierSchema` | Валидация tiers на входе ETL (level ≥ 0, affix prefix|suffix) |
+| `RawModGroupDataSchema` | Валидация групп (genGroup ≠ '', tiers ≥ 1) |
 
-Результат: `JSON.parse()` вместо `eval`/`new Function`. Потенциальная дыра безопасности закрыта.
+**4. sanitizeJsObjectLiteral() — unit tests (23 теста):**
+- Trailing commas (nested, whitespace)
+- Unquoted keys (underscore, dollar, numeric suffix)
+- Single-quoted strings (keys, values, empty)
+- Combined transformations (poe2db-like data)
+- Already-valid JSON passthrough
 
-### Паттерны и алгоритмы
+**5. parseTypeBPage() — ETL coverage (17 тестов):**
+- 6 origins (normal, corrupted, desecrated, essence, breach, perfect_essence)
+- Family grouping, maxLevel, tags, modCode extraction
+- Empty categories, missing ModsView, empty descriptions
 
-**Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Стабилен.
-
-**Оптимизатор (3 модуля, ~780 строк):** Рефакторинг завершён (iter 19). `optimizer → strategies → core`.
-
-**ETL compute-regex (3 модуля, ~1010 строк):** Рефакторинг завершён (iter 18).
-
-**UI (useCategoryPage.ts, 1113 строк):** God hook. Рефакторинг отложен — единый пайплайн, разделение создаст больше проблем.
+### Инфраструктура тестов
+- `jsdom` + `@testing-library/jest-dom` добавлены в devDependencies
+- `tests/setup.ts` — автоматическое подключение jest-dom матчеров
+- `vite.config.ts` — `include: ['tests/**/*.test.{ts,tsx}']`, `setupFiles`, per-file environment override
 
 ---
 
-## План рефакторинга (обновлён)
+## План рефакторинга
 
 | # | Область | Приоритет | Суть | Статус |
 |---|---------|-----------|------|--------|
@@ -51,20 +57,17 @@
 | 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3 модуля | ✅ Done (iter 19) |
 | 3 | Data layer | **Средний** | Zod-схемы для CategoryData | ✅ Done (iter 20) |
 | 4 | Security | **Средний** | Убрать `new Function()` | ✅ Done (iter 20) |
-| 5 | Tests | Низкий | React component tests; расширить ETL coverage | Pending |
-
-**UI рефакторинг отложен:** useCategoryPage — связный пайплайн, разделение нецелесообразно.
+| 5 | Tests | Низкий | React component tests; расширить ETL coverage | ✅ Done (iter 21) |
 
 ---
 
 ## Ключевые верифицированные факты
 
 1. **`^\+` и `^-`** — якорят к началу блока + матчат знак. Без FP от чисел без знака.
-2. **`\+` в reversed-паттернах** — `"Редкость предметов.*\+N%"` работает корректно.
-3. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
-4. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
-5. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
-6. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
+2. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
+3. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
+4. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
+5. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
 
 ---
 

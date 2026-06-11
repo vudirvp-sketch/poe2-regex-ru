@@ -68,4 +68,31 @@ Stage Summary:
 - **TypeScript чистый, все существующие тесты не затронуты**
 - **Оставшиеся задачи:** UI тесты (React component tests + ETL coverage)
 
+---
+Task ID: 21
+Agent: main
+Task: UI тесты — React component tests; расширить ETL coverage; Zod-схемы для ETL; тесты sanitizeJsObjectLiteral(); фикс деплоя
 
+Work Log:
+- 1: Клонирован репозиторий, установлены зависимости, подтверждено 830/830 тестов, build OK
+- 2: Выявлена причина падения деплоя: `pnpm install --frozen-lockfile` → exit code 1 (zod не был в pnpm-lock.yaml)
+- 3: Обновлён pnpm-lock.yaml (добавлена zod), удалён package-lock.json, обновлён .gitignore
+- 4: Настроена инфраструктура React-тестов: jsdom, @testing-library/jest-dom, tests/setup.ts, vite.config.ts (include .tsx, setupFiles)
+- 5: Создан PageStateWrapper.test.tsx — 9 тестов (loading/error/no-data/render-prop, приоритеты)
+- 6: Создан RegexOutput.test.tsx — 17 тестов (health bar, overflow, copy, auto-copy, budget warning, ARIA)
+- 7: Создан FilterChip.test.tsx — 21 тест (5 selection states, ARIA, toggle, exclude, badges, keyboard, indicators)
+- 8: Добавлены ETL Zod-схемы в schemas.ts: RawModTierSchema, RawModGroupDataSchema
+- 9: Создан etl-schemas.test.ts — 19 тестов (valid/invalid tier, valid/invalid group, edge cases)
+- 10: Создан sanitize-js-object-literal.test.ts — 23 теста (trailing commas, unquoted keys, single quotes, combined, edge cases)
+- 11: Создан parse-type-b-page.test.ts — 17 тестов (6 origins, family grouping, tags, modCode, edge cases)
+- 12: Все 936 тестов проходят, build OK
+- 13: Обновлена документация: STATUS.md, AGENT_NAVIGATION.md
+
+Stage Summary:
+- **Деплой починен** — pnpm-lock.yaml синхронизирован с package.json
+- **47 React component тестов** — PageStateWrapper, RegexOutput, FilterChip
+- **19 ETL schema тестов** — Zod-схемы для RawModTier, RawModGroupData
+- **23 sanitizeJsObjectLiteral тестов** — полный coverage edge cases
+- **17 parseTypeBPage тестов** — 6 origins, family grouping, tags
+- **Итого:** 936 тестов (было 830), +106 новых
+- **Точка остановки:** все основные задачи выполнены; возможные дальнейшие шаги: CategoryControlPanel тесты, ProfilePanel тесты, VirtualizedModList тесты

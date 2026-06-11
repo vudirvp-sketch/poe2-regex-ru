@@ -25,7 +25,11 @@ export default defineConfig({
   base: '/poe2-regex-ru/',
   test: {
     globals: true,
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
+    // React component tests need jsdom; unit tests default to node
+    // Per-file override: add `// @vitest-environment jsdom` at top of test file
+    environment: 'node',
+    setupFiles: ['tests/setup.ts'],
     ...aliasConfig,
   },
 })

@@ -104,3 +104,36 @@ export const CategoryDataSchema = z.object({
 export type ValidatedCategoryData = z.infer<typeof CategoryDataSchema>;
 export type ValidatedGameToken = z.infer<typeof GameTokenSchema>;
 export type ValidatedOptimizationEntry = z.infer<typeof OptimizationEntrySchema>;
+
+// ─── ETL internal types ─────────────────────────────────────────────
+
+/** Affix type for ETL-internal tiers (prefix | suffix only — no implicit in ModsView data) */
+const EtlAffixTypeSchema = z.enum(['prefix', 'suffix']);
+
+/** RawModTier — parsed from poe2db.tw ModsView JSON before normalization.
+ *  Validates each tier entry extracted from the HTML scraper. */
+export const RawModTierSchema = z.object({
+  tier: z.string(),
+  nameHtml: z.string(),
+  level: z.number().int().min(0),
+  descriptionHtml: z.string(),
+  weight: z.string(),
+  modCode: z.string(),
+  affix: EtlAffixTypeSchema,
+  tags: z.array(z.string()),
+  modFamily: z.array(z.string()),
+});
+
+/** RawModGroupData — grouped mod tiers from poe2db.tw before normalization.
+ *  Validates the output of parseTypeBPage() / parseTypeAPage() at the ETL boundary. */
+export const RawModGroupDataSchema = z.object({
+  genGroup: z.string().min(1),
+  origin: ModOriginSchema,
+  tags: z.array(z.string()),
+  maxLevel: z.number().int().min(0),
+  tiers: z.array(RawModTierSchema).min(1),
+});
+
+/** Inferred ETL types */
+export type ValidatedRawModTier = z.infer<typeof RawModTierSchema>;
+export type ValidatedRawModGroupData = z.infer<typeof RawModGroupDataSchema>;
