@@ -368,9 +368,72 @@ describe('optimize', () => {
       expect(truncateSuffix('сопротивлению')).toBe('сопротивлению');
     });
 
-    it('truncates compound suffix containing safe word', () => {
+    it('truncates compound suffix with safe word at end', () => {
       // Input like "к эффективность монстров" should have "эффективность монстров" truncated
+      // because the key is at the END of the suffix — contiguous substring preserved
       expect(truncateSuffix('к эффективность монстров')).toBe('к эффективн');
+    });
+
+    it('truncates "количества редких монстров" → "количества редких монстр" (key at end)', () => {
+      // "монстров" is at the END of the suffix — safe to truncate
+      // "количества редких монстр" IS a contiguous substring of the rawText
+      expect(truncateSuffix('количества редких монстров')).toBe('количества редких монстр');
+    });
+
+    // ─── Mid-phrase truncation MUST be rejected ───
+    // PoE2 uses contiguous substring matching. Truncating a word that is
+    // followed by more text breaks the match because the omitted suffix
+    // characters create a gap. These are all regression tests for the bug
+    // where "монстров на карте" was truncated to "монстр на карте".
+
+    it('does NOT truncate "монстров на карте" — words follow the truncated word', () => {
+      // "монстров" is NOT at the end — "на карте" follows
+      // "монстр на карте" is NOT a substring of "монстров на карте"
+      expect(truncateSuffix('монстров на карте')).toBe('монстров на карте');
+    });
+
+    it('does NOT truncate "количества редких монстров на карте" — mid-phrase', () => {
+      // "монстров" is NOT at the end — "на карте" follows
+      expect(truncateSuffix('количества редких монстров на карте')).toBe('количества редких монстров на карте');
+    });
+
+    it('does NOT truncate "волшебных монстров на карте" — mid-phrase', () => {
+      expect(truncateSuffix('волшебных монстров на карте')).toBe('волшебных монстров на карте');
+    });
+
+    it('does NOT truncate "флакона здоровья" — words follow', () => {
+      // "флакона" is NOT at the end — "здоровья" follows
+      expect(truncateSuffix('флакона здоровья')).toBe('флакона здоровья');
+    });
+
+    it('does NOT truncate "оглушения булавами" — words follow', () => {
+      // "оглушения" is NOT at the end — "булавами" follows
+      expect(truncateSuffix('оглушения булавами')).toBe('оглушения булавами');
+    });
+
+    it('does NOT truncate "приспешников аур" — words follow', () => {
+      // "приспешников" is NOT at the end — "аур" follows
+      expect(truncateSuffix('приспешников аур')).toBe('приспешников аур');
+    });
+
+    it('does NOT truncate inside PoE2 OR group — "количеств(а редких монстров на карте|о дани)"', () => {
+      // "монстров" appears inside a PoE2 (...) group, NOT at the end
+      expect(truncateSuffix('количеств(а редких монстров на карте|о дани)')).toBe('количеств(а редких монстров на карте|о дани)');
+    });
+
+    it('truncates "монстров" standalone — key at exact end', () => {
+      // "монстров" is the entire string — exact match or end-of-suffix
+      expect(truncateSuffix('монстров')).toBe('монстр');
+    });
+
+    it('truncates "увеличение эффективность монстров" — multi-word key at end', () => {
+      // "эффективность монстров" is in the safe list and ends the suffix (exact key match)
+      expect(truncateSuffix('увеличение эффективность монстров')).toBe('увеличение эффективн');
+    });
+
+    it('truncates "увеличение эффективности монстров" — "монстров" at end', () => {
+      // "эффективности монстров" is NOT a key, but "монстров" IS at the end
+      expect(truncateSuffix('увеличение эффективности монстров')).toBe('увеличение эффективности монстр');
     });
   });
 

@@ -1,63 +1,28 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тесты:** ✅ 936/936 | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** ✅ 947/947 | **Build:** ✅ | **TypeScript:** ✅
 
 ---
 
-## Текущая итерация: 21 — Tests & deploy fix
+## Текущая итерация: 22 — Mid-phrase truncation fix
 
-### Сделано в итерации 21
+### Сделано в итерации 22
 
-**1. Деплой починен:**
-- `pnpm-lock.yaml` обновлён — добавлена пропущенная зависимость `zod`
-- `package-lock.json` удалён (проект использует pnpm)
-- `.gitignore` обновлён — `package-lock.json` исключён
-- `deploy.yml` — улучшены шаги corepack
+**1. Критический баг: mid-phrase word truncation (Phase 3 runtime)**
 
-**2. React component tests (47 тестов):**
+Функция `truncateSuffix()` в `optimization-strategies.ts` заменяла безопасные слова (из `TRUNCATED_TAILS_SAFE`) как подстроку в любом месте суффикса, даже если за усечённым словом шли другие слова. PoE2 использует поиск **непрерывной подстроки** — усечение слова в середине фразы создаёт разрыв, и регекс перестаёт матчить.
 
-| Компонент | Файл | Тестов | Покрытие |
-|-----------|------|--------|----------|
-| `PageStateWrapper` | `tests/ui/PageStateWrapper.test.tsx` | 9 | loading/error/no-data/render-prop, приоритеты состояний |
-| `RegexOutput` | `tests/ui/RegexOutput.test.tsx` | 17 | health bar (green/yellow/red), overflow, copy, auto-copy, budget warning, ARIA |
-| `FilterChip` | `tests/ui/FilterChip.test.tsx` | 21 | 5 состояний, ARIA, toggle, exclude, tier count, 2x badge, range text, ⚡⚓ indicators, keyboard |
+Пример бага: `"количества редких монстров на карте"` → `"количества редких монстр на карте"` ❌ (в игре текст `"монстрОВ на карте"`, подстрока `"монстр на карте"` не найдена).
 
-**3. ETL Zod-схемы + тесты (19 тестов):**
+**Фикс:** Замена подстроки ограничена **только концом суффикса** (`suffix.endsWith(full)` вместо `suffix.includes(full)`). Усечение в конце допустимо — `"монстр"` является префиксом `"монстров"` и сохраняет непрерывную подстроку.
 
-| Схема | Назначение |
-|-------|------------|
-| `RawModTierSchema` | Валидация tiers на входе ETL (level ≥ 0, affix prefix|suffix) |
-| `RawModGroupDataSchema` | Валидация групп (genGroup ≠ '', tiers ≥ 1) |
+**Затронутые слова:** монстров, приспешников, приспешника, оглушения, флакона, хаосу — все слова из `TRUNCATED_TAILS_SAFE`, за которыми могут идти другие слова.
 
-**4. sanitizeJsObjectLiteral() — unit tests (23 теста):**
-- Trailing commas (nested, whitespace)
-- Unquoted keys (underscore, dollar, numeric suffix)
-- Single-quoted strings (keys, values, empty)
-- Combined transformations (poe2db-like data)
-- Already-valid JSON passthrough
-
-**5. parseTypeBPage() — ETL coverage (17 тестов):**
-- 6 origins (normal, corrupted, desecrated, essence, breach, perfect_essence)
-- Family grouping, maxLevel, tags, modCode extraction
-- Empty categories, missing ModsView, empty descriptions
-
-### Инфраструктура тестов
-- `jsdom` + `@testing-library/jest-dom` добавлены в devDependencies
-- `tests/setup.ts` — автоматическое подключение jest-dom матчеров
-- `vite.config.ts` — `include: ['tests/**/*.test.{ts,tsx}']`, `setupFiles`, per-file environment override
-
----
-
-## План рефакторинга
-
-| # | Область | Приоритет | Суть | Статус |
-|---|---------|-----------|------|--------|
-| 1 | ETL compute-regex | **Высокий** | Разбить на модули | ✅ Done (iter 18) |
-| 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3 модуля | ✅ Done (iter 19) |
-| 3 | Data layer | **Средний** | Zod-схемы для CategoryData | ✅ Done (iter 20) |
-| 4 | Security | **Средний** | Убрать `new Function()` | ✅ Done (iter 20) |
-| 5 | Tests | Низкий | React component tests; расширить ETL coverage | ✅ Done (iter 21) |
+**2. Добавлены тесты (11 новых):**
+- Позитивные: усечение в конце суффикса работает корректно
+- Негативные: mid-phrase усечение отклоняется (7 regression tests)
+- PoE2 OR group: усечение внутри `(...)` отклоняется
 
 ---
 
@@ -67,7 +32,7 @@
 2. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
 3. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
 4. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
-5. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
+5. **Substring search** — PoE2 regex = contiguous substring match. Truncated words work only at END of suffix.
 
 ---
 

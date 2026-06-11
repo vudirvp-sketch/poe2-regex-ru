@@ -1,6 +1,28 @@
 # Worklog
 
 ---
+Task ID: 22
+Agent: main
+Task: Фикс бага mid-phrase word truncation в Phase 3 runtime optimizer
+
+Work Log:
+- 1: Клонирован репозиторий, установлен npm (pnpm не доступен)
+- 2: Проанализирован баг: truncateSuffix() заменяет safe-слова как подстроку в любом месте суффикса, ломая contiguous substring matching PoE2
+- 3: Идентифицированы все затронутые слова в TRUNCATED_TAILS_SAFE: монстров, приспешников, приспешника, оглушения, флакона, хаосу
+- 4: Найдены все затронутые регексы в public/generated/*.json (waystone, tablet, jewel, amulet, ring, belt)
+- 5: Проверена корректность ETL-пайплайна — tryWordTruncation и Phase A1 валидируют через matchQuotedGroup, баг только в runtime Phase 3
+- 6: Реализован фикс: suffix.includes(full) → suffix.endsWith(full), suffix.replace → suffix.slice + concat
+- 7: Добавлены 11 новых тестов: позитивные (end-of-suffix), негативные (mid-phrase rejection), OR group protection
+- 8: Все 947 тестов проходят (было 936)
+- 9: Обновлена документация: STATUS.md, AGENT_NAVIGATION.md, ARCHITECTURE.md
+
+Stage Summary:
+- **Критический баг исправлен** — mid-phrase truncation больше не ломает регексы
+- **11 regression tests** — покрывают все safe-слова в mid-phrase контексте
+- **ETL pipeline безопасен** — валидация через matchQuotedGroup работает корректно
+- **Точка остановки:** фикс завершён; дальнейшие шаги — проверить в игре, обновить ETL-generated JSON если нужно
+
+---
 Task ID: 17
 Agent: main
 Task: Фикс деплоя + анализ архитектуры + план рефакторинга

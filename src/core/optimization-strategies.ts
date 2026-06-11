@@ -59,6 +59,15 @@ export const TRUNCATED_TAILS_BLACKLIST: Set<string> = new Set([
  * The truncation only applies to complete words/suffixes that have been verified
  * in-game as not causing false positives. Partial or untested truncations are
  * rejected to prevent FP.
+ *
+ * IMPORTANT: Substring replacement is restricted to END-OF-SUFFIX only.
+ * PoE2 search uses contiguous substring matching — truncating a word that is
+ * followed by more text breaks the match because the omitted characters create
+ * a gap. For example, "монстров на карте" must NOT be truncated to
+ * "монстр на карте" because "монстр на карте" is NOT a contiguous substring
+ * of "монстров на карте" (the suffix "ов" sits between "монстр" and " на карте"").
+ * But "количества редких монстров" CAN be truncated to "количества редких монстр"
+ * because "монстр" is at the end and is a valid prefix of "монстров" in the text.
  */
 export function truncateSuffix(suffix: string): string {
   // Check exact match first (e.g., "эффективность монстров" → "эффективн")
@@ -69,16 +78,20 @@ export function truncateSuffix(suffix: string): string {
     }
   }
 
-  // Check if any safe entry is a substring of the input.
+  // Check if any safe entry appears at the END of the suffix.
+  // Only end-of-suffix truncation preserves the contiguous substring property
+  // required by PoE2 search. Mid-phrase truncation breaks matching because
+  // the removed characters create a gap between the truncated word and
+  // subsequent text.
   // Sort by length descending so longer matches take priority
   // (e.g., "эффективность монстров" before "эффективность").
   const sortedEntries = Object.entries(TRUNCATED_TAILS_SAFE)
     .sort(([a], [b]) => b.length - a.length);
 
   for (const [full, truncated] of sortedEntries) {
-    if (suffix.includes(full) && !TRUNCATED_TAILS_BLACKLIST.has(truncated)) {
-      // Replace the full word with its truncated version
-      return suffix.replace(full, truncated);
+    if (suffix.endsWith(full) && !TRUNCATED_TAILS_BLACKLIST.has(truncated)) {
+      // Replace only at the end of the suffix
+      return suffix.slice(0, -full.length) + truncated;
     }
   }
 

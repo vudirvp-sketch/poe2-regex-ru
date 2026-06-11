@@ -133,6 +133,8 @@ shared <- core <- strategies <- store <- data <- ui
 
 **Truncation safe list:** эффективн, бездн, путев, глубин, приспешник, оглушен, флакон, хаос, монстр
 
+**Truncation rule (iter 22):** Only END-OF-SUFFIX truncation is allowed. Mid-phrase truncation breaks PoE2 contiguous substring matching. Example: `"монстров на карте"` must NOT become `"монстр на карте"` — the gap "ов" between "монстр" and "на карте" breaks the match. But `"количества редких монстров"` → `"количества редких монстр"` is valid because "монстр" is at the end.
+
 **Blacklist:** редкост (FP «редкий»), редк, провал
 
 ## 9. Frequent Pitfalls
@@ -145,7 +147,7 @@ shared <- core <- strategies <- store <- data <- ui
 6. Core = dependency-free — no npm imports
 7. Generated JSON = read-only
 8. `reversed=true` for implicit tokens → `"suffix.*(number)%"`
-9. Word truncation = END only, min 3 significant chars
+9. Word truncation = END of suffix only, min 3 significant chars — mid-phrase truncation breaks contiguous substring
 10. Item rarity label IS indexed — never use «редкост»
 
 ## 10. Documentation Map
