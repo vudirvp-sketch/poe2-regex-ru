@@ -1,8 +1,8 @@
 # Regex Analysis Report (Summary)
 
-> Generated: 2026-06-06T15:00:41.425Z
+> Generated: 2026-06-12 (updated)
 > Data source: public/generated/
-> Total tokens: 1573 (note: current ETL produces 1823 with all categories)
+> Total tokens: 1823 (all categories)
 > Categories: amulet, belt, jewel-corrupted, jewel-desecrated, jewel, relic, ring, tablet, waystone-desecrated, waystone
 
 ---
@@ -13,30 +13,12 @@
 
 | Regex Length | Count | Risk Level |
 |-------------|-------|------------|
-| 4 chars | 1 | High FP risk — single word like `огня` |
+| 4 chars | 1 | High FP risk — `огня` (has `regexPrefixContext`) |
 | 5 chars | ~80 | Medium — many rely on context/excludes |
 | 6 chars | ~150 | Moderate |
-| 7+ chars | ~210 | Low — typically unique enough |
+| 7+ chars | ~210 | Low |
 
 **Total tokens with regex < 10 chars: 440** (28% of all tokens)
-
-### Problematic Patterns (regex length ≤ 5)
-
-These tokens have very short regexes and rely on `regexExclude` or `regexPrefixContext` to prevent cross-family FP:
-
-| Pattern | Category | Example token | Mitigation |
-|---------|----------|---------------|------------|
-| `огня` | amulet | genesistree firespell base critical chance | regexPrefixContext |
-| `урону` | amulet/jewel | critical multiplier (all tiers share this) | family-tier FP (by design) |
-| `к силе` | amulet/belt/ring | strength mods (all tiers) | family-tier FP (by design) |
-| `броне` | belt | armour mods (all tiers) | family-tier FP (by design) |
-| `молнии` | jewel/waystone | lightning damage/res | regexExclude/context |
-| `холоду` | jewel | cold resistance | family-tier FP |
-| `хаосу` | jewel | chaos resistance | family-tier FP |
-| `быстрее` | amulet/belt | minion revive speed | family-tier FP |
-| `для чар` | amulet/jewel/ring | spell crit chance | family-tier FP |
-| `на вас` | relic | various self-buffs | regexExclude/context |
-| `секунду` | ring | life regen | family-tier FP |
 
 ### Cross-Family FP Status
 
@@ -44,9 +26,39 @@ After `repairCrossFamilyFP()`: **0 cross-family FP** across all categories.
 
 Family-tier FP is expected (by design) — all tiers of the same mod family share the same regex suffix.
 
+### Problematic Patterns (regex ≤ 5 chars)
+
+These rely on `regexExclude` or `regexPrefixContext`:
+
+| Pattern | Category | Mitigation |
+|---------|----------|------------|
+| `огня` | amulet | regexPrefixContext |
+| `молнии` | jewel/waystone | regexExclude/context |
+| `на вас` | relic | regexExclude/context |
+
+---
+
+## Truncation Status
+
+**Принцип:** PoE2 = substring search. Базовые truncations работают 100% — верификация нужна только при риске FP на другое слово.
+
+| Truncation | Safe? | Reason |
+|------------|-------|--------|
+| `эффективн` | ✅ | Уникальная морфема |
+| `бездн` | ✅ | Уникальная морфема |
+| `путев` | ✅ | Уникальная морфема |
+| `глубин` | ✅ | Уникальная морфема |
+| `приспешник` | ✅ | Уникальная морфема |
+| `оглушен` | ✅ | Уникальная морфема |
+| `флакон` | ✅ | Уникальная морфема |
+| `хаос` | ✅ | Уникальная морфема |
+| `монстр` | ✅ | Уникальная морфема |
+| `редкост` | ❌ BLACKLIST | FP на «редкий» |
+| `редк` | ❌ BLACKLIST | FP на «редкий» |
+| `провал` | ❌ BLACKLIST | Нетестировано + низкая ценность |
+
 ---
 
 ## How to Regenerate Full Report
 
-Run: `pnpm analyze-fn` — produces detailed per-token analysis in this file.
-The full 440-entry table is omitted here to keep this file lightweight for agent context.
+Run: `pnpm analyze-fn` — produces detailed per-token analysis.

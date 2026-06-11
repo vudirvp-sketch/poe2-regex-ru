@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 48.0 | **Date:** 2026-06-11 | **Language:** RU-first
+> **Version:** 49.0 | **Date:** 2026-06-12 | **Language:** RU-first
 
 ---
 
@@ -86,6 +86,8 @@ poe2db.tw/ru/*
 8. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
 
 **Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word.
+
+**Truncation principle:** Basic morpheme truncations (приспешник, оглушен, флакон, хаос, монстр) work 100% — they are substring matches and will highlight all occurrences. Separate in-game verification is only needed when the truncated form could match a different meaningful word in the item context (e.g., «редкост» → FP on «редкий» rarity label).
 
 ## 4. Block-Based Matching Model
 
