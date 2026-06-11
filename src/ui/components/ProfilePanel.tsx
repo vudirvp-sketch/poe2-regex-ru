@@ -94,15 +94,15 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded">
+    <div className="bg-panel border border-edge-panel rounded">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-3 text-left"
         aria-expanded={expanded}
         aria-controls="profile-panel-content"
       >
-        <span className="text-xs text-gray-400">{t('profile.label')}</span>
-        <span className="text-xs text-gray-600" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
+        <span className="text-xs text-muted">{t('profile.label')}</span>
+        <span className="text-xs text-faint" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
@@ -115,7 +115,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
               onChange={(e) => setProfileName(e.target.value)}
               placeholder={t('profile.add') + '...'}
               aria-label={t('profile.add')}
-              className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              className="flex-1 px-2 py-1 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
             />
             <button
@@ -123,8 +123,8 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
               disabled={!profileName.trim() || isDuplicateName}
               className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
                 profileName.trim() && !isDuplicateName
-                  ? 'bg-blue-600 text-white hover:bg-blue-500'
-                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  ? 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
+                  : 'bg-raised text-dim cursor-not-allowed'
               }`}
               title={isDuplicateName ? t('profile.duplicate') : undefined}
             >
@@ -134,13 +134,13 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
           {/* Saved profiles list */}
           {profiles.length === 0 ? (
-            <div className="text-[10px] text-gray-600">{t('profile.label')} — 0</div>
+            <div className="text-[10px] text-faint">{t('profile.label')} — 0</div>
           ) : (
             <div className="flex flex-col gap-1" onBlur={handleDeleteCancel}>
               {profiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="flex items-center gap-2 p-1.5 bg-gray-800 rounded"
+                  className="flex items-center gap-2 p-1.5 bg-surface rounded"
                 >
                   {editingId === profile.id ? (
                     <input
@@ -149,13 +149,13 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                       onChange={(e) => setEditName(e.target.value)}
                       onBlur={() => handleFinishRename(profile.id)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleFinishRename(profile.id); if (e.key === 'Escape') { setEditingId(null); setEditName(''); } }}
-                      className="flex-1 px-1 py-0.5 bg-gray-700 border border-gray-500 rounded text-xs text-white focus:outline-none"
+                      className="flex-1 px-1 py-0.5 bg-raised border border-gray-500 rounded text-xs text-bright focus:outline-none"
                       autoFocus
                     />
                   ) : (
                     <button
                       onClick={() => handleRestore(profile.filterData)}
-                      className="flex-1 text-left text-xs text-blue-400 hover:text-blue-300 truncate"
+                      className="flex-1 text-left text-xs text-accent-blue hover:text-blue-300 truncate"
                       title={`Загрузить: ${profile.name}`}
                     >
                       {profile.name}
@@ -164,7 +164,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
                   <button
                     onClick={() => handleStartRename(profile.id, profile.name)}
-                    className="text-[10px] text-gray-500 hover:text-gray-300 px-1"
+                    className="text-[10px] text-dim hover:text-soft px-1"
                     title={t('profile.rename')}
                     aria-label={`${t('profile.rename')}: ${profile.name}`}
                   >
@@ -174,7 +174,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   {pendingDeleteId === profile.id ? (
                     <button
                       onMouseDown={(e) => { e.preventDefault(); handleDeleteConfirm(profile.id); }}
-                      className="text-[10px] text-red-400 hover:text-red-300 px-1 font-bold"
+                      className="text-[10px] text-accent-red hover:text-accent-red-soft px-1 font-bold"
                       title={t('profile.delete')}
                       aria-label={`${t('profile.delete')}: ${profile.name}`}
                       autoFocus
@@ -184,7 +184,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   ) : (
                     <button
                       onClick={() => handleDeleteRequest(profile.id)}
-                      className="text-[10px] text-gray-500 hover:text-red-400 px-1"
+                      className="text-[10px] text-dim hover:text-accent-red px-1"
                       title={t('profile.delete')}
                       aria-label={`${t('profile.delete')}: ${profile.name}`}
                     >

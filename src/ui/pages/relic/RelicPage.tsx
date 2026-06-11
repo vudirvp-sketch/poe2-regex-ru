@@ -47,7 +47,7 @@ export function RelicPage() {
                 <img src={`${import.meta.env.BASE_URL}icons/relic.png`} alt="" width={24} height={24} className="object-contain" />
                 {t('relic.title')}
               </h2>
-              <span className="text-xs text-gray-500">{data.tokens.length} {t('mods_word')}</span>
+              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
             </div>
 
             <CategoryControlPanel
@@ -98,12 +98,12 @@ export function RelicPage() {
               />
 
               {allActiveTokens.length > 0 && (
-                <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
+                <div className="bg-panel border border-edge-panel rounded p-3">
+                  <div className="text-xs text-muted mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
                   {excludeTokens.length > 0 && (
-                    <div className="text-xs text-red-400 mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
+                    <div className="text-xs text-accent-red mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
                   )}
-                  <div className="text-[10px] text-gray-600">
+                  <div className="text-[10px] text-faint">
                     {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
                   {excludeTokens.length > 0 && (

@@ -138,7 +138,7 @@ function buildColumnRows(
           type: 'origin-header',
           origin,
           label: labelConfig?.label ?? t('origin.' + origin),
-          colorClass: labelConfig?.colorClass ?? 'text-gray-400',
+          colorClass: labelConfig?.colorClass ?? 'text-muted',
           bgClass: labelConfig?.bgClass ?? '',
           borderClass: labelConfig?.borderClass ?? '',
           borderLClass: labelConfig?.borderLClass ?? '',
@@ -208,10 +208,10 @@ const VirtualRowContent: React.FC<{
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     const headerClass = isImplicit
-      ? 'affix-header-implicit text-amber-400'
+      ? 'affix-header-implicit text-accent-amber'
       : row.affix === 'prefix'
-        ? 'affix-header-prefix text-blue-400'
-        : 'affix-header-suffix text-orange-400';
+        ? 'affix-header-prefix text-accent-blue'
+        : 'affix-header-suffix text-accent-orange';
     return (
       <div className={`text-base font-bold uppercase tracking-wider ${headerClass}`}>
         {isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + row.affix)} ({row.count})
@@ -696,14 +696,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
-          className="flex-1 min-w-[180px] px-3 py-2 bg-gray-800 border border-gray-600 rounded text-[15px] text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-2 bg-surface border border-edge rounded text-[15px] text-bright placeholder-ghost focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
           aria-label={t('filter.all_types')}
-          className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
+          className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
         >
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
@@ -716,7 +716,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
             aria-label={t('filter.all_origins')}
-            className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
+            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
           >
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
@@ -730,7 +730,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2.5 py-1.5 bg-gray-700 border border-gray-600 rounded text-[13px] text-gray-300 hover:bg-gray-600 transition-colors"
+            className="px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-gray-600 transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
@@ -738,7 +738,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="text-[13px] text-gray-500">
+      <div className="text-[13px] text-dim">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
@@ -746,7 +746,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       {hasImplicit && affixFilter !== 'prefix' && affixFilter !== 'suffix' && implicitRows.length > 0 && (
         <VirtualizedColumn
           rows={implicitRows}
-          borderClass="border-amber-800/50"
+          borderClass="border-cborder-amber"
           {...columnProps}
         />
       )}
@@ -756,12 +756,12 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4">
           <VirtualizedColumn
             rows={prefixRows}
-            borderClass="border-blue-800/50"
+            borderClass="border-cborder-blue"
             {...columnProps}
           />
           <VirtualizedColumn
             rows={suffixRows}
-            borderClass="border-orange-800/50"
+            borderClass="border-cborder-orange"
             {...columnProps}
           />
         </div>
@@ -802,7 +802,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           )}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-dim py-8">
           {t('filter.no_results')}
         </div>
       )}

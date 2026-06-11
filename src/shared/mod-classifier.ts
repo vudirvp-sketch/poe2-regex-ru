@@ -43,24 +43,24 @@ export interface CategoryLabel {
 // ─── Display config ───
 
 export const SEMANTIC_LABELS: Record<SemanticCategory, CategoryLabel> = {
-  offensive: { label: 'Атакующие', colorClass: 'text-red-400', bgClass: 'bg-red-900/15', borderClass: 'border-red-500/15', borderLClass: '' },
-  defensive: { label: 'Защитные', colorClass: 'text-blue-400', bgClass: 'bg-blue-900/15', borderClass: 'border-blue-500/15', borderLClass: '' },
-  attribute: { label: 'Характеристики', colorClass: 'text-green-400', bgClass: 'bg-green-900/15', borderClass: 'border-green-500/15', borderLClass: '' },
-  neutral:   { label: 'Прочие', colorClass: 'text-gray-400', bgClass: 'bg-gray-900/15', borderClass: 'border-gray-500/15', borderLClass: '' },
+  offensive: { label: 'Атакующие', colorClass: 'text-accent-red', bgClass: 'bg-section-red', borderClass: 'border-sborder-red', borderLClass: '' },
+  defensive: { label: 'Защитные', colorClass: 'text-accent-blue', bgClass: 'bg-section-blue', borderClass: 'border-cborder-blue', borderLClass: '' },
+  attribute: { label: 'Характеристики', colorClass: 'text-accent-teal', bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  neutral:   { label: 'Прочие', colorClass: 'text-muted', bgClass: 'bg-panel/15', borderClass: 'border-edge/15', borderLClass: '' },
 };
 
 export const SENTIMENT_LABELS: Record<SentimentCategory, CategoryLabel> = {
-  positive: { label: 'Позитивные', colorClass: 'text-green-400', bgClass: 'bg-green-900/15', borderClass: 'border-green-500/15', borderLClass: '' },
-  negative: { label: 'Негативные', colorClass: 'text-red-400', bgClass: 'bg-red-900/15', borderClass: 'border-red-500/15', borderLClass: '' },
-  neutral:  { label: 'Нейтральные', colorClass: 'text-gray-400', bgClass: 'bg-gray-900/15', borderClass: 'border-gray-500/15', borderLClass: '' },
+  positive: { label: 'Позитивные', colorClass: 'text-accent-teal', bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  negative: { label: 'Негативные', colorClass: 'text-accent-red', bgClass: 'bg-section-red', borderClass: 'border-sborder-red', borderLClass: '' },
+  neutral:  { label: 'Нейтральные', colorClass: 'text-muted', bgClass: 'bg-panel/15', borderClass: 'border-edge/15', borderLClass: '' },
 };
 
 export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
-  normal:     { label: 'Обычные',       colorClass: 'text-gray-300',    bgClass: 'bg-gray-900/30',    borderClass: 'border-gray-500/25',    borderLClass: 'border-l-gray-400' },
-  desecrated: { label: 'Очернённые',    colorClass: 'text-emerald-400', bgClass: 'bg-emerald-900/30',  borderClass: 'border-emerald-500/25', borderLClass: 'border-l-emerald-400', iconPath: 'icons/очернение абис.webp' },
-  corrupted:  { label: 'Осквернённые',  colorClass: 'text-red-400',     bgClass: 'bg-red-900/30',     borderClass: 'border-red-500/25',     borderLClass: 'border-l-red-400',     iconPath: 'icons/осквернение.webp' },
-  essence:    { label: 'Сущность',      colorClass: 'text-amber-400',   bgClass: 'bg-amber-900/30',   borderClass: 'border-amber-500/25',   borderLClass: 'border-l-amber-400',   iconPath: 'icons/сущность.webp' },
-  breachborn: { label: 'Разлом',        colorClass: 'text-violet-400',  bgClass: 'bg-violet-900/30',  borderClass: 'border-violet-500/25',  borderLClass: 'border-l-violet-400',  iconPath: 'icons/разлом.webp' },
+  normal:     { label: 'Обычные',       colorClass: 'text-soft',    bgClass: 'bg-panel/30',    borderClass: 'border-edge/25',    borderLClass: 'border-l-gray-400' },
+  desecrated: { label: 'Очернённые',    colorClass: 'text-accent-emerald', bgClass: 'bg-section-emerald',  borderClass: 'border-sborder-emerald', borderLClass: 'border-l-bl-emerald', iconPath: 'icons/очернение абис.webp' },
+  corrupted:  { label: 'Осквернённые',  colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: 'border-l-bl-red-soft',     iconPath: 'icons/осквернение.webp' },
+  essence:    { label: 'Сущность',      colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: 'border-l-bl-amber-soft',   iconPath: 'icons/сущность.webp' },
+  breachborn: { label: 'Разлом',        colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: 'border-l-bl-violet',  iconPath: 'icons/разлом.webp' },
 };
 
 // ─── Tags-based classification (preferred) ───
@@ -176,12 +176,12 @@ export function classifyWaystoneSentiment(group: FamilyGroup): SentimentCategory
 export type TabletTypeCategory = 'ritual' | 'breach' | 'delirium' | 'vaal' | 'expedition' | 'generic';
 
 export const TABLET_TYPE_LABELS: Record<TabletTypeCategory, CategoryLabel> = {
-  ritual:     { label: 'Ритуал',      colorClass: 'text-red-400',    bgClass: 'bg-red-900/15',    borderClass: 'border-red-500/15',    borderLClass: '' },
-  breach:     { label: 'Бездна',      colorClass: 'text-purple-400', bgClass: 'bg-purple-900/15', borderClass: 'border-purple-500/15', borderLClass: '' },
-  delirium:   { label: 'Делириум',    colorClass: 'text-blue-400',   bgClass: 'bg-blue-900/15',   borderClass: 'border-blue-500/15',   borderLClass: '' },
-  vaal:       { label: 'Ваал',        colorClass: 'text-orange-400', bgClass: 'bg-orange-900/15', borderClass: 'border-orange-500/15', borderLClass: '' },
-  expedition: { label: 'Экспедиция',  colorClass: 'text-green-400',  bgClass: 'bg-green-900/15',  borderClass: 'border-green-500/15',  borderLClass: '' },
-  generic:    { label: 'Общие',       colorClass: 'text-gray-400',   bgClass: 'bg-gray-900/15',   borderClass: 'border-gray-500/15',   borderLClass: '' },
+  ritual:     { label: 'Ритуал',      colorClass: 'text-accent-red',    bgClass: 'bg-section-red',    borderClass: 'border-sborder-red',    borderLClass: '' },
+  breach:     { label: 'Бездна',      colorClass: 'text-accent-purple', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
+  delirium:   { label: 'Делириум',    colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',   borderClass: 'border-cborder-blue',   borderLClass: '' },
+  vaal:       { label: 'Ваал',        colorClass: 'text-accent-orange', bgClass: 'bg-section-amber', borderClass: 'border-sborder-amber', borderLClass: '' },
+  expedition: { label: 'Экспедиция',  colorClass: 'text-accent-teal',  bgClass: 'bg-section-emerald',  borderClass: 'border-sborder-emerald',  borderLClass: '' },
+  generic:    { label: 'Общие',       colorClass: 'text-muted',   bgClass: 'bg-panel/15',   borderClass: 'border-edge/15',   borderLClass: '' },
 };
 
 /** Keywords indicating a Ritual tablet mod */
@@ -232,10 +232,10 @@ export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
 export type JewelTypeCategory = JewelType;
 
 export const JEWEL_TYPE_LABELS: Record<JewelTypeCategory, CategoryLabel> = {
-  ruby:     { label: 'Рубин',    colorClass: 'text-red-400',    bgClass: 'bg-red-900/15',    borderClass: 'border-red-500/15',    borderLClass: '' },
-  emerald:  { label: 'Изумруд',  colorClass: 'text-green-400',  bgClass: 'bg-green-900/15',  borderClass: 'border-green-500/15',  borderLClass: '' },
-  sapphire: { label: 'Сапфир',   colorClass: 'text-blue-400',   bgClass: 'bg-blue-900/15',   borderClass: 'border-blue-500/15',   borderLClass: '' },
-  shared:   { label: 'Общие',    colorClass: 'text-gray-400',   bgClass: 'bg-gray-900/15',   borderClass: 'border-gray-500/15',   borderLClass: '' },
+  ruby:     { label: 'Рубин',    colorClass: 'text-accent-red',    bgClass: 'bg-section-red',    borderClass: 'border-sborder-red',    borderLClass: '' },
+  emerald:  { label: 'Изумруд',  colorClass: 'text-accent-teal',  bgClass: 'bg-section-emerald',  borderClass: 'border-sborder-emerald',  borderLClass: '' },
+  sapphire: { label: 'Сапфир',   colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',   borderClass: 'border-cborder-blue',   borderLClass: '' },
+  shared:   { label: 'Общие',    colorClass: 'text-muted',   bgClass: 'bg-panel/15',   borderClass: 'border-edge/15',   borderLClass: '' },
 };
 
 /**
@@ -1057,7 +1057,7 @@ export function classifyGroups(
       .map(origin => ({
         key: origin,
         label: ORIGIN_SECTION_LABELS[origin]?.label ?? t('origin.' + origin),
-        colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-gray-400',
+        colorClass: ORIGIN_SECTION_LABELS[origin]?.colorClass ?? 'text-muted',
         bgClass: ORIGIN_SECTION_LABELS[origin]?.bgClass ?? '',
         borderClass: ORIGIN_SECTION_LABELS[origin]?.borderClass ?? '',
         borderLClass: ORIGIN_SECTION_LABELS[origin]?.borderLClass ?? '',

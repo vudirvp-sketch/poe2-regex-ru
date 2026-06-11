@@ -43,20 +43,20 @@ const GROUP_ORDER = [
 // ─── Group color config for visual differentiation ───
 
 export const GROUP_COLORS: Record<string, { header: string; border: string }> = {
-  'Свойства предмета':    { header: 'text-gray-400',   border: 'border-l-gray-500' },
-  'Скорость':             { header: 'text-yellow-400',  border: 'border-l-yellow-500' },
-  'Скорость передвижения':{ header: 'text-yellow-400',  border: 'border-l-yellow-500' },
-  'Сопротивления':        { header: 'text-blue-400',    border: 'border-l-blue-500' },
-  'Модификаторы':         { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Умения':               { header: 'text-purple-400',  border: 'border-l-purple-500' },
-  'Характеристики':       { header: 'text-green-400',   border: 'border-l-green-500' },
-  'Уровень':              { header: 'text-cyan-400',    border: 'border-l-cyan-500' },
-  'Редкость предмета':    { header: 'text-orange-400',  border: 'border-l-orange-500' },
-  'Класс — Украшения':    { header: 'text-amber-400',   border: 'border-l-amber-500' },
-  'Класс — Оружие 1H':   { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Класс — Оружие 2H':   { header: 'text-red-400',     border: 'border-l-red-500' },
-  'Класс — Экипировка':  { header: 'text-sky-400',     border: 'border-l-sky-500' },
-  'Класс — Оффхэнд':     { header: 'text-teal-400',    border: 'border-l-teal-500' },
+  'Свойства предмета':    { header: 'text-muted',          border: 'border-l-bl-gray' },
+  'Скорость':             { header: 'text-accent-yellow',   border: 'border-l-bl-yellow' },
+  'Скорость передвижения':{ header: 'text-accent-yellow',   border: 'border-l-bl-yellow' },
+  'Сопротивления':        { header: 'text-accent-blue',     border: 'border-l-bl-blue' },
+  'Модификаторы':         { header: 'text-accent-red',      border: 'border-l-bl-red' },
+  'Умения':               { header: 'text-accent-purple',   border: 'border-l-bl-purple' },
+  'Характеристики':       { header: 'text-accent-teal',     border: 'border-l-bl-green' },
+  'Уровень':              { header: 'text-accent-cyan',     border: 'border-l-bl-cyan' },
+  'Редкость предмета':    { header: 'text-accent-orange',   border: 'border-l-bl-orange' },
+  'Класс — Украшения':    { header: 'text-accent-amber',    border: 'border-l-bl-amber' },
+  'Класс — Оружие 1H':   { header: 'text-accent-red',      border: 'border-l-bl-red' },
+  'Класс — Оружие 2H':   { header: 'text-accent-red',      border: 'border-l-bl-red' },
+  'Класс — Экипировка':  { header: 'text-accent-sky',      border: 'border-l-bl-sky' },
+  'Класс — Оффхэнд':     { header: 'text-accent-teal',     border: 'border-l-bl-teal' },
 };
 
 /** Return type of useVendorPage */

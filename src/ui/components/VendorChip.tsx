@@ -46,16 +46,16 @@ export const VendorChip: React.FC<VendorChipProps> = ({
 
   // Color variant based on property group type
   const borderClass = isExcluded
-    ? 'border-l-red-500'
+    ? 'border-l-bl-red'
     : isSelected
-      ? 'border-l-blue-500'
+      ? 'border-l-bl-blue'
       : 'border-l-gray-600';
 
   const bgClass = isExcluded
-    ? 'bg-red-900/40 text-white'
+    ? 'bg-indicator-red text-bright'
     : isSelected
-      ? 'bg-blue-900/40 text-white'
-      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50';
+      ? 'bg-chip-active text-bright'
+      : 'bg-chip text-soft hover:bg-chip-hover';
 
   return (
     <div
@@ -80,7 +80,7 @@ export const VendorChip: React.FC<VendorChipProps> = ({
           className={`w-3.5 h-3.5 rounded text-[9px] font-bold leading-none flex items-center justify-center transition-colors ${
             isExcluded
               ? 'bg-red-700/60 text-red-200 hover:bg-red-600/60'
-              : 'bg-gray-700/60 text-gray-400 hover:bg-red-800/40 hover:text-red-300'
+              : 'bg-raised/60 text-muted hover:bg-red-800/40 hover:text-accent-red-soft'
           }`}
           aria-label={isExcluded ? `Убрать исключение: ${prop.label}` : `Исключить: ${prop.label}`}
           title={isExcluded ? 'Убрать исключение' : 'Исключить'}
@@ -102,7 +102,7 @@ export const VendorChip: React.FC<VendorChipProps> = ({
             onNumericChange(prop.id, e.target.value === '' || isNaN(v) || v < 0 ? null : v);
           }}
           aria-label={`Порог для ${prop.label}`}
-          className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[10px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+          className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[10px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
         />
       )}
     </div>

@@ -107,7 +107,7 @@ function splitByOriginThenSemantic(
     result.push({
       origin,
       label: labelConfig?.label ?? t('origin.' + origin),
-      colorClass: labelConfig?.colorClass ?? 'text-gray-400',
+      colorClass: labelConfig?.colorClass ?? 'text-muted',
       bgClass: labelConfig?.bgClass ?? '',
       borderClass: labelConfig?.borderClass ?? '',
       borderLClass: labelConfig?.borderLClass ?? '',
@@ -181,8 +181,8 @@ const AffixColumn: React.FC<{
 
   const isPrefix = affix === 'prefix';
   const isImplicit = affix === 'implicit';
-  const headerColor = isImplicit ? 'text-amber-400' : isPrefix ? 'text-blue-400' : 'text-orange-400';
-  const borderColor = isImplicit ? 'border-amber-800/50' : isPrefix ? 'border-blue-800/50' : 'border-orange-800/50';
+  const headerColor = isImplicit ? 'text-accent-amber' : isPrefix ? 'text-accent-blue' : 'text-accent-orange';
+  const borderColor = isImplicit ? 'border-cborder-amber' : isPrefix ? 'border-cborder-blue' : 'border-cborder-orange';
 
   return (
     <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
@@ -414,14 +414,14 @@ export const ModList: React.FC<ModListProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
-          className="flex-1 min-w-[180px] px-3 py-2 bg-gray-800 border border-gray-600 rounded text-[15px] text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-2 bg-surface border border-edge rounded text-[15px] text-bright placeholder-ghost focus:outline-none focus:border-blue-500"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
           aria-label={t('filter.all_types')}
-          className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
+          className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
         >
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
@@ -434,7 +434,7 @@ export const ModList: React.FC<ModListProps> = ({
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
             aria-label={t('filter.all_origins')}
-            className="px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white focus:outline-none focus:border-blue-500"
+            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
           >
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
@@ -448,7 +448,7 @@ export const ModList: React.FC<ModListProps> = ({
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2.5 py-1.5 bg-gray-700 border border-gray-600 rounded text-[13px] text-gray-300 hover:bg-gray-600 transition-colors"
+            className="px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-gray-600 transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
@@ -456,7 +456,7 @@ export const ModList: React.FC<ModListProps> = ({
       </div>
 
       {/* Stats */}
-      <div className="text-[13px] text-gray-500">
+      <div className="text-[13px] text-dim">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
@@ -526,8 +526,8 @@ export const ModList: React.FC<ModListProps> = ({
                   return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-2">
                       {originPrefix.length > 0 && (
-                        <div className="border-l-2 border-blue-800/50 pl-3">
-                          <h5 className="text-[13px] font-semibold text-blue-400 uppercase mb-1 affix-header-prefix">{t('affix.prefix')} ({originPrefix.length})</h5>
+                        <div className="border-l-2 border-cborder-blue pl-3">
+                          <h5 className="text-[13px] font-semibold text-accent-blue uppercase mb-1 affix-header-prefix">{t('affix.prefix')} ({originPrefix.length})</h5>
                           {showJewelTypeSubGroups
                             ? renderJewelTypeSubGroups(originPrefix)
                             : <div className="flex flex-wrap gap-1.5">
@@ -539,8 +539,8 @@ export const ModList: React.FC<ModListProps> = ({
                         </div>
                       )}
                       {originSuffix.length > 0 && (
-                        <div className="border-l-2 border-orange-800/50 pl-3">
-                          <h5 className="text-[13px] font-semibold text-orange-400 uppercase mb-1 affix-header-suffix">{t('affix.suffix')} ({originSuffix.length})</h5>
+                        <div className="border-l-2 border-cborder-orange pl-3">
+                          <h5 className="text-[13px] font-semibold text-accent-orange uppercase mb-1 affix-header-suffix">{t('affix.suffix')} ({originSuffix.length})</h5>
                           {showJewelTypeSubGroups
                             ? renderJewelTypeSubGroups(originSuffix)
                             : <div className="flex flex-wrap gap-1.5">
@@ -628,7 +628,7 @@ export const ModList: React.FC<ModListProps> = ({
         )}
         </>
       ) : (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-dim py-8">
           {t('filter.no_results')}
         </div>
       )}

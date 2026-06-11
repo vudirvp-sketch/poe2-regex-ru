@@ -139,7 +139,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             role="radio"
             aria-checked={searchLogic === 'and'}
             className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              searchLogic === 'and' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              searchLogic === 'and' ? 'bg-indigo-600 text-bright' : 'bg-raised text-muted hover:bg-gray-600'
             }`}
           >
             {t('logic.and')}
@@ -149,7 +149,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             role="radio"
             aria-checked={searchLogic === 'or'}
             className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              searchLogic === 'or' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              searchLogic === 'or' ? 'bg-indigo-600 text-bright' : 'bg-raised text-muted hover:bg-gray-600'
             }`}
           >
             {t('logic.or')}
@@ -158,7 +158,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
 
         {/* Exclude summary indicator */}
         {excludedCount > 0 && (
-          <span className="text-[12px] text-red-400 font-medium">
+          <span className="text-[12px] text-accent-red font-medium">
             {excludedCount} {t('summary.exclude').toLowerCase()}
           </span>
         )}
@@ -167,7 +167,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {hasRangedTokens && (
           <>
             <div className="flex items-center gap-1 text-[13px]">
-              <span className="text-gray-500">&ge;</span>
+              <span className="text-dim">&ge;</span>
               <input
                 type="number"
                 step="1"
@@ -176,9 +176,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMinValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}
                 placeholder={t('range.min')}
                 aria-label={t('range.min_aria')}
-                className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               />
-              <span className="text-gray-500">&le;</span>
+              <span className="text-dim">&le;</span>
               <input
                 type="number"
                 step="1"
@@ -187,22 +187,22 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 onChange={(e) => { const v = parseInt(e.target.value, 10); setMaxValue(e.target.value === '' || isNaN(v) || v < 0 ? null : v); }}
                 placeholder={t('range.max')}
                 aria-label={t('range.max_aria')}
-                className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               />
             </div>
             {minValue !== null && maxValue !== null && (
-              <span className="text-[12px] text-gray-500">
+              <span className="text-[12px] text-dim">
                 {minValue} &le; N &le; {maxValue}
               </span>
             )}
             {minValue !== null && maxValue === null && (
-              <span className="text-[12px] text-gray-500">N &ge; {minValue}</span>
+              <span className="text-[12px] text-dim">N &ge; {minValue}</span>
             )}
             {maxValue !== null && minValue === null && (
-              <span className="text-[12px] text-gray-500">N &le; {maxValue}</span>
+              <span className="text-[12px] text-dim">N &le; {maxValue}</span>
             )}
             {rangedSuffixes.length > 0 && (minValue !== null || maxValue !== null) && (
-              <span className="text-[12px] text-gray-600">
+              <span className="text-[12px] text-faint">
                 {t('suffixes.label')}: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
               </span>
             )}
@@ -237,9 +237,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               type="checkbox"
               checked={round10Enabled}
               onChange={(e) => setRound10Enabled(e.target.checked)}
-              className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500"
+              className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500"
             />
-            <span className="text-[12px] text-gray-400">{t('round10')}</span>
+            <span className="text-[12px] text-muted">{t('round10')}</span>
           </label>
         )}
 
@@ -249,7 +249,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {/* Priority tier filter */}
         {showPriorityFilter && (
           <div className="flex items-center gap-1">
-            <span className="text-[12px] text-gray-500">{t('priority.label')}</span>
+            <span className="text-[12px] text-dim">{t('priority.label')}</span>
             <div className="flex gap-0.5" role="radiogroup" aria-label={t('priority.label')}
               onKeyDown={(e) => handleRadioKeyDown(e, priorityOptions, priorityFilter)}
             >
@@ -258,7 +258,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 role="radio"
                 aria-checked={priorityFilter === 'all'}
                 className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'all' ? 'bg-gray-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  priorityFilter === 'all' ? 'bg-gray-600 text-bright' : 'bg-raised text-muted hover:bg-gray-600'
                 }`}
               >
                 {t('priority.all')}
@@ -268,7 +268,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 role="radio"
                 aria-checked={priorityFilter === 'S+A'}
                 className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'S+A' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  priorityFilter === 'S+A' ? 'bg-amber-600 text-bright' : 'bg-raised text-muted hover:bg-gray-600'
                 }`}
               >
                 {t('priority.sa')}
@@ -278,7 +278,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 role="radio"
                 aria-checked={priorityFilter === 'S'}
                 className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'S' ? 'bg-amber-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  priorityFilter === 'S' ? 'bg-amber-500 text-bright' : 'bg-raised text-muted hover:bg-gray-600'
                 }`}
               >
                 {t('priority.s_only')}

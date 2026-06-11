@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+/* ─── Semantic theme tokens ─── */
+/* All theme-aware values are CSS custom properties that switch between
+   dark and light themes. Tailwind's @theme block exposes them as
+   utility classes (bg-surface, text-bright, border-edge, etc.).
+   NO !important overrides needed — theme switching is purely via CSS variables. */
+
 /* ─── Dark theme (default) ─── */
 :root,
 [data-theme="dark"] {
+  /* Core palette */
   --poe-bg: #0a0a0f;
   --poe-bg-secondary: #12121a;
   --poe-bg-tertiary: #1a1a25;
@@ -15,18 +22,115 @@
   --poe-green: #4ec44e;
   --poe-yellow: #c4c44e;
 
-  /* Component-specific tokens */
+  /* Surface backgrounds */
+  --input-bg: #1f2937;
+  --panel-bg: #111827;
+  --raised-bg: #374151;
+  --deep-bg: #030712;
   --chip-bg: rgba(31, 31, 41, 0.5);
   --chip-bg-hover: rgba(55, 55, 65, 0.5);
   --chip-bg-selected: rgba(30, 58, 95, 0.4);
-  --input-bg: #1f2937;
+
+  /* Border colors */
   --input-border: #4b5563;
-  --panel-bg: #111827;
   --panel-border: #374151;
+
+  /* Primary text (white in dark, dark in light) */
+  --text-primary: #ffffff;
+
+  /* Text levels */
+  --text-soft: #d1d5db;       /* ≈ gray-300 */
+  --text-muted-val: #9ca3af;  /* ≈ gray-400 */
+  --text-dim-val: #6b7280;    /* ≈ gray-500 */
+  --text-faint-val: #4b5563;  /* ≈ gray-600 */
+
+  /* Placeholder text */
+  --placeholder-primary: #6b7280;    /* ≈ gray-500 */
+  --placeholder-secondary: #4b5563;  /* ≈ gray-600 */
+
+  /* Accent text colors */
+  --accent-green-soft: #86efac;   /* green-300 */
+  --accent-blue: #60a5fa;         /* blue-400 */
+  --accent-orange: #fb923c;       /* orange-400 */
+  --accent-red-soft: #fca5a5;     /* red-300 */
+  --accent-red: #f87171;          /* red-400 */
+  --accent-emerald: #34d399;      /* emerald-400 */
+  --accent-yellow: #facc15;       /* yellow-400 */
+  --accent-yellow-dim: rgba(250, 204, 21, 0.8); /* yellow-400/80 */
+  --accent-violet: #a78bfa;       /* violet-400 */
+  --accent-purple: #c084fc;       /* purple-400 */
+  --accent-cyan: #22d3ee;         /* cyan-400 */
+  --accent-amber: #fbbf24;        /* amber-400 */
+  --accent-sky: #38bdf8;          /* sky-400 */
+  --accent-teal: #2dd4bf;         /* teal-400 */
+
+  /* Button backgrounds */
+  --btn-primary: #2563eb;         /* blue-600 */
+  --btn-primary-hover: #1d4ed8;   /* blue-600 hover */
+  --btn-danger: #dc2626;          /* red-600 */
+  --btn-success: #16a34a;         /* green-600 */
+
+  /* Checkbox */
+  --checkbox-bg: #f1f5f9;         /* slate-100 */
+  --checkbox-border: #cbd5e1;     /* slate-300 */
+  --checkbox-text: #0f172a;       /* slate-900 */
+
+  /* Indicator backgrounds (health bars, status) */
+  --indicator-green: rgba(16, 185, 129, 0.15);  /* emerald-900/40 */
+  --indicator-yellow: rgba(234, 179, 8, 0.15);  /* yellow-900/40 */
+  --indicator-red: rgba(239, 68, 68, 0.15);     /* red-900/40 */
+  --indicator-red-deep: rgba(239, 68, 68, 0.1); /* red-950/50 */
+
+  /* Section/panel backgrounds (sub-sections, alerts) */
+  --section-yellow: rgba(234, 179, 8, 0.1);     /* yellow-900/30 */
+  --section-red: rgba(239, 68, 68, 0.1);        /* red-900/50 + /30 */
+  --section-emerald: rgba(16, 185, 129, 0.1);   /* emerald-900/30 */
+  --section-violet: rgba(139, 92, 246, 0.1);    /* violet-900/30 */
+  --section-amber: rgba(217, 119, 6, 0.1);      /* amber-900/30 */
+  --section-blue: rgba(59, 130, 246, 0.1);      /* blue-900/20 */
+
+  /* Border-left accent colors (chip indicators) */
+  --bl-blue: #3b82f6;       /* blue-500 */
+  --bl-orange: #f97316;     /* orange-500 */
+  --bl-gray: #6b7280;       /* gray-500 */
+  --bl-yellow: #eab308;     /* yellow-500 */
+  --bl-red: #ef4444;        /* red-500 */
+  --bl-purple: #a855f7;     /* purple-500 */
+  --bl-green: #22c55e;      /* green-500 */
+  --bl-cyan: #06b6d4;       /* cyan-500 */
+  --bl-amber: #f59e0b;      /* amber-500 */
+  --bl-sky: #0ea5e9;        /* sky-500 */
+  --bl-teal: #14b8a6;       /* teal-500 */
+  --bl-emerald: #34d399;    /* emerald-400 */
+  --bl-violet: #a78bfa;     /* violet-400 */
+  --bl-red-soft: #f87171;   /* red-400 */
+  --bl-amber-soft: #fbbf24; /* amber-400 */
+
+  /* Section border colors */
+  --sborder-emerald: rgba(16, 185, 129, 0.25);  /* emerald-500/25 */
+  --sborder-violet: rgba(139, 92, 246, 0.25);   /* violet-500/25 */
+  --sborder-amber: rgba(245, 158, 11, 0.25);    /* amber-500/25 */
+  --sborder-red: rgba(239, 68, 68, 0.25);       /* red-500/25 */
+
+  /* Column/affix border colors */
+  --cborder-blue: rgba(37, 99, 235, 0.3);       /* blue-800/50 */
+  --cborder-orange: rgba(194, 65, 12, 0.3);     /* orange-800/50 */
+  --cborder-amber: rgba(217, 119, 6, 0.3);      /* amber-800/50 */
+
+  /* Danger border colors */
+  --danger-border: #f87171;       /* ≈ red-700 (light override) */
+  --danger-border-strong: #ef4444; /* ≈ red-800 (light override) */
+
+  /* Scrollbar */
+  --scrollbar-hover: #3a3a4a;
+
+  /* Focus ring */
+  --focus-ring: #3b82f6;
 }
 
 /* ─── Light theme ─── */
 [data-theme="light"] {
+  /* Core palette override */
   --poe-bg: #f5f5f0;
   --poe-bg-secondary: #eaeae5;
   --poe-bg-tertiary: #ddddd8;
@@ -39,71 +143,169 @@
   --poe-green: #2d8a2d;
   --poe-yellow: #8a8a2d;
 
-  /* Component-specific tokens */
+  /* Surface backgrounds override */
+  --input-bg: #ffffff;
+  --panel-bg: #ffffff;
+  --raised-bg: #ddddd8;
+  --deep-bg: #f5f5f0;
   --chip-bg: rgba(255, 255, 255, 0.8);
   --chip-bg-hover: rgba(240, 240, 235, 0.9);
   --chip-bg-selected: rgba(59, 130, 246, 0.15);
-  --input-bg: #ffffff;
+
+  /* Border colors override */
   --input-border: #c0c0bb;
-  --panel-bg: #ffffff;
   --panel-border: #d0d0cb;
 
-  /* Semantic text color tokens (override Tailwind utilities in light mode) */
-  --lt-text-gray-300: #555558;
-  --lt-text-gray-400: #666668;
-  --lt-text-gray-500: #777778;
-  --lt-text-gray-600: #888888;
-  --lt-text-green-300: #1a6b1a;
-  --lt-text-green-400: #16a34a;
-  --lt-text-blue-400: #2563eb;
-  --lt-text-orange-400: #c2410c;
-  --lt-text-red-300: #dc2626;
-  --lt-text-red-400: #dc2626;
-  --lt-text-emerald-400: #059669;
-  --lt-text-yellow-400: #d97706;
-  --lt-text-violet-400: #7c3aed;
-  --lt-text-purple-400: #9333ea;
-  --lt-text-cyan-400: #0891b2;
-  --lt-text-amber-400: #d97706;
-  --lt-text-sky-400: #0284c7;
-  --lt-text-teal-400: #0d9488;
-  --lt-text-placeholder: #999999;
-  --lt-text-placeholder-alt: #aaaaaa;
-  --lt-text-yellow-400-80: #b45309;
+  /* Primary text override */
+  --text-primary: #333338;
 
-  /* Semantic background color tokens */
-  --lt-bg-green-600: #16a34a;
-  --lt-bg-blue-600: #2563eb;
-  --lt-bg-blue-600-hover: #1d4ed8;
-  --lt-bg-red-600: #dc2626;
-  --lt-bg-slate-100: #2563eb;
+  /* Text levels override */
+  --text-soft: #555558;
+  --text-muted-val: #666668;
+  --text-dim-val: #777778;
+  --text-faint-val: #888888;
 
-  /* Semantic border color tokens */
-  --lt-border-l-blue-500: #2563eb;
-  --lt-border-l-orange-500: #ea580c;
-  --lt-border-l-gray-500: #6b7280;
-  --lt-border-l-yellow-500: #eab308;
-  --lt-border-l-red-500: #ef4444;
-  --lt-border-l-purple-500: #a855f7;
-  --lt-border-l-green-500: #22c55e;
-  --lt-border-l-cyan-500: #06b6d4;
-  --lt-border-l-amber-500: #f59e0b;
-  --lt-border-l-sky-500: #0ea5e9;
-  --lt-border-l-teal-500: #14b8a6;
-  --lt-border-l-emerald-400: #34d399;
-  --lt-border-l-violet-400: #a78bfa;
-  --lt-border-l-red-400: #f87171;
-  --lt-border-l-amber-400: #fbbf24;
-  --lt-border-red-700: #f87171;
-  --lt-border-red-800: #ef4444;
+  /* Placeholder text override */
+  --placeholder-primary: #999999;
+  --placeholder-secondary: #aaaaaa;
+
+  /* Accent text colors override */
+  --accent-green-soft: #1a6b1a;
+  --accent-blue: #2563eb;
+  --accent-orange: #c2410c;
+  --accent-red-soft: #dc2626;
+  --accent-red: #dc2626;
+  --accent-emerald: #059669;
+  --accent-yellow: #d97706;
+  --accent-yellow-dim: #b45309;
+  --accent-violet: #7c3aed;
+  --accent-purple: #9333ea;
+  --accent-cyan: #0891b2;
+  --accent-amber: #d97706;
+  --accent-sky: #0284c7;
+  --accent-teal: #0d9488;
+
+  /* Button colors (same in light) */
+  --btn-primary: #2563eb;
+  --btn-primary-hover: #1d4ed8;
+  --btn-danger: #dc2626;
+  --btn-success: #16a34a;
+
+  /* Checkbox override (inverted for light) */
+  --checkbox-bg: #2563eb;
+  --checkbox-border: #2563eb;
+  --checkbox-text: #ffffff;
 
   /* Scrollbar */
-  --lt-scrollbar-hover: #b0b0ab;
+  --scrollbar-hover: #b0b0ab;
 
   /* Focus ring */
-  --lt-focus-ring: #1d4ed8;
+  --focus-ring: #1d4ed8;
 }
 
+/* ─── Tailwind v4 @theme: expose semantic tokens as utility classes ─── */
+/* Each --color-foo creates bg-foo, text-foo, border-foo utilities.
+   We only use the appropriate prefix for each token (bg-surface, text-bright, border-edge). */
+@theme {
+  /* Surface backgrounds → bg-surface, bg-panel, bg-raised, bg-deep, bg-chip, etc. */
+  --color-surface: var(--input-bg);
+  --color-panel: var(--panel-bg);
+  --color-raised: var(--raised-bg);
+  --color-deep: var(--deep-bg);
+  --color-chip: var(--chip-bg);
+  --color-chip-hover: var(--chip-bg-hover);
+  --color-chip-active: var(--chip-bg-selected);
+  --color-tick: var(--checkbox-bg);
+
+  /* Text levels → text-bright, text-soft, text-muted, text-dim, text-faint */
+  --color-bright: var(--text-primary);
+  --color-soft: var(--text-soft);
+  --color-muted: var(--text-muted-val);
+  --color-dim: var(--text-dim-val);
+  --color-faint: var(--text-faint-val);
+
+  /* Placeholder → placeholder-ghost, placeholder-ghost-alt */
+  --color-ghost: var(--placeholder-primary);
+  --color-ghost-alt: var(--placeholder-secondary);
+
+  /* Edge/border → border-edge, border-edge-panel, border-edge-tick */
+  --color-edge: var(--input-border);
+  --color-edge-panel: var(--panel-border);
+  --color-edge-tick: var(--checkbox-border);
+
+  /* Accent text → text-accent-blue, text-accent-red, etc. */
+  --color-accent-green-soft: var(--accent-green-soft);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-red-soft: var(--accent-red-soft);
+  --color-accent-red: var(--accent-red);
+  --color-accent-emerald: var(--accent-emerald);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-yellow-dim: var(--accent-yellow-dim);
+  --color-accent-violet: var(--accent-violet);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-teal: var(--accent-teal);
+
+  /* Border-left accents → border-l-bl-blue, border-l-bl-red, etc. */
+  --color-bl-blue: var(--bl-blue);
+  --color-bl-orange: var(--bl-orange);
+  --color-bl-gray: var(--bl-gray);
+  --color-bl-yellow: var(--bl-yellow);
+  --color-bl-red: var(--bl-red);
+  --color-bl-purple: var(--bl-purple);
+  --color-bl-green: var(--bl-green);
+  --color-bl-cyan: var(--bl-cyan);
+  --color-bl-amber: var(--bl-amber);
+  --color-bl-sky: var(--bl-sky);
+  --color-bl-teal: var(--bl-teal);
+  --color-bl-emerald: var(--bl-emerald);
+  --color-bl-violet: var(--bl-violet);
+  --color-bl-red-soft: var(--bl-red-soft);
+  --color-bl-amber-soft: var(--bl-amber-soft);
+
+  /* Button backgrounds → bg-btn-primary, bg-btn-danger, bg-btn-success */
+  --color-btn-primary: var(--btn-primary);
+  --color-btn-primary-hover: var(--btn-primary-hover);
+  --color-btn-danger: var(--btn-danger);
+  --color-btn-success: var(--btn-success);
+
+  /* Indicator backgrounds → bg-indicator-green, bg-indicator-red, etc. */
+  --color-indicator-green: var(--indicator-green);
+  --color-indicator-yellow: var(--indicator-yellow);
+  --color-indicator-red: var(--indicator-red);
+  --color-indicator-red-deep: var(--indicator-red-deep);
+
+  /* Section backgrounds → bg-section-yellow, bg-section-red, etc. */
+  --color-section-yellow: var(--section-yellow);
+  --color-section-red: var(--section-red);
+  --color-section-emerald: var(--section-emerald);
+  --color-section-violet: var(--section-violet);
+  --color-section-amber: var(--section-amber);
+  --color-section-blue: var(--section-blue);
+
+  /* Section borders → border-sborder-emerald, border-sborder-violet, etc. */
+  --color-sborder-emerald: var(--sborder-emerald);
+  --color-sborder-violet: var(--sborder-violet);
+  --color-sborder-amber: var(--sborder-amber);
+  --color-sborder-red: var(--sborder-red);
+
+  /* Column/affix borders → border-cborder-blue, border-cborder-orange, etc. */
+  --color-cborder-blue: var(--cborder-blue);
+  --color-cborder-orange: var(--cborder-orange);
+  --color-cborder-amber: var(--cborder-amber);
+
+  /* Danger borders → border-danger, border-danger-strong */
+  --color-danger: var(--danger-border);
+  --color-danger-strong: var(--danger-border-strong);
+
+  /* Checkbox label → text-tick-label */
+  --color-tick-label: var(--checkbox-text);
+}
+
+/* ─── Base body styles ─── */
 body {
   margin: 0;
   background: var(--poe-bg);
@@ -114,16 +316,11 @@ body {
 }
 
 /* ─── Atmospheric background (dark theme only) ─── */
-/* Forest image set directly as body background — no z-index tricks, no pseudo-elements.
-   Guaranteed visible in all browsers. Sidebar & header use semi-transparent
-   backgrounds so the same forest shows through, creating one seamless
-   background across both. Main content area stays opaque for readability. */
 [data-theme="dark"] body,
 :root body {
   background: #0a0a0f url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat fixed;
 }
 
-/* Mobile: use smaller image + scroll attachment (fixed lags on iOS) */
 @media (max-width: 768px) {
   [data-theme="dark"] body,
   :root body {
@@ -131,15 +328,11 @@ body {
   }
 }
 
-/* Light theme: solid background, no forest */
 [data-theme="light"] body {
   background: var(--poe-bg);
 }
 
 /* ─── Sidebar & Header: uniform semi-transparent overlay ─── */
-/* Same solid rgba for BOTH sidebar and header — no gradients, no transitions.
-   The body background forest shows through identically everywhere,
-   creating a seamless unified atmospheric background. */
 [data-theme="dark"] .sidebar-atmosphere,
 :root .sidebar-atmosphere,
 [data-theme="dark"] .header-atmosphere,
@@ -147,7 +340,6 @@ body {
   background: rgba(10, 10, 15, 0.75);
 }
 
-/* Light theme: solid backgrounds, no forest */
 [data-theme="light"] .sidebar-atmosphere {
   background: var(--poe-bg-secondary);
 }
@@ -155,9 +347,7 @@ body {
   background: var(--poe-bg-secondary);
 }
 
-/* ─── Layout shell: transparent in dark, solid in light ─── */
-/* Must be transparent so body background (the forest) shows through
-   to sidebar and header. Main content area stays opaque for readability. */
+/* ─── Layout shell ─── */
 [data-theme="dark"] .layout-shell,
 :root .layout-shell {
   background: transparent;
@@ -167,9 +357,6 @@ body {
 }
 
 /* ─── Content area ─── */
-/* The right panel (header + main) next to the sidebar.
-   Transparent so the forest shows through the header area.
-   Main content gets its own opaque background below. */
 [data-theme="dark"] .content-area,
 :root .content-area {
   background: transparent;
@@ -178,7 +365,6 @@ body {
   background: var(--poe-bg);
 }
 
-/* Main content: opaque — mod lists and regex must be perfectly readable */
 main {
   background: var(--poe-bg);
 }
@@ -187,6 +373,7 @@ main {
   border-color: var(--poe-border);
 }
 
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -202,405 +389,22 @@ main {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a4a;
+  background: var(--scrollbar-hover);
 }
 
-/* Light theme: scrollbar hover */
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--lt-scrollbar-hover);
-}
-
-/* Light theme: copied button state */
-[data-theme="light"] .bg-green-600 {
-  background-color: var(--lt-bg-green-600) !important;
-  color: #ffffff !important;
-}
-
-/* ─── Theme-aware component overrides ─── */
-
-/* Light theme: fix Tailwind bg-gray-* classes */
-[data-theme="light"] .bg-gray-800,
-[data-theme="light"] .bg-gray-900 {
-  background-color: var(--input-bg) !important;
-  border-color: var(--input-border) !important;
-}
-
-[data-theme="light"] .bg-gray-700 {
-  background-color: var(--poe-bg-tertiary) !important;
-  border-color: var(--input-border) !important;
-}
-
-[data-theme="light"] .bg-gray-800\/50 {
-  background-color: var(--chip-bg) !important;
-}
-
-[data-theme="light"] .hover\:bg-gray-700\/50:hover {
-  background-color: var(--chip-bg-hover) !important;
-}
-
-[data-theme="light"] .bg-blue-900\/40 {
-  background-color: var(--chip-bg-selected) !important;
-}
-
-[data-theme="light"] .text-white {
-  color: var(--poe-text) !important;
-}
-
-[data-theme="light"] .text-gray-300 {
-  color: var(--lt-text-gray-300) !important;
-}
-
-[data-theme="light"] .text-gray-400 {
-  color: var(--lt-text-gray-400) !important;
-}
-
-[data-theme="light"] .text-gray-500 {
-  color: var(--lt-text-gray-500) !important;
-}
-
-[data-theme="light"] .text-gray-600 {
-  color: var(--lt-text-gray-600) !important;
-}
-
-[data-theme="light"] .text-green-300 {
-  color: var(--lt-text-green-300) !important;
-}
-
-[data-theme="light"] .text-blue-400 {
-  color: var(--lt-text-blue-400) !important;
-}
-
-[data-theme="light"] .text-orange-400 {
-  color: var(--lt-text-orange-400) !important;
-}
-
-[data-theme="light"] .border-gray-600 {
-  border-color: var(--input-border) !important;
-}
-
-[data-theme="light"] .border-gray-700 {
-  border-color: var(--panel-border) !important;
-}
-
-[data-theme="light"] .placeholder-gray-500::placeholder {
-  color: var(--lt-text-placeholder) !important;
-}
-
-[data-theme="light"] .placeholder-gray-600::placeholder {
-  color: var(--lt-text-placeholder-alt) !important;
-}
-
-/* Light theme: buttons */
-[data-theme="light"] .bg-blue-600 {
-  background-color: var(--lt-bg-blue-600) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .bg-blue-600:hover {
-  background-color: var(--lt-bg-blue-600-hover) !important;
-}
-
-[data-theme="light"] .bg-red-600 {
-  background-color: var(--lt-bg-red-600) !important;
-  color: #ffffff !important;
-}
-
-/* Light theme: health bar backgrounds */
-[data-theme="light"] .bg-emerald-900\/40 {
-  background-color: rgba(16, 185, 129, 0.15) !important;
-}
-
-[data-theme="light"] .bg-yellow-900\/40 {
-  background-color: rgba(234, 179, 8, 0.15) !important;
-}
-
-[data-theme="light"] .bg-red-900\/40 {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-}
-
-[data-theme="light"] .bg-red-950\/50 {
-  background-color: rgba(239, 68, 68, 0.1) !important;
-}
-
-[data-theme="light"] .text-red-300 {
-  color: var(--lt-text-red-300) !important;
-}
-
-[data-theme="light"] .text-emerald-400 {
-  color: var(--lt-text-emerald-400) !important;
-}
-
-[data-theme="light"] .text-yellow-400 {
-  color: var(--lt-text-yellow-400) !important;
-}
-
-[data-theme="light"] .text-red-400 {
-  color: var(--lt-text-red-400) !important;
-}
-
-/* Light theme: panels */
-[data-theme="light"] .bg-yellow-900\/30 {
-  background-color: rgba(234, 179, 8, 0.1) !important;
-}
-
-[data-theme="light"] .text-yellow-400\/80 {
-  color: var(--lt-text-yellow-400-80) !important;
-}
-
-/* Light theme: FilterChip border colors */
-[data-theme="light"] .border-l-blue-500 {
-  border-left-color: var(--lt-border-l-blue-500) !important;
-}
-
-[data-theme="light"] .border-l-orange-500 {
-  border-left-color: var(--lt-border-l-orange-500) !important;
-}
-
-/* Light theme: overflow warning */
-[data-theme="light"] .bg-red-900\/50 {
-  background-color: rgba(239, 68, 68, 0.1) !important;
-}
-
-[data-theme="light"] .border-red-700 {
-  border-color: var(--lt-border-red-700) !important;
-}
-
-[data-theme="light"] .border-red-800 {
-  border-color: var(--lt-border-red-800) !important;
-}
-
-/* Light theme: sidebar active link */
-[data-theme="light"] .bg-gray-950 {
-  background-color: var(--poe-bg) !important;
-}
-
-/* Light theme: checkbox styling */
-[data-theme="light"] .bg-slate-100 {
-  background-color: var(--lt-bg-slate-100) !important;
-  color: #ffffff !important;
-  border-color: var(--lt-bg-slate-100) !important;
-}
-
-[data-theme="light"] .text-slate-900 {
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .border-slate-300 {
-  border-color: var(--lt-bg-slate-100) !important;
-}
-
-/* Light theme: origin sub-section labels (updated palette v4) */
-[data-theme="light"] .bg-emerald-900\/30 {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-}
-
-[data-theme="light"] .border-emerald-500\/25 {
-  border-color: rgba(16, 185, 129, 0.25) !important;
-}
-
-[data-theme="light"] .border-l-emerald-400 {
-  border-left-color: var(--lt-border-l-emerald-400) !important;
-}
-
-[data-theme="light"] .text-violet-400 {
-  color: var(--lt-text-violet-400) !important;
-}
-
-[data-theme="light"] .bg-violet-900\/30 {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-}
-
-[data-theme="light"] .border-violet-500\/25 {
-  border-color: rgba(139, 92, 246, 0.25) !important;
-}
-
-[data-theme="light"] .border-l-violet-400 {
-  border-left-color: var(--lt-border-l-violet-400) !important;
-}
-
-[data-theme="light"] .bg-amber-900\/30 {
-  background-color: rgba(217, 119, 6, 0.1) !important;
-}
-
-[data-theme="light"] .border-amber-500\/25 {
-  border-color: rgba(245, 158, 11, 0.25) !important;
-}
-
-[data-theme="light"] .border-l-amber-400 {
-  border-left-color: var(--lt-border-l-amber-400) !important;
-}
-
-[data-theme="light"] .bg-red-900\/30 {
-  background-color: rgba(239, 68, 68, 0.1) !important;
-}
-
-[data-theme="light"] .border-red-500\/25 {
-  border-color: rgba(239, 68, 68, 0.25) !important;
-}
-
-[data-theme="light"] .border-l-red-400 {
-  border-left-color: var(--lt-border-l-red-400) !important;
-}
-
-/* Light theme: affix column borders */
-[data-theme="light"] .border-blue-800\/50 {
-  border-color: rgba(37, 99, 235, 0.3) !important;
-}
-
-[data-theme="light"] .border-orange-800\/50 {
-  border-color: rgba(194, 65, 12, 0.3) !important;
-}
-
-[data-theme="light"] .border-amber-800\/50 {
-  border-color: rgba(217, 119, 6, 0.3) !important;
-}
-
-/* Light theme: select dropdowns */
-[data-theme="light"] select {
-  background-color: var(--input-bg) !important;
-  border-color: var(--input-border) !important;
-  color: var(--poe-text) !important;
-}
-
-/* Light theme: input fields */
+/* ─── Light theme: form element defaults ─── */
+/* These use element selectors with [data-theme="light"] for sufficient specificity.
+   No !important needed because semantic classes (bg-surface, border-edge) already
+   resolve to the same CSS variables. */
+[data-theme="light"] select,
 [data-theme="light"] input[type="text"],
 [data-theme="light"] input[type="number"] {
-  background-color: var(--input-bg) !important;
-  border-color: var(--input-border) !important;
-  color: var(--poe-text) !important;
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--poe-text);
 }
 
-/* Light theme: origin divider opacity */
-[data-theme="light"] .opacity-70 {
-  opacity: 0.85 !important;
-}
-
-/* Light theme: FilterChip partial selection */
-[data-theme="light"] .bg-blue-900\/20 {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-/* Light theme: VendorChip group header colors */
-[data-theme="light"] .text-red-400 {
-  color: var(--lt-text-red-400) !important;
-}
-
-[data-theme="light"] .text-green-400 {
-  color: var(--lt-text-green-400) !important;
-}
-
-/* Keep purple/cyan for VendorChip/TabletPage (not origin colors) */
-[data-theme="light"] .text-purple-400 {
-  color: var(--lt-text-purple-400) !important;
-}
-
-[data-theme="light"] .text-cyan-400 {
-  color: var(--lt-text-cyan-400) !important;
-}
-
-[data-theme="light"] .text-amber-400 {
-  color: var(--lt-text-amber-400) !important;
-}
-
-[data-theme="light"] .text-sky-400 {
-  color: var(--lt-text-sky-400) !important;
-}
-
-[data-theme="light"] .text-teal-400 {
-  color: var(--lt-text-teal-400) !important;
-}
-
-/* Light theme: VendorChip border-left colors */
-[data-theme="light"] .border-l-gray-500 {
-  border-left-color: var(--lt-border-l-gray-500) !important;
-}
-
-[data-theme="light"] .border-l-yellow-500 {
-  border-left-color: var(--lt-border-l-yellow-500) !important;
-}
-
-[data-theme="light"] .border-l-red-500 {
-  border-left-color: var(--lt-border-l-red-500) !important;
-}
-
-[data-theme="light"] .border-l-purple-500 {
-  border-left-color: var(--lt-border-l-purple-500) !important;
-}
-
-[data-theme="light"] .border-l-green-500 {
-  border-left-color: var(--lt-border-l-green-500) !important;
-}
-
-[data-theme="light"] .border-l-cyan-500 {
-  border-left-color: var(--lt-border-l-cyan-500) !important;
-}
-
-[data-theme="light"] .border-l-orange-500 {
-  border-left-color: var(--lt-border-l-orange-500) !important;
-}
-
-[data-theme="light"] .border-l-amber-500 {
-  border-left-color: var(--lt-border-l-amber-500) !important;
-}
-
-[data-theme="light"] .border-l-sky-500 {
-  border-left-color: var(--lt-border-l-sky-500) !important;
-}
-
-[data-theme="light"] .border-l-teal-500 {
-  border-left-color: var(--lt-border-l-teal-500) !important;
-}
-
-/* ─── Sticky control panel: cover gap above ─── */
-
-/* ─── FilterChip overflow prevention ─── */
-
-/* Chip containers: allow wrapping, NO overflow:hidden (which clips chips) */
-.mod-list .flex.flex-wrap.gap-2,
-.virtualized-mod-list .flex.flex-wrap.gap-2,
-.mod-list .flex.flex-wrap.gap-1\.5,
-.virtualized-mod-list .flex.flex-wrap.gap-1\.5 {
-  overflow: visible;
-}
-
-/* Allow long mod text to wrap within the chip instead of overflowing */
-.mod-list [role="switch"] span:first-child,
-.virtualized-mod-list [role="switch"] span:first-child {
-  overflow-wrap: break-word;
-  word-break: break-word;
-  min-width: 0;
-}
-
-/* Selected chips with range inputs: force full-width to prevent overlap.
-   When a chip expands to show ≥/≤ inputs, it needs its own line
-   so it doesn't overlap with the next chip in the flex-wrap container.
-   Uses display:flex (not inline-flex) + flex-wrap:wrap so range inputs
-   can flow naturally within the chip without overflowing.
-   NO transition on layout properties (flex-basis/width/max-width) —
-   instant expansion prevents scroll jumping in virtualized lists. */
-.mod-list .chip-with-range,
-.virtualized-mod-list .chip-with-range {
-  display: flex;
-  flex-wrap: wrap;
-  flex-basis: 100%;
-  max-width: 100%;
-  width: 100%;
-}
-
-/* Prevent range input rows from overflowing chip containers */
-.mod-list .chip-with-range .flex.items-center.gap-1,
-.mod-list .chip-with-range .flex.flex-col.gap-0\.5,
-.virtualized-mod-list .chip-with-range .flex.items-center.gap-1,
-.virtualized-mod-list .chip-with-range .flex.flex-col.gap-0\.5 {
-  min-width: 0;
-  flex-shrink: 1;
-}
-
-/* Range inputs: no CSS animation on layout properties.
-   Previously used slide-in animation that caused virtualizer
-   scroll jumps because height changed during animation frames.
-   Now using instant display (no transition/animation) to keep
-   the virtualizer's measurements accurate. */
+/* ─── Sticky control panel ─── */
 .control-panel-sticky {
   position: relative;
   padding-top: 4px;
@@ -617,9 +421,39 @@ main {
   pointer-events: none;
 }
 
-/* ─── Level 1 Affix decorative frames ─── */
+/* ─── FilterChip overflow prevention ─── */
+.mod-list .flex.flex-wrap.gap-2,
+.virtualized-mod-list .flex.flex-wrap.gap-2,
+.mod-list .flex.flex-wrap.gap-1\.5,
+.virtualized-mod-list .flex.flex-wrap.gap-1\.5 {
+  overflow: visible;
+}
 
-/* Prefix header: textured frame with blue accent */
+.mod-list [role="switch"] span:first-child,
+.virtualized-mod-list [role="switch"] span:first-child {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.mod-list .chip-with-range,
+.virtualized-mod-list .chip-with-range {
+  display: flex;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  max-width: 100%;
+  width: 100%;
+}
+
+.mod-list .chip-with-range .flex.items-center.gap-1,
+.mod-list .chip-with-range .flex.flex-col.gap-0\.5,
+.virtualized-mod-list .chip-with-range .flex.items-center.gap-1,
+.virtualized-mod-list .chip-with-range .flex.flex-col.gap-0\.5 {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* ─── Level 1 Affix decorative frames ─── */
 .affix-header-prefix {
   position: relative;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%);
@@ -630,7 +464,6 @@ main {
   margin: 8px 0;
 }
 
-/* Suffix header: textured frame with orange accent */
 .affix-header-suffix {
   position: relative;
   background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.03) 100%);
@@ -641,7 +474,6 @@ main {
   margin: 8px 0;
 }
 
-/* Decorative corner accents for Level 1 headers */
 .affix-header-prefix::before,
 .affix-header-prefix::after,
 .affix-header-suffix::before,
@@ -654,38 +486,30 @@ main {
 }
 
 .affix-header-prefix::before {
-  top: -1px;
-  right: -1px;
+  top: -1px; right: -1px;
   border-top: 2px solid rgba(96, 165, 250, 0.5);
   border-right: 2px solid rgba(96, 165, 250, 0.5);
   border-radius: 0 4px 0 0;
 }
-
 .affix-header-prefix::after {
-  bottom: -1px;
-  left: -1px;
+  bottom: -1px; left: -1px;
   border-bottom: 2px solid rgba(96, 165, 250, 0.5);
   border-left: 2px solid rgba(96, 165, 250, 0.5);
   border-radius: 0 0 0 4px;
 }
-
 .affix-header-suffix::before {
-  top: -1px;
-  right: -1px;
+  top: -1px; right: -1px;
   border-top: 2px solid rgba(251, 146, 60, 0.5);
   border-right: 2px solid rgba(251, 146, 60, 0.5);
   border-radius: 0 4px 0 0;
 }
-
 .affix-header-suffix::after {
-  bottom: -1px;
-  left: -1px;
+  bottom: -1px; left: -1px;
   border-bottom: 2px solid rgba(251, 146, 60, 0.5);
   border-left: 2px solid rgba(251, 146, 60, 0.5);
   border-radius: 0 0 0 4px;
 }
 
-/* Implicit header: textured frame with amber accent */
 .affix-header-implicit {
   position: relative;
   background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%);
@@ -695,7 +519,6 @@ main {
   padding: 6px 10px;
   margin: 8px 0;
 }
-
 .affix-header-implicit::before,
 .affix-header-implicit::after {
   content: '';
@@ -704,18 +527,14 @@ main {
   height: 6px;
   opacity: 0.4;
 }
-
 .affix-header-implicit::before {
-  top: -1px;
-  right: -1px;
+  top: -1px; right: -1px;
   border-top: 2px solid rgba(251, 191, 36, 0.5);
   border-right: 2px solid rgba(251, 191, 36, 0.5);
   border-radius: 0 4px 0 0;
 }
-
 .affix-header-implicit::after {
-  bottom: -1px;
-  left: -1px;
+  bottom: -1px; left: -1px;
   border-bottom: 2px solid rgba(251, 191, 36, 0.5);
   border-left: 2px solid rgba(251, 191, 36, 0.5);
   border-radius: 0 0 0 4px;
@@ -727,13 +546,11 @@ main {
   border-color: rgba(37, 99, 235, 0.2);
   border-left-color: rgba(37, 99, 235, 0.5);
 }
-
 [data-theme="light"] .affix-header-suffix {
   background: linear-gradient(135deg, rgba(234, 88, 12, 0.06) 0%, rgba(234, 88, 12, 0.02) 100%);
   border-color: rgba(234, 88, 12, 0.2);
   border-left-color: rgba(234, 88, 12, 0.5);
 }
-
 [data-theme="light"] .affix-header-implicit {
   background: linear-gradient(135deg, rgba(217, 119, 6, 0.06) 0%, rgba(217, 119, 6, 0.02) 100%);
   border-color: rgba(217, 119, 6, 0.2);
@@ -741,10 +558,7 @@ main {
 }
 
 /* ─── Mobile optimization ─── */
-
-/* Increase touch targets for chips on small screens */
 @media (max-width: 768px) {
-  /* Larger tap area for filter chips */
   .mod-list button[class*="inline-flex"],
   .mod-list span[class*="inline-flex"],
   .virtualized-mod-list button[class*="inline-flex"],
@@ -753,119 +567,78 @@ main {
     padding-top: 6px;
     padding-bottom: 6px;
   }
-
-  /* Slightly larger chip text on mobile for readability */
   .mod-list [class*="text-[13px]"],
   .virtualized-mod-list [class*="text-[13px]"] {
     font-size: 0.9rem;
   }
-
-  /* Ensure control panel has enough padding below for sticky behavior */
   .control-panel-sticky,
   .sticky.top-0 {
     padding-bottom: 12px;
   }
-
-  /* Origin sub-section dividers: less vertical space on mobile */
   .mod-list .mt-1\.5,
   .virtualized-mod-list .mt-1\.5 {
     margin-top: 8px;
   }
-
-  /* Search input full width on mobile */
   .mod-list input[type="text"],
   .virtualized-mod-list input[type="text"] {
     min-width: 100%;
   }
-
-  /* VendorChip larger tap targets on mobile */
   span[class*="inline-flex"][class*="cursor-pointer"] {
     min-height: 32px;
   }
-
-  /* FilterChip role="switch" larger touch targets */
   [role="switch"] {
     min-height: 32px;
     min-width: 44px;
   }
-
-  /* Control panel buttons larger touch targets */
   .sticky.top-0 button {
     min-height: 32px;
     padding-top: 6px;
     padding-bottom: 6px;
   }
-
-  /* Level 1 affix frames: less padding on mobile */
   .affix-header-prefix,
   .affix-header-suffix,
   .affix-header-implicit {
     padding: 4px 8px;
     margin: 6px 0;
   }
-
-  /* Origin badges with icons: ensure icon doesn't shrink on small screens */
   .virtualized-mod-list img,
   .mod-list img {
     max-width: 20px;
     max-height: 20px;
   }
-
-  /* Smooth scroll behavior on mobile */
   .virtualized-mod-list {
     -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Prevent horizontal overflow on narrow screens */
 @media (max-width: 480px) {
-  /* Ensure grid doesn't overflow */
   .grid {
     min-width: 0;
   }
-
-  /* Full-width chips on very small screens */
   .mod-list .gap-1\.5,
   .virtualized-mod-list .gap-1\.5 {
     gap: 6px;
   }
-
-  /* Range inputs slightly wider on very small screens */
   .mod-list input[type="number"],
   .virtualized-mod-list input[type="number"] {
     width: 52px;
   }
-
-  /* Control panel wraps on very small screens */
   .sticky.top-0 .flex-wrap {
     gap: 4px;
   }
 }
 
 /* ─── Keyboard navigation: focus-visible outlines ─── */
-
-/* All interactive elements get a visible focus ring for keyboard users only */
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
 [role="switch"]:focus-visible,
 [role="radio"]:focus-visible,
 a:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-/* Light theme: darker focus ring for contrast */
-[data-theme="light"] button:focus-visible,
-[data-theme="light"] select:focus-visible,
-[data-theme="light"] input:focus-visible,
-[data-theme="light"] [role="switch"]:focus-visible,
-[data-theme="light"] [role="radio"]:focus-visible,
-[data-theme="light"] a:focus-visible {
-  outline-color: var(--lt-focus-ring);
-}
-
-/* Remove outline for mouse clicks (only show for keyboard) */
 button:focus:not(:focus-visible),
 select:focus:not(:focus-visible),
 input:focus:not(:focus-visible),
@@ -887,7 +660,6 @@ input:focus:not(:focus-visible),
   text-decoration: none;
   border-radius: 0 0 4px 0;
 }
-
 .skip-link:focus {
   top: 0;
 }

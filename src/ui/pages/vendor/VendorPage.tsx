@@ -38,7 +38,7 @@ export function VendorPage() {
           <img src={`${import.meta.env.BASE_URL}icons/vendor.png`} alt="" width={24} height={24} className="object-contain" />
           {t('vendor.title')}
         </h2>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-dim">
           {selectedIds.size} {t('selected')}
         </span>
       </div>
@@ -65,7 +65,7 @@ export function VendorPage() {
           selectedIds.size > 0 ? (
             <button
               onClick={clearAll}
-              className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300 hover:bg-gray-600 transition-colors"
+              className="px-2 py-1 bg-raised border border-edge rounded text-xs text-soft hover:bg-gray-600 transition-colors"
             >
               {t('filter.clear')} ({selectedIds.size})
             </button>
@@ -76,7 +76,7 @@ export function VendorPage() {
       {/* Chip-based property groups */}
       <div className="flex flex-col gap-3">
         {Array.from(groupedProperties.entries()).map(([groupName, props]) => {
-          const colors = GROUP_COLORS[groupName] ?? { header: 'text-gray-400', border: 'border-l-gray-500' };
+          const colors = GROUP_COLORS[groupName] ?? { header: 'text-muted', border: 'border-l-bl-gray' };
           return (
             <div key={groupName}>
               <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${colors.header}`}>
@@ -102,7 +102,7 @@ export function VendorPage() {
       </div>
 
       {/* Verification note */}
-      <div className="bg-yellow-900/30 border border-yellow-700/50 rounded p-3 text-xs text-yellow-400/80" role="alert">
+      <div className="bg-section-yellow border border-yellow-700/50 rounded p-3 text-xs text-accent-yellow-dim" role="alert">
         <strong>{t('vendor.verification')}</strong>
       </div>
     </div>

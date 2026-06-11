@@ -40,20 +40,20 @@ function getHealthLevel(count: number): 'green' | 'yellow' | 'red' {
 const HEALTH_COLORS = {
   green: {
     bar: 'bg-emerald-500',
-    barBg: 'bg-emerald-900/40',
-    text: 'text-emerald-400',
+    barBg: 'bg-indicator-green',
+    text: 'text-accent-emerald',
     label: t('health.green'),
   },
   yellow: {
     bar: 'bg-yellow-500',
-    barBg: 'bg-yellow-900/40',
-    text: 'text-yellow-400',
+    barBg: 'bg-indicator-yellow',
+    text: 'text-accent-yellow',
     label: t('health.yellow'),
   },
   red: {
     bar: 'bg-red-500',
-    barBg: 'bg-red-900/40',
-    text: 'text-red-400',
+    barBg: 'bg-indicator-red',
+    text: 'text-accent-red',
     label: t('health.red'),
   },
 } as const;
@@ -144,7 +144,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
     >
       {/* Header row: title + buttons */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-[15px] font-medium text-gray-300">{t('regex.title')}</h3>
+        <h3 className="text-[15px] font-medium text-soft">{t('regex.title')}</h3>
         <div className="flex items-center gap-2">
           {/* Auto-copy toggle */}
           <label className="flex items-center gap-1 cursor-pointer" title={t('regex.auto')}>
@@ -152,9 +152,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               type="checkbox"
               checked={autoCopy}
               onChange={(e) => setAutoCopy(e.target.checked)}
-              className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500"
+              className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500"
             />
-            <span className="text-[12px] text-gray-500">{t('regex.auto')}</span>
+            <span className="text-[12px] text-dim">{t('regex.auto')}</span>
           </label>
           {/* Share button */}
           {filterStore && regex && (
@@ -162,8 +162,8 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               onClick={handleShare}
               className={`px-2.5 py-1 text-[13px] rounded font-medium transition-colors ${
                 shareCopied
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                  ? 'bg-btn-success text-bright'
+                  : 'bg-gray-600 text-soft hover:bg-gray-500'
               }`}
               title={t('regex.share_title')}
             >
@@ -176,12 +176,12 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
             disabled={!regex || isOverflow}
             className={`px-3 py-1.5 text-[13px] rounded font-medium transition-colors ${
               copyError
-                ? 'bg-red-600 text-white'
+                ? 'bg-btn-danger text-bright'
                 : copied
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-btn-success text-bright'
                   : isOverflow || !regex
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-500'
+                    ? 'bg-raised text-dim cursor-not-allowed'
+                    : 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
             }`}
             title={t('regex.copy_shortcut')} // Ctrl+Shift+X
           >
@@ -193,7 +193,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       {/* Character Health Bar — visual green/yellow/red indicator */}
       <div className="mb-2" role="progressbar" aria-valuenow={Math.min(charCount, MAX_CHARS)} aria-valuemin={0} aria-valuemax={MAX_CHARS} aria-label={`Символов: ${charCount} из ${MAX_CHARS}${isOverflow ? ', переполнение' : ''}`}>
         <div className="flex items-center justify-between mb-1">
-          <span className={`text-[13px] font-medium ${isOverflow ? 'text-red-400 animate-pulse' : healthConfig.text}`}>
+          <span className={`text-[13px] font-medium ${isOverflow ? 'text-accent-red animate-pulse' : healthConfig.text}`}>
             {isOverflow ? t('regex.overflow') : healthConfig.label}
           </span>
           <span className={`text-[13px] font-mono ${healthConfig.text}`}>
@@ -212,7 +212,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
 
       {/* Budget-aware warning: approaching limit with 6+ mods */}
       {!isOverflow && charCount > 180 && activeTokenCount >= 6 && (
-        <div className="mb-2 p-2 bg-amber-900/40 border border-amber-700/60 rounded text-amber-300 text-[12px] flex items-center gap-1.5">
+        <div className="mb-2 p-2 bg-section-amber border border-amber-700/60 rounded text-amber-300 text-[12px] flex items-center gap-1.5">
           <span>\u26A0</span>
           <span>{t('regex.budget_warning').replace('{chars}', String(MAX_CHARS - charCount)).replace('{mods}', String(activeTokenCount))}</span>
         </div>
@@ -220,7 +220,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
 
       {/* Overflow warning */}
       {isOverflow && (
-        <div className="mb-2 p-2.5 bg-red-900/50 border border-red-700 rounded text-red-300 text-[13px]">
+        <div className="mb-2 p-2.5 bg-section-red border border-danger rounded text-accent-red-soft text-[13px]">
           {t('regex.overflow_detail')}
         </div>
       )}
@@ -229,10 +229,10 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       <div
         className={`p-3 rounded font-mono text-base break-all min-h-[60px] ${
           isOverflow
-            ? 'bg-red-950/50 border border-red-800 text-red-300'
+            ? 'bg-indicator-red-deep border border-danger-strong text-accent-red-soft'
             : regex
-              ? 'bg-gray-800 border border-gray-600 text-green-300'
-              : 'bg-gray-900 border border-gray-700 text-gray-500'
+              ? 'bg-surface border border-edge text-accent-green-soft'
+              : 'bg-panel border border-edge-panel text-dim'
         }`}
         aria-label={regex || t('regex.title')}
       >

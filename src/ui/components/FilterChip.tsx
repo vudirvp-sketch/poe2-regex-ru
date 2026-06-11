@@ -92,14 +92,14 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   const tierCount = group.members.length;
 
   // Affix color for left border
-  const affixColor = group.affix === 'prefix' ? 'border-l-blue-500' : group.affix === 'implicit' ? 'border-l-amber-500' : 'border-l-orange-500';
+  const affixColor = group.affix === 'prefix' ? 'border-l-bl-blue' : group.affix === 'implicit' ? 'border-l-bl-amber' : 'border-l-bl-orange';
 
   // Priority tier visual differentiation:
   // S-tier: brighter border accent (amber/gold tint)
   // C-tier: dimmer/muted appearance
   // A/B: default
   const tierBorderClass = group.priorityTier === 'S'
-    ? 'border-l-amber-400'
+    ? 'border-l-bl-amber-soft'
     : group.priorityTier === 'A'
       ? affixColor
       : ''; // B and C use default affixColor
@@ -260,15 +260,15 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   let bgClass: string;
   const tierOpacity = group.priorityTier === 'S' ? '' : group.priorityTier === 'C' ? 'opacity-80' : '';
   if (selectionState === 'full') {
-    bgClass = `bg-blue-900/40 ${effectiveBorderClass} text-white ${tierOpacity}`;
+    bgClass = `bg-chip-active ${effectiveBorderClass} text-bright ${tierOpacity}`;
   } else if (selectionState === 'partial') {
-    bgClass = `bg-blue-900/20 ${effectiveBorderClass} text-gray-300 ${tierOpacity}`;
+    bgClass = `bg-section-blue ${effectiveBorderClass} text-soft ${tierOpacity}`;
   } else if (selectionState === 'excluded') {
-    bgClass = `bg-red-900/40 border-l-red-500 text-white ${tierOpacity}`;
+    bgClass = `bg-indicator-red border-l-bl-red text-bright ${tierOpacity}`;
   } else if (selectionState === 'partial-excluded') {
-    bgClass = `bg-red-900/20 border-l-red-500 text-gray-300 ${tierOpacity}`;
+    bgClass = `bg-section-blue border-l-bl-red text-soft ${tierOpacity}`;
   } else {
-    bgClass = `bg-gray-800/50 ${effectiveBorderClass} text-gray-300 hover:bg-gray-700/50 ${tierOpacity}`;
+    bgClass = `bg-chip ${effectiveBorderClass} text-soft hover:bg-chip-hover ${tierOpacity}`;
   }
 
   // Range display: inline compact format
@@ -334,12 +334,12 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           </span>
         )}
         {tierCount > 1 && (
-          <span className="text-[12px] text-gray-500 shrink-0" aria-hidden="true">
+          <span className="text-[12px] text-dim shrink-0" aria-hidden="true">
             &times;{tierCount}
           </span>
         )}
         {rangeText && !isSelected && !isExcluded && (
-          <span className="text-[12px] text-gray-500 shrink-0" aria-hidden="true">
+          <span className="text-[12px] text-dim shrink-0" aria-hidden="true">
             ({rangeText})
           </span>
         )}
@@ -350,8 +350,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           onClick={handleExcludeClick}
           className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-[11px] font-bold transition-colors ${
             isExcluded
-              ? 'bg-red-600 text-white hover:bg-red-500'
-              : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-red-400'
+              ? 'bg-btn-danger text-bright hover:bg-red-500'
+              : 'bg-raised text-muted hover:bg-gray-600 hover:text-accent-red'
           }`}
           title={isExcluded ? t('chip.unexclude_tooltip') : t('chip.exclude_tooltip')}
           aria-label={isExcluded ? t('chip.unexclude_aria') : t('chip.exclude_aria')}
@@ -362,13 +362,13 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       {/* Per-chip numeric range inputs — SIBLINGS of switch, not children — valid ARIA tree */}
       {hasRanges && isSelected && onSetTokenRange && !group.hasMultiPlaceholder && (
         <div className="flex items-center gap-1 text-[13px]" onClick={stopPropagation}>
-          <span className="text-gray-500">&ge;</span>
+          <span className="text-dim">&ge;</span>
           <input
             min={0}
             step={1}
             placeholder={t('range.min')}
             aria-label={t('range.min_aria')}
-            className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.min ?? ''}
             onChange={(e) => {
@@ -386,13 +386,13 @@ export const FilterChip: React.FC<FilterChipProps> = ({
               }
             }}
           />
-          <span className="text-gray-500">&le;</span>
+          <span className="text-dim">&le;</span>
           <input
             min={0}
             step={1}
             placeholder={t('range.max')}
             aria-label={t('range.max_aria')}
-            className="w-16 px-1.5 py-1 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
             type="number"
             value={groupRange.max ?? ''}
             onChange={(e) => {
@@ -418,24 +418,24 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           {/* Slot 0 row */}
           <div className="flex items-center gap-1">
             <span className="text-[11px] text-blue-400/80 font-semibold shrink-0 w-5">1е</span>
-            <span className="text-gray-500">&ge;</span>
+            <span className="text-dim">&ge;</span>
             <input
               min={0}
               step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_1')}
-              className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               type="number"
               value={slot0Range.min}
               onChange={handleSlot0MinChange}
             />
-            <span className="text-gray-500">&le;</span>
+            <span className="text-dim">&le;</span>
             <input
               min={0}
               step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_1')}
-              className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               type="number"
               value={slot0Range.max}
               onChange={handleSlot0MaxChange}
@@ -444,24 +444,24 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           {/* Slot 1 row */}
           <div className="flex items-center gap-1">
             <span className="text-[11px] text-orange-400/80 font-semibold shrink-0 w-5">2е</span>
-            <span className="text-gray-500">&ge;</span>
+            <span className="text-dim">&ge;</span>
             <input
               min={0}
               step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_2')}
-              className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               type="number"
               value={slot1Range.min}
               onChange={handleSlot1MinChange}
             />
-            <span className="text-gray-500">&le;</span>
+            <span className="text-dim">&le;</span>
             <input
               min={0}
               step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_2')}
-              className="w-14 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
               type="number"
               value={slot1Range.max}
               onChange={handleSlot1MaxChange}

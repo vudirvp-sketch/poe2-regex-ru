@@ -14,8 +14,8 @@ function NotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4">
       <h2 className="text-2xl font-bold" style={{ color: 'var(--poe-gold)' }}>404</h2>
-      <p className="text-gray-400">Страница не найдена</p>
-      <Link to="/" className="text-blue-400 hover:text-blue-300 underline">На главную</Link>
+      <p className="text-muted">Страница не найдена</p>
+      <Link to="/" className="text-accent-blue hover:text-blue-300 underline">На главную</Link>
     </div>
   )
 }

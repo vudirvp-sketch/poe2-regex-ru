@@ -27,20 +27,20 @@ import { literal, or, range } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
 const TABLET_TYPES = [
-  { id: 'breach', label: 'Бездна', regex: 'бездн', color: 'text-purple-400' },
-  { id: 'delirium', label: 'Делириум', regex: 'делир', color: 'text-blue-400' },
-  { id: 'ritual', label: 'Ритуал', regex: 'ритуал', color: 'text-red-400' },
-  { id: 'vaal', label: 'Ваал', regex: 'ваал', color: 'text-orange-400' },
-  { id: 'expedition', label: 'Экспедиция', regex: 'экспедици', color: 'text-green-400' },
+  { id: 'breach', label: 'Бездна', regex: 'бездн', color: 'text-accent-purple' },
+  { id: 'delirium', label: 'Делириум', regex: 'делир', color: 'text-accent-blue' },
+  { id: 'ritual', label: 'Ритуал', regex: 'ритуал', color: 'text-accent-red' },
+  { id: 'vaal', label: 'Ваал', regex: 'ваал', color: 'text-accent-orange' },
+  { id: 'expedition', label: 'Экспедиция', regex: 'экспедици', color: 'text-accent-teal' },
 ] as const;
 
 /** Note about expedition tablets — currently not in game, kept for future content */
 const EXPEDITION_NOTE = 'Экспедиционные плитки временно отсутствуют в игре (лига Руны Альдура). Кнопка оставлена для будущего контента.';
 
 const RARITY_OPTIONS = [
-  { id: 'normal', label: 'Обычный', regex: 'обычн', color: 'text-white' },
-  { id: 'magic', label: 'Волшебный', regex: 'волшебн', color: 'text-blue-300' },
-  { id: 'rare', label: 'Редкий', regex: 'редк', color: 'text-yellow-300' },
+  { id: 'normal', label: 'Обычный', regex: 'обычн', color: 'text-bright' },
+  { id: 'magic', label: 'Волшебный', regex: 'волшебн', color: 'text-accent-blue' },
+  { id: 'rare', label: 'Редкий', regex: 'редк', color: 'text-accent-yellow' },
 ] as const;
 
 export function TabletPage() {
@@ -144,7 +144,7 @@ export function TabletPage() {
                 <img src={`${import.meta.env.BASE_URL}icons/tablet.png`} alt="" width={24} height={24} className="object-contain" />
                 {t('tablet.title')}
               </h2>
-              <span className="text-xs text-gray-500">{data.tokens.length} {t('mods_word')}</span>
+              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
             </div>
 
             <CategoryControlPanel
@@ -167,17 +167,17 @@ export function TabletPage() {
               excludedCount={excludeTokens.length}
               activeTokenCount={allActiveTokens.length}
               extraControls={
-                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
+                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
                   {/* Tablet type buttons */}
-                  <span className="text-[10px] text-gray-500">{t('tablet.type_label')}</span>
+                  <span className="text-[10px] text-dim">{t('tablet.type_label')}</span>
                   {TABLET_TYPES.map(typeDef => (
                     <button key={typeDef.id}
                       onClick={() => toggleType(typeDef.id)}
                       title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
                       className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                         selectedTypes.has(typeDef.id)
-                          ? 'bg-gray-700 border-gray-500 text-white'
-                          : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
+                          ? 'bg-raised border-gray-500 text-bright'
+                          : 'bg-surface border-edge-panel text-dim hover:border-edge'
                       } ${typeDef.id === 'expedition' ? 'opacity-60' : ''}`}
                     >
                       <span className={selectedTypes.has(typeDef.id) ? typeDef.color : ''}>
@@ -187,14 +187,14 @@ export function TabletPage() {
                   ))}
 
                   {/* Rarity buttons */}
-                  <span className="text-[10px] text-gray-500 ml-1">{t('tablet.rarity_label')}</span>
+                  <span className="text-[10px] text-dim ml-1">{t('tablet.rarity_label')}</span>
                   {RARITY_OPTIONS.map(rarityDef => (
                     <button key={rarityDef.id}
                       onClick={() => toggleRarity(rarityDef.id)}
                       className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                         selectedRarities.has(rarityDef.id)
-                          ? 'bg-gray-700 border-gray-500 text-white'
-                          : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
+                          ? 'bg-raised border-gray-500 text-bright'
+                          : 'bg-surface border-edge-panel text-dim hover:border-edge'
                       }`}
                     >
                       <span className={selectedRarities.has(rarityDef.id) ? rarityDef.color : ''}>
@@ -204,11 +204,11 @@ export function TabletPage() {
                   ))}
 
                   {/* Uses remaining */}
-                  <span className="text-[10px] text-gray-500 ml-1">{t('tablet.uses_label')}</span>
+                  <span className="text-[10px] text-dim ml-1">{t('tablet.uses_label')}</span>
                   <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
                     onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
                     placeholder="≥N"
-                    className="w-14 px-1.5 py-0.5 bg-gray-800 border border-gray-600 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                    className="w-14 px-1.5 py-0.5 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
                   />
                 </div>
               }
@@ -244,18 +244,18 @@ export function TabletPage() {
               />
 
               {(allActiveTokens.length > 0 || selectedTypes.size > 0 || selectedRarities.size > 0 || usesMin !== null) && (
-                <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">
+                <div className="bg-panel border border-edge-panel rounded p-3">
+                  <div className="text-xs text-muted mb-1">
                     {t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}
                     {excludeTokens.length > 0 && (
-                      <span className="text-red-400"> | {t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</span>
+                      <span className="text-accent-red"> | {t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</span>
                     )}
                     {selectedTypes.size > 0 && ` ${t('tablet.summary_types')} ${[...selectedTypes].map(id => TABLET_TYPES.find(tp => tp.id === id)?.label).filter(Boolean).join(', ')}`}
                     {selectedRarities.size > 0 && ` ${t('tablet.summary_rarity')} ${[...selectedRarities].map(id => RARITY_OPTIONS.find(r => r.id === id)?.label).filter(Boolean).join(', ')}`}
                     {usesMin !== null && ` ${t('tablet.summary_uses').replace('{n}', String(usesMin))}`}
                   </div>
                   {wantTokens.length > 0 && (
-                    <div className="text-[10px] text-gray-600">
+                    <div className="text-[10px] text-faint">
                       {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                     </div>
                   )}

@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 46.0 | **Date:** 2026-06-10 | **Language:** RU-first
+> **Version:** 47.0 | **Date:** 2026-06-11 | **Language:** RU-first
 
 ---
 
@@ -198,7 +198,7 @@ interface CategoryLabel {
 ```
 
 **Origin colors:** Обычные=gray, Очернённые=emerald, Осквернённые=red, Сущность=amber, Разлом=violet.
-All defined in `ORIGIN_SECTION_LABELS` (`mod-classifier.ts`). Light theme overrides in `index.css`.
+All defined in `ORIGIN_SECTION_LABELS` (`mod-classifier.ts`). Theme switching via CSS custom properties — no `!important` overrides.
 
 **Origin icon paths:** Очернённые=`icons/очернение абис.webp`, Осквернённые=`icons/осквернение.webp`, Сущность=`icons/сущность.webp`, Разлом=`icons/разлом.webp`, Обычные=no icon.
 

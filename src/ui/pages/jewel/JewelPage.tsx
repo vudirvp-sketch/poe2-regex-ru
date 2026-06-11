@@ -28,7 +28,7 @@ import type { GameToken } from '@shared/types';
 
 /** Jewel type filter options for the control panel */
 const JEWEL_TYPE_OPTIONS: { id: JewelTypeCategory | 'all'; labelKey: string; colorClass: string }[] = [
-  { id: 'all', labelKey: 'jewel.type_all', colorClass: 'text-gray-300' },
+  { id: 'all', labelKey: 'jewel.type_all', colorClass: 'text-soft' },
   { id: 'ruby', labelKey: 'jewel.type_ruby', colorClass: JEWEL_TYPE_LABELS.ruby.colorClass },
   { id: 'emerald', labelKey: 'jewel.type_emerald', colorClass: JEWEL_TYPE_LABELS.emerald.colorClass },
   { id: 'sapphire', labelKey: 'jewel.type_sapphire', colorClass: JEWEL_TYPE_LABELS.sapphire.colorClass },
@@ -151,7 +151,7 @@ export function JewelPage() {
                 <img src={`${import.meta.env.BASE_URL}icons/jewel.png`} alt="" width={24} height={24} className="object-contain" />
                 {t('jewel.title')}
               </h2>
-              <span className="text-xs text-gray-500">{filteredTokens.length}/{data.tokens.length} {t('mods_word')}</span>
+              <span className="text-xs text-dim">{filteredTokens.length}/{data.tokens.length} {t('mods_word')}</span>
             </div>
 
             <CategoryControlPanel
@@ -174,15 +174,15 @@ export function JewelPage() {
               excludedCount={excludeTokens.length}
               activeTokenCount={allActiveTokens.length}
               extraControls={
-                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-gray-700">
-                  <span className="text-[10px] text-gray-500">{t('jewel.type_label')}</span>
+                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
+                  <span className="text-[10px] text-dim">{t('jewel.type_label')}</span>
                   {JEWEL_TYPE_OPTIONS.map(opt => (
                     <button key={opt.id}
                       onClick={() => setJewelTypeFilter(opt.id)}
                       className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                         jewelTypeFilter === opt.id
-                          ? 'bg-gray-700 border-gray-500 text-white'
-                          : 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600'
+                          ? 'bg-raised border-gray-500 text-bright'
+                          : 'bg-surface border-edge-panel text-dim hover:border-edge'
                       }`}
                     >
                       <span className={jewelTypeFilter === opt.id ? opt.colorClass : ''}>
@@ -196,7 +196,7 @@ export function JewelPage() {
 
             {/* Hidden active mods warning */}
             {hiddenActiveCount > 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-amber-900/30 border border-amber-700/50 rounded text-xs text-amber-300" role="alert">
+              <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-amber-700/50 rounded text-xs text-amber-300" role="alert">
                 <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
                 <button
                   onClick={deselectHidden}
@@ -238,12 +238,12 @@ export function JewelPage() {
               />
 
               {allActiveTokens.length > 0 && (
-                <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
+                <div className="bg-panel border border-edge-panel rounded p-3">
+                  <div className="text-xs text-muted mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
                   {excludeTokens.length > 0 && (
-                    <div className="text-xs text-red-400 mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
+                    <div className="text-xs text-accent-red mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
                   )}
-                  <div className="text-[10px] text-gray-600">
+                  <div className="text-[10px] text-faint">
                     {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
                   {excludeTokens.length > 0 && (

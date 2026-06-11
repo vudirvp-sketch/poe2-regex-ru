@@ -92,7 +92,7 @@ export function WaystonePage() {
                 <img src={`${import.meta.env.BASE_URL}icons/waystone.png`} alt="" width={24} height={24} className="object-contain" />
                 {t('waystone.title')}
               </h2>
-              <span className="text-xs text-gray-500">{data.tokens.length} {t('mods_word')}</span>
+              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
             </div>
 
             <CategoryControlPanel
@@ -115,24 +115,24 @@ export function WaystonePage() {
               excludedCount={excludeTokens.length}
               activeTokenCount={allActiveTokens.length}
               extraControls={
-                <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-700">
+                <div className="flex items-center gap-3 ml-2 pl-2 border-l border-edge-panel">
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input type="checkbox" checked={corrupted}
                       onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
-                      className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-purple-500" />
-                    <span className="text-[10px] text-gray-300">{t('waystone.corrupted_label')}</span>
+                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-purple-500" />
+                    <span className="text-[10px] text-soft">{t('waystone.corrupted_label')}</span>
                   </label>
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input type="checkbox" checked={uncorrupted}
                       onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
-                      className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-green-500" />
-                    <span className="text-[10px] text-gray-300">{t('waystone.uncorrupted_label')}</span>
+                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-green-500" />
+                    <span className="text-[10px] text-soft">{t('waystone.uncorrupted_label')}</span>
                   </label>
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input type="checkbox" checked={delirious}
                       onChange={(e) => setDelirious(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded bg-gray-700 border-gray-600 text-blue-500" />
-                    <span className="text-[10px] text-gray-300">{t('waystone.delirious_label')}</span>
+                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500" />
+                    <span className="text-[10px] text-soft">{t('waystone.delirious_label')}</span>
                   </label>
                 </div>
               }
@@ -168,18 +168,18 @@ export function WaystonePage() {
               />
 
               {(allActiveTokens.length > 0 || corrupted || uncorrupted || delirious) && (
-                <div className="bg-gray-900 border border-gray-700 rounded p-3">
-                  <div className="text-xs text-gray-400 mb-1">
+                <div className="bg-panel border border-edge-panel rounded p-3">
+                  <div className="text-xs text-muted mb-1">
                     {t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}
                     {excludeTokens.length > 0 && (
-                      <span className="text-red-400"> | {t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</span>
+                      <span className="text-accent-red"> | {t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</span>
                     )}
                     {corrupted && ` ${t('waystone.summary_corrupted')}`}
                     {uncorrupted && ` ${t('waystone.summary_uncorrupted')}`}
                     {delirious && ` ${t('waystone.summary_delirious')}`}
                   </div>
                   {wantTokens.length > 0 && (
-                    <div className="text-[10px] text-gray-600">
+                    <div className="text-[10px] text-faint">
                       {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                     </div>
                   )}

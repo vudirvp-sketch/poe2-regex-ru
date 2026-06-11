@@ -70,7 +70,7 @@ export function Sidebar() {
     <>
       {/* Mobile hamburger button — visible only on small screens */}
       <button
-        className="fixed top-3 left-3 z-50 md:hidden p-2 rounded bg-gray-800 border border-gray-700 text-gray-300"
+        className="fixed top-3 left-3 z-50 md:hidden p-2 rounded bg-surface border border-edge-panel text-soft"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle navigation"
         aria-expanded={mobileOpen}
