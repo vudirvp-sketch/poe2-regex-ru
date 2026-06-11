@@ -46,3 +46,26 @@ Stage Summary:
 - Новые файлы: public/robots.txt, public/sitemap.xml, public/og-banner.png, src/ui/pages/home/SeoBlock.tsx
 - Изменённые файлы: index.html, src/shared/i18n.ts, src/ui/pages/home/HomePage.tsx, STATUS.md, AGENT_NAVIGATION.md
 - Точка остановки: SEO завершён полностью. Следующий шаг — ручная работа (Вебмастер, соцсети)
+
+---
+Task ID: 22
+Agent: main
+Task: Атмосферный фон сайта — тёмный лес (Вариант 5: полностраничный + сайдбар)
+
+Work Log:
+- Конвертировал исходное PNG (1672×941) в WebP: desktop 1200×675 (20 KB, q35) + mobile 600×400 (5 KB, q30)
+- Добавил CSS в index.css:
+  - `body::before` — полностраничный фиксированный фон, opacity 0.06, только тёмная тема
+  - Мобильный media query: мобильный файл + scroll вместо fixed (iOS perf)
+  - Светлая тема: `display: none` для body::before
+  - `.sidebar-atmosphere` — градиентный оверлей (72–88% затемнение) + та же картинка, ~18% видимость
+  - Светлая тема сайдбара: чистый `var(--poe-bg-secondary)`
+- Обновил Sidebar.tsx: заменил inline `background: var(--poe-bg-secondary)` на CSS-класс `sidebar-atmosphere`
+- TypeScript компиляция: ✅ без ошибок
+- Обновил STATUS.md, AGENT_NAVIGATION.md, worklog.md
+
+Stage Summary:
+- Новые файлы: public/bg-forest.webp (20 KB), public/bg-forest-mobile.webp (5 KB)
+- Изменённые файлы: src/index.css, src/ui/layout/Sidebar.tsx, STATUS.md, AGENT_NAVIGATION.md
+- Полная загрузка: +25 KB (десктоп + мобильный), только тёмная тема
+- Точка остановки: атмосферный фон реализован

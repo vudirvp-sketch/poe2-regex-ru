@@ -96,6 +96,7 @@ export function Sidebar() {
       <aside
         ref={asideRef}
         className={`
+          sidebar-atmosphere
           z-40 flex h-full w-56 flex-col border-r shrink-0
           transition-transform duration-200
           md:translate-x-0 md:static
@@ -103,7 +104,6 @@ export function Sidebar() {
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
         style={{
-          background: 'var(--poe-bg-secondary)',
           borderColor: 'var(--poe-border)',
         }}
         role="navigation"
