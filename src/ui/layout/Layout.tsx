@@ -4,10 +4,10 @@ import { Header } from './Header'
 
 export function Layout() {
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--poe-bg)' }}>
+    <div className="flex h-screen overflow-hidden layout-shell">
       <a href="#main-content" className="skip-link">Перейти к основному содержимому</a>
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0 content-area">
         <Header />
         <main id="main-content" className="flex-1 overflow-auto p-3 md:p-6" tabIndex={-1}>
           <Outlet />

@@ -59,8 +59,9 @@ body {
 }
 
 /* ─── Atmospheric background (dark theme only) ─── */
-/* Subtle full-page forest texture — barely visible at 6% opacity.
-   Creates depth without distracting from functional content. */
+/* Single fixed forest texture on body::before — shared by sidebar & header.
+   Elements use semi-transparent backgrounds so the same image shows through,
+   creating one seamless background across sidebar + header. */
 [data-theme="dark"] body::before,
 :root body::before {
   content: '';
@@ -86,34 +87,55 @@ body {
   display: none;
 }
 
-/* ─── Sidebar atmospheric background (dark theme only) ─── */
-/* Sidebar gets a slightly more visible forest texture (~18% opacity)
-   via gradient overlay, creating a "portal" effect while keeping text readable. */
+/* ─── Sidebar: semi-transparent so body::before shows through ─── */
+/* Sidebar is on the left, forest slightly more visible there.
+   rgba with alpha lets the single body::before background shine through. */
 [data-theme="dark"] .sidebar-atmosphere,
 :root .sidebar-atmosphere {
-  background:
-    linear-gradient(180deg, rgba(10, 10, 15, 0.72) 0%, rgba(10, 10, 15, 0.88) 100%),
-    url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat;
+  background: rgba(10, 10, 15, 0.82);
 }
 
-/* Light theme: plain sidebar, no forest texture */
+/* ─── Header: semi-transparent so body::before shows through ─── */
+/* Header is at the top, same forest, same seamless look. */
+[data-theme="dark"] .header-atmosphere,
+:root .header-atmosphere {
+  background: rgba(10, 10, 15, 0.82);
+}
+
+/* Light theme: solid backgrounds, no forest */
 [data-theme="light"] .sidebar-atmosphere {
   background: var(--poe-bg-secondary);
 }
-
-/* ─── Header atmospheric background (dark theme only) ─── */
-/* Same forest texture as sidebar, horizontal gradient for the narrow header band.
-   Slightly less visible at top (~12%) to keep the title crisp. */
-[data-theme="dark"] .header-atmosphere,
-:root .header-atmosphere {
-  background:
-    linear-gradient(90deg, rgba(10, 10, 15, 0.82) 0%, rgba(10, 10, 15, 0.90) 100%),
-    url('/poe2-regex-ru/bg-forest.webp') center 30%/cover no-repeat;
-}
-
-/* Light theme: plain header, no forest texture */
 [data-theme="light"] .header-atmosphere {
   background: var(--poe-bg-secondary);
+}
+
+/* ─── Layout shell: transparent in dark, solid in light ─── */
+/* Must be transparent so body::before (the forest) shows through
+   to sidebar and header. Main content area stays opaque for readability. */
+[data-theme="dark"] .layout-shell,
+:root .layout-shell {
+  background: transparent;
+}
+[data-theme="light"] .layout-shell {
+  background: var(--poe-bg);
+}
+
+/* ─── Content area ─── */
+/* The right panel (header + main) next to the sidebar.
+   Transparent so the forest shows through the header area.
+   Main content gets its own opaque background below. */
+[data-theme="dark"] .content-area,
+:root .content-area {
+  background: transparent;
+}
+[data-theme="light"] .content-area {
+  background: var(--poe-bg);
+}
+
+/* Main content: opaque — mod lists and regex must be perfectly readable */
+main {
+  background: var(--poe-bg);
 }
 
 * {
