@@ -141,7 +141,7 @@ describe('Regex Oracle: Factorized regexes', () => {
 describe('Regex Oracle: Number patterns with prefix anchoring', () => {
   it('≥40 with correct prefix anchoring', () => {
     const result = validateRegex(
-      'даруют на ([4-9][0-9]|[0-9][0-9][0-9]).*опыта',
+      'даруют на ([4-9][0-9]|\\d{3,}).*опыта',
       ['Боссы карт даруют на 40% больше опыта'],
       ['Боссы карт даруют на 15% больше опыта']
     );

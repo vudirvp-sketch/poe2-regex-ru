@@ -188,16 +188,16 @@ describe('PoE2 Regex Dialect: Optional quantifier ? (NOT supported in-game)', ()
 // IMPORTANT: PoE2 number regex patterns now use [0-9] instead of `.`
 // - `.` in PoE2 matches ANY character (not just digits) — was a bug
 // - `[4-9][0-9]` matches only actual two-digit numbers 40-99
-// - `[0-9][0-9][0-9]` matches only actual three-digit numbers 100-999
+// - `\d{3,}` matches only actual 3+ digit numbers 100+
 // - The suffix constraint (.*suffix) provides additional specificity
 // - These patterns are now PRECISE, not heuristic
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Number regex: ≥N with realistic game text', () => {
-  it('≥5 with suffix: "([5-9]|[0-9][0-9][0-9]?).*к силе"', () => {
+  it('≥5 with suffix: "([5-9]|\\d{2,}).*к силе"', () => {
     // Realistic game text: "+(5—8) к силе"
     // The number regex must find a number ≥5 AND "к силе" on the same item
-    const regex = '"([5-9]|[0-9][0-9][0-9]?).*к силе"';
+    const regex = '"([5-9]|\\d{2,}).*к силе"';
     expect(matchPoE2Regex(regex, '+(5—8) к силе')).toBe(true);
     expect(matchPoE2Regex(regex, '+(9—15) к силе')).toBe(true);
     expect(matchPoE2Regex(regex, '+(12—20) к силе')).toBe(true);
@@ -208,11 +208,11 @@ describe('Number regex: ≥N with realistic game text', () => {
     // only values < 5:
     expect(matchPoE2Regex(regex, '+(4—8) к силе')).toBe(true); // 8 ≥ 5, correct match
     // But a value like "4—" is NOT matched by [0-9][0-9] because '—' is not [0-9]:
-    expect(matchPoE2Regex('"([4-9][0-9]|[0-9][0-9][0-9]).*к силе"', '+(4—8) к силе')).toBe(false); // no ≥40 number
+    expect(matchPoE2Regex('"([4-9][0-9]|\\d{3,}).*к силе"', '+(4—8) к силе')).toBe(false); // no ≥40 number
   });
 
-  it('≥40 with round10: "([4-9][0-9]|[0-9][0-9][0-9]).*m q" on realistic text', () => {
-    const regex = '"([4-9][0-9]|[0-9][0-9][0-9]).*m q"';
+  it('≥40 with round10: "([4-9][0-9]|\\d{3,}).*m q" on realistic text', () => {
+    const regex = '"([4-9][0-9]|\\d{3,}).*m q"';
     // In-game, the mod text would be like "(40—80)% увеличение ... m q"
     // The pattern finds a ≥40 number + suffix
     expect(matchPoE2Regex(regex, '(40—80)% увеличение m q')).toBe(true);
@@ -227,7 +227,7 @@ describe('Number regex: ≥N with realistic game text', () => {
     // "Уровень предмета: 50" has the number AFTER the colon, not before.
     // In-game, the mod text would be formatted differently.
     // Let's test with number BEFORE suffix:
-    const regex = '"([5-9][0-9]|[0-9][0-9][0-9]).*уровень"';
+    const regex = '"([5-9][0-9]|\\d{3,}).*уровень"';
     expect(matchPoE2Regex(regex, '50 уровень')).toBe(true);
     expect(matchPoE2Regex(regex, '80 уровень')).toBe(true);
     // With "Уровень предмета: 50", [5-9][0-9] tries to match at pos of '5' in ": 50"
@@ -266,10 +266,10 @@ describe('Number regex: ≤N with realistic game text', () => {
 
 describe('Number regex: Min+Max range', () => {
   it('40 ≤ N ≤ 80 with realistic game text', () => {
-    // Our compiler: "([4-9][0-9]|[0-9][0-9][0-9]).*m q" "([0-9]|[1-7][0-9]|80).*m q"
+    // Our compiler: "([4-9][0-9]|\\d{3,}).*m q" "([0-9]|[1-7][0-9]|80).*m q"
     // Both AND groups must match — effectively constraining to [40,80]
     // NOTE: With precise [0-9] patterns, boundary behavior is now correct
-    const regex = '"([4-9][0-9]|[0-9][0-9][0-9]).*m q" "([0-9]|[1-7][0-9]|80).*m q"';
+    const regex = '"([4-9][0-9]|\\d{3,}).*m q" "([0-9]|[1-7][0-9]|80).*m q"';
     expect(matchPoE2Regex(regex, '(40—80)% увеличение m q')).toBe(true);
     expect(matchPoE2Regex(regex, '(55—75)% увеличение m q')).toBe(true);
   });
@@ -808,7 +808,7 @@ describe('Phase 9: Enumerated numeric range [27, 30]', () => {
     // The item "26(26-50)% шанс откладывания наград" has both "50" (≥27) and "26" (≤30).
     const itemWithRangeNotation = { mods: ['26(26-50)% шанс откладывания наград'] };
     // AND approach: two separate quoted groups
-    const andRegex = '"(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
+    const andRegex = '"(2[7-9]|[3-9][0-9]|\\d{3,}).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
     // This WILL match because "50" satisfies ≥27 group and "26" satisfies ≤30 group
     // This is a FALSE POSITIVE — the item's actual value is 26, not in [27,30]
     expect(matchPoE2RegexItem(andRegex, itemWithRangeNotation)).toBe(true);

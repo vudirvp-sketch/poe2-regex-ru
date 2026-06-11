@@ -25,3 +25,45 @@ Stage Summary:
 - docs/IN_GAME_TESTS.md — все гипотезы перенесены в VERIFIED с результатами
 - STATUS.md — итерация 10 завершена, алгоритмы для внедрения
 - AGENT_NAVIGATION.md — §11 Verified Optimization Opportunities, pitfalls #18-20, 4-Level FP Prevention
+
+---
+Task ID: 11
+Agent: main
+Task: Итерация 11 — Кодовая реализация \d{3,}, threshold mode, truncated tail optimizer
+
+Work Log:
+- 1: Внедрён `\d{3,}` в number-regex.ts — заменены все `[0-9][0-9][0-9]` на `\d{3,}`
+- 2: Исправлен баг `[0-9][0-9][0-9]?` — `?` не поддерживается в PoE2 → заменено на `\d{2,}`
+- 3: Добавлена поддержка 4+ значных чисел в threeDigitMin (`\d{4,}`)
+- 4: Добавлен `{N,}` квантификатор в PoE2 regex matcher (tokenizer + parser + matcher)
+- 5: Обновлены все тесты (26 файлов, 802 теста) — все pass
+- 6: Добавлен `threshold` флаг в RANGE AST-узел (types.ts, ast.ts)
+- 7: Реализован threshold mode в compiler.ts — RANGE(min,max,threshold=true) → ≥min only
+- 8: Добавлен truncated tail optimizer Phase 3 в optimizer.ts
+- 9: Реализованы truncateSuffix() и isTruncationSafe() с safe/blacklist
+- 10: Добавлены тесты для threshold mode (6 тестов) и truncated tails (15 тестов)
+- 11: Обновлена документация — STATUS.md, AGENT_NAVIGATION.md
+
+Stage Summary:
+- **802/802 тестов pass**, **build pass**
+- **`\d{3,}` реализован** — экономия 9 символов на каждый ≥100 паттерн
+- **`\d{2,}` реализован** — исправляет баг с `?`, экономит символы
+- **`\d{4,}` добавлен** — корректно обрабатывает 4+ значные числа (≥200, ≥300, ≥900)
+- **Threshold mode реализован** — RANGE(min,max,threshold=true) компилируется как ≥min
+- **Truncated tail optimizer реализован** — Phase 3 с safe list и blacklist
+- **PoE2 matcher поддерживает `{N,}`** — корректно обрабатывает \d{3,}, \d{2,}, \d{4,}
+- **Документация актуальна** — STATUS.md, AGENT_NAVIGATION.md обновлены
+
+Изменённые файлы:
+- src/core/number-regex.ts — \d{3,}, \d{2,}, \d{4,} замены
+- src/core/compiler.ts — threshold mode в normalizeAst
+- src/core/ast.ts — threshold параметр в range()
+- src/core/optimizer.ts — Phase 3: truncateSuffixes, truncateSuffix, isTruncationSafe
+- src/core/poe2-regex-matcher.ts — {N,} квантификатор поддержка
+- src/shared/types.ts — threshold?: boolean в RANGE AST
+- tests/core/number-regex.test.ts — обновлён под \d{3,}, \d{2,}
+- tests/core/compiler.test.ts — обновлён + 6 новых threshold тестов
+- tests/core/optimizer.test.ts — 15 новых truncated tail тестов
+- tests/core/tablet-patterns.test.ts — обновлён
+- tests/core/vendor-patterns.test.ts — обновлён
+- + 7 других тестовых файлов обновлены

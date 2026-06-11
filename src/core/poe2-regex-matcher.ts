@@ -25,6 +25,7 @@
  * - `[]` character class, `()` grouping
  * - `^` / `$` anchors
  * - `%` and `+` are literals
+ * - `\d` digit shorthand, `{n,}` min quantifier (e.g., `\d{3,}` = 3+ digits)
  * - Unmatched `(` is literal; `(...)` pair is grouping
  *
  * NOT supported in PoE2 regex (verified in-game):
@@ -46,6 +47,7 @@ type Token =
   | { type: 'groupOpen' }
   | { type: 'groupClose' }
   | { type: 'optional' }
+  | { type: 'quantifierMin'; min: number }
   | { type: 'anchorStart' }
   | { type: 'anchorEnd' };
 
@@ -113,6 +115,21 @@ function tokenize(pattern: string): Token[] {
       } else {
         tokens.push({ type: 'charClass', ranges });
       }
+    } else if (ch === '{') {
+      // {n,} quantifier — parse the minimum repeat count
+      i++; // skip {
+      let numStr = '';
+      while (i < pattern.length && pattern[i] >= '0' && pattern[i] <= '9') {
+        numStr += pattern[i];
+        i++;
+      }
+      // Skip comma and closing brace: ",}"
+      if (i < pattern.length && pattern[i] === ',') i++;
+      if (i < pattern.length && pattern[i] === '}') i++;
+      const min = parseInt(numStr, 10);
+      if (!isNaN(min) && min > 0) {
+        tokens.push({ type: 'quantifierMin', min });
+      }
     } else if (ch === '\\') {
       i++;
       if (i < pattern.length) {
@@ -129,7 +146,8 @@ function tokenize(pattern: string): Token[] {
       while (i < pattern.length) {
         const c = pattern[i];
         if (c === '.' || c === '|' || c === '!' || c === '(' || c === ')' ||
-            c === '[' || c === '^' || c === '$' || c === '\\' || c === '?') break;
+            c === '[' || c === '^' || c === '$' || c === '\\' || c === '?' ||
+            c === '{') break;
         literal += c;
         i++;
       }
@@ -153,6 +171,7 @@ type PoE2Regex =
   | { type: 'dotStar' }
   | { type: 'charClass'; ranges: CharRange[] }
   | { type: 'optional'; inner: PoE2Regex }
+  | { type: 'repeatMin'; inner: PoE2Regex; min: number }
   | { type: 'anchorStart' }
   | { type: 'anchorEnd' };
 
@@ -184,6 +203,15 @@ export function parsePoE2Regex(pattern: string): PoE2Regex {
         if (items.length > 0) {
           const last = items.pop()!;
           items.push({ type: 'optional', inner: last });
+        }
+        continue;
+      }
+
+      if (token.type === 'quantifierMin') {
+        pos++;
+        if (items.length > 0) {
+          const last = items.pop()!;
+          items.push({ type: 'repeatMin', inner: last, min: token.min });
         }
         continue;
       }
@@ -281,6 +309,28 @@ function matchAt(regex: PoE2Regex, text: string, startIndex: number): { matched:
       if (withInner.matched) return withInner;
       // Or skip it (zero occurrences)
       return { matched: true, endIndex: startIndex };
+    }
+
+    case 'repeatMin': {
+      // Match inner pattern at least `min` times (greedy)
+      // Strategy: match min times, then try to extend greedily
+      let currentEnd = startIndex;
+      for (let count = 0; count < regex.min; count++) {
+        const result = matchAt(regex.inner, text, currentEnd);
+        if (!result.matched) return { matched: false, endIndex: startIndex };
+        currentEnd = result.endIndex;
+      }
+      // Greedily extend: keep matching as long as possible
+      let extended = true;
+      while (extended) {
+        extended = false;
+        const result = matchAt(regex.inner, text, currentEnd);
+        if (result.matched && result.endIndex > currentEnd) {
+          currentEnd = result.endIndex;
+          extended = true;
+        }
+      }
+      return { matched: true, endIndex: currentEnd };
     }
 
     case 'sequence': {

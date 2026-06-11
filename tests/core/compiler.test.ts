@@ -25,12 +25,12 @@ describe('compile', () => {
 
   it('compiles RANGE with suffix (round10=true)', () => {
     const result = compile(range(40, undefined, 'm q'), { round10: true });
-    expect(result).toBe('"([4-9][0-9]|[0-9][0-9][0-9]).*m q"');
+    expect(result).toBe('"([4-9][0-9]|\\d{3,}).*m q"');
   });
 
   it('compiles AND of RANGE and LITERAL', () => {
     const result = compile(and(range(40, undefined, 'm q'), literal('corr')), { round10: true });
-    expect(result).toBe('"([4-9][0-9]|[0-9][0-9][0-9]).*m q" "corr"');
+    expect(result).toBe('"([4-9][0-9]|\\d{3,}).*m q" "corr"');
   });
 
   it('compiles complex: AND(OR, EXCLUDE, RANGE)', () => {
@@ -42,7 +42,7 @@ describe('compile', () => {
       ),
       { round10: true }
     );
-    expect(result).toBe('"огн|хол" "!проклят" "([4-9][0-9]|[0-9][0-9][0-9]).*путев"');
+    expect(result).toBe('"огн|хол" "!проклят" "([4-9][0-9]|\\d{3,}).*путев"');
   });
 
   it('returns empty string for empty AND', () => {
@@ -92,8 +92,9 @@ describe('compile', () => {
   it('compiles RANGE with both min and max (3-digit) — AND fallback', () => {
     // range(100, 200, 'жизн') → 101 values > MAX_ENUMERATE_RANGE (50)
     // Falls back to AND(≥100, ≤200) with two quoted groups
+    // ≥100 now uses \d{3,} (verified in-game, saves 9 chars)
     const result = compile(range(100, 200, 'жизн'), { round10: false });
-    expect(result).toBe('"([1-9][0-9][0-9]).*жизн" "([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200).*жизн"');
+    expect(result).toBe('"\\d{3,}.*жизн" "([0-9]|[1-9][0-9]|[1-1][0-9][0-9]|200).*жизн"');
   });
 
   // ─── Prefix tests (Iteration 20: anchor number to correct mod line) ───
@@ -102,14 +103,14 @@ describe('compile', () => {
     // "Боссы карт даруют на ##% больше опыта" → prefix="даруют на", suffix="больше опыта"
     // range(60, undefined, 'больше опыта', 'даруют на') → "даруют на ([6-9].|\d..).*больше опыта"
     const result = compile(range(60, undefined, 'больше опыта', 'даруют на'), { round10: false });
-    expect(result).toBe('"даруют на ([6-9][0-9]|[0-9][0-9][0-9]).*больше опыта"');
+    expect(result).toBe('"даруют на ([6-9][0-9]|\\d{3,}).*больше опыта"');
   });
 
   it('compiles RANGE with prefix, suffix, and round10', () => {
     // With round10, 60 → round10 → 60 (no change), but 25 → round10 → 20
     // prefix="увеличенное на", suffix="количество монстров"
     const result = compile(range(25, undefined, 'количество монстров', 'увеличенное на'), { round10: true });
-    expect(result).toBe('"увеличенное на ([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
+    expect(result).toBe('"увеличенное на ([2-9][0-9]|\\d{3,}).*количество монстров"');
   });
 
   it('compiles RANGE with prefix and both min+max — compact enumeration', () => {
@@ -122,13 +123,13 @@ describe('compile', () => {
   it('compiles RANGE without prefix (original behavior)', () => {
     // No prefix → same as before: "numRegex.*suffix"
     const result = compile(range(40, undefined, 'm q'), { round10: true });
-    expect(result).toBe('"([4-9][0-9]|[0-9][0-9][0-9]).*m q"');
+    expect(result).toBe('"([4-9][0-9]|\\d{3,}).*m q"');
   });
 
   it('compiles RANGE with prefix but no suffix', () => {
     // Prefix with no suffix: "prefix numRegex"
     const result = compile(range(50, undefined, undefined, 'даруют на'), { round10: true });
-    expect(result).toBe('"даруют на ([5-9][0-9]|[0-9][0-9][0-9])"');
+    expect(result).toBe('"даруют на ([5-9][0-9]|\\d{3,})"');
   });
 
   // ─── Exact (per-token) tests (Iteration 20: no round10 for per-token ranges) ───
@@ -137,25 +138,25 @@ describe('compile', () => {
     // exact=true → no round10 even when global round10=true
     // 25 without round10 → (2[5-9]|[3-9].|\d..) instead of ([2-9].|\d..)
     const result = compile(range(25, undefined, 'количество монстров', undefined, true), { round10: true });
-    expect(result).toBe('"(2[5-9]|[3-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
+    expect(result).toBe('"(2[5-9]|[3-9][0-9]|\\d{3,}).*количество монстров"');
   });
 
   it('compiles RANGE with exact=false (uses global round10)', () => {
     // exact=false → use global round10 (default behavior)
     const result = compile(range(25, undefined, 'количество монстров', undefined, false), { round10: true });
-    expect(result).toBe('"([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
+    expect(result).toBe('"([2-9][0-9]|\\d{3,}).*количество монстров"');
   });
 
   it('compiles RANGE with exact=true and prefix', () => {
     // Per-token range ≥25 with prefix → precise regex + anchor
     const result = compile(range(25, undefined, 'количество дани', 'даруют увеличенное на', true), { round10: true });
-    expect(result).toBe('"даруют увеличенное на (2[5-9]|[3-9][0-9]|[0-9][0-9][0-9]).*количество дани"');
+    expect(result).toBe('"даруют увеличенное на (2[5-9]|[3-9][0-9]|\\d{3,}).*количество дани"');
   });
 
   it('compiles RANGE with exact=undefined (default, uses global round10)', () => {
     // exact=undefined → same as not providing it (backward compatible)
     const result = compile(range(25, undefined, 'количество монстров'), { round10: true });
-    expect(result).toBe('"([2-9][0-9]|[0-9][0-9][0-9]).*количество монстров"');
+    expect(result).toBe('"([2-9][0-9]|\\d{3,}).*количество монстров"');
   });
 
   // ─── Negate syntax verification (Phase 8: ! must be INSIDE quotes) ───
@@ -197,23 +198,23 @@ describe('compile', () => {
     // When multiple ranged tokens share the same (min, max) but have different suffixes,
     // they are merged into one RANGE with OR-joined suffix.
     // The compiler must wrap the OR-suffix in () to scope the | correctly.
-    // Without wrapping: "([1-9][0-9]|[0-9][0-9][0-9]).*огню|холоду" would parse as
-    //   "([1-9][0-9]|[0-9][0-9][0-9]).*огню" OR "холоду" — WRONG!
-    // With wrapping: "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" — correct!
+    // Without wrapping: "([1-9][0-9]|\\d{3,}).*огню|холоду" would parse as
+    //   "([1-9][0-9]|\\d{3,}).*огню" OR "холоду" — WRONG!
+    // With wrapping: "([1-9][0-9]|\\d{3,}).*(огню|холоду)" — correct!
     const result = compile(range(10, undefined, 'огню|холоду'), { round10: false });
-    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+    expect(result).toBe('"([1-9][0-9]|\\d{3,}).*(огню|холоду)"');
   });
 
   it('compiles RANGE with single suffix (no wrapping needed)', () => {
     // Single suffix without | — no wrapping, same as before
     const result = compile(range(10, undefined, 'к сопротивлению огню'), { round10: false });
-    expect(result).toBe('"([1-9][0-9]|[0-9][0-9][0-9]).*к сопротивлению огню"');
+    expect(result).toBe('"([1-9][0-9]|\\d{3,}).*к сопротивлению огню"');
   });
 
   it('compiles RANGE with OR-suffix and prefix', () => {
     // Dual-number mod with OR-suffix and prefix anchoring
     const result = compile(range(10, undefined, 'урона от молнии|урона от огня', 'От'), { round10: false });
-    expect(result).toBe('"От ([1-9][0-9]|[0-9][0-9][0-9]).*(урона от молнии|урона от огня)"');
+    expect(result).toBe('"От ([1-9][0-9]|\\d{3,}).*(урона от молнии|урона от огня)"');
   });
 
   it('compiles RANGE with OR-suffix and both min+max — compact enumeration', () => {
@@ -233,7 +234,7 @@ describe('compile', () => {
       and(literal('оскверн'), range(10, undefined, 'огню|холоду')),
       { round10: false }
     );
-    expect(result).toBe('"оскверн" "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+    expect(result).toBe('"оскверн" "([1-9][0-9]|\\d{3,}).*(огню|холоду)"');
   });
 
   it('compiles AND(LITERAL, RANGE with OR-suffix, EXCLUDE)', () => {
@@ -246,13 +247,13 @@ describe('compile', () => {
       ),
       { round10: false }
     );
-    expect(result).toBe('"даровать двойное|фонтаны" "([1-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)" "!Приспеш"');
+    expect(result).toBe('"даровать двойное|фонтаны" "([1-9][0-9]|\\d{3,}).*(огню|холоду)" "!Приспеш"');
   });
 
   it('compiles RANGE with OR-suffix and exact=true (no round10)', () => {
     const result = compile(range(25, undefined, 'огню|холоду', undefined, true), { round10: true });
     // exact=true → no round10, so ≥25 not rounded to 30
-    expect(result).toBe('"(2[5-9]|[3-9][0-9]|[0-9][0-9][0-9]).*(огню|холоду)"');
+    expect(result).toBe('"(2[5-9]|[3-9][0-9]|\\d{3,}).*(огню|холоду)"');
   });
 
   it('compiles AND(LITERAL, EXCLUDE(OR)) — !(A|B) format', () => {
@@ -331,9 +332,9 @@ describe('compile', () => {
   });
 
   it('RANGE with anchorStart=true adds ^ before number pattern (≥min)', () => {
-    // ≥27 with anchorStart → "^([2-9][0-9]|[0-9][0-9][0-9]).*suffix"
+    // ≥27 with anchorStart → "^(2[7-9]|[3-9][0-9]|\\d{3,}).*suffix"
     const result = compile(range(27, undefined, 'откладывания наград', undefined, undefined, true), { round10: false });
-    expect(result).toBe('"^(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград"');
+    expect(result).toBe('"^(2[7-9]|[3-9][0-9]|\\d{3,}).*откладывания наград"');
   });
 
   it('RANGE with anchorStart=true adds ^ before number pattern (≤max)', () => {
@@ -381,7 +382,7 @@ describe('compile', () => {
 
   it('RANGE with anchorEnd="%" adds % after number pattern (≥min)', () => {
     const result = compile(range(27, undefined, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
-    expect(result).toBe('"(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9])%.*к сопротивлению огню"');
+    expect(result).toBe('"(2[7-9]|[3-9][0-9]|\\d{3,})%.*к сопротивлению огню"');
   });
 
   it('RANGE with anchorEnd="%" adds % after number pattern (≤max)', () => {
@@ -414,5 +415,48 @@ describe('compile', () => {
     expect(groups.length).toBe(2);
     expect(groups[0]).toContain('%');
     expect(groups[1]).toContain('%');
+  });
+
+  // ─── Phase 11: Threshold mode tests ───
+
+  it('RANGE with threshold=true compiles as ≥min only (single quoted group)', () => {
+    // range(27, 50, 'откладывания наград', ..., threshold=true)
+    // Instead of enumerating [27,50] or AND fallback, just use ≥27 threshold
+    const result = compile(range(27, 50, 'откладывания наград', undefined, undefined, false, '%', undefined, undefined, true), { round10: false });
+    expect(result).toBe('"(2[7-9]|[3-9][0-9]|\\d{3,})%.*откладывания наград"');
+  });
+
+  it('RANGE with threshold=true for wide range avoids AND fallback', () => {
+    // range(10, 200, 'суфф') without threshold → AND fallback (2 groups)
+    // With threshold=true → single ≥10 group
+    const result = compile(range(10, 200, 'суфф', undefined, undefined, false, undefined, undefined, undefined, true), { round10: false });
+    // Should be a single quoted group (no AND), just ≥10
+    expect(result).not.toContain('" "');
+    expect(result).toContain('суфф');
+    expect(result).toMatch(/\\d\{3,\}/);
+  });
+
+  it('RANGE with threshold=true and prefix compiles correctly', () => {
+    // range(25, 80, 'количество монстров', 'увеличенное на', ..., threshold=true)
+    const result = compile(range(25, 80, 'количество монстров', 'увеличенное на', undefined, false, undefined, undefined, undefined, true), { round10: false });
+    expect(result).toBe('"увеличенное на (2[5-9]|[3-9][0-9]|\\d{3,}).*количество монстров"');
+  });
+
+  it('RANGE with threshold=true and reversed compiles correctly', () => {
+    // Reversed + threshold: suffix.*≥min
+    const result = compile(range(30, 100, 'золота', undefined, undefined, false, '%', true, undefined, true), { round10: false });
+    expect(result).toBe('"золота.*([3-9][0-9]|\\d{3,})%"');
+  });
+
+  it('RANGE without threshold uses enumeration for narrow ranges', () => {
+    // Without threshold, narrow range [27,30] still uses enumeration
+    const result = compile(range(27, 30, 'откладывания наград'), { round10: false });
+    expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
+  });
+
+  it('RANGE with threshold=false behaves like default (no threshold)', () => {
+    // threshold=false should be same as no threshold
+    const result = compile(range(27, 30, 'откладывания наград', undefined, undefined, false, undefined, undefined, undefined, false), { round10: false });
+    expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
   });
 });

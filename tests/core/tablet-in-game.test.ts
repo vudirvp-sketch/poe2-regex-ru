@@ -154,19 +154,19 @@ describe('Tablet in-game verification — enumeration vs AND fallback', () => {
   it('AND fallback "≥27.*откладывания наград" "≤30.*откладывания наград" matches 26% item (FALSE POSITIVE)', () => {
     // AND fallback: two separate quoted groups
     // "≥27" matches 26? No, 26 < 27. But the regex for ≥27 without round10 is
-    // "(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9])" which correctly excludes 26.
+    // "(2[7-9]|[3-9][0-9]|\\d{3,})" which correctly excludes 26.
     // However, with round10=true, ≥27 rounds to ≥20: "([2-9][0-9]|...)" which INCLUDES 26!
     // Even without round10, the AND approach has a different FP scenario:
     // if item text has range notation "26(26-50)%...", then "50" matches ≥27
     // and "26" matches ≤30 in DIFFERENT positions within the same block.
-    const andFallbackNoRound10 = '"(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
+    const andFallbackNoRound10 = '"(2[7-9]|[3-9][0-9]|\\d{3,}).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
 
     // Without range notation in our test data, the AND approach with no round10
     // correctly rejects 26 (since 26 doesn't match 2[7-9] or [3-9][0-9] etc.)
     expect(matchPoE2RegexItem(andFallbackNoRound10, ancientDecree)).toBe(false);
 
     // But WITH round10=true, ≥27 becomes ≥20, and 26 IS in [20,30] → FP!
-    const andFallbackRound10 = '"([2-9][0-9]|[0-9][0-9][0-9]).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
+    const andFallbackRound10 = '"([2-9][0-9]|\\d{3,}).*откладывания наград" "([0-9]|[1-2][0-9]|30).*откладывания наград"';
     expect(matchPoE2RegexItem(andFallbackRound10, ancientDecree)).toBe(true);
   });
 

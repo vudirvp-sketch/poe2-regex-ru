@@ -32,6 +32,74 @@ import { and, or, exclude, literal } from './ast';
  * AND(LITERAL(regex), EXCLUDE(OR(...excludes))) nodes instead of plain
  * LITERAL(regex), ensuring FP prevention is preserved after optimization.
  */
+/**
+ * Safe list: truncated word tails that are verified in-game as FP-free.
+ * Key = full suffix/word, Value = safe truncated prefix.
+ * These truncations produce shorter regex while maintaining uniqueness.
+ *
+ * Blacklist: truncated tails that cause false positives.
+ * These substrings match unintended indexed text (e.g., item rarity label).
+ */
+const TRUNCATED_TAILS_SAFE: Record<string, string> = {
+  'эффективность': 'эффективн',
+  'эффективность монстров': 'эффективн',
+  'бездна': 'бездн',
+  'бездны': 'бездн',
+  'путевого': 'путев',
+  'путевые': 'путев',
+  'путевом': 'путев',
+  'глубина': 'глубин',
+  'глубины': 'глубин',
+};
+
+const TRUNCATED_TAILS_BLACKLIST: Set<string> = new Set([
+  'редкост',  // FP on item rarity label "редкий"
+  'редк',     // Also unsafe — matches "редкий"
+  'провал',   // Untested, low value
+]);
+
+/**
+ * Truncate a suffix string to its shortest safe prefix.
+ * Returns the truncated string if it's in the safe list and not in the blacklist,
+ * otherwise returns the original string.
+ *
+ * The truncation only applies to complete words/suffixes that have been verified
+ * in-game as not causing false positives. Partial or untested truncations are
+ * rejected to prevent FP.
+ */
+export function truncateSuffix(suffix: string): string {
+  // Check exact match first (e.g., "эффективность монстров" → "эффективн")
+  if (TRUNCATED_TAILS_SAFE[suffix]) {
+    const truncated = TRUNCATED_TAILS_SAFE[suffix];
+    if (!TRUNCATED_TAILS_BLACKLIST.has(truncated)) {
+      return truncated;
+    }
+  }
+
+  // Check if any safe entry is a substring of the input.
+  // Sort by length descending so longer matches take priority
+  // (e.g., "эффективность монстров" before "эффективность").
+  const sortedEntries = Object.entries(TRUNCATED_TAILS_SAFE)
+    .sort(([a], [b]) => b.length - a.length);
+
+  for (const [full, truncated] of sortedEntries) {
+    if (suffix.includes(full) && !TRUNCATED_TAILS_BLACKLIST.has(truncated)) {
+      // Replace the full word with its truncated version
+      return suffix.replace(full, truncated);
+    }
+  }
+
+  return suffix;
+}
+
+/**
+ * Check if a truncated string is safe (not in blacklist and in safe list).
+ */
+export function isTruncationSafe(truncated: string): boolean {
+  if (TRUNCATED_TAILS_BLACKLIST.has(truncated)) return false;
+  return Object.values(TRUNCATED_TAILS_SAFE).includes(truncated);
+}
+
 export function optimize(
   ast: ASTNode,
   optimizationTable: Record<string, OptimizationEntry>,
@@ -42,6 +110,9 @@ export function optimize(
 
   // Phase 2: Apply optimization table entries
   result = applyOptimizationTable(result, optimizationTable, locale);
+
+  // Phase 3: Truncate suffixes using verified safe list
+  result = truncateSuffixes(result, locale);
 
   return result;
 }
@@ -618,3 +689,44 @@ export function collectCollapsedTokenIds(
 
 // Re-export collectTokenIds for convenience
 export { collectTokenIds };
+
+/**
+ * Phase 3: Truncate suffixes in the AST using verified safe list.
+ *
+ * Walks the AST and truncates suffix strings in RANGE nodes and value strings
+ * in LITERAL nodes according to the TRUNCATED_TAILS_SAFE map.
+ * Blacklisted truncations (e.g., "редкост" which FP-matches item rarity label)
+ * are never applied.
+ *
+ * This produces shorter regex output while maintaining correctness for verified
+ * truncations. The truncation is conservative — only explicitly listed words
+ * are truncated, and the blacklist prevents known-FP truncations.
+ */
+function truncateSuffixes(node: ASTNode, _locale: Locale): ASTNode {
+  switch (node.type) {
+    case 'AND':
+      return { ...node, children: node.children.map(c => truncateSuffixes(c, _locale)) };
+    case 'OR':
+      return { ...node, children: node.children.map(c => truncateSuffixes(c, _locale)) };
+    case 'EXCLUDE':
+      return { ...node, child: truncateSuffixes(node.child, _locale) };
+    case 'LITERAL': {
+      const truncated = truncateSuffix(node.value);
+      if (truncated !== node.value) {
+        return { ...node, value: truncated };
+      }
+      return node;
+    }
+    case 'RANGE': {
+      if (node.suffix) {
+        const truncated = truncateSuffix(node.suffix);
+        if (truncated !== node.suffix) {
+          return { ...node, suffix: truncated };
+        }
+      }
+      return node;
+    }
+    default:
+      return node;
+  }
+}

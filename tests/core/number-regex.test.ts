@@ -14,50 +14,53 @@ import { generateNumberRegex, generateEnumeratedRangeRegex } from '@core/number-
  */
 describe('generateNumberRegex', () => {
   describe('1-digit numbers (no round10)', () => {
-    it('1 → ([1-9]|[0-9][0-9][0-9]?)', () => {
-      expect(generateNumberRegex('1', false)).toBe('([1-9]|[0-9][0-9][0-9]?)');
+    it('1 → ([1-9]|\\d{2,})', () => {
+      expect(generateNumberRegex('1', false)).toBe('([1-9]|\\d{2,})');
     });
-    it('5 → ([5-9]|[0-9][0-9][0-9]?)', () => {
-      expect(generateNumberRegex('5', false)).toBe('([5-9]|[0-9][0-9][0-9]?)');
+    it('5 → ([5-9]|\\d{2,})', () => {
+      expect(generateNumberRegex('5', false)).toBe('([5-9]|\\d{2,})');
     });
-    it('9 → ([9]|[0-9][0-9][0-9]?)', () => {
-      expect(generateNumberRegex('9', false)).toBe('([9]|[0-9][0-9][0-9]?)');
+    it('9 → (9|\\d{2,})', () => {
+      expect(generateNumberRegex('9', false)).toBe('(9|\\d{2,})');
     });
   });
 
   describe('2-digit numbers', () => {
-    it('10 → ([1-9][0-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('10', false)).toBe('([1-9][0-9]|[0-9][0-9][0-9])');
+    it('10 → ([1-9][0-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('10', false)).toBe('([1-9][0-9]|\\d{3,})');
     });
-    it('10 with round10 → ([1-9][0-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('10', true)).toBe('([1-9][0-9]|[0-9][0-9][0-9])');
+    it('10 with round10 → ([1-9][0-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('10', true)).toBe('([1-9][0-9]|\\d{3,})');
     });
-    it('50 → ([5-9][0-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('50', false)).toBe('([5-9][0-9]|[0-9][0-9][0-9])');
+    it('50 → ([5-9][0-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('50', false)).toBe('([5-9][0-9]|\\d{3,})');
     });
-    it('55 with round10 → ([5-9][0-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('55', true)).toBe('([5-9][0-9]|[0-9][0-9][0-9])');
+    it('55 with round10 → ([5-9][0-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('55', true)).toBe('([5-9][0-9]|\\d{3,})');
     });
-    it('90 → (9[0-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('90', false)).toBe('(9[0-9]|[0-9][0-9][0-9])');
+    it('90 → (9[0-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('90', false)).toBe('(9[0-9]|\\d{3,})');
     });
-    it('95 → (9[5-9]|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('95', false)).toBe('(9[5-9]|[0-9][0-9][0-9])');
+    it('95 → (9[5-9]|\\d{3,})', () => {
+      expect(generateNumberRegex('95', false)).toBe('(9[5-9]|\\d{3,})');
     });
-    it('99 → (99|[0-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('99', false)).toBe('(99|[0-9][0-9][0-9])');
+    it('99 → (99|\\d{3,})', () => {
+      expect(generateNumberRegex('99', false)).toBe('(99|\\d{3,})');
     });
   });
 
   describe('3-digit numbers', () => {
-    it('100 → ([1-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('100', false)).toBe('([1-9][0-9][0-9])');
+    it('100 → \\d{3,}', () => {
+      expect(generateNumberRegex('100', false)).toBe('\\d{3,}');
     });
-    it('150 → (1[5-9][0-9]|[2-9][0-9][0-9])', () => {
-      expect(generateNumberRegex('150', false)).toBe('(1[5-9][0-9]|[2-9][0-9][0-9])');
+    it('150 → (1[5-9][0-9]|[2-9][0-9][0-9]|\\d{4,})', () => {
+      expect(generateNumberRegex('150', false)).toBe('(1[5-9][0-9]|[2-9][0-9][0-9]|\\d{4,})');
     });
-    it('200 → [2-9][0-9][0-9]', () => {
-      expect(generateNumberRegex('200', false)).toBe('[2-9][0-9][0-9]');
+    it('200 → ([2-9][0-9][0-9]|\\d{4,})', () => {
+      expect(generateNumberRegex('200', false)).toBe('([2-9][0-9][0-9]|\\d{4,})');
+    });
+    it('900 → (9[0-9][0-9]|\\d{4,})', () => {
+      expect(generateNumberRegex('900', false)).toBe('(9[0-9][0-9]|\\d{4,})');
     });
   });
 

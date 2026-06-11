@@ -84,6 +84,14 @@ function normalizeAst(node: ASTNode): ASTNode {
       return { ...node, child: normalizeAst(node.child) };
     case 'RANGE': {
       if (node.min !== undefined && node.max !== undefined) {
+        // Threshold mode: compile RANGE(min, max) as ≥min only (single quoted group)
+        // This is an approximation that overmatches (drops max constraint) but
+        // produces shorter regex with no FP from range notation.
+        // Verified in-game: threshold patterns have NO FP from range notation.
+        if (node.threshold) {
+          // Convert to ≥min only (drop max, keep threshold=false to avoid recursion)
+          return { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor };
+        }
         const range = node.max - node.min + 1;
         if (range <= MAX_ENUMERATE_RANGE) {
           // Narrow range: keep as RANGE(min, max) for enumeration in compileInner

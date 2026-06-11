@@ -43,7 +43,7 @@ describe('Vendor regex compilation patterns', () => {
 
   it('numeric: item level ≥50 with suffix → number regex with suffix', () => {
     const ast = range(50, undefined, 'уровень предмета');
-    expect(compile(ast, { round10: true })).toBe('"([5-9][0-9]|[0-9][0-9][0-9]).*уровень предмета"');
+    expect(compile(ast, { round10: true })).toBe('"([5-9][0-9]|\\d{3,}).*уровень предмета"');
   });
 
   it('numeric + property: item level ≥50 AND quality', () => {
@@ -51,7 +51,7 @@ describe('Vendor regex compilation patterns', () => {
       range(50, undefined, 'уровень предмета'),
       literal('качеств')
     );
-    expect(compile(ast, { round10: true })).toBe('"([5-9][0-9]|[0-9][0-9][0-9]).*уровень предмета" "качеств"');
+    expect(compile(ast, { round10: true })).toBe('"([5-9][0-9]|\\d{3,}).*уровень предмета" "качеств"');
   });
 
   it('movement speed 30%: literal with .* pattern', () => {
@@ -75,6 +75,6 @@ describe('Vendor regex compilation patterns', () => {
       exclude(literal('хаосу')),
       range(80, undefined, 'уровень предмета')
     );
-    expect(compile(ast, { round10: true })).toBe('"качеств|физическ" "!хаосу" "([8-9][0-9]|[0-9][0-9][0-9]).*уровень предмета"');
+    expect(compile(ast, { round10: true })).toBe('"качеств|физическ" "!хаосу" "([8-9][0-9]|\\d{3,}).*уровень предмета"');
   });
 });

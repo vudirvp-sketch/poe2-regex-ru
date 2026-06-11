@@ -5,9 +5,9 @@
  * false positives from range notation in non-% reversed mods.
  *
  * In-game verified:
- * - T1: "появляется.*: ([2-9]|[0-9][0-9][0-9]?)" on Abyss Tile with value 1
+ * - T1: "появляется.*: ([2-9]|\\d{2,})" on Abyss Tile with value 1
  *   → NOTHING highlighted → No FP ✓
- * - T3: "х редких с.*: ([3-9]|[0-9][0-9][0-9]?)" on Ritual Tile with value 2
+ * - T3: "х редких с.*: ([3-9]|\\d{2,})" on Ritual Tile with value 2
  *   → NOTHING highlighted → No FP ✓
  *
  * The OLD regex (without colon anchor: `suffix.*(number)`) matched secondary
@@ -120,9 +120,9 @@ const ritualTileAzmeri1: GameItemText = {
 
 describe('T1: Colon anchor verification — "дополнительных редких монстров" ≥2', () => {
   // NEW regex WITH colon anchor (the fix)
-  const newRegex = '"появляется.*: ([2-9]|[0-9][0-9][0-9]?)"';
+  const newRegex = '"появляется.*: ([2-9]|\\d{2,})"';
   // OLD regex WITHOUT colon anchor (the FP version)
-  const oldRegex = '"появляется.*([2-9]|[0-9][0-9][0-9]?)"';
+  const oldRegex = '"появляется.*([2-9]|\\d{2,})"';
 
   it('NEW regex does NOT match tile with value 1 (no FP)', () => {
     expect(matchPoE2RegexItem(newRegex, abyssTileValue1)).toBe(false);
@@ -151,8 +151,8 @@ describe('T1: Colon anchor verification — "дополнительных ред
 // ─── T3: "дополнительных редких сундуков" ≥3 on Ritual Tile ───
 
 describe('T3: Colon anchor verification — "дополнительных редких сундуков" ≥3', () => {
-  const newRegex = '"х редких с.*: ([3-9]|[0-9][0-9][0-9]?)"';
-  const oldRegex = '"х редких с.*([3-9]|[0-9][0-9][0-9]?)"';
+  const newRegex = '"х редких с.*: ([3-9]|\\d{2,})"';
+  const oldRegex = '"х редких с.*([3-9]|\\d{2,})"';
 
   it('NEW regex does NOT match tile with value 2 (no FP)', () => {
     expect(matchPoE2RegexItem(newRegex, ritualTileValue2)).toBe(false);
@@ -182,14 +182,14 @@ describe('T2/T4: Other non-% mods with colon anchor', () => {
   it('T2: "дополнительных свойств: 1" — ≥2 should NOT match value 1', () => {
     // Template: "Уникальные монстры имеют дополнительных свойств: #"
     // Range: [1] only, so ≥2 would never match value 1
-    const regex = '"уникальные.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    const regex = '"уникальные.*: ([2-9]|\\d{2,})"';
     expect(matchPoE2RegexItem(regex, templeTileValue1)).toBe(false);
   });
 
   it('T4: "дополнительных духов азмири: 1" — ≥2 should NOT match value 1', () => {
     // Template: "На карте можно встретить дополнительных духов азмири: #"
     // Range: [1] only, so ≥2 would never match value 1
-    const regex = '"ьных духов.*: ([2-9]|[0-9][0-9][0-9]?)"';
+    const regex = '"ьных духов.*: ([2-9]|\\d{2,})"';
     expect(matchPoE2RegexItem(regex, ritualTileAzmeri1)).toBe(false);
   });
 });

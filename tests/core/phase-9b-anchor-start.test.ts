@@ -74,9 +74,9 @@ describe('Phase 9b: ^ anchor prevents range notation FP', () => {
   });
 
   it('^ anchor on ≥min: prevents FP from range notation', () => {
-    // ≥27 with anchorStart → ^(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*suffix
+    // ≥27 with anchorStart → ^(2[7-9]|[3-9][0-9]|\\d{3,}).*suffix
     // This prevents "27" from "(27-50)" matching because it's not at position 0
-    const regex = '"^(2[7-9]|[3-9][0-9]|[0-9][0-9][0-9]).*откладывания наград"';
+    const regex = '"^(2[7-9]|[3-9][0-9]|\\d{3,}).*откладывания наград"';
     expect(matchPoE2RegexItem(regex, item27)).toBe(true);   // 27% starts block
     expect(matchPoE2RegexItem(regex, item30)).toBe(true);   // 30% starts block
     expect(matchPoE2RegexItem(regex, item26)).toBe(false);   // FP prevented

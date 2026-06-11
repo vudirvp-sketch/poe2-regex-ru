@@ -11,8 +11,17 @@
  *   WRONG: `[4-9].`     — matches "4-", "4a", "4 " etc.
  *   RIGHT: `[4-9][0-9]` — matches only "40"-"99"
  *
- * Uses [0-9] instead of \d for maximum compatibility — \d was verified once
- * in PoE2 but [0-9] is guaranteed to work in the PoE2 regex dialect.
+ * VERIFIED IN-GAME (Phase 10):
+ * - \d is supported in PoE2 regex dialect (matches any single digit)
+ * - {N,} quantifier is supported (e.g., \d{3,} = 3 or more digits)
+ * - \d{3,} is used instead of [0-9][0-9][0-9] for "any 3+ digit number"
+ *   Saves 9 chars per occurrence (6 vs 15) with identical semantics.
+ * - \d{2,} is used instead of [0-9][0-9][0-9]? for "any 2+ digit number"
+ *   The `?` quantifier is NOT supported in PoE2 — \d{2,} is both correct
+ *   and shorter.
+ * - [0-9] is still used for single-digit character classes and within
+ *   decade segments (e.g., `3[0-9]` for 30-39) where \d would be ambiguous.
+ *
  * Language-independent: operates on digit strings only.
  */
 export function generateNumberRegex(number: string, round10: boolean): string {
@@ -38,28 +47,25 @@ export function generateNumberRegex(number: string, round10: boolean): string {
     const D0 = Number(d0), D1 = Number(d1);
 
     if (D0 === 9) {
-      // 90-99: "9[0-9]" matches 90-99, "[0-9][0-9][0-9]" matches 100-999
-      if (d1 === '0') return `(9[0-9]|[0-9][0-9][0-9])`;
-      if (D1 === 9) return `(99|[0-9][0-9][0-9])`;
-      return `(9[${d1}-9]|[0-9][0-9][0-9])`;
+      // 90-99: "9[0-9]" matches 90-99, "\d{3,}" matches 100+
+      if (d1 === '0') return `(9[0-9]|\\d{3,})`;
+      if (D1 === 9) return `(99|\\d{3,})`;
+      return `(9[${d1}-9]|\\d{3,})`;
     }
-    // ≥N0: "[d0-9][0-9]" matches d0* to 99, "[0-9][0-9][0-9]" matches 100-999
-    if (d1 === '0') return `([${d0}-9][0-9]|[0-9][0-9][0-9])`;
+    // ≥N0: "[d0-9][0-9]" matches d0* to 99, "\d{3,}" matches 100+
+    if (d1 === '0') return `([${d0}-9][0-9]|\\d{3,})`;
     // ≥Nd1: "d0[d1-9]" matches d0d1-d09, "[D0+1-9][0-9]" matches (d0+1)*-99
-    //       "[0-9][0-9][0-9]" matches 100-999
-    return `(${d0}[${d1}-9]|[${D0 + 1}-9][0-9]|[0-9][0-9][0-9])`;
+    //       "\d{3,}" matches 100+
+    return `(${d0}[${d1}-9]|[${D0 + 1}-9][0-9]|\\d{3,})`;
   }
 
   if (quant <= 9) {
     // ≥N (single digit): "[N-9]" matches N-9 (1 digit),
-    //   "[0-9][0-9]" matches 10-99 (2 digits),
-    //   "[0-9][0-9][0-9]?" matches 100-999 (3 digits, optional last digit)
-    //   Actually for ≥1: we need 1-9, 10-99, 100-999
-    //   "[N-9]" = single digit N-9
-    //   "[0-9][0-9]" = any two-digit number (10-99)
-    //   "[0-9][0-9][0-9]" = any three-digit number (100-999)
-    if (quant === 9) return `([9]|[0-9][0-9][0-9]?)`;
-    return `([${quant}-9]|[0-9][0-9][0-9]?)`;
+    //   "\d{2,}" matches any 2+ digit number (10-99, 100-999, etc.)
+    //   Previously used [0-9][0-9][0-9]? but `?` is NOT supported in PoE2.
+    //   \d{2,} is correct (verified in-game), compact, and handles all 2+ digit cases.
+    if (quant === 9) return `(9|\\d{2,})`;
+    return `([${quant}-9]|\\d{2,})`;
   }
   return number;
 }
@@ -420,9 +426,10 @@ function threeDigitMin(n: number): string {
   const D0 = Number(d0), D1 = Number(d1);
 
   if (d1 === '0' && d2 === '0') {
-    if (D0 === 9) return `${d0}[0-9][0-9]`;
-    if (D0 === 1) return `([1-9][0-9][0-9])`;
-    return `[${d0}-9][0-9][0-9]`;
+    // Round hundreds: ≥N00
+    if (D0 === 9) return `(9[0-9][0-9]|\\d{4,})`;  // 900-999 + 1000+
+    if (D0 === 1) return `\\d{3,}`;                   // ≥100: any 3+ digit number
+    return `([${d0}-9][0-9][0-9]|\\d{4,})`;            // e.g., ≥300: 300-999 + 1000+
   }
 
   let head: string;
@@ -437,5 +444,5 @@ function threeDigitMin(n: number): string {
   } else {
     head = `${d0}(${d1}[${d2}-9]|[${D1 + 1}-9][0-9])`;
   }
-  return D0 === 9 ? head : `(${head}|[${D0 + 1}-9][0-9][0-9])`;
+  return D0 === 9 ? head : `(${head}|[${D0 + 1}-9][0-9][0-9]|\\d{4,})`;
 }

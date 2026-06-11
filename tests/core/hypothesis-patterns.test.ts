@@ -311,7 +311,7 @@ describe('H1: Fractional numbers — decimal vs wildcard ambiguity', () => {
   });
 
   it('number regex with suffix on fractional mod: ≥15 with suffix "здоровья"', () => {
-    // RANGE(min=15, suffix="здоровья") → "([1-9][0-9]|[0-9][0-9][0-9]).*здоровья"
+    // RANGE(min=15, suffix="здоровья") → "([1-9][0-9]|\\d{3,}).*здоровья"
     // The "15" in "15.9" is ≥15, so this should match
     const ast = range(15, undefined, 'здоровья');
     const regex = compile(ast, { round10: true });
@@ -443,7 +443,7 @@ describe('H4: Tablet suffix — "зарядов" vs "использ" (BUG DETECT
     // In-game Phase 7: "39.*зарядов" does NOT match — .* does not cross block boundaries
     // "39" is in a mod block, "зарядов" is in an implicit block — separate blocks
     // In block-based matching, .* does NOT cross from mod block to implicit block
-    expect(matchPoE2RegexItem('"([1-9][0-9]|[0-9][0-9][0-9]).*зарядов"', tablet1)).toBe(false);
+    expect(matchPoE2RegexItem('"([1-9][0-9]|\\d{3,}).*зарядов"', tablet1)).toBe(false);
     // Within the same implicit block: "зарядов.*10" works because both are in the same block
     expect(matchPoE2RegexItem('"зарядов.*10"', tablet1)).toBe(true);
   });

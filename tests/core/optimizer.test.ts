@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { optimize } from '@core/optimizer';
-import { and, or, literal } from '@core/ast';
+import { optimize, truncateSuffix, isTruncationSafe } from '@core/optimizer';
+import { and, or, literal, range } from '@core/ast';
 import type { OptimizationEntry } from '@shared/types';
 
 describe('optimize', () => {
@@ -328,6 +328,118 @@ describe('optimize', () => {
         if (regexChild?.type === 'LITERAL') {
           expect(regexChild.tokenId).toContain('dedup:');
         }
+      }
+    });
+  });
+
+  // === Phase 3: Truncated tail suffix optimization ===
+
+  describe('truncateSuffix', () => {
+    it('truncates "эффективность" to "эффективн"', () => {
+      expect(truncateSuffix('эффективность')).toBe('эффективн');
+    });
+
+    it('truncates "эффективность монстров" to "эффективн"', () => {
+      expect(truncateSuffix('эффективность монстров')).toBe('эффективн');
+    });
+
+    it('truncates "бездна" to "бездн"', () => {
+      expect(truncateSuffix('бездна')).toBe('бездн');
+    });
+
+    it('truncates "бездны" to "бездн"', () => {
+      expect(truncateSuffix('бездны')).toBe('бездн');
+    });
+
+    it('truncates "путевого" to "путев"', () => {
+      expect(truncateSuffix('путевого')).toBe('путев');
+    });
+
+    it('truncates "глубина" to "глубин"', () => {
+      expect(truncateSuffix('глубина')).toBe('глубин');
+    });
+
+    it('does NOT truncate blacklisted "редкост"', () => {
+      // "редкост" causes FP on item rarity label "редкий"
+      expect(truncateSuffix('редкость')).toBe('редкость');
+    });
+
+    it('does NOT truncate unknown words', () => {
+      expect(truncateSuffix('сопротивлению')).toBe('сопротивлению');
+    });
+
+    it('truncates compound suffix containing safe word', () => {
+      // Input like "к эффективность монстров" should have "эффективность монстров" truncated
+      expect(truncateSuffix('к эффективность монстров')).toBe('к эффективн');
+    });
+  });
+
+  describe('isTruncationSafe', () => {
+    it('returns true for safe truncations', () => {
+      expect(isTruncationSafe('эффективн')).toBe(true);
+      expect(isTruncationSafe('бездн')).toBe(true);
+      expect(isTruncationSafe('путев')).toBe(true);
+      expect(isTruncationSafe('глубин')).toBe(true);
+    });
+
+    it('returns false for blacklisted truncations', () => {
+      expect(isTruncationSafe('редкост')).toBe(false);
+      expect(isTruncationSafe('редк')).toBe(false);
+    });
+
+    it('returns false for unknown truncations', () => {
+      expect(isTruncationSafe('сопрот')).toBe(false);
+    });
+  });
+
+  describe('Phase 3: truncateSuffixes in optimize()', () => {
+    it('truncates LITERAL suffix in AST', () => {
+      const ast = literal('эффективность монстров');
+      const result = optimize(ast, {});
+      if (result.type === 'LITERAL') {
+        expect(result.value).toBe('эффективн');
+      }
+    });
+
+    it('truncates RANGE suffix in AST', () => {
+      const ast = range(30, undefined, 'эффективность монстров', undefined, undefined, false, '%', true);
+      const result = optimize(ast, {});
+      if (result.type === 'RANGE') {
+        expect(result.suffix).toBe('эффективн');
+      }
+    });
+
+    it('does NOT truncate blacklisted LITERAL', () => {
+      const ast = literal('редкость');
+      const result = optimize(ast, {});
+      if (result.type === 'LITERAL') {
+        expect(result.value).toBe('редкость');
+      }
+    });
+
+    it('truncates suffixes inside AND nodes', () => {
+      const ast = and(
+        literal('эффективность монстров'),
+        range(30, undefined, 'бездна')
+      );
+      const result = optimize(ast, {});
+      if (result.type === 'AND') {
+        const lit = result.children[0];
+        const rng = result.children[1];
+        if (lit.type === 'LITERAL') expect(lit.value).toBe('эффективн');
+        if (rng.type === 'RANGE') expect(rng.suffix).toBe('бездн');
+      }
+    });
+
+    it('truncates suffixes inside OR nodes', () => {
+      const ast = or(
+        literal('эффективность'),
+        literal('бездна')
+      );
+      const result = optimize(ast, {});
+      if (result.type === 'OR') {
+        expect(result.children[0]).toMatchObject({ type: 'LITERAL', value: 'эффективн' });
+        expect(result.children[1]).toMatchObject({ type: 'LITERAL', value: 'бездн' });
       }
     });
   });
