@@ -88,6 +88,7 @@ export function TabletPage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
 
   const syncReadyRef = useRef(false);
@@ -161,6 +162,8 @@ export function TabletPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter

@@ -77,6 +77,7 @@ export function JewelPage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -168,6 +169,8 @@ export function JewelPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter

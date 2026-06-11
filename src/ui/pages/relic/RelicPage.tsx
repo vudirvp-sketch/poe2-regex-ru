@@ -27,6 +27,7 @@ export function RelicPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({ categoryId: 'relic' });
 
   return (
@@ -64,6 +65,8 @@ export function RelicPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               excludedCount={excludeTokens.length}
               activeTokenCount={allActiveTokens.length}
             />

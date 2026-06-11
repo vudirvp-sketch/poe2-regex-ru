@@ -139,6 +139,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'range.round10_and_warning': 'Округление расширяет диапазон при И-фальбэке (>50 значений)',
     'range.notation_fp_warning': 'Числа в диапазоне предмета (напр. 27 из «27-50») могут давать ложные совпадения',
 
+    // Threshold mode
+    'threshold.label': '≥Мин',
+    'threshold.tooltip': 'Пороговый режим: RANGE(min,max) компилируется как ≥min только. Короче regex, без FP от диапазонной нотации, но без ограничения максимума.',
+
     // Priority tier filter
     'priority.all': 'Все',
     'priority.sa': 'S+A',

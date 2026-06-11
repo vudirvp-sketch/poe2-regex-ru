@@ -28,6 +28,7 @@ export function AmuletPage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -65,6 +66,8 @@ export function AmuletPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter

@@ -50,6 +50,13 @@ const TRUNCATED_TAILS_SAFE: Record<string, string> = {
   'путевом': 'путев',
   'глубина': 'глубин',
   'глубины': 'глубин',
+  // Iteration 14 additions — candidates for in-game verification
+  'приспешников': 'приспешник',
+  'приспешника': 'приспешник',
+  'оглушения': 'оглушен',
+  'флакона': 'флакон',
+  'хаосу': 'хаос',
+  'монстров': 'монстр',
 };
 
 const TRUNCATED_TAILS_BLACKLIST: Set<string> = new Set([

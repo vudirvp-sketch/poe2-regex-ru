@@ -98,6 +98,7 @@ export function VendorPage() {
     selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     searchLogic, setSearchLogic,
+    thresholdEnabled, setThresholdEnabled,
     toggleTokens, clearSelections,
     perTokenRanges, setTokenRange, clearTokenRange,
     collapsedTokenIds, filterStore,
@@ -168,6 +169,8 @@ export function VendorPage() {
         rangedSuffixes={rangedSuffixes}
         round10Enabled={round10Enabled}
         setRound10Enabled={setRound10Enabled}
+        thresholdEnabled={thresholdEnabled}
+        setThresholdEnabled={setThresholdEnabled}
         searchLogic={searchLogic}
         setSearchLogic={setSearchLogic}
         showRound10={hasRangedTokens}

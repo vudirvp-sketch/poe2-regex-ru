@@ -28,6 +28,7 @@ export function BeltPage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({ categoryId: 'belt' });
 
   return (
@@ -65,6 +66,8 @@ export function BeltPage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter

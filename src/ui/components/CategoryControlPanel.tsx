@@ -33,6 +33,10 @@ interface CategoryControlPanelProps {
   rangedSuffixes: string[];
   round10Enabled: boolean;
   setRound10Enabled: (v: boolean) => void;
+  /** Threshold mode: RANGE(min,max) compiles as ≥min only */
+  thresholdEnabled: boolean;
+  /** Set threshold mode */
+  setThresholdEnabled: (v: boolean) => void;
   /** Priority tier filter state. Optional — not needed for jewel/relic/vendor pages. */
   priorityFilter?: PriorityFilter;
   /** Set priority tier filter. Optional — not needed for jewel/relic/vendor pages. */
@@ -94,6 +98,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   rangedSuffixes,
   round10Enabled,
   setRound10Enabled,
+  thresholdEnabled,
+  setThresholdEnabled,
   extraControls,
   showRound10,
   clearButton,
@@ -247,6 +253,19 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500"
             />
             <span className="text-[12px] text-muted">{t('round10')}</span>
+          </label>
+        )}
+
+        {/* Threshold mode toggle */}
+        {hasRangedTokens && minValue !== null && maxValue !== null && (
+          <label className="flex items-center gap-1 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={thresholdEnabled}
+              onChange={(e) => setThresholdEnabled(e.target.checked)}
+              className="w-3.5 h-3.5 rounded bg-raised border-edge text-amber-500"
+            />
+            <span className="text-[12px] text-muted" title={t('threshold.tooltip')}>{t('threshold.label')}</span>
           </label>
         )}
 

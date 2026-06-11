@@ -95,6 +95,11 @@ export interface CategoryPageState {
   maxValue: number | null;
   /** Set maximum value for ranged mods */
   setMaxValue: (v: number | null) => void;
+  /** Threshold mode: when enabled with both min+max, compiles RANGE(min,max) as ≥min only.
+   *  Produces shorter regex with no FP from range notation, but drops max constraint. */
+  thresholdEnabled: boolean;
+  /** Set threshold mode */
+  setThresholdEnabled: (v: boolean) => void;
   /** Per-token numeric range overrides */
   perTokenRanges: Record<string, TokenRangeOverride>;
   /** Set per-token numeric range override */
@@ -218,8 +223,14 @@ function getEffectiveRangePerSlot(
  * Get the regex prefix for a specific placeholder slot in a multi-placeholder token.
  *
  * For slot 0: returns the existing token.regexPrefix (text before first ##).
+ * When regexPrefix is empty and the template has text before ## (middle-number
+ * patterns, types 3/9), extracts a runtime prefix from rawTextTemplate.
+ *
  * For slot N>0: extracts the text between placeholder N-1 and N from rawTextTemplate,
- *   trimmed to the last 2-3 words (same logic as extractTemplatePrefix in compute-regex.ts).
+ *   trimmed to the last 2-3 words.
+ *
+ * Middle-number support: "Монстры с ##% шансом..." → prefix="Монстры с"
+ * This anchors the number within the block, reducing range notation FP.
  *
  * Example: "От ## до ## урона от молнии"
  *   slot 0 → "От" (text before first ##)
@@ -234,9 +245,46 @@ function getPrefixForSlot(
   locale: Locale,
   filterSlotIndex: number
 ): string {
-  // Slot 0: use the precomputed prefix
+  // Slot 0: use the precomputed prefix first
   if (filterSlotIndex === 0) {
-    return token.regexPrefix[locale] ?? '';
+    const precomputed = token.regexPrefix[locale] ?? '';
+    if (precomputed) return precomputed;
+
+    // Middle-number pattern (types 3 and 9): if regexPrefix is empty but the
+    // template has text BEFORE the first ##, extract it as a runtime prefix.
+    // This provides additional anchoring for range notation FP prevention:
+    // "prefix N.*suffix" is more specific than "N.*suffix".
+    // E.g. "Монстры с ##% шансом..." → prefix="Монстры с"
+    const template = token.rawTextTemplate[locale];
+    if (!template) return '';
+
+    // If template starts with ## or [+-]##, number is at position 0 → no prefix
+    if (/^[+-]?#+/.test(template)) return '';
+
+    // Find the first ## or # placeholder
+    const firstHashIdx = template.indexOf('#');
+    if (firstHashIdx <= 0) return '';
+
+    // Extract text before the first placeholder
+    let prefix = template.substring(0, firstHashIdx).trim();
+
+    // Remove trailing non-letter characters (like '+', '(', etc.)
+    prefix = prefix.replace(/[^a-zA-Zа-яА-ЯёЁ]+$/, '');
+
+    // If the prefix is too short (< 2 chars), it's not useful for anchoring
+    if (prefix.length < 2) return '';
+
+    // Take the last 2-3 words for a short prefix
+    const words = prefix.split(/\s+/);
+    if (words.length > 3) {
+      prefix = words.slice(-3).join(' ');
+      if (prefix.length > 25) {
+        const twoWords = words.slice(-2).join(' ');
+        if (twoWords.length >= 2) prefix = twoWords;
+      }
+    }
+
+    return prefix;
   }
 
   // For non-zero slots, extract from the template at runtime
@@ -392,7 +440,8 @@ export function buildAstFromSelections(
   _round10: boolean,
   locale: Locale,
   perTokenRanges: Record<string, TokenRangeOverride>,
-  searchLogic: SearchLogic = 'and'
+  searchLogic: SearchLogic = 'and',
+  thresholdEnabled: boolean = false
 ): ASTNode | null {
   if (selectedTokens.length === 0) return null;
 
@@ -561,7 +610,7 @@ export function buildAstFromSelections(
           return template && /:\s*##\s*$/.test(template);
         });
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined, colonAnchor || undefined, undefined, group.signPrefix);
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined, colonAnchor || undefined, thresholdEnabled || undefined, group.signPrefix);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;
@@ -817,6 +866,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
     return 'all';
   });
+  const [thresholdEnabled, setThresholdEnabled] = useState(() => {
+    if (urlRestored) {
+      const val = useStore.getState().getExtraState('thresholdEnabled');
+      if (typeof val === 'boolean') return val;
+    }
+    return false;
+  });
 
   // Ref to skip the first sync-to-store render cycle, preventing
   // overwrite of URL-restored extraState values before page-level
@@ -895,10 +951,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('minValue', minValue);
     useStore.getState().setExtraState('maxValue', maxValue);
     useStore.getState().setExtraState('priorityFilter', priorityFilter);
+    useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, useStore]);
+      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, useStore]);
 
   // Build selected tokens list (includes both want + exclude tokens)
   const selectedTokens = useMemo(() => {
@@ -928,7 +985,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
         round10Enabled,
         locale,
         perTokenRanges,
-        searchLogic
+        searchLogic,
+        thresholdEnabled
       );
       if (modAst) {
         andChildren.push(modAst);
@@ -967,7 +1025,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       isRegexOverflow: isOverflow(compiledRegex),
       collapsedIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
-  }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges]);
+  }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges, thresholdEnabled]);
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {
@@ -997,6 +1055,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     const restoredPriority = restored.getExtraState('priorityFilter');
     if (restoredPriority === 'all' || restoredPriority === 'S+A' || restoredPriority === 'S') setPriorityFilter(restoredPriority);
     else setPriorityFilter('all');
+
+    const restoredThreshold = restored.getExtraState('thresholdEnabled');
+    if (typeof restoredThreshold === 'boolean') setThresholdEnabled(restoredThreshold);
+    else setThresholdEnabled(false);
   };
 
   // Create a stable FilterStoreApi wrapper that delegates convenience methods
@@ -1029,6 +1091,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setMaxValue,
     priorityFilter,
     setPriorityFilter,
+    thresholdEnabled,
+    setThresholdEnabled,
     perTokenRanges,
     setTokenRange,
     clearTokenRange,

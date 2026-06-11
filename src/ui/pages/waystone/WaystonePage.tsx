@@ -52,6 +52,7 @@ export function WaystonePage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
+    thresholdEnabled, setThresholdEnabled,
   } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
 
   const syncReadyRef = useRef(false);
@@ -109,6 +110,8 @@ export function WaystonePage() {
               rangedSuffixes={rangedSuffixes}
               round10Enabled={round10Enabled}
               setRound10Enabled={setRound10Enabled}
+              thresholdEnabled={thresholdEnabled}
+              setThresholdEnabled={setThresholdEnabled}
               priorityFilter={priorityFilter}
               setPriorityFilter={setPriorityFilter}
               showPriorityFilter
