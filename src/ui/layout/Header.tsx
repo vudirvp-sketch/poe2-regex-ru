@@ -49,9 +49,8 @@ export function Header() {
 
   return (
     <header
-      className="flex h-12 items-center border-b px-4 pl-12 md:pl-4"
+      className="header-atmosphere flex h-12 items-center border-b px-4 pl-12 md:pl-4"
       style={{
-        background: 'var(--poe-bg-secondary)',
         borderColor: 'var(--poe-border)',
       }}
     >

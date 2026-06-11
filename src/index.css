@@ -101,6 +101,21 @@ body {
   background: var(--poe-bg-secondary);
 }
 
+/* ─── Header atmospheric background (dark theme only) ─── */
+/* Same forest texture as sidebar, horizontal gradient for the narrow header band.
+   Slightly less visible at top (~12%) to keep the title crisp. */
+[data-theme="dark"] .header-atmosphere,
+:root .header-atmosphere {
+  background:
+    linear-gradient(90deg, rgba(10, 10, 15, 0.82) 0%, rgba(10, 10, 15, 0.90) 100%),
+    url('/poe2-regex-ru/bg-forest.webp') center 30%/cover no-repeat;
+}
+
+/* Light theme: plain header, no forest texture */
+[data-theme="light"] .header-atmosphere {
+  background: var(--poe-bg-secondary);
+}
+
 * {
   border-color: var(--poe-border);
 }
