@@ -68,7 +68,7 @@ body {
   position: fixed;
   inset: 0;
   background: url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat;
-  opacity: 0.18;
+  opacity: 0.25;
   z-index: -1;
   pointer-events: none;
 }
