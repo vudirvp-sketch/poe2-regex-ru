@@ -76,16 +76,14 @@ Agent: main
 Task: Исправить невидимый атмосферный фон sidebar + header; единый фон без переходов
 
 Work Log:
-- Диагностировал корневую причину: `body::before` с `z-index: -1` рендерился за непрозрачным `body { background: var(--poe-bg) }` — лес полностью невидим
-- Решение: добавил `isolation: isolate` на `body` — создаёт stacking context, где `::before` с z-index: -1 рендерится ВЫШЕ body bg, но НИЖЕ детей body
-- Увеличил opacity body::before с 0.25 до 0.35 для лучшей видимости леса
-- Заменил градиентные оверлеи на sidebar/header на единый `rgba(10,10,15,0.70)` — без переходов, без градиентов
-- Оба элемента (sidebar + header) используют одинаковую rgba — лес просвечивает равномерно
+- Заменил подход полностью: убрал body::before с z-index:-1 и isolation:isolate, поставил лес напрямую в body background (`background: #0a0a0f url(...) center/cover no-repeat fixed`)
+- Sidebar/header overlay: `rgba(10,10,15,0.75)` — 25% леса просвечивает, единообразно без градиентов
+- Теперь лес гарантированно виден — нет z-index зависимостей, background-image на body всегда рендерится
 - Сборка: ✅ vite build прошёл без ошибок
 - Обновил STATUS.md, AGENT_NAVIGATION.md
 
 Stage Summary:
 - Изменённые файлы: src/index.css, STATUS.md, AGENT_NAVIGATION.md, worklog.md
-- Фон теперь виден: ~10.5% леса сквозь sidebar/header (0.35 × 0.30 = 10.5%)
-- Единый фон без переходов: одинаковый overlay на sidebar и header
-- Точка остановки: атмосферный фон исправлен, можно валидировать визуально в браузере
+- Фон: лес напрямую в body background-image, ~25% видимости через sidebar/header overlay
+- Единый фон без переходов: одинаковый rgba overlay на sidebar и header
+- Точка остановки: атмосферный фон исправлен (подход v2 — body background напрямую), нужно валидировать визуально

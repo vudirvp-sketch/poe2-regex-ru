@@ -56,49 +56,40 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
   position: relative;
-  isolation: isolate; /* stacking context: body::before z-index:-1 stays ABOVE body bg, BELOW children */
 }
 
 /* ─── Atmospheric background (dark theme only) ─── */
-/* Single fixed forest texture on body::before — shared by sidebar & header.
-   `isolation:isolate` on body makes z-index:-1 resolve INSIDE body's stacking
-   context, so the pseudo-element paints ABOVE body bg but BELOW body children.
-   Sidebar & header use semi-transparent backgrounds so the same image shows
-   through, creating one seamless background across both. */
-[data-theme="dark"] body::before,
-:root body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat;
-  opacity: 0.35;
-  z-index: -1;
-  pointer-events: none;
+/* Forest image set directly as body background — no z-index tricks, no pseudo-elements.
+   Guaranteed visible in all browsers. Sidebar & header use semi-transparent
+   backgrounds so the same forest shows through, creating one seamless
+   background across both. Main content area stays opaque for readability. */
+[data-theme="dark"] body,
+:root body {
+  background: #0a0a0f url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat fixed;
 }
 
 /* Mobile: use smaller image + scroll attachment (fixed lags on iOS) */
 @media (max-width: 768px) {
-  [data-theme="dark"] body::before,
-  :root body::before {
-    background-image: url('/poe2-regex-ru/bg-forest-mobile.webp');
-    background-attachment: scroll;
+  [data-theme="dark"] body,
+  :root body {
+    background: #0a0a0f url('/poe2-regex-ru/bg-forest-mobile.webp') center/cover no-repeat scroll;
   }
 }
 
-/* Light theme: no atmospheric background */
-[data-theme="light"] body::before {
-  display: none;
+/* Light theme: solid background, no forest */
+[data-theme="light"] body {
+  background: var(--poe-bg);
 }
 
 /* ─── Sidebar & Header: uniform semi-transparent overlay ─── */
 /* Same solid rgba for BOTH sidebar and header — no gradients, no transitions.
-   The single body::before forest shows through identically everywhere,
+   The body background forest shows through identically everywhere,
    creating a seamless unified atmospheric background. */
 [data-theme="dark"] .sidebar-atmosphere,
 :root .sidebar-atmosphere,
 [data-theme="dark"] .header-atmosphere,
 :root .header-atmosphere {
-  background: rgba(10, 10, 15, 0.70);
+  background: rgba(10, 10, 15, 0.75);
 }
 
 /* Light theme: solid backgrounds, no forest */
@@ -110,7 +101,7 @@ body {
 }
 
 /* ─── Layout shell: transparent in dark, solid in light ─── */
-/* Must be transparent so body::before (the forest) shows through
+/* Must be transparent so body background (the forest) shows through
    to sidebar and header. Main content area stays opaque for readability. */
 [data-theme="dark"] .layout-shell,
 :root .layout-shell {

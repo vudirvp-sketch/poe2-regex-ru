@@ -22,7 +22,7 @@
 | `public/robots.txt` | Search engine crawl directives | Points to sitemap.xml |
 | `public/sitemap.xml` | Sitemap for search engines | Lists the main page URL |
 | `public/og-banner.png` | Open Graph banner image (1200×630) | Referenced by og:image meta tag |
-| `public/bg-forest.webp` | Atmospheric dark forest background — desktop (1200×675, ~20 KB) | Dark theme only; body::before opacity 0.35, `isolation:isolate` on body |
+| `public/bg-forest.webp` | Atmospheric dark forest background — desktop (1200×675, ~20 KB) | Dark theme only; body background-image directly, no pseudo-elements |
 | `public/bg-forest-mobile.webp` | Atmospheric background — mobile (600×400, ~5 KB) | Used on mobile via media query |
 | `scripts/` | ETL pipeline entry point (`run-etl.ts`) + analysis utilities | `pnpm etl` to run |
 | `scripts/etl/` | ETL modules — fetch-poe2db, normalize, compute-regex, compute-optimizations, generate-dictionary, iterative-optimizer, parse-tables, parse-modifiers-calc | Cheerio-based scraper; see `docs/ETL_GUIDE.md` |
