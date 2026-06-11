@@ -319,17 +319,17 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       >
         <span>{displayText}</span>
         {isCollapsed && isSelected && (
-          <span className="text-[11px] text-amber-400/70 shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
+          <span className="text-[11px] text-accent-amber-soft shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
             ⚡
           </span>
         )}
         {hasPrefix && isSelected && (
-          <span className="text-[11px] text-blue-400/70 shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
+          <span className="text-[11px] text-accent-blue-soft shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
             ⚓
           </span>
         )}
         {group.hasMultiPlaceholder && (
-          <span className="text-[11px] text-amber-400/80 shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
+          <span className="text-[11px] text-accent-amber-mid shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
             2x
           </span>
         )}
@@ -417,7 +417,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         <div className="flex flex-col gap-0.5 text-[13px]" onClick={stopPropagation}>
           {/* Slot 0 row */}
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-blue-400/80 font-semibold shrink-0 w-5">1е</span>
+            <span className="text-[11px] text-accent-blue-mid font-semibold shrink-0 w-5">1е</span>
             <span className="text-dim">&ge;</span>
             <input
               min={0}
@@ -443,7 +443,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           </div>
           {/* Slot 1 row */}
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-orange-400/80 font-semibold shrink-0 w-5">2е</span>
+            <span className="text-[11px] text-accent-orange-mid font-semibold shrink-0 w-5">2е</span>
             <span className="text-dim">&ge;</span>
             <input
               min={0}

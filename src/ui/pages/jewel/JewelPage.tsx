@@ -196,11 +196,11 @@ export function JewelPage() {
 
             {/* Hidden active mods warning */}
             {hiddenActiveCount > 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-amber-700/50 rounded text-xs text-amber-300" role="alert">
+              <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-aborder-amber rounded text-xs text-atext-amber" role="alert">
                 <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
                 <button
                   onClick={deselectHidden}
-                  className="px-2 py-0.5 bg-amber-800/50 border border-amber-600/50 rounded text-[10px] text-amber-200 hover:bg-amber-700/50 transition-colors"
+                  className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
                 >
                   {t('jewel.deselect_hidden')}
                 </button>
@@ -247,7 +247,7 @@ export function JewelPage() {
                     {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
                   {excludeTokens.length > 0 && (
-                    <div className="text-[10px] text-red-500/60">
+                    <div className="text-[10px] text-accent-red-dim">
                       {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                     </div>
                   )}

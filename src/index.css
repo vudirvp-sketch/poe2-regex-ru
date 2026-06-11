@@ -64,6 +64,37 @@
   --accent-sky: #38bdf8;          /* sky-400 */
   --accent-teal: #2dd4bf;         /* teal-400 */
 
+  /* Accent text with opacity (decorative indicators) */
+  --accent-amber-soft: rgba(251, 191, 36, 0.7);   /* amber-400/70 — optimizer collapsed ⚡ */
+  --accent-amber-mid: rgba(251, 191, 36, 0.8);    /* amber-400/80 — dual-number 2x badge */
+  --accent-blue-soft: rgba(96, 165, 250, 0.7);    /* blue-400/70 — prefix anchor ⚓ */
+  --accent-blue-mid: rgba(96, 165, 250, 0.8);     /* blue-400/80 — dual slot 1е label */
+  --accent-orange-mid: rgba(251, 146, 60, 0.8);   /* orange-400/80 — dual slot 2е label */
+  --accent-amber-dimmer: rgba(245, 158, 11, 0.6); /* amber-500/60 — notation FP warning */
+  --accent-amber-warn: rgba(245, 158, 11, 0.8);   /* amber-500/80 — boundary/round10 warning */
+  --accent-red-dim: rgba(239, 68, 68, 0.6);       /* red-500/60 — overflow count */
+
+  /* Exclude button backgrounds (VendorChip) */
+  --exclude-bg-active: rgba(185, 28, 28, 0.6);    /* red-700/60 — excluded state */
+  --exclude-bg-active-hover: rgba(220, 38, 38, 0.6); /* red-600/60 — excluded hover */
+  --exclude-bg-idle: rgba(55, 65, 81, 0.6);       /* raised/60 — idle state */
+  --exclude-bg-idle-hover: rgba(153, 27, 27, 0.4); /* red-800/40 — idle hover */
+  --exclude-text-active: #fecaca;                  /* red-200 — excluded text */
+
+  /* Alert/notice border colors (section alerts with opacity) */
+  --aborder-yellow: rgba(161, 98, 7, 0.5);        /* yellow-700/50 — vendor verification */
+  --aborder-amber: rgba(180, 83, 9, 0.5);         /* amber-700/50 — jewel notice */
+  --aborder-amber-strong: rgba(180, 83, 9, 0.6);  /* amber-700/60 — regex output amber */
+
+  /* Alert text colors */
+  --atext-amber: #fcd34d;                          /* amber-300 — alert text */
+  --atext-amber-light: #fde68a;                    /* amber-200 — jewel badge text */
+
+  /* Alert background colors (for badge/button within alert) */
+  --abg-amber: rgba(120, 53, 15, 0.5);            /* amber-800/50 — jewel badge bg */
+  --abg-amber-hover: rgba(180, 83, 9, 0.5);       /* amber-700/50 — jewel badge hover */
+  --aborder-amber-badge: rgba(217, 119, 6, 0.5);  /* amber-600/50 — jewel badge border */
+
   /* Button backgrounds */
   --btn-primary: #2563eb;         /* blue-600 */
   --btn-primary-hover: #1d4ed8;   /* blue-600 hover */
@@ -185,6 +216,37 @@
   --accent-sky: #0284c7;
   --accent-teal: #0d9488;
 
+  /* Accent text with opacity (light theme — darker base, same opacity) */
+  --accent-amber-soft: rgba(180, 83, 9, 0.65);    /* amber-800/65 */
+  --accent-amber-mid: rgba(180, 83, 9, 0.75);    /* amber-800/75 */
+  --accent-blue-soft: rgba(37, 99, 235, 0.65);    /* blue-600/65 */
+  --accent-blue-mid: rgba(37, 99, 235, 0.75);     /* blue-600/75 */
+  --accent-orange-mid: rgba(194, 65, 12, 0.75);   /* orange-700/75 */
+  --accent-amber-dimmer: rgba(146, 64, 14, 0.55); /* amber-900/55 */
+  --accent-amber-warn: rgba(180, 83, 9, 0.75);    /* amber-800/75 */
+  --accent-red-dim: rgba(185, 28, 28, 0.55);      /* red-700/55 */
+
+  /* Exclude button backgrounds (VendorChip) — light theme */
+  --exclude-bg-active: rgba(185, 28, 28, 0.15);    /* red-700/15 */
+  --exclude-bg-active-hover: rgba(220, 38, 38, 0.2); /* red-600/20 */
+  --exclude-bg-idle: rgba(55, 65, 81, 0.15);       /* raised/15 */
+  --exclude-bg-idle-hover: rgba(153, 27, 27, 0.1); /* red-800/10 */
+  --exclude-text-active: #991b1b;                    /* red-800 — excluded text */
+
+  /* Alert/notice border colors (light theme) */
+  --aborder-yellow: rgba(161, 98, 7, 0.35);        /* yellow-700/35 */
+  --aborder-amber: rgba(180, 83, 9, 0.35);         /* amber-700/35 */
+  --aborder-amber-strong: rgba(180, 83, 9, 0.4);   /* amber-700/40 */
+
+  /* Alert text colors (light theme) */
+  --atext-amber: #92400e;                          /* amber-800 */
+  --atext-amber-light: #78350f;                    /* amber-900 */
+
+  /* Alert background colors (light theme) */
+  --abg-amber: rgba(120, 53, 15, 0.08);            /* amber-800/8 */
+  --abg-amber-hover: rgba(180, 83, 9, 0.12);       /* amber-700/12 */
+  --aborder-amber-badge: rgba(217, 119, 6, 0.35);  /* amber-600/35 */
+
   /* Button colors (same in light) */
   --btn-primary: #2563eb;
   --btn-primary-hover: #1d4ed8;
@@ -303,6 +365,37 @@
 
   /* Checkbox label → text-tick-label */
   --color-tick-label: var(--checkbox-text);
+
+  /* Accent text with opacity → text-accent-amber-soft, text-accent-blue-soft, etc. */
+  --color-accent-amber-soft: var(--accent-amber-soft);
+  --color-accent-amber-mid: var(--accent-amber-mid);
+  --color-accent-blue-soft: var(--accent-blue-soft);
+  --color-accent-blue-mid: var(--accent-blue-mid);
+  --color-accent-orange-mid: var(--accent-orange-mid);
+  --color-accent-amber-dimmer: var(--accent-amber-dimmer);
+  --color-accent-amber-warn: var(--accent-amber-warn);
+  --color-accent-red-dim: var(--accent-red-dim);
+
+  /* Exclude button → bg-exclude-active, bg-exclude-idle, text-exclude-active */
+  --color-exclude-active: var(--exclude-bg-active);
+  --color-exclude-active-hover: var(--exclude-bg-active-hover);
+  --color-exclude-idle: var(--exclude-bg-idle);
+  --color-exclude-idle-hover: var(--exclude-bg-idle-hover);
+  --color-exclude-text: var(--exclude-text-active);
+
+  /* Alert border → border-aborder-yellow, border-aborder-amber, border-aborder-amber-strong */
+  --color-aborder-yellow: var(--aborder-yellow);
+  --color-aborder-amber: var(--aborder-amber);
+  --color-aborder-amber-strong: var(--aborder-amber-strong);
+
+  /* Alert text → text-atext-amber, text-atext-amber-light */
+  --color-atext-amber: var(--atext-amber);
+  --color-atext-amber-light: var(--atext-amber-light);
+
+  /* Alert badge bg → bg-abg-amber, bg-abg-amber-hover, border-aborder-amber-badge */
+  --color-abg-amber: var(--abg-amber);
+  --color-abg-amber-hover: var(--abg-amber-hover);
+  --color-aborder-amber-badge: var(--aborder-amber-badge);
 }
 
 /* ─── Base body styles ─── */

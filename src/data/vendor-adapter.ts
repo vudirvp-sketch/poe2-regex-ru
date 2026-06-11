@@ -4,18 +4,28 @@
  * Converts VENDOR_PROPERTIES into CategoryData format so that useCategoryPage
  * can be used instead of the separate useVendorPage hook.
  *
- * NEXT ITERATION: Integrate this into VendorPage to replace useVendorPage,
- * eliminating duplicated state management, URL sync, and regex compilation logic.
+ * Status: Adapter is type-correct and ready for integration.
+ * VendorPage still uses useVendorPage — switching to useCategoryPage
+ * requires visual verification of the VendorProperty→GameToken mapping.
  *
  * Why an adapter?
  * - useCategoryPage expects CategoryData with GameToken[] and FamilyGroup[]
  * - VendorProperty is a simpler structure (no ranges, no affix, no familyKey)
  * - This adapter converts VendorProperty → GameToken so useCategoryPage works
  *
- * What's NOT yet done:
- * - VendorPage still uses useVendorPage hook
- * - The adapter is defined but not integrated
- * - GROUP_COLORS would move into CategoryLabel system
+ * Mapping details:
+ * - Each VendorProperty becomes its own family (familyKey = vendor:${id})
+ * - affix = 'implicit' for all (vendor props aren't prefix/suffix)
+ * - Numeric properties get ranges: [{ min: 0, max: 1000 }]
+ * - Group info preserved in tags[] as 'group:${groupName}'
+ * - GROUP_COLORS can be derived from the group tag on each token
+ *
+ * Remaining for integration:
+ * - Add customData option to useCategoryPage (skip async loading)
+ * - Switch VendorPage from useVendorPage to useCategoryPage
+ * - Replace VendorChip with FilterChip (FamilyGroup rendering)
+ * - Move GROUP_COLORS into FamilyGroup metadata or derived from tags
+ * - Visual verification of all chip states
  */
 
 import type { CategoryData, GameToken, OptimizationEntry } from '@shared/types';
@@ -33,12 +43,17 @@ function vendorPropertyToToken(prop: VendorProperty): GameToken {
     familyKey: { ru: `vendor:${prop.id}` },  // Each property is its own family
     regexPrefix: { ru: '' },
     hasMultiPlaceholder: false,
-    exclusions: [],
-    ranges: prop.hasNumericInput ? [{ min: 0, max: 1000 }] : [],
-    values: [],
+    regexExclude: undefined,
+    regexPrefixContext: undefined,
+    genderForms: { ru: {} },
     affix: 'implicit',  // Vendor props aren't prefix/suffix — use 'implicit'
     priorityTier: 'B',
-    tags: [],
+    tags: [`group:${prop.group}`],  // Preserve group info for GROUP_COLORS
+    ranges: prop.hasNumericInput ? [[0, 1000]] : [],
+    values: [],
+    hasYofication: false,
+    yoficationPositions: [],
+    level: 1,
   };
 }
 

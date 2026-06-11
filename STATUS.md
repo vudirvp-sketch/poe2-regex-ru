@@ -6,53 +6,30 @@
 
 ---
 
-## Текущая итерация (5): !important → @theme
+## Текущая итерация (6): Семантические opacity-токены + VendorAdapter
 
 ### Что сделано
 
 | # | Задача | Результат |
 |---|--------|-----------|
-| E1 | Полное удаление `!important` | 71 `!important` → 0. Миграция на Tailwind v4 `@theme` + семантические CSS-переменные |
-| E2 | Семантическая система токенов | 50+ CSS-переменных в обоих темах. `@theme` экспортирует их как utility-классы: `bg-surface`, `text-bright`, `border-edge` и т.д. |
-| E3 | Миграция компонентов | Все 20+ компонентов переведены с Tailwind gray/color палитры на семантические классы |
-| E4 | VendorCategoryData adapter | Создан `vendor-adapter.ts` — конвертация VendorProperty → GameToken. Интеграция в VendorPage отложена |
+| E1 | FilterChip/VendorChip opacity → семантические токены | Все `text-amber-400/70`, `text-blue-400/80` и т.д. заменены на `text-accent-amber-soft`, `text-accent-blue-mid` и др. Оба dark/light варианта |
+| E2 | Alert border/bg/text → семантические токены | `border-yellow-700/50`, `text-amber-300`, `bg-amber-800/50` → `border-aborder-yellow`, `text-atext-amber`, `bg-abg-amber` |
+| E3 | VendorChip exclude button → семантические токены | `bg-red-700/60` → `bg-exclude-active`, `bg-raised/60` → `bg-exclude-idle` + i18n для title/aria |
+| E4 | vendor-adapter.ts исправлен | GameToken маппинг корректен (ранее были `exclusions` вместо `regexExclude`, отсутствовали `genderForms`, `hasYofication`, `level`). Добавлен `tags: [group:${group}]` для GROUP_COLORS |
+| E5 | useCategoryPage: customData support | Новый `customData?: CategoryData` в CategoryPageConfig — позволяет передать предзагруженные данные без async fetch. Инфраструктура для N1 готова |
+| E6 | --lt-* переменные проверены | Нет ссылок на `--lt-*` в коде — уже удалены ранее |
 
-### Семантические токены (новые)
+### Новые семантические токены (opacity)
 
-**Surfaces:** `surface`, `panel`, `raised`, `deep`, `chip`, `chip-hover`, `chip-active`, `tick`
-**Text levels:** `bright`, `soft`, `muted`, `dim`, `faint`
-**Borders:** `edge`, `edge-panel`, `edge-tick`
-**Accents:** `accent-blue`, `accent-red`, `accent-yellow`, `accent-emerald`, `accent-violet`, `accent-purple`, `accent-cyan`, `accent-amber`, `accent-orange`, `accent-sky`, `accent-teal`, `accent-green-soft`, `accent-red-soft`, `accent-yellow-dim`
-**Border-left:** `bl-blue`, `bl-red`, `bl-yellow`, `bl-gray`, `bl-green`, `bl-cyan`, `bl-amber`, `bl-purple`, `bl-sky`, `bl-teal`, `bl-emerald`, `bl-violet`, `bl-red-soft`, `bl-amber-soft`
-**Buttons:** `btn-primary`, `btn-primary-hover`, `btn-danger`, `btn-success`
-**Indicators:** `indicator-green`, `indicator-yellow`, `indicator-red`, `indicator-red-deep`
-**Sections:** `section-yellow`, `section-red`, `section-emerald`, `section-violet`, `section-amber`, `section-blue`
-**Section borders:** `sborder-emerald`, `sborder-violet`, `sborder-amber`, `sborder-red`
-**Column borders:** `cborder-blue`, `cborder-orange`, `cborder-amber`
-**Danger borders:** `danger`, `danger-strong`
-**Placeholder:** `ghost`, `ghost-alt`
+**Accent text с opacity:** `accent-amber-soft` (/70), `accent-amber-mid` (/80), `accent-blue-soft` (/70), `accent-blue-mid` (/80), `accent-orange-mid` (/80), `accent-amber-dimmer` (/60), `accent-amber-warn` (/80), `accent-red-dim` (/60)
 
-### Маппинг старых → новых классов
+**Exclude button:** `exclude-active`, `exclude-active-hover`, `exclude-idle`, `exclude-idle-hover`, `exclude-text`
 
-| Старый | Новый | Контекст |
-|--------|-------|----------|
-| `bg-gray-800` | `bg-surface` | Input/panel фон |
-| `bg-gray-900` | `bg-panel` | Panel фон |
-| `bg-gray-700` | `bg-raised` | Raised surface |
-| `text-white` | `text-bright` | Primary текст |
-| `text-gray-300` | `text-soft` | Secondary текст |
-| `text-gray-400` | `text-muted` | Muted текст |
-| `text-gray-500` | `text-dim` | Dim текст |
-| `text-gray-600` | `text-faint` | Faint текст |
-| `border-gray-600` | `border-edge` | Input border |
-| `border-gray-700` | `border-edge-panel` | Panel border |
-| `placeholder-gray-600` | `placeholder-ghost-alt` | Placeholder |
-| `bg-blue-900/40` | `bg-chip-active` | Selected chip |
-| `bg-gray-800/50` | `bg-chip` | Chip bg |
-| `hover:bg-gray-700/50` | `hover:bg-chip-hover` | Chip hover |
-| `bg-green-600` | `bg-btn-success` | Success button |
-| `bg-blue-600` | `bg-btn-primary` | Primary button |
-| `bg-red-600` | `bg-btn-danger` | Danger button |
+**Alert borders:** `aborder-yellow`, `aborder-amber`, `aborder-amber-strong`
+
+**Alert text:** `atext-amber`, `atext-amber-light`
+
+**Alert badge:** `abg-amber`, `abg-amber-hover`, `aborder-amber-badge`
 
 ---
 
@@ -69,9 +46,8 @@
 
 | # | Задача | Описание |
 |---|--------|----------|
-| N1 | Интеграция VendorCategoryData | Подключить `vendor-adapter.ts` в VendorPage, заменить `useVendorPage` на `useCategoryPage`. Убрать оставшееся дублирование |
-| N2 | Почистить FilterChip opacity-модификаторы | `text-amber-400/70`, `text-blue-400/70` и т.д. — перевести на семантические токены с opacity |
-| N3 | Проверить визуальное соответствие тем | Пройтись по всем страницам в обеих темах, убедиться что нет регрессий |
+| N1 | Интеграция VendorCategoryData — финальный switch | Переключить VendorPage с `useVendorPage` на `useCategoryPage({ customData: buildVendorCategoryData() })`. Заменить VendorChip на FilterChip. Перенести GROUP_COLORS. Требует визуальной проверки |
+| N2 | Визуальная проверка обеих тем | Пройтись по всем страницам в dark/light теме: chip-состояния, indicator-фоны, form-элементы, alert-блоки, новые opacity-токены |
 
 ---
 

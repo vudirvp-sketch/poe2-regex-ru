@@ -208,14 +208,14 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             )}
             {/* Number boundary warning for ≥40 — PoE2 regex limitation */}
             {minValue !== null && minValue >= 40 && (
-              <span className="text-[12px] text-amber-500/80" title={t('range.boundary_warning')}>
+              <span className="text-[12px] text-accent-amber-warn" title={t('range.boundary_warning')}>
                 ⚠ ≥40
               </span>
             )}
             {/* Round10 + AND fallback warning: range >50 values uses AND fallback,
                 where round10 expands each side independently */}
             {round10Enabled && minValue !== null && maxValue !== null && (maxValue - minValue + 1) > MAX_ENUMERATE_RANGE && (
-              <span className="text-[12px] text-amber-500/80" title={t('range.round10_and_warning')}>
+              <span className="text-[12px] text-accent-amber-warn" title={t('range.round10_and_warning')}>
                 ⚠ Округл.
               </span>
             )}
@@ -223,7 +223,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 can match the enumeration pattern, causing false positives in-game.
                 Show when any range filter is active. */}
             {(minValue !== null || maxValue !== null) && (
-              <span className="text-[12px] text-amber-500/60" title={t('range.notation_fp_warning')}>
+              <span className="text-[12px] text-accent-amber-dimmer" title={t('range.notation_fp_warning')}>
                 ⚠ Диапазон
               </span>
             )}

@@ -37,6 +37,12 @@ export interface CategoryPageConfig {
    * All token arrays are concatenated; optimization tables are merged.
    */
   mergeCategories?: string[];
+  /**
+   * Pre-loaded CategoryData — skip async loading and use this directly.
+   * Used for pages with hardcoded data (e.g., VendorPage via vendor-adapter).
+   * When provided, the loading state is immediately `false` and `data` is set.
+   */
+  customData?: CategoryData;
 }
 
 /** Filter store API exposed by useCategoryPage.
@@ -730,10 +736,10 @@ function applyRuntimeYofication(
  * Supports extraAstNodes for category-specific AST additions (e.g., waystone tier/state).
  */
 export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
-  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [], mergeCategories } = config;
+  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [], mergeCategories, customData: providedData } = config;
 
-  const [data, setData] = useState<CategoryData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<CategoryData | null>(providedData ?? null);
+  const [loading, setLoading] = useState(!providedData);
   const [error, setError] = useState<string | null>(null);
 
   // Use Zustand store with inline subscription
@@ -804,8 +810,15 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const setTokenRange = useStore(state => state.setTokenRange);
   const clearTokenRange = useStore(state => state.clearTokenRange);
 
-  // Load category data on mount
+  // Load category data on mount (skip if customData provided)
   useEffect(() => {
+    // If data was provided via customData, skip loading
+    if (providedData) {
+      setData(providedData);
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function load() {
@@ -837,7 +850,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     return () => {
       cancelled = true;
     };
-  }, [categoryId, mergeCategories]);
+  }, [categoryId, mergeCategories, providedData]);
 
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.

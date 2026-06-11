@@ -112,7 +112,7 @@ export function BeltPage() {
                     {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                   </div>
                   {excludeTokens.length > 0 && (
-                    <div className="text-[10px] text-red-500/60">
+                    <div className="text-[10px] text-accent-red-dim">
                       {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
                     </div>
                   )}

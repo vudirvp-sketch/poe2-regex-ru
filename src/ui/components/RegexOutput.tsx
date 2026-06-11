@@ -212,7 +212,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
 
       {/* Budget-aware warning: approaching limit with 6+ mods */}
       {!isOverflow && charCount > 180 && activeTokenCount >= 6 && (
-        <div className="mb-2 p-2 bg-section-amber border border-amber-700/60 rounded text-amber-300 text-[12px] flex items-center gap-1.5">
+        <div className="mb-2 p-2 bg-section-amber border border-aborder-amber-strong rounded text-atext-amber text-[12px] flex items-center gap-1.5">
           <span>\u26A0</span>
           <span>{t('regex.budget_warning').replace('{chars}', String(MAX_CHARS - charCount)).replace('{mods}', String(activeTokenCount))}</span>
         </div>

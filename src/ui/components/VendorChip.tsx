@@ -15,6 +15,7 @@
  */
 import React from 'react';
 import type { VendorProperty } from '@data/vendor-properties';
+import { t } from '@shared/i18n';
 
 interface VendorChipProps {
   prop: VendorProperty;
@@ -79,11 +80,11 @@ export const VendorChip: React.FC<VendorChipProps> = ({
           onClick={handleExcludeClick}
           className={`w-3.5 h-3.5 rounded text-[9px] font-bold leading-none flex items-center justify-center transition-colors ${
             isExcluded
-              ? 'bg-red-700/60 text-red-200 hover:bg-red-600/60'
-              : 'bg-raised/60 text-muted hover:bg-red-800/40 hover:text-accent-red-soft'
+              ? 'bg-exclude-active text-exclude-text hover:bg-exclude-active-hover'
+              : 'bg-exclude-idle text-muted hover:bg-exclude-idle-hover hover:text-accent-red-soft'
           }`}
-          aria-label={isExcluded ? `Убрать исключение: ${prop.label}` : `Исключить: ${prop.label}`}
-          title={isExcluded ? 'Убрать исключение' : 'Исключить'}
+          aria-label={isExcluded ? t('chip.unexclude_aria') : t('chip.exclude_aria')}
+          title={isExcluded ? t('chip.unexclude_tooltip') : t('chip.exclude_tooltip')}
         >
           ✕
         </button>

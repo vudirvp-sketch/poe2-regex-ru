@@ -102,7 +102,7 @@ export function VendorPage() {
       </div>
 
       {/* Verification note */}
-      <div className="bg-section-yellow border border-yellow-700/50 rounded p-3 text-xs text-accent-yellow-dim" role="alert">
+      <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
         <strong>{t('vendor.verification')}</strong>
       </div>
     </div>

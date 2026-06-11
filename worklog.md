@@ -1,18 +1,23 @@
 # Worklog
 
 ---
-Task ID: 5
+Task ID: 6
 Agent: main
-Task: Итерация 5 — удаление !important, миграция на @theme, VendorCategoryData
+Task: Итерация 6 — семантические opacity-токены, vendor-adapter fix, customData support
 
 Work Log:
-- E1: Полное удаление 71 `!important` из index.css — миграция на Tailwind v4 `@theme` + семантические CSS-переменные
-- E2: Создана система из 50+ семантических токенов (surface, panel, raised, chip, bright, soft, muted, dim, faint, edge, accent-*, bl-*, btn-*, indicator-*, section-*, sborder-*, cborder-*, danger, ghost)
-- E3: Все 20+ компонентов переведены с Tailwind gray/color палитры на семантические классы
-- E4: Создан vendor-adapter.ts — VendorProperty → GameToken конвертер. Интеграция отложена
-- Тесты: 761/761 ✅ | Build: ✅ | !important: 0
+- E1: FilterChip opacity-modifiers → семантические токены: `text-amber-400/70` → `text-accent-amber-soft`, `text-blue-400/70` → `text-accent-blue-soft`, `text-amber-400/80` → `text-accent-amber-mid`, `text-blue-400/80` → `text-accent-blue-mid`, `text-orange-400/80` → `text-accent-orange-mid`
+- E2: CategoryControlPanel warnings → семантические: `text-amber-500/80` → `text-accent-amber-warn`, `text-amber-500/60` → `text-accent-amber-dimmer`
+- E3: Overflow indicator (7 pages) → `text-red-500/60` → `text-accent-red-dim`
+- E4: VendorChip exclude button → `bg-exclude-active`, `bg-exclude-idle`, `text-exclude-text` + i18n для title/aria-label
+- E5: Alert borders/text → `border-aborder-yellow`, `border-aborder-amber`, `border-aborder-amber-strong`, `text-atext-amber`, `text-atext-amber-light`, `bg-abg-amber`, `bg-abg-amber-hover`
+- E6: vendor-adapter.ts исправлен — `exclusions` → `regexExclude`, добавлены `genderForms`, `hasYofication`, `yoficationPositions`, `level`, `regexPrefixContext`, `regexExclude`, `tags: [group:${group}]`
+- E7: useCategoryPage — добавлен `customData?: CategoryData` в CategoryPageConfig для предзагруженных данных (skip async fetch)
+- E8: --lt-* переменные проверены — ссылок нет
+- Тесты: 761/761 ✅ | Build: ✅ | TypeScript: ✅ | !important: 0
 
 Stage Summary:
-- !important полностью удалён — тема переключается через CSS custom properties
-- Все компоненты используют семантические токены вместо Tailwind utility overrides
-- VendorCategoryData adapter создан, но не интегрирован — задача для следующей итерации
+- Все opacity-модификаторы переведены на семантические токены (dark + light)
+- vendor-adapter корректен и готов к интеграции
+- useCategoryPage поддерживает customData — инфраструктура для N1 готова
+- VendorPage НЕ переключён — требует визуальной проверки VendorProperty→GameToken маппинга
