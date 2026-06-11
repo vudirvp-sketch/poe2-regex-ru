@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 51.0 | **Date:** 2026-06-12 | **Language:** RU-first
+> **Version:** 52.0 | **Date:** 2026-06-12 | **Language:** RU-first
 
 ---
 
@@ -20,7 +20,7 @@
 |  AST, Compiler, Optimizer (3 modules), Number Regex, Limits, Locale, Matcher|
 +------------------------------------------------------------------+
 |                        Data Loader                               |
-|  fetch public/generated/*.json -> typed objects                   |
+|  fetch public/generated/*.json -> Zod validate -> typed objects   |
 +------------------------------------------------------------------+
 |                     ETL Pipeline (build-time)                    |
 |  Cheerio scraper -> normalize -> filter implicit-set -> compute  |

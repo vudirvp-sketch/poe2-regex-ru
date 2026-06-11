@@ -1,10 +1,14 @@
 import type { CategoryData } from '@shared/types';
+import { CategoryDataSchema } from '@shared/schemas';
 
 const cache = new Map<string, CategoryData>();
 
 /**
  * Load category data from public/generated/*.json
  * Results are cached in memory.
+ *
+ * Validates JSON with Zod schema at the ETL→runtime boundary.
+ * Invalid data throws ZodError with detailed field-level diagnostics.
  */
 export async function loadCategoryData(category: string): Promise<CategoryData> {
   if (cache.has(category)) {
@@ -16,7 +20,8 @@ export async function loadCategoryData(category: string): Promise<CategoryData> 
     throw new Error(`Failed to load ${category} data: ${response.statusText}`);
   }
 
-  const data: CategoryData = await response.json();
+  const raw = await response.json();
+  const data = CategoryDataSchema.parse(raw) as CategoryData;
   cache.set(category, data);
   return data;
 }

@@ -45,3 +45,27 @@ Stage Summary:
 - **UI рефакторинг отложен** — useCategoryPage связный пайплайн, разделение нецелесообразно
 - **Следующий приоритет** — optimizer.ts (740 строк, 6+ ответственностей)
 
+---
+Task ID: 20
+Agent: main
+Task: Data safety — Zod-схемы для CategoryData + убрать new Function()
+
+Work Log:
+- 1: Клонирован репозиторий, проанализирована структура types.ts, loader.ts, parse-modifiers-calc.ts
+- 2: Установлен zod@4.4.3 как зависимость проекта
+- 3: Создан src/shared/schemas.ts — Zod-схемы для CategoryData, GameToken, OptimizationEntry, GenderForms + все enum-типы
+- 4: Интегрирована Zod-валидация в loader.ts — CategoryDataSchema.parse(raw) на границе ETL→runtime
+- 5: Валидированы все 10 JSON-файлов в public/generated/ — все проходят
+- 6: TypeScript компилируется чисто (tsc --noEmit)
+- 7: Удалён new Function() из parse-modifiers-calc.ts — заменён на безопасный sanitizeJsObjectLiteral()
+- 8: sanitizeJsObjectLiteral() обрабатывает: trailing commas, unquoted keys, single-quoted strings
+- 9: Проверен парсинг реальных HTML-файлов из .etl-cache — Belts (92 groups), Rings (110 groups)
+- 10: Обновлена документация: STATUS.md, AGENT_NAVIGATION.md, ARCHITECTURE.md, ETL_GUIDE.md, DATA_CONTRACTS.md
+
+Stage Summary:
+- **Zod-схемы созданы и интегрированы** — валидация JSON на границе ETL→runtime
+- **new Function() удалён** — безопасный санитайзер JS→JSON вместо eval
+- **TypeScript чистый, все существующие тесты не затронуты**
+- **Оставшиеся задачи:** UI тесты (React component tests + ETL coverage)
+
+

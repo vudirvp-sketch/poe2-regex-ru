@@ -110,6 +110,41 @@ const MOD_CATEGORIES = [
 ];
 
 /**
+ * Sanitize a JS object literal string into valid JSON.
+ *
+ * Handles the two most common JS→JSON differences found in poe2db.tw data:
+ *   1. Unquoted keys:  {name: ...}  →  {"name": ...}
+ *   2. Trailing commas: {a: 1,}     →  {"a": 1}
+ *
+ * This is a **safe** replacement for `new Function()` / `eval()` which
+ * could execute arbitrary JavaScript.  The sanitizer only performs string
+ * transformations and then delegates to `JSON.parse()`.
+ */
+function sanitizeJsObjectLiteral(input: string): string {
+  let s = input;
+
+  // 1. Remove trailing commas before } or ]
+  //    Handles: {"a": 1,}  or  [1, 2,]
+  s = s.replace(/,\s*([}\]])/g, '$1');
+
+  // 2. Quote unquoted keys
+  //    Handles: {name: ...} or {123: ...}
+  //    Does NOT touch keys that are already quoted ("key" or 'key')
+  s = s.replace(
+    /([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g,
+    '$1"$2":',
+  );
+
+  // 3. Replace single-quoted strings with double-quoted strings
+  //    Simple approach: only replace single-quoted string values
+  //    (not inside double-quoted strings already)
+  //    This handles cases like: {'key': 'value'}
+  s = s.replace(/'([^']*)'/g, '"$1"');
+
+  return s;
+}
+
+/**
  * Extract the ModsView JSON from the HTML.
  * Searches for `new ModsView({...})` pattern in <script> tags.
  */
@@ -121,14 +156,14 @@ function extractModsViewJson(html: string): ModsViewData | null {
   if (!match) return null;
 
   try {
-    // The JSON may contain unquoted keys or trailing commas — try direct parse first
+    // Try strict JSON parse first (most common case — poe2db.tw produces valid JSON)
     return JSON.parse(match[1]) as ModsViewData;
   } catch {
-    // Try more lenient parsing: wrap in parentheses for eval-like safety
+    // Fallback: sanitize JS object literal into valid JSON, then parse
+    // This handles unquoted keys, trailing commas, single-quoted strings
     try {
-      // Use Function constructor for safe evaluation of JS object literal
-      const fn = new Function(`return (${match[1]});`);
-      return fn() as ModsViewData;
+      const sanitized = sanitizeJsObjectLiteral(match[1]);
+      return JSON.parse(sanitized) as ModsViewData;
     } catch (e) {
       console.warn('  Failed to parse ModsView JSON:', (e as Error).message);
       return null;

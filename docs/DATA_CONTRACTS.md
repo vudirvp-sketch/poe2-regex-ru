@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Data Contracts
 
-> **Version:** 10.0 | **Date:** 2026-06-10
+> **Version:** 11.0 | **Date:** 2026-06-12
 
 ---
 
@@ -234,3 +234,28 @@ Examples: `waystone.temporal_chains`, `tablet.breach_pack_size`, `relic.urn.incr
 ```
 
 Optimization table key: colon-joined sorted token IDs → O(1) lookup.
+
+## 12. Zod Schemas (Runtime Validation)
+
+All data contracts are also defined as Zod schemas in `src/shared/schemas.ts`. These schemas validate JSON at the ETL→runtime boundary (`loader.ts`).
+
+**Key schemas:**
+
+| Schema | Validates |
+|--------|-----------|
+| `CategoryDataSchema` | Top-level JSON: version, category, source, tokens, optimizationTable |
+| `GameTokenSchema` | All token fields including optional (regexExclude, regexPrefixContext, jewelType, tradeStatId) |
+| `OptimizationEntrySchema` | ids, regex, weight, count + optional context/exclude |
+| `GenderFormsSchema` | 6 gender form fields, all optional |
+| Enum schemas | Locale, AffixType, ModOrigin, JewelType, PriorityTier, PriorityFilter |
+
+**Usage in loader.ts:**
+
+```typescript
+import { CategoryDataSchema } from '@shared/schemas';
+
+const raw = await response.json();
+const data = CategoryDataSchema.parse(raw) as CategoryData;  // throws ZodError on invalid
+```
+
+**Inferred types:** `ValidatedCategoryData`, `ValidatedGameToken`, `ValidatedOptimizationEntry` — use for runtime-validated data where Zod parsing has confirmed the shape.

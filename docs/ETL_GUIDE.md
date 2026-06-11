@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 13.0 | **Date:** 2026-06-12
+> **Version:** 14.0 | **Date:** 2026-06-12
 
 ---
 
@@ -110,6 +110,8 @@ Mod data NOT in static HTML. Extract JSON from `new ModsView({...})` in a `<scri
 Category arrays: `normal[]`, `corrupted[]`, `desecrated[]`, `breach_tree[]`, `breach_minion[]`, `breach_caster[]`, `essence[]`, `perfect_essence[]`
 
 Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance, str, fossil_no, mod_no, hover, Code? }`
+
+**JS→JSON parsing:** The ModsView data is extracted via regex and parsed with `JSON.parse()`. If strict JSON fails (unquoted keys, trailing commas), a safe `sanitizeJsObjectLiteral()` fallback converts JS object literal syntax to valid JSON before parsing. No `eval()` or `new Function()` — safe from code injection.
 
 ## 6. Normalize Step — Key Details
 

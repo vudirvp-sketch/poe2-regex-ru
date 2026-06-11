@@ -5,31 +5,41 @@
 
 ---
 
-## Текущая итерация: 19 — рефакторинг Core optimizer
+## Текущая итерация: 20 — Data safety & validation
 
-### Сделано в итерации 19
+### Сделано в итерации 20
 
-**optimizer.ts разбит на 3 модуля:**
+**1. Zod-схемы для CategoryData (`src/shared/schemas.ts`):**
 
-| Файл | Строк | Ответственность |
-|------|-------|-----------------|
-| `optimizer.ts` | ~116 | Точка входа: `optimize()`, `collectCollapsedTokenIds()`, реэкспорты |
-| `core-optimizations.ts` | ~193 | Фаза 1 дедупликация + общие утилиты (expandTokenId, getValueKey) |
-| `optimization-strategies.ts` | ~471 | Фаза 2 optimization table + Фаза 3 suffix truncation + данные |
+| Схема | Покрытие |
+|-------|----------|
+| `CategoryDataSchema` | Валидация JSON на границе ETL→runtime |
+| `GameTokenSchema` | Все поля, включая optional (regexExclude, regexPrefixContext, jewelType, tradeStatId) |
+| `OptimizationEntrySchema` | ids, regex, weight, count + optional context/exclude |
+| `GenderFormsSchema` | 6 форм рода, все optional |
+| Enum schemas | Locale, AffixType, ModOrigin, JewelType, PriorityTier, PriorityFilter |
 
-Все 830 тестов проходят, TypeScript чистый, build успешен. Обратная совместимость сохранена — `useCategoryPage.ts` и тесты продолжают импортировать из `@core/optimizer`.
+Интеграция: `loader.ts` → `CategoryDataSchema.parse(raw)` при каждой загрузке JSON.
+Все 10 файлов в `public/generated/` валидируются без ошибок.
 
-**Обоснование рефакторинга для AI-агентов:** Агент, чинящий suffix truncation, загружает ~471 строку вместо 740. Агент, чинящий дедупликацию — ~193 строки. Контекстное окно — главный ресурс; изоляция стратегий снижает риск случайных правок.
+**2. Удалён `new Function()` из `parse-modifiers-calc.ts`:**
+
+Заменён на безопасный `sanitizeJsObjectLiteral()` — строковый санитайзер JS→JSON:
+- Удаляет trailing commas перед `}` / `]`
+- Котирует некотируемые ключи (`{name: ...}` → `{"name": ...}`)
+- Заменяет одинарные кавычки на двойные
+
+Результат: `JSON.parse()` вместо `eval`/`new Function`. Потенциальная дыра безопасности закрыта.
 
 ### Паттерны и алгоритмы
 
-**Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Стабилен, рефакторинг не требуется.
+**Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Стабилен.
 
-**Оптимизатор (3 модуля, итого ~780 строк):** Рефакторинг завершён. `optimizer → strategies → core` — без циклов.
+**Оптимизатор (3 модуля, ~780 строк):** Рефакторинг завершён (iter 19). `optimizer → strategies → core`.
 
-**ETL compute-regex (3 модуля, итого ~1010 строк):** Рефакторинг завершён (итерация 18).
+**ETL compute-regex (3 модуля, ~1010 строк):** Рефакторинг завершён (iter 18).
 
-**UI (useCategoryPage.ts, 1113 строк):** God hook. Рефакторинг не приоритет — единый пайплайн данных, разделение создаст больше проблем (проброс пропсов, order of effects).
+**UI (useCategoryPage.ts, 1113 строк):** God hook. Рефакторинг отложен — единый пайплайн, разделение создаст больше проблем.
 
 ---
 
@@ -39,11 +49,11 @@
 |---|---------|-----------|------|--------|
 | 1 | ETL compute-regex | **Высокий** | Разбить на модули | ✅ Done (iter 18) |
 | 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3 модуля | ✅ Done (iter 19) |
-| 3 | Data layer | **Средний** | Zod-схемы для CategoryData | Pending |
-| 4 | Security | **Средний** | Убрать `new Function()` в parse-modifiers-calc.ts | Pending |
+| 3 | Data layer | **Средний** | Zod-схемы для CategoryData | ✅ Done (iter 20) |
+| 4 | Security | **Средний** | Убрать `new Function()` | ✅ Done (iter 20) |
 | 5 | Tests | Низкий | React component tests; расширить ETL coverage | Pending |
 
-**UI рефакторинг отложен:** useCategoryPage — связный пайплайн, разделение нецелесообразно для AI-агентов.
+**UI рефакторинг отложен:** useCategoryPage — связный пайплайн, разделение нецелесообразно.
 
 ---
 
@@ -52,10 +62,9 @@
 1. **`^\+` и `^-`** — якорят к началу блока + матчат знак. Без FP от чисел без знака.
 2. **`\+` в reversed-паттернах** — `"Редкость предметов.*\+N%"` работает корректно.
 3. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
-4. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только. ✅
-5. **Middle-number prefix** — `getPrefixForSlot` извлекает текст перед ## для типов 3/9. ✅
-6. **`.*` does NOT cross block boundaries** — ✅ Cross-block → AND (`"X" "Y"`).
-7. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
+4. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
+5. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
+6. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
 
 ---
 

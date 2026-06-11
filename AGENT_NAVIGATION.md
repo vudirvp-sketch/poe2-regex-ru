@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 8.0 | **Date:** 2026-06-12
+> **Version:** 9.0 | **Date:** 2026-06-12
 
 ---
 
@@ -9,10 +9,10 @@
 | Directory | Purpose | Rules |
 |-----------|---------|-------|
 | `src/core/` | Regex engine — AST, compiler, optimizer (3 modules), number-regex, trie/dp factorizer, oracle, matcher, limits | **ZERO npm dependencies** — pure TypeScript only |
-| `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants | Imported by core + UI; types in `types.ts` ONLY |
+| `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants, **Zod schemas** | Imported by core + UI; types in `types.ts`, schemas in `schemas.ts` |
 | `src/strategies/` | Locale strategy (Russian dialect: ёфикация, ю/я) | Imported by core |
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
-| `src/data/` | Runtime JSON loader + vendor properties | Fetches `public/generated/*.json` |
+| `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `scripts/` | ETL pipeline + analysis utilities | `pnpm etl` to run |
