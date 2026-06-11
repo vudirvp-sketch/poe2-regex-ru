@@ -17,7 +17,7 @@
 - Чистка: 31 мёртвый i18n-ключ удалён, дубли CSS устранены
 - Feedback-контакт: Discord woonderdad добавлен в Sidebar, README, STATUS
 - **SEO оптимизация:** robots.txt, sitemap.xml, SEO-текстовый блок (FAQ/инструкция), og:image, JSON-LD, улучшенные title/h1
-- **Атмосферный фон:** полностраничная текстура тёмного леса (6% opacity) + усиленная в сайдбаре (~18%), WebP 20+5 KB, только тёмная тема
+- **Атмосферный фон:** полностраничная текстура тёмного леса через `body::before` + `isolation:isolate` на body (opacity 0.35), единый overlay `rgba(10,10,15,0.70)` на sidebar/header без градиентов, WebP 20+5 KB, только тёмная тема
 
 ---
 
