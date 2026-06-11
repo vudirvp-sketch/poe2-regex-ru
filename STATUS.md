@@ -5,29 +5,29 @@
 
 ---
 
-## Текущая итерация: 18 — рефакторинг ETL pipeline
+## Текущая итерация: 19 — рефакторинг Core optimizer
 
-### Сделано в итерации 18
+### Сделано в итерации 19
 
-**compute-regex.ts разбит на 3 модуля:**
+**optimizer.ts разбит на 3 модуля:**
 
 | Файл | Строк | Ответственность |
 |------|-------|-----------------|
-| `compute-regex.ts` | ~270 | Точка входа: типы, `computeMinimalUniqueSubstring`, `computeAllRegexes`, реэкспорты |
-| `compute-regex-core.ts` | ~260 | Извлечение шаблонов, проверка уникальности, PoE2-валидация, текстовые утилиты |
-| `compute-regex-strategies.ts` | ~480 | Стратегии: substring fallback, word truncation, exclude patterns, yofication |
+| `optimizer.ts` | ~116 | Точка входа: `optimize()`, `collectCollapsedTokenIds()`, реэкспорты |
+| `core-optimizations.ts` | ~193 | Фаза 1 дедупликация + общие утилиты (expandTokenId, getValueKey) |
+| `optimization-strategies.ts` | ~471 | Фаза 2 optimization table + Фаза 3 suffix truncation + данные |
 
-Все 830 тестов проходят, TypeScript чистый, build успешен. Обратная совместимость сохранена — `compute-optimizations.ts` и тесты продолжают импортировать из `@etl/compute-regex`.
+Все 830 тестов проходят, TypeScript чистый, build успешен. Обратная совместимость сохранена — `useCategoryPage.ts` и тесты продолжают импортировать из `@core/optimizer`.
 
-**Обоснование рефакторинга для AI-агентов:** Агент, чинящий exclude patterns, загружает ~480 строк вместо 1421. Контекстное окно — главный ресурс; изоляция стратегий снижает риск случайных правок в соседних функциях.
+**Обоснование рефакторинга для AI-агентов:** Агент, чинящий suffix truncation, загружает ~471 строку вместо 740. Агент, чинящий дедупликацию — ~193 строки. Контекстное окно — главный ресурс; изоляция стратегий снижает риск случайных правок.
 
 ### Паттерны и алгоритмы
 
 **Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Стабилен, рефакторинг не требуется.
 
-**Оптимизатор (optimizer.ts, 740 строк):** Монофайл с 6+ ответственностями. Требует разбиения, но переписывать логику не нужно.
+**Оптимизатор (3 модуля, итого ~780 строк):** Рефакторинг завершён. `optimizer → strategies → core` — без циклов.
 
-**ETL compute-regex (3 модуля, итого ~1010 строк):** Рефакторинг завершён. Модули изолированы по ответственности.
+**ETL compute-regex (3 модуля, итого ~1010 строк):** Рефакторинг завершён (итерация 18).
 
 **UI (useCategoryPage.ts, 1113 строк):** God hook. Рефакторинг не приоритет — единый пайплайн данных, разделение создаст больше проблем (проброс пропсов, order of effects).
 
@@ -38,9 +38,10 @@
 | # | Область | Приоритет | Суть | Статус |
 |---|---------|-----------|------|--------|
 | 1 | ETL compute-regex | **Высокий** | Разбить на модули | ✅ Done (iter 18) |
-| 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3-4 модуля | Pending |
+| 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3 модуля | ✅ Done (iter 19) |
 | 3 | Data layer | **Средний** | Zod-схемы для CategoryData | Pending |
-| 4 | Tests | Низкий | React component tests; расширить ETL coverage | Pending |
+| 4 | Security | **Средний** | Убрать `new Function()` в parse-modifiers-calc.ts | Pending |
+| 5 | Tests | Низкий | React component tests; расширить ETL coverage | Pending |
 
 **UI рефакторинг отложен:** useCategoryPage — связный пайплайн, разделение нецелесообразно для AI-агентов.
 

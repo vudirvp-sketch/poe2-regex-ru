@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 50.0 | **Date:** 2026-06-12 | **Language:** RU-first
+> **Version:** 51.0 | **Date:** 2026-06-12 | **Language:** RU-first
 
 ---
 
@@ -17,7 +17,7 @@
 +------------------------------------------------------------------+
 |                        Core / Domain                             |
 |  Pure TypeScript — ZERO dependencies                             |
-|  AST, Compiler, Optimizer, Number Regex, Limits, Locale, Matcher|
+|  AST, Compiler, Optimizer (3 modules), Number Regex, Limits, Locale, Matcher|
 +------------------------------------------------------------------+
 |                        Data Loader                               |
 |  fetch public/generated/*.json -> typed objects                   |
@@ -50,7 +50,7 @@ poe2db.tw/ru/*
     → loader.ts (fetch at runtime)
     → UI: user selects filters (want + don't-want via exclude mode)
     → ast.ts (build AST from selections — AND/OR + EXCLUDE)
-    → optimizer.ts (apply optimizationTable)
+    → optimizer.ts → core-optimizations.ts + optimization-strategies.ts (apply optimizationTable)
     → compiler.ts (compile AST → regex string)
     → Regex displayed in UI → copied → pasted in PoE2 search
 ```
@@ -271,7 +271,7 @@ Categories with priority: ring, amulet, belt, waystone, tablet. Others (jewel, r
 ## 14. Optimizer Collapse Indicator
 
 When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears on FilterChip.
-- `collectCollapsedTokenIds(ast, optimizationTable)` — walks optimized AST for `opt:` prefixed LITERAL nodes
+- `collectCollapsedTokenIds(ast, optimizationTable)` — in `optimizer.ts`, walks optimized AST for `opt:` prefixed LITERAL nodes
 - `collapsedTokenIds: Set<string>` — returned by `useCategoryPage`, passed to FilterChip
 
 ## 15. Optimization Pipeline
