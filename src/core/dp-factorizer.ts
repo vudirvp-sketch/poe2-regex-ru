@@ -10,7 +10,9 @@
  * - Grouping: `()` = 2 chars overhead
  * - Alternation: `|` = 1 char per separator
  * - Character class: `[]` = 2 chars overhead
- * - Optional: `?` = 1 char overhead
+ * - Optional (empty alternative): `(|)` = 3 chars overhead
+ *   NOTE: PoE2 does NOT support `?` quantifier. We use `(X|)` instead,
+ *   which is equivalent and uses only supported `()` and `|` syntax.
  *
  * The DP considers:
  * 1. Whether to factorize at each Trie branching point
@@ -128,9 +130,9 @@ function dpFactorizeByPrefix(words: string[], maxLength: number): DPState | null
     // Some words end at the prefix (empty remainder)
     // Use optional group: prefix(alt1|alt2|...)? or prefix(alt1|alt2)?
     if (orParts.length === 1) {
-      inner = `${prefix}(${orParts[0]})?`;
+      inner = `${prefix}(${orParts[0]}|)`;
     } else {
-      inner = `${prefix}(${orParts.join('|')})?`;
+      inner = `${prefix}(${orParts.join('|')}|)`;
     }
   } else {
     inner = `${prefix}(${orParts.join('|')})`;
@@ -171,9 +173,9 @@ function dpFactorizeBySuffix(words: string[], maxLength: number): DPState | null
     // (p1|p2)?suffix
     const orParts = factorizedPrefixes.parts;
     if (orParts.length === 1) {
-      regex = `(${orParts[0]})?${suffix}`;
+      regex = `(${orParts[0]}|)${suffix}`;
     } else {
-      regex = `(${orParts.join('|')})?${suffix}`;
+      regex = `(${orParts.join('|')}|)${suffix}`;
     }
   } else {
     // (p1|p2|p3)suffix
@@ -239,7 +241,7 @@ function dpFactorizeCombined(words: string[], maxLength: number): DPState | null
   if (factorizedMiddle && factorizedMiddle.parts.length > 0) {
     const middleOr = factorizedMiddle.parts.join('|');
     if (hasEmptyMiddle) {
-      regex = `${prefix}(${middleOr})?${suffix}`;
+      regex = `${prefix}(${middleOr}|)${suffix}`;
     } else {
       regex = `${prefix}(${middleOr})${suffix}`;
     }
@@ -247,7 +249,7 @@ function dpFactorizeCombined(words: string[], maxLength: number): DPState | null
     // Fall back to simple OR of middle parts
     const middleOr = nonEmptyMiddles.join('|');
     if (hasEmptyMiddle) {
-      regex = `${prefix}(${middleOr})?${suffix}`;
+      regex = `${prefix}(${middleOr}|)${suffix}`;
     } else {
       regex = `${prefix}(${middleOr})${suffix}`;
     }
@@ -419,10 +421,11 @@ function findClusters(strings: string[], budget: number): string[] {
  *   молнию|молния → молни[юя]
  *
  * Level 3 — Optional suffix: When one alt is another + ь:
- *   карть|карт → карт(ь)?
+ *   карть|карт → карт(ь|)
  *
  * These optimizations are SAFE because PoE2's regex engine supports
- * character classes [] and optional ?.
+ * character classes [] and empty-alternative grouping (X|) for optionals.
+ * NOTE: `?` quantifier is NOT supported in PoE2 — we use `(X|)` instead.
  *
  * @param regex The regex string to optimize
  * @returns The optimized regex string
@@ -534,8 +537,9 @@ function tryMergeAlternatives(a: string, b: string): string | null {
     const shorter = a.length < b.length ? a : b;
     const longer = a.length < b.length ? b : a;
 
-    if (longer === shorter + 'ь' || longer === shorter + 'ь') {
-      return `${shorter}(ь)?`;
+    if (longer === shorter + 'ь') {
+      // Use (ь|) instead of (ь)? — PoE2 does NOT support ? quantifier
+      return `${shorter}(ь|)`;
     }
     return null;
   }
@@ -761,7 +765,7 @@ export function estimateDPCost(words: string[]): number {
         Math.max(nonEmptyMiddle.length - 1, 0);
       const hasEmpty = afterPrefix.some(r => r.length === 0);
       const combinedCost = prefix.length + 2 + innerCost + 1 + // prefix( + inner + )
-        (hasEmpty ? 1 : 0) + // ? for optional middle
+        (hasEmpty ? 1 : 0) + // (|) for optional middle (1 extra char for | separator)
         commonSuf.length;
       bestCost = Math.min(bestCost, combinedCost);
     }

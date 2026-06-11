@@ -6,6 +6,7 @@ dist/
 
 # ETL cache
 scripts/etl/.cache/
+.etl-cache/
 
 # IDE
 .vscode/

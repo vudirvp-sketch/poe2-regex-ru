@@ -1,21 +1,26 @@
 # Worklog
 
 ---
-Task ID: 30
+Task ID: 31
 Agent: main
-Task: Анализ репозитория, поиск багов и улучшений
+Task: Исправление багов B1–B5 по результатам аудита
 
 Work Log:
-- Клонировал и изучил весь репозиторий (src/, scripts/, tests/, docs/, public/)
-- Проанализировал core: compiler, optimizer, number-regex, matcher, oracle, trie/dp factorizer
-- Проанализировал shared: types, i18n, mod-classifier, family-grouper, constants
-- Проанализировал store: filter-store, profile-store, url-sync
-- Проанализировал UI: все страницы, компоненты, hooks
-- Проанализировал ETL: run-etl, compute-regex, compute-optimizations, normalize, iterative-optimizer
-- Запустил тесты — 24/25 падают из-за path aliases
-- Обновил STATUS.md — убрал историю, оставил только актуальные баги и долг
+- B1: Добавлен resolve.alias в test секцию vite.config.ts — vitest теперь резолвит @core, @shared и др.
+- B2: Проверен — FilterStoreApi уже экспортирован (export interface), баг ложный
+- B3: Удалён package-lock.json (оставлен pnpm-lock.yaml как единый lock-файл)
+- B4: Добавлен .etl-cache/ в .gitignore (кэш HTML лежит в корне, не в scripts/etl/.cache/)
+- B5: Заменён ()? на (|) во всех местах dp-factorizer.ts — PoE2 не поддерживает ? квантификатор
+  - dpFactorizeByPrefix: prefix(alt1|alt2|)? → prefix(alt1|alt2|)
+  - dpFactorizeBySuffix: (alt1|alt2)?suffix → (alt1|alt2|)suffix
+  - dpFactorizeCombined: prefix(middle|)?suffix → prefix(middle|)suffix
+  - tryMergeAlternatives: shorter(ь)? → shorter(ь|)
+  - Обновлены комментарии в dp-factorizer.ts и compute-optimizations.ts (ь? → (ь|))
+- Запущены тесты: 761/761 пройдены (25/25 файлов) ✅
+- Обновлён STATUS.md — отмечены исправленные баги
+- Обновлён worklog.md
 
 Stage Summary:
-- 5 багов найдено (B1–B5), 4 пункта техдолга (D1–D4)
-- Документация очищена от истории и мусора
-- Точка остановки: отчёт отправлен в чат, нужен запуск исправлений
+- 4 из 5 багов исправлены (B2 оказался ложным — FilterStoreApi уже экспортирован)
+- Все тесты проходят
+- Техдолг D1–D4 не тронут — следующая итерация

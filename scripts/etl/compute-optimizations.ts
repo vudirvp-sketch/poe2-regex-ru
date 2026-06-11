@@ -7,7 +7,7 @@
  * 2. Use batchDPFactorize() for cross-family factorization (replaces naive LCS)
  * 3. Apply applyDialectOptimizations() to all optimization regexes
  *
- * Phase 4+6 integration: dialect optimizations ([её], [юя], ь?) and DP
+ * Phase 4+6 integration: dialect optimizations ([её], [юя], (ь|)) and DP
  * factorization are now part of the ETL pipeline.
  */
 import type { Locale, OptimizationEntry } from '../../src/shared/types.js';
@@ -38,7 +38,7 @@ function normalizeTemplate(template: string): string {
  * Three-phase approach:
  *   Phase A: Family-based grouping — tokens sharing a familyKey get one shared regex
  *   Phase B: DP factorization — cross-family groups factorized via batchDPFactorize()
- *   Phase C: Dialect optimization — [её], [юя], ь? applied to all regexes
+ *   Phase C: Dialect optimization — [её], [юя], (ь|) applied to all regexes
  */
 export function computeOptimizations(
   tokens: NormalizedMod[],
@@ -232,7 +232,7 @@ export function computeOptimizations(
   }
 
   // ─── Phase C: Dialect optimizations ───
-  // Apply [её], [юя], ь? optimizations to all optimization entry regexes
+  // Apply [её], [юя], (ь|) optimizations to all optimization entry regexes
   for (const key of Object.keys(result)) {
     const entry = result[key];
     const originalRegex = entry.regex[locale];

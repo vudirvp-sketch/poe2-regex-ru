@@ -2,18 +2,19 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **In-game верификация:** ✅ завершена | **Cross-family FP:** 0
+> **Тесты:** ✅ 761/761 (25/25 файлов) — vitest path aliases настроены
 
 ---
 
-## Известные баги
+## Исправлено (итерация 2)
 
-| # | Баг | Влияние | Приоритет |
-|---|-----|---------|-----------|
-| B1 | Vitest не резолвит path aliases — 24/25 тестов падают | Тесты нельзя запустить без ручной настройки | Высокий |
-| B2 | `FilterStoreApi` не экспортируется из `useCategoryPage` — VendorPage не компилируется | TS-ошибка при `tsc -b` | Высокий |
-| B3 | `pnpm-lock.yaml` + `package-lock.json` одновременно — рассинхронизация зависимостей | Сборка может отличаться | Средний |
-| B4 | `.etl-cache/` не в `.gitignore` (указан `scripts/etl/.cache/`) | Кэш-файлы попадают в репозиторий | Средний |
-| B5 | DP-factorizer генерирует `()?` — `?` не поддерживается в PoE2 regex | Потенциальный FN в игре | Средний |
+| # | Баг | Исправление |
+|---|-----|-------------|
+| B1 | Vitest не резолвит path aliases — 24/25 тестов падают | Добавлен `resolve.alias` в секцию `test` в `vite.config.ts` |
+| B2 | `FilterStoreApi` не экспортируется | ❌ Ложное срабатывание — интерфейс уже экспортирован (`export interface FilterStoreApi`) |
+| B3 | `pnpm-lock.yaml` + `package-lock.json` одновременно | Удалён `package-lock.json` |
+| B4 | `.etl-cache/` не в `.gitignore` | Добавлен `.etl-cache/` в `.gitignore` |
+| B5 | DP-factorizer генерирует `()?` — `?` не поддерживается в PoE2 regex | Заменён `()?` на `(|)` во всех местах dp-factorizer + обновлены комментарии в compute-optimizations.ts |
 
 ---
 
