@@ -68,7 +68,7 @@ body {
   position: fixed;
   inset: 0;
   background: url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat;
-  opacity: 0.06;
+  opacity: 0.18;
   z-index: -1;
   pointer-events: none;
 }
@@ -92,14 +92,14 @@ body {
    rgba with alpha lets the single body::before background shine through. */
 [data-theme="dark"] .sidebar-atmosphere,
 :root .sidebar-atmosphere {
-  background: rgba(10, 10, 15, 0.82);
+  background: linear-gradient(180deg, rgba(10, 10, 15, 0.72) 0%, rgba(10, 10, 15, 0.88) 100%);
 }
 
 /* ─── Header: semi-transparent so body::before shows through ─── */
 /* Header is at the top, same forest, same seamless look. */
 [data-theme="dark"] .header-atmosphere,
 :root .header-atmosphere {
-  background: rgba(10, 10, 15, 0.82);
+  background: linear-gradient(90deg, rgba(10, 10, 15, 0.75) 0%, rgba(10, 10, 15, 0.88) 100%);
 }
 
 /* Light theme: solid backgrounds, no forest */
