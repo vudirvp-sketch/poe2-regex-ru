@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 49.0 | **Date:** 2026-06-12 | **Language:** RU-first
+> **Version:** 50.0 | **Date:** 2026-06-12 | **Language:** RU-first
 
 ---
 
@@ -39,7 +39,7 @@ poe2db.tw/ru/*
     → fetch-poe2db.ts (Cheerio + fetch)
     → normalize.ts (clean text, extract ranges/values)
     → filterImplicitSetBonuses() + getImplicitTokensForCategory() (remove non-searchable implicit-set bonuses, add implicit tokens)
-    → compute-regex.ts (minimal unique substrings)
+    → compute-regex.ts → compute-regex-core.ts + compute-regex-strategies.ts (minimal unique substrings)
     → compute-optimizations.ts (shared regex groups)
     → generate-dictionary.ts (assemble CategoryData)
     → i18n-overrides.json (patch missing translations)

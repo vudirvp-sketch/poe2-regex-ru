@@ -5,41 +5,44 @@
 
 ---
 
-## Текущая итерация: 17 — фикс деплоя + план рефакторинга
+## Текущая итерация: 18 — рефакторинг ETL pipeline
 
-### Деплой: исправлено
+### Сделано в итерации 18
 
-Деплой падал из-за 2 тестов с устаревшими ожиданиями:
-1. `buildAstFromSelections.test.ts` — #% token теперь корректно получает middle-number prefix «На» (раньше тест ожидал отсутствие префикса)
-2. `vendor-regex-equivalence.test.ts` — «хаосу» корректно truncируется оптимизатором до «хаос» (в TRUNCATED_TAILS_SAFE)
+**compute-regex.ts разбит на 3 модуля:**
+
+| Файл | Строк | Ответственность |
+|------|-------|-----------------|
+| `compute-regex.ts` | ~270 | Точка входа: типы, `computeMinimalUniqueSubstring`, `computeAllRegexes`, реэкспорты |
+| `compute-regex-core.ts` | ~260 | Извлечение шаблонов, проверка уникальности, PoE2-валидация, текстовые утилиты |
+| `compute-regex-strategies.ts` | ~480 | Стратегии: substring fallback, word truncation, exclude patterns, yofication |
+
+Все 830 тестов проходят, TypeScript чистый, build успешен. Обратная совместимость сохранена — `compute-optimizations.ts` и тесты продолжают импортировать из `@etl/compute-regex`.
+
+**Обоснование рефакторинга для AI-агентов:** Агент, чинящий exclude patterns, загружает ~480 строк вместо 1421. Контекстное окно — главный ресурс; изоляция стратегий снижает риск случайных правок в соседних функциях.
 
 ### Паттерны и алгоритмы
 
-**Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Работает стабильно, рефакторинг не требуется.
+**Компилятор (compiler.ts):** 4 стратегии компиляции — enumerated, threshold, AND-fallback, sign-prefix. 9 верифицированных типов паттернов. Стабилен, рефакторинг не требуется.
 
-**Оптимизатор (optimizer.ts, 782 строк):** Монофайл с 6+ ответственностями (dedup, opt-table, truncation, context, excludes, collapsed IDs). Требует разбиения на модули, но переписывать логику не нужно.
+**Оптимизатор (optimizer.ts, 740 строк):** Монофайл с 6+ ответственностями. Требует разбиения, но переписывать логику не нужно.
 
-**ETL (compute-regex.ts, 1421 строк):** Самый хрупкий участок. Содержит 8-10 ответственностей в одном файле. HTML-парсинг зависит от структуры poe2db.tw — любое изменение HTML ломает парсинг молча.
+**ETL compute-regex (3 модуля, итого ~1010 строк):** Рефакторинг завершён. Модули изолированы по ответственности.
 
-**UI (useCategoryPage.ts, 1113 строк):** God hook — загрузка данных, состояние, AST-построение, компиляция, диапазоны. Два параллельных ModList. FilterChip перегружен.
+**UI (useCategoryPage.ts, 1113 строк):** God hook. Рефакторинг не приоритет — единый пайплайн данных, разделение создаст больше проблем (проброс пропсов, order of effects).
 
 ---
 
-## План рефакторинга (приоритет)
+## План рефакторинга (обновлён)
 
-| # | Область | Приоритет | Суть | Срок |
-|---|---------|-----------|------|------|
-| 1 | ETL pipeline | **Высокий** | Разбить compute-regex.ts на 5-6 модулей; schema-валидация HTML; убрать new Function() | 4-6 нед. |
-| 2 | UI layer | **Высокий** | Расщепить useCategoryPage на 4-5 хуков; объединить ModList; вынести RangeInputPanel из FilterChip | 3-4 нед. |
-| 3 | Core engine | **Средний** | Разбить optimizer.ts на 3-4 модуля; декомпозировать RANGE god-type | 2-3 нед. |
-| 4 | Data layer | **Средний** | Zod-схемы для CategoryData; упростить Record<Locale, string>; split mod-classifier.ts | 2-3 нед. |
-| 5 | Tests | Низкий | React component tests; расширить ETL coverage | 1-2 нед. |
+| # | Область | Приоритет | Суть | Статус |
+|---|---------|-----------|------|--------|
+| 1 | ETL compute-regex | **Высокий** | Разбить на модули | ✅ Done (iter 18) |
+| 2 | Core optimizer | **Средний** | Разбить optimizer.ts на 3-4 модуля | Pending |
+| 3 | Data layer | **Средний** | Zod-схемы для CategoryData | Pending |
+| 4 | Tests | Низкий | React component tests; расширить ETL coverage | Pending |
 
-**Стоит ли переписывать генератор регекса?** Нет — текущий алгоритм работает корректно, все 9 типов паттернов верифицированы в игре. Нужен рефакторинг структуры (разбиение монолитов), а не переписывание логики.
-
-**Стоит ли переписывать оптимизатор?** Нет — итеративный оптимизатор с Oracle-валидацией работает. Нужна реструктуризация (модули вместо монолита), но алгоритм менять не нужно.
-
-**UI и интерфейс сайта?** Рефакторинг — да, переписывание — нет. Архитектура React+Zustand+Vite адекватна. Проблема в god-hook и дублировании компонентов, а не в выборе технологий.
+**UI рефакторинг отложен:** useCategoryPage — связный пайплайн, разделение нецелесообразно для AI-агентов.
 
 ---
 
@@ -48,10 +51,10 @@
 1. **`^\+` и `^-`** — якорят к началу блока + матчат знак. Без FP от чисел без знака.
 2. **`\+` в reversed-паттернах** — `"Редкость предметов.*\+N%"` работает корректно.
 3. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
-4. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только. ✅ T2 verified.
+4. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только. ✅
 5. **Middle-number prefix** — `getPrefixForSlot` извлекает текст перед ## для типов 3/9. ✅
-6. **`.*` does NOT cross block boundaries** — ✅ T3 confirmed. Cross-block → AND (`"X" "Y"`).
-7. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique within game context.
+6. **`.*` does NOT cross block boundaries** — ✅ Cross-block → AND (`"X" "Y"`).
+7. **Substring search** — PoE2 regex = substring match. Truncated words work if the prefix is unique.
 
 ---
 

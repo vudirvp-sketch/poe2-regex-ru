@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 12.0 | **Date:** 2026-06-10
+> **Version:** 13.0 | **Date:** 2026-06-12
 
 ---
 
@@ -141,6 +141,15 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 **`run-etl.ts` integration:** After Step 2 (normalize), `runEtl()` calls `filterImplicitSetBonuses()` and `getImplicitTokensForCategory()`, appending implicit tokens to the normalized mod list before regex computation.
 
 ## 8. Compute Regex Algorithm
+
+**Module structure (since iteration 18):**
+- `compute-regex.ts` — Entry point: types + `computeMinimalUniqueSubstring` + `computeAllRegexes` + re-exports
+- `compute-regex-core.ts` — Template extraction (`normalizeTemplate`, `extractTemplateSuffix/Extended/Prefix`), uniqueness (`isSuffixUniqueInCategory`, `findShortestUniqueSuffix`), PoE2 validation (`containsPoE2Grouping`, `regexMatchesRawText`), text utilities
+- `compute-regex-strategies.ts` — Strategy implementations: `substringSearchFallback`, `tryWordTruncation`, `computeExcludePatterns`, `generateTruncatedSuffixes`, `checkYofication`, `isExcludeValid`
+
+**Dependency flow:** `compute-regex → strategies → core` (no circular deps)
+
+**Algorithm overview:**
 
 1. Get candidate texts: target rawText + genderForms, all other tokens' rawText + genderForms
 2. Build set of ALL substrings of exclusion texts (up to length 20) for O(1) lookup

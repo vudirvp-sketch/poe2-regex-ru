@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 6.0 | **Date:** 2026-06-12
+> **Version:** 7.0 | **Date:** 2026-06-12
 
 ---
 
@@ -19,7 +19,22 @@
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests | Update on structural changes |
 
-## 2. Path Aliases
+## 2. ETL Module Structure (compute-regex)
+
+Since iteration 18, `compute-regex.ts` is split into 3 modules:
+
+| File | Purpose | Key exports |
+|------|---------|-------------|
+| `compute-regex.ts` | Entry point — types + main algorithm | `RegexResult`, `computeMinimalUniqueSubstring`, `computeAllRegexes` |
+| `compute-regex-core.ts` | Template extraction, uniqueness, PoE2 validation | `normalizeTemplate`, `extractTemplateSuffix`, `isSuffixUniqueInCategory`, `containsPoE2Grouping`, `regexMatchesRawText`, `MIN_REGEX_LEN_DEFAULT`, `STRICT_CATEGORIES_MIN_LEN` |
+| `compute-regex-strategies.ts` | Strategy implementations | `substringSearchFallback`, `tryWordTruncation`, `computeExcludePatterns`, `generateTruncatedSuffixes`, `checkYofication`, `isExcludeValid` |
+
+**Import rules:**
+- External consumers (`compute-optimizations.ts`, test files) import from `compute-regex.ts` — it re-exports public API
+- Internal imports go directly to `compute-regex-core.ts` or `compute-regex-strategies.ts`
+- No circular deps: `compute-regex → strategies → core`
+
+## 3. Path Aliases
 
 | Alias | Resolves to |
 |-------|-------------|
@@ -31,7 +46,7 @@
 | `@strategies` | `./src/strategies` |
 | `@etl` | `./scripts/etl` |
 
-## 3. Build & Run
+## 4. Build & Run
 
 ```bash
 pnpm install              # Install dependencies
@@ -43,7 +58,7 @@ pnpm etl:fresh            # Clear cache + re-fetch
 pnpm optimize             # Standalone iterative optimizer
 ```
 
-## 4. Dependency Rules
+## 5. Dependency Rules
 
 ```
 shared <- core <- strategies <- store <- data <- ui
@@ -54,7 +69,7 @@ shared <- core <- strategies <- store <- data <- ui
 - Types live in `src/shared/types.ts` ONLY
 - Vendor properties in `src/data/vendor-properties.ts` ONLY
 
-## 5. PoE2 Regex Dialect
+## 6. PoE2 Regex Dialect
 
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
@@ -77,7 +92,7 @@ shared <- core <- strategies <- store <- data <- ui
 3. `!X` is item-wide — excludes entire item if X in ANY block
 4. Substring search — truncated words work if prefix is unique
 
-## 6. FP Prevention (4 levels)
+## 7. FP Prevention (4 levels)
 
 | Level | Method | When |
 |-------|--------|------|
@@ -90,7 +105,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 **Blacklist:** редкост (FP «редкий»), редк, провал
 
-## 7. Frequent Pitfalls
+## 8. Frequent Pitfalls
 
 1. `!` INSIDE quotes with `|` — NOT before quotes
 2. `.*` does NOT cross blocks — use AND (`"X" "Y"`)
@@ -103,7 +118,7 @@ shared <- core <- strategies <- store <- data <- ui
 9. Word truncation = END only, min 3 significant chars
 10. Item rarity label IS indexed — never use «редкост»
 
-## 8. Documentation Map
+## 9. Documentation Map
 
 | File | When to Update |
 |------|----------------|
