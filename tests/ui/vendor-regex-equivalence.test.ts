@@ -183,7 +183,8 @@ describe('Vendor regex: buildAstFromSelections output verification', () => {
     it('all 4 resistances in OR mode', () => {
       const selectedIds = new Set(['res-fire', 'res-cold', 'res-lightning', 'res-chaos']);
       const result = compileViaAstPipeline(selectedIds, new Set(), {}, 'or', true);
-      expect(result).toBe('"огню|холоду|молни|хаосу"');
+      // Optimizer truncates "хаосу" → "хаос" (verified safe in TRUNCATED_TAILS_SAFE)
+      expect(result).toBe('"огню|холоду|молни|хаос"');
     });
   });
 });

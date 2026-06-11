@@ -403,8 +403,9 @@ describe('buildAstFromSelections', () => {
     // Should NOT have % after the number pattern — enumeration only
     expect(result).not.toContain('%');
     expect(result).toContain('области путевых камней');
-    // Should be: "(1[5-9]|2[0-4]).*области путевых камней" (without %)
-    expect(result).toBe('"(1[5-9]|2[0-4]).*области путевых камней"');
+    // Middle-number prefix "На" is extracted from template "На #% больше..."
+    // This provides better specificity: "На (1[5-9]|2[0-4]).*области путевых камней"
+    expect(result).toBe('"На (1[5-9]|2[0-4]).*области путевых камней"');
   });
 
   // ─── per-mod exclude with ranged tokens ───
