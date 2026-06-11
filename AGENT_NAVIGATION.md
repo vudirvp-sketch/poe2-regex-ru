@@ -110,6 +110,9 @@ Documented in detail in `docs/ARCHITECTURE.md` §3. Key rules:
 | `^` | Start-of-block anchor | ✅ |
 | `()` | Grouping | ✅ |
 | `\d` | Digit shorthand | ✅ |
+| `{N,}` | Quantifier "N or more" | ✅ |
+| `\d{3,}` | ≥100 compact | ✅ |
+| `!` + `[]` / `\d` | Negation with regex groups | ✅ |
 
 **NOT supported:** `?` (optional), `.*` across blocks, negative lookahead, non-greedy quantifiers, backreferences. `$` end anchor is unreliable — do not use.
 
@@ -125,18 +128,22 @@ Documented in detail in `docs/ARCHITECTURE.md` §3. Key rules:
 
 Each piece of item text is an independent searchable block. `.*` works ONLY within a single block. AND (`"X" "Y"`) works ACROSS blocks.
 
-### 3-Level FP Prevention
+### 4-Level FP Prevention
 
 | Level | Method | When | FP prevented |
 |-------|--------|------|-------------|
 | 1 | `^` (anchorStart) | Template starts with `##` | Range notation at non-position-0 |
 | 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` |
 | 3 | Enumeration (compact decade) | Range ≤ 50 values | Secondary numbers not matching enumerated values |
+| 4 | Threshold ≥N% | `([X-Y]\d|\d{3,})%.*suffix` | Range notation — verified NO FP (v2 test 1C) |
 
-### Compiler: Enumerated Range + AND Fallback
+### Compiler: Enumerated Range + Threshold + AND Fallback
 
 - **Enumerated** (≤50 values): single quoted group with compact decade grouping → `"(2[7-9]|30).*suffix"`
+- **Threshold** (new, pending impl): `"([3-9]\d|\d{3,})%.*suffix"` — no FP from range notation, saves 30-50 chars vs enumeration for wide ranges
 - **AND Fallback** (>50 values): two AND-joined groups → `"≥min.*suffix" "≤max.*suffix"`
+
+**Threshold vs Enumeration:** Threshold uses character-class ranges (`[3-9]\d` = 30-99) instead of listing values. Verified in-game: no FP from numbers inside range notation like "(20—30)%". Use threshold when budget is tight or range is wide.
 
 ### Positive + Negative Mods (Want + Don't-Want)
 
@@ -216,10 +223,25 @@ Origin colors: Обычные=gray, Очернённые=emerald, Оскверн
 
 | # | Issue | Status | Impact |
 |---|-------|--------|--------|
-| 1 | Type A parser doesn't extract modCode for jewels → `jewelType` always "shared" | Open | Low — all jewel mods show as "shared" |
-| 2 | Enumerated ranges can FP on range notation numbers (e.g. `"26(27-50)%"`) | Mitigated by `^`/`%` anchors | Edge case only |
+| 1 | Type A parser doesn't extract modCode for jewels → `jewelType` always "shared" | Open | Low |
+| 2 | Enumerated ranges can FP on range notation numbers | Mitigated by `^`/`%` anchors | Edge case |
+| 3 | `редкост` FP on item rarity label — substring matches "редкий" indexed text | Documented | Medium — use full suffix instead |
 
-## 11. Frequent Pitfalls
+## 11. Verified Optimization Opportunities
+
+These regex techniques are verified in-game and ready for compiler integration:
+
+| # | Technique | Example | Savings | Status |
+|---|-----------|---------|---------|--------|
+| 1 | `\d{3,}` instead of `[0-9][0-9][0-9]` | `\d{3,}%` | 9 chars per ≥100 pattern | Ready to implement |
+| 2 | Threshold ≥N% pattern | `([3-9]\d\|\d{3,})%.*suffix` | 30-50 chars vs enumeration | Ready to implement |
+| 3 | Truncated word tails (safe list) | `эффективн`, `бездн`, `путев`, `глубин` | 5-15 chars per suffix | Ready to implement |
+| 4 | `!` + char class / `\d` in negation | `"!2[0-9]%.*золота"` | Alternative to threshold | Ready to implement |
+| 5 | `\+` literal anchor for implicits | `"редкость.*\+(\d{3,})%"` | Disambiguation | Needs waystone test |
+
+**Truncated tail blacklist:** `редкост` (FP on rarity label "редкий"), `провал` (untested, low value)
+
+## 12. Frequent Pitfalls
 
 1. **`!` must be INSIDE quotes with `|`:** `"!A|B"` works, `!"A|B"` does NOT
 2. **`.*` does NOT cross block boundaries** — use AND (`"X" "Y"`) for cross-block search
@@ -238,12 +260,15 @@ Origin colors: Обычные=gray, Очернённые=emerald, Оскверн
 15. **VendorPage uses `useCategoryPage` with `customData`** — `buildVendorCategoryData()` converts VENDOR_PROPERTIES into CategoryData format. GROUP_COLORS derived from `tags: [group:${group}]`
 16. **Vendor numeric properties use reversed pattern** — `"suffix.*number"` not `"number.*suffix"` because game property lines have text before number (e.g. "Уровень предмета: 50"). Triggered by `affix: 'implicit'` in vendor-adapter
 17. **Vendor AND mode = true AND** — each property is separate AND condition (ALL must match). Use OR mode toggle for "any matches" behavior. This is the decided design — no hybrid OR-within-AND
+18. **Item rarity label IS indexed** — "редк" from "редкий" matches ALL rare items. NEVER use `редкост` as truncated anchor — FP guaranteed. Use full suffix (`карте предметов`) instead
+19. **`{N,}` quantifier works** — `\d{3,}` is valid in PoE2 regex. Use instead of `[0-9][0-9][0-9]` for ≥100 patterns
+20. **Threshold patterns have NO FP from range notation** — `([3-9]\d|\d{3,})%.*suffix` is safe. Numbers inside "(20—30)%" do NOT trigger the threshold
 
-## 12. Feedback
+## 13. Feedback
 
 Баг-репорты и предложения → **Discord: woonderdad**
 
-## 13. Documentation Map
+## 14. Documentation Map
 
 | File | Content | When to Update |
 |------|---------|----------------|
@@ -254,6 +279,6 @@ Origin colors: Обычные=gray, Очернённые=emerald, Оскверн
 | `docs/ARCHITECTURE.md` | Layers, data flow, regex dialect, compiler, optimizer, UI conventions | On structural changes |
 | `docs/ETL_GUIDE.md` | ETL pipeline steps, CLI flags, cache, i18n overrides | On ETL changes |
 | `docs/DATA_CONTRACTS.md` | TypeScript types, JSON format, AST compilation rules | On type changes |
-| `docs/IN_GAME_TESTS.md` | In-game regex verification results | On new in-game tests |
+| `docs/IN_GAME_TESTS.md` | In-game regex verification results (dialect, thresholds, truncation, negation) | On new in-game tests |
 | `index.html` | SEO meta tags, OG tags, JSON-LD, title | On SEO changes |
 | `src/ui/pages/home/SeoBlock.tsx` | Static SEO text block (FAQ, instructions) | When categories/features change |
