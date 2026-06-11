@@ -19,13 +19,19 @@ export interface CompileOptions {
  * - RANGE + anchorStart: adds ^ before the number pattern to prevent range notation FP.
  *   Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2 search.
  *   This prevents matching secondary numbers inside range notation like "(27-50)".
- *   Only set when rawTextTemplate starts with ## (number at position 0).
+ *   Only set when rawTextTemplate starts with ## or [+-]## (number at position 0).
  * - RANGE + anchorEnd: inserts a string (typically '%') after the number pattern,
  *   before .*suffix. Verified in-game (Phase 9c): suffix anchoring prevents FP
  *   because numbers in range notation (e.g. 27 from (27-50)) are NOT followed by %.
  *   ⚠️ FN risk: items where actual roll has range notation (e.g. 27(22-27)%)
  *   have '(' after the roll, not '%' — suffix anchoring would miss these.
  *   Used ONLY when anchorStart=false (for +##% mods where ^ cannot be used).
+ * - RANGE + signPrefix: adds \+ or - before the number pattern (Phase 12).
+ *   '+' → \+ (literal + must be escaped in PoE2 regex dialect).
+ *   '-' → - (literal - is not special, no escaping needed).
+ *   Provides implicit anchoring: range notation numbers never have +/- before them,
+ *   so signPrefix prevents FP from secondary numbers like 27 in (27-50).
+ *   When combined with anchorStart, order is: ^ + sign + numRegex (e.g. ^\+(2[7-9]|30)).
  * - EXCLUDE prefix ! must be INSIDE the quoted group: "!A" not !"A"
  * - EXCLUDE(OR([...])) compiles to "!A|B|C" — negation of any alternative
  *
@@ -90,7 +96,7 @@ function normalizeAst(node: ASTNode): ASTNode {
         // Verified in-game: threshold patterns have NO FP from range notation.
         if (node.threshold) {
           // Convert to ≥min only (drop max, keep threshold=false to avoid recursion)
-          return { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor };
+          return { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor, signPrefix: node.signPrefix };
         }
         const range = node.max - node.min + 1;
         if (range <= MAX_ENUMERATE_RANGE) {
@@ -101,8 +107,8 @@ function normalizeAst(node: ASTNode): ASTNode {
         return {
           type: 'AND',
           children: [
-            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor },
-            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor },
+            { type: 'RANGE', min: node.min, max: undefined, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor, signPrefix: node.signPrefix },
+            { type: 'RANGE', min: undefined, max: node.max, suffix: node.suffix, prefix: node.prefix, exact: node.exact, anchorStart: node.anchorStart, anchorEnd: node.anchorEnd, reversed: node.reversed, colonAnchor: node.colonAnchor, signPrefix: node.signPrefix },
           ],
         };
       }
@@ -174,18 +180,24 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       // The ': ' anchors the number to appear right after the colon-space delimiter,
       // which is where the rolled value sits — not in range notation like "(1-2)".
       const colonPrefix = (ast.reversed && ast.colonAnchor) ? ': ' : '';
+      // signPrefix: \+ or - before the number pattern (Phase 12)
+      // For '+' → \+ (literal + must be escaped in PoE2 regex)
+      // For '-' → - (literal - is not a special char, no escaping needed)
+      // Provides implicit anchoring: range notation numbers never have +/- before them,
+      // so signPrefix prevents FP from secondary numbers like 27 in (27-50).
+      const sign = ast.signPrefix === '+' ? '\\+' : ast.signPrefix === '-' ? '-' : '';
 
       // Both min and max → enumerated range (single quoted group)
       if (isEnumerated) {
         const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
         if (!numRegex) return ''; // Should not happen after normalizeAst check
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
-          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
-        return `${anchor}${numRegex}${endAnchor}`;
+        if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}`;
+        return `${anchor}${sign}${numRegex}${endAnchor}`;
       }
 
       // ≥ min: generate regex matching numbers ≥ min
@@ -194,12 +206,12 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
-          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
-        return `${anchor}${numRegex}${endAnchor}`;
+        if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}`;
+        return `${anchor}${sign}${numRegex}${endAnchor}`;
       }
 
       // ≤ max: generate regex matching numbers ≤ max
@@ -208,12 +220,12 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${numRegex}${endAnchor}`;
-          if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}.*${compiledSuffix}`;
-          return `${anchor}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
+          return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
-        if (ast.prefix) return `${ast.prefix} ${numRegex}${endAnchor}`;
-        return `${anchor}${numRegex}${endAnchor}`;
+        if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}`;
+        return `${anchor}${sign}${numRegex}${endAnchor}`;
       }
 
       return '';

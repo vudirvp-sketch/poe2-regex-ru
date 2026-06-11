@@ -273,6 +273,29 @@ function getPrefixForSlot(
 }
 
 /**
+ * Detect the sign prefix (+/-) before the number placeholder in a token's template.
+ *
+ * Scans the rawTextTemplate for the first ## placeholder and checks if it's
+ * immediately preceded by '+' or '-'. Returns:
+ * - '+' if template has +## (e.g. "+##% к сопротивлению молнии")
+ * - '-' if template has -## (e.g. "-##% максимум сопротивлений")
+ * - undefined if no sign before ## (e.g. "##% увеличение урона")
+ *
+ * The sign is detected from the character immediately before the first ##.
+ * This handles all positions: start (+##%), middle ("текст: +##%"), end ("текст +##").
+ */
+function getSignPrefix(token: GameToken, locale: Locale): '+' | '-' | undefined {
+  const template = token.rawTextTemplate[locale];
+  if (!template) return undefined;
+
+  // Find the first ## placeholder and check the character before it
+  const match = template.match(/([+-])#+/);
+  if (!match) return undefined;
+
+  return match[1] === '+' ? '+' : '-';
+}
+
+/**
  * Build a literal AST node for a token, wrapping with context/exclude as needed.
  * Shared by non-ranged and orphaned ranged token handling.
  * @param isExcluded - Whether this token is in the per-mod "exclude" set
@@ -456,6 +479,7 @@ export function buildAstFromSelections(
         slotIndex: number;
         tokens: GameToken[];
         isExcluded: boolean;
+        signPrefix: '+' | '-' | undefined;
       }>();
       for (const { token, slots } of tokensWithSlots) {
         const suffix = token.regex[locale];
@@ -471,8 +495,11 @@ export function buildAstFromSelections(
           tokenHasEffectiveSlot = true;
           const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
 
-          // Group by (prefix, min, max, exact, slotIndex, isExcluded) — NOT by suffix
-          const groupKey = `${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}::${isExcluded ? 'excl' : 'want'}`;
+          // Detect sign prefix from rawTextTemplate: +## or -## before the number
+          const signPrefix = getSignPrefix(token, locale);
+
+          // Group by (prefix, min, max, exact, slotIndex, isExcluded, signPrefix) — NOT by suffix
+          const groupKey = `${prefix}::${hasMin ? slot.min : ''}::${hasMax ? slot.max : ''}::${isPerToken}::slot${slot.slotIndex}::${isExcluded ? 'excl' : 'want'}::sign${signPrefix ?? ''}`;
 
           const existing = rangeGroups.get(groupKey);
           if (existing) {
@@ -491,6 +518,7 @@ export function buildAstFromSelections(
               slotIndex: slot.slotIndex,
               tokens: [token],
               isExcluded,
+              signPrefix,
             });
           }
         }
@@ -507,10 +535,11 @@ export function buildAstFromSelections(
           ? group.suffixes.join('|')
           : group.suffixes[0];
 
-        // Determine anchorStart: true when rawTextTemplate starts with ##
+        // Determine anchorStart: true when rawTextTemplate starts with ## or [+-]##
+        // With signPrefix, the number is still at position 0 — just with a sign before it
         const numberAtStart = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
-          return template && /^##/.test(template);
+          return template && /^[+-]?##/.test(template);
         });
 
         const numberFollowedByPercent = group.tokens.some(t => {
@@ -532,7 +561,7 @@ export function buildAstFromSelections(
           return template && /:\s*##\s*$/.test(template);
         });
 
-        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined, colonAnchor || undefined);
+        const rangeNode = range(group.min, group.max, suffixStr, group.prefix || undefined, group.exact || undefined, isReversed ? false : (numberAtStart || undefined), anchorEndValue, isReversed || undefined, colonAnchor || undefined, undefined, group.signPrefix);
 
         // Wrap RANGE with prefix context and exclude nodes
         let nodeWithExcludes: ASTNode = rangeNode;

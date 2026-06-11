@@ -261,7 +261,8 @@ function getValueKey(node: ASTNode): string {
       const suffix = node.suffix ?? '';
       const prefix = node.prefix ?? '';
       const exact = node.exact?.toString() ?? '';
-      return `R:${min}:${suffix}:${prefix}:${exact}`;
+      const sign = node.signPrefix ?? '';
+      return `R:${min}:${suffix}:${prefix}:${exact}:${sign}`;
     }
     case 'OR':
       return `O:${node.children.map(getValueKey).join('|')}`;

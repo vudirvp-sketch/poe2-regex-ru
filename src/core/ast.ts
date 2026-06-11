@@ -17,8 +17,8 @@ export function literal(value: string, tokenId?: string): ASTNode {
   return { type: 'LITERAL', value, tokenId };
 }
 
-export function range(min?: number, max?: number, suffix?: string, prefix?: string, exact?: boolean, anchorStart?: boolean, anchorEnd?: string, reversed?: boolean, colonAnchor?: boolean, threshold?: boolean): ASTNode {
-  return { type: 'RANGE', min, max, suffix, prefix, exact, anchorStart, anchorEnd, reversed, colonAnchor, threshold };
+export function range(min?: number, max?: number, suffix?: string, prefix?: string, exact?: boolean, anchorStart?: boolean, anchorEnd?: string, reversed?: boolean, colonAnchor?: boolean, threshold?: boolean, signPrefix?: '+' | '-'): ASTNode {
+  return { type: 'RANGE', min, max, suffix, prefix, exact, anchorStart, anchorEnd, reversed, colonAnchor, threshold, signPrefix };
 }
 
 // Utility: collect all token IDs from AST

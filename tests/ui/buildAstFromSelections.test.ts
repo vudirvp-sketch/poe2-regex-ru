@@ -326,11 +326,11 @@ describe('buildAstFromSelections', () => {
 
   // ─── anchorEnd (%) suffix anchoring tests (Phase 9c) ───
 
-  it('+##% token gets anchorEnd="%" (re-enabled after dual-indexing verification)', () => {
-    // For +##% mods (accessories), anchorStart=false (template starts with +).
-    // RE-ENABLED: PoE2 dual-indexes simplified ("27% suffix") AND detailed ("27(22-27)% suffix").
-    // % anchor matches simplified display, preventing FP from range notation secondary numbers.
-    // Verified in-game on tablets AND accessories (2026-06-10).
+  it('+##% token gets anchorStart + signPrefix="+" (Phase 12: sign prefix provides anchoring)', () => {
+    // For +##% mods (accessories), signPrefix='+' and anchorStart=true.
+    // Template starts with +## → numberAtStart=true (updated to detect [+-]?##).
+    // \+ before number provides implicit anchoring (range notation numbers never have +).
+    // Combined with ^, this is more precise than the old anchorEnd="%" approach.
     const tokens = [
       makeRangedToken('fire_res_t1', 'к сопротивлению огню', 'к сопротивлению огню', [[20, 35]], {
         rawTextTemplate: { ru: '+##% к сопротивлению огню' },
@@ -341,8 +341,8 @@ describe('buildAstFromSelections', () => {
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
-    // % after number pattern — anchorEnd re-enabled
-    expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
+    // ^\+(2[7-9]|30).*suffix — ^ anchors to block start, \+ anchors to sign prefix
+    expect(result).toBe('"^\\+(2[7-9]|30).*к сопротивлению огню"');
   });
 
   it('##% token gets anchorStart=true but NOT anchorEnd (tablet/waystone mod)', () => {
@@ -364,8 +364,8 @@ describe('buildAstFromSelections', () => {
     expect(result).not.toContain('%');
   });
 
-  it('+## token (non-%) does NOT get anchorEnd', () => {
-    // For +## mods without % (e.g. "+## к силе"), no suffix anchoring
+  it('+## token (non-%) gets signPrefix="+" but NOT anchorEnd', () => {
+    // For +## mods without % (e.g. "+## к силе"), no % anchoring, but signPrefix='+' provides anchoring
     const tokens = [
       makeRangedToken('str_t1', 'к силе', 'к силе', [[10, 50]], {
         rawTextTemplate: { ru: '+## к силе' },
@@ -376,8 +376,9 @@ describe('buildAstFromSelections', () => {
     expect(ast).not.toBeNull();
 
     const result = compile(ast!, { round10: false });
-    // No % after number pattern
+    // No % after number pattern, but \+ before number
     expect(result).not.toContain('%');
+    expect(result).toContain('\\+');
   });
 
   it('#% values-only token does NOT get anchorEnd (waystone "На #% больше...")', () => {

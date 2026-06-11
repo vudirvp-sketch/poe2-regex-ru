@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 47.0 | **Date:** 2026-06-11 | **Language:** RU-first
+> **Version:** 48.0 | **Date:** 2026-06-11 | **Language:** RU-first
 
 ---
 
@@ -132,26 +132,35 @@ Known limitation: wide-range AND can produce FP from secondary numbers in range 
 
 Since `.*` does NOT cross blocks, cross-mod FP is impossible. Prefix is only needed for dual-number mods ("От ## до ## урона") where prefix "От" anchors the number to the first placeholder.
 
-## 6. Three-Level FP Prevention
+## 6. Four-Level FP Prevention
 
 | Level | Method | When | FP prevented | FN risk |
 |-------|--------|------|-------------|---------|
-| 1 | `^` (anchorStart) | Template starts with `##` | Range notation at non-position-0 | None |
-| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` | Items where actual roll has range notation |
-| 3 | Enumeration (compact decade) | Range ≤ 50 | Secondary numbers not matching enumerated values | None |
+| 1 | `^` (anchorStart) | Template starts with `##` or `[+-]##` | Range notation at non-position-0 | None |
+| 2 | `\+` / `-` (signPrefix) | Template has `+##` or `-##` before number | Range notation numbers never have +/- sign | None |
+| 3 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false AND no signPrefix | Numbers not followed by `%` | Items where actual roll has range notation |
+| 4 | Enumeration (compact decade) | Range ≤ 50 | Secondary numbers not matching enumerated values | None |
 
 **`anchorStart` implementation:**
-- `anchorStart=true` when `rawTextTemplate` starts with `##` (number at position 0)
+- `anchorStart=true` when `rawTextTemplate` starts with `##` or `[+-]##` (number at position 0)
 - Compiler adds `^` when `anchorStart=true` AND no `prefix`
-- NOT for `+##` (accessory mods) or `-##` (negative values)
+- For `+##` and `-##` mods: `^\+` or `^-` anchors to sign+number at block start
+
+**`signPrefix` implementation:**
+- `signPrefix='+'` when template has `+##` → compiler emits `\+` before number pattern
+- `signPrefix='-'` when template has `-##` → compiler emits `-` before number pattern
+- Provides implicit anchoring: range notation numbers never have +/- before them
+- For `+##%` mods: `^\+N` replaces `%` anchorEnd — more precise (sign + number)
+- Detection: `getSignPrefix()` scans `rawTextTemplate` for `[+-]` immediately before `##`
+- Included in RANGE grouping key → tokens with different signs don't merge
 
 **`anchorEnd` implementation:**
-- `anchorEnd='%'` when template matches `/##%/` (double-hash) AND `anchorStart=false`
-- Single-hash `#%` (values-only) is intentionally EXCLUDED — causes 100% FN because items always have range notation
+- `anchorEnd='%'` when template matches `/##%/` (double-hash) AND `anchorStart=false` AND no signPrefix
+- Single-hash `#%` (values-only) is intentionally EXCLUDED — causes 100% FN
 - Compiler inserts `anchorEnd` string after number pattern, before `.*suffix`
 
-**When NOT to use `^`:** prefix set (dual-number), block starts with non-digit (`+`, `-`)
-**When NOT to use `%`:** anchorStart=true (redundant), no `%` after number, single-hash `#%` templates
+**When NOT to use `^`:** prefix set (dual-number)
+**When NOT to use `%`:** anchorStart=true or signPrefix set (redundant), no `%` after number, single-hash `#%` templates
 
 ## 7. Dependency Rules
 

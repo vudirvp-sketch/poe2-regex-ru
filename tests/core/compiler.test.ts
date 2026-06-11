@@ -459,4 +459,82 @@ describe('compile', () => {
     const result = compile(range(27, 30, 'откладывания наград', undefined, undefined, false, undefined, undefined, undefined, false), { round10: false });
     expect(result).toBe('"(2[7-9]|30).*откладывания наград"');
   });
+
+  // ─── Phase 12: signPrefix (+/-) tests ───
+
+  it('RANGE with signPrefix="+" adds \\+ before number pattern (≥min)', () => {
+    // "+##% к сопротивлению молнии" → \+(≥min)%.*suffix
+    const result = compile(range(35, undefined, 'к сопротивлению молнии', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"\\+(3[5-9]|[4-9][0-9]|\\d{3,})%.*к сопротивлению молнии"');
+  });
+
+  it('RANGE with signPrefix="+" adds \\+ before number pattern (enumerated)', () => {
+    // "+##% к сопротивлению" → \+(enumerated)%.*suffix
+    const result = compile(range(27, 30, 'к сопротивлению огню', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"\\+(2[7-9]|30)%.*к сопротивлению огню"');
+  });
+
+  it('RANGE with signPrefix="-" adds - before number pattern (≥min)', () => {
+    // "-##% максимум сопротивлений" → -(≥min)%.*suffix
+    const result = compile(range(11, undefined, 'максимум сопротивлений', undefined, undefined, false, '%', undefined, undefined, undefined, '-'), { round10: false });
+    expect(result).toBe('"-(1[1-9]|[2-9][0-9]|\\d{3,})%.*максимум сопротивлений"');
+  });
+
+  it('RANGE with signPrefix="+" and reversed adds \\+ before number at end', () => {
+    // "Редкость предметов: +##%" → suffix.*\+(≥min)%
+    const result = compile(range(18, undefined, 'Редкость предметов', undefined, undefined, false, '%', true, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"Редкость предметов.*\\+(1[8-9]|[2-9][0-9]|\\d{3,})%"');
+  });
+
+  it('RANGE with signPrefix="+" and anchorStart adds ^ before \\+', () => {
+    // "+##% suffix" at start of block → ^\+(numRegex)%.*suffix
+    const result = compile(range(27, 30, 'к сопротивлению огню', undefined, undefined, true, '%', undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"^\\+(2[7-9]|30)%.*к сопротивлению огню"');
+  });
+
+  it('RANGE with signPrefix="+" and prefix adds \\+ after prefix', () => {
+    // "prefix +## suffix" → prefix \+(numRegex).*suffix
+    const result = compile(range(25, 30, 'суффикс', 'префикс', undefined, false, undefined, undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"префикс \\+(2[5-9]|30).*суффикс"');
+  });
+
+  it('RANGE without signPrefix produces no sign (backward compatible)', () => {
+    // Default: no signPrefix → no \+ or - before number
+    const result = compile(range(27, 30, 'к сопротивлению огню', undefined, undefined, false, '%'), { round10: false });
+    expect(result).toBe('"(2[7-9]|30)%.*к сопротивлению огню"');
+    // \+ should NOT appear (no sign prefix)
+    expect(result).not.toContain('\\+');
+    // - sign before number should NOT appear (the - in [7-9] is a char class range, not a sign)
+    // Match only - immediately before a digit that is NOT inside []
+    const withoutCharClasses = result.replace(/\[[^\]]*\]/g, '');
+    expect(withoutCharClasses).not.toMatch(/-\d/);
+  });
+
+  it('RANGE with signPrefix and wide range (>50) preserves sign in AND fallback', () => {
+    // Wide range: AND fallback. signPrefix should be on both children.
+    const result = compile(range(10, 200, 'суфф', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
+    const groups = result.split('" "');
+    expect(groups.length).toBe(2);
+    // Both AND groups should have \+
+    expect(groups[0]).toContain('\\+');
+    expect(groups[1]).toContain('\\+');
+  });
+
+  it('RANGE with signPrefix="+" and max-only adds \\+ before ≤max pattern', () => {
+    // ≤50 with +sign: \+(≤50)%.*suffix
+    const result = compile(range(undefined, 50, 'к здоровью', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"\\+([0-9]|[1-4][0-9]|50)%.*к здоровью"');
+  });
+
+  it('RANGE with signPrefix and threshold compiles correctly', () => {
+    // threshold + sign: \+(≥min)%.*suffix
+    const result = compile(range(27, 50, 'откладывания наград', undefined, undefined, false, '%', undefined, undefined, true, '+'), { round10: false });
+    expect(result).toBe('"\\+(2[7-9]|[3-9][0-9]|\\d{3,})%.*откладывания наград"');
+  });
+
+  it('RANGE with signPrefix="+" and OR-suffix wraps suffix correctly', () => {
+    // \+ + OR suffix: \+(numRegex)%.*(suffix1|suffix2)
+    const result = compile(range(35, undefined, 'к сопротивлению огню|к сопротивлению холоду', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
+    expect(result).toBe('"\\+(3[5-9]|[4-9][0-9]|\\d{3,})%.*(к сопротивлению огню|к сопротивлению холоду)"');
+  });
 });

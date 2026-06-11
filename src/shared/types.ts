@@ -126,10 +126,15 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean; threshold?: boolean };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean; threshold?: boolean; signPrefix?: '+' | '-' };
 // prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block
+// signPrefix: '+' or '-' when the template has +## or -## before the number.
+//   '+' → compiler emits \+ before number regex (e.g. \+(2[7-9]|[3-9][0-9]|\d{3,})%.*suffix)
+//   '-' → compiler emits - before number regex (e.g. -(1[0-9]|[0-9])%.*suffix)
+//   Also provides implicit anchoring: \+ or - prevents FP from range notation numbers
+//   (range notation numbers like 27 in (27-50) never have a +/- sign before them).
 // anchorStart: when true, adds ^ before the number pattern to prevent range notation FP.
-//   Set when rawTextTemplate starts with ## (number at position 0 of the mod block).
+//   Set when rawTextTemplate starts with ## or [+-]## (number at position 0 of the mod block).
 //   Verified in-game (Phase 9b): ^ anchors to start of mod block in PoE2 search.
 // anchorEnd: when set, inserts this string after the number pattern (before .*suffix).
 //   Used for suffix anchoring — e.g. '%' after number for ##% mods.

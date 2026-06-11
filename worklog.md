@@ -67,3 +67,41 @@ Stage Summary:
 - tests/core/tablet-patterns.test.ts — обновлён
 - tests/core/vendor-patterns.test.ts — обновлён
 - + 7 других тестовых файлов обновлены
+
+---
+Task ID: 12
+Agent: main
+Task: Итерация 12 — Sign prefix (\+ и -) в компиляторе
+
+Work Log:
+- 1: Добавлен `signPrefix?: '+' | '-'` в RANGE AST-узел (types.ts)
+- 2: Добавлен `signPrefix` параметр в `range()` builder (ast.ts)
+- 3: Реализована вставка `\+` и `-` перед числовым паттерном в compiler.ts
+- 4: Обновлён `normalizeAst` — signPrefix propagate в threshold и AND fallback
+- 5: Добавлена `getSignPrefix()` в useCategoryPage.ts — детекция знака из rawTextTemplate
+- 6: Обновлён ключ группировки RANGE — signPrefix включён
+- 7: Обновлён `numberAtStart` — `/^[+-]?##/` для детекции +## и -## в начале
+- 8: Добавлен `signPrefix` в `getValueKey` optimizer.ts для дедупликации
+- 9: 11 новых тестов signPrefix в compiler.test.ts
+- 10: Обновлены 2 теста в buildAstFromSelections.test.ts
+- 11: Обновлена документация: STATUS.md, AGENT_NAVIGATION.md, ARCHITECTURE.md
+
+Stage Summary:
+- **813/813 тестов pass**, **TypeScript check pass**
+- **signPrefix='+' → `\+`** перед числом (экранированный + в PoE2 regex)
+- **signPrefix='-' → `-`** перед числом (не экранируется)
+- **Неявная привязка**: `\+` и `-` предотвращают FP от чисел в диапазонной нотации
+- **Для +##% модов**: `^\+N` заменяет `%` anchorEnd — точнее и надёжнее
+- **Обратная совместимость**: signPrefix=undefined → поведение без изменений
+
+Изменённые файлы:
+- src/shared/types.ts — signPrefix?: '+' | '-' в RANGE AST
+- src/core/ast.ts — signPrefix параметр в range()
+- src/core/compiler.ts — \+ и - перед числом, signPrefix в normalizeAst
+- src/core/optimizer.ts — signPrefix в getValueKey
+- src/ui/hooks/useCategoryPage.ts — getSignPrefix(), signPrefix в группировке
+- tests/core/compiler.test.ts — 11 новых signPrefix тестов
+- tests/ui/buildAstFromSelections.test.ts — 2 обновлённых теста
+- STATUS.md — итерация 12
+- AGENT_NAVIGATION.md — signPrefix документация
+- docs/ARCHITECTURE.md — Four-Level FP Prevention

@@ -126,16 +126,25 @@ Each piece of item text is an independent searchable block. `.*` works ONLY with
 
 | Level | Method | When | FP prevented |
 |-------|--------|------|-------------|
-| 1 | `^` (anchorStart) | Template starts with `##` | Range notation at non-position-0 |
-| 2 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false | Numbers not followed by `%` |
-| 3 | Enumeration (compact decade) | Range ≤ 50 values | Secondary numbers not matching enumerated values |
-| 4 | Threshold ≥N% | `([X-Y]\d|\d{3,})%.*suffix` | Range notation — verified NO FP |
+| 1 | `^` (anchorStart) | Template starts with `##` or `[+-]##` | Range notation at non-position-0 |
+| 2 | `\+` / `-` (signPrefix) | Template has `+##` or `-##` before number | Range notation numbers never have +/- sign |
+| 3 | `%` suffix anchor (anchorEnd) | Template has `##%` AND anchorStart=false AND no signPrefix | Numbers not followed by `%` |
+| 4 | Enumeration (compact decade) | Range ≤ 50 values | Secondary numbers not matching enumerated values |
 
 ### Compiler: 3 Compilation Strategies
 
 - **Enumerated** (≤50 values): single quoted group with compact decade grouping → `"(2[7-9]|30).*suffix"`
 - **Threshold** (threshold=true): single quoted group with ≥min only → `"(2[7-9]|[3-9]\d|\d{3,})%.*suffix"` — no FP from range notation, saves 30-50 chars vs enumeration for wide ranges
 - **AND Fallback** (>50 values, no threshold): two AND-joined groups → `"≥min.*suffix" "≤max.*suffix"`
+
+### Sign Prefix (`\+` and `-`)
+
+When `rawTextTemplate` has `+##` or `-##`, the compiler emits the sign before the number:
+- `+##% к сопротивлению огню` → `"^\+(2[7-9]|30).*к сопротивлению огню"`
+- `-##% максимум сопротивлений` → `"^-(1[1-9]|[2-9][0-9]|\d{3,})%.*максимум сопротивлений"`
+- `Редкость предметов: +##%` (reversed) → `"Редкость предметов.*\+(1[8-9]|[2-9][0-9]|\d{3,})%"`
+
+`\+` and `-` provide implicit anchoring — range notation numbers never have a sign prefix, preventing FP.
 
 ### Optimizer: 3 Phases
 
@@ -261,6 +270,7 @@ Origin colors: Обычные=gray, Очернённые=emerald, Оскверн
 20. **Threshold mode compiles RANGE(min,max) as ≥min only** — single quoted group, no FP from range notation, but drops max constraint. Use when budget is tight or range is wide
 21. **Truncated tail optimizer runs automatically** — Phase 3 in `optimize()`. Only safe-listed truncations are applied. Blacklist prevents FP truncations like `редкост`
 22. **`?` is NOT supported in PoE2 regex** — never use `?`, `{N,M}`, or `{N}?`. Use `{N,}` for "N or more" and enumeration for exact ranges
+23. **Sign prefix (`\+` and `-`)** — when template has `+##` or `-##`, compiler emits `\+` or `-` before the number. Provides implicit anchoring against FP from range notation numbers. Detected via `getSignPrefix()` in useCategoryPage.ts
 
 ## 12. Feedback
 
