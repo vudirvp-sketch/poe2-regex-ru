@@ -20,7 +20,6 @@
  * ARIA structure: The numeric <input> elements are SIBLINGS of the role="switch"
  * element, not children. This avoids invalid ARIA tree where an interactive input
  * is nested inside a switch role. The outer div acts as a visual container only.
- * Same pattern as VendorChip.
  */
 import React, { useMemo, useCallback } from 'react';
 import type { FamilyGroup } from '@shared/types';

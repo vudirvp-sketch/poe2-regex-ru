@@ -74,7 +74,7 @@
   --accent-amber-warn: rgba(245, 158, 11, 0.8);   /* amber-500/80 — boundary/round10 warning */
   --accent-red-dim: rgba(239, 68, 68, 0.6);       /* red-500/60 — overflow count */
 
-  /* Exclude button backgrounds (VendorChip) */
+  /* Exclude button backgrounds (FilterChip) */
   --exclude-bg-active: rgba(185, 28, 28, 0.6);    /* red-700/60 — excluded state */
   --exclude-bg-active-hover: rgba(220, 38, 38, 0.6); /* red-600/60 — excluded hover */
   --exclude-bg-idle: rgba(55, 65, 81, 0.6);       /* raised/60 — idle state */
@@ -226,7 +226,7 @@
   --accent-amber-warn: rgba(180, 83, 9, 0.75);    /* amber-800/75 */
   --accent-red-dim: rgba(185, 28, 28, 0.55);      /* red-700/55 */
 
-  /* Exclude button backgrounds (VendorChip) — light theme */
+  /* Exclude button backgrounds (FilterChip) — light theme */
   --exclude-bg-active: rgba(185, 28, 28, 0.15);    /* red-700/15 */
   --exclude-bg-active-hover: rgba(220, 38, 38, 0.2); /* red-600/20 */
   --exclude-bg-idle: rgba(55, 65, 81, 0.15);       /* raised/15 */

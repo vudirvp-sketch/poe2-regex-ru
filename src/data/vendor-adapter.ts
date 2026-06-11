@@ -4,9 +4,8 @@
  * Converts VENDOR_PROPERTIES into CategoryData format so that useCategoryPage
  * can be used instead of the separate useVendorPage hook.
  *
- * Status: Adapter is type-correct and ready for integration.
- * VendorPage still uses useVendorPage — switching to useCategoryPage
- * requires visual verification of the VendorProperty→GameToken mapping.
+ * Status: Adapter is type-correct and integrated (iteration 7).
+ * VendorPage switched from useVendorPage to useCategoryPage with customData.
  *
  * Why an adapter?
  * - useCategoryPage expects CategoryData with GameToken[] and FamilyGroup[]
@@ -14,17 +13,18 @@
  * - This adapter converts VendorProperty → GameToken so useCategoryPage works
  *
  * Mapping details:
- * - Each VendorProperty becomes its own family (familyKey = vendor:${id})
+ * - Each VendorProperty becomes its own family (familyKey = prop.label)
+ * - Numeric properties use ≥# in familyKey for range substitution in display text
  * - affix = 'implicit' for all (vendor props aren't prefix/suffix)
  * - Numeric properties get ranges: [{ min: 0, max: 1000 }]
  * - Group info preserved in tags[] as 'group:${groupName}'
  * - GROUP_COLORS can be derived from the group tag on each token
  *
  * Remaining for integration:
- * - Add customData option to useCategoryPage (skip async loading)
- * - Switch VendorPage from useVendorPage to useCategoryPage
- * - Replace VendorChip with FilterChip (FamilyGroup rendering)
- * - Move GROUP_COLORS into FamilyGroup metadata or derived from tags
+ * - (DONE) Add customData option to useCategoryPage (skip async loading)
+ * - (DONE) Switch VendorPage from useVendorPage to useCategoryPage
+ * - (DONE) Replace VendorChip with FilterChip (FamilyGroup rendering)
+ * - (DONE) Move GROUP_COLORS into FamilyGroup metadata or derived from tags
  * - Visual verification of all chip states
  */
 
@@ -33,21 +33,40 @@ import { VENDOR_PROPERTIES, type VendorProperty } from './vendor-properties';
 
 /** Convert a VendorProperty to a synthetic GameToken for useCategoryPage */
 function vendorPropertyToToken(prop: VendorProperty): GameToken {
+  // For numeric properties: regex field = numericSuffix (text after the number)
+  // This is because buildAstFromSelections uses token.regex as the suffix for RANGE nodes.
+  // For non-numeric properties: regex field = the actual regex pattern (e.g., 'качеств', 'огню')
+  const regexValue = prop.hasNumericInput ? (prop.numericSuffix || '') : prop.regex;
+
+  // familyKey is used by groupTokensByFamily as the display text template.
+  // For non-numeric properties: use the label directly (e.g., "Качество").
+  // For numeric properties: replace ≥N with ≥# so generateDisplayText substitutes
+  // the range into the chip text (e.g., "Ур. предмета ≥(0—1000)").
+  const familyKeyValue = prop.hasNumericInput
+    ? prop.label.replace('≥N', '≥#')
+    : prop.label;
+
+  // rawTextTemplate needs ## placeholder for numeric properties so that
+  // extractSlotValues can properly map ranges[] to the template slots.
+  // Without ##, rangeSlots would be empty and min/max inputs would not appear.
+  const rawTextTemplateValue = prop.hasNumericInput
+    ? prop.label.replace('≥N', '≥##')
+    : prop.label;
+
   return {
     id: prop.id,
     category: 'vendor',
     origin: 'normal',
     rawText: { ru: prop.label },
-    rawTextTemplate: { ru: prop.label },
-    regex: { ru: prop.regex || '' },
-    familyKey: { ru: `vendor:${prop.id}` },  // Each property is its own family
+    rawTextTemplate: { ru: rawTextTemplateValue },
+    regex: { ru: regexValue },
+    familyKey: { ru: familyKeyValue },
     regexPrefix: { ru: '' },
     hasMultiPlaceholder: false,
     regexExclude: undefined,
     regexPrefixContext: undefined,
     genderForms: { ru: {} },
     affix: 'implicit',  // Vendor props aren't prefix/suffix — use 'implicit'
-    priorityTier: 'B',
     tags: [`group:${prop.group}`],  // Preserve group info for GROUP_COLORS
     ranges: prop.hasNumericInput ? [[0, 1000]] : [],
     values: [],

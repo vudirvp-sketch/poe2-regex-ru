@@ -6,30 +6,32 @@
 
 ---
 
-## Текущая итерация (6): Семантические opacity-токены + VendorAdapter
+## Текущая итерация (7): VendorPage → useCategoryPage unification
 
 ### Что сделано
 
 | # | Задача | Результат |
 |---|--------|-----------|
-| E1 | FilterChip/VendorChip opacity → семантические токены | Все `text-amber-400/70`, `text-blue-400/80` и т.д. заменены на `text-accent-amber-soft`, `text-accent-blue-mid` и др. Оба dark/light варианта |
-| E2 | Alert border/bg/text → семантические токены | `border-yellow-700/50`, `text-amber-300`, `bg-amber-800/50` → `border-aborder-yellow`, `text-atext-amber`, `bg-abg-amber` |
-| E3 | VendorChip exclude button → семантические токены | `bg-red-700/60` → `bg-exclude-active`, `bg-raised/60` → `bg-exclude-idle` + i18n для title/aria |
-| E4 | vendor-adapter.ts исправлен | GameToken маппинг корректен (ранее были `exclusions` вместо `regexExclude`, отсутствовали `genderForms`, `hasYofication`, `level`). Добавлен `tags: [group:${group}]` для GROUP_COLORS |
-| E5 | useCategoryPage: customData support | Новый `customData?: CategoryData` в CategoryPageConfig — позволяет передать предзагруженные данные без async fetch. Инфраструктура для N1 готова |
-| E6 | --lt-* переменные проверены | Нет ссылок на `--lt-*` в коде — уже удалены ранее |
+| 1 | vendor-adapter.ts: fix build error | Убрано `priorityTier: 'B'` из GameToken — поле не существует в типе, было причиной сломанного деплоя |
+| 2 | vendor-adapter.ts: numeric regex mapping | Для числовых свойств regex.ru = numericSuffix (текст после числа), для остальных — regex pattern |
+| 3 | vendor-adapter.ts: familyKey display text | `familyKey.ru` = `prop.label` для нечисловых, `prop.label.replace('≥N', '≥#')` для числовых — отображает русские метки в чипах вместо `vendor:xxx` |
+| 4 | vendor-adapter.ts: rawTextTemplate ## placeholder | Для числовых свойств `rawTextTemplate` содержит `##` — extractSlotValues корректно маппит ranges[] и min/max inputs появляются |
+| 5 | VendorPage → useCategoryPage switch | VendorPage использует `useCategoryPage({ categoryId: 'vendor', customData: buildVendorCategoryData() })` вместо `useVendorPage()` |
+| 6 | VendorChip → FilterChip | Все 61 chip рендерятся через FilterChip с FamilyGroup. Числовые inputs работают через perTokenRanges |
+| 7 | GROUP_COLORS → из tags | Группировка по `tags: [group:${group}]`, GROUP_COLORS определён локально в VendorPage |
+| 8 | Delete dead code | `useVendorPage.ts` и `VendorChip.tsx` удалены. CSS комментарии обновлены |
 
-### Новые семантические токены (opacity)
+### Визуальная проверка VendorPage
 
-**Accent text с opacity:** `accent-amber-soft` (/70), `accent-amber-mid` (/80), `accent-blue-soft` (/70), `accent-blue-mid` (/80), `accent-orange-mid` (/80), `accent-amber-dimmer` (/60), `accent-amber-warn` (/80), `accent-red-dim` (/60)
-
-**Exclude button:** `exclude-active`, `exclude-active-hover`, `exclude-idle`, `exclude-idle-hover`, `exclude-text`
-
-**Alert borders:** `aborder-yellow`, `aborder-amber`, `aborder-amber-strong`
-
-**Alert text:** `atext-amber`, `atext-amber-light`
-
-**Alert badge:** `abg-amber`, `abg-amber-hover`, `aborder-amber-badge`
+| Проверка | Результат |
+|----------|-----------|
+| Заголовок «Торговец» | ✅ |
+| 14 групп чипов с цветными заголовками | ✅ |
+| FilterChip вместо VendorChip (61 чип) | ✅ |
+| Выбор чипа → подсветка (bg-chip-active) | ✅ |
+| Кнопка exclude (✗) → состояние excluded (bg-indicator-red) | ✅ |
+| Числовой input (≥Мин / ≤Макс) для Ур. предмета | ✅ |
+| Alert-блок проверки | ✅ |
 
 ---
 
@@ -46,8 +48,9 @@
 
 | # | Задача | Описание |
 |---|--------|----------|
-| N1 | Интеграция VendorCategoryData — финальный switch | Переключить VendorPage с `useVendorPage` на `useCategoryPage({ customData: buildVendorCategoryData() })`. Заменить VendorChip на FilterChip. Перенести GROUP_COLORS. Требует визуальной проверки |
-| N2 | Визуальная проверка обеих тем | Пройтись по всем страницам в dark/light теме: chip-состояния, indicator-фоны, form-элементы, alert-блоки, новые opacity-токены |
+| N1 | Визуальная проверка dark/light на всех страницах | Пройтись по всем 8 страницам: новые opacity-токены (⚡, ⚓, 2x, 1е/2е), alert-блоки, exclude-кнопки, overflow counter, form-элементы |
+| N2 | VendorPage: regex output проверка | Сравнить regex output при переключении с VendorChip на FilterChip — убедиться, что buildAstFromSelections даёт тот же результат, что buildVendorRegex давал |
+| N3 | VendorPage: numeric chip display text | При установленном min-значении заменить «≥N» на «≥{value}» в displayText числовых чипов |
 
 ---
 
