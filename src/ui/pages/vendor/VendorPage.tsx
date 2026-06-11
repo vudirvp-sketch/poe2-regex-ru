@@ -1,12 +1,12 @@
 /**
  * VendorPage — Vendor regex filter for the Russian game client.
  *
- * Layout v3 (iteration 7): Uses useCategoryPage with customData
- * from buildVendorCategoryData(). Renders FilterChip instead of VendorChip.
+ * Layout v3 (iteration 9): Uses useCategoryPage with customData
+ * from buildVendorCategoryData(). Renders FilterChip.
  * Groups chips by vendor property group (from tags: group:${group}).
  *
- * This eliminates the useVendorPage hook and VendorChip component,
- * unifying vendor page state management with all other category pages.
+ * AND mode (default): each property is a separate AND condition — ALL must match.
+ * Switch to OR mode for "any matches" behavior.
  *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.

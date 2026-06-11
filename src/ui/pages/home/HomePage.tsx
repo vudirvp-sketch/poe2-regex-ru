@@ -72,7 +72,7 @@ export function HomePage() {
         </p>
         <div className="flex flex-wrap justify-center gap-3 text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.5 }}>
           <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
-            {loaded ? `${formatCount(totalMods)} модов` : '...'}
+            {loaded ? `${formatCount(totalMods)} ${t('home.mods')}` : '...'}
           </span>
           <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
             {t('home.category_count')}

@@ -6,27 +6,19 @@
 
 ---
 
-## Текущая итерация (8): Визуальная проверка dark/light + VendorPage фиксы
+## Текущая итерация (9): SEO, dead code, light theme mobile
 
 ### Что сделано
 
 | # | Задача | Результат |
 |---|--------|-----------|
-| 1 | VendorPage: ≥{value} в displayText | При установленном min-значении через perTokenRange, числовой чип показывает «Ур. предмета ≥75» вместо «Ур. предмета ≥N». Замена работает для обоих числовых свойств (itemLevel, charLevel) |
-| 2 | CategoryControlPanel: overflow counter | Добавлен счётчик активных токенов (selected + excluded) рядом с индикатором excluded. Показывает «N выбрано» при activeTokenCount > 0 на всех 8 страницах |
-| 3 | Light theme: indicator backgrounds | Добавлены light-theme overrides для indicator-green/yellow/red (0.2 opacity вместо 0.15) и section-* (0.12 вместо 0.1) для лучшей видимости на белом фоне |
-| 4 | Light theme: form elements | Добавлены light-theme стили для checkbox, control panel background, regex output background. Формы корректно отображаются в светлой теме |
-| 5 | VendorPage: regex equivalence tests | 17 тестов в `tests/ui/vendor-regex-equivalence.test.ts` проверяют корректность regex output через buildAstFromSelections. Выявлены 2 отличия от legacy buildVendorRegex (см. ниже) |
-| 6 | Opacity-токены проверены | ⚡ (amber-soft), ⚓ (blue-soft), 2x (amber-mid), 1е/2е (blue-mid/orange-mid) — все работают в dark/light темах через CSS custom properties |
-| 7 | Alert-блоки проверены | Vendor verification (section-yellow/aborder-yellow), jewel hidden mods (section-amber/aborder-amber), regex budget (section-amber/aborder-amber-strong) — корректны в обеих темах |
-| 8 | Exclude-кнопки проверены | FilterChip exclude (✗/✓) использует bg-btn-danger/bg-raised — корректно в dark и light темах |
-
-### Отличия от legacy buildVendorRegex (документированные)
-
-| Отличие | Legacy (buildVendorRegex) | Новый (buildAstFromSelections) | Статус |
-|---------|--------------------------|-------------------------------|--------|
-| Числовые свойства: порядок regex | `"50.*уровень предмета"` (number.*suffix) — НЕ работает в игре | `"уровень предмета.*50"` (suffix.*number) — работает в игре | ✅ Багфикс — reversed pattern корректен для PoE2 |
-| AND-режим: несколько нечисловых свойств | `"качеств\|гнёзд"` — все wanted в одном OR (ANY) | `"качеств" "гнёзд"` — каждое свойство отдельно (ALL) | ⚡ Поведение изменено — true AND вместо OR-внутри-AND. OR-режим даёт legacy-поведение |
+| 1 | VendorPage AND-режим: решение | **Оставлен true AND** — логичнее и согласованно с другими категориями. Переключатель И/ИЛИ уже на странице — для «любое совпадение» пользователь выбирает OR |
+| 2 | Удалён dead code | Удалены `src/ui/hooks/useVendorPage.ts` и `src/ui/components/VendorChip.tsx` — не имели импортов, чистый мусор |
+| 3 | Light theme: мобильные стили | Добавлены `[data-theme="light"]` overrides в `@media (max-width: 768px)`: control panel opaque, affix frames с повышенным контрастом, chip readability. Убран `!important` с `.regex-output` |
+| 4 | SEO: тексты на главной | Заменено ~22 вхождений «мод» на «аффикс/свойство/характеристика» в i18n.ts. Каждая категория теперь с уникальным описанием вместо шаблона «— моды X» |
+| 5 | SEO: мета-теги | Обновлены title, description, keywords, og:*, twitter:* в index.html. Добавлены ключевые слова: регексы пое2, регулярное выражение пое2, фильтрация предметов пое2, поиск предметов пое2 |
+| 6 | SEO: SeoBlock.tsx | Переписан — уникальные заголовки, разнообразная лексика, ключевые поисковые запросы естественно встроены |
+| 7 | Документация | STATUS.md, AGENT_NAVIGATION.md очищены от устаревших секций, удалены упоминания удалённых файлов |
 
 ---
 
@@ -36,16 +28,6 @@
 |---|-------|--------|--------|
 | 1 | Type A parser doesn't extract modCode for jewels → `jewelType` always "shared" | Open | Low |
 | 2 | Enumerated ranges can FP on range notation numbers | Mitigated | Edge case |
-
----
-
-## Следующая итерация
-
-| # | Задача | Описание |
-|---|--------|----------|
-| N1 | Light theme: полная визуальная проверка в браузере | Пройти все 8 страниц, сделать скриншоты dark/light, исправить оставшиеся проблемы контрастности |
-| N2 | VendorPage: AND-режим семантика | Решить: оставить true AND или добавить hybrid OR-внутри-AND для нечисловых свойств как в legacy? |
-| N3 | Удалить useVendorPage.ts и VendorChip.tsx | Эти файлы больше не используются VendorPage — чистый dead code |
 
 ---
 

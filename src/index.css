@@ -527,7 +527,7 @@ main {
 
 /* Light theme: regex output area background */
 [data-theme="light"] .regex-output {
-  background: var(--poe-bg) !important;
+  background: var(--poe-bg);
 }
 
 /* ─── Sticky control panel ─── */
@@ -685,6 +685,29 @@ main {
 
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
+  /* Light theme mobile: ensure control panel is opaque */
+  [data-theme="light"] .control-panel-sticky {
+    background: var(--poe-bg);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+  /* Light theme mobile: affix frames need higher contrast */
+  [data-theme="light"] .affix-header-prefix {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.04) 100%);
+    border-color: rgba(37, 99, 235, 0.25);
+  }
+  [data-theme="light"] .affix-header-suffix {
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.04) 100%);
+    border-color: rgba(234, 88, 12, 0.25);
+  }
+  [data-theme="light"] .affix-header-implicit {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.04) 100%);
+    border-color: rgba(217, 119, 6, 0.25);
+  }
+  /* Light theme mobile: chip readability improvement */
+  [data-theme="light"] .mod-list [class*="text-[13px]"],
+  [data-theme="light"] .virtualized-mod-list [class*="text-[13px]"] {
+    color: var(--poe-text);
+  }
   .mod-list button[class*="inline-flex"],
   .mod-list span[class*="inline-flex"],
   .virtualized-mod-list button[class*="inline-flex"],
@@ -738,6 +761,11 @@ main {
 }
 
 @media (max-width: 480px) {
+  /* Light theme small screen: regex output stays readable */
+  [data-theme="light"] .regex-output {
+    background: var(--poe-bg);
+    border-color: var(--input-border);
+  }
   .grid {
     min-width: 0;
   }

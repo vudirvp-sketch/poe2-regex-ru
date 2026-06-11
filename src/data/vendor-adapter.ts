@@ -2,15 +2,7 @@
  * VendorCategoryData — Adapter for useCategoryPage compatibility.
  *
  * Converts VENDOR_PROPERTIES into CategoryData format so that useCategoryPage
- * can be used instead of the separate useVendorPage hook.
- *
- * Status: Adapter is type-correct and integrated (iteration 7).
- * VendorPage switched from useVendorPage to useCategoryPage with customData.
- *
- * Why an adapter?
- * - useCategoryPage expects CategoryData with GameToken[] and FamilyGroup[]
- * - VendorProperty is a simpler structure (no ranges, no affix, no familyKey)
- * - This adapter converts VendorProperty → GameToken so useCategoryPage works
+ * can be used for the vendor page.
  *
  * Mapping details:
  * - Each VendorProperty becomes its own family (familyKey = prop.label)
@@ -18,14 +10,7 @@
  * - affix = 'implicit' for all (vendor props aren't prefix/suffix)
  * - Numeric properties get ranges: [{ min: 0, max: 1000 }]
  * - Group info preserved in tags[] as 'group:${groupName}'
- * - GROUP_COLORS can be derived from the group tag on each token
- *
- * Remaining for integration:
- * - (DONE) Add customData option to useCategoryPage (skip async loading)
- * - (DONE) Switch VendorPage from useVendorPage to useCategoryPage
- * - (DONE) Replace VendorChip with FilterChip (FamilyGroup rendering)
- * - (DONE) Move GROUP_COLORS into FamilyGroup metadata or derived from tags
- * - Visual verification of all chip states
+ * - GROUP_COLORS derived from the group tag on each token
  */
 
 import type { CategoryData, GameToken, OptimizationEntry } from '@shared/types';
