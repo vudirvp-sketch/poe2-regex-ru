@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computeMinimalUniqueSubstring, computeAllRegexes } from '@etl/compute-regex';
+import { generateTruncatedSuffixes } from '@etl/compute-regex-strategies';
 import type { NormalizedMod } from '@etl/normalize';
 
 // Helper to create a NormalizedMod for testing
@@ -433,6 +434,70 @@ describe('computeExcludePatterns: short marker priorities', () => {
       // Old approach used full phrase like "скорости сотворения чар во время" (32+ chars)
       // New should use short markers like "флакона" (7 chars) or "во время" (8 chars)
       expect(maxExcludeLen).toBeLessThan(30);
+    }
+  });
+});
+
+// ─── generateTruncatedSuffixes: last-word-only constraint ───
+
+describe('generateTruncatedSuffixes: contiguous substring safety', () => {
+  it('only truncates the LAST word — single-word suffix', () => {
+    const results = generateTruncatedSuffixes('монстров', 3);
+    // Should truncate "монстров" from the end: "монстр", "монс", "мон"
+    expect(results).toContain('монстр');
+    expect(results).toContain('монс');
+    expect(results).toContain('мон');
+    // Should NOT contain the original (untruncated) suffix
+    expect(results).not.toContain('монстров');
+  });
+
+  it('only truncates the LAST word — multi-word suffix', () => {
+    const results = generateTruncatedSuffixes('к сопротивлению огню', 5);
+    // Should truncate only "огню": "к сопротивлению огн"
+    expect(results).toContain('к сопротивлению огн');
+    // Should NOT truncate middle word "сопротивлению"
+    expect(results).not.toContain('к сопротивлен огню');
+    expect(results).not.toContain('к сопротивлен огн');
+  });
+
+  it('does NOT produce mid-phrase truncation that breaks contiguity', () => {
+    const results = generateTruncatedSuffixes('количества редких монстров на карте', 10);
+    // "монстров" is NOT the last word — it must NOT be truncated
+    // "количества редких монстр на карте" breaks contiguous substring matching
+    expect(results).not.toContain('количества редких монстр на карте');
+    // Only "карте" (last word) can be truncated
+    expect(results).toContain('количества редких монстров на карт');
+  });
+
+  it('drops leading words and truncates new last word', () => {
+    const results = generateTruncatedSuffixes('к сопротивлению огню', 3);
+    // Phase 2: after dropping "к", "сопротивлению огню" → truncate "огню"
+    expect(results).toContain('сопротивлению огн');
+    // After dropping "к сопротивлению", "огню" → truncate "огню"
+    expect(results).toContain('огн');
+  });
+
+  it('does NOT truncate middle words after dropping leading words', () => {
+    const results = generateTruncatedSuffixes('к силе и ловкости', 5);
+    // After dropping "к", remaining "силе и ловкости" → only truncate "ловкости"
+    expect(results).toContain('силе и ловкост');
+    // "силе" is NOT the last word in this remaining phrase — must NOT be truncated
+    expect(results).not.toContain('сил и ловкости');
+    expect(results).not.toContain('сил и ловкост');
+  });
+
+  it('respects minimum length constraint', () => {
+    const results = generateTruncatedSuffixes('к силе', 5);
+    // "к сил" is 5 chars (including space) — should be included
+    expect(results.some(r => r === 'к сил')).toBe(true);
+    // All results must be >= minLen
+    expect(results.every(r => r.length >= 5)).toBe(true);
+  });
+
+  it('returns results sorted by length descending', () => {
+    const results = generateTruncatedSuffixes('сопротивлению огню', 5);
+    for (let i = 1; i < results.length; i++) {
+      expect(results[i].length).toBeLessThanOrEqual(results[i - 1].length);
     }
   });
 });

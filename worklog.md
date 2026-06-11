@@ -1,6 +1,36 @@
 # Worklog
 
 ---
+Task ID: 23
+Agent: main
+Task: Полный аудит пайплайна на аналогичные баги + фикс ETL generateTruncatedSuffixes()
+
+Work Log:
+- 1: Клонирован репозиторий, установлены зависимости, подтверждено 947/947 тестов
+- 2: Проанализирован фикс iter 22 (truncateSuffix → endsWith) — корректный и полный
+- 3: Полный аудит всех стадий пайплайна на паттерн «слепая замена подстроки»:
+  - Runtime Phase 3: truncateSuffix() — ✅ исправлено
+  - ETL tryWordTruncation(): валидирует через matchQuotedGroup() — ✅ безопасен
+  - ETL computeOptimizations Phase A1: валидирует через matchQuotedGroup() — ✅ безопасен
+  - dp-factorizer: диалектные оптимизации ([её], [юя], (ь|)) — ✅ безопасны
+  - computeExcludePatterns: .includes() для проверки вхождения — ✅ корректно
+  - iterative-optimizer: trySuffixShortening() валидирует — ✅ безопасен
+  - ⚠️ generateTruncatedSuffixes(): cartesian product генерировал mid-phrase truncation candidates
+- 4: Исправлен generateTruncatedSuffixes() — только LAST word truncation:
+  - Phase 1: усекается только последнее слово суффикса
+  - Phase 2: после drop leading words — усекается только последнее слово оставшейся фразы
+  - Удалён мёртвый код cartesianProduct()
+- 5: Добавлены 7 новых тестов для generateTruncatedSuffixes (contiguous substring safety)
+- 6: Все 954 теста проходят (947 + 7 новых)
+- 7: Обновлена документация: STATUS.md, AGENT_NAVIGATION.md, ARCHITECTURE.md
+
+Stage Summary:
+- **Аудит завершён** — аналогичных критических багов НЕ найдено
+- **Latent bug исправлен** — generateTruncatedSuffixes() теперь генерирует только корректные кандидаты
+- **954 теста** — все проходят
+- **Точка остановки:** все исправления готовы к слиянию и пушу; необходима проверка в игре
+
+---
 Task ID: 22
 Agent: main
 Task: Фикс бага mid-phrase word truncation в Phase 3 runtime optimizer

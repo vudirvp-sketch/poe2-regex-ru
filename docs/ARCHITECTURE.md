@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 52.0 | **Date:** 2026-06-12 | **Language:** RU-first
+> **Version:** 53.0 | **Date:** 2026-06-12 | **Language:** RU-first
 
 ---
 
@@ -85,7 +85,7 @@ poe2db.tw/ru/*
 7. **Description/tooltip text is NOT indexed** — not searchable.
 8. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
 
-**Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`).
+**Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`). This applies to BOTH runtime Phase 3 (`truncateSuffix`) and ETL (`generateTruncatedSuffixes`) — both enforce last-word-only truncation.
 
 **Truncation principle:** Basic morpheme truncations (приспешник, оглушен, флакон, хаос, монстр) work 100% when at the END of the suffix — they are substring matches and will highlight all occurrences. Mid-phrase truncation is FORBIDDEN — it creates a gap between the truncated word and subsequent text. Separate in-game verification is only needed when the truncated form could match a different meaningful word in the item context (e.g., «редкост» → FP on «редкий» rarity label).
 

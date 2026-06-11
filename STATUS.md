@@ -1,28 +1,34 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тесты:** ✅ 947/947 | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** ✅ 954/954 | **Build:** ✅ | **TypeScript:** ✅
 
 ---
 
-## Текущая итерация: 22 — Mid-phrase truncation fix
+## Текущая итерация: 23 — Full pipeline audit + ETL truncation fix
 
-### Сделано в итерации 22
+### Сделано в итерации 23
 
-**1. Критический баг: mid-phrase word truncation (Phase 3 runtime)**
+**1. Полный аудит пайплайна на аналогичные баги**
 
-Функция `truncateSuffix()` в `optimization-strategies.ts` заменяла безопасные слова (из `TRUNCATED_TAILS_SAFE`) как подстроку в любом месте суффикса, даже если за усечённым словом шли другие слова. PoE2 использует поиск **непрерывной подстроки** — усечение слова в середине фразы создаёт разрыв, и регекс перестаёт матчить.
+Аудит всех стадий (runtime + ETL) на паттерн «слепая замена подстроки, ломающая contiguous substring matching»:
+- ✅ `truncateSuffix()` (runtime Phase 3) — исправлено в iter 22, `endsWith()` работает корректно
+- ✅ `tryWordTruncation()` (ETL Strategy 1e) — безопасен, валидирует через `matchQuotedGroup()`
+- ✅ `computeOptimizations()` Phase A1 — безопасен, валидирует через `matchQuotedGroup()`
+- ✅ `dp-factorizer.ts` — диалектные оптимизации `[её]`, `[юя]`, `(ь|)` безопасны
+- ✅ `computeExcludePatterns()` — `.includes()` используется правильно (проверка вхождения подстроки)
+- ✅ `iterative-optimizer.ts` — `trySuffixShortening()` валидирует через `matchQuotedGroup()`
+- ⚠️ **Найден latent bug:** `generateTruncatedSuffixes()` генерировал mid-phrase truncation candidates через cartesian product — отфильтровывались валидацией, но нарушали документированное поведение и тратили ресурсы
 
-Пример бага: `"количества редких монстров на карте"` → `"количества редких монстр на карте"` ❌ (в игре текст `"монстрОВ на карте"`, подстрока `"монстр на карте"` не найдена).
+**2. Фикс: generateTruncatedSuffixes() — только LAST word truncation**
 
-**Фикс:** Замена подстроки ограничена **только концом суффикса** (`suffix.endsWith(full)` вместо `suffix.includes(full)`). Усечение в конце допустимо — `"монстр"` является префиксом `"монстров"` и сохраняет непрерывную подстроку.
+Замена cartesian product на last-word-only truncation:
+- Phase 1: только последнее слово суффикса усекается
+- Phase 2: после удаления leading words — только последнее слово оставшейся фразы усекается
+- Удалён мёртвый код `cartesianProduct()`
+- Добавлены 7 новых тестов для `generateTruncatedSuffixes`
 
-**Затронутые слова:** монстров, приспешников, приспешника, оглушения, флакона, хаосу — все слова из `TRUNCATED_TAILS_SAFE`, за которыми могут идти другие слова.
-
-**2. Добавлены тесты (11 новых):**
-- Позитивные: усечение в конце суффикса работает корректно
-- Негативные: mid-phrase усечение отклоняется (7 regression tests)
-- PoE2 OR group: усечение внутри `(...)` отклоняется
+**Почему безопасно:** truncation НЕ-last слова в фразе создаёт разрыв (gap), ломающий contiguous substring matching PoE2. Например: `"к сопротивлен огню"` ≠ substring of `"к сопротивлению огню"` — "ению" между "сопротивлен" и " огню" создаёт разрыв.
 
 ---
 
@@ -32,7 +38,7 @@
 2. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
 3. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
 4. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
-5. **Substring search** — PoE2 regex = contiguous substring match. Truncated words work only at END of suffix.
+5. **Substring search** — PoE2 regex = contiguous substring match. Word truncation works ONLY at END of suffix/phrase. Mid-phrase truncation breaks matching.
 
 ---
 

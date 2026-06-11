@@ -117,14 +117,23 @@ export function tryWordTruncation(
 }
 
 /**
- * Generate all valid truncated suffix variants by removing trailing chars
- * from each word, respecting minimum length constraints.
+ * Generate valid truncated suffix variants by removing trailing chars
+ * from the LAST word only, respecting minimum length constraints.
  *
  * Rules (verified in-game Phase 8):
- * - Only trailing substring of each word: "силе"→"сил"→"си"
+ * - Only the LAST word in the suffix can be truncated: "силе"→"сил"→"си"
+ * - Truncating a non-last word breaks contiguous substring matching in PoE2
+ *   (the removed characters create a gap between the truncated word and the next)
  * - Each word must retain ≥3 significant chars
  * - The overall suffix must be ≥ minLen characters
  * - Leading words can be dropped entirely (phrase truncation from the left)
+ *
+ * IMPORTANT: Only the LAST word is truncated because PoE2 uses contiguous
+ * substring search. If "монстров" is in the middle of "монстров на карте",
+ * truncating it to "монстр" produces "монстр на карте" which is NOT a
+ * contiguous substring of "монстров на карте" (the "ов" creates a gap).
+ * But "количества редких монстров" → "количества редких монстр" IS valid
+ * because "монстр" is at the end and is a leading prefix of "монстров".
  *
  * @returns Array of truncated suffix strings, ordered from longest to shortest
  */
@@ -132,47 +141,42 @@ export function generateTruncatedSuffixes(suffix: string, minLen: number): strin
   const results: string[] = [];
   const words = suffix.split(/\s+/);
 
-  // Phase 1: Try truncating individual words (keeping all words, shortening each)
-  // For each word position, generate truncated variants
-  const wordVariants: string[][] = words.map(word => {
-    const variants: string[] = [word]; // start with full word
-    // Truncate from the end: "силе"→"сил"→"си"
-    for (let len = word.length - 1; len >= 3; len--) {
-      variants.push(word.substring(0, len));
-    }
-    return variants;
-  });
+  // Phase 1: Truncate only the LAST word (keeping all other words at full length)
+  // This preserves the contiguous substring property required by PoE2 search.
+  // Previous implementation used cartesian product over all word positions,
+  // generating mid-phrase truncation candidates that break contiguity.
+  // Those were filtered by matchQuotedGroup() validation downstream, but
+  // this was wasteful and violated the documented constraint.
+  if (words.length > 0) {
+    const lastWord = words[words.length - 1];
+    const prefix = words.slice(0, -1).join(' ');
+    const prefixPart = prefix ? prefix + ' ' : '';
 
-  // Generate all combinations (cartesian product)
-  // But limit: only first few shortest words per position
-  const limitedVariants = wordVariants.map(vs => vs.slice(0, 4)); // max 4 variants per word
-  const combinations = cartesianProduct(limitedVariants);
-
-  for (const combo of combinations) {
-    const candidate = combo.join(' ');
-    if (candidate.length >= minLen && candidate !== suffix) {
-      results.push(candidate);
+    // Truncate last word from the end: "огню"→"огн", "силе"→"сил"→"си"
+    for (let len = lastWord.length - 1; len >= 3; len--) {
+      const candidate = prefixPart + lastWord.substring(0, len);
+      if (candidate.length >= minLen && candidate !== suffix) {
+        results.push(candidate);
+      }
     }
   }
 
   // Phase 2: Try dropping leading words (phrase truncation from left)
   // "к силе" → "силе" (drop "к"), "к сопротивлению огню" → "сопротивлению огню" → "огню"
+  // Then truncate only the LAST word of the remaining phrase.
   for (let skipWords = 1; skipWords < words.length; skipWords++) {
     const remaining = words.slice(skipWords).join(' ');
     if (remaining.length >= minLen && remaining !== suffix) {
       results.push(remaining);
-      // Also try truncating words in the remaining phrase
+
+      // Truncate only the last word of the remaining phrase
       const subWords = remaining.split(/\s+/);
-      const subVariants: string[][] = subWords.map(word => {
-        const vs: string[] = [word];
-        for (let len = word.length - 1; len >= 3; len--) {
-          vs.push(word.substring(0, len));
-        }
-        return vs.slice(0, 4);
-      });
-      const subCombos = cartesianProduct(subVariants);
-      for (const combo of subCombos) {
-        const candidate = combo.join(' ');
+      const subLastWord = subWords[subWords.length - 1];
+      const subPrefix = subWords.slice(0, -1).join(' ');
+      const subPrefixPart = subPrefix ? subPrefix + ' ' : '';
+
+      for (let len = subLastWord.length - 1; len >= 3; len--) {
+        const candidate = subPrefixPart + subLastWord.substring(0, len);
         if (candidate.length >= minLen && candidate !== remaining) {
           results.push(candidate);
         }
@@ -185,27 +189,6 @@ export function generateTruncatedSuffixes(suffix: string, minLen: number): strin
 
   // Remove duplicates
   return [...new Set(results)];
-}
-
-/**
- * Cartesian product of arrays of strings.
- * Each element of the result is a combination picking one item from each input array.
- */
-function cartesianProduct(arrays: string[][]): string[][] {
-  if (arrays.length === 0) return [[]];
-  if (arrays.length === 1) return arrays[0].map(item => [item]);
-
-  const [first, ...rest] = arrays;
-  const restProduct = cartesianProduct(rest);
-  const result: string[][] = [];
-
-  for (const item of first) {
-    for (const combo of restProduct) {
-      result.push([item, ...combo]);
-    }
-  }
-
-  return result;
 }
 
 // ─── Strategy 2: Substring Search Fallback ───

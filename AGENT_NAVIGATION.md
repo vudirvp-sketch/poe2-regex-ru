@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 10.0 | **Date:** 2026-06-12
+> **Version:** 11.0 | **Date:** 2026-06-12
 
 ---
 
@@ -67,7 +67,7 @@ Since iteration 18, `compute-regex.ts` is split into 3 modules:
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
 pnpm build                # tsc + vite build
-pnpm test                 # Vitest (all 936 tests)
+pnpm test                 # Vitest (all 954 tests)
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # Clear cache + re-fetch
 pnpm optimize             # Standalone iterative optimizer
@@ -147,7 +147,7 @@ shared <- core <- strategies <- store <- data <- ui
 6. Core = dependency-free — no npm imports
 7. Generated JSON = read-only
 8. `reversed=true` for implicit tokens → `"suffix.*(number)%"`
-9. Word truncation = END of suffix only, min 3 significant chars — mid-phrase truncation breaks contiguous substring
+9. Word truncation = END of suffix/phrase only, min 3 significant chars — mid-phrase truncation breaks contiguous substring (generates gap between truncated word and following text)
 10. Item rarity label IS indexed — never use «редкост»
 
 ## 10. Documentation Map
