@@ -13,11 +13,23 @@
 - Budget-aware UI feedback — amber-предупреждение при 6+ модах и >180 chars, health bar
 - Colon anchor — для non-% reversed модов с `: ##` шаблоном (верифицировано в игре)
 - In-game верификация ЗАВЕРШЕНА — все regex-паттерны проверены в RU клиенте PoE2
-- **B1:** VirtualizedModList рендерит implicit-секции (amber frame, полный width выше prefix/suffix)
-- **B2:** VendorChip ✕-кнопка доступна для числовых свойств (Ур. предмета, Треб. уровень)
-- **B3:** FilterChip aria-checked корректно отражает excluded (`true`) и partial-excluded (`mixed`)
-- Чистка: 31 мёртвый i18n-ключ удалён, дубли CSS устранены, package-lock.json и restructure-implicits.ts удалены
+- **B1–B3:** VirtualizedModList implicit-секции, VendorChip ✕-кнопка, FilterChip aria-checked
+- Чистка: 31 мёртвый i18n-ключ удалён, дубли CSS устранены
 - Feedback-контакт: Discord woonderdad добавлен в Sidebar, README, STATUS
+- **SEO оптимизация:** robots.txt, sitemap.xml, SEO-текстовый блок (FAQ/инструкция), og:image, JSON-LD, улучшенные title/h1
+
+---
+
+## SEO — выполнено
+
+| # | Задача | Статус |
+|---|--------|--------|
+| 1 | `public/robots.txt` | ✅ |
+| 2 | `public/sitemap.xml` | ✅ |
+| 3 | SEO-блок на HomePage (SeoBlock.tsx) | ✅ |
+| 4 | `<h1>` + `<title>` — добавлено "Path of Exile 2" | ✅ |
+| 5 | `og:image` + OG-баннер 1200×630 | ✅ |
+| 6 | JSON-LD структурированные данные | ✅ |
 
 ---
 
@@ -35,5 +47,6 @@
 
 ## Следующие шаги
 
-1. VendorPage рефакторинг: заменить дублирующий FilterStoreApi на адаптер поверх useCategoryPage (требует VendorTokenAdapter)
-2. Обновлять ETL при изменении модов в новых лигах/патчах
+1. **Ручная работа (не кодом):** Яндекс.Вебмастер, Google Search Console, посты на Reddit/ВК/Discord, GitHub topics
+2. VendorPage рефакторинг: заменить дублирующий FilterStoreApi на адаптер поверх useCategoryPage
+3. Обновлять ETL при изменении модов в новых лигах/патчах

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { t } from '@shared/i18n'
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader'
 import { VENDOR_PROPERTIES } from '@data/vendor-properties'
+import { SeoBlock } from './SeoBlock'
 
 /** Category config for the home page — tag is now dynamically computed */
 const categories = [
@@ -152,6 +153,9 @@ export function HomePage() {
           </p>
         </div>
       </div>
+
+      {/* SEO text block — FAQ and instructions for search engines */}
+      <SeoBlock />
 
       {/* Footer info */}
       <div className="mt-8 text-center text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vudirvp-sketch.github.io/poe2-regex-ru/sitemap.xml
