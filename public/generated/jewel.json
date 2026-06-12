@@ -2314,7 +2314,8 @@
           "луками",
           "топорами",
           "без",
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "jewelType": "shared",
@@ -2377,7 +2378,10 @@
           "компаньонов"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_au7igs",
@@ -6784,7 +6788,10 @@
           "умения"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "regexPrefixContext": {
+        "ru": "имеют"
+      }
     },
     {
       "id": "jewel.mod_7dzvh0",

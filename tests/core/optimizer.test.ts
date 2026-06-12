@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { optimize, truncateSuffix, isTruncationSafe } from '@core/optimizer';
-import { removeConflictingExcludes } from '@core/core-optimizations';
+import { removeConflictingExcludes, getValueKey } from '@core/core-optimizations';
 import { and, or, literal, range, exclude } from '@core/ast';
 import type { OptimizationEntry } from '@shared/types';
 
@@ -596,6 +596,80 @@ describe('removeConflictingExcludes (Phase 4)', () => {
       if (orNode.type === 'OR') {
         expect(orNode.children[0].type).toBe('LITERAL');
       }
+    }
+  });
+});
+
+// ─── getValueKey: RANGE deduplication key ───
+
+describe('getValueKey for RANGE nodes', () => {
+  it('produces different keys for RANGE with min vs RANGE with min+max', () => {
+    const rangeMinOnly = range(5, undefined, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, undefined, '+');
+    const rangeMinMax = range(5, 10, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, undefined, '+');
+
+    const keyMinOnly = getValueKey(rangeMinOnly);
+    const keyMinMax = getValueKey(rangeMinMax);
+
+    // These produce DIFFERENT compiled regex: [5-9]|\d{2,} vs (5|6|7|8|9|10)
+    expect(keyMinOnly).not.toBe(keyMinMax);
+  });
+
+  it('produces different keys for RANGE with different max values', () => {
+    const range1 = range(5, 10, 'к силе');
+    const range2 = range(5, 15, 'к силе');
+
+    expect(getValueKey(range1)).not.toBe(getValueKey(range2));
+  });
+
+  it('produces different keys for reversed vs non-reversed RANGE', () => {
+    const normal = range(5, undefined, 'здоровья', undefined, undefined, undefined, undefined, false, undefined, undefined, undefined);
+    const reversed = range(5, undefined, 'здоровья', undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
+
+    expect(getValueKey(normal)).not.toBe(getValueKey(reversed));
+  });
+
+  it('produces different keys for anchorStart vs no anchor', () => {
+    const noAnchor = range(5, undefined, 'к силе', undefined, undefined, false, undefined, undefined, undefined, undefined, '+');
+    const withAnchor = range(5, undefined, 'к силе', undefined, undefined, true, undefined, undefined, undefined, undefined, '+');
+
+    expect(getValueKey(noAnchor)).not.toBe(getValueKey(withAnchor));
+  });
+
+  it('produces different keys for anchorEnd vs no anchor', () => {
+    const noAnchor = range(27, undefined, 'к сопротивлению огню');
+    const withPercent = range(27, undefined, 'к сопротивлению огню', undefined, undefined, undefined, '%', undefined, undefined, undefined, undefined);
+
+    expect(getValueKey(noAnchor)).not.toBe(getValueKey(withPercent));
+  });
+
+  it('produces different keys for threshold vs non-threshold', () => {
+    const noThreshold = range(5, 10, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, false);
+    const withThreshold = range(5, 10, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, true);
+
+    expect(getValueKey(noThreshold)).not.toBe(getValueKey(withThreshold));
+  });
+
+  it('produces same key for truly identical RANGE nodes', () => {
+    const r1 = range(5, 10, 'к силе', undefined, true, undefined, undefined, undefined, undefined, undefined, '+');
+    const r2 = range(5, 10, 'к силе', undefined, true, undefined, undefined, undefined, undefined, undefined, '+');
+
+    expect(getValueKey(r1)).toBe(getValueKey(r2));
+  });
+
+  it('does NOT incorrectly dedup RANGE nodes that differ only in max', () => {
+    // Two RANGE nodes in OR group: one with min-only, one with min+max
+    // They should NOT be deduplicated because they compile differently
+    const ast = or(
+      range(5, undefined, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, undefined, '+'),
+      range(5, 10, 'к силе', undefined, undefined, undefined, undefined, undefined, undefined, undefined, '+')
+    );
+
+    const result = optimize(ast, {});
+
+    // Should remain as OR with 2 children (not collapsed to 1)
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children.length).toBe(2);
     }
   });
 });

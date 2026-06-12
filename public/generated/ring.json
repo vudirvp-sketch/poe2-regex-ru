@@ -11187,6 +11187,9 @@
         "ru": [
           "умений"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -11650,7 +11653,8 @@
       "level": 13,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11708,7 +11712,8 @@
       "level": 26,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11766,7 +11771,8 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11824,7 +11830,8 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11882,7 +11889,8 @@
       "level": 54,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11940,7 +11948,8 @@
       "level": 65,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -11998,7 +12007,8 @@
       "level": 70,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -12056,7 +12066,8 @@
       "level": 82,
       "regexExclude": {
         "ru": [
-          "хаосом"
+          "хаосом",
+          " от"
         ]
       },
       "regexPrefixContext": {
@@ -12618,6 +12629,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12667,6 +12681,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12716,6 +12733,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12765,6 +12785,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12814,6 +12837,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {
@@ -12863,6 +12889,9 @@
         "ru": [
           "для"
         ]
+      },
+      "regexPrefixContext": {
+        "ru": "имеют"
       }
     },
     {

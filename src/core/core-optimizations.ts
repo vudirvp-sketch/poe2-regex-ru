@@ -56,11 +56,17 @@ export function getValueKey(node: ASTNode): string {
       return `L:${node.value}`;
     case 'RANGE': {
       const min = node.min?.toString() ?? '';
+      const max = node.max?.toString() ?? '';
       const suffix = node.suffix ?? '';
       const prefix = node.prefix ?? '';
       const exact = node.exact?.toString() ?? '';
       const sign = node.signPrefix ?? '';
-      return `R:${min}:${suffix}:${prefix}:${exact}:${sign}`;
+      const anchorStart = node.anchorStart ? '^' : '';
+      const anchorEnd = node.anchorEnd ?? '';
+      const reversed = node.reversed ? 'rv' : '';
+      const colonAnchor = node.colonAnchor ? 'ca' : '';
+      const threshold = node.threshold ? 'th' : '';
+      return `R:${min}:${max}:${suffix}:${prefix}:${exact}:${sign}:${anchorStart}:${anchorEnd}:${reversed}:${colonAnchor}:${threshold}`;
     }
     case 'MULTI_RANGE': {
       // Include all slot data + suffix to distinguish different MULTI_RANGE nodes
