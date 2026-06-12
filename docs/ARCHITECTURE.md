@@ -134,6 +134,35 @@ Known limitation: wide-range AND can produce FP from secondary numbers in range 
 
 Since `.*` does NOT cross blocks, cross-mod FP is impossible. Prefix is only needed for dual-number mods ("От ## до ## урона") where prefix "От" anchors the number to the first placeholder.
 
+### MULTI_RANGE: Single-Group Dual-Number Regex
+
+For dual-number mods where BOTH slots have a numeric filter, the system generates a single `MULTI_RANGE` AST node that compiles to a SINGLE quoted group containing both number patterns:
+
+```
+MULTI_RANGE(
+  [{min:6, prefix:"Добавляет от"}, {min:12, prefix:"до"}],
+  suffix: "урона к атакам"
+)
+→  "Добавляет от ([6-9]|\d{2,}).*до (1[2-9]|[2-9][0-9]|\d{3,}).*урона к атакам"
+```
+
+vs. old AND-of-two-RANGE approach:
+```
+"Добавляет от ([6-9]|\d{2,}).*урона к атакам" "до (1[2-9]|[2-9][0-9]|\d{3,}).*урона к атакам"
+```
+
+**Why single group is better:**
+1. Both numbers MUST match in the SAME block (AND-of-two can match different blocks)
+2. Shorter regex (one group vs two, no duplicate suffix)
+3. No risk of each quoted group matching a different mod line
+
+**When MULTI_RANGE is used:**
+- Dual-number mod (`hasMultiPlaceholder=true`) AND both slots have filters → MULTI_RANGE
+- Only one slot has a filter → falls back to single RANGE node (existing approach)
+- Single-placeholder mod → existing RANGE approach
+
+**Broken suffix repair:** Some ETL-generated suffixes for multi-placeholder tokens incorrectly include range notation characters (e.g., `"4—20) физического урона к атакам"`). At runtime, MULTI_RANGE detects `)` or `—` in the suffix and extracts a clean suffix from `rawTextTemplate` instead.
+
 ## 6. Four-Level FP Prevention
 
 | Level | Method | When | FP prevented | FN risk |

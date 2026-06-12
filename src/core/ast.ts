@@ -21,6 +21,32 @@ export function range(min?: number, max?: number, suffix?: string, prefix?: stri
   return { type: 'RANGE', min, max, suffix, prefix, exact, anchorStart, anchorEnd, reversed, colonAnchor, threshold, signPrefix };
 }
 
+/**
+ * Create a MULTI_RANGE AST node for dual-number mods where BOTH slots have filters.
+ * Compiles to a SINGLE quoted group with all number patterns combined:
+ *   "prefix0 numRegex0.*prefix1 numRegex1.*...suffix"
+ *
+ * This is more reliable than AND-ing two separate RANGE nodes because:
+ * 1. Both numbers must match in the SAME block (no cross-block matching)
+ * 2. The regex is shorter (one group vs two)
+ * 3. No risk of each quoted group matching a different mod line
+ *
+ * @param slots - Array of slot definitions, one per placeholder, in order.
+ *                Each slot has min/max (at least one required) and a prefix
+ *                (text before this placeholder, e.g. "Добавляет от" or "до").
+ * @param suffix - Text after the LAST placeholder (e.g. "урона к атакам")
+ * @param exact - Whether to disable round10 (per-token precision)
+ * @param threshold - When true with both min+max, drop max (≥min only)
+ */
+export function multiRange(
+  slots: Array<{ min?: number; max?: number; prefix: string }>,
+  suffix: string,
+  exact?: boolean,
+  threshold?: boolean
+): ASTNode {
+  return { type: 'MULTI_RANGE', slots, suffix, exact, threshold };
+}
+
 // Utility: collect all token IDs from AST
 export function collectTokenIds(node: ASTNode): string[] {
   const ids: string[] = [];

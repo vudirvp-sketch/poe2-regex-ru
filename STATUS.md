@@ -1,44 +1,56 @@
 # PoE2 Regex RU — Статус проекта
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
-> **Тесты:** ✅ 954/954 | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** ✅ 963/963 | **Build:** ✅ | **TypeScript:** ✅
 
 ---
 
-## Текущая итерация: 23 — Full pipeline audit + ETL truncation fix
+## Текущая итерация: 24 — MULTI_RANGE: Dual-number mod regex fix
 
-### Сделано в итерации 23
+### Проблема
 
-**1. Полный аудит пайплайна на аналогичные баги**
+Двойные моды ("Добавляет от X до Y физического урона к атакам") при фильтрации по обоим слотам (1е ≥ 6, 2е ≥ 12) генерировали два отдельных quoted group, AND-объединённых:
+```
+"Добавляет от ([6-9]|\d{2,}).*урона к атакам" "до (1[2-9]|[2-9][0-9]|\d{3,}).*урона к атакам"
+```
 
-Аудит всех стадий (runtime + ETL) на паттерн «слепая замена подстроки, ломающая contiguous substring matching»:
-- ✅ `truncateSuffix()` (runtime Phase 3) — исправлено в iter 22, `endsWith()` работает корректно
-- ✅ `tryWordTruncation()` (ETL Strategy 1e) — безопасен, валидирует через `matchQuotedGroup()`
-- ✅ `computeOptimizations()` Phase A1 — безопасен, валидирует через `matchQuotedGroup()`
-- ✅ `dp-factorizer.ts` — диалектные оптимизации `[её]`, `[юя]`, `(ь|)` безопасны
-- ✅ `computeExcludePatterns()` — `.includes()` используется правильно (проверка вхождения подстроки)
-- ✅ `iterative-optimizer.ts` — `trySuffixShortening()` валидирует через `matchQuotedGroup()`
-- ⚠️ **Найден latent bug:** `generateTruncatedSuffixes()` генерировал mid-phrase truncation candidates через cartesian product — отфильтровывались валидацией, но нарушали документированное поведение и тратили ресурсы
+Проблемы:
+1. AND двух групп может матчить разные блоки (каждая группа ищет независимо)
+2. Regex длиннее (две группы вместо одной)
+3. Некоторые токены имели битые суффиксы из ETL (содержали `)` и `—` из range notation, например "4—20) физического урона к атакам")
 
-**2. Фикс: generateTruncatedSuffixes() — только LAST word truncation**
+### Решение
 
-Замена cartesian product на last-word-only truncation:
-- Phase 1: только последнее слово суффикса усекается
-- Phase 2: после удаления leading words — только последнее слово оставшейся фразы усекается
-- Удалён мёртвый код `cartesianProduct()`
-- Добавлены 7 новых тестов для `generateTruncatedSuffixes`
+**MULTI_RANGE AST-нода** — компилируется в ОДНУ quoted group:
+```
+"Добавляет от ([6-9]|\d{2,}).*до (1[2-9]|[2-9][0-9]|\d{3,}).*урона к атакам"
+```
 
-**Почему безопасно:** truncation НЕ-last слова в фразе создаёт разрыв (gap), ломающий contiguous substring matching PoE2. Например: `"к сопротивлен огню"` ≠ substring of `"к сопротивлению огню"` — "ению" между "сопротивлен" и " огню" создаёт разрыв.
+Преимущества:
+- Оба числа обязаны матчится в ОДНОМ блоке (не бывает cross-block matching)
+- Regex короче (одна группа vs две)
+- Нет риска, что каждая группа сматчит разную линию мода
 
----
+**Runtime-починка битых суффиксов**: при обнаружении `)` или `—` в суффиксе multi-placeholder токена, суффикс извлекается из `rawTextTemplate` вместо `token.regex`.
 
-## Ключевые верифицированные факты
+### Изменённые файлы
+
+| Файл | Изменение |
+|------|-----------|
+| `src/shared/types.ts` | Добавлен тип `MULTI_RANGE` в `ASTNode` |
+| `src/core/ast.ts` | Добавлен builder `multiRange()` |
+| `src/core/compiler.ts` | `normalizeAst()` + `compileInner()` поддерживают `MULTI_RANGE` |
+| `src/ui/hooks/useCategoryPage.ts` | `buildAstFromSelections()` создаёт MULTI_RANGE для dual-slot фильтров + починка битых суффиксов |
+| `tests/core/compiler.test.ts` | 9 новых тестов для MULTI_RANGE компиляции |
+
+### Ключевые верифицированные факты
 
 1. **`^\+` и `^-`** — якорят к началу блока + матчат знак. Без FP от чисел без знака.
 2. **`!` item-wide** — если `!молнии|хаосу` находит «молнии» в ЛЮБОМ блоке — весь предмет исключается.
 3. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min только.
 4. **`.*` does NOT cross block boundaries** — Cross-block → AND (`"X" "Y"`).
-5. **Substring search** — PoE2 regex = contiguous substring match. Word truncation works ONLY at END of suffix/phrase. Mid-phrase truncation breaks matching.
+5. **Substring search** — PoE2 regex = contiguous substring match. Word truncation works ONLY at END of suffix/phrase.
+6. **MULTI_RANGE** — dual-number mods с 2+ фильтрованными слотами → одна quoted group. Оба числа в одном блоке.
 
 ---
 
@@ -48,6 +60,7 @@
 |---|-------|--------|--------|
 | 1 | Type A parser не извлекает modCode для jewels → `jewelType` всегда "shared" | Open | Low |
 | 2 | Enumerated ranges могут давать FP на range notation числа | Mitigated by `^`/`%` anchors + threshold | Edge case |
+| 3 | ETL suffix extraction bug: некоторые dual-number токены получают суффикс с `)` из range notation | Mitigated by runtime repair | Medium — нужен фикс ETL в следующей итерации |
 
 ---
 

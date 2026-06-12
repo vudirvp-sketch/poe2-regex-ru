@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 11.0 | **Date:** 2026-06-12
+> **Version:** 12.0 | **Date:** 2026-06-12
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Directory | Purpose | Rules |
 |-----------|---------|-------|
-| `src/core/` | Regex engine — AST, compiler, optimizer (3 modules), number-regex, trie/dp factorizer, oracle, matcher, limits | **ZERO npm dependencies** — pure TypeScript only |
-| `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants, **Zod schemas** | Imported by core + UI; types in `types.ts`, schemas in `schemas.ts` |
+| `src/core/` | Regex engine — AST (incl. MULTI_RANGE), compiler, optimizer (3 modules), number-regex, trie/dp factorizer, oracle, matcher, limits | **ZERO npm dependencies** — pure TypeScript only |
+| `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants, **Zod schemas** | Imported by core + UI; types in `types.ts` (ASTNode includes MULTI_RANGE), schemas in `schemas.ts` |
 | `src/strategies/` | Locale strategy (Russian dialect: ёфикация, ю/я) | Imported by core |
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
@@ -149,6 +149,8 @@ shared <- core <- strategies <- store <- data <- ui
 8. `reversed=true` for implicit tokens → `"suffix.*(number)%"`
 9. Word truncation = END of suffix/phrase only, min 3 significant chars — mid-phrase truncation breaks contiguous substring (generates gap between truncated word and following text)
 10. Item rarity label IS indexed — never use «редкост»
+11. **MULTI_RANGE for dual-number mods**: when both slots (1е/2е) have filters, use `multiRange()` not two `range()` AND-ed — single quoted group ensures both numbers match same block
+12. **Broken ETL suffixes**: some multi-placeholder tokens have suffix with `)` or `—` (range notation leak). Runtime repair in `buildAstFromSelections()` extracts clean suffix from template. Full ETL fix needed in next iteration.
 
 ## 10. Documentation Map
 

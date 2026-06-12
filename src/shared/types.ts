@@ -126,7 +126,8 @@ export type ASTNode =
   | { type: 'OR'; children: ASTNode[] }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
-  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean; threshold?: boolean; signPrefix?: '+' | '-' };
+  | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean; threshold?: boolean; signPrefix?: '+' | '-' }
+  | { type: 'MULTI_RANGE'; slots: Array<{ min?: number; max?: number; prefix: string }>; suffix: string; exact?: boolean; threshold?: boolean };
 // prefix: only for dual-number mods ("От ## до ## ..."), anchors number within same block
 // signPrefix: '+' or '-' when the template has +## or -## before the number.
 //   '+' → compiler emits \+ before number regex (e.g. \+(2[7-9]|[3-9][0-9]|\d{3,})%.*suffix)

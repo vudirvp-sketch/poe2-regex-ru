@@ -114,6 +114,31 @@ function normalizeAst(node: ASTNode): ASTNode {
       }
       return node;
     }
+    case 'MULTI_RANGE': {
+      // Handle threshold mode for MULTI_RANGE: drop max in each slot
+      if (node.threshold) {
+        const thresholdedSlots = node.slots.map(slot => ({
+          ...slot,
+          max: undefined, // Drop max — threshold mode: ≥min only
+        }));
+        return { ...node, slots: thresholdedSlots };
+      }
+      // For each slot with both min and max:
+      // - Narrow range (≤ MAX_ENUMERATE_RANGE): keep as-is for enumeration
+      // - Wide range: drop max (threshold-like approximation within single group)
+      //   We can't expand into AND like RANGE because MULTI_RANGE must stay as one group.
+      const adjustedSlots = node.slots.map(slot => {
+        if (slot.min !== undefined && slot.max !== undefined) {
+          const range = slot.max - slot.min + 1;
+          if (range > MAX_ENUMERATE_RANGE) {
+            // Wide range within a single group: approximate as ≥min
+            return { ...slot, max: undefined };
+          }
+        }
+        return slot;
+      });
+      return { ...node, slots: adjustedSlots };
+    }
     default:
       return node;
   }
@@ -229,6 +254,78 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
       }
 
       return '';
+    }
+    case 'MULTI_RANGE': {
+      // MULTI_RANGE compiles to a SINGLE quoted group with all number patterns.
+      // Format: "prefix0 numRegex0.*prefix1 numRegex1.*...suffix"
+      //
+      // This is the correct approach for dual-number mods (e.g., "От X до Y урона")
+      // because both numbers must match in the SAME block — unlike AND-ing two
+      // separate quoted groups which can match different blocks.
+      //
+      // Each slot is compiled independently:
+      // - Both min and max (narrow range): enumerated range regex
+      // - Only min: ≥min regex (generateNumberRegex)
+      // - Only max: ≤max regex (generateMaxNumberRegex)
+
+      const parts: string[] = [];
+
+      for (const slot of ast.slots) {
+        if (slot.min === undefined && slot.max === undefined) continue;
+
+        // Determine round10 for this slot
+        const isEnumerated = slot.min !== undefined && slot.max !== undefined;
+        const useRound10 = isEnumerated ? false : (ast.exact === true ? false : round10);
+
+        let numRegex: string;
+        if (isEnumerated) {
+          const enumResult = generateEnumeratedRangeRegex(slot.min!, slot.max!);
+          if (!enumResult) continue;
+          numRegex = enumResult;
+        } else if (slot.min !== undefined) {
+          const result = generateNumberRegex(slot.min.toString(), useRound10);
+          if (!result) continue;
+          numRegex = result;
+        } else {
+          // slot.max !== undefined
+          const result = generateMaxNumberRegex(slot.max!.toString(), useRound10);
+          if (!result) continue;
+          numRegex = result;
+        }
+
+        // Add prefix + number pattern
+        // For slot 0: "prefix0 numRegex0"
+        // For slot N>0: ".* prefixN numRegexN" (bridge from previous number)
+        if (slot.prefix) {
+          if (parts.length === 0) {
+            parts.push(`${slot.prefix} ${numRegex}`);
+          } else {
+            parts.push(`${slot.prefix} ${numRegex}`);
+          }
+        } else {
+          parts.push(numRegex);
+        }
+      }
+
+      if (parts.length === 0) return '';
+
+      // Compile the suffix
+      const compiledSuffix = ast.suffix
+        ? (ast.suffix.includes('|') ? `(${ast.suffix})` : ast.suffix)
+        : '';
+
+      // Combine: "part0.*part1.*...suffix"
+      // Between consecutive parts, use .* to bridge across any intermediate text
+      // (including range notation like "(6—10)" that might appear between numbers)
+      let result = parts[0];
+      for (let i = 1; i < parts.length; i++) {
+        result += `.*${parts[i]}`;
+      }
+      if (compiledSuffix) {
+        result += `.*${compiledSuffix}`;
+      }
+
+      return result;
     }
   }
 }

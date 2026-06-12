@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { compile } from '@core/compiler';
-import { and, or, exclude, literal, range } from '@core/ast';
+import { and, or, exclude, literal, range, multiRange } from '@core/ast';
 
 describe('compile', () => {
   it('compiles a LITERAL', () => {
@@ -536,5 +536,142 @@ describe('compile', () => {
     // \+ + OR suffix: \+(numRegex)%.*(suffix1|suffix2)
     const result = compile(range(35, undefined, 'к сопротивлению огню|к сопротивлению холоду', undefined, undefined, false, '%', undefined, undefined, undefined, '+'), { round10: false });
     expect(result).toBe('"\\+(3[5-9]|[4-9][0-9]|\\d{3,})%.*(к сопротивлению огню|к сопротивлению холоду)"');
+  });
+});
+
+describe('compile MULTI_RANGE', () => {
+  it('compiles dual-slot MULTI_RANGE with both ≥min', () => {
+    // "Добавляет от X до Y физического урона к атакам"
+    // Slot 0: ≥6, prefix "Добавляет от"
+    // Slot 1: ≥12, prefix "до"
+    // Suffix: "урона к атакам"
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, prefix: 'Добавляет от' },
+          { min: 12, prefix: 'до' },
+        ],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('"Добавляет от ([6-9]|\\d{2,}).*до (1[2-9]|[2-9][0-9]|\\d{3,}).*урона к атакам"');
+  });
+
+  it('compiles dual-slot MULTI_RANGE with min and max', () => {
+    // Slot 0: ≥6 ≤10, Slot 1: ≥12 ≤20
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, max: 10, prefix: 'Добавляет от' },
+          { min: 12, max: 20, prefix: 'до' },
+        ],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    // Narrow ranges: enumerated with compact decade grouping
+    expect(result).toBe('"Добавляет от ([6-9]|10).*до (1[2-9]|20).*урона к атакам"');
+  });
+
+  it('compiles dual-slot MULTI_RANGE with only ≤max on one slot', () => {
+    const result = compile(
+      multiRange(
+        [
+          { max: 6, prefix: 'Добавляет от' },
+          { max: 12, prefix: 'до' },
+        ],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('"Добавляет от ([0-6]).*до ([0-9]|1[0-2]).*урона к атакам"');
+  });
+
+  it('compiles dual-slot MULTI_RANGE with ≥min on slot 0 only (single-slot)', () => {
+    // When only slot 0 has a filter, MULTI_RANGE still works but uses just one slot
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, prefix: 'Добавляет от' },
+        ],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('"Добавляет от ([6-9]|\\d{2,}).*урона к атакам"');
+  });
+
+  it('compiles MULTI_RANGE with threshold mode (drops max)', () => {
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, max: 10, prefix: 'Добавляет от' },
+          { min: 12, max: 20, prefix: 'до' },
+        ],
+        'урона к атакам',
+        undefined,
+        true // threshold = true → drop max
+      ),
+      { round10: false }
+    );
+    // threshold mode: max is dropped, only ≥min
+    expect(result).toBe('"Добавляет от ([6-9]|\\d{2,}).*до (1[2-9]|[2-9][0-9]|\\d{3,}).*урона к атакам"');
+  });
+
+  it('compiles MULTI_RANGE with exact=true (disables round10)', () => {
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, prefix: 'От' },
+          { min: 12, prefix: 'до' },
+        ],
+        'урона шипами',
+        true // exact
+      ),
+      { round10: true } // global round10 should be overridden by exact
+    );
+    expect(result).toBe('"От ([6-9]|\\d{2,}).*до (1[2-9]|[2-9][0-9]|\\d{3,}).*урона шипами"');
+  });
+
+  it('compiles MULTI_RANGE with wide range (drops max, approximates as ≥min)', () => {
+    // Range 6-100 is too wide for enumeration (>50), so max is dropped
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, max: 100, prefix: 'Добавляет от' },
+          { min: 12, prefix: 'до' },
+        ],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    // Wide range on slot 0: max dropped, only ≥min
+    expect(result).toBe('"Добавляет от ([6-9]|\\d{2,}).*до (1[2-9]|[2-9][0-9]|\\d{3,}).*урона к атакам"');
+  });
+
+  it('returns empty string for MULTI_RANGE with no effective slots', () => {
+    const result = compile(
+      multiRange(
+        [],
+        'урона к атакам'
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('');
+  });
+
+  it('compiles MULTI_RANGE with OR-suffix (wraps in parens)', () => {
+    const result = compile(
+      multiRange(
+        [
+          { min: 6, prefix: 'Добавляет от' },
+          { min: 12, prefix: 'до' },
+        ],
+        'урона к атакам|физического урона к атакам'
+      ),
+      { round10: false }
+    );
+    expect(result).toBe('"Добавляет от ([6-9]|\\d{2,}).*до (1[2-9]|[2-9][0-9]|\\d{3,}).*(урона к атакам|физического урона к атакам)"');
   });
 });

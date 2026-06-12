@@ -15,7 +15,7 @@ import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride, type SlotRangeOverride } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
 import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter } from '@shared/types';
-import { and, or, exclude, literal, range } from '@core/ast';
+import { and, or, exclude, literal, range, multiRange } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
 import { isOverflow } from '@core/limits';
@@ -530,7 +530,146 @@ export function buildAstFromSelections(
         isExcluded: boolean;
         signPrefix: '+' | '-' | undefined;
       }>();
+      // ═══════════════════════════════════════════════════
+      // MULTI_RANGE: Dual-number mods with 2+ filtered slots
+      // ═══════════════════════════════════════════════════
+      // For dual-number mods (e.g., "Добавляет от X до Y физического урона к атакам"),
+      // when the user sets filters on BOTH slots, we create a single MULTI_RANGE node
+      // that compiles to ONE quoted group: "Добавляет от ([6-9]|\d{2,}).*до (1[2-9]|\d{3,}).*урона к атакам"
+      //
+      // This is more reliable than AND-ing two separate quoted groups because:
+      // 1. Both numbers must match in the SAME block (no cross-block matching)
+      // 2. The regex is shorter (one group vs two)
+      // 3. No risk of each quoted group matching a different mod line
+      //
+      // We also fix broken suffixes from ETL: some multi-placeholder tokens have
+      // suffixes containing range notation like "4—20) физического урона к атакам".
+      // We detect and repair these by extracting the suffix from the template instead.
+      const multiRangeTokens = new Set<string>(); // token IDs handled by MULTI_RANGE
+
+      // Group multi-slot tokens by (suffix, slot0_data, slot1_data, exact, isExcluded)
+      // This allows merging tokens with the same combined pattern
+      const multiRangeGroups = new Map<string, {
+        suffix: string;
+        slots: Array<{ min?: number; max?: number; prefix: string }>;
+        exact: boolean;
+        isExcluded: boolean;
+        tokens: GameToken[];
+      }>();
+
       for (const { token, slots } of tokensWithSlots) {
+        if (!token.hasMultiPlaceholder) continue;
+        if (slots.length < 2) continue; // Need 2+ slots for MULTI_RANGE
+
+        const isExcluded = excludedIds.has(token.id);
+        const isPerToken = !!propagatedRanges[token.id];
+
+        // Repair broken suffix: if suffix contains ')' or '—', it's from ETL bug
+        // Extract clean suffix from the template instead
+        let suffix = token.regex[locale];
+        if (suffix.includes(')') || suffix.includes('—')) {
+          const template = token.rawTextTemplate[locale];
+          const parts = template.split(/#+/);
+          const lastPart = parts[parts.length - 1].replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '').trim();
+          if (lastPart && !lastPart.includes(')') && !lastPart.includes('—')) {
+            suffix = lastPart;
+          }
+        }
+
+        // Build slot data for MULTI_RANGE
+        const multiSlots: Array<{ min?: number; max?: number; prefix: string }> = [];
+        for (const slot of slots) {
+          const hasMin = slot.min !== null && slot.min > 0;
+          const hasMax = slot.max !== null && slot.max > 0;
+          if (!hasMin && !hasMax) continue;
+
+          const prefix = getPrefixForSlot(token, locale, slot.slotIndex);
+          multiSlots.push({
+            min: hasMin ? slot.min! : undefined,
+            max: hasMax ? slot.max! : undefined,
+            prefix,
+          });
+        }
+
+        if (multiSlots.length < 2) continue; // Still need 2+ effective slots
+
+        // Group key: combine suffix + slot data for merging
+        const slotKey = multiSlots.map(s => `${s.prefix}::${s.min ?? ''}::${s.max ?? ''}`).join('||');
+        const groupKey = `${suffix}::${slotKey}::${isPerToken}::${isExcluded ? 'excl' : 'want'}`;
+
+        const existing = multiRangeGroups.get(groupKey);
+        if (existing) {
+          existing.tokens.push(token);
+        } else {
+          multiRangeGroups.set(groupKey, {
+            suffix,
+            slots: multiSlots,
+            exact: isPerToken,
+            isExcluded,
+            tokens: [token],
+          });
+        }
+
+        multiRangeTokens.add(token.id);
+      }
+
+      // Create MULTI_RANGE nodes
+      for (const [, group] of multiRangeGroups) {
+        const mrNode = multiRange(group.slots, group.suffix, group.exact || undefined, thresholdEnabled || undefined);
+
+        // Wrap with prefix context and exclude nodes (same as RANGE)
+        let nodeWithExcludes: ASTNode = mrNode;
+        if (!group.isExcluded) {
+          const contexts = [...new Set(
+            group.tokens.map(t => t.regexPrefixContext?.[locale] ?? '').filter(c => c.length > 0)
+          )];
+          if (contexts.length === 1) {
+            nodeWithExcludes = and(literal(contexts[0]), nodeWithExcludes);
+          }
+
+          const allExcludes: string[] = [];
+          for (const token of group.tokens) {
+            const excludes = token.regexExclude?.[locale];
+            if (excludes) {
+              for (const pattern of excludes) {
+                if (!allExcludes.includes(pattern)) {
+                  allExcludes.push(pattern);
+                }
+              }
+            }
+          }
+          if (allExcludes.length > 0) {
+            if (allExcludes.length === 1) {
+              nodeWithExcludes = and(mrNode, exclude(literal(allExcludes[0])));
+            } else {
+              const excludeOrNode = exclude(or(...allExcludes.map(pattern => literal(pattern))));
+              nodeWithExcludes = and(mrNode, excludeOrNode);
+            }
+          }
+        }
+
+        if (group.isExcluded) {
+          excludedRangeChildren.push(nodeWithExcludes);
+        } else if (searchLogic === 'or') {
+          orChildren.push(nodeWithExcludes);
+        } else {
+          andChildren.push(nodeWithExcludes);
+        }
+      }
+
+      // ═══════════════════════════════════════════════════
+      // RANGE: Single-slot and single-placeholder tokens
+      // ═══════════════════════════════════════════════════
+      // For tokens with only ONE filtered slot (including multi-placeholder tokens
+      // where only one slot has a filter), use the existing RANGE node approach.
+
+      for (const { token, slots } of tokensWithSlots) {
+        // Skip tokens already handled by MULTI_RANGE
+        if (multiRangeTokens.has(token.id)) {
+          handledTokenIds.add(token.id);
+          continue;
+        }
+
         const suffix = token.regex[locale];
         const isPerToken = !!propagatedRanges[token.id];
         const isExcluded = excludedIds.has(token.id);
