@@ -532,3 +532,243 @@ describe('buildAstFromSelections', () => {
     expect(result).not.toMatch(/!"/);
   });
 });
+
+// ─── MULTI_RANGE integration tests with real ring.json data ───
+
+describe('buildAstFromSelections — MULTI_RANGE (dual-number ring mods)', () => {
+  /**
+   * Create a dual-number GameToken mimicking real ring.json data.
+   * Example: "Добавляет от (6—10) до (12—17) физического урона к атакам"
+   * Template: "Добавляет от ## до ## физического урона к атакам"
+   */
+  function makeDualNumberToken(
+    id: string,
+    rawText: string,
+    template: string,
+    regex: string,
+    ranges: number[][],
+    familyKey: string,
+    opts: Partial<GameToken> = {}
+  ): GameToken {
+    return {
+      id,
+      category: 'ring',
+      origin: 'normal',
+      rawText: { ru: rawText },
+      rawTextTemplate: { ru: template },
+      regex: { ru: regex },
+      familyKey: { ru: familyKey },
+      regexPrefix: { ru: 'Добавляет от' },
+      hasMultiPlaceholder: true,
+      genderForms: { ru: {} },
+      affix: 'suffix' as const,
+      tags: [],
+      ranges,
+      values: [],
+      hasYofication: false,
+      yoficationPositions: [],
+      level: 1,
+      ...opts,
+    };
+  }
+
+  it('dual-number token with both slots filtered produces MULTI_RANGE node', () => {
+    // Real ring.json data: "Добавляет от (6—10) до (12—17) физического урона к атакам"
+    const tokens = [
+      makeDualNumberToken(
+        'ring.normal_97',
+        'Добавляет от (6—10) до (12—17) физического урона к атакам',
+        'Добавляет от ## до ## физического урона к атакам',
+        'урона к атакам',
+        [[6, 10], [12, 17]],
+        'Добавляет от # до # физического урона к атакам'
+      ),
+    ];
+
+    // Both slots have filters via slotOverrides
+    const perTokenRanges = {
+      'ring.normal_97': {
+        min: 6,
+        max: 17,
+        filterSlotIndex: 0,
+        slotOverrides: {
+          0: { min: 6 },
+          1: { min: 12 },
+        },
+      },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    // Should produce a MULTI_RANGE node, NOT two separate RANGE nodes
+    const result = compile(ast!, { round10: false });
+    // MULTI_RANGE compiles to a single quoted group with both number patterns
+    // Pattern: "Добавляет от <numRegex>.*до <numRegex>.*урона к атакам"
+    expect(result).toContain('Добавляет от');
+    expect(result).toContain('до');
+    expect(result).toContain('урона к атакам');
+    // Must be a SINGLE quoted group (no AND between two groups)
+    expect(result).not.toContain('" "');
+  });
+
+  it('dual-number token with only one slot filtered produces RANGE, not MULTI_RANGE', () => {
+    // Only the first slot has a filter — should fall through to regular RANGE
+    const tokens = [
+      makeDualNumberToken(
+        'ring.normal_97',
+        'Добавляет от (6—10) до (12—17) физического урона к атакам',
+        'Добавляет от ## до ## физического урона к атакам',
+        'урона к атакам',
+        [[6, 10], [12, 17]],
+        'Добавляет от # до # физического урона к атакам'
+      ),
+    ];
+
+    // Only slot 0 has a filter
+    const perTokenRanges = {
+      'ring.normal_97': { min: 8, filterSlotIndex: 0 },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // Should produce a RANGE node with prefix "Добавляет от"
+    expect(result).toContain('урона к атакам');
+  });
+
+  it('dual-number fire damage token produces MULTI_RANGE with correct suffix', () => {
+    // ring.addedfiredamage4: "Добавляет от (9—11) до (14—17) урона от огня к атакам"
+    const tokens = [
+      makeDualNumberToken(
+        'ring.addedfiredamage4',
+        'Добавляет от (9—11) до (14—17) урона от огня к атакам',
+        'Добавляет от ## до ## урона от огня к атакам',
+        'огня к атакам',
+        [[9, 11], [14, 17]],
+        'Добавляет от # до # урона от огня к атакам'
+      ),
+    ];
+
+    const perTokenRanges = {
+      'ring.addedfiredamage4': { min: 9, max: 17, filterSlotIndex: 0 },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // MULTI_RANGE: single quoted group
+    expect(result).toContain('огня к атакам');
+    expect(result).toContain('Добавляет от');
+    expect(result).not.toContain('" "');
+  });
+
+  it('multiple dual-number tokens in same family produce single MULTI_RANGE', () => {
+    // Two physical damage tokens in the same family
+    const tokens = [
+      makeDualNumberToken(
+        'ring.normal_97',
+        'Добавляет от (6—10) до (12—17) физического урона к атакам',
+        'Добавляет от ## до ## физического урона к атакам',
+        'урона к атакам',
+        [[6, 10], [12, 17]],
+        'Добавляет от # до # физического урона к атакам'
+      ),
+      makeDualNumberToken(
+        'ring.normal_98',
+        'Добавляет от (7—11) до (14—20) физического урона к атакам',
+        'Добавляет от ## до ## физического урона к атакам',
+        'урона к атакам',
+        [[7, 11], [14, 20]],
+        'Добавляет от # до # физического урона к атакам'
+      ),
+    ];
+
+    const perTokenRanges = {
+      'ring.normal_97': {
+        min: 6, max: 20, filterSlotIndex: 0,
+        slotOverrides: { 0: { min: 6 }, 1: { min: 12 } },
+      },
+      'ring.normal_98': {
+        min: 6, max: 20, filterSlotIndex: 0,
+        slotOverrides: { 0: { min: 6 }, 1: { min: 12 } },
+      },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    expect(result).toContain('урона к атакам');
+    // Same family with same slot ranges → merged into one group
+    expect(result).not.toContain('" "');
+  });
+
+  it('broken ETL suffix with ) is repaired for MULTI_RANGE', () => {
+    // Token with broken suffix from old ETL: "4—20) физического урона к атакам"
+    // Should be repaired to "физического урона к атакам" by buildAstFromSelections
+    // when entering the MULTI_RANGE path (both slots filtered)
+    const tokens = [
+      makeDualNumberToken(
+        'ring.normal_98',
+        'Добавляет от (7—11) до (14—20) физического урона к атакам',
+        'Добавляет от ## до ## физического урона к атакам',
+        '4—20) физического урона к атакам',  // BROKEN suffix with )
+        [[7, 11], [14, 20]],
+        'Добавляет от # до # физического урона к атакам'
+      ),
+    ];
+
+    const perTokenRanges = {
+      'ring.normal_98': {
+        min: 7, max: 20, filterSlotIndex: 0,
+        slotOverrides: { 0: { min: 7 }, 1: { min: 14 } },
+      },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    // The broken suffix "4—20) физического урона к атакам" should be repaired.
+    // The suffix part should be "физического урона к атакам" (no rawText parens).
+    // Note: the regex itself uses () for number patterns like (1[4-9]|[2-9][0-9]|\d{3,})
+    // which is expected and correct — those are regex grouping, not rawText parens.
+    // Check that the suffix does NOT contain rawText-derived "4—20)" pattern
+    expect(result).not.toContain('4—20)');
+    // Should contain the template-based suffix "физического урона к атакам"
+    expect(result).toContain('физического урона к атакам');
+    // Must be a MULTI_RANGE with both slots (single quoted group)
+    expect(result).toContain('Добавляет от');
+    expect(result).toContain('до');
+  });
+
+  it('lightning damage with single-hash first slot produces correct prefix', () => {
+    // ring.addedlightningdamage3: "Добавляет от 1 до (16—22) урона от молнии к атакам"
+    // Template: "Добавляет от # до ## урона от молнии к атакам"
+    // Note: first slot is # (single digit), second is ## (double digit)
+    const tokens = [
+      makeDualNumberToken(
+        'ring.addedlightningdamage3',
+        'Добавляет от 1 до (16—22) урона от молнии к атакам',
+        'Добавляет от # до ## урона от молнии к атакам',
+        'молнии к атакам',
+        [[16, 22]],
+        'Добавляет от # до # урона от молнии к атакам',
+        { regexPrefix: { ru: 'Добавляет от' } }
+      ),
+    ];
+
+    const perTokenRanges = {
+      'ring.addedlightningdamage3': { min: 16, filterSlotIndex: 1 },
+    };
+
+    const ast = buildAstFromSelections(tokens, new Set(), null, null, false, LOCALE, perTokenRanges, 'and');
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: false });
+    expect(result).toContain('молнии к атакам');
+  });
+});

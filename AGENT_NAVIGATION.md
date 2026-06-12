@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 12.0 | **Date:** 2026-06-12
+> **Version:** 13.0 | **Date:** 2026-06-12
 
 ---
 
@@ -67,7 +67,7 @@ Since iteration 18, `compute-regex.ts` is split into 3 modules:
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
 pnpm build                # tsc + vite build
-pnpm test                 # Vitest (all 954 tests)
+pnpm test                 # Vitest (all 969 tests)
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # Clear cache + re-fetch
 pnpm optimize             # Standalone iterative optimizer
@@ -150,7 +150,7 @@ shared <- core <- strategies <- store <- data <- ui
 9. Word truncation = END of suffix/phrase only, min 3 significant chars — mid-phrase truncation breaks contiguous substring (generates gap between truncated word and following text)
 10. Item rarity label IS indexed — never use «редкост»
 11. **MULTI_RANGE for dual-number mods**: when both slots (1е/2е) have filters, use `multiRange()` not two `range()` AND-ed — single quoted group ensures both numbers match same block
-12. **Broken ETL suffixes**: some multi-placeholder tokens have suffix with `)` or `—` (range notation leak). Runtime repair in `buildAstFromSelections()` extracts clean suffix from template. Full ETL fix needed in next iteration.
+12. **Broken ETL suffixes FIXED (iter 25)**: iterative optimizer's `tryReduceFP()` was extending regex from rawText, capturing `)` from `(4—7)` ranges. Fixed by: (a) `containsPoE2Grouping()` check in `tryReduceFP`, `oracleValidateChange`, `tryFixFN`, (b) `countCrossFamilyFP` instead of `countFP` for fp-reduce threshold — same-family FP is desired, not a problem.
 
 ## 10. Documentation Map
 

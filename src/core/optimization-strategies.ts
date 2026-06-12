@@ -478,6 +478,15 @@ export function truncateSuffixes(node: ASTNode, _locale: Locale): ASTNode {
       }
       return node;
     }
+    case 'MULTI_RANGE': {
+      if (node.suffix) {
+        const truncated = truncateSuffix(node.suffix);
+        if (truncated !== node.suffix) {
+          return { ...node, suffix: truncated };
+        }
+      }
+      return node;
+    }
     default:
       return node;
   }

@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-10T09:17:38.291Z",
+  "version": "2026-06-12T05:13:24.995Z",
   "category": "waystone",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "248ff2b201b2c44b",
   "tokens": [
     {
       "id": "waystone.mod_khqk4q.4qe09f",
@@ -644,7 +644,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "5% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -756,7 +756,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "5% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -868,7 +868,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "5% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -980,7 +980,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "5% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1214,7 +1214,7 @@
         "ru": "+##% к бонусу критического урона монстров"
       },
       "regex": {
-        "ru": "6—20)% к бонусу критического урона монстров"
+        "ru": "критического урона монстров"
       },
       "familyKey": {
         "ru": "+#% к бонусу критического урона монстров"
@@ -1292,7 +1292,7 @@
         "ru": "+##% к бонусу критического урона монстров"
       },
       "regex": {
-        "ru": "1—25)% к бонусу критического урона монстров"
+        "ru": "критического урона монстров"
       },
       "familyKey": {
         "ru": "+#% к бонусу критического урона монстров"
@@ -1446,7 +1446,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "3% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1558,7 +1558,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "3% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1670,7 +1670,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "3% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -1782,7 +1782,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "3% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -2039,7 +2039,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "8% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -2386,7 +2386,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2462,7 +2462,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2538,7 +2538,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2614,7 +2614,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2728,7 +2728,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2802,7 +2802,7 @@
         "ru": "Монстры имеют ##% увеличение порога оглушения"
       },
       "regex": {
-        "ru": "49)% увеличение порога оглушения"
+        "ru": "порога оглушения"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога оглушения"
@@ -2842,7 +2842,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -2916,7 +2916,7 @@
         "ru": "Монстры имеют ##% увеличение порога оглушения"
       },
       "regex": {
-        "ru": "69)% увеличение порога оглушения"
+        "ru": "порога оглушения"
       },
       "familyKey": {
         "ru": "Монстры имеют #% увеличение порога оглушения"
@@ -2956,7 +2956,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -3073,7 +3073,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "9% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3189,7 +3189,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "9% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3305,7 +3305,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "9% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3379,7 +3379,7 @@
         "ru": "Монстры разрушают броню в размере ##% от нанесенного физического урона"
       },
       "regex": {
-        "ru": "45)% от нанесенного физического урона"
+        "ru": "физического урона"
       },
       "familyKey": {
         "ru": "Монстры разрушают броню в размере #% от нанесенного физического урона"
@@ -3421,7 +3421,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "9% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -3852,7 +3852,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -3928,7 +3928,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4004,7 +4004,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4080,7 +4080,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "3% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4409,7 +4409,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "6% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4542,7 +4542,7 @@
         "ru": "На #% больше эффективности монстров"
       },
       "regex": {
-        "ru": "5% больше эффективности монстров"
+        "ru": "эффективности монстров"
       },
       "familyKey": {
         "ru": "На #% больше эффективности монстров"
@@ -4722,7 +4722,7 @@
         "ru": "Урон монстров пробивает ##% сопротивлений стихиям"
       },
       "regex": {
-        "ru": "2—14)% сопротивлений стихиям"
+        "ru": "сопротивлений стихиям"
       },
       "familyKey": {
         "ru": "Урон монстров пробивает #% сопротивлений стихиям"
@@ -4798,7 +4798,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "-3)% максимум сопротивлений игроков"
+        "ru": "сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4836,7 +4836,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "-4)% максимум сопротивлений игроков"
+        "ru": "сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4874,7 +4874,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "-6)% максимум сопротивлений игроков"
+        "ru": "сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -4912,7 +4912,7 @@
         "ru": "##% максимум сопротивлений игроков"
       },
       "regex": {
-        "ru": "-8)% максимум сопротивлений игроков"
+        "ru": "сопротивлений игроков"
       },
       "familyKey": {
         "ru": "#% максимум сопротивлений игроков"
@@ -5363,7 +5363,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "8% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -5478,7 +5478,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "8% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -5593,7 +5593,7 @@
         "ru": "На #% больше волшебных и редких монстров"
       },
       "regex": {
-        "ru": "8% больше волшебных и редких монстров"
+        "ru": "и редких монстров"
       },
       "familyKey": {
         "ru": "На #% больше волшебных и редких монстров"
@@ -6012,9 +6012,9 @@
         "waystone.mod_phffvg.ev4djt"
       ],
       "regex": {
-        "ru": "увеличение урона монст"
+        "ru": "увеличение урона мон"
       },
-      "weight": 22,
+      "weight": 20,
       "count": 4
     },
     "waystone.mod_3700im.irs8zf:waystone.mod_453bd0.dkzoww:waystone.mod_62dygh.ohnqoy:waystone.mod_9svl5o.dkzoww:waystone.mod_ags7hd.o849vg:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ohnqoy:waystone.mod_eebmyy.o849vg:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.dkzoww:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.ohnqoy:waystone.mod_klpqrv.o849vg:waystone.mod_phffvg.dkzoww:waystone.mod_vkdkr4.ohnqoy:waystone.mod_wmq5d4.o849vg": {
@@ -6037,9 +6037,9 @@
         "waystone.mod_wmq5d4.o849vg"
       ],
       "regex": {
-        "ru": "и редких монст"
+        "ru": "и редких мон"
       },
-      "weight": 14,
+      "weight": 12,
       "count": 16
     },
     "waystone.mod_3700im.1gskvl:waystone.mod_453bd0.7bkmne:waystone.mod_62dygh.u5rs9k:waystone.mod_9svl5o.7bkmne:waystone.mod_ags7hd.k7gsc2:waystone.mod_cgdb7m.1gskvl:waystone.mod_chnob5.u5rs9k:waystone.mod_eebmyy.k7gsc2:waystone.mod_htl5cc.1gskvl:waystone.mod_i1gkuy.7bkmne:waystone.mod_j4aki5.1gskvl:waystone.mod_k10uf8.u5rs9k:waystone.mod_klpqrv.k7gsc2:waystone.mod_phffvg.7bkmne:waystone.mod_vkdkr4.u5rs9k:waystone.mod_wmq5d4.k7gsc2": {
@@ -6062,9 +6062,9 @@
         "waystone.mod_wmq5d4.k7gsc2"
       ],
       "regex": {
-        "ru": "появления свойств у редких монст"
+        "ru": "появления свойств у редких мон"
       },
-      "weight": 32,
+      "weight": 30,
       "count": 16
     },
     "waystone.mod_dv8kwa.nnkbcj:waystone.mod_eokrsq.v508lf:waystone.mod_uns37d.slejo:waystone.mod_y4nnlv.rpj316": {
@@ -6088,9 +6088,9 @@
         "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
-        "ru": "критического урона монст"
+        "ru": "критического урона мон"
       },
-      "weight": 24,
+      "weight": 22,
       "count": 4
     },
     "waystone.mod_62dygh.ajq93o:waystone.mod_chnob5.ihp41g:waystone.mod_k10uf8.j51fup:waystone.mod_vkdkr4.fg1k8d": {
@@ -6101,9 +6101,9 @@
         "waystone.mod_vkdkr4.fg1k8d"
       ],
       "regex": {
-        "ru": "здоровья монст"
+        "ru": "здоровья мон"
       },
-      "weight": 14,
+      "weight": 12,
       "count": 4
     },
     "waystone.mod_o2lima.isuz7l:waystone.mod_pmwgig.9dehzp:waystone.mod_v6fsrm.wqtvq9:waystone.mod_vb57mm.mlqbj3": {
@@ -6114,9 +6114,9 @@
         "waystone.mod_vb57mm.mlqbj3"
       ],
       "regex": {
-        "ru": "монстров стих"
+        "ru": "монстров сти"
       },
-      "weight": 13,
+      "weight": 12,
       "count": 4
     },
     "waystone.mod_39zmx7.isxi7c:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_la7tcb.lmk0dk": {
@@ -6162,9 +6162,9 @@
         "waystone.mod_vgw675.4fnej8"
       ],
       "regex": {
-        "ru": "эффективности монст"
+        "ru": "эффективности мон"
       },
-      "weight": 19,
+      "weight": 17,
       "count": 13
     },
     "waystone.mod_2ht2hu.3pn6w5:waystone.mod_kp15r6.mjh0rp:waystone.mod_nx4wv2.d4k3tx": {
@@ -6174,9 +6174,9 @@
         "waystone.mod_nx4wv2.d4k3tx"
       ],
       "regex": {
-        "ru": "порога состоя"
+        "ru": "порога сос"
       },
-      "weight": 13,
+      "weight": 10,
       "count": 3
     },
     "waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_kp15r6.85wna8:waystone.mod_nx4wv2.cvd3r4": {
@@ -6187,9 +6187,9 @@
         "waystone.mod_nx4wv2.cvd3r4"
       ],
       "regex": {
-        "ru": "порога оглуше"
+        "ru": "порога огл"
       },
-      "weight": 13,
+      "weight": 10,
       "count": 4
     },
     "waystone.mod_3700im.eye7dt:waystone.mod_cgdb7m.qg73cv:waystone.mod_htl5cc.rnhkjb:waystone.mod_j4aki5.7fd7l6": {
@@ -6239,9 +6239,9 @@
         "waystone.mod_u6ht6b.fdx9pm"
       ],
       "regex": {
-        "ru": "шкалы оглуше"
+        "ru": "шкалы огл"
       },
-      "weight": 12,
+      "weight": 9,
       "count": 4
     },
     "waystone.mod_byn019.7bxq5y:waystone.mod_j15ym2.5zjvw7:waystone.mod_kggkhy.tcq2o9:waystone.mod_mfedkw.gt494t": {
@@ -6252,9 +6252,9 @@
         "waystone.mod_mfedkw.gt494t"
       ],
       "regex": {
-        "ru": "у монст"
+        "ru": "у мон"
       },
-      "weight": 7,
+      "weight": 5,
       "count": 4
     },
     "waystone.mod_bq7ynf.9sn360:waystone.mod_uh9m9i.9sn35z": {
@@ -6276,9 +6276,9 @@
         "waystone.mod_zhrsdh.2xc6v6"
       ],
       "regex": {
-        "ru": "сопротивлений стих"
+        "ru": "сопротивлений сти"
       },
-      "weight": 18,
+      "weight": 17,
       "count": 4
     },
     "waystone.mod_1kh81h.413pny:waystone.mod_6ozv78.vwbm4v:waystone.mod_8bvhdx.54e72:waystone.mod_k6xeoc.5ozbbj": {
@@ -6289,9 +6289,9 @@
         "waystone.mod_k6xeoc.5ozbbj"
       ],
       "regex": {
-        "ru": "сопротивлений игро"
+        "ru": "сопротивлений игр"
       },
-      "weight": 18,
+      "weight": 17,
       "count": 4
     },
     "waystone.mod_6flpgb.hrqdky:waystone.mod_n9nlno.33bfmp:waystone.mod_o33ait.fei5wi": {
@@ -6313,9 +6313,9 @@
         "waystone.mod_qfi1os.le5g95"
       ],
       "regex": {
-        "ru": "восстановления здоро"
+        "ru": "восстановления здо"
       },
-      "weight": 20,
+      "weight": 18,
       "count": 3
     },
     "waystone.mod_2d2vey.9i1nbb:waystone.mod_e7qzo5.gppbbi:waystone.mod_m28f6y.3pfcd5": {
@@ -6716,76 +6716,6 @@
       },
       "weight": 13,
       "count": 2
-    },
-    "waystone.mod_ags7hd.j328n0:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.nnkbcj:waystone.mod_eebmyy.hlk855:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.v508lf:waystone.mod_klpqrv.3fnpnc:waystone.mod_uns37d.slejo:waystone.mod_y4nnlv.rpj316": {
-      "ids": [
-        "waystone.mod_ags7hd.j328n0",
-        "waystone.mod_dv8kwa.mtgbg2",
-        "waystone.mod_dv8kwa.nnkbcj",
-        "waystone.mod_eebmyy.hlk855",
-        "waystone.mod_eokrsq.mde121",
-        "waystone.mod_eokrsq.v508lf",
-        "waystone.mod_klpqrv.3fnpnc",
-        "waystone.mod_uns37d.slejo",
-        "waystone.mod_y4nnlv.rpj316"
-      ],
-      "regex": {
-        "ru": "критическ(ого у(дара|рона монстров)|их ударов)"
-      },
-      "weight": 46,
-      "count": 9
-    },
-    "waystone.mod_2195hd.xcp5e3:waystone.mod_453bd0.dkzoww:waystone.mod_9svl5o.dkzoww:waystone.mod_i1gkuy.dkzoww:waystone.mod_phffvg.dkzoww": {
-      "ids": [
-        "waystone.mod_2195hd.xcp5e3",
-        "waystone.mod_453bd0.dkzoww",
-        "waystone.mod_9svl5o.dkzoww",
-        "waystone.mod_i1gkuy.dkzoww",
-        "waystone.mod_phffvg.dkzoww"
-      ],
-      "regex": {
-        "ru": "5% больше (волшебных и редких|эффективности) монстров"
-      },
-      "weight": 53,
-      "count": 5
-    },
-    "waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2xv8m4.x4tupj:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ohnqoy:waystone.mod_chnob5.ohnqoy:waystone.mod_goqcn2.x4tupj:waystone.mod_k10uf8.ohnqoy:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_nx4wv2.x4tupj:waystone.mod_omospl.x4tupj:waystone.mod_u6ht6b.x4tupj:waystone.mod_ux3o8n.x4tupj:waystone.mod_vkdkr4.ohnqoy": {
-      "ids": [
-        "waystone.mod_2368r0.x4tupj",
-        "waystone.mod_2ht2hu.x4tupj",
-        "waystone.mod_2xv8m4.x4tupj",
-        "waystone.mod_5j3ahj.x4tupj",
-        "waystone.mod_62dygh.ohnqoy",
-        "waystone.mod_chnob5.ohnqoy",
-        "waystone.mod_goqcn2.x4tupj",
-        "waystone.mod_k10uf8.ohnqoy",
-        "waystone.mod_kp15r6.x4tupj",
-        "waystone.mod_l7rwtj.x4tupj",
-        "waystone.mod_nx4wv2.x4tupj",
-        "waystone.mod_omospl.x4tupj",
-        "waystone.mod_u6ht6b.x4tupj",
-        "waystone.mod_ux3o8n.x4tupj",
-        "waystone.mod_vkdkr4.ohnqoy"
-      ],
-      "regex": {
-        "ru": "3% больше (волшебных и редких|эффективности) монстров"
-      },
-      "weight": 53,
-      "count": 15
-    },
-    "waystone.mod_2ht2hu.3pn6w5:waystone.mod_2ht2hu.qzqh5s:waystone.mod_kp15r6.85wna8:waystone.mod_kp15r6.mjh0rp:waystone.mod_nx4wv2.d4k3tx": {
-      "ids": [
-        "waystone.mod_2ht2hu.3pn6w5",
-        "waystone.mod_2ht2hu.qzqh5s",
-        "waystone.mod_kp15r6.85wna8",
-        "waystone.mod_kp15r6.mjh0rp",
-        "waystone.mod_nx4wv2.d4k3tx"
-      ],
-      "regex": {
-        "ru": "порога (состояний|оглушения)"
-      },
-      "weight": 28,
-      "count": 5
     }
   }
 }

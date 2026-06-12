@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-10T09:17:42.337Z",
+  "version": "2026-06-12T05:13:26.735Z",
   "category": "relic",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "248ff2b201b2c44b",
   "tokens": [
     {
       "id": "relic.sanctummaximumlife1",
@@ -2260,7 +2260,7 @@
         "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "22)% к сопротивлению чести"
+        "ru": "сопротивлению чести"
       },
       "familyKey": {
         "ru": "+#% к сопротивлению чести"
@@ -2499,9 +2499,9 @@
         "relic.sanctummaximumlife5"
       ],
       "regex": {
-        "ru": "здоро"
+        "ru": "здо"
       },
-      "weight": 5,
+      "weight": 3,
       "count": 5
     },
     "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
@@ -2568,9 +2568,9 @@
         "relic.sanctumstartinggold5"
       ],
       "regex": {
-        "ru": "испытан"
+        "ru": "исп"
       },
-      "weight": 7,
+      "weight": 3,
       "count": 5
     },
     "relic.sanctumrelicquantity1:relic.sanctumrelicquantity2:relic.sanctumrelicquantity3": {
@@ -2580,9 +2580,9 @@
         "relic.sanctumrelicquantity3"
       ],
       "regex": {
-        "ru": "реликвий, выпадающих из монст"
+        "ru": "реликвий, выпадающих из мон"
       },
-      "weight": 29,
+      "weight": 27,
       "count": 3
     },
     "relic.sanctumdefences1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4": {
@@ -2616,9 +2616,9 @@
         "relic.sanctummovementspeed3"
       ],
       "regex": {
-        "ru": "передвиже"
+        "ru": "пер"
       },
-      "weight": 9,
+      "weight": 3,
       "count": 3
     },
     "relic.sanctumdodgerolldistance1:relic.sanctumdodgerolldistance2": {
@@ -2627,9 +2627,9 @@
         "relic.sanctumdodgerolldistance2"
       ],
       "regex": {
-        "ru": "кувы"
+        "ru": "кув"
       },
-      "weight": 4,
+      "weight": 3,
       "count": 2
     },
     "relic.sanctumslowresistance1:relic.sanctumslowresistance2:relic.sanctumslowresistance3": {

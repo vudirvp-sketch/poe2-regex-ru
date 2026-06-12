@@ -25,6 +25,7 @@
  */
 import { matchQuotedGroup, matchPoE2RegexItem, getItemSearchBlocks } from '../../src/core/poe2-regex-matcher.js';
 import { batchDPFactorize, applyDialectOptimizations } from '../../src/core/dp-factorizer.js';
+import { containsPoE2Grouping } from './compute-regex-core.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -164,6 +165,15 @@ function oracleValidateChange(
 ): { valid: boolean; crossFamilyFP: number; fn: boolean } {
   const rawText = token.rawText.ru;
 
+  // CRITICAL: Reject regexes containing PoE2 grouping chars ( ).
+  // PoE2 interprets () as regex grouping, not literal parens.
+  // A regex like "4—7)% к сопротивлению хаосу" gets truncated at )
+  // by PoE2's parser, producing a broken regex that still matches
+  // rawText (false-positive validation pass) but doesn't work in-game.
+  if (containsPoE2Grouping(newRegex)) {
+    return { valid: false, crossFamilyFP: 0, fn: false };
+  }
+
   // Check FN: regex must match its own rawText
   const fn = hasFN(newRegex, rawText);
   if (fn) {
@@ -273,7 +283,7 @@ function tryFixFN(
   }
 
   // Strategy 3: Broad match — just use a distinctive substring even if not unique
-  const words = lowerRaw.split(/\s+/).filter(w => w.length >= 3 && !/^\d+$/.test(w));
+  const words = lowerRaw.split(/\s+/).filter(w => w.length >= 3 && !/^\d+$/.test(w) && !containsPoE2Grouping(w));
   for (const word of words) {
     if (matchQuotedGroup(word, rawText.toLowerCase())) {
       return word;
@@ -293,7 +303,7 @@ function tryReduceFP(
   allTokens: JsonToken[],
   tokenId: string
 ): string | null {
-  const currentFP = countFP(currentRegex, tokenId, allTokens);
+  const currentFP = countCrossFamilyFP(currentRegex, tokenId, allTokens);
   if (currentFP === 0) return null;
 
   const lowerRaw = rawText.toLowerCase();
@@ -307,9 +317,14 @@ function tryReduceFP(
   for (let extend = 1; extend <= 20 && idx - extend >= 0; extend++) {
     const candidate = lowerRaw.substring(idx - extend, idx + lowerRegex.length);
     if (candidate.length > 50) break;
+    // CRITICAL: Skip candidates containing PoE2 grouping chars ( )
+    // PoE2 interprets () as regex grouping, not literal parens.
+    // Extending from rawText often captures ')' from number ranges
+    // like (4—7), which breaks the regex in PoE2 search.
+    if (containsPoE2Grouping(candidate)) continue;
     if (!matchQuotedGroup(candidate, rawText.toLowerCase())) continue;
 
-    const newFP = countFP(candidate, tokenId, allTokens);
+    const newFP = countCrossFamilyFP(candidate, tokenId, allTokens);
     if (newFP < currentFP) {
       return candidate;
     }
@@ -319,9 +334,11 @@ function tryReduceFP(
   for (let extend = 1; extend <= 20 && idx + lowerRegex.length + extend <= lowerRaw.length; extend++) {
     const candidate = lowerRaw.substring(idx, idx + lowerRegex.length + extend);
     if (candidate.length > 50) break;
+    // CRITICAL: Skip candidates containing PoE2 grouping chars ( )
+    if (containsPoE2Grouping(candidate)) continue;
     if (!matchQuotedGroup(candidate, rawText.toLowerCase())) continue;
 
-    const newFP = countFP(candidate, tokenId, allTokens);
+    const newFP = countCrossFamilyFP(candidate, tokenId, allTokens);
     if (newFP < currentFP) {
       return candidate;
     }
@@ -556,13 +573,17 @@ function runIteration(
         continue;
       }
 
-      // ─── Strategy 3: Reduce FP by lengthening ───
-      // Only for tokens with significant FP (>2) to avoid making regexes longer
-      // for minor FP improvements
-      if (fp > 2 && !isFN) {
+      // ─── Strategy 3: Reduce cross-family FP by lengthening ───
+      // Only for tokens with significant CROSS-FAMILY FP (>2) to avoid
+      // making regexes longer for minor FP improvements.
+      // IMPORTANT: Same-family FP is NOT a problem — when a user selects
+      // a mod, ALL tiers in the same family should match. Only cross-family
+      // FP (regex matching tokens from other mod families) needs reduction.
+      const crossFamilyFP = countCrossFamilyFP(regex, token.id, tokens);
+      if (crossFamilyFP > 2 && !isFN) {
         const reduced = tryReduceFP(regex, rawText, tokens, token.id);
         if (reduced) {
-          const fpAfter = countFP(reduced, token.id, tokens);
+          const fpAfter = countCrossFamilyFP(reduced, token.id, tokens);
 
           const change: OptimizationChange = {
             tokenId: token.id,
@@ -572,7 +593,7 @@ function runIteration(
             strategy: 'fp-reduce',
             fnBefore: false,
             fnAfter: hasFN(reduced, rawText),
-            fpBefore: fp,
+            fpBefore: crossFamilyFP,
             fpAfter,
           };
 

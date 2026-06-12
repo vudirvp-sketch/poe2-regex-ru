@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-10T09:17:40.720Z",
+  "version": "2026-06-12T05:13:26.581Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "248ff2b201b2c44b",
   "tokens": [
     {
       "id": "jewel-desecrated.mod_bqqkkx.2el5wf",
@@ -2398,9 +2398,9 @@
         "jewel-desecrated.mod_ldjy55.94gfrd"
       ],
       "regex": {
-        "ru": "уклоне"
+        "ru": "укл"
       },
-      "weight": 6,
+      "weight": 3,
       "count": 2
     },
     "jewel-desecrated.mod_bqqkkx.83ripe:jewel-desecrated.mod_ldjy55.83ripe:jewel-desecrated.mod_qs13gh.83ripe": {
@@ -2410,9 +2410,9 @@
         "jewel-desecrated.mod_qs13gh.83ripe"
       ],
       "regex": {
-        "ru": "тоте"
+        "ru": "тот"
       },
-      "weight": 4,
+      "weight": 3,
       "count": 3
     },
     "jewel-desecrated.mod_1hoszq.l39mc1:jewel-desecrated.mod_qs13gh.l39mc1": {

@@ -62,6 +62,13 @@ export function getValueKey(node: ASTNode): string {
       const sign = node.signPrefix ?? '';
       return `R:${min}:${suffix}:${prefix}:${exact}:${sign}`;
     }
+    case 'MULTI_RANGE': {
+      // Include all slot data + suffix to distinguish different MULTI_RANGE nodes
+      const slots = node.slots.map(s => `${s.min ?? ''}:${s.max ?? ''}:${s.prefix}`).join('|');
+      const suffix = node.suffix ?? '';
+      const exact = node.exact?.toString() ?? '';
+      return `MR:${slots}:${suffix}:${exact}`;
+    }
     case 'OR':
       return `O:${node.children.map(getValueKey).join('|')}`;
     case 'AND':

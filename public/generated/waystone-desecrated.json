@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-10T09:17:38.477Z",
+  "version": "2026-06-12T05:13:25.154Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "248ff2b201b2c44b",
   "tokens": [
     {
       "id": "waystone-desecrated.mod_tmrm3c",
@@ -599,7 +599,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "30% увеличение количества редких монстров"
+        "ru": "количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -685,7 +685,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "30% увеличение количества редких монстров"
+        "ru": "количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -843,7 +843,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "50% увеличение количества редких монстров"
+        "ru": "количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -1102,7 +1102,7 @@
         "ru": "#% увеличение количества редких монстров"
       },
       "regex": {
-        "ru": "50% увеличение количества редких монстров"
+        "ru": "количества редких монстров"
       },
       "familyKey": {
         "ru": "#% увеличение количества редких монстров"
@@ -1339,9 +1339,9 @@
         "waystone-desecrated.mod_dceifh.tx448t"
       ],
       "regex": {
-        "ru": "количества редких монст"
+        "ru": "количества редких мон"
       },
-      "weight": 23,
+      "weight": 21,
       "count": 4
     },
     "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.73v083:waystone-desecrated.mod_cmq708.fu78h3:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz": {
@@ -1432,18 +1432,6 @@
       },
       "weight": 14,
       "count": 2
-    },
-    "waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
-      "ids": [
-        "waystone-desecrated.mod_cmq708.rl8it4",
-        "waystone-desecrated.mod_jdkriz",
-        "waystone-desecrated.mod_tmrm3c"
-      ],
-      "regex": {
-        "ru": "количеств(о опыта|о монстров|а волшебных монстров)"
-      },
-      "weight": 50,
-      "count": 3
     }
   }
 }
