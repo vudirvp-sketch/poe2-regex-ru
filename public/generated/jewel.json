@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-12T05:13:26.539Z",
+  "version": "2026-06-12T06:57:51.575Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -2314,8 +2314,7 @@
           "луками",
           "топорами",
           "без",
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "jewelType": "shared",
@@ -2378,10 +2377,7 @@
           "компаньонов"
         ]
       },
-      "jewelType": "ruby",
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "jewelType": "ruby"
     },
     {
       "id": "jewel.mod_au7igs",
@@ -6788,10 +6784,7 @@
           "умения"
         ]
       },
-      "jewelType": "sapphire",
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "jewelType": "sapphire"
     },
     {
       "id": "jewel.mod_7dzvh0",

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-12T05:13:28.496Z",
+  "version": "2026-06-12T06:57:54.205Z",
   "category": "ring",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -11187,9 +11187,6 @@
         "ru": [
           "умений"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -11653,8 +11650,7 @@
       "level": 13,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -11712,8 +11708,7 @@
       "level": 26,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -11771,8 +11766,7 @@
       "level": 33,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -11830,8 +11824,7 @@
       "level": 46,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -11889,8 +11882,7 @@
       "level": 54,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -11948,8 +11940,7 @@
       "level": 65,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -12007,8 +11998,7 @@
       "level": 70,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -12066,8 +12056,7 @@
       "level": 82,
       "regexExclude": {
         "ru": [
-          "хаосом",
-          " от"
+          "хаосом"
         ]
       },
       "regexPrefixContext": {
@@ -12629,9 +12618,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -12681,9 +12667,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -12733,9 +12716,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -12785,9 +12765,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -12837,9 +12814,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
@@ -12889,9 +12863,6 @@
         "ru": [
           "для"
         ]
-      },
-      "regexPrefixContext": {
-        "ru": "имеют"
       }
     },
     {
