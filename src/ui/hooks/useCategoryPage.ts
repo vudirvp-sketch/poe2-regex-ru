@@ -347,11 +347,17 @@ function getSignPrefix(token: GameToken, locale: Locale): '+' | '-' | undefined 
  * Build a literal AST node for a token, wrapping with context/exclude as needed.
  * Shared by non-ranged and orphaned ranged token handling.
  * @param isExcluded - Whether this token is in the per-mod "exclude" set
+ * @param suppressedExcludes - Exclude patterns to suppress because they conflict
+ *   with other selected tokens (e.g., " интел" should be suppressed when
+ *   "к интеллекту" is also selected). These patterns are removed from the
+ *   regexExclude list to prevent the EXCLUDE node from blocking items that
+ *   the user explicitly wants.
  */
 function buildLiteralNode(
   token: GameToken,
   locale: Locale,
-  isExcluded: boolean
+  isExcluded: boolean,
+  suppressedExcludes?: Set<string>
 ): ASTNode {
   const baseLiteral = literal(token.regex[locale], token.id);
 
@@ -366,12 +372,14 @@ function buildLiteralNode(
     : baseLiteral;
 
   // If this token has exclusion patterns, wrap in AND with EXCLUDE nodes
+  // Filter out suppressed excludes that conflict with other selected tokens
   const excludes = token.regexExclude?.[locale];
-  if (excludes && excludes.length > 0) {
-    if (excludes.length === 1) {
-      return and(contextNode, exclude(literal(excludes[0])));
+  const filteredExcludes = excludes?.filter(e => !suppressedExcludes?.has(e)) ?? [];
+  if (filteredExcludes.length > 0) {
+    if (filteredExcludes.length === 1) {
+      return and(contextNode, exclude(literal(filteredExcludes[0])));
     } else {
-      const excludeOrNode = exclude(or(...excludes.map(pattern => literal(pattern))));
+      const excludeOrNode = exclude(or(...filteredExcludes.map(pattern => literal(pattern))));
       return and(contextNode, excludeOrNode);
     }
   }
@@ -432,6 +440,47 @@ export function pushLiteralsWithFamilyLogic(
   }
 }
 
+/**
+ * Compute exclude patterns that should be suppressed because they conflict
+ * with other selected "want" tokens.
+ *
+ * When a token has regexExclude patterns (e.g., "к ловкости" excludes " интел"
+ * to prevent matching items with "к интеллекту"), those excludes become wrong
+ * if the user also selected the conflicting token. In OR mode, the exclude
+ * would block items the user explicitly wants. In AND mode, the exclude would
+ * prevent matching items that have both attributes.
+ *
+ * This function checks each exclude pattern against the rawText and regex
+ * of all other selected want tokens. If a pattern is a substring of any
+ * other token's text, it is added to the suppressed set.
+ */
+function computeSuppressedExcludes(
+  wantTokens: GameToken[],
+  locale: Locale
+): Set<string> {
+  const suppressed = new Set<string>();
+
+  for (let i = 0; i < wantTokens.length; i++) {
+    const excludes = wantTokens[i].regexExclude?.[locale];
+    if (!excludes || excludes.length === 0) continue;
+
+    for (const pattern of excludes) {
+      // Check if this exclude pattern matches any OTHER want token's text
+      for (let j = 0; j < wantTokens.length; j++) {
+        if (i === j) continue;
+        const otherRegex = wantTokens[j].regex[locale] ?? '';
+        const otherRawText = wantTokens[j].rawText[locale] ?? '';
+        if (otherRegex.includes(pattern) || otherRawText.includes(pattern)) {
+          suppressed.add(pattern);
+          break; // No need to check more tokens for this pattern
+        }
+      }
+    }
+  }
+
+  return suppressed;
+}
+
 export function buildAstFromSelections(
   selectedTokens: GameToken[],
   excludedIds: Set<string>,
@@ -444,6 +493,11 @@ export function buildAstFromSelections(
   thresholdEnabled: boolean = false
 ): ASTNode | null {
   if (selectedTokens.length === 0) return null;
+
+  // Compute suppressed excludes: patterns that conflict with other selected want tokens.
+  // This prevents exclude patterns from blocking items the user explicitly wants.
+  const allWantTokens = selectedTokens.filter(t => !excludedIds.has(t.id));
+  const suppressedExcludes = computeSuppressedExcludes(allWantTokens, locale);
 
   // Separate tokens into: ranged (have numeric ranges/values) and non-ranged
   // Also separate by exclude status (per-mod want/exclude)
@@ -468,7 +522,7 @@ export function buildAstFromSelections(
     const exclTokens = nonRangedTokens.filter(t => excludedIds.has(t.id));
 
     if (wantTokens.length > 0) {
-      const literals = wantTokens.map(t => buildLiteralNode(t, locale, false));
+      const literals = wantTokens.map(t => buildLiteralNode(t, locale, false, suppressedExcludes));
       pushLiteralsWithFamilyLogic(wantTokens, literals, locale, searchLogic, false, andChildren, orChildren);
     }
     if (exclTokens.length > 0) {
@@ -632,7 +686,7 @@ export function buildAstFromSelections(
             const excludes = token.regexExclude?.[locale];
             if (excludes) {
               for (const pattern of excludes) {
-                if (!allExcludes.includes(pattern)) {
+                if (!allExcludes.includes(pattern) && !suppressedExcludes.has(pattern)) {
                   allExcludes.push(pattern);
                 }
               }
@@ -763,12 +817,13 @@ export function buildAstFromSelections(
           }
 
           // Collect unique exclude patterns from all tokens in this range group
+          // Filter out suppressed excludes that conflict with other selected tokens
           const allExcludes: string[] = [];
           for (const token of group.tokens) {
             const excludes = token.regexExclude?.[locale];
             if (excludes) {
               for (const pattern of excludes) {
-                if (!allExcludes.includes(pattern)) {
+                if (!allExcludes.includes(pattern) && !suppressedExcludes.has(pattern)) {
                   allExcludes.push(pattern);
                 }
               }
@@ -804,7 +859,7 @@ export function buildAstFromSelections(
 
         if (wantOrphans.length > 0) {
           const uniqueSuffixOrphans = [...new Map(wantOrphans.map(t => [t.regex[locale], t])).values()];
-          const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, false));
+          const orphanLiterals = uniqueSuffixOrphans.map(t => buildLiteralNode(t, locale, false, suppressedExcludes));
           pushLiteralsWithFamilyLogic(uniqueSuffixOrphans, orphanLiterals, locale, searchLogic, false, andChildren, orChildren);
         }
         if (exclOrphans.length > 0) {
@@ -820,7 +875,7 @@ export function buildAstFromSelections(
 
       if (wantRanged.length > 0) {
         const uniqueSuffixTokens = [...new Map(wantRanged.map(t => [t.regex[locale], t])).values()];
-        const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, false));
+        const literals = uniqueSuffixTokens.map(t => buildLiteralNode(t, locale, false, suppressedExcludes));
         pushLiteralsWithFamilyLogic(uniqueSuffixTokens, literals, locale, searchLogic, false, andChildren, orChildren);
       }
       if (exclRanged.length > 0) {

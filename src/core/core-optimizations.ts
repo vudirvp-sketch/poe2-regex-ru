@@ -198,3 +198,160 @@ export function deduplicateOrGroups(node: ASTNode, locale: Locale): ASTNode {
       return node;
   }
 }
+
+// ─── Phase 4: Remove Conflicting EXCLUDE Nodes ──────────────────────
+
+/**
+ * Collect all LITERAL values from an AST subtree.
+ * Used to find sibling values that might conflict with EXCLUDE patterns.
+ */
+function collectLiteralValues(node: ASTNode): string[] {
+  const values: string[] = [];
+  function walk(n: ASTNode) {
+    switch (n.type) {
+      case 'LITERAL':
+        values.push(n.value);
+        break;
+      case 'AND':
+      case 'OR':
+        n.children.forEach(walk);
+        break;
+      case 'EXCLUDE':
+        walk(n.child);
+        break;
+      default:
+        break;
+    }
+  }
+  walk(node);
+  return values;
+}
+
+/**
+ * Check if an EXCLUDE node's pattern conflicts with any LITERAL value.
+ * A conflict occurs when the exclude pattern is a substring of a literal value,
+ * meaning the exclude would block matching items that the user explicitly wants.
+ */
+function excludeConflictsWithLiterals(excludeNode: ASTNode, literalValues: string[]): boolean {
+  if (excludeNode.type !== 'EXCLUDE') return false;
+
+  // Collect all literal values inside the EXCLUDE node
+  const excludeValues = collectLiteralValues(excludeNode.child);
+
+  for (const excludeVal of excludeValues) {
+    for (const literalVal of literalValues) {
+      if (literalVal.includes(excludeVal)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Remove EXCLUDE nodes from AND wrappers inside OR groups where the exclude
+ * pattern conflicts with sibling LITERAL values.
+ *
+ * This is a safety net for cases where:
+ * 1. buildAstFromSelections correctly suppressed conflicting excludes, but
+ * 2. The optimizer Phase 2 re-added them from optimization table entries
+ *
+ * Example AST before fix:
+ *   OR(
+ *     AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))),
+ *     LITERAL("к интеллекту")
+ *   )
+ *
+ * The EXCLUDE(" интел") conflicts with LITERAL("к интеллекту") because
+ * "к интеллекту" contains " интел". After fix:
+ *   OR(
+ *     LITERAL("к ловкости"),
+ *     LITERAL("к интеллекту")
+ *   )
+ */
+export function removeConflictingExcludes(node: ASTNode): ASTNode {
+  switch (node.type) {
+    case 'OR': {
+      // First, recursively process children
+      const processedChildren = node.children.map(c => removeConflictingExcludes(c));
+
+      // Collect ALL literal values from siblings in this OR group
+      const allLiteralValues: string[] = [];
+      for (const child of processedChildren) {
+        // For AND-wrapped nodes, collect literals that are NOT inside EXCLUDE
+        // For plain LITERALs, collect their value
+        if (child.type === 'LITERAL') {
+          allLiteralValues.push(child.value);
+        } else if (child.type === 'AND') {
+          for (const grandchild of child.children) {
+            if (grandchild.type === 'LITERAL') {
+              allLiteralValues.push(grandchild.value);
+            }
+            // Skip EXCLUDE children — their values are negation patterns, not wanted values
+          }
+        }
+        // RANGE and MULTI_RANGE nodes don't have literal values to conflict with
+      }
+
+      if (allLiteralValues.length === 0) {
+        return { ...node, children: processedChildren };
+      }
+
+      // Now check each child for conflicting EXCLUDE nodes
+      const newChildren: ASTNode[] = [];
+      for (const child of processedChildren) {
+        if (child.type === 'AND') {
+          // Check if any EXCLUDE child conflicts with sibling LITERAL values
+          const filteredChildren: ASTNode[] = [];
+          let hasConflict = false;
+
+          for (const grandchild of child.children) {
+            if (grandchild.type === 'EXCLUDE' && excludeConflictsWithLiterals(grandchild, allLiteralValues)) {
+              hasConflict = true;
+              continue; // Remove this conflicting EXCLUDE
+            }
+            filteredChildren.push(grandchild);
+          }
+
+          if (!hasConflict) {
+            newChildren.push(child);
+          } else if (filteredChildren.length === 0) {
+            // All children were removed — skip this node entirely (shouldn't happen)
+            continue;
+          } else if (filteredChildren.length === 1) {
+            // Only one child remains — unwrap the AND
+            newChildren.push(filteredChildren[0]);
+          } else {
+            newChildren.push({ ...child, children: filteredChildren });
+          }
+        } else {
+          newChildren.push(child);
+        }
+      }
+
+      // If only one child remains, unwrap the OR
+      if (newChildren.length === 1) {
+        return newChildren[0];
+      }
+
+      return { ...node, children: newChildren };
+    }
+
+    case 'AND': {
+      return {
+        ...node,
+        children: node.children.map(c => removeConflictingExcludes(c)),
+      };
+    }
+
+    case 'EXCLUDE': {
+      return {
+        ...node,
+        child: removeConflictingExcludes(node.child),
+      };
+    }
+
+    default:
+      return node;
+  }
+}

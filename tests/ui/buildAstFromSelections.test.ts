@@ -772,3 +772,157 @@ describe('buildAstFromSelections — MULTI_RANGE (dual-number ring mods)', () =>
     expect(result).toContain('молнии к атакам');
   });
 });
+
+// ─── Conflicting regexExclude suppression tests ───
+
+describe('buildAstFromSelections: conflicting regexExclude suppression', () => {
+  it('OR mode: suppresses exclude that conflicts with other selected token', () => {
+    // Real-world bug: "к ловкости" has regexExclude [" интел"] to prevent
+    // matching items with "к интеллекту". But when both are selected with OR,
+    // the exclude " интел" conflicts with "к интеллекту" and must be suppressed.
+    // Before fix: "к ловкости" "! интел"|к интеллекту"
+    // After fix: "к ловкости|к интеллекту"
+    const dexToken = makeToken(
+      'ring.dexterity1',
+      '+# к ловкости',
+      'к ловкости',
+      {
+        rawText: { ru: '+(5—8) к ловкости' },
+        rawTextTemplate: { ru: '+## к ловкости' },
+        regexExclude: { ru: [' интел'] },
+      }
+    );
+    const intToken = makeToken(
+      'ring.intelligence1',
+      '+# к интеллекту',
+      'к интеллекту',
+      {
+        rawText: { ru: '+(5—8) к интеллекту' },
+        rawTextTemplate: { ru: '+## к интеллекту' },
+      }
+    );
+
+    const ast = buildAstFromSelections(
+      [dexToken, intToken],
+      new Set(),
+      null, null, false, LOCALE, {}, 'or'
+    );
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Should NOT contain "! интел" — the conflicting exclude is suppressed
+    expect(result).not.toContain('! интел');
+    // Should contain both ловкости and интеллекту in an OR group
+    expect(result).toContain('ловкости');
+    expect(result).toContain('интеллекту');
+  });
+
+  it('AND mode: suppresses exclude that conflicts with other selected token', () => {
+    // In AND mode, selecting both "к ловкости" and "к интеллекту" means the user
+    // wants items with BOTH attributes. The exclude " интел" would block items
+    // that have both, so it must also be suppressed.
+    const dexToken = makeToken(
+      'ring.dexterity1',
+      '+# к ловкости',
+      'к ловкости',
+      {
+        rawText: { ru: '+(5—8) к ловкости' },
+        rawTextTemplate: { ru: '+## к ловкости' },
+        regexExclude: { ru: [' интел'] },
+      }
+    );
+    const intToken = makeToken(
+      'ring.intelligence1',
+      '+# к интеллекту',
+      'к интеллекту',
+      {
+        rawText: { ru: '+(5—8) к интеллекту' },
+        rawTextTemplate: { ru: '+## к интеллекту' },
+      }
+    );
+
+    const ast = buildAstFromSelections(
+      [dexToken, intToken],
+      new Set(),
+      null, null, false, LOCALE, {}, 'and'
+    );
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Should NOT contain "! интел"
+    expect(result).not.toContain('! интел');
+    // Should contain both ловкости AND интеллекту
+    expect(result).toContain('ловкости');
+    expect(result).toContain('интеллекту');
+  });
+
+  it('keeps non-conflicting excludes intact', () => {
+    // If only "к ловкости" is selected (without "к интеллекту"),
+    // the exclude " интел" should remain — it prevents FP.
+    const dexToken = makeToken(
+      'ring.dexterity1',
+      '+# к ловкости',
+      'к ловкости',
+      {
+        rawText: { ru: '+(5—8) к ловкости' },
+        rawTextTemplate: { ru: '+## к ловкости' },
+        regexExclude: { ru: [' интел'] },
+      }
+    );
+    const fireResToken = makeToken(
+      'ring.fireres1',
+      'к сопротивлению огню',
+      'к сопротивлению огню',
+      {
+        rawText: { ru: '+(10—15)% к сопротивлению огню' },
+        rawTextTemplate: { ru: '+##% к сопротивлению огню' },
+      }
+    );
+
+    const ast = buildAstFromSelections(
+      [dexToken, fireResToken],
+      new Set(),
+      null, null, false, LOCALE, {}, 'and'
+    );
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // Should STILL contain "! интел" — it doesn't conflict with "к сопротивлению огню"
+    expect(result).toContain('! интел');
+  });
+
+  it('suppresses exclude via rawText match (not just regex)', () => {
+    // The exclude pattern might match the rawText but not the regex suffix.
+    // E.g., exclude "5—8" matching rawText "+(5—8) к ловкости"
+    const token1 = makeToken(
+      'ring.mod1',
+      'мод1',
+      'суффикс1',
+      {
+        rawText: { ru: '+(5—8) суффикс1' },
+        rawTextTemplate: { ru: '+## суффикс1' },
+        regexExclude: { ru: ['суффикс2'] },
+      }
+    );
+    const token2 = makeToken(
+      'ring.mod2',
+      'мод2',
+      'суффикс2',
+      {
+        rawText: { ru: '+(5—8) суффикс2' },
+        rawTextTemplate: { ru: '+## суффикс2' },
+      }
+    );
+
+    const ast = buildAstFromSelections(
+      [token1, token2],
+      new Set(),
+      null, null, false, LOCALE, {}, 'or'
+    );
+    expect(ast).not.toBeNull();
+
+    const result = compile(ast!, { round10: true });
+    // "суффикс2" is in the exclude list of token1, but it matches token2's regex
+    expect(result).not.toContain('!суффикс2');
+  });
+});

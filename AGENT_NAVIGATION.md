@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 13.0 | **Date:** 2026-06-12
+> **Version:** 14.0 | **Date:** 2026-06-12
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Directory | Purpose | Rules |
 |-----------|---------|-------|
-| `src/core/` | Regex engine — AST (incl. MULTI_RANGE), compiler, optimizer (3 modules), number-regex, trie/dp factorizer, oracle, matcher, limits | **ZERO npm dependencies** — pure TypeScript only |
+| `src/core/` | Regex engine — AST (incl. MULTI_RANGE), compiler, optimizer (4 phases), number-regex, trie/dp factorizer, oracle, matcher, limits | **ZERO npm dependencies** — pure TypeScript only |
 | `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants, **Zod schemas** | Imported by core + UI; types in `types.ts` (ASTNode includes MULTI_RANGE), schemas in `schemas.ts` |
 | `src/strategies/` | Locale strategy (Russian dialect: ёфикация, ю/я) | Imported by core |
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
@@ -21,13 +21,19 @@
 
 ## 2. Core Optimizer Module Structure
 
-Since iteration 19, `optimizer.ts` is split into 3 modules:
+Since iteration 26, `optimizer.ts` runs 4 phases:
 
 | File | Purpose | Key exports |
 |------|---------|-------------|
 | `optimizer.ts` | Entry point — `optimize()`, `collectCollapsedTokenIds()`, re-exports | `optimize`, `collectCollapsedTokenIds`, `truncateSuffix`, `isTruncationSafe`, `collectTokenIds` |
-| `core-optimizations.ts` | Phase 1 deduplication + shared utilities | `deduplicateOrGroups`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
+| `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
+
+**Optimizer phases:**
+1. Phase 1: Deduplicate identical regex in OR groups
+2. Phase 2: Apply optimization table entries
+3. Phase 3: Truncate suffixes using verified safe list
+4. Phase 4: Remove conflicting EXCLUDE nodes (safety net for Phase 2)
 
 **Import rules:**
 - External consumers (`useCategoryPage.ts`, test files) import from `optimizer.ts` — it re-exports public API
@@ -67,7 +73,7 @@ Since iteration 18, `compute-regex.ts` is split into 3 modules:
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
 pnpm build                # tsc + vite build
-pnpm test                 # Vitest (all 969 tests)
+pnpm test                 # Vitest (all 978 tests)
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # Clear cache + re-fetch
 pnpm optimize             # Standalone iterative optimizer
@@ -151,6 +157,7 @@ shared <- core <- strategies <- store <- data <- ui
 10. Item rarity label IS indexed — never use «редкост»
 11. **MULTI_RANGE for dual-number mods**: when both slots (1е/2е) have filters, use `multiRange()` not two `range()` AND-ed — single quoted group ensures both numbers match same block
 12. **Broken ETL suffixes FIXED (iter 25)**: iterative optimizer's `tryReduceFP()` was extending regex from rawText, capturing `)` from `(4—7)` ranges. Fixed by: (a) `containsPoE2Grouping()` check in `tryReduceFP`, `oracleValidateChange`, `tryFixFN`, (b) `countCrossFamilyFP` instead of `countFP` for fp-reduce threshold — same-family FP is desired, not a problem.
+13. **Conflicting regexExclude (iter 26)**: when user selects tokens whose regexExclude patterns conflict with other selected tokens (e.g., "к ловкости" excludes " интел", but user also selected "к интеллекту"), the exclude MUST be suppressed. Two-level fix: (a) `computeSuppressedExcludes()` in `buildAstFromSelections` filters excludes at AST build time, (b) `removeConflictingExcludes()` Phase 4 optimizer catches any excludes re-added by Phase 2 optimization table. Both OR and AND modes are affected.
 
 ## 10. Documentation Map
 

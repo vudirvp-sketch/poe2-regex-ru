@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { optimize, truncateSuffix, isTruncationSafe } from '@core/optimizer';
-import { and, or, literal, range } from '@core/ast';
+import { removeConflictingExcludes } from '@core/core-optimizations';
+import { and, or, literal, range, exclude } from '@core/ast';
 import type { OptimizationEntry } from '@shared/types';
 
 describe('optimize', () => {
@@ -505,5 +506,96 @@ describe('optimize', () => {
         expect(result.children[1]).toMatchObject({ type: 'LITERAL', value: 'бездн' });
       }
     });
+  });
+});
+
+// ─── removeConflictingExcludes tests ───
+
+describe('removeConflictingExcludes (Phase 4)', () => {
+  it('removes EXCLUDE that conflicts with sibling LITERAL in OR group', () => {
+    // AST: OR(AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))), LITERAL("к интеллекту"))
+    // " интел" is a substring of "к интеллекту" → conflict → remove EXCLUDE
+    const ast = or(
+      and(literal('к ловкости'), exclude(literal(' интел'))),
+      literal('к интеллекту')
+    );
+    const result = removeConflictingExcludes(ast);
+
+    // After fix: OR(LITERAL("к ловкости"), LITERAL("к интеллекту"))
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children).toHaveLength(2);
+      expect(result.children[0]).toMatchObject({ type: 'LITERAL', value: 'к ловкости' });
+      expect(result.children[1]).toMatchObject({ type: 'LITERAL', value: 'к интеллекту' });
+    }
+  });
+
+  it('keeps EXCLUDE when no conflict exists', () => {
+    // AST: OR(AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))), LITERAL("к силе"))
+    // " интел" is NOT a substring of "к силе" → no conflict → keep EXCLUDE
+    const ast = or(
+      and(literal('к ловкости'), exclude(literal(' интел'))),
+      literal('к силе')
+    );
+    const result = removeConflictingExcludes(ast);
+
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children).toHaveLength(2);
+      // First child should still have the EXCLUDE
+      expect(result.children[0].type).toBe('AND');
+    }
+  });
+
+  it('unwraps AND when EXCLUDE is the only extra child', () => {
+    // AST: OR(AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))), LITERAL("к интеллекту"))
+    // After removing EXCLUDE, AND has only one child → unwrap to LITERAL
+    const ast = or(
+      and(literal('к ловкости'), exclude(literal(' интел'))),
+      literal('к интеллекту')
+    );
+    const result = removeConflictingExcludes(ast);
+
+    if (result.type === 'OR') {
+      // AND was unwrapped to just LITERAL
+      expect(result.children[0].type).toBe('LITERAL');
+    }
+  });
+
+  it('keeps non-EXCLUDE children when EXCLUDE is removed from multi-child AND', () => {
+    // AST: OR(AND(LITERAL("ctx"), LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))), LITERAL("к интеллекту"))
+    // After removing EXCLUDE, AND still has 2 children → keep AND
+    const ast = or(
+      and(literal('ctx'), literal('к ловкости'), exclude(literal(' интел'))),
+      literal('к интеллекту')
+    );
+    const result = removeConflictingExcludes(ast);
+
+    if (result.type === 'OR') {
+      expect(result.children[0].type).toBe('AND');
+      if (result.children[0].type === 'AND') {
+        // ctx and к ловкости remain, интел removed
+        expect(result.children[0].children).toHaveLength(2);
+      }
+    }
+  });
+
+  it('handles nested OR groups recursively', () => {
+    // AST: AND(OR(AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))), LITERAL("к интеллекту")), LITERAL("редк"))
+    const ast = and(
+      or(
+        and(literal('к ловкости'), exclude(literal(' интел'))),
+        literal('к интеллекту')
+      ),
+      literal('редк')
+    );
+    const result = removeConflictingExcludes(ast);
+
+    if (result.type === 'AND') {
+      const orNode = result.children[0];
+      if (orNode.type === 'OR') {
+        expect(orNode.children[0].type).toBe('LITERAL');
+      }
+    }
   });
 });

@@ -13,6 +13,11 @@
  *
  * 3. Truncating suffixes using verified safe list
  *
+ * 4. Removing EXCLUDE nodes whose patterns conflict with sibling LITERAL
+ *    values in the same OR group (safety net for Phase 2, which may
+ *    re-add excludes from optimization table entries that conflict with
+ *    other selected tokens)
+ *
  * Module structure (since iteration 19):
  *   optimizer.ts                — Entry point: optimize() + collectCollapsedTokenIds + re-exports
  *   core-optimizations.ts       — Phase 1 deduplication + shared utilities
@@ -20,15 +25,16 @@
  */
 
 import type { ASTNode, OptimizationEntry, Locale } from '@shared/types';
-import { deduplicateOrGroups } from './core-optimizations';
+import { deduplicateOrGroups, removeConflictingExcludes } from './core-optimizations';
 import { applyOptimizationTable, truncateSuffixes } from './optimization-strategies';
 
 /**
  * Main optimization entry point.
- * Applies all three optimization phases in order:
+ * Applies all four optimization phases in order:
  * 1. Deduplicate identical regex in OR groups
  * 2. Apply optimization table entries
  * 3. Truncate suffixes using verified safe list
+ * 4. Remove conflicting EXCLUDE nodes (safety net)
  */
 export function optimize(
   ast: ASTNode,
@@ -43,6 +49,11 @@ export function optimize(
 
   // Phase 3: Truncate suffixes using verified safe list
   result = truncateSuffixes(result, locale);
+
+  // Phase 4: Remove EXCLUDE nodes that conflict with sibling LITERAL values
+  // This is a safety net: Phase 2 may re-add excludes from optimization table
+  // entries that conflict with other selected tokens in the same OR group.
+  result = removeConflictingExcludes(result);
 
   return result;
 }
