@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 18.0 | **Date:** 2026-06-13
+> **Version:** 19.0 | **Date:** 2026-06-13
 
 ---
 
@@ -16,7 +16,7 @@
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex verification, favicon, og-banner | Served as-is by GitHub Pages |
-| `scripts/` | ETL pipeline + analysis utilities + **prerender scripts** | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
+| `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan | Update on structural changes |
 
@@ -24,16 +24,16 @@
 
 | File | Purpose |
 |------|---------|
-| `robots.txt` | Allow /, ссылка на sitemap, комментарий об IndexNow |
-| `sitemap.xml` | 9 URL (главная + 8 категорий) с lastmod и priority |
+| `robots.txt` | Allow /, ссылка на sitemap |
+| `sitemap.xml` | 9 URL с lastmod и priority |
 | `404.html` | SPA-редирект + `<meta name="robots" content="noindex, follow">` |
-| `7cf0e35e568e2791d08835cdbd1d8a97.txt` | IndexNow API key (Bing/Яндекс мгновенная индексация) |
-| `googled4deeaff5bba3bb2.html` | Google Search Console верификация (бэкап, мета-тег основной) |
+| `7cf0e35e568e2791d08835cdbd1d8a97.txt` | IndexNow API key |
+| `googled4deeaff5bba3bb2.html` | GSC верификация (бэкап, мета-тег основной) |
 | `yandex_227088c0d89586c7.html` | Яндекс Вебмастер верификация (бэкап, мета-тег основной) |
 | `og-banner.png` | Open Graph image (1200x630) |
 | `favicon.svg` | Favicon |
 
-**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`.
+**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`, заглушку `msvalidate.01` (Bing).
 
 ## 3. Pre-rendering (Two Levels)
 
@@ -41,18 +41,16 @@
 - Генерирует 9 route-specific HTML файлов с уникальными мета-тегами + `<noscript>` fallback
 - Чистая строковая манипуляция — не нужен браузер
 - Запускается автоматически после `vite build` (часть `pnpm build`)
-- Fallback для систем без Playwright
 
 ### Level 2: Full prerender (`scripts/prerender-full.ts`)
 - Playwright + headless Chromium рендерит React-контент в `<div id="root">`
 - Краулеры без JS видят полные списки аффиксов, числа, навигацию
 - Требует `playwright` + Chromium (ставится в CI)
-- Graceful: если Playwright не установлен — выходит с warning, shell prerender используется
-- Запускается: `pnpm build:full` (CI) или `pnpm prerender:full` (вручную)
+- Graceful: если Playwright не установлен — выходит с warning, используется Level 1
 
 **CI build flow:**
 ```
-tsc -b → vite build → prerender.ts (shell) → prerender-full.ts (Playwright)
+tsc -b → vite build → prerender.ts (shell) → prerender-full.ts (Playwright) → deploy + IndexNow
 ```
 
 **Local build flow:**

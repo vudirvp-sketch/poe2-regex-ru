@@ -1,6 +1,6 @@
 # SEO-план: Индексация PoE2 Regex RU
 
-> **Дата:** 2026-06-13 | **Статус:** В процессе
+> **Дата:** 2026-06-13 | **Статус:** Ручная верификация
 
 ## SEO-статус
 
@@ -8,44 +8,22 @@
 |---------|--------|------------|
 | `robots.txt` | ✅ | Allow /, ссылка на sitemap |
 | `sitemap.xml` | ✅ | 9 URL (главная + 8 категорий) |
-| Мета-теги (title, description, keywords) | ✅ | Route-specific для каждой страницы |
-| Open Graph (og:*) | ✅ | Route-specific: title, description, url, image |
+| Мета-теги | ✅ | Route-specific title, description, keywords |
+| Open Graph | ✅ | Route-specific |
 | Twitter Card | ✅ | Route-specific |
-| Canonical URL | ✅ | Route-specific для каждой страницы |
-| JSON-LD Structured Data | ✅ | WebApplication schema |
-| SeoBlock (FAQ-текст) | ✅ | На главной странице |
-| Shell-пререндеринг | ✅ | 9 route-specific HTML + `<noscript>` fallback |
-| Полный пререндеринг (Playwright) | ✅ | React-контент в `<div id="root">` — для краулеров без JS |
-| IndexNow при деплое | ✅ | GitHub Actions job автоматически после deploy |
-| Yandex Webmaster | ✅ | Мета-тег + HTML-файл |
-| Google Search Console | ✅ Мета-тег | Подтвердить в GSC |
-| IndexNow API | ✅ | Ключ `7cf0e35e568e2791d08835cdbd1d8a97` |
-| Bing Webmaster Tools | ❌ | Требует ручной верификации |
+| Canonical URL | ✅ | Route-specific |
+| JSON-LD | ✅ | WebApplication schema |
+| SeoBlock | ✅ | FAQ-текст на главной |
+| Shell-пререндеринг | ✅ | 9 HTML + `<noscript>` |
+| Полный пререндеринг (Playwright) | ✅ | React-контент в `#root` |
+| IndexNow при деплое | ✅ | GitHub Actions job автоматически |
+| Google Search Console | ✅ Мета-тег | Ручная: подтвердить в GSC |
+| Яндекс Вебмастер | ✅ Мета-тег + HTML-файл | Ручная: подтвердить |
+| Bing Webmaster Tools | 🔲 | Ручная: получить код, добавить мета-тег |
 
-## Двухуровневый пререндеринг
+## Верификация поисковых систем
 
-### Level 1: Shell (`scripts/prerender.ts`)
-- Генерирует 9 HTML файлов с route-specific мета-тегами + `<noscript>` навигация
-- Работает без браузера — чистая строковая манипуляция
-- Всегда доступен — часть `pnpm build`
-
-### Level 2: Full Playwright (`scripts/prerender-full.ts`)
-- Рендерит React-компоненты через headless Chromium в `<div id="root">`
-- Краулеры без JS видят полные списки аффиксов и числовые диапазоны
-- Требует: `playwright` + Chromium (устанавливается в CI)
-- Если Playwright не установлен → graceful exit, используется Level 1
-- CI: `pnpm build:full` | Локально: `pnpm build` (только Level 1)
-
-**Как это работает с SPA:**
-1. Краулер без JS заходит на `/waystone/` → видит полностью отрендеренный HTML
-2. Краулер с JS (Google) → React монтируется, заменяет пререндеренный контент
-3. Пользователь → SPA работает как раньше — клиентская навигация, гидратация
-
----
-
-## Ручные действия
-
-### 1. Google Search Console — верификация
+### Google Search Console
 
 Мета-тег в `index.html`:
 ```html
@@ -54,20 +32,40 @@
 
 1. Зайти на [search.google.com/search-console](https://search.google.com/search-console)
 2. Добавить ресурс → Префикс URL → `https://vudirvp-sketch.github.io/poe2-regex-ru/`
-3. Выбрать способ: HTML-тег → нажать «Подтвердить»
+3. Способ: HTML-тег → нажать «Подтвердить»
 4. Отправить sitemap: `sitemap.xml`
 5. **Не удалять** мета-тег после подтверждения
 
-### 2. Яндекс Вебмастер — проверка
+### Яндекс Вебмастер
+
+Мета-тег в `index.html`:
+```html
+<meta name="yandex-verification" content="227088c0d89586c7" />
+```
+
+HTML-файл: `public/yandex_227088c0d89586c7.html`
+
+**Важно:** добавлять сайт нужно с полным путём — **`https://vudirvp-sketch.github.io/poe2-regex-ru/`**, а не `https://vudirvp-sketch.github.io/`. Корневой URL не содержит метатега.
 
 1. Зайти на [webmaster.yandex.ru](https://webmaster.yandex.ru)
-2. Проверить верификацию → Добавить sitemap → Указать регион: Россия
+2. Добавить сайт: `https://vudirvp-sketch.github.io/poe2-regex-ru/`
+3. Выбрать способ: HTML-тег → нажать «Подтвердить»
+4. Добавить sitemap → Указать регион: Россия
+5. **Не удалять** мета-тег после подтверждения
 
-### 3. Bing Webmaster Tools
+### Bing Webmaster Tools
+
+Заглушка в `index.html` (закомментирована):
+```html
+<!-- Bing Webmaster: replace PASTE-BING-CODE-HERE with actual code from bing.com/webmasters -->
+<!-- <meta name="msvalidate.01" content="PASTE-BING-CODE-HERE" /> -->
+```
 
 1. Зайти на [bing.com/webmasters](https://www.bing.com/webmasters)
-2. Импорт из GSC или ручная верификация
-3. Отправить sitemap
+2. Импорт из GSC (если GSC уже подтверждён) или ручная верификация
+3. Получить код верификации → раскомментировать строку в `index.html`, вставить код
+4. Пуш + деплой → нажать «Подтвердить» в Bing
+5. Отправить sitemap
 
 ---
 
@@ -77,11 +75,11 @@
 - [x] Создать IndexNow API ключ
 - [x] Добавить google-site-verification мета-тег
 - [x] Добавить yandex-verification мета-тег
-- [x] Реализовать shell-пререндеринг (мета-теги + `<noscript>`)
-- [x] Реализовать полный Playwright-пререндеринг (React-контент в `#root`)
-- [x] GitHub Actions: Playwright setup + build:full
-- [x] GitHub Actions: автоматическая отправка IndexNow при деплое
+- [x] Реализовать shell-пререндеринг
+- [x] Реализовать полный Playwright-пререндеринг
+- [x] GitHub Actions: Playwright + build:full + IndexNow
+- [x] Добавить заглушку Bing Webmaster (msvalidate.01)
 - [ ] **ВРУЧНАЯ:** Подтвердить GSC
 - [ ] **ВРУЧНАЯ:** Отправить sitemap в GSC
-- [ ] **ВРУЧНАЯ:** Проверить Яндекс Вебмастер
-- [ ] **ВРУЧНАЯ:** Верифицировать Bing Webmaster Tools
+- [ ] **ВРУЧНАЯ:** Подтвердить Яндекс Вебмастер (URL: `https://vudirvp-sketch.github.io/poe2-regex-ru/`)
+- [ ] **ВРУЧНАЯ:** Получить код Bing → добавить мета-тег → подтвердить

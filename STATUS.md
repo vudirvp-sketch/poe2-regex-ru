@@ -2,81 +2,64 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Тесты:** ✅ 986 | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** 986 | **Build:** OK | **TypeScript:** OK
 
 ---
 
-## Текущая итерация: 30 — SEO: полный пререндеринг + IndexNow
+## Текущая итерация: 31 — Верификация поисковых систем
 
-### Изменения
+### Что сделано
 
 | # | Файл | Изменение |
 |---|------|-----------|
-| 1 | `scripts/prerender-full.ts` | Playwright-пререндеринг — рендерит React-контент в статический HTML через headless Chromium |
-| 2 | `package.json` | Добавлен `playwright` (devDep), скрипты `build:full` и `prerender:full` |
-| 3 | `.npmrc` | `playwright_skip_browser_download=true` — браузер ставится отдельно в CI |
-| 4 | `.github/workflows/deploy.yml` | Playwright setup в build job; новый `indexnow` job после деплоя |
+| 1 | `index.html` | Добавлен комментарий-заглушка для Bing Webmaster (`msvalidate.01`) |
+| 2 | `docs/SEO_PLAN.md` | Обновлён: уточнён URL для Яндекс Вебмастера, добавлен раздел Bing |
+| 3 | `STATUS.md` | Очищен, актуализирован |
+| 4 | `AGENT_NAVIGATION.md` | Обновлён до v19 |
 
 ### SEO-статус
 
-| Элемент | Статус |
-|---------|--------|
-| robots.txt | ✅ |
-| sitemap.xml (9 URL) | ✅ |
-| Open Graph + Twitter Card | ✅ Route-specific для каждой страницы |
-| JSON-LD Structured Data | ✅ |
-| SeoBlock (FAQ-текст) | ✅ |
-| Пререндеринг (shell pages) | ✅ 9 route-specific HTML + `<noscript>` fallback |
-| Полный пререндеринг (Playwright) | ✅ React-контент в `<div id="root">` — для краулеров без JS |
-| IndexNow при деплое | ✅ GitHub Actions job автоматически отправляет URL |
-| Yandex Webmaster | ✅ Верифицирован |
-| Google Search Console | ✅ Мета-тег добавлен |
-| IndexNow API key | ✅ |
-| Bing Webmaster Tools | ❌ Требует ручной верификации |
+| Элемент | Статус | Примечание |
+|---------|--------|------------|
+| robots.txt | ✅ | Allow /, ссылка на sitemap |
+| sitemap.xml (9 URL) | ✅ | Главная + 8 категорий |
+| Мета-теги (title, description, keywords) | ✅ | Route-specific |
+| Open Graph + Twitter Card | ✅ | Route-specific |
+| Canonical URL | ✅ | Route-specific |
+| JSON-LD Structured Data | ✅ | WebApplication schema |
+| SeoBlock (FAQ-текст) | ✅ | На главной |
+| Shell-пререндеринг | ✅ | 9 HTML + `<noscript>` fallback |
+| Полный пререндеринг (Playwright) | ✅ | React-контент в `<div id="root">` |
+| IndexNow при деплое | ✅ | GitHub Actions job |
+| Google Search Console | ✅ Мета-тег | **Ручная:** нажать «Подтвердить» в GSC |
+| Яндекс Вебмастер | ✅ Мета-тег + HTML-файл | **Ручная:** подтвердить, добавить sitemap |
+| Bing Webmaster Tools | 🔲 | **Ручная:** получить код → раскомментировать мета-тег |
 
-### Как работает полный пререндеринг
+### Ручные действия (после пуша и деплоя)
 
-**CI flow (`pnpm build:full`):**
-1. `tsc -b` — TypeScript проверка
-2. `vite build` — сборка SPA → `dist/`
-3. `tsx scripts/prerender.ts` — 9 shell HTML файлов (мета-теги + `<noscript>`)
-4. `tsx scripts/prerender-full.ts` — Playwright рендерит React-контент:
-   - Запускает HTTP-сервер на `dist/`
-   - Открывает каждый маршрут в headless Chromium
-   - Ждёт загрузки данных (networkidle + ожидание контента)
-   - Извлекает HTML из `#root` и инжектирует в HTML файлы
+1. **GSC** — [search.google.com/search-console](https://search.google.com/search-console)
+   - Добавить ресурс: `https://vudirvp-sketch.github.io/poe2-regex-ru/` (префикс URL)
+   - Способ: HTML-тег → нажать «Подтвердить»
+   - Отправить sitemap: `sitemap.xml`
 
-**Локальная сборка (`pnpm build`):** использует только shell-пререндеринг (без Playwright).
+2. **Яндекс Вебмастер** — [webmaster.yandex.ru](https://webmaster.yandex.ru)
+   - Добавить сайт: **`https://vudirvp-sketch.github.io/poe2-regex-ru/`** (НЕ корневой URL!)
+   - Нажать «Подтвердить» — мета-тег уже в коде
+   - Добавить sitemap → Указать регион: Россия
 
-**Что видит краулер без JS:**
-- Route-specific `<title>` и `<meta description>`
-- Полный отрендеренный контент в `<div id="root">` (списки аффиксов, числа, навигация)
-- `<noscript>` fallback (дублирует навигацию для самых простых ботов)
-
-**Что видит браузер:**
-- React монтируется и заменяет пререндеренный контент на интерактивный SPA
-
-### Ключевые верифицированные факты
-
-1. **`^\+` и `^-`** — якорят к началу блока + матчат знак
-2. **`!` item-wide** — `!молнии|хаосу` исключает предмет целиком
-3. **Threshold mode** — RANGE(min,max) с `threshold=true` → ≥min
-4. **`.*` does NOT cross block boundaries** — cross-block → AND
-5. **Substring search** — truncation only at END of suffix
-6. **MULTI_RANGE** — dual-number → одна quoted group
-7. **`()` = grouping** — literal parens → битый regex
-8. **regexExclude suppression** — excludes подавляются при конфликте
-9. **regexPrefixContext** — AND-контекст для minion-модов
-10. **getValueKey RANGE** — полный набор полей предотвращает неверную дедупликацию
+3. **Bing Webmaster Tools** — [bing.com/webmasters](https://www.bing.com/webmasters)
+   - Импорт из GSC или ручная верификация
+   - Получить код → вставить в `index.html` (раскомментировать строку `msvalidate.01`)
+   - Отправить sitemap
 
 ---
 
 ## Известные проблемы
 
-| # | Issue | Status | Impact |
-|---|-------|--------|--------|
-| 1 | Type A parser не извлекает modCode для jewels → `jewelType` всегда "shared" | Open | Low |
-| 2 | Enumerated ranges могут давать FP на range notation числа | Mitigated by `^`/`%` anchors + threshold | Edge case |
+| # | Issue | Impact |
+|---|-------|--------|
+| 1 | Type A parser не извлекает modCode для jewels → `jewelType` всегда "shared" | Low |
+| 2 | Enumerated ranges могут давать FP на range notation числа (mitigated: `^`/`%` anchors + threshold) | Edge case |
 
 ---
 
