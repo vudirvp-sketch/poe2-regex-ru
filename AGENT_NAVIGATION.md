@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 19.0 | **Date:** 2026-06-13
+> **Version:** 20.0 | **Date:** 2026-06-13
 
 ---
 
@@ -33,7 +33,7 @@
 | `og-banner.png` | Open Graph image (1200x630) |
 | `favicon.svg` | Favicon |
 
-**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`, заглушку `msvalidate.01` (Bing).
+**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`, `msvalidate.01` (Bing).
 
 ## 3. Pre-rendering (Two Levels)
 

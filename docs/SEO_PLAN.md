@@ -19,7 +19,7 @@
 | IndexNow при деплое | ✅ | GitHub Actions job автоматически |
 | Google Search Console | ✅ Мета-тег | Ручная: подтвердить в GSC |
 | Яндекс Вебмастер | ✅ Мета-тег + HTML-файл | Ручная: подтвердить |
-| Bing Webmaster Tools | 🔲 | Ручная: получить код, добавить мета-тег |
+| Bing Webmaster Tools | ✅ Мета-тег | Ручная: подтвердить |
 
 ## Верификация поисковых систем
 
@@ -55,17 +55,16 @@ HTML-файл: `public/yandex_227088c0d89586c7.html`
 
 ### Bing Webmaster Tools
 
-Заглушка в `index.html` (закомментирована):
+Мета-тег в `index.html`:
 ```html
-<!-- Bing Webmaster: replace PASTE-BING-CODE-HERE with actual code from bing.com/webmasters -->
-<!-- <meta name="msvalidate.01" content="PASTE-BING-CODE-HERE" /> -->
+<meta name="msvalidate.01" content="00214E3CD35D8ED3C98A16701C202966" />
 ```
 
 1. Зайти на [bing.com/webmasters](https://www.bing.com/webmasters)
 2. Импорт из GSC (если GSC уже подтверждён) или ручная верификация
-3. Получить код верификации → раскомментировать строку в `index.html`, вставить код
-4. Пуш + деплой → нажать «Подтвердить» в Bing
-5. Отправить sitemap
+3. Нажать «Подтвердить» — мета-тег уже в коде
+4. Отправить sitemap
+5. **Не удалять** мета-тег после подтверждения
 
 ---
 
@@ -78,8 +77,8 @@ HTML-файл: `public/yandex_227088c0d89586c7.html`
 - [x] Реализовать shell-пререндеринг
 - [x] Реализовать полный Playwright-пререндеринг
 - [x] GitHub Actions: Playwright + build:full + IndexNow
-- [x] Добавить заглушку Bing Webmaster (msvalidate.01)
+- [x] Добавить Bing Webmaster мета-тег (msvalidate.01)
 - [ ] **ВРУЧНАЯ:** Подтвердить GSC
 - [ ] **ВРУЧНАЯ:** Отправить sitemap в GSC
 - [ ] **ВРУЧНАЯ:** Подтвердить Яндекс Вебмастер (URL: `https://vudirvp-sketch.github.io/poe2-regex-ru/`)
-- [ ] **ВРУЧНАЯ:** Получить код Bing → добавить мета-тег → подтвердить
+- [ ] **ВРУЧНАЯ:** Подтвердить Bing Webmaster
