@@ -1,102 +1,88 @@
-# SEO-план: Индексация PoE2 Regex RU в поисковых системах
+# SEO-план: Индексация PoE2 Regex RU
 
 > **Дата:** 2026-06-13 | **Статус:** В процессе
 
-## Текущий SEO-статус проекта
+## Текущий SEO-статус
 
 | Элемент | Статус | Примечание |
 |---------|--------|------------|
-| `robots.txt` | ✅ Есть | Allow /, ссылка на sitemap |
-| `sitemap.xml` | ✅ Расширен | 9 URL (главная + 8 категорий) |
-| Мета-теги (title, description, keywords) | ✅ Есть | В index.html |
-| Open Graph (og:*) | ✅ Есть | title, description, image, locale |
-| Twitter Card | ✅ Есть | summary_large_image |
-| Canonical URL | ✅ Есть | `<link rel="canonical">` |
-| JSON-LD Structured Data | ✅ Есть | WebApplication schema |
-| SeoBlock (FAQ-текст) | ✅ Есть | Рендерится при первом проходе React |
-| Yandex Webmaster | ✅ Верифицирован | Файл `yandex_227088c0d89586c7.html` |
-| Google Search Console | ❌ Не верифицирован | Заглушка мета-тега добавлена |
-| Bing Webmaster Tools | ❌ Не верифицирован | — |
-| IndexNow API | ✅ Ключ создан | `7cf0e35e568e2791d08835cdbd1d8a97.txt` |
-| Пререндеринг (SSR/SSG) | ❌ Нет | SPA — критическая проблема |
+| `robots.txt` | ✅ | Allow /, ссылка на sitemap |
+| `sitemap.xml` | ✅ | 9 URL (главная + 8 категорий) |
+| Мета-теги (title, description, keywords) | ✅ | Route-specific для каждой страницы |
+| Open Graph (og:*) | ✅ | Route-specific: title, description, url, image |
+| Twitter Card | ✅ | Route-specific |
+| Canonical URL | ✅ | Route-specific для каждой страницы |
+| JSON-LD Structured Data | ✅ | WebApplication schema |
+| SeoBlock (FAQ-текст) | ✅ | На главной странице |
+| Пререндеринг (shell pages) | ✅ | 9 route-specific HTML + `<noscript>` fallback |
+| Yandex Webmaster | ✅ | Мета-тег + HTML-файл |
+| Google Search Console | ✅ Мета-тег | Подтвердить в GSC |
+| IndexNow API | ✅ | Ключ `7cf0e35e568e2791d08835cdbd1d8a97` |
+| Bing Webmaster Tools | ❌ | Требует ручной верификации |
 
-## Главная проблема: SPA + GitHub Pages
+## Пререндеринг — реализовано (итерация 29)
 
-Проект — React SPA с клиентской маршрутизацией (`react-router-dom` `BrowserRouter`).
-Все URL вида `/waystone`, `/tablet` и т.д. обслуживаются **одним** `index.html`.
+**Скрипт:** `scripts/prerender.ts` (запускается автоматически после `vite build`)
 
-### Как это работает сейчас
+**Что делает:**
+1. Читает `dist/index.html` (стандартный Vite-билд)
+2. Для каждого из 9 маршрутов генерирует отдельный `index.html`:
+   - `dist/index.html` — главная (обновлённая с `<noscript>`)
+   - `dist/waystone/index.html` — с уникальным `<title>`, `<meta>`, `og:*`, `twitter:*`, canonical
+   - и т.д. для всех 8 категорий
+3. Добавляет `<noscript>` блок с навигацией и описанием категории
 
-1. Пользователь заходит на `/poe2-regex-ru/waystone` → GitHub Pages не находит файл → возвращает `404.html`
-2. `404.html` сохраняет путь в `sessionStorage` и редиректит на `/poe2-regex-ru/`
-3. `index.html` загружает React, React считывает `sessionStorage` и восстанавливает маршрут
-4. Контент рендерится **только после выполнения JavaScript**
+**Что получает краулер:**
+- Route-specific `<title>` и `<meta description>` — самый важный фактор для индексации
+- Route-specific Open Graph / Twitter Card — для шаринга
+- Route-specific canonical URL — предотвращает дубли
+- `<noscript>` навигация — Яндекс/Bing видят ссылки на все страницы
 
-### Почему это плохо для SEO
-
-- **Google** умеет рендерить JS, но с задержкой (недели-месяцы), и не всегда корректно
-- **Яндекс** значительно хуже рендерит JS — контент может вообще не проиндексироваться
-- **Bing** практически не рендерит JS
-- `sessionStorage` не доступен краулерам → SPA-роутинг не работает для ботов
+**Как это работает с SPA:**
+1. Краулер заходит на `/poe2-regex-ru/waystone` → GitHub Pages отдаёт `dist/waystone/index.html`
+2. Краулер видит route-specific мета-теги и `<noscript>` контент
+3. Браузер загружает тот же HTML → React инициализируется → BrowserRouter читает URL → рендерит WaystonePage
+4. SPA работает как раньше — клиентская навигация, гидратация
 
 ---
 
-## Пошаговый план индексации
+## Ручные действия
 
-### Шаг 1. Верификация в Google Search Console (ВРУЧНУЮ)
+### 1. Google Search Console — верификация
 
-**Действие:** Добавить сайт в GSC и получить код верификации.
+Мета-тег уже добавлен в `index.html`:
+```html
+<meta name="google-site-verification" content="Y3FJLnFm7oinObEWZ4LpjVRlZgigJsRthhk_dv2FRng" />
+```
 
 1. Зайти на [search.google.com/search-console](https://search.google.com/search-console)
-2. Нажать «Добавить ресурс» → выбрать «Префикс URL»
-3. Ввести: `https://vudirvp-sketch.github.io/poe2-regex-ru/`
-4. Выбрать способ верификации: **HTML-тег**
-5. Скопировать мета-тег вида `<meta name="google-site-verification" content="XXXXX" />`
-6. Раскомментировать и вставить код в `index.html` (строка с заглушкой)
-7. Сделать `git push` → дождаться деплоя
-8. Нажать «Подтвердить» в GSC
+2. Добавить ресурс → Префикс URL → `https://vudirvp-sketch.github.io/poe2-regex-ru/`
+3. Выбрать способ: HTML-тег → код уже добавлен → сделать push → нажать «Подтвердить»
+4. **Не удалять** мета-тег после подтверждения
 
-### Шаг 2. Отправить sitemap в Google Search Console (ВРУЧНУЮ)
+### 2. Google Search Console — sitemap
 
-1. В GSC перейти в «Sitemaps» (в левом меню)
-2. Ввести: `sitemap.xml`
-3. Нажать «Отправить»
+1. GSC → Sitemaps → ввести `sitemap.xml` → Отправить
 
-### Шаг 3. Запросить индексацию главной страницы (ВРУЧНУЮ)
+### 3. Яндекс Вебмастер — проверка
 
-1. В GSC в верхней строке поиска ввести: `https://vudirvp-sketch.github.io/poe2-regex-ru/`
-2. Нажать «Проверить URL»
-3. Нажать «Запросить индексацию»
+Мета-тег уже добавлен:
+```html
+<meta name="yandex-verification" content="227088c0d89586c7" />
+```
 
-### Шаг 4. Верификация в Яндекс Вебмастер (УЖЕ СДЕЛАНО)
-
-Файл `yandex_227088c0d89586c7.html` уже присутствует. Если верификация не пройдена:
 1. Зайти на [webmaster.yandex.ru](https://webmaster.yandex.ru)
-2. Добавить сайт `https://vudirvp-sketch.github.io/poe2-regex-ru/`
-3. Способ верификации: HTML-файл — файл уже есть в репозитории
+2. Проверить верификацию → Добавить sitemap → Указать регион: Россия
 
-После верификации:
-1. Добавить sitemap: `https://vudirvp-sketch.github.io/poe2-regex-ru/sitemap.xml`
-2. Указать регион: Россия
-
-### Шаг 5. Верификация в Bing Webmaster Tools (ВРУЧНУЮ)
+### 4. Bing Webmaster Tools
 
 1. Зайти на [bing.com/webmasters](https://www.bing.com/webmasters)
-2. Вариант A: Импорт из Google Search Console (самый простой)
-3. Вариант B: Добавить вручную → верификация через мета-тег или XML-файл
-4. После верификации: отправить sitemap
+2. Импорт из GSC (проще) или ручная верификация
+3. Отправить sitemap
 
-### Шаг 6. IndexNow — мгновенная индексация Bing/Яндекс
-
-IndexNow — протокол мгновенного уведомления поисковиков об изменениях. Поддерживается Bing, Яндекс, DuckDuckGo, Naver.
-
-**Ключ API уже создан:** `7cf0e35e568e2791d08835cdbd1d8a97`
-**Файл ключа:** `/public/7cf0e35e568e2791d08835cdbd1d8a97.txt`
-
-**Отправка URL вручную (после деплоя):**
+### 5. IndexNow — отправить URL после деплоя
 
 ```bash
-# Однократная отправка всех URL
 curl -X POST "https://api.indexnow.org/IndexNow" \
   -H "Content-Type: application/json" \
   -d '{
@@ -116,66 +102,40 @@ curl -X POST "https://api.indexnow.org/IndexNow" \
   }'
 ```
 
-Альтернативно — через Яндекс API:
-```bash
-curl "https://yandex.com/indexnow?key=7cf0e35e568e2791d08835cdbd1d8a97&url=https://vudirvp-sketch.github.io/poe2-regex-ru/"
-```
+---
 
-### Шаг 7. Пререндеринг — КРИТИЧЕСКОЕ УЛУЧШЕНИЕ (СЛЕДУЮЩАЯ ИТЕРАЦИЯ)
+## Будущие улучшения
 
-**Проблема:** SPA рендерит контент через JS → поисковики не видят текст страниц категорий.
+### Полный пререндеринг с Puppeteer (итерация 30+)
 
-**Решение:** Добавить `vite-plugin-prerender` для генерации статического HTML при сборке.
+Текущий shell-подход создаёт route-specific мета-теги и `<noscript>`, но не рендерит полный контент React-компонентов (списки аффиксов, числа и т.д.). Для полного пререндеринга нужен Puppeteer/Playwright, который:
+- Запустит headless Chrome после билда
+- Откроет каждый маршрут, дождётся загрузки данных
+- Сохранит полностью отрендеренный HTML
 
-Это самое важное улучшение для SEO. Без пререндеринга:
-- Главная страница: Google проиндексирует (есть SeoBlock + мета-теги в HTML), но с задержкой
-- Страницы категорий: почти гарантированно не будут проиндексированы Яндексом и Bing
+Это даст максимальный SEO-эффект, но требует:
+- Установки Puppeteer (~200MB Chromium)
+- Настройки GitHub Actions (Chrome уже есть на ubuntu-latest)
+- Обработки таймаутов и ошибок рендеринга
 
-**План реализации (итерация 2):**
-1. Установить `vite-plugin-prerender`
-2. Настроить пререндеринг для 9 маршрутов (/ + 8 категорий)
-3. Каждый маршрут будет иметь свой статический HTML с полным мета-контентом
-4. Это позволит поисковикам читать контент без выполнения JS
+### GitHub Actions: автоматический IndexNow (итерация 31)
 
-### Шаг 8. Автоматизация IndexNow через GitHub Actions (БУДУЩЕЕ)
-
-Создать workflow, который после каждого деплоя отправляет URL через IndexNow API.
+Workflow для автоматической отправки IndexNow при каждом деплое.
 
 ---
 
-## Ожидаемые сроки индексации
+## Чеклист
 
-| Поисковик | Без действий | С GSC + IndexNow | С пререндерингом |
-|-----------|-------------|-------------------|------------------|
-| Google | 1–3 месяца | 1–2 недели | 3–7 дней |
-| Яндекс | 2–6 месяцев | 1–4 недели | 1–2 недели |
-| Bing | 1–6 месяцев | 1–3 дня (IndexNow) | 1–3 дня |
-
-## Чеклист действий (пошагово)
-
-- [x] Расширить sitemap.xml (9 URL вместо 1)
+- [x] Расширить sitemap.xml (9 URL)
 - [x] Создать IndexNow API ключ
-- [x] Добавить комментарий-заглушку для google-site-verification в index.html
-- [x] Улучшить 404.html (meta robots noindex)
-- [ ] **ВРУЧНАЯ:** Верифицировать сайт в Google Search Console
+- [x] Добавить google-site-verification мета-тег
+- [x] Добавить yandex-verification мета-тег
+- [x] Переместить файлы верификации в `public/`
+- [x] Реализовать пререндеринг (shell pages + `<noscript>`)
+- [ ] **ВРУЧНАЯ:** Подтвердить GSC
 - [ ] **ВРУЧНАЯ:** Отправить sitemap в GSC
-- [ ] **ВРУЧНАЯ:** Запросить индексацию главной страницы
-- [ ] **ВРУЧНАЯ:** Проверить верификацию Яндекс Вебмастер
-- [ ] **ВРУЧНАЯ:** Верифицировать в Bing Webmaster Tools
-- [ ] **ВРУЧНАЯ:** Отправить URL через IndexNow API
-- [ ] **СЛЕДУЮЩАЯ ИТЕРАЦИЯ:** Добавить пререндеринг (vite-plugin-prerender)
-- [ ] **БУДУЩЕЕ:** GitHub Actions для автоматической отправки IndexNow
-
-## FAQ
-
-**Q: Гарантирует ли это попадание в выдачу?**
-A: Нет. Поисковики индексируют, но ранжирование зависит от множества факторов (качество контента, ссылки, поведенческие). Но без индексации — шансов ноль.
-
-**Q: Стоит ли купить кастомный домен?**
-A: Да, это улучшит SEO. Кастомный домен выглядит доверительнее для поисковиков, чем `username.github.io`. Но это не обязательно для начала.
-
-**Q: Поможет ли добавление сайта в каталоги?**
-A: Да. Ссылки с профильных ресурсов (форумы PoE, Reddit, fan-сайты) улучшат ранжирование.
-
-**Q: Яндекс действительно хуже индексирует SPA?**
-A: Да. Яндекс значительно уступает Google в рендеринге JS. Для Яндекса пререндеринг — практически необходимость.
+- [ ] **ВРУЧНАЯ:** Проверить Яндекс Вебмастер
+- [ ] **ВРУЧНАЯ:** Верифицировать Bing Webmaster Tools
+- [ ] **ВРУЧНАЯ:** Отправить URL через IndexNow
+- [ ] **БУДУЩЕЕ:** Полный пререндеринг с Puppeteer
+- [ ] **БУДУЩЕЕ:** GitHub Actions для IndexNow

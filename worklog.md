@@ -1,6 +1,28 @@
 # Worklog
 
 ---
+Task ID: 29
+Agent: main
+Task: SEO: пререндеринг + верификация Google/Yandex
+
+Work Log:
+- 1: Ответил на вопросы пользователя о пререндеринге (что делает, что не сломает) и безопасности мета-тегов
+- 2: Добавил мета-теги google-site-verification и yandex-verification в index.html (вместо заглушки)
+- 3: Переместил googled4deeaff5bba3bb2.html и yandex_227088c0d89586c7.html из корня в public/ (не деплоились)
+- 4: Создал scripts/prerender.ts — скрипт пререндеринга (без Puppeteer, чистый Node.js)
+- 5: Скрипт генерирует 9 route-specific HTML файлов с уникальными title, description, og:*, twitter:*, canonical + <noscript> fallback
+- 6: Обновил package.json: build = tsc + vite build + tsx scripts/prerender.ts
+- 7: Протестировал: tsc OK, vite build OK, prerender OK (9 файлов), vitest 986/986
+- 8: Обновил документацию: STATUS.md, SEO_PLAN.md, AGENT_NAVIGATION.md
+
+Stage Summary:
+- **Пререндеринг реализован** — 9 route-specific HTML с уникальными мета-тегами и noscript fallback
+- **Верификация поисковиков** — мета-теги Google + Yandex добавлены, HTML-файлы перемещены в public/
+- **986 тестов** — все проходят
+- **Новые зависимости** — нет (скрипт использует только Node.js built-ins)
+- **Следующая итерация** — полный пререндеринг с Puppeteer (рендер React-контента), GitHub Actions IndexNow
+
+---
 Task ID: 28
 Agent: main
 Task: SEO-оптимизация: индексация проекта в поисковых системах (Google, Яндекс, Bing)

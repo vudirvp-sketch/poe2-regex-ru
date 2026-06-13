@@ -2,22 +2,21 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Тесты:** ✅ 978+ total | **Build:** ✅ | **TypeScript:** ✅
+> **Тесты:** ✅ 986 | **Build:** ✅ | **TypeScript:** ✅
 
 ---
 
-## Текущая итерация: 28 — SEO: индексация в поисковых системах
+## Текущая итерация: 29 — SEO: пререндеринг + верификация
 
 ### Изменения
 
 | # | Файл | Изменение |
 |---|------|-----------|
-| 1 | `public/sitemap.xml` | Расширен с 1 до 9 URL (главная + 8 категорий), добавлен `lastmod` |
-| 2 | `public/robots.txt` | Добавлен комментарий об IndexNow API key |
-| 3 | `public/7cf0e35e568e2791d08835cdbd1d8a97.txt` | IndexNow API key для мгновенной индексации Bing/Яндекс |
-| 4 | `public/404.html` | Добавлен `<meta name="robots" content="noindex, follow" />` |
-| 5 | `index.html` | Добавлена заглушка для `google-site-verification` мета-тега |
-| 6 | `docs/SEO_PLAN.md` | Пошаговый план индексации в поисковых системах |
+| 1 | `index.html` | Мета-теги `google-site-verification` и `yandex-verification` (вместо заглушки) |
+| 2 | `public/googled4deeaff5bba3bb2.html` | Перемещён из корня репозитория (не деплоился) |
+| 3 | `public/yandex_227088c0d89586c7.html` | Перемещён из корня репозитория (не деплоился) |
+| 4 | `scripts/prerender.ts` | Скрипт пререндеринга — генерирует 9 route-specific HTML файлов |
+| 5 | `package.json` | `build` скрипт: добавлен `tsx scripts/prerender.ts` после `vite build` |
 
 ### SEO-статус
 
@@ -25,14 +24,21 @@
 |---------|--------|
 | robots.txt | ✅ |
 | sitemap.xml (9 URL) | ✅ |
-| Open Graph + Twitter Card | ✅ |
+| Open Graph + Twitter Card | ✅ Route-specific для каждой страницы |
 | JSON-LD Structured Data | ✅ |
 | SeoBlock (FAQ-текст) | ✅ |
-| Yandex Webmaster | ✅ Верифицирован |
+| Пререндеринг (shell pages) | ✅ 9 route-specific HTML + `<noscript>` fallback |
+| Yandex Webmaster | ✅ Верифицирован (мета-тег + HTML-файл) |
+| Google Search Console | ✅ Мета-тег добавлен (подтвердить в GSC) |
 | IndexNow API key | ✅ Создан |
-| Google Search Console | ❌ Требует ручной верификации |
 | Bing Webmaster Tools | ❌ Требует ручной верификации |
-| Пререндеринг (SSG) | ❌ Критично для Яндекс/Bing — следующая итерация |
+
+### Что делает пререндеринг
+
+`scripts/prerender.ts` после `vite build` генерирует для каждого маршрута отдельный `index.html`:
+- `dist/waystone/index.html` — уникальные `<title>`, `<meta description>`, `og:*`, `twitter:*`, `<link rel="canonical">`
+- `<noscript>` блок с навигацией и описанием категории — для краулеров без JS
+- GitHub Pages отдаёт эти файлы напрямую → Яндекс/Bing видят route-specific контент
 
 ### Ключевые верифицированные факты
 
@@ -55,7 +61,6 @@
 |---|-------|--------|--------|
 | 1 | Type A parser не извлекает modCode для jewels → `jewelType` всегда "shared" | Open | Low |
 | 2 | Enumerated ranges могут давать FP на range notation числа | Mitigated by `^`/`%` anchors + threshold | Edge case |
-| 3 | SPA без пререндеринга — Яндекс/Bing не видят контент страниц категорий | Open | High (SEO) |
 
 ---
 

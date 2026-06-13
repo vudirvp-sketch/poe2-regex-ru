@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 16.0 | **Date:** 2026-06-13
+> **Version:** 17.0 | **Date:** 2026-06-13
 
 ---
 
@@ -15,8 +15,8 @@
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
-| `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Yandex verification, favicon, og-banner | Served as-is by GitHub Pages |
-| `scripts/` | ETL pipeline + analysis utilities | `pnpm etl` to run |
+| `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex verification, favicon, og-banner | Served as-is by GitHub Pages |
+| `scripts/` | ETL pipeline + analysis utilities + **prerender script** | `pnpm etl` / `tsx scripts/prerender.ts` |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, **SEO plan** | Update on structural changes |
 
@@ -28,13 +28,14 @@
 | `sitemap.xml` | 9 URL (главная + 8 категорий) с lastmod и priority |
 | `404.html` | SPA-редирект + `<meta name="robots" content="noindex, follow">` |
 | `7cf0e35e568e2791d08835cdbd1d8a97.txt` | IndexNow API key (Bing/Яндекс мгновенная индексация) |
-| `yandex_227088c0d89586c7.html` | Яндекс Вебмастер верификация |
+| `googled4deeaff5bba3bb2.html` | Google Search Console верификация (бэкап, мета-тег основной) |
+| `yandex_227088c0d89586c7.html` | Яндекс Вебмастер верификация (бэкап, мета-тег основной) |
 | `og-banner.png` | Open Graph image (1200x630) |
 | `favicon.svg` | Favicon |
 
-**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, заглушку google-site-verification.
+**index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`.
 
-**Критическая проблема:** SPA без пререндеринга → Яндекс/Bing не видят контент страниц категорий. См. `docs/SEO_PLAN.md`.
+**Пререндеринг:** `scripts/prerender.ts` генерирует 9 route-specific HTML файлов (с уникальными мета-тегами + `<noscript>` fallback). Запускается автоматически после `vite build`. См. `docs/SEO_PLAN.md`.
 
 ## 3. Core Optimizer Module Structure
 
@@ -63,7 +64,7 @@
 ```bash
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
-pnpm build                # tsc + vite build
+pnpm build                # tsc + vite build + prerender
 pnpm test                 # Vitest (all tests)
 pnpm etl                  # Full ETL with optimizer
 ```
