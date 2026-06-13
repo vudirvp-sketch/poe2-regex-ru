@@ -68,10 +68,14 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
       - name: Run tests
         run: pnpm test
-      - name: Build production bundle
-        run: pnpm build
+      - name: Build with full pre-rendering
+        run: pnpm build:full
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -92,3 +96,30 @@ jobs:
       - name: Deploy to Pages
         uses: actions/deploy-pages@v4
         id: deployment
+
+  indexnow:
+    name: Notify IndexNow
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always() && needs.deploy.result == 'success'
+    steps:
+      - name: Submit URLs to IndexNow
+        run: |
+          curl -X POST "https://api.indexnow.org/IndexNow" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "host": "vudirvp-sketch.github.io",
+              "key": "7cf0e35e568e2791d08835cdbd1d8a97",
+              "urlList": [
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/waystone",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/tablet",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/relic",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/jewel",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/vendor",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/belt",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/ring",
+                "https://vudirvp-sketch.github.io/poe2-regex-ru/amulet"
+              ]
+            }'
+        continue-on-error: true

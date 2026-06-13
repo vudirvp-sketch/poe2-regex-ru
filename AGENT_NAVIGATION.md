@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 17.0 | **Date:** 2026-06-13
+> **Version:** 18.0 | **Date:** 2026-06-13
 
 ---
 
@@ -16,9 +16,9 @@
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex verification, favicon, og-banner | Served as-is by GitHub Pages |
-| `scripts/` | ETL pipeline + analysis utilities + **prerender script** | `pnpm etl` / `tsx scripts/prerender.ts` |
+| `scripts/` | ETL pipeline + analysis utilities + **prerender scripts** | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
-| `docs/` | Architecture, ETL guide, data contracts, in-game tests, **SEO plan** | Update on structural changes |
+| `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan | Update on structural changes |
 
 ## 2. SEO Assets (public/)
 
@@ -35,9 +35,32 @@
 
 **index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`.
 
-**Пререндеринг:** `scripts/prerender.ts` генерирует 9 route-specific HTML файлов (с уникальными мета-тегами + `<noscript>` fallback). Запускается автоматически после `vite build`. См. `docs/SEO_PLAN.md`.
+## 3. Pre-rendering (Two Levels)
 
-## 3. Core Optimizer Module Structure
+### Level 1: Shell prerender (`scripts/prerender.ts`)
+- Генерирует 9 route-specific HTML файлов с уникальными мета-тегами + `<noscript>` fallback
+- Чистая строковая манипуляция — не нужен браузер
+- Запускается автоматически после `vite build` (часть `pnpm build`)
+- Fallback для систем без Playwright
+
+### Level 2: Full prerender (`scripts/prerender-full.ts`)
+- Playwright + headless Chromium рендерит React-контент в `<div id="root">`
+- Краулеры без JS видят полные списки аффиксов, числа, навигацию
+- Требует `playwright` + Chromium (ставится в CI)
+- Graceful: если Playwright не установлен — выходит с warning, shell prerender используется
+- Запускается: `pnpm build:full` (CI) или `pnpm prerender:full` (вручную)
+
+**CI build flow:**
+```
+tsc -b → vite build → prerender.ts (shell) → prerender-full.ts (Playwright)
+```
+
+**Local build flow:**
+```
+tsc -b → vite build → prerender.ts (shell only)
+```
+
+## 4. Core Optimizer Module Structure
 
 `optimizer.ts` runs 4 phases:
 
@@ -47,7 +70,7 @@
 | `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
-## 4. Path Aliases
+## 5. Path Aliases
 
 | Alias | Resolves to |
 |-------|-------------|
@@ -59,17 +82,19 @@
 | `@strategies` | `./src/strategies` |
 | `@etl` | `./scripts/etl` |
 
-## 5. Build & Run
+## 6. Build & Run
 
 ```bash
 pnpm install              # Install dependencies
 pnpm dev                  # Vite dev server
-pnpm build                # tsc + vite build + prerender
+pnpm build                # tsc + vite build + shell prerender (no Playwright)
+pnpm build:full           # tsc + vite build + shell prerender + Playwright prerender
+pnpm prerender:full       # Run Playwright prerender only (needs dist/)
 pnpm test                 # Vitest (all tests)
 pnpm etl                  # Full ETL with optimizer
 ```
 
-## 6. Dependency Rules
+## 7. Dependency Rules
 
 ```
 shared <- core <- strategies <- store <- data <- ui
@@ -79,7 +104,7 @@ shared <- core <- strategies <- store <- data <- ui
 - UI never imports from `scripts/`
 - Types live in `src/shared/types.ts` ONLY
 
-## 7. PoE2 Regex Dialect
+## 8. PoE2 Regex Dialect
 
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
@@ -96,7 +121,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 **NOT supported:** `?`, `$`, `.*` across blocks, negative lookahead, non-greedy, backreferences.
 
-## 8. FP Prevention (5 levels)
+## 9. FP Prevention (5 levels)
 
 | Level | Method | When |
 |-------|--------|------|
@@ -106,7 +131,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 4 | Enumeration | Range ≤ 50 values |
 | 5 | `regexPrefixContext` | AND-контекст для minion-модов |
 
-## 9. Frequent Pitfalls
+## 10. Frequent Pitfalls
 
 1. `!` INSIDE quotes with `|` — NOT before quotes
 2. `.*` does NOT cross blocks — use AND
@@ -117,7 +142,7 @@ shared <- core <- strategies <- store <- data <- ui
 7. `()` in regex = PoE2 grouping, NOT literal parens
 8. `getValueKey` for RANGE must include ALL distinguishing fields
 
-## 10. Documentation Map
+## 11. Documentation Map
 
 | File | When to Update |
 |------|----------------|

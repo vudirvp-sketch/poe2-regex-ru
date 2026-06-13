@@ -6,17 +6,16 @@
 
 ---
 
-## Текущая итерация: 29 — SEO: пререндеринг + верификация
+## Текущая итерация: 30 — SEO: полный пререндеринг + IndexNow
 
 ### Изменения
 
 | # | Файл | Изменение |
 |---|------|-----------|
-| 1 | `index.html` | Мета-теги `google-site-verification` и `yandex-verification` (вместо заглушки) |
-| 2 | `public/googled4deeaff5bba3bb2.html` | Перемещён из корня репозитория (не деплоился) |
-| 3 | `public/yandex_227088c0d89586c7.html` | Перемещён из корня репозитория (не деплоился) |
-| 4 | `scripts/prerender.ts` | Скрипт пререндеринга — генерирует 9 route-specific HTML файлов |
-| 5 | `package.json` | `build` скрипт: добавлен `tsx scripts/prerender.ts` после `vite build` |
+| 1 | `scripts/prerender-full.ts` | Playwright-пререндеринг — рендерит React-контент в статический HTML через headless Chromium |
+| 2 | `package.json` | Добавлен `playwright` (devDep), скрипты `build:full` и `prerender:full` |
+| 3 | `.npmrc` | `playwright_skip_browser_download=true` — браузер ставится отдельно в CI |
+| 4 | `.github/workflows/deploy.yml` | Playwright setup в build job; новый `indexnow` job после деплоя |
 
 ### SEO-статус
 
@@ -28,17 +27,34 @@
 | JSON-LD Structured Data | ✅ |
 | SeoBlock (FAQ-текст) | ✅ |
 | Пререндеринг (shell pages) | ✅ 9 route-specific HTML + `<noscript>` fallback |
-| Yandex Webmaster | ✅ Верифицирован (мета-тег + HTML-файл) |
-| Google Search Console | ✅ Мета-тег добавлен (подтвердить в GSC) |
-| IndexNow API key | ✅ Создан |
+| Полный пререндеринг (Playwright) | ✅ React-контент в `<div id="root">` — для краулеров без JS |
+| IndexNow при деплое | ✅ GitHub Actions job автоматически отправляет URL |
+| Yandex Webmaster | ✅ Верифицирован |
+| Google Search Console | ✅ Мета-тег добавлен |
+| IndexNow API key | ✅ |
 | Bing Webmaster Tools | ❌ Требует ручной верификации |
 
-### Что делает пререндеринг
+### Как работает полный пререндеринг
 
-`scripts/prerender.ts` после `vite build` генерирует для каждого маршрута отдельный `index.html`:
-- `dist/waystone/index.html` — уникальные `<title>`, `<meta description>`, `og:*`, `twitter:*`, `<link rel="canonical">`
-- `<noscript>` блок с навигацией и описанием категории — для краулеров без JS
-- GitHub Pages отдаёт эти файлы напрямую → Яндекс/Bing видят route-specific контент
+**CI flow (`pnpm build:full`):**
+1. `tsc -b` — TypeScript проверка
+2. `vite build` — сборка SPA → `dist/`
+3. `tsx scripts/prerender.ts` — 9 shell HTML файлов (мета-теги + `<noscript>`)
+4. `tsx scripts/prerender-full.ts` — Playwright рендерит React-контент:
+   - Запускает HTTP-сервер на `dist/`
+   - Открывает каждый маршрут в headless Chromium
+   - Ждёт загрузки данных (networkidle + ожидание контента)
+   - Извлекает HTML из `#root` и инжектирует в HTML файлы
+
+**Локальная сборка (`pnpm build`):** использует только shell-пререндеринг (без Playwright).
+
+**Что видит краулер без JS:**
+- Route-specific `<title>` и `<meta description>`
+- Полный отрендеренный контент в `<div id="root">` (списки аффиксов, числа, навигация)
+- `<noscript>` fallback (дублирует навигацию для самых простых ботов)
+
+**Что видит браузер:**
+- React монтируется и заменяет пререндеренный контент на интерактивный SPA
 
 ### Ключевые верифицированные факты
 
