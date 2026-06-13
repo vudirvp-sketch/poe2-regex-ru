@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 
 Sitemap: https://vudirvp-sketch.github.io/poe2-regex-ru/sitemap.xml
+
+# IndexNow API key for Bing/Yandex instant indexing
+# Key file: /7cf0e35e568e2791d08835cdbd1d8a97.txt

@@ -1,6 +1,30 @@
 # Worklog
 
 ---
+Task ID: 28
+Agent: main
+Task: SEO-оптимизация: индексация проекта в поисковых системах (Google, Яндекс, Bing)
+
+Work Log:
+- 1: Клонирован репозиторий, изучена текущая структура проекта
+- 2: Проведён веб-поиск по индексации GitHub Pages (4 поисковых запроса, 2 статьи прочитаны полностью)
+- 3: Проанализирован текущий SEO-статус: мета-теги, OG, JSON-LD, SeoBlock уже есть; sitemap минимальный (1 URL); GSC/Bing не верифицированы
+- 4: Выявлена критическая проблема: SPA без пререндеринга — Яндекс/Bing не видят контент страниц категорий
+- 5: Расширен sitemap.xml с 1 до 9 URL (главная + 8 категорий), добавлен lastmod и priority
+- 6: Создан IndexNow API ключ (7cf0e35e568e2791d08835cdbd1d8a97) и файл ключа в public/
+- 7: Обновлён robots.txt — добавлен комментарий об IndexNow
+- 8: Улучшен 404.html — добавлен meta robots noindex, follow
+- 9: Добавлена заглушка google-site-verification мета-тега в index.html
+- 10: Создан docs/SEO_PLAN.md — пошаговый план индексации с чеклистом и сроками
+- 11: Обновлена документация: STATUS.md (iter 28), AGENT_NAVIGATION.md (v16)
+
+Stage Summary:
+- **SEO-основа заложена** — sitemap, robots.txt, IndexNow key, заглушка GSC
+- **Критическая проблема документирована** — SPA без пререндеринга не индексируется Яндекс/Bing
+- **Следующая итерация** — добавить vite-plugin-prerender для генерации статического HTML
+- **Ручные действия** — верификация GSC, Bing Webmaster, отправка sitemap, IndexNow ping
+
+---
 Task ID: 23
 Agent: main
 Task: Полный аудит пайплайна на аналогичные баги + фикс ETL generateTruncatedSuffixes()
