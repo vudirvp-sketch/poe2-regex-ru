@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { t } from '@shared/i18n'
 
 const navItems = [
-  { path: '/', label: 'home.title', icon: 'logo' },
+  { path: '/', label: 'home.nav_label', icon: 'logo' },
   { path: '/waystone', label: 'waystone.title', icon: 'waystone' },
   { path: '/tablet', label: 'tablet.title', icon: 'tablet' },
   { path: '/relic', label: 'relic.title', icon: 'relic' },

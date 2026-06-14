@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 20.0 | **Date:** 2026-06-13
+> **Version:** 21.0 | **Date:** 2026-06-14
 
 ---
 
@@ -15,12 +15,24 @@
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
-| `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex verification, favicon, og-banner | Served as-is by GitHub Pages |
+| `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan | Update on structural changes |
 
-## 2. SEO Assets (public/)
+## 2. i18n Keys for Home Page
+
+| Key | Text | Used In |
+|-----|------|---------|
+| `home.nav_label` | Главная | Sidebar nav link for `/` |
+| `home.header_title` | PoE2 Regex | Header `<h2>` for route `/` |
+| `home.title` | Генератор regex для PoE2 | Hero `<h1>` on HomePage |
+| `home.subtitle` | Выбирайте аффиксы — получайте готовую строку для вставки в игру | Hero subtitle on HomePage |
+| `home.description_full` | Генератор поисковых строк… | Hero description paragraph |
+
+**Design principle:** Each UI zone (sidebar, header, hero) has its own i18n key — no text duplication across zones.
+
+## 3. SEO Assets (public/)
 
 | File | Purpose |
 |------|---------|
@@ -35,7 +47,7 @@
 
 **index.html** содержит: мета-теги SEO, Open Graph, Twitter Card, canonical URL, JSON-LD, `google-site-verification`, `yandex-verification`, `msvalidate.01` (Bing).
 
-## 3. Pre-rendering (Two Levels)
+## 4. Pre-rendering (Two Levels)
 
 ### Level 1: Shell prerender (`scripts/prerender.ts`)
 - Генерирует 9 route-specific HTML файлов с уникальными мета-тегами + `<noscript>` fallback
@@ -45,7 +57,6 @@
 ### Level 2: Full prerender (`scripts/prerender-full.ts`)
 - Playwright + headless Chromium рендерит React-контент в `<div id="root">`
 - Краулеры без JS видят полные списки аффиксов, числа, навигацию
-- Требует `playwright` + Chromium (ставится в CI)
 - Graceful: если Playwright не установлен — выходит с warning, используется Level 1
 
 **CI build flow:**
@@ -58,7 +69,7 @@ tsc -b → vite build → prerender.ts (shell) → prerender-full.ts (Playwright
 tsc -b → vite build → prerender.ts (shell only)
 ```
 
-## 4. Core Optimizer Module Structure
+## 5. Core Optimizer Module Structure
 
 `optimizer.ts` runs 4 phases:
 
@@ -68,7 +79,7 @@ tsc -b → vite build → prerender.ts (shell only)
 | `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
-## 5. Path Aliases
+## 6. Path Aliases
 
 | Alias | Resolves to |
 |-------|-------------|
@@ -80,7 +91,7 @@ tsc -b → vite build → prerender.ts (shell only)
 | `@strategies` | `./src/strategies` |
 | `@etl` | `./scripts/etl` |
 
-## 6. Build & Run
+## 7. Build & Run
 
 ```bash
 pnpm install              # Install dependencies
@@ -92,7 +103,7 @@ pnpm test                 # Vitest (all tests)
 pnpm etl                  # Full ETL with optimizer
 ```
 
-## 7. Dependency Rules
+## 8. Dependency Rules
 
 ```
 shared <- core <- strategies <- store <- data <- ui
@@ -102,7 +113,7 @@ shared <- core <- strategies <- store <- data <- ui
 - UI never imports from `scripts/`
 - Types live in `src/shared/types.ts` ONLY
 
-## 8. PoE2 Regex Dialect
+## 9. PoE2 Regex Dialect
 
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
@@ -119,7 +130,7 @@ shared <- core <- strategies <- store <- data <- ui
 
 **NOT supported:** `?`, `$`, `.*` across blocks, negative lookahead, non-greedy, backreferences.
 
-## 9. FP Prevention (5 levels)
+## 10. FP Prevention (5 levels)
 
 | Level | Method | When |
 |-------|--------|------|
@@ -129,7 +140,7 @@ shared <- core <- strategies <- store <- data <- ui
 | 4 | Enumeration | Range ≤ 50 values |
 | 5 | `regexPrefixContext` | AND-контекст для minion-модов |
 
-## 10. Frequent Pitfalls
+## 11. Frequent Pitfalls
 
 1. `!` INSIDE quotes with `|` — NOT before quotes
 2. `.*` does NOT cross blocks — use AND
@@ -139,8 +150,9 @@ shared <- core <- strategies <- store <- data <- ui
 6. Word truncation = END of suffix only, min 3 significant chars
 7. `()` in regex = PoE2 grouping, NOT literal parens
 8. `getValueKey` for RANGE must include ALL distinguishing fields
+9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key — never reuse `home.title` across multiple components
 
-## 11. Documentation Map
+## 12. Documentation Map
 
 | File | When to Update |
 |------|----------------|

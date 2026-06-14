@@ -3,7 +3,7 @@ import { t } from '@shared/i18n'
 import { useState, useEffect } from 'react'
 
 const routeToTitleKey: Record<string, string> = {
-  '/': 'home.title',
+  '/': 'home.header_title',
   '/waystone': 'waystone.title',
   '/tablet': 'tablet.title',
   '/relic': 'relic.title',

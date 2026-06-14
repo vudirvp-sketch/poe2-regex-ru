@@ -2,59 +2,46 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Тесты:** 986 | **Build:** OK | **TypeScript:** OK
 
 ---
 
-## Текущая итерация: 32 — Bing мета-тег активирован
+## Текущая итерация: 33 — Устранение повторов на главной
 
 ### Что сделано
 
 | # | Файл | Изменение |
 |---|------|-----------|
-| 1 | `index.html` | Bing `msvalidate.01` раскомментирован, код `00214E3CD35D8ED3C98A16701C202966` |
-| 2 | `docs/SEO_PLAN.md` | Обновлён: Bing статус → ✅ мета-тег, убрана заглушка |
-| 3 | `STATUS.md` | Очищен, актуализирован |
-| 4 | `AGENT_NAVIGATION.md` | Обновлён до v20 |
+| 1 | `src/shared/i18n.ts` | `home.title` → «Генератор regex для PoE2», `home.subtitle` → «Выбирайте аффиксы — получайте готовую строку для вставки в игру», убран повтор из `description_full`, добавлены ключи `home.nav_label` и `home.header_title` |
+| 2 | `src/ui/layout/Header.tsx` | На маршруте `/` заголовок → `home.header_title` («PoE2 Regex») вместо дублирующего `home.title` |
+| 3 | `src/ui/layout/Sidebar.tsx` | Ссылка «Главная» → `home.nav_label` вместо длинного `home.title` |
+| 4 | Документация | STATUS.md, AGENT_NAVIGATION.md актуализированы |
+
+### Иерархия заголовков главной (после фикса)
+
+| Элемент | Текст | Раньше |
+|---------|-------|--------|
+| Sidebar brand | PoE2 Regex / Русский клиент | Без изменений |
+| Sidebar nav | **Главная** | Поисковые строки PoE2 — русский клиент |
+| Header | **PoE2 Regex** | Поисковые строки PoE2 — русский клиент |
+| Hero H1 | **Генератор regex для PoE2** | Поисковые строки PoE2 — русский клиент |
+| Hero subtitle | **Выбирайте аффиксы — получайте готовую строку для вставки в игру** | Регулярные выражения для фильтрации лута в русском клиенте |
 
 ### SEO-статус
 
-| Элемент | Статус | Примечание |
-|---------|--------|------------|
-| robots.txt | ✅ | Allow /, ссылка на sitemap |
-| sitemap.xml (9 URL) | ✅ | Главная + 8 категорий |
-| Мета-теги (title, description, keywords) | ✅ | Route-specific |
-| Open Graph + Twitter Card | ✅ | Route-specific |
-| Canonical URL | ✅ | Route-specific |
-| JSON-LD Structured Data | ✅ | WebApplication schema |
-| SeoBlock (FAQ-текст) | ✅ | На главной |
-| Shell-пререндеринг | ✅ | 9 HTML + `<noscript>` fallback |
-| Полный пререндеринг (Playwright) | ✅ | React-контент в `<div id="root">` |
-| IndexNow при деплое | ✅ | GitHub Actions job |
-| Google Search Console | ✅ Мета-тег | **Ручная:** нажать «Подтвердить» в GSC |
-| Яндекс Вебмастер | ✅ Мета-тег + HTML-файл | **Ручная:** подтвердить (URL: `https://vudirvp-sketch.github.io/poe2-regex-ru/`) |
-| Bing Webmaster Tools | ✅ Мета-тег | **Ручная:** подтвердить после деплоя |
+| Элемент | Статус |
+|---------|--------|
+| robots.txt + sitemap.xml | ✅ |
+| Route-specific мета-теги | ✅ |
+| Open Graph + Twitter Card | ✅ |
+| Canonical URL | ✅ |
+| JSON-LD | ✅ |
+| SeoBlock (FAQ) | ✅ |
+| Shell-пререндеринг | ✅ |
+| Полный пререндеринг (Playwright) | ✅ |
+| IndexNow при деплое | ✅ |
+| GSC / Яндекс / Bing верификация | ✅ Мета-теги (ручная: подтвердить) |
 
-### Ручные действия (после пуша и деплоя)
-
-1. **GSC** — [search.google.com/search-console](https://search.google.com/search-console)
-   - Добавить ресурс: `https://vudirvp-sketch.github.io/poe2-regex-ru/` (префикс URL)
-   - Способ: HTML-тег → нажать «Подтвердить»
-   - Отправить sitemap: `sitemap.xml`
-
-2. **Яндекс Вебмастер** — [webmaster.yandex.ru](https://webmaster.yandex.ru)
-   - Добавить сайт: **`https://vudirvp-sketch.github.io/poe2-regex-ru/`** (НЕ корневой URL!)
-   - Нажать «Подтвердить» — мета-тег уже в коде
-   - Добавить sitemap → Указать регион: Россия
-
-3. **Bing Webmaster Tools** — [bing.com/webmasters](https://www.bing.com/webmasters)
-   - Импорт из GSC или ручная верификация
-   - Нажать «Подтвердить» — мета-тег уже в коде
-   - Отправить sitemap
-
----
-
-## Известные проблемы
+### Известные проблемы
 
 | # | Issue | Impact |
 |---|-------|--------|
