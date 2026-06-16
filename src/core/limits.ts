@@ -117,3 +117,168 @@ export function wouldExceedBudget(
 
   return (currentLength + additional) > MAX_CHARS;
 }
+
+// ─── Over-Limit Split (iter 50 — Known Issue #5) ──────────────────────
+
+/**
+ * Split a top-level `|` alternation at depth-0 boundaries.
+ *
+ * Scans the string character by character, tracking `()` and `[]` depth.
+ * Returns an array of alternative strings (without the `|` separators).
+ *
+ * If there is no top-level `|`, returns `[regex]` (single-element array).
+ * Handles escape sequences (`\|` is not a separator, `\\` is an escaped backslash).
+ */
+function splitTopLevelAlternations(regex: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  let i = 0;
+
+  while (i < regex.length) {
+    const ch = regex[i];
+
+    // Character class [...]
+    if (ch === '[') {
+      current += ch;
+      i++;
+      while (i < regex.length && regex[i] !== ']') {
+        if (regex[i] === '\\') { current += regex[i]; i++; }
+        current += regex[i];
+        i++;
+      }
+      if (i < regex.length) { current += regex[i]; i++; } // ]
+      continue;
+    }
+
+    // Escape sequence
+    if (ch === '\\') {
+      current += ch;
+      i++;
+      if (i < regex.length) { current += regex[i]; i++; }
+      continue;
+    }
+
+    // Track grouping depth
+    if (ch === '(') { depth++; current += ch; i++; continue; }
+    if (ch === ')') { depth--; current += ch; i++; continue; }
+
+    // Top-level `|` — split here
+    if (ch === '|' && depth === 0) {
+      parts.push(current);
+      current = '';
+      i++;
+      continue;
+    }
+
+    current += ch;
+    i++;
+  }
+
+  if (current.length > 0 || parts.length > 0) {
+    parts.push(current);
+  }
+
+  return parts.length > 0 ? parts : [regex];
+}
+
+/**
+ * Group alternatives into chunks that each fit within `limit` chars
+ * (including the 2 quote chars added by the compiler).
+ *
+ * Uses a greedy first-fit approach: adds alternatives one by one
+ * to the current chunk until adding the next would exceed the limit,
+ * then starts a new chunk.
+ *
+ * Each chunk's compiled form is `"alt1|alt2|..."` — that's
+ * alt lengths + (N-1) pipe chars + 2 quote chars.
+ *
+ * If a single alternative exceeds `limit - 2` chars, it gets its own
+ * chunk (unavoidable overflow — no way to split a single alternative).
+ */
+function groupAlternativesByBudget(
+  alternatives: string[],
+  limit: number = MAX_CHARS
+): string[][] {
+  if (alternatives.length === 0) return [];
+
+  const groups: string[][] = [];
+  let currentGroup: string[] = [];
+  // Current group compiled length: sum of alt lengths + (N-1) pipes + 2 quotes
+  let currentLength = 2; // start with 2 quotes
+
+  for (const alt of alternatives) {
+    const altLength = alt.length;
+    const pipeIfNeeded = currentGroup.length > 0 ? 1 : 0;
+    const newLength = currentLength + pipeIfNeeded + altLength;
+
+    if (newLength <= limit) {
+      // Fits in current group
+      currentGroup.push(alt);
+      currentLength = newLength;
+    } else {
+      // Start a new group
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+      }
+      currentGroup = [alt];
+      currentLength = 2 + altLength; // quotes + this alternative
+    }
+  }
+
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+
+  return groups;
+}
+
+/**
+ * Split an over-limit compiled regex into multiple parts that each
+ * fit within the PoE2 250-char limit.
+ *
+ * Strategy:
+ * 1. If the regex ≤ MAX_CHARS, return it as-is: `[regex]`
+ * 2. If > MAX_CHARS and contains top-level `|`, split at `|` boundaries
+ *    and group alternatives into chunks that each fit within MAX_CHARS
+ * 3. If > MAX_CHARS but NO top-level `|`, return as-is (unavoidable overflow)
+ *
+ * The compiled regex format is `"alt1|alt2|alt3"` — quotes are part of the
+ * string passed to this function. We account for the 2 quote chars in each
+ * split part.
+ *
+ * Each returned string is the inner content (without quotes) — the caller
+ * should wrap each part in quotes when displaying/copying.
+ *
+ * @param compiledRegex The full compiled regex string (with outer quotes)
+ * @returns Array of regex content strings (without outer quotes), each ≤ MAX_CHARS - 2
+ */
+export function splitOverLimitRegex(compiledRegex: string): string[] {
+  // If within limit, return as-is (strip outer quotes for consistency)
+  if (compiledRegex.length <= MAX_CHARS) {
+    const inner = compiledRegex.startsWith('"') && compiledRegex.endsWith('"')
+      ? compiledRegex.slice(1, -1)
+      : compiledRegex;
+    return [inner];
+  }
+
+  // Strip outer quotes if present
+  let inner = compiledRegex;
+  if (inner.startsWith('"') && inner.endsWith('"')) {
+    inner = inner.slice(1, -1);
+  }
+
+  // Split at top-level `|` boundaries
+  const alternatives = splitTopLevelAlternations(inner);
+
+  // If no top-level `|`, can't split further — return as-is (unavoidable overflow)
+  if (alternatives.length <= 1) {
+    return [inner];
+  }
+
+  // Group alternatives into budget-fitting chunks
+  const groups = groupAlternativesByBudget(alternatives, MAX_CHARS);
+
+  // Join each group with `|` to form the split regex parts
+  return groups.map(group => group.join('|'));
+}

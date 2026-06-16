@@ -16,7 +16,7 @@ import { countUniqueFamilyKeys } from '@shared/family-grouper';
 export function AmuletPage() {
   const {
     data, loading, error,
-    regex, isRegexOverflow,
+    regex, isRegexOverflow, regexParts,
     selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
@@ -55,6 +55,7 @@ export function AmuletPage() {
             <CategoryControlPanel
               regex={regex}
               isOverflow={isRegexOverflow}
+              regexParts={regexParts}
               filterStore={filterStore}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}

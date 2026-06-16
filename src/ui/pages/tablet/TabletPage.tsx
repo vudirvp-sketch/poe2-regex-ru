@@ -76,7 +76,7 @@ export function TabletPage() {
 
   const {
     data, loading, error,
-    regex, isRegexOverflow,
+    regex, isRegexOverflow, regexParts,
     selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
@@ -151,6 +151,7 @@ export function TabletPage() {
             <CategoryControlPanel
               regex={regex}
               isOverflow={isRegexOverflow}
+              regexParts={regexParts}
               filterStore={filterStore}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}

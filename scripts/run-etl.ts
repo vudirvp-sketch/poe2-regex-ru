@@ -897,13 +897,13 @@ function patchOptimizationEntries(): void {
       const nonEmptyContexts = [...contexts].filter(c => c.length > 0);
 
       // All tokens share the same non-empty context → add to entry
-      if (nonEmptyContexts.length === 1 && contexts.size <= 2) {
-        // contexts.size <= 2 means: one non-empty + possibly one empty
-        // Only add context if ALL tokens have the SAME context (or no tokens have context)
-        const allHaveSameContext = nonEmptyContexts.length === 1 &&
-          (contexts.size === 1 || (contexts.size === 2 && contexts.has('')));
-
-        if (allHaveSameContext && nonEmptyContexts[0]) {
+      // iter 50 FIX: require contexts.size === 1 (ALL tokens have the SAME context).
+      // Previous code allowed contexts.size === 2 with one empty — this incorrectly added
+      // context to entries mixing tokens with and without context. Example: 11 "увеличение"
+      // tokens where only 2 have regexPrefixContext "имеют" — adding "имеют" to all 11
+      // causes FN (non-minion tokens can't match because "имеют" is required but absent).
+      if (nonEmptyContexts.length === 1 && contexts.size === 1) {
+        if (nonEmptyContexts[0]) {
           entry.regexPrefixContext = { ru: nonEmptyContexts[0] };
           filePatched++;
         }

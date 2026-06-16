@@ -20,6 +20,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'regex.overflow': 'ПЕРЕПОЛНЕНИЕ!',
     'regex.budget_warning': 'Осталось {chars} символов из 250 при {mods} аффиксах. Добавление новых условий может привести к переполнению!',
     'regex.overflow_detail': 'Строка превышает лимит 250 символов. Поиск не сработает!',
+    'regex.part_label': 'Часть {n} из {total}',
+    'regex.split_hint': 'Регулярка >250 символов — разбита на части. Копируйте каждую отдельно и ищите по очереди.',
     'regex.placeholder': 'Выберите аффиксы для генерации поисковой строки',
     'regex.copy_shortcut': 'Копировать (Ctrl+Shift+X)',
     'regex.share_title': 'Скопировать ссылку для обмена',

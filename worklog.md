@@ -1,6 +1,59 @@
 # Worklog
 
 ---
+Task ID: 50
+Agent: main
+Task: Закрыть Known Issue #5 — runtime split для over-limit regex (>250 chars) + фикс ETL bug (patchOptimizationEntries mixed context). Документация: чисто, без мусора.
+
+Work Log:
+- 1: Клонирован репозиторий, прочитан контекст: AGENT_NAVIGATION v49, STATUS.md iter 49 (Known Issue #5 OPEN), worklog Task 49 (multi-LITERAL AND-in-OR transform).
+- 2: Глубокий анализ проблемы — найдено 2 over-limit записи в jewel: 317 chars (9 alts, «увеличение.*области действия|...») и 260 chars (11 alts, «увеличение.*уклон.*ения|...»). Проанализированы два подхода: ETL split vs runtime split.
+- 3: Семантический анализ: ETL split меняет семантику OR→AND (неверно). Runtime split — правильный подход: каждая часть — корректный OR, пользователь ищет по очереди.
+- 4: Найден ETL Bug: `patchOptimizationEntries()` в `run-etl.ts` некорректно добавляла regexPrefixContext когда часть токенов имела контекст, а часть — нет. Условие `contexts.size <= 2 && contexts.has('')` → FN (не-миньонные альтернативы требовали "имеют").
+- 5: Фикс ETL Bug: изменено условие на `contexts.size === 1` (ВСЕ токены должны иметь одинаковый непустой контекст). Файл: `scripts/run-etl.ts`.
+- 6: Удалён некорректный `regexPrefixContext` из 317-char записи в `public/generated/jewel.json`.
+- 7: Реализован runtime split — `splitOverLimitRegex()` в `src/core/limits.ts`:
+  - `splitTopLevelAlternations()`: разбивает regex на альтернативы по top-level `|`
+  - `groupAlternativesByBudget()`: группирует альтернативы в чанки ≤250 chars
+  - `splitOverLimitRegex()`: публичная функция, вызывается из useCategoryPage
+- 8: Обновлён `useCategoryPage.ts`: добавлено `regexParts: string[] | undefined` — результат `splitOverLimitRegex()` при overflow.
+- 9: Обновлён `RegexOutput.tsx`: при `showParts` (overflow + regexParts.length > 1) отображает split hint + каждый part с кнопкой копирования и счётчиком символов. Компонент `PartCopyButton` для per-part copy.
+- 10: Обновлён `CategoryControlPanel.tsx` + все 8 category pages — добавлен prop `regexParts`.
+- 11: Добавлены i18n ключи: `regex.part_label` ("Часть {n} из {total}"), `regex.split_hint` ("Регулярка >250 символов — разбита на части...").
+- 12: Добавлены 12 NEW tests в `tests/core/limits.test.ts` для `splitOverLimitRegex()`: within limit, no top-level |, split at |, reconstruct, escape sequences, character classes, grouping depth, actual jewel entries (317+260 chars), ^ anchor preservation.
+- 13: Верификация: `npx tsc -b` → 0 errors. `npx vitest run` → **1144 passed** (1132 baseline + 12 NEW).
+
+Stage Summary:
+- **iter 50 FIX 1 (ETL Bug):** `patchOptimizationEntries()` в `run-etl.ts` — усилено условие для regexPrefixContext: `contexts.size === 1` вместо `contexts.size <= 2`. Смешанные контексты больше не патчатся.
+- **iter 50 FIX 2 (Known Issue #5 CLOSED):** Runtime split для over-limit regex. `splitOverLimitRegex()` в `limits.ts` разбивает OR-группы >250 chars на 2+ части, каждая ≤250 chars. UI показывает части отдельно.
+- **Real-world impact:** 2 over-limit записи в jewel (317+260 chars) теперь разбиваются на 2+ копируемых regex. 11 "увеличение" токенов больше не получают ошибочный regexPrefixContext "имеют".
+- **Tests:** 1144 passed (+12 NEW). TypeScript clean.
+- **Files MODIFIED (13) + NEW (0):**
+  - `scripts/run-etl.ts` — patchOptimizationEntries context condition fix
+  - `public/generated/jewel.json` — removed incorrect regexPrefixContext from 317-char entry
+  - `src/core/limits.ts` — added `splitOverLimitRegex()`, `splitTopLevelAlternations()`, `groupAlternativesByBudget()`
+  - `src/ui/hooks/useCategoryPage.ts` — added `regexParts` field, `splitOverLimitRegex()` call on overflow
+  - `src/ui/components/RegexOutput.tsx` — split regex display with per-part copy buttons
+  - `src/ui/components/CategoryControlPanel.tsx` — added `regexParts` prop
+  - `src/ui/pages/jewel/JewelPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/amulet/AmuletPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/ring/RingPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/belt/BeltPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/relic/RelicPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/waystone/WaystonePage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/tablet/TabletPage.tsx` — destructured + passed `regexParts`
+  - `src/ui/pages/vendor/VendorPage.tsx` — destructured + passed `regexParts`
+  - `src/shared/i18n.ts` — added `regex.part_label`, `regex.split_hint`
+  - `tests/core/limits.test.ts` — added 12 NEW tests for `splitOverLimitRegex()`
+  - `STATUS.md` — iter 50, Known Issue #5 CLOSED
+  - `AGENT_NAVIGATION.md` — iter 50, §6 dialect + §8 Pitfall 17/18 updated
+  - `worklog.md` — Task 50 entry (this)
+- **Known Issues (после iter 50):**
+  - ✅ #1-#5 ALL CLOSED
+  - No open known issues
+- **Точка остановки:** iter 50 COMPLETE. All Known Issues CLOSED. Code + tests + docs updated.
+
+---
 Task ID: 49
 Agent: main
 Task: Закрыть Known Issue #4 / Pitfall 11 — расширить `normalizeAst` transform в `src/core/compiler.ts` для AND с multi-LITERAL + EXCLUDE внутри OR. Документация: чисто, без мусора.

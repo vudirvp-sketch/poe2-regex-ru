@@ -22,6 +22,8 @@ import { t } from '@shared/i18n';
 interface CategoryControlPanelProps {
   regex: string;
   isOverflow: boolean;
+  /** Split regex parts when over-limit (iter 50) */
+  regexParts?: string[];
   filterStore: FilterStoreApi;
   searchLogic: SearchLogic;
   setSearchLogic: (v: SearchLogic) => void;
@@ -87,6 +89,7 @@ function handleRadioKeyDown(
 export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   regex,
   isOverflow,
+  regexParts,
   filterStore,
   searchLogic,
   setSearchLogic,
@@ -132,7 +135,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
       aria-label={t('control.panel')}
     >
       {/* Regex output */}
-      <RegexOutput regex={regex} isOverflow={isOverflow} filterStore={filterStore} activeTokenCount={activeTokenCount} />
+      <RegexOutput regex={regex} isOverflow={isOverflow} regexParts={regexParts} filterStore={filterStore} activeTokenCount={activeTokenCount} />
 
       {/* Controls row */}
       <div className="flex flex-wrap gap-2.5 items-center mt-2">

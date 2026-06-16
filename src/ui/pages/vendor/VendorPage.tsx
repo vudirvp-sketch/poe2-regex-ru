@@ -94,7 +94,7 @@ export function VendorPage() {
 
   const {
     data,
-    regex, isRegexOverflow,
+    regex, isRegexOverflow, regexParts,
     selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     searchLogic, setSearchLogic,
@@ -160,6 +160,7 @@ export function VendorPage() {
       <CategoryControlPanel
         regex={regex}
         isOverflow={isRegexOverflow}
+        regexParts={regexParts}
         filterStore={filterStore}
         hasRangedTokens={hasRangedTokens}
         minValue={null}

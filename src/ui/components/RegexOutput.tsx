@@ -4,16 +4,18 @@
  * Features (matching plan spec 9.2):
  * - Visual Character Health Bar (green/yellow/red) instead of poe2.re's invisible gray text
  * - Overflow protection: red notification + copy blocked when exceeding 250 chars
+ * - Split regex display: when regex > 250 chars and has top-level `|`, splits into
+ *   multiple copyable parts that each fit within the PoE2 char limit (iter 50)
  * - Copy-to-clipboard and URL sharing functionality
  * - Sticky positioning so output is always visible while adjusting filters
  * - Auto-copy on regex generation (optional, toggled by checkbox)
- * - Keyboard shortcut: Ctrl+Shift+C to copy regex
+ * - Keyboard shortcut: Ctrl+Shift+X to copy regex
  *
  * Health bar thresholds (from limits.ts):
  * - Green: 0-200 characters
  * - Yellow: 201-240 characters
  * - Red: 241-250 characters (approaching limit)
- * - Red + pulse: >250 characters (OVERFLOW — copy blocked)
+ * - Red + pulse: >250 characters (OVERFLOW — copy blocked for single regex)
  */
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MAX_CHARS } from '@core/limits';
@@ -27,6 +29,10 @@ interface RegexOutputProps {
   filterStore?: SerializableStore | null;
   /** Number of active (selected + excluded) tokens — for budget-aware warnings */
   activeTokenCount?: number;
+  /** Split regex parts when the compiled regex exceeds 250 chars.
+   *  Each part is a valid regex content (without outer quotes) that can be
+   *  pasted separately in PoE2. Undefined when within limit or cannot split. */
+  regexParts?: string[];
 }
 
 /** Get health level for character count */
@@ -58,7 +64,59 @@ const HEALTH_COLORS = {
   },
 } as const;
 
-export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore, activeTokenCount = 0 }) => {
+/** Per-part copy button with its own copied/error state */
+const PartCopyButton: React.FC<{ part: string; index: number; total: number }> = ({ part, index, total }) => {
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  // Wrap the part in quotes for PoE2 search
+  const fullPart = `"${part}"`;
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(fullPart);
+      setCopied(true);
+      setCopyError(false);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 3000);
+    }
+  }, [fullPart]);
+
+  const partLen = fullPart.length;
+  const partHealth = getHealthLevel(partLen);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-dim">
+          {t('regex.part_label').replace('{n}', String(index + 1)).replace('{total}', String(total))}
+          <span className={`ml-1.5 font-mono ${partHealth === 'green' ? 'text-accent-emerald' : partHealth === 'yellow' ? 'text-accent-yellow' : 'text-accent-red'}`}>
+            {partLen}/{MAX_CHARS}
+          </span>
+        </span>
+        <button
+          onClick={handleCopy}
+          className={`px-2 py-0.5 text-[12px] rounded font-medium transition-colors ${
+            copyError
+              ? 'bg-btn-danger text-bright'
+              : copied
+                ? 'bg-btn-success text-bright'
+                : 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
+          }`}
+        >
+          {copyError ? t('regex.copy_error') : copied ? t('regex.copied') : t('regex.copy')}
+        </button>
+      </div>
+      <div className="p-2 rounded font-mono text-sm break-all bg-surface border border-edge text-accent-green-soft">
+        {fullPart}
+      </div>
+    </div>
+  );
+};
+
+export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore, activeTokenCount = 0, regexParts }) => {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
@@ -70,6 +128,9 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
     }
   });
   const prevRegexRef = useRef<string>('');
+
+  // Whether we're showing split parts (over-limit with top-level |)
+  const showParts = isOverflow && regexParts && regexParts.length > 1;
 
   // Persist auto-copy preference
   useEffect(() => {
@@ -170,7 +231,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               {shareCopied ? t('regex.share_copied') : t('regex.share')}
             </button>
           )}
-          {/* Copy button */}
+          {/* Copy button — disabled when overflow (unless showing split parts, each has its own copy) */}
           <button
             onClick={handleCopy}
             disabled={!regex || isOverflow}
@@ -218,26 +279,41 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
         </div>
       )}
 
-      {/* Overflow warning */}
-      {isOverflow && (
+      {/* Split regex parts display (iter 50 — over-limit with top-level |) */}
+      {showParts && (
+        <div className="mb-2 flex flex-col gap-1.5">
+          <div className="p-2 bg-section-amber border border-aborder-amber rounded text-atext-amber text-[12px] flex items-center gap-1.5">
+            <span>\u26A0</span>
+            <span>{t('regex.split_hint')}</span>
+          </div>
+          {regexParts.map((part, i) => (
+            <PartCopyButton key={i} part={part} index={i} total={regexParts.length} />
+          ))}
+        </div>
+      )}
+
+      {/* Overflow warning (no split available) */}
+      {isOverflow && !showParts && (
         <div className="mb-2 p-2.5 bg-section-red border border-danger rounded text-accent-red-soft text-[13px]">
           {t('regex.overflow_detail')}
         </div>
       )}
 
-      {/* Regex display area */}
-      <div
-        className={`p-3 rounded font-mono text-base break-all min-h-[60px] ${
-          isOverflow
-            ? 'bg-indicator-red-deep border border-danger-strong text-accent-red-soft'
-            : regex
-              ? 'bg-surface border border-edge text-accent-green-soft'
-              : 'bg-panel border border-edge-panel text-dim'
-        }`}
-        aria-label={regex || t('regex.title')}
-      >
-        {regex || t('regex.placeholder')}
-      </div>
+      {/* Regex display area — single regex (or overflow without split) */}
+      {!showParts && (
+        <div
+          className={`p-3 rounded font-mono text-base break-all min-h-[60px] ${
+            isOverflow
+              ? 'bg-indicator-red-deep border border-danger-strong text-accent-red-soft'
+              : regex
+                ? 'bg-surface border border-edge text-accent-green-soft'
+                : 'bg-panel border border-edge-panel text-dim'
+          }`}
+          aria-label={regex || t('regex.title')}
+        >
+          {regex || t('regex.placeholder')}
+        </div>
+      )}
     </div>
   );
 };

@@ -18,7 +18,7 @@ import type { CategoryData, GameToken, ASTNode, Locale, AffixType, ModOrigin, Se
 import { and, or, exclude, literal, range, multiRange } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
-import { isOverflow } from '@core/limits';
+import { isOverflow, splitOverLimitRegex } from '@core/limits';
 import { applyYofication } from '@strategies/locale';
 
 /** Configuration for a category page */
@@ -73,7 +73,11 @@ export interface CategoryPageState {
   regex: string;
   /** Whether the regex overflows the 250 char limit */
   isRegexOverflow: boolean;
-  /** Selected (\"want\") token IDs */
+  /** Split regex parts when the compiled regex exceeds 250 chars.
+   *  Each part is a valid regex that can be pasted separately in PoE2.
+   *  Undefined when the regex is within limit or cannot be split. */
+  regexParts: string[] | undefined;
+  /** Selected ("want") token IDs */
   selectedIds: Set<string>;
   /** Excluded (\"don't want\") token IDs — per-mod exclude */
   excludedIds: Set<string>;
@@ -1158,13 +1162,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   }, [data, selectedIds, excludedIds]);
 
   // Build AST, optimize, compile
-  const { regex, isRegexOverflow, collapsedIds: collapsedTokenIds } = useMemo(() => {
+  const { regex, isRegexOverflow, regexParts, collapsedIds: collapsedTokenIds } = useMemo(() => {
     // If no mod selections AND no extra nodes → empty regex
     const hasModSelections = data && selectedTokens.length > 0;
     const hasExtraNodes = extraAstNodes.length > 0;
 
     if (!hasModSelections && !hasExtraNodes) {
-      return { regex: '', isRegexOverflow: false, collapsedIds: new Set<string>() };
+      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedIds: new Set<string>() };
     }
 
     const andChildren: ASTNode[] = [];
@@ -1193,7 +1197,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
 
     if (andChildren.length === 0) {
-      return { regex: '', isRegexOverflow: false, collapsedIds: new Set<string>() };
+      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedIds: new Set<string>() };
     }
 
     // Combine all children with AND
@@ -1214,9 +1218,21 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       compiledRegex = applyRuntimeYofication(compiledRegex, selectedTokens, locale);
     }
 
+    // 6. If over limit, try to split into multiple regex parts (iter 50 — Known Issue #5)
+    const overflow = isOverflow(compiledRegex);
+    let regexParts: string[] | undefined;
+    if (overflow) {
+      regexParts = splitOverLimitRegex(compiledRegex);
+      // If split produced only 1 part (no top-level |), it's an unavoidable overflow
+      if (regexParts.length <= 1) {
+        regexParts = undefined;
+      }
+    }
+
     return {
       regex: compiledRegex,
-      isRegexOverflow: isOverflow(compiledRegex),
+      isRegexOverflow: overflow,
+      regexParts,
       collapsedIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
   }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges, thresholdEnabled]);
@@ -1272,6 +1288,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     error,
     regex,
     isRegexOverflow,
+    regexParts,
     selectedIds,
     excludedIds,
     toggleExclude,

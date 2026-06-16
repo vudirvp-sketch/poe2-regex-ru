@@ -40,7 +40,7 @@ export function WaystonePage() {
 
   const {
     data, loading, error,
-    regex, isRegexOverflow,
+    regex, isRegexOverflow, regexParts,
     selectedIds, excludedIds, toggleExclude,
     round10Enabled, setRound10Enabled,
     minValue, setMinValue,
@@ -99,6 +99,7 @@ export function WaystonePage() {
             <CategoryControlPanel
               regex={regex}
               isOverflow={isRegexOverflow}
+              regexParts={regexParts}
               filterStore={filterStore}
               searchLogic={searchLogic}
               setSearchLogic={setSearchLogic}
