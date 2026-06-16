@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 21.0 | **Date:** 2026-06-14
+> **Version:** 22.0 | **Date:** 2026-06-16
 
 ---
 
@@ -151,6 +151,7 @@ shared <- core <- strategies <- store <- data <- ui
 7. `()` in regex = PoE2 grouping, NOT literal parens
 8. `getValueKey` for RANGE must include ALL distinguishing fields
 9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key — never reuse `home.title` across multiple components
+10. **CRITICAL — OR-mode nested quotes:** When AND(LITERAL, EXCLUDE) is a child of OR, `compileInner(AND)` produces `"child1" "child2"` which creates nested quotes. PoE2 cannot parse nested quotes — the OR structure collapses into AND. Fix: compile AND inside OR using `()` grouping instead of `"..."` per child.
 
 ## 12. Documentation Map
 
