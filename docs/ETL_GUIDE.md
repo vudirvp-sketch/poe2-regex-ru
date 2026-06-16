@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 14.0 | **Date:** 2026-06-12
+> **Version:** 15.0 | **Date:** 2026-06-16
 
 ---
 
@@ -13,6 +13,7 @@ poe2db.tw/ru/*
     → Step 2b: Implicit-set bonus filter (normalize.ts) — remove non-searchable implicit-set bonuses, add implicit tokens with reversed regex
     → Step 3: Compute Regex (compute-regex.ts) — minimal unique substrings per token
     → Step 4: Compute Optimizations (compute-optimizations.ts) — shared regex groups for multi-token combos
+        Phases: A (family grouping) → A1 (word truncation) → B (DP factorization) → C (dialect) → D (Path D transform) → D1 (char-limit diagnostic)
     → Step 5: Generate JSON (generate-dictionary.ts) — assemble CategoryData with sourceHash → public/generated/*.json
     → Step 6: i18n overrides (i18n-overrides.json, applied by run-etl.ts) — patch missing translations, recompute fields
     → Step 7: FP repair (repairCrossFamilyFP in run-etl.ts) — suffix lengthening + excludes + prefix context
@@ -216,7 +217,32 @@ After FP repair, `patchOptimizationEntries()` enriches optimization entries with
 - With both: combined
 - Without either: plain `LITERAL(regex)`
 
-## 12. Iterative Optimizer (Step 10)
+## 12. Path D + Char-Limit Diagnostic (Step 4, Phase D + D1)
+
+### Path D transformation (iter 40, PRODUCTION-VERIFIED iter 41)
+
+PoE2 cannot parse `()` with multi-word `|` inside a quoted group `"..."` (Tests 15-17). Path D replaces `"prefix(A|B|C)"` with `"prefix.*A|prefix.*B|prefix.*C"` — single quoted group, top-level `|`, `.*` bridges.
+
+**Implementation:**
+- `scripts/etl/path-d-transform.ts` — `pathDTransform()` recursively flattens `(...)` alternation groups
+- Phase D in `compute-optimizations.ts` (after Phase C dialect opt) — applies `pathDTransform()` to entries containing alternation groups
+- `reoptimizeTable()` in `iterative-optimizer.ts` — applies Path D to new/updated entries
+
+**Status:** 327/529 opt-table entries in Path D format, 0 broken `()`-with-`|` remain. Production-verified iter 41 on 5 categories (jewel, amulet, ring, waystone, tablet), 5/5 in-game tests PASS, 6-9 alts verified.
+
+### Char-limit diagnostic (iter 42)
+
+PoE2 silently rejects single regex strings >~250 chars (iter 41 D5-1v1 with 262 chars and D5-2v1 with 327 chars both failed in-game). Path D entries with many alternatives (10+) can exceed this limit.
+
+**Implementation:**
+- `POE2_REGEX_CHAR_LIMIT = 250` constant in `scripts/etl/path-d-transform.ts` (canonical source of truth)
+- `findOverLimitEntries(table, locale?, limit?)` — diagnostic helper, returns entries > limit sorted by length desc; does NOT modify the table
+- Phase D1 in `compute-optimizations.ts` (after Phase D) — logs WARNING per category with length, key preview, regex preview
+- Final summary in `iterative-optimizer.ts` — after all iterations + reoptimizeTable, scans final tables and logs per-category over-limit entries + global warning
+
+**Policy: diagnostic-only.** Entries are kept in the table (useful for subset selection — compiler picks the matching subset when fewer ids are selected), but the full entry cannot be used as a single in-game regex when ALL its ids are selected. Currently 2 entries >250 chars in jewel (317, 260 chars).
+
+## 13. Iterative Optimizer (Step 10)
 
 `runIterativeOptimization()` in `iterative-optimizer.ts` — integrated into ETL pipeline as Step 10.
 
@@ -255,7 +281,7 @@ interface OptimizerConfig {
 **Standalone usage:** `pnpm optimize` — runs optimizer on existing generated JSON files.
 **Skip in ETL:** `pnpm etl:no-optimize` — runs ETL without Step 10.
 
-## 13. Fallback Procedures
+## 14. Fallback Procedures
 
 If poe2db.tw adds anti-bot: manual HTML save → local file → parse from file.
 If some mods not translated: add manual translations to `i18n-overrides.json`.

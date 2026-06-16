@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pathDTransform, hasPathDGroup } from '@etl/path-d-transform';
+import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from '@etl/path-d-transform';
 
 describe('pathDTransform', () => {
   describe('hasPathDGroup', () => {
@@ -237,5 +237,110 @@ describe('pathDTransform', () => {
       // Split by top-level | → ['A\\|B', 'C']
       expect(result).toBe('prefix.*A\\|B|prefix.*C');
     });
+  });
+});
+
+describe('findOverLimitEntries', () => {
+  it('returns empty array for empty table', () => {
+    expect(findOverLimitEntries({})).toEqual([]);
+  });
+
+  it('returns empty array when all entries are within limit', () => {
+    const table = {
+      a: { regex: { ru: 'короткий' } },
+      b: { regex: { ru: 'ещё короче' } },
+    };
+    expect(findOverLimitEntries(table)).toEqual([]);
+  });
+
+  it('detects a single entry exceeding the default limit', () => {
+    const longRegex = 'а'.repeat(POE2_REGEX_CHAR_LIMIT + 1);
+    const table = {
+      ok: { regex: { ru: 'короткий' } },
+      long: { regex: { ru: longRegex } },
+    };
+    const result = findOverLimitEntries(table);
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('long');
+    expect(result[0].length).toBe(POE2_REGEX_CHAR_LIMIT + 1);
+    expect(result[0].regex).toBe(longRegex);
+  });
+
+  it('detects multiple entries and sorts by length descending', () => {
+    const r251 = 'x'.repeat(251);
+    const r317 = 'y'.repeat(317);
+    const r260 = 'z'.repeat(260);
+    const table = {
+      a: { regex: { ru: r317 } },
+      b: { regex: { ru: r251 } },
+      c: { regex: { ru: 'ok' } },
+      d: { regex: { ru: r260 } },
+    };
+    const result = findOverLimitEntries(table);
+    expect(result.map(r => r.key)).toEqual(['a', 'd', 'b']);
+    expect(result.map(r => r.length)).toEqual([317, 260, 251]);
+  });
+
+  it('respects custom limit parameter', () => {
+    const exact30 = 'a'.repeat(30);
+    const table = {
+      a: { regex: { ru: exact30 } },
+    };
+    // 30 chars — should be over limit=25
+    expect(findOverLimitEntries(table, 'ru', 25)).toHaveLength(1);
+    // 30 chars — should be exactly at limit=30 (NOT over)
+    expect(findOverLimitEntries(table, 'ru', 30)).toEqual([]);
+    // 30 chars — should be under limit=50
+    expect(findOverLimitEntries(table, 'ru', 50)).toEqual([]);
+  });
+
+  it('respects locale parameter', () => {
+    const table = {
+      a: { regex: { ru: 'короткий ru', en: 'a'.repeat(300) } },
+    };
+    expect(findOverLimitEntries(table, 'ru')).toEqual([]);
+    expect(findOverLimitEntries(table, 'en')).toHaveLength(1);
+  });
+
+  it('skips entries with missing or empty regex', () => {
+    const table = {
+      a: { regex: {} },
+      b: { regex: { ru: '' } },
+      c: { regex: { ru: 'a'.repeat(300) } },
+    };
+    const result = findOverLimitEntries(table);
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('c');
+  });
+
+  it('entries exactly at limit are NOT flagged (boundary check)', () => {
+    const exact = 'a'.repeat(POE2_REGEX_CHAR_LIMIT);
+    const table = {
+      a: { regex: { ru: exact } },
+    };
+    expect(findOverLimitEntries(table)).toEqual([]);
+  });
+
+  it('handles real-world Path D output (11 alternatives, >250 chars)', () => {
+    // Simulates the kind of entry produced by Phase D when 11+ alternatives
+    // share the same prefix — known to exceed the 250-char limit.
+    const realEntry = 'увеличение.*области действия|увеличение.*максимума.*энергетического щита|увеличение.*максимума.*здоровья|увеличение.*уклонения|увеличение.*урона в ближнем бою|увеличение.*бонуса к критическому урону|увеличение.*количества получаемых зарядов флакона|увеличение.*длительности эффекта умения|увеличение.*порога оглушения';
+    expect(realEntry.length).toBeGreaterThan(POE2_REGEX_CHAR_LIMIT);
+    const table = {
+      'jewel:a:b:c:d:e:f:g:h:i:j:k': { regex: { ru: realEntry } },
+    };
+    const result = findOverLimitEntries(table);
+    expect(result).toHaveLength(1);
+    expect(result[0].length).toBe(realEntry.length);
+  });
+
+  it('does not modify the input table', () => {
+    const longRegex = 'a'.repeat(300);
+    const table = {
+      a: { regex: { ru: longRegex } },
+    };
+    const snapshot = JSON.stringify(table);
+    findOverLimitEntries(table);
+    expect(JSON.stringify(table)).toBe(snapshot);
   });
 });

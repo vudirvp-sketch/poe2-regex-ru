@@ -26,7 +26,7 @@
 import { matchQuotedGroup, matchPoE2RegexItem, getItemSearchBlocks } from '../../src/core/poe2-regex-matcher.js';
 import { batchDPFactorize, applyDialectOptimizations } from '../../src/core/dp-factorizer.js';
 import { containsPoE2Grouping } from './compute-regex-core.js';
-import { pathDTransform, hasPathDGroup } from './path-d-transform.js';
+import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from './path-d-transform.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -925,6 +925,30 @@ export function runIterativeOptimization(
 
   console.log(`\n  TOTAL: ${grandTokens} tokens, FN=${grandFN}, FP=${grandFP}, avgLen=${(grandRegexLen / grandTokens).toFixed(1)}`);
   console.log(`  Iterations: ${totalIterations}, Changes: ${totalChanges}, Reverted: ${totalReverted}`);
+
+  // ─── PoE2 char-limit diagnostic (iter 42) ───
+  // After all optimization iterations + reoptimizeTable, scan the final
+  // optimization tables for entries that exceed the PoE2 ~250-char limit.
+  // Such entries cannot be used as a single in-game regex but are still
+  // valid as table entries (compiler picks the subset matching user selection).
+  let totalOverLimit = 0;
+  for (const [catName, data] of jsonData) {
+    const table = data.optimizationTable as Record<string, { regex: { ru: string } }>;
+    const over = findOverLimitEntries(table, 'ru', POE2_REGEX_CHAR_LIMIT);
+    if (over.length > 0) {
+      totalOverLimit += over.length;
+      console.log(`  [${catName}] ${over.length} opt-table entr${over.length === 1 ? 'y' : 'ies'} > ${POE2_REGEX_CHAR_LIMIT} chars:`);
+      for (const { key, length } of over) {
+        const shortKey = key.length > 70 ? key.slice(0, 67) + '...' : key;
+        console.log(`    [len=${length}] ${shortKey}`);
+      }
+    }
+  }
+  if (totalOverLimit > 0) {
+    console.log(`\n  ⚠  ${totalOverLimit} opt-table entries exceed PoE2 char limit (${POE2_REGEX_CHAR_LIMIT}).`);
+    console.log(`     These entries are kept in the table (useful for subset selection) but`);
+    console.log(`     cannot be used as a single in-game regex when ALL their ids are selected.`);
+  }
 
   if (effectiveConfig.dryRun) {
     console.log('\n  (Dry run — no files were modified)');

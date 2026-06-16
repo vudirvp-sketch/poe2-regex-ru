@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 59.0 | **Date:** 2026-06-16 | **Language:** RU-first
+> **Version:** 60.0 | **Date:** 2026-06-16 | **Language:** RU-first
 
 ---
 
@@ -105,8 +105,9 @@ For multi-word alternatives that share a prefix (e.g., weapon damage with лук
 This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C)"` (Tests 16-17). Verified in-game:
 - iter 38: 2 alternatives (D7-3)
 - iter 39: 3+4 alternatives + AND-combination (D1)
-- iter 40: **IMPLEMENTED in ETL** (`scripts/etl/path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 303/481 opt-table entries converted to Path D format, 0 broken `()` entries remain.
+- iter 40: **IMPLEMENTED in ETL** (`scripts/etl/path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 327/529 opt-table entries converted to Path D format, 0 broken `()` entries remain.
 - iter 41: **D5 PRODUCTION-VERIFIED** — 5/5 in-game tests PASS on production ETL output (6-9 alts, same-block AND, cross-cat FP). Path D is COMPLETE.
+- iter 42: **Char-limit diagnostic** — `findOverLimitEntries()` in `path-d-transform.ts` + Phase D1 in `compute-optimizations.ts` + final summary in `iterative-optimizer.ts` log warnings for opt-table entries >250 chars. Policy: diagnostic-only (entries kept, not modified).
 
 **Other alternative strategies for multi-word OR:**
 
@@ -116,7 +117,7 @@ This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C
 
 ## 3.1. Deterministic Regex Strategy (8 Principles) — UNIFIED for ALL categories
 
-> Added in iteration 37, updated iter 38-41 (Path D production-verified). Verified on 4 real gems (60 tests in `tests/core/in-game-iteration-36-gems.test.ts`) + 5 in-game functional tests on 16 production items (iter 41 D5).
+> Added in iteration 37, updated iter 38-42 (Path D production-verified, char-limit diagnostic). Verified on 4 real gems (60 tests in `tests/core/in-game-iteration-36-gems.test.ts`) + 5 in-game functional tests on 16 production items (iter 41 D5).
 > This strategy replaces the broken opt-table approach (`"prefix (A|B|C)"`) with patterns that use ONLY verified-working PoE2 syntax.
 
 ### Principle 1: ONE MOD = ONE QUOTED GROUP
@@ -211,7 +212,7 @@ If two mods share the same suffix (e.g., `"порога стихийных со�
 - `"повышение.*меткости"` → MATCHES (single block "повышение глобальной меткости")
 - OR: make each quoted group as specific as possible (full suffix, not truncated)
 
-### Principle 8: SAME-FAMILY OR — Path D (iter 38-41, COMPLETE)
+### Principle 8: SAME-FAMILY OR — Path D (iter 38-42, COMPLETE + char-limit diagnostic)
 
 When user wants ANY of N mods from the same family (e.g., damage with different weapons: луками/посохами/копьями), use ONE quoted group with top-level `|` and `.*` bridge per alternative:
 
@@ -226,12 +227,13 @@ This is the WORKING replacement for the broken opt-table approach `"prefix (A|B|
 - ✅ 3+4 alternatives + AND-combination verified in-game (D1, iter 39)
 - ✅ ETL implemented (D2, iter 40): `path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`
 - ✅ Runtime implemented (D4, iter 40): `applyOptimizationTable` applies Path D entries even with negative savings
-- ✅ 303/481 opt-table entries converted to Path D format, 0 broken `()` entries remain
+- ✅ 327/529 opt-table entries converted to Path D format, 0 broken `()` entries remain
 - ✅ **D5 PRODUCTION-VERIFIED (iter 41)**: 5/5 in-game tests PASS on production ETL output covering 5 categories (jewel, amulet, ring, waystone, tablet). 6-9 alts verified. Same-block AND confirmed. Cross-category FP acceptable (category-agnostic by design).
+- ✅ **Char-limit diagnostic (iter 42, D7)**: `findOverLimitEntries()` in `path-d-transform.ts` (canonical `POE2_REGEX_CHAR_LIMIT = 250` constant) is called from Phase D1 in `compute-optimizations.ts` (logs WARNING per category) and from final summary in `iterative-optimizer.ts` (logs over-limit entries per category + global warning). Policy: **diagnostic-only** — entries are kept in the table (useful for subset selection; compiler picks the matching subset when fewer ids are selected), but the full entry cannot be used as a single in-game regex when ALL its ids are selected. Currently 2 entries >250 chars in jewel (317, 260 chars).
 
 **Path D is COMPLETE. No fallback needed.**
 
-**NEW constraint (iter 41):** PoE2 regex char limit ≈ 250 chars. Path D entries >250 chars cannot be tested in isolation in-game. ETL should add a length check in `path-d-transform.ts` to warn on entries exceeding this limit.
+**NEW constraint (iter 41 discovered, iter 42 diagnostic):** PoE2 regex char limit ≈ 250 chars. Path D entries >250 chars cannot be tested in isolation in-game. ETL logs warnings via `findOverLimitEntries()` — no entries dropped or modified (keeps subset-selection value).
 
 **Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`). This applies to BOTH runtime Phase 3 (`truncateSuffix`) and ETL (`generateTruncatedSuffixes`) — both enforce last-word-only truncation.
 

@@ -24,6 +24,12 @@
  * not produced by dp-factorizer and represent literal text from game data.
  * Optional groups `(ь|)` flatten to top-level alts (empty alt → just prefix).
  *
+ * POE2 CHAR LIMIT (iter 41):
+ * The game silently rejects single regexes longer than ~250 chars. After Path D
+ * transformation, some entries with many alternatives may exceed this limit.
+ * Use `findOverLimitEntries()` to detect such entries — current policy is
+ * diagnostic-only (warn), not destructive (drop/split).
+ *
  * SAFETY:
  * - `.*` bridges are MORE permissive than literal concat. This is acceptable
  *   because prefix and alt are typically word stems (possibly truncated)
@@ -272,6 +278,49 @@ export function pathDTransform(regex: string): string {
   }
 
   return result.join('|');
+}
+
+/**
+ * PoE2 hard limit on a single regex string length.
+ * Discovered iter 41: D5-1 v1 (262 chars) and D5-2 v1 (327 chars) were both
+ * silently rejected by the game. Entries ≤250 chars work reliably.
+ */
+export const POE2_REGEX_CHAR_LIMIT = 250;
+
+/**
+ * Identify optimization-table entries whose `regex[locale]` exceeds the PoE2
+ * character limit.
+ *
+ * Used as a diagnostic helper — does NOT modify the table. The caller decides
+ * what to do with the result (log a warning, drop the entry, split it, etc.).
+ *
+ * @param table Optimization table: `{ [key]: { regex: { [locale]: string }, ... } }`
+ * @param locale Locale key to inspect (default `'ru'`)
+ * @param limit  Char limit (default `POE2_REGEX_CHAR_LIMIT = 250`)
+ * @returns Array of `{ key, regex, length }` for entries exceeding the limit,
+ *          sorted by length descending. Empty array if all entries are within
+ *          the limit.
+ */
+export function findOverLimitEntries<
+  T extends { regex: Record<string, string> },
+  K extends string = string
+>(
+  table: Record<K, T>,
+  locale: string = 'ru',
+  limit: number = POE2_REGEX_CHAR_LIMIT
+): Array<{ key: K; regex: string; length: number }> {
+  const over: Array<{ key: K; regex: string; length: number }> = [];
+  for (const key in table) {
+    const entry = table[key];
+    if (!entry) continue;
+    const regex = entry.regex?.[locale];
+    if (typeof regex !== 'string' || regex.length === 0) continue;
+    if (regex.length > limit) {
+      over.push({ key, regex, length: regex.length });
+    }
+  }
+  over.sort((a, b) => b.length - a.length);
+  return over;
 }
 
 /**

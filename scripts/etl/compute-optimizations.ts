@@ -20,7 +20,7 @@ import {
 } from '../../src/core/dp-factorizer.js';
 import { generateTruncatedSuffixes, containsPoE2Grouping } from './compute-regex.js';
 import { matchQuotedGroup } from '../../src/core/poe2-regex-matcher.js';
-import { pathDTransform, hasPathDGroup } from './path-d-transform.js';
+import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from './path-d-transform.js';
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -274,6 +274,25 @@ export function computeOptimizations(
 
   if (pathDTransformedCount > 0) {
     console.log(`  Phase D: Path D transformed ${pathDTransformedCount} entries (flat alternation)`);
+  }
+
+  // ─── Phase D1: PoE2 char-limit diagnostic (iter 42) ───
+  // After Path D transformation, some entries (especially with 10+ alternatives)
+  // may exceed the PoE2 hard limit of ~250 chars. Such entries are still emitted
+  // to the table — they are useful when only a SUBSET of their ids is selected
+  // (compiler picks the matching subset via applyOptimizationTable). But the
+  // full entry cannot be used as a single in-game regex.
+  //
+  // Policy: diagnostic-only. Log a warning so ETL maintainers know which
+  // entries are at risk. No entries are dropped or modified.
+  const overLimit = findOverLimitEntries(result, locale, POE2_REGEX_CHAR_LIMIT);
+  if (overLimit.length > 0) {
+    console.log(`  Phase D1: WARNING — ${overLimit.length} opt-table entr${overLimit.length === 1 ? 'y' : 'ies'} exceed ${POE2_REGEX_CHAR_LIMIT} chars (PoE2 hard limit):`);
+    for (const { key, length, regex } of overLimit) {
+      const preview = regex.length > 80 ? regex.slice(0, 77) + '...' : regex;
+      console.log(`    [len=${length}] key=${key.slice(0, 60)}${key.length > 60 ? '...' : ''}`);
+      console.log(`      regex: "${preview}"`);
+    }
   }
 
   return result;
