@@ -281,7 +281,7 @@ Categories with priority: ring, amulet, belt, waystone, tablet. Others (jewel, r
 - `chip-with-range` CSS class with `flex-basis: 100%` prevents overlap
 
 ### CategoryControlPanel
-- Sticky: `sticky top-0 z-10` with `control-panel-sticky::before` gap fix
+- Controls-only: renders AND/OR toggle, range filter, round10, threshold, priority filter, `extraControls` slot, `clearButton` slot. No `<RegexOutput>`, no sticky wrapper (RegexOutput lives in `<CategoryLayout>`'s right column, sticky via `<aside>`).
 - Range warnings: ⚠ Округл. (round10 + >50 range) and ⚠ Диапазон (range notation FP risk)
 
 ### VendorChip

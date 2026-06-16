@@ -2,43 +2,32 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 53 — UI redesign Фаза 2 COMPLETE: все 8 категорийных страниц на `<CategoryLayout>`
+> **Текущая итерация:** 54 — cleanup `CategoryControlPanel` (удалена legacy ветка + неиспользуемые пропсы + мёртвый CSS)
 
 ---
 
-## iter 53 — Фаза 2 COMPLETE: мигрированы оставшиеся 7 страниц
+## iter 54 — Cleanup CategoryControlPanel
 
-**Что:** Мигрированы RingPage, AmuletPage, BeltPage, RelicPage, JewelPage, TabletPage, VendorPage на `<CategoryLayout>`. Все 8 категорийных страниц теперь используют единый 2-колоночный desktop / 1-колоночный mobile layout.
+**Что:** Удалена legacy ветка из `CategoryControlPanel` (которая рендерила `<RegexOutput>` + sticky wrapper). Все 8 категорийных страниц уже используют split mode через `<CategoryLayout>` (с iter 53), legacy была мёртвым кодом.
 
-**Layout (desktop ≥1024px):**
-```
-┌──────────────────────────────────────┐
-│ Header (icon + title + count)         │
-├─────────────────────┬────────────────┤
-│ Controls            │ RegexOutput    │ ← sticky (lg:sticky lg:top-0)
-│ (CategoryControl-   │                │
-│  Panel, no regex)   │ Status block   │
-│                     │                │
-│ ModList             │ ProfilePanel   │
-│ (scrolls naturally) │ (vendor: — )   │
-└─────────────────────┴────────────────┘
-       1fr                  380px
-```
+**Удалено из `CategoryControlPanel`:**
+- Пропсы: `regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput` (никогда не использовались в split mode — split mode рендерит только controls row, без `<RegexOutput>`).
+- Импорты: `RegexOutput` (больше не рендерится внутри), `FilterStoreApi` type (только для `filterStore`).
+- Legacy `return`-блок с sticky wrapper + `<RegexOutput>`.
+- `if (hideRegexOutput) {...}` ветвление — теперь всегда split mode.
+- `mt-2` условный класс в controlsRow (нужен был только для spacing под RegexOutput в legacy mode).
 
-**Layout (mobile <1024px):** grid collapses to 1 column. DOM order: header → controls → ModList → RegexOutput → status → ProfilePanel. **Phase 7** will move RegexOutput to a sticky bottom-bar on mobile.
+**Сохранено:**
+- `activeTokenCount` — используется в controls row (active tokens counter, строка `{activeTokenCount} {t('selected')}`).
+- Все остальные пропсы (searchLogic, hasRangedTokens, range filter, round10, threshold, priorityFilter, extraControls, clearButton, excludedCount).
 
-**Особенности по страницам:**
-- **Ring/Amulet/Belt** — `VirtualizedModList` + `priorityFilter`. Стандартный status block.
-- **Relic** — `ModList` (affix-only grouping). Без `priorityFilter`. Стандартный status.
-- **Jewel** — `VirtualizedModList` + `extraControls` (jewel type filter: All/Ruby/Emerald/Sapphire). Hidden mods warning (alert + Deselect button) — остаётся в левой колонке между controls и ModList.
-- **Tablet** — `ModList` + `extraControls` (тип: Бездна/Делириум/Ритуал/Ваал/Экспедиция, редкость: Обычный/Волшебный/Редкий, использования: ≥N input). Кастомный status block с инфо о типах/редкости/использованиях.
-- **Vendor** — `FilterChip` группы. БЕЗ `PageStateWrapper` (данные синхронные через `buildVendorCategoryData()`). БЕЗ `ProfilePanel` (sidebar пустой). `clearButton` slot внутри `CategoryControlPanel`. Verification note — в конце левой колонки.
+**Обновлено в 8 страницах:** `WaystonePage`, `RingPage`, `AmuletPage`, `BeltPage`, `RelicPage`, `JewelPage`, `TabletPage`, `VendorPage` — из каждой `<CategoryControlPanel>` invocation удалены `hideRegexOutput`, `regex`, `isOverflow`, `regexParts`, `filterStore`. `<RegexOutput>` остаётся в `regexOutput` slot `<CategoryLayout>` (правая колонка, sticky).
 
-**Sticky behavior preserved:**
-- Правый `<aside>` имеет `lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto`. RegexOutput остаётся видимым при скролле ModList.
-- Mobile: нет sticky (Phase 7).
+**Удалено мёртвого CSS из `index.css`:**
+- `.control-panel-sticky` + `::before` pseudo (sticky gap fix для legacy mode).
+- Mobile media query rules для `.control-panel-sticky, .sticky.top-0 { padding-bottom: 12px }`, `.sticky.top-0 button {...}`, `.sticky.top-0 .flex-wrap { gap: 4px }` — все ссылались только на legacy sticky wrapper.
 
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (152 modules, 9 prerendered HTML). Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (9 prerendered HTML). Lint baseline 59 сохранён.
 
 ---
 
@@ -48,10 +37,7 @@
 |---|-------|--------|
 | ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
 
-**Открытых Known Issues нет.**
-
-**Технический долг (НЕ баги, на следующую итерацию):**
-- `CategoryControlPanel` имеет две ветки (legacy + split). Все 8 страниц используют split mode (`hideRegexOutput=true`). Legacy ветка и неиспользуемые в split mode пропсы (`regex`, `isOverflow`, `regexParts`, `filterStore`, `activeTokenCount`) могут быть удалены в отдельной cleanup-итерации.
+**Открытых Known Issues нет.** Технического долга по CategoryControlPanel больше нет (закрыт iter 54).
 
 ---
 

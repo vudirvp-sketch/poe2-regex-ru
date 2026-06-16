@@ -102,11 +102,6 @@ export function WaystonePage() {
             }
             controls={
               <CategoryControlPanel
-                hideRegexOutput
-                regex={regex}
-                isOverflow={isRegexOverflow}
-                regexParts={regexParts}
-                filterStore={filterStore}
                 searchLogic={searchLogic}
                 setSearchLogic={setSearchLogic}
                 hasRangedTokens={hasRangedTokens}

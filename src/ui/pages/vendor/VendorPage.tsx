@@ -166,11 +166,6 @@ export function VendorPage() {
       }
       controls={
         <CategoryControlPanel
-          hideRegexOutput
-          regex={regex}
-          isOverflow={isRegexOverflow}
-          regexParts={regexParts}
-          filterStore={filterStore}
           hasRangedTokens={hasRangedTokens}
           minValue={null}
           setMinValue={() => {}}

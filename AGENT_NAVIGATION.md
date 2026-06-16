@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 53 (UI redesign Фаза 2 COMPLETE — все 8 категорийных страниц мигрированы на `CategoryLayout`).
+> **Entry document.** Read this first. Current state: iter 54 (cleanup `CategoryControlPanel` — удалена legacy ветка + неиспользуемые пропсы + мёртвый CSS).
 
 ---
 
@@ -131,11 +131,10 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 18. **ETL `patchOptimizationEntries` mixed-context bug (iter 50):** `regexPrefixContext` must only be added when ALL tokens in the opt entry share the SAME non-empty context. Mixed contexts (some have "имеют", others empty) must NOT be patched — causes FN.
 19. **Dark-only theme (iter 51):** Light theme removed from CSS. `Header.tsx` sets `data-theme="dark"` once on mount (no toggle). `theme.light`/`theme.dark` i18n keys removed. CSS tokens are warm dark-fantasy (`#0D0B09` / `#15110E` / `#3A2C22` / `#C89A4A` gold). Do NOT re-add light theme.
 
-20. **`CategoryControlPanel` split-mode (iter 52-53):** Component has optional prop `hideRegexOutput?: boolean` (default `false`).
-    - Split mode (`hideRegexOutput=true`): renders ONLY the controls row, NO `<RegexOutput>`, NO sticky wrapper. Page passes `<RegexOutput>` separately to `<CategoryLayout>`'s `regexOutput` slot (right column, sticky via `<aside>`).
-    - **All 8 category pages now use split mode** (iter 53 complete).
-    - Legacy mode (`hideRegexOutput=false`, default): renders `<RegexOutput>` + controls row inside a `sticky top-0 z-10 control-panel-sticky` wrapper. Currently UNUSED — kept for backward-compat. Can be removed in a future cleanup iteration (also unused props: `regex`, `isOverflow`, `regexParts`, `filterStore`, `activeTokenCount` in split mode).
-    - **Migration pattern (complete):** wrap page in `<CategoryLayout>`, set `hideRegexOutput` on `<CategoryControlPanel>`, move `<RegexOutput>` + status block + `<ProfilePanel>` into right-column slots. Keep `extraControls` and `clearButton` slots on `<CategoryControlPanel>` (they don't move).
+20. **`CategoryControlPanel` — split-only (iter 52-54):** Component renders ONLY the controls row (no `<RegexOutput>`, no sticky wrapper). Page passes `<RegexOutput>` separately to `<CategoryLayout>`'s `regexOutput` slot (right column, sticky via `<aside>`).
+    - **All 8 category pages** use this pattern: `<CategoryLayout>` wraps page; `<CategoryControlPanel>` (no special flags) in `controls` slot; `<RegexOutput>` + status + `<ProfilePanel>` in right-column slots; ModList in `children`.
+    - **iter 54 cleanup removed:** legacy branch (sticky wrapper + embedded `<RegexOutput>`), `hideRegexOutput` prop, `regex`/`isOverflow`/`regexParts`/`filterStore` props (all unused in split mode). Dead CSS: `.control-panel-sticky`, `.sticky.top-0` mobile rules.
+    - **Kept:** `activeTokenCount` (used for active-tokens counter in controls row), `extraControls` slot (waystone corrupted/delirious, jewel type filter, tablet type/rarity/uses), `clearButton` slot (Vendor).
     - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). JewelPage's "Hidden mods warning" stays in left column (between controls and ModList). TabletPage's status block is custom (includes type/rarity/uses info).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)

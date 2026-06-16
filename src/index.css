@@ -376,23 +376,6 @@ main {
   background: var(--scrollbar-hover);
 }
 
-/* ─── Sticky control panel ─── */
-.control-panel-sticky {
-  position: relative;
-  padding-top: 4px;
-}
-.control-panel-sticky::before {
-  content: '';
-  position: absolute;
-  top: -16px;
-  left: -4px;
-  right: -4px;
-  height: 20px;
-  background: var(--poe-bg);
-  z-index: -1;
-  pointer-events: none;
-}
-
 /* ─── FilterChip overflow prevention ─── */
 .mod-list .flex.flex-wrap.gap-2,
 .virtualized-mod-list .flex.flex-wrap.gap-2,
@@ -526,10 +509,6 @@ main {
   .virtualized-mod-list [class*="text-[13px]"] {
     font-size: 0.9rem;
   }
-  .control-panel-sticky,
-  .sticky.top-0 {
-    padding-bottom: 12px;
-  }
   .mod-list .mt-1\.5,
   .virtualized-mod-list .mt-1\.5 {
     margin-top: 8px;
@@ -544,11 +523,6 @@ main {
   [role="switch"] {
     min-height: 32px;
     min-width: 44px;
-  }
-  .sticky.top-0 button {
-    min-height: 32px;
-    padding-top: 6px;
-    padding-bottom: 6px;
   }
   .affix-header-prefix,
   .affix-header-suffix,
@@ -577,9 +551,6 @@ main {
   .mod-list input[type="number"],
   .virtualized-mod-list input[type="number"] {
     width: 52px;
-  }
-  .sticky.top-0 .flex-wrap {
-    gap: 4px;
   }
 }
 
