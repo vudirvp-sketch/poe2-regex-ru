@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 55.0 | **Date:** 2026-06-16 | **Language:** RU-first
+> **Version:** 56.0 | **Date:** 2026-06-16 | **Language:** RU-first
 
 ---
 
@@ -97,6 +97,115 @@ poe2db.tw/ru/*
 - **`.*` bridging within single block:** `"скорости.*копьями"` matches «скорости атаки копьями» — `.*` bridges the gap between "скорости" and "копьями" within one block
 - **`(?!…)` per-block exclusions:** `"скорости(?!.*луками)(?!.*посоха)"` matches «скорости» in blocks without weapon-specific words
 - **AND decomposition:** Instead of one shared regex with `|`, use separate quoted groups per alternative combined via AND
+
+## 3.1. Deterministic Regex Strategy (8 Principles) — UNIFIED for ALL categories
+
+> Added in iteration 37. Verified on 4 real gems (60 tests in `tests/core/in-game-iteration-36-gems.test.ts`).
+> This strategy replaces the broken opt-table approach (`"prefix (A|B|C)"`) with patterns that use ONLY verified-working PoE2 syntax.
+
+### Principle 1: ONE MOD = ONE QUOTED GROUP
+
+Each selected mod produces exactly ONE quoted group. The quoted group contains:
+- Optional number pattern (enumeration / threshold / `^`/`+`/`%` anchors)
+- The mod's distinctive suffix (unique substring)
+- `.*` for bridging number → suffix within the same block
+
+**Form:** `"[number_pattern.*]suffix"` (one quoted group per mod)
+
+**Examples:**
+- `"длительности эффекта оберега"` (no number, suffix only)
+- `"15%.*увеличение урона.*посохами"` (number + `.*` bridge + suffix with mid-`.*`)
+- `"(1[0-5])%.*порога стихийных состояний"` (enumeration + `.*` + suffix)
+
+### Principle 2: MULTI-MOD = AND ACROSS BLOCKS
+
+When user selects N mods, the regex is N quoted groups separated by spaces:
+
+```
+"mod1_regex" "mod2_regex" "mod3_regex"
+```
+
+Each group must match SOME block (possibly the same, possibly different). This is the ONLY way to combine multiple mods.
+
+### Principle 3: NO MULTI-WORD `|` (CONFIRMED BROKEN)
+
+`|` ONLY works for single-word alternation as the WHOLE quoted group:
+
+| Pattern | Works? | Why |
+|---------|--------|-----|
+| `"A\|B"` (whole quoted group is single-word OR) | ✅ | Tokenized correctly |
+| `"(A\|B)"` (single-word OR inside parens, alone) | ✅ | Parens are grouping |
+| `"prefix (A\|B)"` (alternation after prefix inside quotes) | ❌ | `()` + `\|` ignored inside `"..."` (Test 16) |
+| `"(A B\|C D)"` (multi-word alternation in parens) | ❌ | `\|` + multi-word broken (Test 15) |
+| `"A B\|C D"` (multi-word alternation at top level) | ❌ | Tests 9-11 |
+| `"A B"\|"C D"` (OR between quoted groups) | ❓ | **B0 PENDING** — simulator parses as `"A B"` only |
+
+### Principle 4: `.*` BRIDGING WITHIN SINGLE BLOCK
+
+When mod has structure `prefix N suffix` (e.g., `15% увеличение урона боевыми посохами`), use:
+
+```
+"prefix.*suffix"
+```
+
+`.*` bridges the number and any middle words within ONE block. This is the deterministic replacement for broken `"prefix (A|B|C)"` opt-table patterns.
+
+**Examples:**
+- `"увеличение урона.*луками"` matches "15% увеличение урона луками" (one block)
+- `"скорости атаки.*посохами"` matches "2% повышение скорости атаки боевыми посохами" (`.*` bridges "боевыми")
+- `"Снаряды.*дополнительный снаряд"` matches long single-block mod
+
+### Principle 5: SUFFIX UNIQUENESS
+
+For each mod, find the SHORTEST suffix that:
+- Matches the mod's rawText (via PoE2 substring matching)
+- Does NOT match any OTHER mod's rawText in the same category (no FP)
+- Has ≥3 significant chars per truncated word
+- Truncation only at END of suffix (contiguous substring property)
+
+**Verified unique suffixes (iter 37, gems):**
+- `"длительности эффекта оберега"` — unique to "оберег duration" mod
+- `"максимума здоровья компаньонов"` — unique to "компаньон HP" mod
+- `"глобальной меткости"` — unique to "глобальная меткость" mod
+- `"шанса наложения состояний"` — unique to "наложения состояний" mod
+
+### Principle 6: SHARED SUFFIX → DIFFERENTIATE BY NUMBER OR CONTEXT
+
+If two mods share the same suffix (e.g., `"порога стихийных состояний"` appears in 2+ mods with different number ranges), differentiate by:
+
+1. **Number range (preferred):** `"(1[0-5])%.*порога стихийных состояний"` — family regex matches any tier
+2. **Exact number:** `"10%.*порога стихийных состояний"` — matches only that specific roll
+3. **Accept shared match:** `"порога стихийных состояний"` — matches ANY mod with this suffix (use when user wants ANY tier)
+
+### Principle 7: CROSS-BLOCK FP RISK
+
+`"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT blocks (different mod lines). This causes false positives when:
+- X matches mod A's block
+- Y matches mod B's block
+- But no single block contains both X and Y
+
+**FP EXAMPLE (verified iter 37):**
+- Item: Племенной узор with mods "10% увеличение урона снарядов" + "6% повышение глобальной меткости"
+- Regex: `"увеличение" "меткости"` → MATCHES (FP!)
+- Reason: "увеличение" matches first mod, "меткости" matches second mod — different blocks
+
+**FP PREVENTION:**
+- Use `.*` bridge in ONE quoted group: `"X.*Y"` (forces same-block match)
+- `"увеличение.*меткости"` → does NOT match (no single block has both)
+- `"повышение.*меткости"` → MATCHES (single block "повышение глобальной меткости")
+- OR: make each quoted group as specific as possible (full suffix, not truncated)
+
+### Principle 8: SAME-FAMILY OR (multiple weapon damage mods)
+
+When user wants ANY of N mods from the same family (e.g., damage with different weapons: луками/посохами/копьями), the ONLY working approaches are:
+
+| Approach | Form | Status |
+|----------|------|--------|
+| a. Top-level `\|` between quoted groups | `"X.*A"\|"X.*B"` | **UNVERIFIED** — Test B0 pending |
+| b. UI redesign: separate AND filters | Each mod = separate filter, mutually exclusive choice | Design only |
+| c. Fall back to AND | User accepts ALL must be present (not ANY) | Works, but changes semantics |
+
+The opt-table's current approach (`"X (A|B|C)"`) is BROKEN (Tests 16-17) and must be replaced by one of the above strategies after Test B0 resolves.
 
 **Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`). This applies to BOTH runtime Phase 3 (`truncateSuffix`) and ETL (`generateTruncatedSuffixes`) — both enforce last-word-only truncation.
 
