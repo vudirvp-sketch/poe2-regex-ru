@@ -62,6 +62,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'home.category_count': '8 категорий',
     'home.limit_250': 'Лимит 250 символов',
     'home.regex_optimization': 'Оптимизация regex',
+    'home.seo_summary': 'Подробнее о регексах PoE2 — как пользоваться генератором, ёфикация, лимит 250 символов',
     'health.green': 'Норма',
     'health.yellow': 'Много',
     'health.red': 'Критично',

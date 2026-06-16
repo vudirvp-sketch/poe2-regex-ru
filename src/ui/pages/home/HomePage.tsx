@@ -59,31 +59,31 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      {/* Hero section */}
-      <div className="mb-10 text-center">
-        <h1 className="mb-3 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
+      {/* Hero section — iter 57: tightened (mb-10→mb-6, mb-3→mb-2, mb-4→mb-3, mb-6→mb-4, badges text-[13px]→[12px] + gap-3→gap-2) */}
+      <div className="mb-6 text-center">
+        <h1 className="mb-2 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
           {t('home.title')}
         </h1>
-        <p className="mb-4 text-lg" style={{ color: 'var(--poe-text)' }}>
+        <p className="mb-3 text-lg" style={{ color: 'var(--poe-text)' }}>
           {t('home.subtitle')}
         </p>
-        <p className="mb-6 text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+        <p className="mb-4 text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
           {t('home.description_full')}
         </p>
-        <div className="flex flex-wrap justify-center gap-3 text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.5 }}>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+        <div className="flex flex-wrap justify-center gap-2 text-[12px]" style={{ color: 'var(--poe-text)', opacity: 0.6 }}>
+          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
             {loaded ? `${formatCount(totalMods)} ${t('home.mods')}` : '...'}
           </span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
             {t('home.category_count')}
           </span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.limit_250')}</span>
-          <span className="px-2 py-1 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.regex_optimization')}</span>
+          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.limit_250')}</span>
+          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.regex_optimization')}</span>
         </div>
       </div>
 
-      {/* Category cards */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {/* Category cards — iter 57: tightened (gap-4→gap-3, p-4→p-3, icon 44→40, height 48→40, mb-2→mb-1.5) */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         {categories.map(cat => {
           const count = counts[cat.jsonId]
           const tagText = cat.vendorCount
@@ -94,20 +94,20 @@ export function HomePage() {
             <Link
               key={cat.path}
               to={cat.path}
-              className="group relative rounded-lg border p-4 text-center transition-all hover:scale-[1.02] hover:opacity-90"
+              className="group relative rounded-lg border p-3 text-center transition-all hover:scale-[1.02] hover:opacity-90"
               style={{
                 background: 'var(--poe-bg-secondary)',
                 borderColor: 'var(--poe-border)',
               }}
             >
-              <div className="mb-2 flex items-center justify-center" style={{ height: 48 }}>
+              <div className="mb-1.5 flex items-center justify-center" style={{ height: 40 }}>
                 <img
                   src={`${import.meta.env.BASE_URL}icons/${cat.icon}.png`}
                   alt=""
-                  width={44}
-                  height={44}
+                  width={40}
+                  height={40}
                   className="object-contain"
-                  style={{ imageRendering: 'auto', maxHeight: '44px', maxWidth: '44px' }}
+                  style={{ imageRendering: 'auto', maxHeight: '40px', maxWidth: '40px' }}
                 />
               </div>
               <h3 className="mb-1 text-[15px] font-semibold" style={{ color: 'var(--poe-gold)' }}>
@@ -117,7 +117,7 @@ export function HomePage() {
                 {t(cat.descKey)}
               </p>
               {tagText && (
-                <span className="mt-2 inline-block rounded px-1.5 py-0.5 text-[12px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
+                <span className="mt-1.5 inline-block rounded px-1.5 py-0.5 text-[12px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
                   {tagText}
                 </span>
               )}
@@ -126,39 +126,41 @@ export function HomePage() {
         })}
       </div>
 
-      {/* Features section */}
-      <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
+      {/* Features section — iter 57: tightened (mt-10→mt-6, gap-4→gap-3, p-4→p-3, title text-xl→text-base, desc text-[13px]→[12px]) */}
+      <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_data_title')}
           </div>
-          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_data_desc')}
           </p>
         </div>
-        <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
+        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_optimize_title')}
           </div>
-          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_optimize_desc')}
           </p>
         </div>
-        <div className="rounded-lg border p-4" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-2 text-xl font-semibold" style={{ color: 'var(--poe-gold)' }}>
+        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
             {t('home.feature_share_title')}
           </div>
-          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
             {t('home.feature_share_desc')}
           </p>
         </div>
       </div>
 
-      {/* SEO text block — FAQ and instructions for search engines */}
-      <SeoBlock />
+      {/* SEO text block — wrapped in <details> (iter 57, UI Phase 5): collapsed by default */}
+      <div className="mt-6">
+        <SeoBlock />
+      </div>
 
-      {/* Footer info */}
-      <div className="mt-8 text-center text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>
+      {/* Footer info — iter 57: mt-8→mt-6 */}
+      <div className="mt-6 text-center text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>
         <p>{t('home.footer')}</p>
       </div>
     </div>

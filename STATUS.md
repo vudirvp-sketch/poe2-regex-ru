@@ -2,30 +2,26 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 56 — UI Фаза 4 (навигация как «режимы»: усиленный active-state + mobile tabs)
+> **Текущая итерация:** 57 — UI Фаза 5 (компактизация HomePage: SeoBlock в `<details>`)
 
 ---
 
-## iter 56 — UI Фаза 4: Навигация как «режимы»
+## iter 57 — UI Фаза 5: Компактизация HomePage
 
-**Что:** Навигация воспринимается как переключение «режимов» — активный маршрут получает визуальный Level-1-style акцент (gold border-l + glow + tinted bg), а на mobile гамбургер-drawer заменён на горизонтальные sticky-чипсы.
+**Что:** Главная страница стала плотнее — уменьшены вертикальные отступы (mb-10→mb-6, mt-10→mt-6, mt-12→mt-6, mt-8→mt-6), сжаты карточки категорий (p-4→p-3, иконка 44→40), а длинный SEO-текст свёрнут в нативный `<details>` с золотым `<summary>` (закрыт по умолчанию).
 
 **Изменения:**
 
-- `src/ui/layout/nav-items.ts` (NEW) — общий массив `navItems` для desktop и mobile (источник истины: 9 пунктов: Главная + 8 категорий).
-- `src/ui/layout/Sidebar.tsx` — упрощён до desktop-only (`hidden md:flex`). Удалены: `mobileOpen` state, focus trap (useEffect/keydown), overlay, hamburger `<button>`, slide-in animation. Активный NavLink получает классы `nav-mode-link nav-mode-active` вместо inline style.
-- `src/ui/layout/MobileNavTabs.tsx` (NEW) — mobile-only (`md:hidden`) горизонтальные scrollable chip-табы. Sticky под Header. Chip = icon (20×20) + label. Использует те же `navItems` + `nav-mode-active` для active-state.
-- `src/ui/layout/Layout.tsx` — добавлен `<MobileNavTabs />` между Header и main.
-- `src/ui/layout/Header.tsx` — убран `pl-12 md:pl-4` → `px-4` (гамбургер удалён, отступ больше не нужен).
-- `src/shared/i18n.ts` — добавлен ключ `'nav.categories': 'Категории'` для aria-label навигации.
-- `src/index.css` — добавлены блоки:
-  - `.nav-mode-active` — gold border-l (3px) + tinted bg (gold gradient поверх `--poe-bg-tertiary`) + box-shadow glow (`0 0 0 1px rgba(200,154,74,0.08), 0 0 12px rgba(200,154,74,0.10)`) + font-weight 600. Паттерн повторяет Level-1 frames (`.regex-output`, `.affix-header-*`).
-  - Padding-compensation: `.nav-mode-link.nav-mode-active` (`padding-left: calc(0.75rem - 3px)`) и `.mobile-nav-tab.nav-mode-active` (`padding-left: calc(0.625rem - 3px)`) — компенсируют 3px border-l, чтобы иконка не смещалась.
-  - `.mobile-nav-tabs` — sticky-top (z-20), semi-transparent warm bg (`rgba(13,11,9,0.92)`), `backdrop-filter: blur(4px)`, border-bottom.
-  - `.mobile-nav-tabs-scroll` — flex row, `overflow-x: auto`, скрытый scrollbar (cross-browser: `scrollbar-width: none`, `::-webkit-scrollbar { display: none }`).
-  - `.mobile-nav-tab` — chip-style (flex-shrink: 0, transparent border, `--chip-bg`).
+- `src/ui/pages/home/SeoBlock.tsx` — содержимое обёрнуто в `<details className="home-seo-details">` с `<summary className="home-seo-summary">`. Все 4 SEO-секции сохранены внутри (Google индексирует `<details>` даже в закрытом состоянии). Нативная keyboard-accessibility.
+- `src/ui/pages/home/HomePage.tsx` — tightened: Hero `mb-10→mb-6`, `mb-3→mb-2`, `mb-4→mb-3`, `mb-6→mb-4`; stat badges `text-[13px]→[12px]`, `px-2 py-1→px-1.5 py-0.5`, `gap-3→gap-2`; category cards `gap-4→gap-3`, `p-4→p-3`, icon `44×44→40×40` (height 48→40), `mb-2→mb-1.5`, `mt-2→mt-1.5`; Features section `mt-10→mt-6`, `gap-4→gap-3`, `p-4→p-3`, title `text-xl→text-base`, desc `text-[13px]→[12px]`, `mb-2→mb-1.5`; SeoBlock wrapper `mt-12→mt-6`; Footer `mt-8→mt-6`.
+- `src/shared/i18n.ts` — добавлен ключ `'home.seo_summary'`: «Подробнее о регексах PoE2 — как пользоваться генератором, ёфикация, лимит 250 символов».
+- `src/index.css` — +49 строк после блока `.mobile-nav-tab`:
+  - `.home-seo-details` — карточка-обёртка (`--poe-bg-secondary` + 1px border + radius 6px).
+  - `.home-seo-summary` — gold text, `cursor: pointer`, `list-style: none` (кросс-браузерно скрыт дефолтный треугольник), hover bg tint.
+  - `.home-seo-summary::before` — кастомный маркер `▸` (gold), поворот на 90° когда `details[open]`.
+  - `.home-seo-content` — padding для раскрытого контента.
 
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (154 модуля, 9 prerendered HTML, CSS 40.29 KB / gzip 8.96 KB). Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (154 модуля, 9 prerendered HTML, CSS 42.64 KB / gzip 9.31 KB — +0.69 KB uncompressed за счёт нового CSS-блока). Lint baseline 59 сохранён.
 
 ---
 
@@ -63,8 +59,8 @@
 | 2 | ✅ iter 52-53 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Все 8 страниц мигрированы** |
 | 3 | ✅ iter 55 | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
 | 4 | ✅ iter 56 | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
-| 5 | ⏳ next | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
-| 6 | ⏳ | Единая панель статусов (`StatusPanel.tsx`) |
+| 5 | ✅ iter 57 | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
+| 6 | ⏳ next | Единая панель статусов (`StatusPanel.tsx`) |
 | 7 | ⏳ | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
 | 8 | ⏳ | Полировка: снять шум, оставить «дорогую тишину» |
 | 9 | ⏳ | Документация финальная |
@@ -86,7 +82,7 @@
 
 ## SEO-статус
 
-✅ Полный набор реализован. См. `docs/SEO_PLAN.md`.
+✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock теперь в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
 
 ---
 Контакты: Discord **woonderdad**

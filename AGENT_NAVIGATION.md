@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 56 (UI Фаза 4 — навигация как «режимы»: усиленный active-state + mobile tabs).
+> **Entry document.** Read this first. Current state: iter 57 (UI Фаза 5 — компактизация HomePage: SeoBlock в `<details>` + tightened spacing).
 
 ---
 
@@ -149,6 +149,12 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **Active state** uses `.nav-mode-active` CSS class (gold border-l 3px + box-shadow glow + gold-tinted gradient bg + font-weight 600). Pattern echoes Level-1 frames but is a nav-specific class — do NOT reuse `.regex-output` or `.affix-header-*` for nav.
     - **Padding compensation:** `.nav-mode-link.nav-mode-active` and `.mobile-nav-tab.nav-mode-active` set `padding-left: calc(<tailwind-padding> - 3px)` to keep icons aligned with inactive items (which have no border-l). If you change the Tailwind `px-*` on the NavLink, update the calc in `index.css` too.
     - **No hamburger, no drawer, no focus trap** in `Sidebar.tsx` — all removed iter 56. Do NOT re-add them.
+
+23. **HomePage compaction + SeoBlock in `<details>` (iter 57, UI Phase 5):** The home page was tightened — vertical spacing reduced across all sections (mb-10→mb-6, mt-10→mt-6, mt-12→mt-6, mt-8→mt-6) and the long-form SEO/FAQ text is now wrapped in a native `<details>` element, closed by default. The category hub (8 cards in 2/3/4-col grid) stays as the central element.
+    - **SeoBlock structure:** `<details className="home-seo-details">` → `<summary className="home-seo-summary">` (gold text + custom `▸` marker that rotates 90° on open) → `<section className="home-seo-content">` with the 4 original SEO sections. CSS lives in `index.css` under the "Home SEO `<details>`" block.
+    - **SEO preservation:** `<details>` content stays in the DOM (Google indexes it even when closed). Do NOT add `hidden` or conditional rendering — that would strip SEO content. The `<details>` element is natively keyboard-accessible (Enter/Space toggles, no JS needed).
+    - **Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage — only margins, paddings, font sizes (e.g. stat badges `text-[13px]→[12px]`, Features title `text-xl→text-base`) and icon sizes (category cards `44→40px`) were reduced. If you need to add more sections, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
+    - **Do NOT** re-add the default `<summary>` triangle — `list-style: none` + `::-webkit-details-marker { display: none }` suppress it; the custom `▸` marker is in `::before`.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

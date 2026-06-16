@@ -601,6 +601,56 @@ main {
   background: var(--chip-bg-hover);
 }
 
+/* ─── Home SEO <details> (iter 57, UI Phase 5) ─── */
+/* Wraps the long-form SEO/FAQ text on the home page so it doesn't dominate
+   the visual hierarchy. Collapsed by default — user expands with one click.
+   Content stays in the DOM (Google indexes <details> content even when
+   closed). Natively keyboard-accessible (Enter/Space toggles). */
+.home-seo-details {
+  background: var(--poe-bg-secondary);
+  border: 1px solid var(--poe-border);
+  border-radius: 6px;
+  padding: 0;
+}
+
+.home-seo-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  list-style: none; /* hide default triangle */
+  user-select: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--poe-gold);
+  transition: background 0.12s ease;
+}
+.home-seo-summary::-webkit-details-marker {
+  display: none; /* Chrome/Safari */
+}
+.home-seo-summary::before {
+  content: '▸';
+  display: inline-block;
+  font-size: 12px;
+  color: var(--poe-gold);
+  opacity: 0.8;
+  transition: transform 0.15s ease;
+}
+.home-seo-details[open] > .home-seo-summary::before {
+  transform: rotate(90deg);
+}
+.home-seo-summary:hover {
+  background: rgba(200, 154, 74, 0.06);
+}
+.home-seo-details[open] > .home-seo-summary {
+  border-bottom: 1px solid var(--poe-border);
+}
+
+.home-seo-content {
+  padding: 14px 16px 18px;
+}
+
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
   .mod-list button[class*="inline-flex"],

@@ -337,6 +337,44 @@ Pattern echoes Level-1 frames (`.regex-output`, `.affix-header-*`) but is a nav-
 - `border-bottom: 1px solid var(--poe-border)`
 - Inner scroll container `.mobile-nav-tabs-scroll` has hidden scrollbar (cross-browser: `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) but scroll/touch/keyboard still works.
 
+### HomePage compaction pattern (iter 57, UI Phase 5)
+
+The home page is a single-column layout (`max-w-4xl mx-auto`) with 5 vertical zones, tightened in iter 57:
+
+| Zone | Compaction | Density tokens |
+|------|-----------|----------------|
+| Hero (title + subtitle + description + 4 stat badges) | `mb-10→mb-6`, badges `text-[13px]→[12px]`, `px-2 py-1→px-1.5 py-0.5`, `gap-3→gap-2` | `text-3xl md:text-4xl` h1, `text-lg` subtitle, `text-sm` desc |
+| Category hub (8 cards, 2/3/4-col responsive grid) | `gap-4→gap-3`, `p-4→p-3`, icon `44→40`, wrapper `h-12→h-10` | card title `text-[15px]` gold, desc `text-[13px]`, count tag `text-[12px]` |
+| Features (3 cards: data, optimize, share) | `mt-10→mt-6`, `gap-4→gap-3`, `p-4→p-3`, title `text-xl→text-base`, desc `text-[13px]→[12px]` | gold title, muted desc |
+| SeoBlock | `mt-12→mt-6`, wrapped in `<details>` (closed by default) | see `.home-seo-*` CSS |
+| Footer | `mt-8→mt-6` | `text-[13px]`, opacity 0.4 |
+
+**SeoBlock `<details>` structure:**
+
+```
+<details className="home-seo-details">           ← card-style wrapper, padding 0
+  <summary className="home-seo-summary">         ← gold text, custom ▸ marker
+    <span className="home-seo-summary-text">{t('home.seo_summary')}</span>
+  </summary>
+  <section className="home-seo-content">         ← 4 original SEO sections
+    ...existing FAQ content preserved...
+  </section>
+</details>
+```
+
+CSS classes (defined in `index.css` after `.mobile-nav-tab`):
+
+| Class | Purpose |
+|-------|---------|
+| `.home-seo-details` | Card container (`--poe-bg-secondary` + 1px border + radius 6px) |
+| `.home-seo-summary` | Gold text + `cursor: pointer` + `list-style: none` (hides default triangle cross-browser) |
+| `.home-seo-summary::before` | Custom `▸` marker; rotates 90° when `details[open]` |
+| `.home-seo-content` | Padding for expanded content (14px 16px 18px) |
+
+**SEO guarantee:** `<details>` content stays in the DOM (Google indexes it even when closed). No `hidden` attribute, no conditional rendering — both would strip SEO content. The `<details>`/`<summary>` pair is natively keyboard-accessible.
+
+**Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage in iter 57 — only margins, paddings, font sizes and icon sizes were reduced. If new sections are added later, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
+
 ## 13. Optimizer Collapse Indicator
 
 When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears on FilterChip.
