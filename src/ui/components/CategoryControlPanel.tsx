@@ -2,15 +2,25 @@
  * CategoryControlPanel — Shared top control panel for category pages.
  *
  * Contains:
- * - RegexOutput with health bar (sticky)
+ * - RegexOutput with health bar (sticky) — UNLESS hideRegexOutput is true
  * - Mode toggle (Хочу / Не хочу)
  * - Range filter (≥ min, ≤ max) — conditional on hasRangedTokens
  * - Round10 toggle — conditional on hasRangedTokens (or showRound10)
  * - Slot for category-specific controls (waystone state, tablet types, etc.)
  * - Optional clear button slot
  *
- * This component is placed ABOVE the ModList in the page layout,
- * so the regex output and controls are always visible.
+ * Two modes:
+ *  1. Legacy (default, hideRegexOutput=false): used by 7 unmigrated category
+ *     pages. Renders RegexOutput + controls row inside a sticky top-0 wrapper.
+ *     Page places this ABOVE the ModList.
+ *  2. Split (hideRegexOutput=true): used by pages that adopt CategoryLayout
+ *     (iter 52+). Renders ONLY the controls row, no RegexOutput, no sticky
+ *     wrapper. The page passes <RegexOutput> separately to CategoryLayout's
+ *     `regexOutput` slot (which is sticky in the right column).
+ *
+ * The `regex` / `isOverflow` / `regexParts` / `filterStore` / `activeTokenCount`
+ * props are still required in split mode (for type compatibility) but are
+ * unused — they're consumed by RegexOutput which lives elsewhere.
  */
 import React from 'react';
 import { RegexOutput } from './RegexOutput';
@@ -59,6 +69,13 @@ interface CategoryControlPanelProps {
   excludedCount?: number;
   /** Number of active (selected + excluded) tokens — for budget-aware warnings */
   activeTokenCount?: number;
+  /**
+   * Split mode (iter 52): when true, render ONLY the controls row — no
+   * <RegexOutput>, no sticky wrapper. Used by pages that adopt CategoryLayout,
+   * which renders RegexOutput separately in a sticky right column.
+   * Default: false (legacy behavior preserved for 7 unmigrated pages).
+   */
+  hideRegexOutput?: boolean;
 }
 
 /**
@@ -111,6 +128,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   showPriorityFilter,
   excludedCount = 0,
   activeTokenCount = 0,
+  hideRegexOutput = false,
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
@@ -128,18 +146,12 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
     { value: 'S' as PriorityFilter, action: () => onSetPriorityFilter('S') },
   ];
 
-  return (
-    <div className="sticky top-0 z-10 -mx-1 px-1 pb-3 control-panel-sticky"
-      style={{ background: 'var(--poe-bg, #0a0a0f)' }}
-      role="toolbar"
-      aria-label={t('control.panel')}
-    >
-      {/* Regex output */}
-      <RegexOutput regex={regex} isOverflow={isOverflow} regexParts={regexParts} filterStore={filterStore} activeTokenCount={activeTokenCount} />
-
-      {/* Controls row */}
-      <div className="flex flex-wrap gap-2.5 items-center mt-2">
-        {/* Search logic toggle: AND/OR */}
+  // Controls row — factored out so we don't duplicate it between legacy and
+  // split (hideRegexOutput) modes. In split mode, no `mt-2` (no RegexOutput
+  // above to space from).
+  const controlsRow = (
+    <div className={`flex flex-wrap gap-2.5 items-center ${hideRegexOutput ? '' : 'mt-2'}`}>
+      {/* Search logic toggle: AND/OR */}
         <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}
           onKeyDown={(e) => handleRadioKeyDown(e, logicOptions, searchLogic)}
         >
@@ -319,6 +331,32 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {/* Category-specific controls slot */}
         {extraControls}
       </div>
+  );
+
+  // Split mode (iter 52): controls only, no RegexOutput, no sticky wrapper.
+  // Used by pages that adopt <CategoryLayout> — they render RegexOutput
+  // separately in a sticky right column.
+  if (hideRegexOutput) {
+    return (
+      <div role="toolbar" aria-label={t('control.panel')}>
+        {controlsRow}
+      </div>
+    );
+  }
+
+  // Legacy mode (default): sticky wrapper + RegexOutput + controls row.
+  // Used by 7 unmigrated category pages (RingPage, AmuletPage, etc.).
+  return (
+    <div className="sticky top-0 z-10 -mx-1 px-1 pb-3 control-panel-sticky"
+      style={{ background: 'var(--poe-bg, #0a0a0f)' }}
+      role="toolbar"
+      aria-label={t('control.panel')}
+    >
+      {/* Regex output */}
+      <RegexOutput regex={regex} isOverflow={isOverflow} regexParts={regexParts} filterStore={filterStore} activeTokenCount={activeTokenCount} />
+
+      {/* Controls row */}
+      {controlsRow}
     </div>
   );
 };

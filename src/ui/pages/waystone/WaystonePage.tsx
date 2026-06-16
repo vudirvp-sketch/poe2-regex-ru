@@ -1,9 +1,10 @@
 /**
  * WaystonePage — Category page for Waystones.
  *
- * Layout v2: Control panel sticky at top with waystone-specific controls,
- * mod list full width below with two-column prefix/suffix layout
- * and sentiment sub-grouping (positive/negative/neutral).
+ * Layout v3 (iter 52): Uses <CategoryLayout> — 2-column desktop (controls +
+ * ModList on left, sticky RegexOutput + status + ProfilePanel on right),
+ * 1-column mobile (RegexOutput appears below ModList until Phase 7 moves
+ * it to a sticky bottom-bar).
  *
  * Loads and merges two JSON files:
  * - waystone.json (96 normal tokens)
@@ -18,8 +19,10 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
+import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
+import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { t } from '@shared/i18n';
 import { countUniqueFamilyKeys } from '@shared/family-grouper';
 import { literal, exclude } from '@core/ast';
@@ -87,91 +90,75 @@ export function WaystonePage() {
         )];
 
         return (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
-                <img src={`${import.meta.env.BASE_URL}icons/waystone.png`} alt="" width={24} height={24} className="object-contain" />
-                {t('waystone.title')}
-              </h2>
-              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
-            </div>
-
-            <CategoryControlPanel
-              regex={regex}
-              isOverflow={isRegexOverflow}
-              regexParts={regexParts}
-              filterStore={filterStore}
-              searchLogic={searchLogic}
-              setSearchLogic={setSearchLogic}
-              hasRangedTokens={hasRangedTokens}
-              minValue={minValue}
-              setMinValue={setMinValue}
-              maxValue={maxValue}
-              setMaxValue={setMaxValue}
-              rangedSuffixes={rangedSuffixes}
-              round10Enabled={round10Enabled}
-              setRound10Enabled={setRound10Enabled}
-              thresholdEnabled={thresholdEnabled}
-              setThresholdEnabled={setThresholdEnabled}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
-              showPriorityFilter
-              excludedCount={excludeTokens.length}
-              activeTokenCount={allActiveTokens.length}
-              extraControls={
-                <div className="flex items-center gap-3 ml-2 pl-2 border-l border-edge-panel">
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" checked={corrupted}
-                      onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
-                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-purple-500" />
-                    <span className="text-[10px] text-soft">{t('waystone.corrupted_label')}</span>
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" checked={uncorrupted}
-                      onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
-                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-green-500" />
-                    <span className="text-[10px] text-soft">{t('waystone.uncorrupted_label')}</span>
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" checked={delirious}
-                      onChange={(e) => setDelirious(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500" />
-                    <span className="text-[10px] text-soft">{t('waystone.delirious_label')}</span>
-                  </label>
-                </div>
-              }
-            />
-
-            <ModList
-              tokens={data.tokens}
-              selectedIds={selectedIds}
-              excludedIds={excludedIds}
-              searchText={searchText}
-              affixFilter={affixFilter}
-              originFilter={originFilter}
-              onToggleTokens={toggleTokens}
-              onToggleExclude={toggleExclude}
-              onSearchChange={setSearchText}
-              onAffixFilterChange={setAffixFilter}
-              onOriginFilterChange={setOriginFilter}
-              onClearSelections={clearSelections}
-              perTokenRanges={perTokenRanges}
-              onSetTokenRange={setTokenRange}
-              onClearTokenRange={clearTokenRange}
-              collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-sentiment"
-              category="waystone"
-              priorityFilter={priorityFilter}
-            />
-
-            <div className="flex flex-col gap-3">
-              <ProfilePanel
-                category={categoryId}
-                currentFilterData={filterStore.serialize()}
-                onRestore={restoreFilterState}
+          <CategoryLayout
+            header={
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+                  <img src={`${import.meta.env.BASE_URL}icons/waystone.png`} alt="" width={24} height={24} className="object-contain" />
+                  {t('waystone.title')}
+                </h2>
+                <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
+              </div>
+            }
+            controls={
+              <CategoryControlPanel
+                hideRegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                searchLogic={searchLogic}
+                setSearchLogic={setSearchLogic}
+                hasRangedTokens={hasRangedTokens}
+                minValue={minValue}
+                setMinValue={setMinValue}
+                maxValue={maxValue}
+                setMaxValue={setMaxValue}
+                rangedSuffixes={rangedSuffixes}
+                round10Enabled={round10Enabled}
+                setRound10Enabled={setRound10Enabled}
+                thresholdEnabled={thresholdEnabled}
+                setThresholdEnabled={setThresholdEnabled}
+                priorityFilter={priorityFilter}
+                setPriorityFilter={setPriorityFilter}
+                showPriorityFilter
+                excludedCount={excludeTokens.length}
+                activeTokenCount={allActiveTokens.length}
+                extraControls={
+                  <div className="flex items-center gap-3 ml-2 pl-2 border-l border-edge-panel">
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input type="checkbox" checked={corrupted}
+                        onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
+                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-purple-500" />
+                      <span className="text-[10px] text-soft">{t('waystone.corrupted_label')}</span>
+                    </label>
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input type="checkbox" checked={uncorrupted}
+                        onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
+                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-green-500" />
+                      <span className="text-[10px] text-soft">{t('waystone.uncorrupted_label')}</span>
+                    </label>
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input type="checkbox" checked={delirious}
+                        onChange={(e) => setDelirious(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500" />
+                      <span className="text-[10px] text-soft">{t('waystone.delirious_label')}</span>
+                    </label>
+                  </div>
+                }
               />
-
-              {(allActiveTokens.length > 0 || corrupted || uncorrupted || delirious) && (
+            }
+            regexOutput={
+              <RegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                activeTokenCount={allActiveTokens.length}
+              />
+            }
+            status={
+              (allActiveTokens.length > 0 || corrupted || uncorrupted || delirious) ? (
                 <div className="bg-panel border border-edge-panel rounded p-3">
                   <div className="text-xs text-muted mb-1">
                     {t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}
@@ -193,9 +180,38 @@ export function WaystonePage() {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
+              ) : undefined
+            }
+            sidebar={
+              <ProfilePanel
+                category={categoryId}
+                currentFilterData={filterStore.serialize()}
+                onRestore={restoreFilterState}
+              />
+            }
+          >
+            <ModList
+              tokens={data.tokens}
+              selectedIds={selectedIds}
+              excludedIds={excludedIds}
+              searchText={searchText}
+              affixFilter={affixFilter}
+              originFilter={originFilter}
+              onToggleTokens={toggleTokens}
+              onToggleExclude={toggleExclude}
+              onSearchChange={setSearchText}
+              onAffixFilterChange={setAffixFilter}
+              onOriginFilterChange={setOriginFilter}
+              onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+              groupMode="affix-sentiment"
+              category="waystone"
+              priorityFilter={priorityFilter}
+            />
+          </CategoryLayout>
         );
       }}
     </PageStateWrapper>
