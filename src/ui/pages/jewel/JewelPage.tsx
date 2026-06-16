@@ -28,8 +28,8 @@ import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
+import { StatusPanel } from '@ui/components/StatusPanel';
 import { t } from '@shared/i18n';
-import { countUniqueFamilyKeys, groupTokensByFamily } from '@shared/family-grouper';
 import { classifyJewelType, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import type { GameToken } from '@shared/types';
 
@@ -213,22 +213,22 @@ export function JewelPage() {
               />
             }
             status={
-              allActiveTokens.length > 0 ? (
-                <div className="bg-panel border border-edge-panel rounded p-3">
-                  <div className="text-xs text-muted mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
-                  {excludeTokens.length > 0 && (
-                    <div className="text-xs text-accent-red mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
-                  )}
-                  <div className="text-[10px] text-faint">
-                    {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+              <StatusPanel
+                wantTokens={wantTokens}
+                excludeTokens={excludeTokens}
+                allActiveTokens={allActiveTokens}
+                alerts={hiddenActiveCount > 0 ? [
+                  <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-aborder-amber rounded text-xs text-atext-amber" role="alert">
+                    <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
+                    <button
+                      onClick={deselectHidden}
+                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
+                    >
+                      {t('jewel.deselect_hidden')}
+                    </button>
                   </div>
-                  {excludeTokens.length > 0 && (
-                    <div className="text-[10px] text-accent-red-dim">
-                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                    </div>
-                  )}
-                </div>
-              ) : undefined
+                ] : []}
+              />
             }
             sidebar={
               <ProfilePanel
@@ -238,18 +238,7 @@ export function JewelPage() {
               />
             }
           >
-            {/* Hidden active mods warning — left column, between controls and ModList */}
-            {hiddenActiveCount > 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-aborder-amber rounded text-xs text-atext-amber" role="alert">
-                <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
-                <button
-                  onClick={deselectHidden}
-                  className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
-                >
-                  {t('jewel.deselect_hidden')}
-                </button>
-              </div>
-            )}
+            {/* Hidden active mods alert is now rendered via StatusPanel alerts slot */}
 
             <VirtualizedModList
               tokens={filteredTokens}

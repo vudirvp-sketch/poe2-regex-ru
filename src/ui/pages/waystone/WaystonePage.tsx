@@ -23,8 +23,8 @@ import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
+import { StatusPanel } from '@ui/components/StatusPanel';
 import { t } from '@shared/i18n';
-import { countUniqueFamilyKeys } from '@shared/family-grouper';
 import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
@@ -153,29 +153,16 @@ export function WaystonePage() {
               />
             }
             status={
-              (allActiveTokens.length > 0 || corrupted || uncorrupted || delirious) ? (
-                <div className="bg-panel border border-edge-panel rounded p-3">
-                  <div className="text-xs text-muted mb-1">
-                    {t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}
-                    {excludeTokens.length > 0 && (
-                      <span className="text-accent-red"> | {t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</span>
-                    )}
-                    {corrupted && ` ${t('waystone.summary_corrupted')}`}
-                    {uncorrupted && ` ${t('waystone.summary_uncorrupted')}`}
-                    {delirious && ` ${t('waystone.summary_delirious')}`}
-                  </div>
-                  {wantTokens.length > 0 && (
-                    <div className="text-[10px] text-faint">
-                      {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                    </div>
-                  )}
-                  {excludeTokens.length > 0 && (
-                    <div className="text-[10px] text-accent-red-dim">
-                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                    </div>
-                  )}
-                </div>
-              ) : undefined
+              <StatusPanel
+                wantTokens={wantTokens}
+                excludeTokens={excludeTokens}
+                allActiveTokens={allActiveTokens}
+                badges={[
+                  ...(corrupted ? [t('waystone.summary_corrupted')] : []),
+                  ...(uncorrupted ? [t('waystone.summary_uncorrupted')] : []),
+                  ...(delirious ? [t('waystone.summary_delirious')] : []),
+                ]}
+              />
             }
             sidebar={
               <ProfilePanel

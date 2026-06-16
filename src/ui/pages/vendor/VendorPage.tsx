@@ -24,6 +24,7 @@ import { buildVendorCategoryData } from '@data/vendor-adapter';
 import { FilterChip } from '@ui/components/FilterChip';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { StatusPanel } from '@ui/components/StatusPanel';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { groupTokensByFamily } from '@shared/family-grouper';
 import { t } from '@shared/i18n';
@@ -202,6 +203,18 @@ export function VendorPage() {
           activeTokenCount={allActiveTokens.length}
         />
       }
+      status={
+        <StatusPanel
+          wantTokens={data?.tokens.filter(tok => selectedIds.has(tok.id)) ?? []}
+          excludeTokens={data?.tokens.filter(tok => excludedIds.has(tok.id)) ?? []}
+          allActiveTokens={allActiveTokens}
+          alerts={[
+            <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
+              <strong>{t('vendor.verification')}</strong>
+            </div>
+          ]}
+        />
+      }
     >
       {/* Chip-based property groups */}
       <div className="flex flex-col gap-3">
@@ -233,10 +246,7 @@ export function VendorPage() {
         })}
       </div>
 
-      {/* Verification note */}
-      <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
-        <strong>{t('vendor.verification')}</strong>
-      </div>
+      {/* Verification note is now rendered via StatusPanel alerts slot */}
     </CategoryLayout>
   );
 }

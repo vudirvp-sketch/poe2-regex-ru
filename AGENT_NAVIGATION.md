@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 57 (UI Фаза 5 — компактизация HomePage: SeoBlock в `<details>` + tightened spacing).
+> **Entry document.** Read this first. Current state: iter 58 (UI Фаза 6 — единая панель статусов `StatusPanel.tsx`).
 
 ---
 
@@ -14,7 +14,8 @@
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by ALL 8 category pages (waystone, ring, amulet, belt, relic, jewel, tablet, vendor). |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
+| `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages (iter 58, Phase 6). Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
 | `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). iter 56. | Single source — do not duplicate nav list in either component. |
 | `src/ui/layout/Sidebar.tsx` | Desktop-only vertical nav (`hidden md:flex`). iter 56: mobile drawer removed. | Mobile nav lives in `MobileNavTabs.tsx`. |
 | `src/ui/layout/MobileNavTabs.tsx` | Mobile-only horizontal scrollable chip tabs (`md:hidden`). Sticky below Header. iter 56. | Replaces previous hamburger drawer. |
@@ -138,7 +139,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **All 8 category pages** use this pattern: `<CategoryLayout>` wraps page; `<CategoryControlPanel>` (no special flags) in `controls` slot; `<RegexOutput>` + status + `<ProfilePanel>` in right-column slots; ModList in `children`.
     - **iter 54 cleanup removed:** legacy branch (sticky wrapper + embedded `<RegexOutput>`), `hideRegexOutput` prop, `regex`/`isOverflow`/`regexParts`/`filterStore` props (all unused in split mode). Dead CSS: `.control-panel-sticky`, `.sticky.top-0` mobile rules.
     - **Kept:** `activeTokenCount` (used for active-tokens counter in controls row), `extraControls` slot (waystone corrupted/delirious, jewel type filter, tablet type/rarity/uses), `clearButton` slot (Vendor).
-    - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). JewelPage's "Hidden mods warning" stays in left column (between controls and ModList). TabletPage's status block is custom (includes type/rarity/uses info).
+    - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). All 8 pages use `<StatusPanel>` in `status` slot (iter 58). WaystonePage/TabletPage use `badges` prop; JewelPage/VendorPage use `alerts` prop.
 
 21. **Level 1 visual frames (iter 55):** Two families of Level 1 decorative frames exist in `index.css` — both use the same pattern (gradient bg + 1px subtle border + 3px colored border-left + corner accents via `::before`/`::after`):
     - **Affix headers** (`.affix-header-prefix` / `-suffix` / `-implicit`): blue / orange / amber colors. Used by `ModList` to label affix groups.
@@ -155,6 +156,14 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **SEO preservation:** `<details>` content stays in the DOM (Google indexes it even when closed). Do NOT add `hidden` or conditional rendering — that would strip SEO content. The `<details>` element is natively keyboard-accessible (Enter/Space toggles, no JS needed).
     - **Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage — only margins, paddings, font sizes (e.g. stat badges `text-[13px]→[12px]`, Features title `text-xl→text-base`) and icon sizes (category cards `44→40px`) were reduced. If you need to add more sections, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
     - **Do NOT** re-add the default `<summary>` triangle — `list-style: none` + `::-webkit-details-marker { display: none }` suppress it; the custom `▸` marker is in `::before`.
+
+24. **StatusPanel — unified status component (iter 58, UI Phase 6):** All 8 category pages now use `<StatusPanel>` for the right-column `status` slot instead of inline JSX. The component accepts `wantTokens`, `excludeTokens`, `allActiveTokens` (mandatory) plus optional `badges` (ReactNode[]) and `alerts` (ReactNode[]).
+    - **Standard pages** (Belt, Amulet, Ring, Relic): just `<StatusPanel wantTokens={...} excludeTokens={...} allActiveTokens={...} />`.
+    - **Extended pages** pass category-specific data via `badges`: Waystone (corrupted/uncorrupted/delirious strings), Tablet (type/rarity/uses strings).
+    - **Alert pages** pass warning blocks via `alerts`: Jewel (amber hidden-mods alert with "Deselect" button), Vendor (yellow verification note).
+    - **VendorPage** now has a `status` slot (previously had none — verification note was in left column children).
+    - **JewelPage** hidden-mods alert moved from left column `children` to `status` slot `alerts` — renders in right column alongside the summary panel.
+    - **Do NOT** re-add inline status JSX to any page — always extend StatusPanel via `badges`/`alerts` props. If a new page needs a status variant, add a new prop to StatusPanel rather than duplicating JSX.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

@@ -375,6 +375,36 @@ CSS classes (defined in `index.css` after `.mobile-nav-tab`):
 
 **Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage in iter 57 — only margins, paddings, font sizes and icon sizes were reduced. If new sections are added later, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
 
+### StatusPanel — unified status panel (iter 58, UI Phase 6)
+
+All 8 category pages use `<StatusPanel>` in the `status` slot of `<CategoryLayout>` instead of inline JSX.
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `wantTokens` | `GameToken[]` | Yes | Selected (want/include) tokens |
+| `excludeTokens` | `GameToken[]` | Yes | Excluded (don't-want) tokens |
+| `allActiveTokens` | `GameToken[]` | Yes | All active tokens (selected + excluded) — used for visibility check |
+| `badges` | `ReactNode[]` | No | Inline elements appended to summary row (e.g. waystone corrupted/tablet types) |
+| `alerts` | `ReactNode[]` | No | Warning blocks rendered below summary panel (e.g. jewel hidden-mods, vendor verification) |
+
+**Usage patterns per page:**
+
+| Page | badges | alerts |
+|------|--------|--------|
+| Belt, Amulet, Ring, Relic | — | — |
+| Waystone | corrupted/uncorrupted/delirious strings | — |
+| Tablet | type/rarity/uses strings | — |
+| Jewel | — | amber hidden-mods alert + "Deselect" button |
+| Vendor | — | yellow verification note |
+
+**Rendering logic:**
+- Returns `null` when no active tokens AND no badges AND no alerts.
+- Summary panel: `bg-panel border border-edge-panel rounded p-3` with selected/excluded family counts (via `countUniqueFamilyKeys`) + truncated token lists (30 chars each).
+- Badges rendered as `<span>` elements inline after the count row.
+- Alerts rendered as separate `<div>` blocks below the summary panel.
+
 ## 13. Optimizer Collapse Indicator
 
 When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears on FilterChip.

@@ -2,26 +2,29 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 57 — UI Фаза 5 (компактизация HomePage: SeoBlock в `<details>`)
+> **Текущая итерация:** 58 — UI Фаза 6 (единая панель статусов `StatusPanel.tsx`)
 
 ---
 
-## iter 57 — UI Фаза 5: Компактизация HomePage
+## iter 58 — UI Фаза 6: Единая панель статусов
 
-**Что:** Главная страница стала плотнее — уменьшены вертикальные отступы (mb-10→mb-6, mt-10→mt-6, mt-12→mt-6, mt-8→mt-6), сжаты карточки категорий (p-4→p-3, иконка 44→40), а длинный SEO-текст свёрнут в нативный `<details>` с золотым `<summary>` (закрыт по умолчанию).
+**Что:** Разрозненные статус-блоки на 8 страницах категорий объединены в единый компонент `StatusPanel.tsx`. Компонент устраняет дублирование JSX (~15-20 строк inline-кода на каждой странице) и предоставляет расширяемый API через `badges` и `alerts` слоты.
 
 **Изменения:**
 
-- `src/ui/pages/home/SeoBlock.tsx` — содержимое обёрнуто в `<details className="home-seo-details">` с `<summary className="home-seo-summary">`. Все 4 SEO-секции сохранены внутри (Google индексирует `<details>` даже в закрытом состоянии). Нативная keyboard-accessibility.
-- `src/ui/pages/home/HomePage.tsx` — tightened: Hero `mb-10→mb-6`, `mb-3→mb-2`, `mb-4→mb-3`, `mb-6→mb-4`; stat badges `text-[13px]→[12px]`, `px-2 py-1→px-1.5 py-0.5`, `gap-3→gap-2`; category cards `gap-4→gap-3`, `p-4→p-3`, icon `44×44→40×40` (height 48→40), `mb-2→mb-1.5`, `mt-2→mt-1.5`; Features section `mt-10→mt-6`, `gap-4→gap-3`, `p-4→p-3`, title `text-xl→text-base`, desc `text-[13px]→[12px]`, `mb-2→mb-1.5`; SeoBlock wrapper `mt-12→mt-6`; Footer `mt-8→mt-6`.
-- `src/shared/i18n.ts` — добавлен ключ `'home.seo_summary'`: «Подробнее о регексах PoE2 — как пользоваться генератором, ёфикация, лимит 250 символов».
-- `src/index.css` — +49 строк после блока `.mobile-nav-tab`:
-  - `.home-seo-details` — карточка-обёртка (`--poe-bg-secondary` + 1px border + radius 6px).
-  - `.home-seo-summary` — gold text, `cursor: pointer`, `list-style: none` (кросс-браузерно скрыт дефолтный треугольник), hover bg tint.
-  - `.home-seo-summary::before` — кастомный маркер `▸` (gold), поворот на 90° когда `details[open]`.
-  - `.home-seo-content` — padding для раскрытого контента.
+- **NEW** `src/ui/components/StatusPanel.tsx` — единый компонент:
+  - Props: `wantTokens`, `excludeTokens`, `allActiveTokens` (обязательные); `badges` (ReactNode[], по умолчанию []); `alerts` (ReactNode[], по умолчанию []).
+  - Рендерит: (1) summary-панель с selected/excluded counts + truncated token lists; (2) inline badges после count-строки; (3) alert-блоки под summary.
+  - Возвращает `null` когда нет активных токенов, badges и alerts.
+- **Обновлены 8 страниц** — inline status JSX заменён на `<StatusPanel>`:
+  - BeltPage, AmuletPage, RingPage, RelicPage — стандартный вызов (3 props, без badges/alerts).
+  - JewelPage — `alerts` для amber "hidden mods" warning (ранее в left column children).
+  - WaystonePage — `badges` для corrupted/uncorrupted/delirious (ранее inline string interpolation).
+  - TabletPage — `badges` для type/rarity/uses (ранее inline string interpolation).
+  - VendorPage — `alerts` для yellow verification note (ранее в left column children). Добавлен `status` slot (ранее отсутствовал).
+- Удалены неиспользуемые импорты `countUniqueFamilyKeys` из 6 страниц и `t` из 4 стандартных страниц (Belt/Amulet/Ring/Relic — `t` больше не используется напрямую).
 
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (154 модуля, 9 prerendered HTML, CSS 42.64 KB / gzip 9.31 KB — +0.69 KB uncompressed за счёт нового CSS-блока). Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (155 модулей, CSS 42.49 KB / gzip 9.28 KB — −0.15 KB за счёт устранения дублирующихся inline JSX-строк). Lint baseline 59 сохранён.
 
 ---
 
@@ -60,8 +63,8 @@
 | 3 | ✅ iter 55 | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
 | 4 | ✅ iter 56 | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
 | 5 | ✅ iter 57 | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
-| 6 | ⏳ next | Единая панель статусов (`StatusPanel.tsx`) |
-| 7 | ⏳ | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
+| 6 | ✅ iter 58 | Единая панель статусов (`StatusPanel.tsx`) |
+| 7 | ⏳ next | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
 | 8 | ⏳ | Полировка: снять шум, оставить «дорогую тишину» |
 | 9 | ⏳ | Документация финальная |
 
@@ -82,7 +85,7 @@
 
 ## SEO-статус
 
-✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock теперь в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
+✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
 
 ---
 Контакты: Discord **woonderdad**
