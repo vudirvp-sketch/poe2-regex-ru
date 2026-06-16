@@ -1,31 +1,36 @@
 /**
- * In-Game Test Results — Iteration 36 (Gems)
+ * In-Game Test Results — Iteration 38 (Gems)
  *
  * Tests based on REAL in-game gem items (uploaded by user 2026-06-16).
  * Source file: предметы для теста с аффиксами имплиситами_новый.md
  * Items: 4 Изумрудных самоцвета (ilvl 28-82) with various damage/utility mods.
  *
  * ═══════════════════════════════════════════════════════════════════════════
- * GOALS
+ * IN-GAME VERIFICATION STATUS (updated iter 38)
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * 1. Verify known-working PoE2 regex patterns on REAL gem items
- *    (single-mod suffix, .* bridge, AND across blocks, single-word |).
+ * Two CRITICAL findings from iter 37 in-game run (4 gems, 39 user-reported
+ * results), confirmed in iter 38:
  *
- * 2. Establish a DETERMINISTIC REGEX STRATEGY for gems that:
- *    - Uses ONLY verified-working patterns
- *    - Produces unique regex per mod (no FP)
- *    - Does NOT rely on multi-word `|` (confirmed broken — Tests 15-17)
- *    - Is UNIFIED across all categories (gems, rings, amulets, belts, etc.)
+ * 1. B0 RESOLVED — `"X"|"Y"` (OR between TWO quoted groups) is BROKEN.
+ *    All 3 B0 tests gave ZERO matches in-game. The simulator's parsing
+ *    (`"X" AND (|Y)` = `"X"` only) is CORRECT in principle, but the game
+ *    is even stricter: the `|` between quoted groups breaks the parser
+ *    completely and matches NOTHING.
  *
- * 3. Document cross-block FP risk and how to mitigate it.
+ * 2. D7-3 CONFIRMED WORKING — top-level `|` inside ONE quoted group with
+ *    `.*` bridges now works in-game. The PoE2 regex engine was patched
+ *    since iterations 15-17. The simulator already models this correctly.
+ *    Example: `"увеличение урона.*луками|увеличение урона.*посохами"`
+ *    matches BOTH gems in-game (was previously documented as BROKEN).
  *
- * 4. Probe the B0 hypothesis (OR between quoted groups) — PENDING in-game.
- *    In our simulator, `"X"|"Y"` parses as `"X"` AND `(|Y)` = `"X"` only.
- *    In-game behavior is UNKNOWN — needs Test B0 to verify.
+ * => NEW STRATEGY "Path D": for same-family OR (multi-word alternatives),
+ *    use ONE quoted group with top-level `|` and `.*` bridges:
+ *      `"prefix.*A|prefix.*B|prefix.*C"`
+ *    This REPLACES the broken opt-table pattern `"prefix (A|B|C)"`.
  *
  * ═══════════════════════════════════════════════════════════════════════════
- * DETERMINISTIC REGEX STRATEGY (unified for all categories)
+ * DETERMINISTIC REGEX STRATEGY (8 principles, unified for all categories)
  * ═══════════════════════════════════════════════════════════════════════════
  *
  * Principle 1: ONE MOD = ONE QUOTED GROUP
@@ -39,12 +44,13 @@
  *   `"mod1" "mod2" "mod3"`
  *   Each group must match SOME block (same or different).
  *
- * Principle 3: NO MULTI-WORD `|` (CONFIRMED BROKEN)
- *   - `"A|B"` (whole quoted group is single-word OR) — ✅ works
- *   - `"(A|B)"` (single-word OR inside parens) — ✅ works alone
- *   - `"prefix (A|B)"` (alternation after prefix inside quotes) — ❌ BROKEN
- *   - `"(A B|C D)"` (multi-word alternation in parens) — ❌ BROKEN
- *   - `"A B|C D"` (multi-word alternation at top level) — ❌ BROKEN
+ * Principle 3: `|` SCOPE — only at TOP LEVEL of a quoted group
+ *   - `"A|B"` (top-level `|`, single words) — ✅ works
+ *   - `"(A|B)"` (top-level `|` inside `()`, single words) — ✅ works
+ *   - `"prefix.*A|prefix.*B"` (top-level `|`, multi-word with `.*`) — ✅ works (Path D, iter 38)
+ *   - `"prefix (A|B)"` (`|` after non-`.*` prefix inside `"..."`) — ❌ BROKEN (Test 16)
+ *   - `"(A B|C D)"` (`|` between multi-word alternatives inside `()`) — ❌ BROKEN (Test 15)
+ *   - `"X"|"Y"` (`|` BETWEEN two quoted groups) — ❌ BROKEN (B0 confirmed iter 38)
  *
  * Principle 4: `.*` BRIDGING WITHIN SINGLE BLOCK
  *   When mod has structure `prefix N suffix`, use:
@@ -72,19 +78,23 @@
  *   - OR: make each quoted group as specific as possible (full suffix, not
  *     truncated) to reduce chance of matching unintended blocks.
  *
- * Principle 8: SAME-FAMILY OR (multiple weapon damage mods)
+ * Principle 8: SAME-FAMILY OR (Path D — verified iter 38)
  *   When user wants ANY of N mods from the same family (e.g., damage with
- *   different weapons), the ONLY working approaches are:
- *   a. Generate N separate quoted groups with `.*` bridge, connect via
- *      top-level `|` IF Test B0 confirms it works: `"X.*A"|"X.*B"`
- *      (CURRENTLY UNVERIFIED — simulator treats this as `"X.*A"` only)
+ *   different weapons луками/посохами/копьями), use ONE quoted group with
+ *   top-level `|` and `.*` bridge per alternative:
+ *     `"prefix.*A|prefix.*B|prefix.*C"`
+ *   This is the WORKING replacement for the broken opt-table approach
+ *   `"prefix (A|B|C)"` (Tests 16-17).
+ *
+ *   Status:
+ *   - ✅ 2 alternatives verified in-game (D7-3)
+ *   - ⚠️ 3+ alternatives: PENDING in-game verification (next iteration)
+ *
+ *   Fallback options if Path D fails on 3+ alternatives:
  *   b. UI redesign: each same-family mod becomes a SEPARATE AND filter
  *      (mutually exclusive choice in UI, not OR in regex)
  *   c. Fall back to AND (user must accept that selecting multiple
  *      same-family mods requires ALL to be present, not ANY)
- *
- *   The opt-table's current approach (`"X (A|B|C)"`) is BROKEN and must be
- *   replaced by one of the above strategies.
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -409,15 +419,23 @@ describe('D6. Single-word `|` as whole quoted group — verified working', () =>
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// D7. BROKEN PATTERNS — multi-word `|` (confirm simulator matches broken game behavior)
+// D7. `|` PATTERNS — game engine PATCHED since iter 15-17 (iter 38 confirmation)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('D7. Broken patterns — multi-word `|` (Tests 15-17 confirmed broken in-game)', () => {
-  // These patterns are CONFIRMED BROKEN in the actual game (Tests 15-17).
-  // Our simulator may or may not reproduce the broken behavior — these tests
-  // document what the simulator does, so we know what to expect.
+describe('D7. `|` patterns — simulator matches patched game behavior (iter 38)', () => {
+  // HISTORY: Tests 15-17 (iter 36) reported these patterns as BROKEN in-game.
+  // Iter 37 in-game re-testing on 4 gems showed the PoE2 regex engine was
+  // PATCHED — top-level `|` inside ONE quoted group with `.*` bridges now
+  // works correctly. The simulator already modeled this correctly.
+  //
+  // REMAINING BROKEN patterns (Tests 15-17 still apply):
+  //   - `"prefix (A|B)"` — `()` + `|` after non-`.*` prefix inside quotes
+  //   - `"(A B|C D)"` — multi-word `|` inside `()`
+  //
+  // Path D (Principle 8) uses ONLY the now-working pattern:
+  //   `"prefix.*A|prefix.*B"`
 
-  it('SIMULATOR: "увеличение урона (луками|посохами)" — requires exact adjacency', () => {
+  it('SIMULATOR: "увеличение урона (луками|посохами)" — exact adjacency (still BROKEN in-game)', () => {
     // Pattern: literal "увеличение урона " + group(луками | посохами)
     // Simulator parses correctly but requires "луками" or "посохами" IMMEDIATELY
     // after "увеличение урона " (no `.*` to bridge over "боевыми").
@@ -429,86 +447,80 @@ describe('D7. Broken patterns — multi-word `|` (Tests 15-17 confirmed broken i
     // Gem 2 mod: "6% увеличение урона луками"
     //   - "увеличение урона " matches, next word IS "луками" → MATCH
     //
-    // In the GAME (Test 16): matches EVERYTHING with "увеличение" — `()` + `|` ignored.
-    //
-    // SIMULATOR AND GAME DIVERGE:
-    //   - Simulator: gem 1 NO MATCH (correct regex), gem 2 MATCH (exact adjacency)
-    //   - Game: matches too broadly (both gems match, plus FP on any "увеличение")
-    // Pattern is UNUSABLE — game behavior is broken.
+    // In the GAME (Test 16, iter 36): matches EVERYTHING with "увеличение" — `()` + `|` ignored.
+    // Pattern is UNUSABLE — game behavior is broken. Use Path D instead.
     expect(matchPoE2RegexItem('"увеличение урона (луками|посохами)"', plemennayaLuchina)).toBe(false);
     expect(matchPoE2RegexItem('"увеличение урона (луками|посохами)"', gipnoticheskayaSushchnost)).toBe(true);
-    // CRITICAL: Do NOT use this pattern in production — broken in-game!
+    // CRITICAL: Do NOT use this pattern in production — broken in-game (Test 16)!
   });
 
-  it('SIMULATOR: "(увеличение урона луками|увеличение урона посохами)" — requires exact adjacency', () => {
+  it('SIMULATOR: "(увеличение урона луками|увеличение урона посохами)" — multi-word in () (still BROKEN in-game)', () => {
     // Pattern: group( "увеличение урона луками" | "увеличение урона посохами" )
     // Simulator parses as alternation of two literal sequences.
     //   - For gem 1: "увеличение урона" matches, but "боевыми" follows, not "луками"/"посохами"
     //   - For gem 2: "увеличение урона луками" matches exactly ✅
     //
-    // In the GAME (Test 15): `()` with multi-word `|` → NOTHING matches.
-    //
-    // SIMULATOR AND GAME DIFFER on gem 2:
-    //   - Simulator: gem 2 matches (exact literal substring)
-    //   - Game: gem 2 does NOT match (`()` + multi-word `|` broken)
-    // Pattern is UNUSABLE in production.
+    // In the GAME (Test 15, iter 36): `()` with multi-word `|` → NOTHING matches.
+    // Pattern is UNUSABLE in production. Use Path D instead.
     expect(
       matchPoE2RegexItem('"(увеличение урона луками|увеличение урона посохами)"', plemennayaLuchina)
     ).toBe(false); // gem 1 has "боевыми" between — no exact match
     expect(
       matchPoE2RegexItem('"(увеличение урона луками|увеличение урона посохами)"', gipnoticheskayaSushchnost)
     ).toBe(true); // gem 2 has exact "увеличение урона луками" substring
-    // CRITICAL: Do NOT use this pattern in production — broken in-game!
+    // CRITICAL: Do NOT use this pattern in production — broken in-game (Test 15)!
   });
 
-  it('SIMULATOR: "увеличение урона.*луками|увеличение урона.*посохами" — top-level multi-word `|`', () => {
-    // Pattern: ONE quoted group with `|` at top level (multi-word alternatives).
-    // Simulator parses as alternation: "увеличение урона.*луками" | "увеличение урона.*посохами"
+  it('SIMULATOR: "увеличение урона.*луками|увеличение урона.*посохами" — top-level `|` with `.*` (Path D, CONFIRMED WORKING iter 38)', () => {
+    // Pattern: ONE quoted group with top-level `|` and `.*` bridges in each alternative.
     //   - For gem 1: second alt matches "увеличение урона боевыми посохами" via `.*` ✅
     //   - For gem 2: first alt matches "увеличение урона луками" via `.*` ✅
     //
-    // In the GAME (Tests 9-11): top-level multi-word `|` → BROKEN.
+    // In the GAME (iter 37 in-game run, confirmed iter 38): BOTH gems MATCH.
+    // The PoE2 regex engine was PATCHED since iter 15-17 — top-level `|`
+    // inside ONE quoted group with `.*` bridges now works correctly.
     //
-    // SIMULATOR AND GAME DIVERGE:
-    //   - Simulator: both gems match (correct regex semantics)
-    //   - Game: BROKEN — neither matches, or only prefix matches
-    // Pattern is UNUSABLE in production.
+    // This is Path D — the WORKING replacement for the broken opt-table pattern.
     expect(
       matchPoE2RegexItem('"увеличение урона.*луками|увеличение урона.*посохами"', plemennayaLuchina)
     ).toBe(true);
     expect(
       matchPoE2RegexItem('"увеличение урона.*луками|увеличение урона.*посохами"', gipnoticheskayaSushchnost)
     ).toBe(true);
-    // CRITICAL: Do NOT use this pattern in production — broken in-game!
+    // ✅ Path D — verified working in-game (2 alternatives). Use this strategy!
+    // ⚠️ 3+ alternatives: still PENDING in-game verification (next iteration).
   });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// D8. B0 HYPOTHESIS — OR between quoted groups (PENDING in-game verification)
+// D8. B0 RESOLVED — OR between quoted groups is BROKEN (iter 38)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('D8. B0 hypothesis — OR between quoted groups (PENDING in-game)', () => {
-  // The CRITICAL unverified test: does `"X"|"Y"` work as OR between two quoted groups?
+describe('D8. B0 RESOLVED — `"X"|"Y"` (OR between quoted groups) is BROKEN in-game', () => {
+  // The CRITICAL test, now RESOLVED: `"X"|"Y"` does NOT work as OR in-game.
   //
-  // In our SIMULATOR:
-  //   parseQuotedGroups splits on SPACES outside quotes, NOT on `|`.
-  //   So `"A B"|"C D"` (no spaces around `|`) becomes ONE group: `A B` + `|C D`
-  //   Wait — let me re-trace: `"A"|"B"` → groups = [`A`, `|B`] (split happens at `"`)
-  //   Then group 2 `|B` parses as alternation: empty | `b` → always matches.
-  //   Result: `"A"|"B"` = `A` AND `(|B)` = `A` only.
+  // Iter 37 in-game run with 4 gems: ALL 3 B0 tests gave ZERO matches.
+  // The PoE2 parser breaks completely when it sees `|` between two quoted groups.
   //
-  // In the GAME:
-  //   UNKNOWN — Test B0 has not been run yet.
-  //   If the game parses `|` between quoted groups as top-level OR, this works.
-  //   If the game tokenizes on spaces first (like the simulator), this fails.
+  // SIMULATOR behavior (kept for reference): parseQuotedGroups splits on
+  // SPACES outside quotes, NOT on `|`. So `"A"|"B"` becomes groups [`A`, `|B`].
+  // Group 2 `|B` parses as alternation: empty | `b` → always matches.
+  // Result: `"A"|"B"` = `A` AND `(|B)` = `A` only.
   //
-  // These tests document the SIMULATOR's behavior. In-game verification is PENDING.
+  // GAME behavior: ZERO matches. The simulator is "less broken" than the game
+  // (simulator matches `"A"`, game matches nothing). Neither gives the desired
+  // OR semantics.
+  //
+  // CONCLUSION: Path A (decompose opt-table to `"X"|"Y"`) is IMPOSSIBLE.
+  // Use Path D instead (single quoted group with top-level `|` and `.*` bridges).
 
-  it('SIMULATOR: "увеличение урона.*луками"|"увеличение урона.*посохами" → matches ONLY gem 2 (луками)', () => {
+  it('SIMULATOR: "увеличение урона.*луками"|"увеличение урона.*посохами" → matches ONLY gem 2 (game: ZERO matches)', () => {
     // Simulator parses as: group1="увеличение урона.*луками", group2="|увеличение урона.*посохами"
     // group2 always matches (empty alternative). Result: only group1 is checked.
     // - Gem 2 (луками): group1 matches ✅
     // - Gem 1 (посохами): group1 does NOT match ❌
+    //
+    // IN-GAME (iter 37): ZERO matches — `|` between quoted groups breaks the parser.
     expect(
       matchPoE2RegexItem(
         '"увеличение урона.*луками"|"увеличение урона.*посохами"',
@@ -521,48 +533,44 @@ describe('D8. B0 hypothesis — OR between quoted groups (PENDING in-game)', () 
         plemennayaLuchina
       )
     ).toBe(false);
-    // ⚠️ IN-GAME: if `|` between quoted groups works as OR, BOTH gems would match.
-    //    If it works like the simulator (AND with always-true second group),
-    //    only gem 2 matches. Test B0 will tell.
+    // ❌ IN-GAME: ZERO matches. Path A is impossible — use Path D instead.
   });
 
-  it('SIMULATOR: "оберег"|"компаньон" → matches ONLY gem 1 (оберег)', () => {
+  it('SIMULATOR: "оберег"|"компаньон" → matches ONLY gem 1 (game: ZERO matches)', () => {
     // Same parsing: group1="оберег", group2="|компаньон" (always matches).
     // Result: only checks "оберег".
     expect(matchPoE2RegexItem('"оберег"|"компаньон"', plemennayaLuchina)).toBe(true);
     expect(matchPoE2RegexItem('"оберег"|"компаньон"', gipnoticheskayaSushchnost)).toBe(false);
-    // ⚠️ IN-GAME: if `|` works as OR, BOTH gems would match.
+    // ❌ IN-GAME: ZERO matches.
   });
 
-  it('SIMULATOR: "глобальной меткости"|"максимума здоровья компаньонов" → matches ONLY gem 3', () => {
+  it('SIMULATOR: "глобальной меткости"|"максимума здоровья компаньонов" → matches ONLY gem 3 (game: ZERO matches)', () => {
     expect(
       matchPoE2RegexItem('"глобальной меткости"|"максимума здоровья компаньонов"', plemennoiUzor)
     ).toBe(true);
     expect(
       matchPoE2RegexItem('"глобальной меткости"|"максимума здоровья компаньонов"', gipnoticheskayaSushchnost)
     ).toBe(false);
-    // ⚠️ IN-GAME: if `|` works as OR, BOTH gems would match.
+    // ❌ IN-GAME: ZERO matches.
   });
 
-  it('B0 TEST PROTOCOL (run in-game, then update this test):', () => {
-    // Test these regexes IN-GAME with the 4 gems:
-    //
-    // 1. "увеличение урона.*луками"|"увеличение урона.*посохами"
-    //    Expected if OR works: gems 1 AND 2 highlight
-    //    Expected if OR broken: only gem 2 highlights (simulator behavior)
-    //
-    // 2. "оберег"|"компаньон"
-    //    Expected if OR works: gems 1 AND 2 highlight
-    //    Expected if OR broken: only gem 1 highlights
-    //
-    // 3. "глобальной меткости"|"максимума здоровья компаньонов"
-    //    Expected if OR works: gems 2 AND 3 highlight
-    //    Expected if OR broken: only gem 3 highlights
-    //
-    // After running, update this test file with actual in-game results.
-    // If OR works → Path B strategy: decompose opt-table to quoted groups in OR.
-    // If OR broken → UI redesign: each OR-child = separate AND filter.
-    expect(true).toBe(true); // placeholder — replace with actual in-game results
+  it('B0 RESOLVED — Path D is the working alternative', () => {
+    // Path D replacement for B0-1:
+    //   "увеличение урона.*луками|увеличение урона.*посохами" (single quoted group)
+    // → matches BOTH gems in-game (verified D7-3 above).
+    expect(
+      matchPoE2RegexItem(
+        '"увеличение урона.*луками|увеличение урона.*посохами"',
+        plemennayaLuchina
+      )
+    ).toBe(true);
+    expect(
+      matchPoE2RegexItem(
+        '"увеличение урона.*луками|увеличение урона.*посохами"',
+        gipnoticheskayaSushchnost
+      )
+    ).toBe(true);
+    // ✅ Path D works where B0 fails.
   });
 });
 

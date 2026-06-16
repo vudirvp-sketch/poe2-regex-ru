@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 24.0 | **Date:** 2026-06-16
+> **Version:** 25.0 | **Date:** 2026-06-16
 
 ---
 
@@ -79,7 +79,7 @@ tsc -b → vite build → prerender.ts (shell only)
 | `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
-**⚠️ CRITICAL:** Optimization table (Phase 2) is fundamentally broken for ~90% of entries because `|` with multi-word alternatives doesn't work in PoE2. See STATUS.md iteration 36 for redesign plan.
+**⚠️ CRITICAL:** Optimization table (Phase 2) is fundamentally broken for ~90% of entries because `|` inside `()` with multi-word alternatives doesn't work in PoE2 (Tests 15-17). Path D strategy (`"prefix.*A|prefix.*B|prefix.*C"` — top-level `|` in ONE quoted group with `.*` bridges) is the working replacement (verified iter 38). See STATUS.md for implementation plan.
 
 ## 6. Path Aliases
 
@@ -120,29 +120,32 @@ shared <- core <- strategies <- store <- data <- ui
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
 | `substring` | Simple substring match | ✅ |
-| `\|` | OR — **ONLY between single-word alternatives** | ✅ single-word only |
+| `\|` (top-level in ONE quoted group) | OR — single-word OR multi-word with `.*` bridges | ✅ iter 38 (Path D) |
+| `\|` (BETWEEN two quoted groups) | OR — BROKEN, zero matches | ❌ B0 confirmed iter 38 |
 | `!` | NOT (must be INSIDE quotes with `\|`) | ✅ |
 | `""` | Phrase grouping + AND separator | ✅ |
 | `.*` | Within single block only | ✅ |
 | `[]` | Character class | ✅ |
 | `^` | Start-of-block anchor | ✅ |
-| `()` | Grouping — **`\|` inside `()` does NOT work with multi-word** | ❌ multi-word |
+| `()` with single-word `\|` inside | Grouping — works alone | ✅ |
+| `()` with multi-word `\|` inside | Grouping — BROKEN | ❌ Test 15 |
+| `"prefix (A\|B)"` (non-`.*` prefix + `()` + `\|`) | BROKEN — matches only prefix broadly | ❌ Test 16 |
 | `\d` | Digit shorthand | ✅ |
 | `{N,}` | Quantifier "N or more" | ✅ |
 | `(?!…)` | Negative lookahead — per-block | ✅ |
 
-**CRITICAL limitations (confirmed by Tests 15-17):**
+**CRITICAL limitations:**
 
-1. **`|` does NOT work with multi-word alternatives in ANY context:**
+1. **`|` between TWO quoted groups (`"X"|"Y"`) is BROKEN** — iter 38 confirmed zero matches in-game. Path A (decompose opt-table to `"X"|"Y"`) is impossible.
+2. **`|` inside `()` with multi-word alternatives is BROKEN** (Tests 15-17):
    - `(скорости атаки|передвижения)` → nothing (Test 15)
    - `"повышение (брони|скорости)"` → matches only "повышение" broadly (Test 16)
    - `"повышение (брони|скорости атаки|шанса критического удара)"` → too much junk (Test 17)
-2. **PoE2 tokenizes on spaces** — `|` only ORs adjacent single words within a token
-3. **`()` does NOT preserve `|` for multi-word alternatives**
-4. **Optimization table is broken** for ~90% of entries that use `|` between multi-word alternatives
+3. **Optimization table is broken** for ~90% of entries that use `"prefix (A|B|C)"` pattern.
 
-**What DOES work:**
-- `|` between single words: `"Бездн|Делир"`, `"огня|холоду"`
+**What DOES work (Path D — iter 38):**
+- `|` between single words at top level of one quoted group: `"Бездн|Делир"`, `"огня|холоду"`
+- `|` between multi-word alternatives with `.*` bridges: `"увеличение урона.*луками|увеличение урона.*посохами"` (D7-3 verified)
 - `.*` within single block: `"скорости.*копьями"` bridges "скорости атаки копьями"
 - `(?!…)` per-block: `скорости(?!.*луками)` excludes weapon-specific blocks
 - AND across blocks: `"X" "Y"` — order-independent, cross-block
@@ -170,31 +173,31 @@ shared <- core <- strategies <- store <- data <- ui
 7. `()` in regex = PoE2 grouping, NOT literal parens
 8. `getValueKey` for RANGE must include ALL distinguishing fields
 9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key
-10. **`|` is ONLY for single-word alternation as the WHOLE quoted group** — multi-word `|` is broken everywhere (Tests 9-11, 15-17). No workaround via `()`, `"..."`, or any combination.
-11. **AND-in-OR nested quotes:** When AND(LITERAL, EXCLUDE) is inside OR, compiler wraps in `"..."` creating nested quotes. PoE2 can't parse this. Fix pending Path B redesign.
+10. **`|` scope (iter 38):** `|` works at TOP LEVEL of ONE quoted group (with or without `.*` in alternatives). It does NOT work: (a) between two quoted groups (`"X"|"Y"` — B0 confirmed broken iter 38, zero matches), (b) inside `()` with multi-word alternatives (`"(A B|C D)"` — Test 15), (c) after non-`.*` prefix inside quotes (`"prefix (A|B)"` — Test 16).
+11. **AND-in-OR nested quotes:** When AND(LITERAL, EXCLUDE) is inside OR, compiler wraps in `"..."` creating nested quotes. PoE2 can't parse this. With Path D (single quoted group with top-level `|`), this issue becomes irrelevant for opt-table — but still relevant for manual OR+EXCLUDE combinations.
 12. **`(?!…)` works per-block** — unlike `!` which is item-wide. Chain: `(?!.*A)(?!.*B)` works.
 13. **regexExclude word forms:** Must use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
-14. **Optimization table (Phase 2) fundamentally broken** — `|` between multi-word alternatives doesn't work. Redesign required (Path B).
+14. **Optimization table (Phase 2) broken** — `"prefix (A|B|C)"` pattern doesn't work in PoE2 (Tests 15-17). Replace with Path D: `"prefix.*A|prefix.*B|prefix.*C"` (single quoted group, top-level `|`, `.*` bridges). Verified iter 38 (2 alternatives); 3+ alternatives pending.
 15. **Cross-block FP risk (iter 37):** `"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT mod blocks. Use `.*` bridge in ONE quoted group (`"X.*Y"`) to force same-block match.
 16. **Simulator `(?!…)` divergence (iter 37):** Simulator parses `(?!X)` as item-wide negation (X must not appear ANYWHERE in block), while the game uses position-specific lookahead. For most use cases (Y at block start, X after Y) they agree; edge cases (X before Y) diverge.
-17. **Simulator `"X"|"Y"` divergence (iter 37):** Simulator parses `"X"|"Y"` as `"X"` AND `(|Y)` = `"X"` only (because `parseQuotedGroups` splits on spaces outside quotes, not on `|`). Game behavior UNKNOWN — Test B0 pending.
+17. **Simulator `"X"|"Y"` divergence (RESOLVED iter 38):** Simulator parses `"X"|"Y"` as `"X"` AND `(|Y)` = `"X"` only. Game gives ZERO matches. Both are broken — neither gives OR semantics. Use Path D instead: `"X.*A|X.*B"` (single quoted group).
 
 ## 12. Deterministic Regex Strategy (8 Principles) — UNIFIED for ALL categories
 
-> Added iter 37. See `docs/ARCHITECTURE.md` §3.1 for full details. Verified on 4 real gems (60 tests).
+> Added iter 37, updated iter 38 (Path D). See `docs/ARCHITECTURE.md` §3.1 for full details. Verified on 4 real gems (60 tests).
 
 When writing regexes for ANY category (gems, rings, amulets, belts, waystones, tablets, relics):
 
 1. **ONE MOD = ONE QUOTED GROUP** — each mod produces one `"..."` group with suffix + `.*` bridge + number pattern
 2. **MULTI-MOD = AND ACROSS BLOCKS** — N mods → N quoted groups separated by spaces: `"mod1" "mod2"`
-3. **NO MULTI-WORD `|`** — `|` only between single words, as the WHOLE quoted group (`"A|B"` ✅)
+3. **`|` SCOPE — TOP LEVEL of one quoted group** — `|` works at top level of ONE quoted group (with or without `.*` in alternatives). It does NOT work between quoted groups or inside `()` with multi-word alternatives.
 4. **`.*` BRIDGING WITHIN SINGLE BLOCK** — `"prefix.*suffix"` bridges number and middle words in one block
 5. **SUFFIX UNIQUENESS** — find shortest suffix unique to the mod in the category (≥3 chars/word, end-only truncation)
 6. **SHARED SUFFIX → DIFFERENTIATE BY NUMBER** — `"(1[0-5])%.*suffix"` for family regex, or exact number for specific roll
 7. **CROSS-BLOCK FP RISK** — `"X" "Y"` may match different blocks → FP. Use `"X.*Y"` to force same-block match
-8. **SAME-FAMILY OR** — OR between same-family multi-word alternatives is impossible in current dialect. Options: (a) `"X.*A"|"X.*B"` [UNVERIFIED B0], (b) UI redesign with separate AND filters, (c) AND fallback
+8. **SAME-FAMILY OR → Path D (iter 38)** — `"prefix.*A|prefix.*B|prefix.*C"` (single quoted group, top-level `|`, `.*` bridges). ✅ 2 alternatives verified in-game (D7-3); ⚠️ 3+ alternatives pending.
 
-**NEVER use:** `"prefix (A|B|C)"`, `"(A B|C D)"`, `"A B|C D"` — all confirmed BROKEN in-game (Tests 15-17, 9-11).
+**NEVER use:** `"prefix (A|B|C)"`, `"(A B|C D)"`, `"X"|"Y"` — all confirmed BROKEN in-game (Tests 15-17, B0).
 
 ## 13. Documentation Map
 

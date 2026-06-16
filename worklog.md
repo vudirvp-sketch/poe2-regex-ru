@@ -76,3 +76,62 @@ Stage Summary:
 - **Симулятор `"X"|"Y"` divergence** задокументирован: парсит как `"X"` AND `(|Y)` = `"X"` only
 - **Симулятор `(?!…)` divergence** задокументирован: item-wide вместо position-specific
 - **Точка остановки:** тесты + документация готовы. Следующий шаг — Test B0 в игре (3 варианта). От результата зависит выбор между Path B-strategy (a) top-level `|` между quoted groups, (b) UI redesign, (c) AND fallback.
+
+---
+Task ID: 38
+Agent: main
+Task: Зафиксировать выводы iter 37 в документации и тестах — B0 RESOLVED, D7-3 CONFIRMED WORKING, Path D как новая стратегия
+
+Work Log:
+- 1: Клонирован репозиторий poe2-regex-ru, установлен pnpm + зависимости
+- 2: Прочитаны ключевые файлы: STATUS.md, AGENT_NAVIGATION.md, worklog.md, docs/IN_GAME_TESTS.md, docs/ARCHITECTURE.md, tests/core/in-game-iteration-36-gems.test.ts, src/core/poe2-regex-matcher.ts, src/core/compiler.ts, src/core/optimization-strategies.ts, scripts/etl/compute-optimizations.ts
+- 3: Запущен baseline — все 1046 тестов проходят (986 + 60 iter-37)
+- 4: Анализ выводов iter 37 (из чата пользователя):
+  - B0 confirmed broken в игре (3/3 тестов дали ZERO matches) — Path A невозможен
+  - D7-3 confirmed working в игре (game patched со времён iter 15-17) — top-level `|` внутри одного quoted group с `.*` мостами РАБОТАЕТ
+  - Пользователь уточнил: `"к ловкости|к интеллекту"` (один quoted group с `|` внутри) работает в игре — это и есть Path D
+  - Принцип 3 в тест-файле устарел — многословный `|` на верхнем уровне одного quoted group работает (D7-3)
+- 5: Сформулирован план Path D: `"prefix.*A|prefix.*B|prefix.*C"` — рабочий replacement для сломанного `"prefix (A|B|C)"`
+- 6: Обновлён тест-файл tests/core/in-game-iteration-36-gems.test.ts (БЕЗ изменений логики — только комментарии):
+  - Заголовок: iter 38, фиксация выводов iter 37
+  - Principle 3 переписан: `|` scope — top-level of one quoted group (с/без `.*`); три BROKEN контекста
+  - Principle 8 переписан: Path D — `"prefix.*A|prefix.*B|prefix.*C"`; ✅ 2 alt verified, ⚠️ 3+ alt pending
+  - D7 переписан: "PATCHED since iter 15-17" — D7-3 теперь CONFIRMED WORKING (был BROKEN)
+  - D8 переименован в "B0 RESOLVED" — добавлен тест Path D как рабочего replacement
+- 7: Переписан docs/IN_GAME_TESTS.md (v8):
+  - Удалены устаревшие секции (дублирующие Iteration 36 legacy)
+  - Добавлены 2 ключевых открытия: B0 broken, D7-3 working (game patched)
+  - Обновлена таблица PoE2 Regex Dialect — `|` теперь имеет 4 контекста (✅ top-level, ❌ между quoted groups, ❌ inside () multi-word, ❌ after non-.* prefix)
+  - Добавлена секция Path D
+  - Сокращены D1-D12 до подтверждённых результатов (без дублирования симулятор/игра)
+- 8: Переписан STATUS.md:
+  - Iteration 38 — B0 RESOLVED + Path D strategy
+  - Обновлены "Подтверждённые ограничения" — `|` top-level с `.*` работает, между quoted groups НЕ работает
+  - Bug A переформулирован: opt-table `"prefix (A|B|C)"` сломан (НЕ `|` между quoted groups)
+  - Bug B может стать неактуальным с Path D
+  - Новый план: D1-D6 (Path D реализация в ETL)
+- 9: Обновлён AGENT_NAVIGATION.md (v25):
+  - §9 PoE2 Regex Dialect переписан — 4 контекста `|` (✅ top-level, ❌ between quoted groups, ❌ inside () multi-word, ❌ after non-.* prefix)
+  - §11 Pitfalls 10, 14, 17 обновлены (B0 confirmed broken, Path D — рабочий replacement)
+  - §12 Deterministic Strategy — Principle 3 (| scope) и Principle 8 (Path D) обновлены
+- 10: Обновлён docs/ARCHITECTURE.md (v57):
+  - §3 PoE2 Regex Dialect переписан — 4 контекста `|` с примерами
+  - §3 Critical syntax rules — правило 2 переписано (3 BROKEN контекста `|`)
+  - §3 добавлена секция "Path D — same-family OR strategy (iter 38)"
+  - §3.1 Principle 3 переписан (`|` SCOPE — TOP LEVEL of one quoted group)
+  - §3.1 Principle 8 переписан (Path D — verified 2 alt, 3+ alt pending)
+- 11: Запущены тесты — все 1046 проходят (без изменений логики, только комментарии и доки)
+
+Stage Summary:
+- **Код не изменён** (только тесты + документация)
+- **B0 RESOLVED**: `"X"|"Y"` (OR между quoted groups) — BROKEN в игре (zero matches). Path A невозможен.
+- **D7-3 CONFIRMED WORKING**: `"X.*A|X.*B"` (top-level `|` в одном quoted group с `.*`) — РАБОТАЕТ в игре. Game patched со времён iter 15-17.
+- **Path D — новая стратегия**: `"prefix.*A|prefix.*B|prefix.*C"` — рабочий replacement для сломанного opt-table паттерна `"prefix (A|B|C)"`.
+- **Документация актуализирована**: 4 файла (STATUS, IN_GAME_TESTS, AGENT_NAVIGATION, ARCHITECTURE) + тест-файл
+- **Все 1046 тестов проходят** (986 baseline + 60 iter-37)
+- **Точка остановки**: документация и тесты обновлены. Следующая итерация должна:
+  1. **In-game test Path D на 3+ альтернативах** — подтвердить масштабируемость
+  2. **Реализовать Path D в ETL** (`compute-optimizations.ts`) — заменить `"prefix (A|B|C)"` на `"prefix.*A|prefix.*B|prefix.*C"`
+  3. **Проверить совместимость** с `optimization-strategies.ts` и `useCategoryPage.ts` (runtime)
+  4. **In-game верификация** на 4 тестовых самоцветах после ETL изменений
+  5. **Распространение** на амулеты, кольца, пояса, плиты, путевые
