@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 22.0 | **Date:** 2026-06-16
+> **Version:** 23.0 | **Date:** 2026-06-16
 
 ---
 
@@ -79,6 +79,8 @@ tsc -b → vite build → prerender.ts (shell only)
 | `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
+**⚠️ CRITICAL:** Optimization table (Phase 2) is fundamentally broken for ~90% of entries because `|` with multi-word alternatives doesn't work in PoE2. See STATUS.md iteration 36 for redesign plan.
+
 ## 6. Path Aliases
 
 | Alias | Resolves to |
@@ -118,24 +120,34 @@ shared <- core <- strategies <- store <- data <- ui
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
 | `substring` | Simple substring match | ✅ |
-| `\|` | OR — **ONLY between single-word alternatives** | ⚠️ Partial |
+| `\|` | OR — **ONLY between single-word alternatives** | ✅ single-word only |
 | `!` | NOT (must be INSIDE quotes with `\|`) | ✅ |
 | `""` | Phrase grouping + AND separator | ✅ |
 | `.*` | Within single block only | ✅ |
 | `[]` | Character class | ✅ |
 | `^` | Start-of-block anchor | ✅ |
-| `()` | Grouping — **`|` inside `()` with multi-word UNVERIFIED** | ⚠️ Partial |
+| `()` | Grouping — **`\|` inside `()` does NOT work with multi-word** | ❌ multi-word |
 | `\d` | Digit shorthand | ✅ |
 | `{N,}` | Quantifier "N or more" | ✅ |
-| `(?!…)` | Negative lookahead — **per-block, works but was undocumented** | ✅ (new) |
+| `(?!…)` | Negative lookahead — per-block | ✅ |
 
-**CRITICAL limitation:** `|` does NOT work with multi-word (space-containing) alternatives.
-PoE2 tokenizes on spaces — `|` only ORs adjacent words. `скорости атаки|передвижения` → nothing.
-This BREAKS the optimization table which uses `|` inside `()` with multi-word alternatives.
-Whether `()` preserves `|` for multi-word alternatives is **UNVERIFIED** — needs in-game test.
+**CRITICAL limitations (confirmed by Tests 15-17):**
+
+1. **`|` does NOT work with multi-word alternatives in ANY context:**
+   - `(скорости атаки|передвижения)` → nothing (Test 15)
+   - `"повышение (брони|скорости)"` → matches only "повышение" broadly (Test 16)
+   - `"повышение (брони|скорости атаки|шанса критического удара)"` → too much junk (Test 17)
+2. **PoE2 tokenizes on spaces** — `|` only ORs adjacent single words within a token
+3. **`()` does NOT preserve `|` for multi-word alternatives**
+4. **Optimization table is broken** for ~90% of entries that use `|` between multi-word alternatives
+
+**What DOES work:**
+- `|` between single words: `"Бездн|Делир"`, `"огня|холоду"`
+- `.*` within single block: `"скорости.*копьями"` bridges "скорости атаки копьями"
+- `(?!…)` per-block: `скорости(?!.*луками)` excludes weapon-specific blocks
+- AND across blocks: `"X" "Y"` — order-independent, cross-block
 
 **NOT supported:** `?`, `$` (unreliable), `.*` across blocks, non-greedy, backreferences.
-**Previously listed as NOT supported but now VERIFIED:** `(?!…)` negative lookahead (per-block).
 
 ## 10. FP Prevention (5 levels)
 
@@ -157,11 +169,12 @@ Whether `()` preserves `|` for multi-word alternatives is **UNVERIFIED** — nee
 6. Word truncation = END of suffix only, min 3 significant chars
 7. `()` in regex = PoE2 grouping, NOT literal parens
 8. `getValueKey` for RANGE must include ALL distinguishing fields
-9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key — never reuse `home.title` across multiple components
-10. **CRITICAL — OR-mode nested quotes:** When AND(LITERAL, EXCLUDE) is a child of OR, `compileInner(AND)` produces `"child1" "child2"` which creates nested quotes. PoE2 cannot parse nested quotes — the OR structure collapses into AND. Fix: compile AND inside OR using `()` grouping instead of `"..."` per child.
-11. **CRITICAL — `|` breaks with multi-word patterns:** PoE2 tokenizes on spaces, so `|` only works between single words. `скорости атаки|передвижения` = nothing. Optimization table entries with `|` between multi-word alternatives are BROKEN. Needs in-game verification: does `()` preserve `|` for multi-word?
-12. **`(?!…)` works per-block** — despite being listed as NOT supported in ARCHITECTURE.md. Verified in-game Tests 3, 12, 13. This is a per-block lookahead, unlike `!` which is item-wide.
-13. **regexExclude word forms:** Exclude patterns must use truncated stems to cover all inflections. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
+9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key
+10. **`|` is ONLY for single-word alternatives** — multi-word `|` is broken everywhere (Tests 9-11, 15-17). No workaround via `()`, `"..."`, or any combination.
+11. **AND-in-OR nested quotes:** When AND(LITERAL, EXCLUDE) is inside OR, compiler wraps in `"..."` creating nested quotes. PoE2 can't parse this. Fix pending Path B redesign.
+12. **`(?!…)` works per-block** — unlike `!` which is item-wide. Chain: `(?!.*A)(?!.*B)` works.
+13. **regexExclude word forms:** Must use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
+14. **Optimization table (Phase 2) fundamentally broken** — `|` between multi-word alternatives doesn't work. Redesign required.
 
 ## 12. Documentation Map
 
@@ -169,7 +182,7 @@ Whether `()` preserves `|` for multi-word alternatives is **UNVERIFIED** — nee
 |------|----------------|
 | `AGENT_NAVIGATION.md` | Every iteration |
 | `STATUS.md` | On status changes |
-| `docs/SEO_PLAN.md` | On SEO changes |
 | `docs/ARCHITECTURE.md` | On structural changes |
 | `docs/ETL_GUIDE.md` | On ETL changes |
 | `docs/DATA_CONTRACTS.md` | On type changes |
+| `docs/IN_GAME_TESTS.md` | On new in-game test results |

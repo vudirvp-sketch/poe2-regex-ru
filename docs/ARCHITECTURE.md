@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — Architecture
 
-> **Version:** 54.0 | **Date:** 2026-06-13 | **Language:** RU-first
+> **Version:** 55.0 | **Date:** 2026-06-16 | **Language:** RU-first
 
 ---
 
@@ -60,27 +60,29 @@ poe2db.tw/ru/*
 | Syntax | Meaning | Example | Verified |
 |--------|---------|---------|----------|
 | `substring` | Simple substring match | `Бездн` | Yes |
-| `\|` | OR (alternation) — **ONLY single-word alternatives** | `Бездн\|Делир` | ⚠️ Single-word only |
+| `\|` | OR — **ONLY single-word alternatives** | `Бездн\|Делир` | ⚠️ Single-word ONLY |
 | `!` | NOT (negation) | `!Бездн` | Yes |
 | `""` | Phrase grouping + AND separator | `"Бездн" "карт"` | Yes |
 | `.` | Any single character (wildcard) | `Б.здн` | Yes |
 | `.*` | Any sequence WITHIN a single block | `"Бездн.*монстр"` | Yes |
 | `[]` | Character class | `Делири[уф]` | Yes |
-| `^` | Start-of-block anchor | `^(2[7-9]\|30).*suffix` | Yes (Phase 9b) |
+| `^` | Start-of-block anchor | `^(2[7-9]\|30).*suffix` | Yes |
 | `$` | End anchor | — | Unreliable, do not use |
-| `()` | Grouping — **`|` inside `()` with multi-word UNVERIFIED** | `([5-9]\|..)` | Partial |
+| `()` | Grouping — **`\|` inside `()` does NOT work with multi-word** | `([5-9]\|..)` | ❌ multi-word |
 | `\d` | Digit shorthand | `\d..` | Yes |
 | `%` `+` | Literals (not special) | `"+66"`, `"% к сопр"` | Yes |
+| `(?!…)` | Negative lookahead — **per-block** | `скорости(?!.*луками)` | Yes |
 
-| `(?!…)` | Negative lookahead — **per-block** | `скорости(?!.*луками)` | Yes (new) |
-
-**NOT supported:** `?` (optional), `.*` across blocks (VERIFIED B1-B2), non-greedy quantifiers, backreferences.
-**Previously listed as NOT supported but now VERIFIED:** `(?!…)` negative lookahead (per-block, not item-wide).
+**NOT supported:** `?` (optional), `.*` across blocks, non-greedy quantifiers, backreferences.
 
 **Critical syntax rules:**
 
 1. **`!` must be INSIDE quotes when combined with `|`:** `"!A|B"` works, `!"A|B"` does NOT.
-2. **`|` does NOT work with multi-word (space-containing) alternatives.** PoE2 tokenizes on spaces — `|` only ORs adjacent words. `скорости атаки|передвижения` → nothing. Whether `()` preserves `|` for multi-word is **UNVERIFIED** — this is the critical question for the optimization table.
+2. **`|` does NOT work with multi-word alternatives in ANY context.** PoE2 tokenizes on spaces — `|` only ORs adjacent single words. This is CONFIRMED BROKEN at all levels:
+   - Top-level: `скорости атаки|передвижения` → nothing (Tests 9-11)
+   - Inside `()`: `(скорости атаки|передвижения)` → nothing (Test 15)
+   - Inside `"..."` with `()`: `"повышение (брони|скорости)"` → matches only "повышение" (Test 16)
+   - Full opt-pattern: `"повышение (брони|скорости атаки|шанса критического удара)"` → too much junk (Test 17)
 3. **`.*` does NOT cross block boundaries** — each mod/implicit/property/name/state is a separate searchable block. Use AND (`"X" "Y"`) to search across blocks.
 4. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш" in the same block. For bidirectional, use AND.
 5. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
@@ -89,6 +91,12 @@ poe2db.tw/ru/*
 8. **`(?!X)` is per-block** — unlike `!`, lookahead only checks the current block. Chain: `(?!.*A)(?!.*B)` works.
 9. **Description/tooltip text is NOT indexed** — not searchable.
 10. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
+
+**Alternative strategies for multi-word OR (since `|` is broken):**
+
+- **`.*` bridging within single block:** `"скорости.*копьями"` matches «скорости атаки копьями» — `.*` bridges the gap between "скорости" and "копьями" within one block
+- **`(?!…)` per-block exclusions:** `"скорости(?!.*луками)(?!.*посоха)"` matches «скорости» in blocks without weapon-specific words
+- **AND decomposition:** Instead of one shared regex with `|`, use separate quoted groups per alternative combined via AND
 
 **Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`). This applies to BOTH runtime Phase 3 (`truncateSuffix`) and ETL (`generateTruncatedSuffixes`) — both enforce last-word-only truncation.
 
