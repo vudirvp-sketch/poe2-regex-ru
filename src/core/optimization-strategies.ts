@@ -340,9 +340,23 @@ export function applyOptimizationTable(
     // We need at least 2 matched IDs for optimization to make sense
     if (matchedIds.size < 2) continue;
 
-    // Calculate savings: sum of individual regex lengths minus shared regex length
+    // iter 44 — FP prevention: if user's selection is a STRICT SUBSET of the
+    // opt entry's IDs (i.e., matchedIds.size < entry.ids.length), SKIP this
+    // opt entry. The full regex contains alternatives for unselected IDs,
+    // which would cause False Positives (items matching unselected mods).
+    //
+    // For family-based opt entries (all IDs share same suffix), Phase 1
+    // dedup produces the same single-LITERAL regex anyway — no harm.
+    // For DP-factorized cross-family opt entries, this prevents FP.
+    //
+    // Only allow strict subset when the entry's regex has NO top-level `|`
+    // (i.e., it's a plain shared substring, not an alternation). Plain
+    // shared substrings match all family members identically — no FP.
     const sharedRegex = entry.regex[locale] ?? '';
     if (!sharedRegex) continue;
+    const isStrictSubset = matchedIds.size < entry.ids.length;
+    const hasAlternation = hasTopLevelAlternation(sharedRegex);
+    if (isStrictSubset && hasAlternation) continue;
 
     // Compute the length of the optimized replacement node
     const optNode = buildOptimizedNode(sharedRegex, 'temp', entry, locale);

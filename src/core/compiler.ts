@@ -67,6 +67,26 @@ export interface CompileOptions {
  *
  * Nested AND nodes are flattened so the parent AND directly contains
  * the expanded children (avoiding double-quoting during compilation).
+ *
+ * iter 44 — AND-in-OR with EXCLUDE: when an AND child of OR has the shape
+ * AND(LITERAL("X"), EXCLUDE(OR(LITERAL, ...))), transform it into a single
+ * LITERAL("X(?!.*A)(?!.*B)...") using per-block negative lookahead.
+ *
+ * Why: when AND with EXCLUDE is inside OR, the compiler would produce
+ * nested quotes ("X" "!A|B"|Q|...), which PoE2 cannot parse correctly.
+ * The inner quotes get stripped, and the exclude patterns become positive
+ * alternatives — causing False Positives.
+ *
+ * Per-block lookahead `(?!.*A)` is verified in-game (iter 37, Pitfall 12).
+ * It checks "after this position in the SAME BLOCK, A doesn't appear".
+ * For single-block affixes (the common case), this is equivalent to
+ * item-wide NOT — but expressed as a single LITERAL value, it avoids
+ * the nested-quotes problem.
+ *
+ * Restrictions (conservative — only the exact problematic shape is transformed):
+ * - AND must have EXACTLY ONE LITERAL child + ONE EXCLUDE child
+ * - EXCLUDE's child must be LITERAL or OR(LITERAL, ...)
+ * - Other AND shapes (multiple LITERALs, RANGE, etc.) are left untouched
  */
 function normalizeAst(node: ASTNode): ASTNode {
   switch (node.type) {
@@ -84,10 +104,56 @@ function normalizeAst(node: ASTNode): ASTNode {
       }
       return { ...node, children: flatChildren };
     }
-    case 'OR':
-      return { ...node, children: node.children.map(normalizeAst) };
-    case 'EXCLUDE':
+    case 'OR': {
+      // Normalize each child, then apply AND-in-OR-with-EXCLUDE transform
+      const normalizedChildren = node.children.map(normalizeAst);
+      const transformedChildren = normalizedChildren.map(child => {
+        // Detect: AND(LITERAL, EXCLUDE(LITERAL | OR(LITERAL, ...)))
+        if (child.type !== 'AND') return child;
+        if (child.children.length !== 2) return child;
+
+        const literalChild = child.children.find(c => c.type === 'LITERAL');
+        const excludeChild = child.children.find(c => c.type === 'EXCLUDE');
+        if (!literalChild || !excludeChild) return child;
+        if (literalChild.type !== 'LITERAL' || excludeChild.type !== 'EXCLUDE') return child;
+
+        // Collect exclude values
+        const exNode = excludeChild.child;
+        let excludeValues: string[] = [];
+        if (exNode.type === 'LITERAL') {
+          excludeValues = [exNode.value];
+        } else if (exNode.type === 'OR') {
+          // All children must be LITERAL
+          const allLiteral = exNode.children.every(c => c.type === 'LITERAL');
+          if (!allLiteral) return child;
+          excludeValues = exNode.children.map(c => (c as any).value as string);
+        } else {
+          // Complex shape (RANGE, AND, nested) — leave untouched
+          return child;
+        }
+
+        if (excludeValues.length === 0) return child;
+
+        // Build per-block lookahead: X(?!.*A)(?!.*B)(?!.*C)
+        // Each lookahead checks that the exclude value doesn't appear LATER
+        // in the SAME block (.* is single-block).
+        const lookaheads = excludeValues.map(v => `(?!.*${v})`).join('');
+        const mergedValue = `${literalChild.value}${lookaheads}`;
+
+        // Preserve tokenId if present
+        const mergedLiteral: ASTNode = {
+          type: 'LITERAL',
+          value: mergedValue,
+          ...(literalChild.tokenId ? { tokenId: literalChild.tokenId } : {}),
+        };
+        return mergedLiteral;
+      });
+
+      return { ...node, children: transformedChildren };
+    }
+    case 'EXCLUDE': {
       return { ...node, child: normalizeAst(node.child) };
+    }
     case 'RANGE': {
       if (node.min !== undefined && node.max !== undefined) {
         // Threshold mode: compile RANGE(min, max) as ≥min only (single quoted group)

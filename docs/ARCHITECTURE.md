@@ -108,6 +108,11 @@ This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C
 - iter 40: **IMPLEMENTED in ETL** (`scripts/etl/path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 327/529 opt-table entries converted to Path D format, 0 broken `()` entries remain.
 - iter 41: **D5 PRODUCTION-VERIFIED** — 5/5 in-game tests PASS on production ETL output (6-9 alts, same-block AND, cross-cat FP). Path D is COMPLETE.
 - iter 42: **Char-limit diagnostic** — `findOverLimitEntries()` in `path-d-transform.ts` + Phase D1 in `compute-optimizations.ts` + final summary in `iterative-optimizer.ts` log warnings for opt-table entries >250 chars. Policy: diagnostic-only (entries kept, not modified).
+- iter 44: **3 FP-fixes in shared `src/core/`** (user-reported jewel FP):
+  1. `removeConflictingExcludes` (core-optimizations.ts) — surgical: removes only conflicting literals from EXCLUDE's OR, not entire EXCLUDE
+  2. `applyOptimizationTable` (optimization-strategies.ts) — skips opt-entries with top-level `|` when user's selection is a STRICT SUBSET (`matchedIds.size < entry.ids.length`) — prevents FP from unselected alternatives
+  3. `normalizeAst` in `compiler.ts` — transforms AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...))) inside OR into a single LITERAL with per-block lookahead `X(?!.*A)(?!.*B)...` — avoids nested quotes that broke PoE2 parsing
+  All 1106 tests pass (1094 + 12 new). ETL unchanged (FN=0). Fixes apply globally to all categories.
 
 **Other alternative strategies for multi-word OR:**
 

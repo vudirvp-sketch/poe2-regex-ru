@@ -599,6 +599,373 @@ describe('removeConflictingExcludes (Phase 4)', () => {
       }
     }
   });
+
+  // ─── iter 44: surgical removal tests ───
+
+  it('iter 44: removes ONLY conflicting literal from EXCLUDE(OR(...)), keeps non-conflicting', () => {
+    // User's actual bug: token "повышение скорости атаки" with 9 regexExclude values
+    // (after computeSuppressedExcludes removed "копьями" because user also selected "атаки копьями").
+    // Sibling literal "атаки копьями" contains "копьями" — but "копьями" was already suppressed.
+    // None of the 9 remaining excludes (Приспеш, топорами, луками, ...) conflict with siblings.
+    // Result: EXCLUDE should be PRESERVED with all 9 literals.
+    const ast = or(
+      and(
+        literal('повышение скорости атаки'),
+        exclude(or(
+          literal('Приспеш'),
+          literal('топорами'),
+          literal('луками'),
+          literal('самострелами'),
+          literal('боевыми'),
+        ))
+      ),
+      literal('атаки копьями'),
+      literal('передвижения'),
+      literal('перезарядки умений'),
+    );
+    const result = removeConflictingExcludes(ast);
+
+    // AND should be preserved with EXCLUDE intact (no conflicts)
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children).toHaveLength(4);
+      expect(result.children[0].type).toBe('AND');
+      if (result.children[0].type === 'AND') {
+        // Both LITERAL and EXCLUDE should remain
+        expect(result.children[0].children).toHaveLength(2);
+        const exNode = result.children[0].children.find(c => c.type === 'EXCLUDE');
+        expect(exNode).toBeDefined();
+        if (exNode && exNode.type === 'EXCLUDE' && exNode.child.type === 'OR') {
+          // All 5 exclude literals should remain (none conflicted)
+          expect(exNode.child.children).toHaveLength(5);
+        }
+      }
+    }
+  });
+
+  it('iter 44: removes ONLY conflicting literal from EXCLUDE(OR(...)), drops non-conflicting', () => {
+    // AST: OR(AND(LITERAL("X"), EXCLUDE(OR(LITERAL("A"), LITERAL("B"), LITERAL("C")))), LITERAL("YA"))
+    // "A" is substring of "YA" → conflict → remove "A" from EXCLUDE's OR
+    // "B" and "C" are NOT substrings → keep them
+    // Result: OR(AND(LITERAL("X"), EXCLUDE(OR(LITERAL("B"), LITERAL("C")))), LITERAL("YA"))
+    const ast = or(
+      and(
+        literal('X'),
+        exclude(or(literal('A'), literal('B'), literal('C')))
+      ),
+      literal('YA'),
+    );
+    const result = removeConflictingExcludes(ast);
+
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children).toHaveLength(2);
+      expect(result.children[0].type).toBe('AND');
+      if (result.children[0].type === 'AND') {
+        expect(result.children[0].children).toHaveLength(2);
+        const exNode = result.children[0].children.find(c => c.type === 'EXCLUDE');
+        expect(exNode).toBeDefined();
+        if (exNode && exNode.type === 'EXCLUDE' && exNode.child.type === 'OR') {
+          // Only B and C should remain (A removed due to conflict)
+          expect(exNode.child.children).toHaveLength(2);
+          const values = exNode.child.children.map(c => (c as any).value).sort();
+          expect(values).toEqual(['B', 'C']);
+        }
+      }
+    }
+  });
+
+  it('iter 44: removes entire EXCLUDE when ALL its literals conflict', () => {
+    // AST: OR(AND(LITERAL("X"), EXCLUDE(OR(LITERAL("A"), LITERAL("B")))), LITERAL("YA YB"))
+    // "A" conflicts (substring of "YA YB"), "B" conflicts (substring of "YA YB")
+    // All literals conflict → remove entire EXCLUDE → AND unwrapped to LITERAL
+    const ast = or(
+      and(
+        literal('X'),
+        exclude(or(literal('A'), literal('B')))
+      ),
+      literal('YA YB'),
+    );
+    const result = removeConflictingExcludes(ast);
+
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      // AND unwrapped to LITERAL (only LITERAL child remains)
+      expect(result.children[0].type).toBe('LITERAL');
+      expect((result.children[0] as any).value).toBe('X');
+    }
+  });
+
+  it('iter 44: when EXCLUDE(OR) has only 1 non-conflicting literal left, unwraps OR to LITERAL', () => {
+    // AST: OR(AND(LITERAL("X"), EXCLUDE(OR(LITERAL("A"), LITERAL("B"), LITERAL("C")))), LITERAL("YA YB"))
+    // "A" conflicts, "B" conflicts, "C" does NOT
+    // After surgical removal: EXCLUDE(LITERAL("C")) — OR unwrapped to LITERAL
+    const ast = or(
+      and(
+        literal('X'),
+        exclude(or(literal('A'), literal('B'), literal('C')))
+      ),
+      literal('YA YB'),
+    );
+    const result = removeConflictingExcludes(ast);
+
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children[0].type).toBe('AND');
+      if (result.children[0].type === 'AND') {
+        expect(result.children[0].children).toHaveLength(2);
+        const exNode = result.children[0].children.find(c => c.type === 'EXCLUDE');
+        expect(exNode).toBeDefined();
+        if (exNode && exNode.type === 'EXCLUDE') {
+          // OR should be unwrapped to single LITERAL("C")
+          expect(exNode.child.type).toBe('LITERAL');
+          expect((exNode.child as any).value).toBe('C');
+        }
+      }
+    }
+  });
+});
+
+// ─── iter 44: skip opt-entry on strict subset (Bug 2 fix) ───
+
+describe('applyOptimizationTable: strict subset FP prevention (iter 44)', () => {
+  it('skips opt-entry with top-level | when user selects strict subset', () => {
+    // opt-entry: 4 IDs, regex with top-level | (Path D format)
+    // User selects only 2 of 4 IDs → opt should be SKIPPED
+    // (otherwise FP: items matching the 2 unselected alternatives would also match)
+    const optTable: Record<string, OptimizationEntry> = {
+      'a:b:c:d': {
+        ids: ['a', 'b', 'c', 'd'],
+        regex: { ru: 'A|B|C|D' },
+        weight: 7,
+        count: 4,
+      },
+    };
+    // User selected only a, b (strict subset)
+    const ast = or(
+      literal('A', 'a'),
+      literal('B', 'b'),
+    );
+    const result = optimize(ast, optTable);
+    // Opt-entry should be skipped — OR with 2 LITERALs preserved
+    expect(result.type).toBe('OR');
+    if (result.type === 'OR') {
+      expect(result.children).toHaveLength(2);
+      // Each LITERAL keeps its original value (not replaced with opt regex)
+      const values = result.children.map(c => (c as any).value).sort();
+      expect(values).toEqual(['A', 'B']);
+    }
+  });
+
+  it('applies opt-entry when user selects ALL ids (exact match)', () => {
+    // opt-entry: 4 IDs, regex with top-level |
+    // User selects all 4 → opt should be APPLIED
+    const optTable: Record<string, OptimizationEntry> = {
+      'a:b:c:d': {
+        ids: ['a', 'b', 'c', 'd'],
+        regex: { ru: 'A|B|C|D' },
+        weight: 7,
+        count: 4,
+      },
+    };
+    const ast = or(
+      literal('A', 'a'),
+      literal('B', 'b'),
+      literal('C', 'c'),
+      literal('D', 'd'),
+    );
+    const result = optimize(ast, optTable);
+    // Opt-entry applied — OR replaced with single LITERAL
+    expect(result.type).toBe('LITERAL');
+    if (result.type === 'LITERAL') {
+      expect(result.value).toBe('A|B|C|D');
+    }
+  });
+
+  it('allows strict subset when opt-entry regex has NO top-level | (shared substring)', () => {
+    // opt-entry: 4 IDs, regex is plain shared substring (no |)
+    // User selects 2 of 4 → opt should be APPLIED (no FP risk — same suffix)
+    const optTable: Record<string, OptimizationEntry> = {
+      'a:b:c:d': {
+        ids: ['a', 'b', 'c', 'd'],
+        regex: { ru: 'shared' },
+        weight: 6,
+        count: 4,
+      },
+    };
+    const ast = or(
+      literal('shared', 'a'),
+      literal('shared', 'b'),
+    );
+    const result = optimize(ast, optTable);
+    // Both LITERALs are identical ('shared') — dedup collapses to single LITERAL
+    expect(result.type).toBe('LITERAL');
+    if (result.type === 'LITERAL') {
+      expect(result.value).toBe('shared');
+    }
+  });
+});
+
+// ─── iter 44: compiler AND-in-OR with EXCLUDE → per-block lookahead (Bug 3 fix) ───
+
+describe('compile: AND-in-OR with EXCLUDE → per-block lookahead (iter 44)', () => {
+  it('compiles OR(AND(LITERAL, EXCLUDE(OR))), LITERAL) without nested quotes', () => {
+    // The user's bug scenario: token "X" with regexExclude [A, B, C] inside OR
+    const ast = or(
+      and(
+        literal('X'),
+        exclude(or(literal('A'), literal('B'), literal('C')))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Should be a single quoted group with | at top level
+    expect(result.startsWith('"')).toBe(true);
+    expect(result.endsWith('"')).toBe(true);
+    // No nested quotes inside
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    // Should contain per-block lookahead for each exclude value
+    expect(inner).toContain('(?!.*A)');
+    expect(inner).toContain('(?!.*B)');
+    expect(inner).toContain('(?!.*C)');
+    // Should contain the positive LITERAL X
+    expect(inner).toContain('X');
+    // Should contain the other OR alternative Q
+    expect(inner).toContain('|Q');
+  });
+
+  it('compiles OR(AND(LITERAL, EXCLUDE(LITERAL))), LITERAL) — single-literal exclude', () => {
+    const ast = or(
+      and(
+        literal('X'),
+        exclude(literal('A'))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    expect(inner).toContain('X(?!.*A)');
+    expect(inner).toContain('|Q');
+  });
+
+  it('preserves AND-with-EXCLUDE when NOT inside OR (top-level AND)', () => {
+    // Top-level AND with EXCLUDE should NOT be transformed (only AND-in-OR triggers Bug 3)
+    // It compiles to current format: "X" "!A|B|C" (item-wide NOT, verified in-game)
+    const ast = and(
+      literal('X'),
+      exclude(or(literal('A'), literal('B'), literal('C')))
+    );
+    const result = compile(ast);
+    expect(result).toBe('"X" "!A|B|C"');
+  });
+
+  it('preserves AND with multiple LITERALs + EXCLUDE inside OR (no transform)', () => {
+    // AND with multiple LITERALs (e.g., regexPrefixContext + LITERAL + EXCLUDE)
+    // is NOT the simple shape we transform — should compile normally
+    const ast = or(
+      and(
+        literal('ctx'),
+        literal('X'),
+        exclude(or(literal('A'), literal('B')))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Should produce: ""ctx" "X" "!A|B"|Q"
+    // (Not ideal — nested quotes — but this is a separate, rarer case,
+    //  not the user-reported bug. Documented in Pitfall 11.)
+    expect(result).toContain('"ctx"');
+    expect(result).toContain('"X"');
+    expect(result).toContain('"!A|B"');
+    expect(result).toContain('Q');
+  });
+});
+
+// ─── iter 44: end-to-end user bug regression test ───
+
+describe('iter 44 regression: user-reported FP scenario', () => {
+  it('OR of 4 jewel tokens (1 with regexExclude) produces correct regex without FP', () => {
+    // Replicates the user's selection:
+    //   jewel.mod_am4lla — "повышение скорости атаки" with 10 regexExclude values
+    //   jewel.mod_26n6rw — "атаки копьями" (no excludes)
+    //   jewel.mod_sbryhz — "передвижения" (no excludes)
+    //   jewel.mod_kcvuf  — "перезарядки умений" (no excludes)
+    //
+    // The opt-entry jewel.mod_atixoo:jewel.mod_kcvuf:jewel.mod_sbryhz:jewel.mod_vr3sas
+    // has 4 IDs and regex with top-level |. User selected only 2 (kcvuf, sbryhz),
+    // so opt should be SKIPPED (Bug 2 fix).
+    //
+    // The "копьями" exclude in am4lla conflicts with sibling "атаки копьями" →
+    // suppressed at buildAstFromSelections (existing behavior).
+    // The remaining 9 excludes should be PRESERVED (Bug 1 fix).
+    //
+    // The AND(LITERAL("повышение скорости атаки"), EXCLUDE(OR(9))) inside OR
+    // should compile to single LITERAL with per-block lookahead (Bug 3 fix).
+    const optTable: Record<string, OptimizationEntry> = {
+      'jewel.mod_atixoo:jewel.mod_kcvuf:jewel.mod_sbryhz:jewel.mod_vr3sas': {
+        ids: ['jewel.mod_atixoo', 'jewel.mod_kcvuf', 'jewel.mod_sbryhz', 'jewel.mod_vr3sas'],
+        regex: { ru: 'пере.*зарядки.*умений|пере.*зарядки.*самострела|пере.*зарядки.*боевых кличей|пере.*движения' },
+        weight: 92,
+        count: 4,
+      },
+    };
+
+    // Simulate post-suppression AST (computeSuppressedExcludes removed "копьями")
+    const ast = or(
+      and(
+        literal('повышение скорости атаки', 'jewel.mod_am4lla'),
+        exclude(or(
+          literal('Приспеш'),
+          literal('топорами'),
+          literal('луками'),
+          literal('самострелами'),
+          literal('кинжалами'),
+          literal('посохами'),
+          literal('мечами'),
+          literal('без'),
+          literal('боевыми'),
+        ))
+      ),
+      literal('перезарядки умений', 'jewel.mod_kcvuf'),
+      literal('передвижения', 'jewel.mod_sbryhz'),
+      literal('атаки копьями', 'jewel.mod_26n6rw'),
+    );
+
+    const optimized = optimize(ast, optTable);
+    const compiled = compile(optimized);
+
+    // === Assertions ===
+    // 1. No nested quotes (Bug 3 fixed)
+    const inner = compiled.slice(1, -1);
+    expect(compiled.startsWith('"') && compiled.endsWith('"')).toBe(true);
+    expect(inner.includes('"')).toBe(false);
+
+    // 2. Per-block lookaheads for all 9 excludes (Bug 1 + Bug 3 fixed)
+    expect(inner).toContain('(?!.*Приспеш)');
+    expect(inner).toContain('(?!.*топорами)');
+    expect(inner).toContain('(?!.*луками)');
+    expect(inner).toContain('(?!.*самострелами)');
+    expect(inner).toContain('(?!.*кинжалами)');
+    expect(inner).toContain('(?!.*посохами)');
+    expect(inner).toContain('(?!.*мечами)');
+    expect(inner).toContain('(?!.*без)');
+    expect(inner).toContain('(?!.*боевыми)');
+
+    // 3. NO opt-entry alternatives (Bug 2 fixed — strict subset skipped)
+    expect(inner).not.toContain('пере.*зарядки.*самострела');
+    expect(inner).not.toContain('пере.*зарядки.*боевых кличей');
+
+    // 4. User-selected tokens are present as positive alternatives
+    expect(inner).toContain('повышение скорости атаки');
+    expect(inner).toContain('перезарядки умений');
+    expect(inner).toContain('передвижения');
+    expect(inner).toContain('атаки копьями');
+
+    // 5. Regex length under 250 chars (PoE2 hard limit)
+    expect(compiled.length).toBeLessThanOrEqual(250);
+  });
 });
 
 // ─── getValueKey: RANGE deduplication key ───

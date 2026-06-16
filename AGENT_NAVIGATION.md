@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 29.0 | **Date:** 2026-06-16
+> **Version:** 30.0 | **Date:** 2026-06-17
 
 ---
 
@@ -80,6 +80,12 @@ tsc -b → vite build → prerender.ts (shell only)
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
 **✅ RESOLVED + PRODUCTION-VERIFIED (iter 40-42):** Optimization table (Phase 2) was broken for ~90% of entries because `|` inside `()` with multi-word alternatives doesn't work in PoE2 (Tests 15-17). Path D strategy (`"prefix.*A|prefix.*B|prefix.*C"` — top-level `|` in ONE quoted group with `.*` bridges) is IMPLEMENTED in ETL (`scripts/etl/path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 327/529 opt-table entries in Path D format, 0 broken `()` entries remain. **iter 41 D5 VERIFIED**: 5/5 in-game tests PASS on production ETL output covering 5 categories (jewel, amulet, ring, waystone, tablet). Same-block AND confirmed. PoE2 regex char limit ≈ 250 chars discovered (iter 41) + diagnostic implemented (iter 42): `findOverLimitEntries()` in `path-d-transform.ts` + Phase D1 in `compute-optimizations.ts` + final summary in `iterative-optimizer.ts`.
+
+**✅ iter 44 FP-FIX (3 bugs in shared `src/core/`):** User reported FP in jewel selection — 3 compaund bugs found & fixed:
+1. `removeConflictingExcludes` (core-optimizations.ts) — was removing ENTIRE `EXCLUDE(OR(...))` when ANY literal conflicted; now removes only conflicting literals (surgical).
+2. `applyOptimizationTable` (optimization-strategies.ts) — was applying FULL opt-entry regex on strict subset; now SKIPS opt-entries with top-level `|` when `matchedIds.size < entry.ids.length` (FP prevention).
+3. Compiler `normalizeAst` (compiler.ts) — was producing nested quotes when AND(LITERAL, EXCLUDE) is inside OR; now transforms to single LITERAL with per-block lookahead `X(?!.*A)(?!.*B)...` (avoids PoE2 nested-quote parsing bug).
+All 1106 tests pass (1094 + 12 new). ETL unchanged (FN=0). Fixes apply to ALL categories (shared code). Pending: in-game verify per-block `(?!…)` semantic in OR-context.
 
 ## 6. Path Aliases
 
@@ -177,19 +183,21 @@ shared <- core <- strategies <- store <- data <- ui
 8. `getValueKey` for RANGE must include ALL distinguishing fields
 9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key
 10. **`|` scope (iter 38):** `|` works at TOP LEVEL of ONE quoted group (with or without `.*` in alternatives). It does NOT work: (a) between two quoted groups (`"X"|"Y"` — B0 confirmed broken iter 38, zero matches), (b) inside `()` with multi-word alternatives (`"(A B|C D)"` — Test 15), (c) after non-`.*` prefix inside quotes (`"prefix (A|B)"` — Test 16).
-11. **AND-in-OR nested quotes:** When AND(LITERAL, EXCLUDE) is inside OR, compiler wraps in `"..."` creating nested quotes. PoE2 can't parse this. With Path D (single quoted group with top-level `|`), this issue becomes irrelevant for opt-table — but still relevant for manual OR+EXCLUDE combinations.
-12. **`(?!…)` works per-block** — unlike `!` which is item-wide. Chain: `(?!.*A)(?!.*B)` works.
+11. **AND-in-OR nested quotes (PARTIALLY FIXED iter 44):** When AND(LITERAL, EXCLUDE) is inside OR, compiler previously wrapped in `"..."` creating nested quotes — PoE2 strips inner quotes, breaking the regex. **iter 44 FIX:** `normalizeAst` in `compiler.ts` now transforms AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...))) inside OR into a single LITERAL with per-block lookahead `X(?!.*A)(?!.*B)...`. This avoids nested quotes for the common case (token with regexExclude in OR mode). **REMAINING:** AND with multiple LITERALs + EXCLUDE (e.g., regexPrefixContext + LITERAL + EXCLUDE) is NOT yet transformed — still produces nested quotes. Rarer case, documented but not blocking.
+12. **`(?!…)` works per-block** — unlike `!` which is item-wide. Chain: `(?!.*A)(?!.*B)` works. iter 44: `(?!…)` now used in AND-in-OR compilation (replaces item-wide `!` to avoid nested quotes). Semantic change: per-block (more permissive — excludes only if pattern appears LATER IN SAME BLOCK as the LITERAL). For single-block affixes (common case), equivalent to item-wide `!`. **Pending in-game verify.**
 13. **regexExclude word forms:** Must use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
-14. **Optimization table (Phase 2) — RESOLVED iter 40, PRODUCTION-VERIFIED iter 41, char-limit diagnostic iter 42:** `"prefix (A|B|C)"` pattern was broken in PoE2 (Tests 15-17). Path D (`"prefix.*A|prefix.*B|prefix.*C"` — single quoted group, top-level `|`, `.*` bridges) is implemented in ETL (`path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 327/529 opt-table entries in Path D format, 0 broken remain. **iter 41 D5:** 5/5 in-game tests PASS on production ETL output. **iter 42:** ETL char-limit diagnostic added — over-limit entries (>250 chars) are kept but logged as warnings.
+14. **Optimization table (Phase 2) — RESOLVED iter 40, PRODUCTION-VERIFIED iter 41, char-limit diagnostic iter 42, strict-subset FP-fix iter 44:** `"prefix (A|B|C)"` pattern was broken in PoE2 (Tests 15-17). Path D (`"prefix.*A|prefix.*B|prefix.*C"` — single quoted group, top-level `|`, `.*` bridges) is implemented in ETL (`path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 327/529 opt-table entries in Path D format, 0 broken remain. **iter 41 D5:** 5/5 in-game tests PASS on production ETL output. **iter 42:** ETL char-limit diagnostic added. **iter 44:** `applyOptimizationTable` now SKIPS opt-entries with top-level `|` when user's selection is a STRICT SUBSET (`matchedIds.size < entry.ids.length`) — prevents FP from unselected alternatives. Plain shared-substring entries (no `|`) are still applied on subset (Phase 1 dedup handles them safely).
 15. **Cross-block FP risk (iter 37):** `"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT mod blocks. Use `.*` bridge in ONE quoted group (`"X.*Y"`) to force same-block match.
 16. **Simulator `(?!…)` divergence (iter 37):** Simulator parses `(?!X)` as item-wide negation (X must not appear ANYWHERE in block), while the game uses position-specific lookahead. For most use cases (Y at block start, X after Y) they agree; edge cases (X before Y) diverge.
 17. **Simulator `"X"|"Y"` divergence (RESOLVED iter 38):** Simulator parses `"X"|"Y"` as `"X"` AND `(|Y)` = `"X"` only. Game gives ZERO matches. Both are broken — neither gives OR semantics. Use Path D instead: `"X.*A|X.*B"` (single quoted group).
 18. **PoE2 regex char limit ≈ 250 chars (iter 41, diagnostic iter 42):** Single regex string >250 chars is silently rejected by the game (D5-1 v1 with 262 chars and D5-2 v1 with 327 chars both failed). When manually crafting regex or generating opt-table entries, keep total length ≤250 chars. **iter 42:** ETL now logs warnings for over-limit opt-table entries via `findOverLimitEntries()` (in `path-d-transform.ts`) — called from Phase D1 in `compute-optimizations.ts` and from final summary in `iterative-optimizer.ts`. Policy is **diagnostic-only**: entries are kept in the table (useful for subset selection — compiler picks the matching subset when fewer ids are selected), but the full entry cannot be used as a single in-game regex when ALL its ids are selected.
 19. **Same-block AND semantics (iter 41):** `"X" "Y"` matches when X and Y are both present in the SAME block (same mod) OR in DIFFERENT blocks (cross-block AND). This was confirmed in D5-2: waystone mod `Монстры имеют 276% повышение шанса критического удара` matches `"имеют" "повышение.*шанса критического удара"` (BOTH in ONE block). This means `regexPrefixContext` AND combination (`"ctx" "Path D regex"`) works correctly — no need to switch to `"ctx.*Path D"` single-quoted-group form.
+20. **FP from opt-entry subset (iter 44 FIX):** When user selects a STRICT SUBSET of an opt-entry's IDs, applying the FULL opt regex caused FP — items matching unselected alternatives also matched. **iter 44 FIX:** `applyOptimizationTable` now skips opt-entries with top-level `|` when `matchedIds.size < entry.ids.length`. For family-based entries (no `|` in regex), Phase 1 dedup produces the same single-LITERAL regex anyway — no behavior change.
+21. **`removeConflictingExcludes` surgical removal (iter 44 FIX):** Previously, if ANY literal inside `EXCLUDE(OR(...))` conflicted with a sibling LITERAL, the ENTIRE EXCLUDE was dropped — losing all other non-conflicting exclude patterns. This caused FP (e.g., items matching non-conflicting excludes were no longer excluded). **iter 44 FIX:** Only conflicting literals are removed from the EXCLUDE's OR; non-conflicting ones are preserved. The EXCLUDE is dropped entirely only when ALL its literals conflict.
 
 ## 12. Deterministic Regex Strategy (8 Principles) — UNIFIED for ALL categories
 
-> Added iter 37, updated iter 38-42 (Path D production-verified, char-limit diagnostic). See `docs/ARCHITECTURE.md` §3.1 for full details.
+> Added iter 37, updated iter 38-44 (Path D production-verified, char-limit diagnostic, iter 44 FP-fixes). See `docs/ARCHITECTURE.md` §3.1 for full details.
 
 When writing regexes for ANY category (gems, rings, amulets, belts, waystones, tablets, relics):
 
@@ -200,11 +208,16 @@ When writing regexes for ANY category (gems, rings, amulets, belts, waystones, t
 5. **SUFFIX UNIQUENESS** — find shortest suffix unique to the mod in the category (≥3 chars/word, end-only truncation)
 6. **SHARED SUFFIX → DIFFERENTIATE BY NUMBER** — `"(1[0-5])%.*suffix"` for family regex, or exact number for specific roll
 7. **CROSS-BLOCK FP RISK** — `"X" "Y"` may match different blocks → FP. Use `"X.*Y"` to force same-block match. Note: `"X" "Y"` ALSO matches when X and Y are in the SAME block (iter 41 confirmed).
-8. **SAME-FAMILY OR → Path D (iter 38-41, COMPLETE; iter 42 char-limit diagnostic)** — `"prefix.*A|prefix.*B|prefix.*C"` (single quoted group, top-level `|`, `.*` bridges). ✅ 2 alt (D7-3, iter 38); ✅ 3+4 alt + AND-combination (D1, iter 39); ✅ ETL (D2+D4, iter 40); ✅ **production-verified 6-9 alts + same-block AND + cross-cat FP (D5, iter 41)**; ✅ char-limit diagnostic (D7, iter 42). **Constraint:** total length ≤250 chars (PoE2 hard limit). ETL logs warnings for over-limit entries; entries are kept for subset selection.
+8. **SAME-FAMILY OR → Path D (iter 38-41, COMPLETE; iter 42 char-limit diagnostic; iter 44 subset-FP-fix)** — `"prefix.*A|prefix.*B|prefix.*C"` (single quoted group, top-level `|`, `.*` bridges). ✅ 2 alt (D7-3, iter 38); ✅ 3+4 alt + AND-combination (D1, iter 39); ✅ ETL (D2+D4, iter 40); ✅ **production-verified 6-9 alts + same-block AND + cross-cat FP (D5, iter 41)**; ✅ char-limit diagnostic (D7, iter 42); ✅ subset-FP-fix (iter 44). **Constraint:** total length ≤250 chars (PoE2 hard limit). ETL logs warnings for over-limit entries; entries are kept for subset selection. **iter 44:** `applyOptimizationTable` skips opt-entries with top-level `|` on strict subset (prevents FP).
 
 **NEVER use:** `"prefix (A|B|C)"`, `"(A B|C D)"`, `"X"|"Y"` — all confirmed BROKEN in-game (Tests 15-17, B0).
 
-**NEW constraint (iter 41, diagnostic iter 42):** Single regex total length ≤250 chars (PoE2 hard limit). ETL `findOverLimitEntries()` in `path-d-transform.ts` detects over-limit entries; Phase D1 in `compute-optimizations.ts` + final summary in `iterative-optimizer.ts` log warnings.
+**iter 44 FP-fix summary (3 bugs in shared `src/core/`):**
+- `removeConflictingExcludes` (core-optimizations.ts) — surgical: removes only conflicting literals, not entire EXCLUDE
+- `applyOptimizationTable` (optimization-strategies.ts) — skips opt-entries with `|` on strict subset
+- `normalizeAst` in `compiler.ts` — transforms AND(LITERAL, EXCLUDE) inside OR to single LITERAL with per-block lookahead `X(?!.*A)(?!.*B)...`
+
+**Constraints:** Single regex total length ≤250 chars (PoE2 hard limit). ETL `findOverLimitEntries()` in `path-d-transform.ts` detects over-limit entries; Phase D1 in `compute-optimizations.ts` + final summary in `iterative-optimizer.ts` log warnings.
 
 ## 13. Documentation Map
 

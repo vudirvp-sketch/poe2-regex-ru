@@ -234,46 +234,107 @@ function collectLiteralValues(node: ASTNode): string[] {
 }
 
 /**
- * Check if an EXCLUDE node's pattern conflicts with any LITERAL value.
- * A conflict occurs when the exclude pattern is a substring of a literal value,
- * meaning the exclude would block matching items that the user explicitly wants.
+ * Find which literal values inside an EXCLUDE node conflict with sibling
+ * literal values. A conflict occurs when the exclude value is a substring
+ * of a sibling literal value, meaning the exclude would block matching
+ * items that the user explicitly wants.
+ *
+ * iter 44 — surgical: returns the LIST of conflicting exclude values,
+ * instead of a single boolean. Callers can then remove ONLY those
+ * literals from the EXCLUDE's child (preserving the rest), instead of
+ * dropping the entire EXCLUDE node.
  */
-function excludeConflictsWithLiterals(excludeNode: ASTNode, literalValues: string[]): boolean {
-  if (excludeNode.type !== 'EXCLUDE') return false;
+function findConflictingExcludeValues(excludeNode: ASTNode, literalValues: string[]): string[] {
+  if (excludeNode.type !== 'EXCLUDE') return [];
 
-  // Collect all literal values inside the EXCLUDE node
   const excludeValues = collectLiteralValues(excludeNode.child);
+  const conflicting: string[] = [];
 
   for (const excludeVal of excludeValues) {
     for (const literalVal of literalValues) {
       if (literalVal.includes(excludeVal)) {
-        return true;
+        conflicting.push(excludeVal);
+        break; // No need to check more literals for this exclude value
       }
     }
   }
-  return false;
+  return conflicting;
 }
 
 /**
- * Remove EXCLUDE nodes from AND wrappers inside OR groups where the exclude
- * pattern conflicts with sibling LITERAL values.
+ * Remove specific literal values from inside an EXCLUDE's child node.
+ *
+ * Handles two shapes:
+ *   EXCLUDE(LITERAL(X))        → if X is in valuesToRemove, returns null
+ *                                  (caller should drop the EXCLUDE)
+ *   EXCLUDE(OR(LITERAL, ...))  → returns EXCLUDE with conflicting literals
+ *                                  removed from the OR; if OR becomes empty,
+ *                                  returns null (caller should drop the EXCLUDE)
+ *
+ * Returns the modified EXCLUDE node, or null if the EXCLUDE should be removed
+ * entirely (all of its values were conflicting).
+ */
+function removeExcludeValues(excludeNode: ASTNode, valuesToRemove: Set<string>): ASTNode | null {
+  if (excludeNode.type !== 'EXCLUDE') return excludeNode;
+
+  const child = excludeNode.child;
+
+  // Case 1: EXCLUDE(LITERAL(X))
+  if (child.type === 'LITERAL') {
+    if (valuesToRemove.has(child.value)) {
+      return null; // Drop the EXCLUDE entirely
+    }
+    return excludeNode; // Keep as-is
+  }
+
+  // Case 2: EXCLUDE(OR(LITERAL, LITERAL, ...))
+  if (child.type === 'OR') {
+    const remaining = child.children.filter(
+      c => !(c.type === 'LITERAL' && valuesToRemove.has(c.value))
+    );
+
+    if (remaining.length === 0) {
+      return null; // All values were conflicting — drop EXCLUDE
+    }
+    if (remaining.length === 1) {
+      // Unwrap OR to single LITERAL
+      return { ...excludeNode, child: remaining[0] };
+    }
+    return { ...excludeNode, child: { ...child, children: remaining } };
+  }
+
+  // Other shapes (e.g., EXCLUDE of complex nested OR/AND) — leave untouched
+  return excludeNode;
+}
+
+/**
+ * Remove CONFLICTING literal values from EXCLUDE nodes inside AND wrappers
+ * in OR groups. Surgical (iter 44): only the conflicting literals are
+ * removed from EXCLUDE's child OR; non-conflicting exclude patterns are
+ * preserved.
  *
  * This is a safety net for cases where:
  * 1. buildAstFromSelections correctly suppressed conflicting excludes, but
  * 2. The optimizer Phase 2 re-added them from optimization table entries
  *
- * Example AST before fix:
+ * Example AST before fix (single-literal case — fully removed):
  *   OR(
  *     AND(LITERAL("к ловкости"), EXCLUDE(LITERAL(" интел"))),
  *     LITERAL("к интеллекту")
  *   )
+ * " интел" is a substring of "к интеллекту" → conflict → entire EXCLUDE removed.
+ * After: OR(LITERAL("к ловкости"), LITERAL("к интеллекту"))
  *
- * The EXCLUDE(" интел") conflicts with LITERAL("к интеллекту") because
- * "к интеллекту" contains " интел". After fix:
+ * Example AST before fix (multi-literal case — surgical, iter 44):
  *   OR(
- *     LITERAL("к ловкости"),
- *     LITERAL("к интеллекту")
+ *     AND(LITERAL("X"), EXCLUDE(OR(LITERAL("A"), LITERAL("B"), LITERAL("C")))),
+ *     LITERAL("YA")
  *   )
+ * "A" is substring of "YA" → conflict. "B" and "C" are NOT substrings of any sibling.
+ * After (surgical): OR(AND(LITERAL("X"), EXCLUDE(OR(LITERAL("B"), LITERAL("C")))), LITERAL("YA"))
+ *
+ * Previously the entire EXCLUDE was dropped, causing False Positives
+ * (items matching B or C would now match the regex).
  */
 export function removeConflictingExcludes(node: ASTNode): ASTNode {
   switch (node.type) {
@@ -303,25 +364,40 @@ export function removeConflictingExcludes(node: ASTNode): ASTNode {
         return { ...node, children: processedChildren };
       }
 
-      // Now check each child for conflicting EXCLUDE nodes
+      // Now check each AND child for conflicting EXCLUDE values (surgical removal)
       const newChildren: ASTNode[] = [];
       for (const child of processedChildren) {
         if (child.type === 'AND') {
-          // Check if any EXCLUDE child conflicts with sibling LITERAL values
-          const filteredChildren: ASTNode[] = [];
-          let hasConflict = false;
-
+          // Collect all conflicting exclude values across all EXCLUDE children of this AND
+          const valuesToRemove = new Set<string>();
           for (const grandchild of child.children) {
-            if (grandchild.type === 'EXCLUDE' && excludeConflictsWithLiterals(grandchild, allLiteralValues)) {
-              hasConflict = true;
-              continue; // Remove this conflicting EXCLUDE
+            if (grandchild.type === 'EXCLUDE') {
+              const conflicting = findConflictingExcludeValues(grandchild, allLiteralValues);
+              for (const v of conflicting) valuesToRemove.add(v);
             }
-            filteredChildren.push(grandchild);
           }
 
-          if (!hasConflict) {
+          if (valuesToRemove.size === 0) {
+            // No conflicts — keep AND as-is
             newChildren.push(child);
-          } else if (filteredChildren.length === 0) {
+            continue;
+          }
+
+          // Apply surgical removal to each EXCLUDE child
+          const filteredChildren: ASTNode[] = [];
+          for (const grandchild of child.children) {
+            if (grandchild.type === 'EXCLUDE') {
+              const cleaned = removeExcludeValues(grandchild, valuesToRemove);
+              if (cleaned !== null) {
+                filteredChildren.push(cleaned);
+              }
+              // If cleaned === null, the EXCLUDE had only conflicting values — drop it
+            } else {
+              filteredChildren.push(grandchild);
+            }
+          }
+
+          if (filteredChildren.length === 0) {
             // All children were removed — skip this node entirely (shouldn't happen)
             continue;
           } else if (filteredChildren.length === 1) {
