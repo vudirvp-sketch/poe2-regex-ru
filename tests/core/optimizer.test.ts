@@ -901,8 +901,9 @@ describe('compile: AND-in-OR with EXCLUDE → anchored lookahead (iter 44 → it
   // iter 46 fix: `^(?!.*A).*X` — ^-anchor + .* inside lookahead = bidirectional.
   // In-game verified (Tests A+B PASS, Test C confirms old FP — see docs/IN_GAME_TESTS.md).
   //
-  // These tests are STRUCTURAL (simulator does not model `(?!…)` lookahead — Known Issue #2).
-  // They lock the iter 46 compiled format so any regression to forward-only form is caught.
+  // These tests are STRUCTURAL (lock compiled string shape).
+  // iter 48 added SEMANTIC regression tests in tests/core/poe2-regex-matcher.test.ts
+  // Section 11 (simulator now models `(?!…)` as `lookaheadNeg` AST node — Known Issue #2 CLOSED).
 
   it('iter 46: backward-exclude compiles to ^(?!.*Приспеш).*повышение скорости атаки (single-quoted)', () => {
     // Replicates iter 46 in-game Test A scenario:

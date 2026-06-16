@@ -32,6 +32,12 @@
  * - `?` optional quantifier — does NOT work
  * - Description/tooltip text — not indexed
  *
+ * iter 48 (Known Issue #2 CLOSED): `(?!…)` negative lookahead is now explicitly
+ * tokenized as `lookaheadNegOpen` / `lookaheadClose` (was: `?` silently dropped →
+ * `!` became block-wide negation — implicit, fragile). Zero-width assertion at
+ * current position: inner pattern must NOT match starting here. For `^(?!.*X)`, the
+ * `.*` makes this block-wide absence (bidirectional exclude — iter 46 production form).
+ *
  * This file is in src/core/ — ZERO external dependencies.
  */
 
@@ -46,6 +52,8 @@ type Token =
   | { type: 'charClass'; ranges: CharRange[] }
   | { type: 'groupOpen' }
   | { type: 'groupClose' }
+  | { type: 'lookaheadNegOpen' }
+  | { type: 'lookaheadClose' }
   | { type: 'optional' }
   | { type: 'quantifierMin'; min: number }
   | { type: 'anchorStart' }
@@ -59,9 +67,21 @@ interface CharRange {
 function tokenize(pattern: string): Token[] {
   const tokens: Token[] = [];
   let i = 0;
+  // Stack tracks paren context: 'group' for plain `(...)` (PoE2 grouping),
+  // 'lookaheadNeg' for `(?!...)`. On `)`, emit the matching close token.
+  const parenStack: ('group' | 'lookaheadNeg')[] = [];
 
   while (i < pattern.length) {
     const ch = pattern[i];
+
+    // `(?!…)` negative lookahead — detect BEFORE the plain `(` handler.
+    // Three-char prefix `(?!` opens a zero-width negative lookahead.
+    if (ch === '(' && pattern[i + 1] === '?' && pattern[i + 2] === '!') {
+      tokens.push({ type: 'lookaheadNegOpen' });
+      parenStack.push('lookaheadNeg');
+      i += 3;
+      continue;
+    }
 
     if (ch === '.' && i + 1 < pattern.length && pattern[i + 1] === '*') {
       tokens.push({ type: 'dotStar' });
@@ -77,9 +97,16 @@ function tokenize(pattern: string): Token[] {
       i++;
     } else if (ch === '(') {
       tokens.push({ type: 'groupOpen' });
+      parenStack.push('group');
       i++;
     } else if (ch === ')') {
-      tokens.push({ type: 'groupClose' });
+      // Pop paren context — emit matching close token.
+      const ctx = parenStack.pop();
+      if (ctx === 'lookaheadNeg') {
+        tokens.push({ type: 'lookaheadClose' });
+      } else {
+        tokens.push({ type: 'groupClose' });
+      }
       i++;
     } else if (ch === '?') {
       tokens.push({ type: 'optional' });
@@ -173,7 +200,8 @@ type PoE2Regex =
   | { type: 'optional'; inner: PoE2Regex }
   | { type: 'repeatMin'; inner: PoE2Regex; min: number }
   | { type: 'anchorStart' }
-  | { type: 'anchorEnd' };
+  | { type: 'anchorEnd' }
+  | { type: 'lookaheadNeg'; inner: PoE2Regex };
 
 // ─── Parser ───
 
@@ -196,7 +224,7 @@ export function parsePoE2Regex(pattern: string): PoE2Regex {
 
     while (pos < tokens.length) {
       const token = tokens[pos];
-      if (token.type === 'pipe' || token.type === 'groupClose') break;
+      if (token.type === 'pipe' || token.type === 'groupClose' || token.type === 'lookaheadClose') break;
 
       if (token.type === 'optional') {
         pos++;
@@ -216,7 +244,14 @@ export function parsePoE2Regex(pattern: string): PoE2Regex {
         continue;
       }
 
-      if (token.type === 'bang') {
+      if (token.type === 'lookaheadNegOpen') {
+        // (?!X) — negative lookahead. Parse inner alternation, expect lookaheadClose.
+        // Zero-width assertion: matches iff inner does NOT match at current position.
+        pos++;
+        const inner = parseAlternation();
+        if (pos < tokens.length && tokens[pos].type === 'lookaheadClose') pos++;
+        items.push({ type: 'lookaheadNeg', inner });
+      } else if (token.type === 'bang') {
         pos++;
         const inner = parseAlternation();
         items.push({ type: 'negation', inner });
@@ -348,6 +383,18 @@ function matchAt(regex: PoE2Regex, text: string, startIndex: number): { matched:
     case 'negation': {
       // !X matches if X does NOT match ANYWHERE in the text
       if (canMatchAnywhere(regex.inner, text, 0)) {
+        return { matched: false, endIndex: startIndex };
+      }
+      return { matched: true, endIndex: startIndex };
+    }
+
+    case 'lookaheadNeg': {
+      // (?!X) — zero-width negative lookahead at current position.
+      // Succeeds (no consumption) iff inner does NOT match starting here.
+      // For `^(?!.*X)`: anchored at position 0, `.*X` matches iff X appears
+      // anywhere from position 0 to end → lookahead succeeds iff X is ABSENT
+      // from the whole block (bidirectional exclude — iter 46 production form).
+      if (matchAt(regex.inner, text, startIndex).matched) {
         return { matched: false, endIndex: startIndex };
       }
       return { matched: true, endIndex: startIndex };

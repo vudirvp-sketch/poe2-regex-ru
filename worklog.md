@@ -1,60 +1,63 @@
 # Worklog
 
 ---
-Task ID: 46
+Task ID: 48
 Agent: main
-Task: In-game verify `^`-anchor in OR-context (Tests A/B/C) и внедрить фикс `^(?!…).*Z` если A+B PASS. Обновить 4 iter 44 tests + добавить 2 NEW backward-exclude tests (minion-блок data). Документация: чисто, без мусора.
+Task: Закрыть Known Issue #2 — добавить `(?!…)` lookahead tokenizer в `src/core/poe2-regex-matcher.ts` + semantic regression test против minion-блок data. Документация: чисто, без мусора.
 
 Work Log:
-- 1: Клонирован репозиторий, прочитан контекст: worklog Task 45 (FP analysis с proposed fix), STATUS.md iter 45, docs/IN_GAME_TESTS.md iter 45 FINDING + test plan A/B/C, AGENT_NAVIGATION.md v31 (§9, §11 Pitfall 12/16/22, §12), src/core/compiler.ts normalizeAst (целевая строка), tests/core/optimizer.test.ts (iter 44 tests + regression lines).
-- 2: Пользователь прислал РЕЗУЛЬТАТЫ in-game тестов:
-  - **Тест A PASS** (`"^(?!.*Приспеш).*повышение скорости атаки"`): minions НЕ подсвечены, только non-minion блоки.
-  - **Тест B PASS** (`"^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений"`): результат идентичен A → `^` работает в OR-context (применяется только к первой альтернативе, НЕ leaks ко второй).
-  - **Тест C подтверждает root cause** (`"повышение скорости атаки(?!.*Приспеш)|перезарядки умений"`): minion-блоки подсвечены (forward-only lookahead не видит «Приспеш» ДО суффикса).
-- 3: Решение: A+B PASS → внедрять фикс `^(?!…).*Z`. Альтернатива (ETL-level detection tokens) НЕ нужна.
-- 4: Применён фикс в `src/core/compiler.ts` normalizeAst (AND-in-OR transform):
-  - **БЫЛО:** `const mergedValue = `${literalChild.value}${lookaheads}`;` → produced `Z(?!.*A)(?!.*B)` (forward-only)
-  - **СТАЛО:** `const mergedValue = `^${lookaheads}.*${literalChild.value}`;` → produces `^(?!.*A)(?!.*B).*Z` (bidirectional)
-  - Обновлён docstring блока.
-- 5: Обновлены 4 iter 44 tests в `tests/core/optimizer.test.ts` (describe block "compile: AND-in-OR with EXCLUDE → anchored lookahead"):
-  - Test 1 (OR + EXCLUDE(OR)): добавлены структурные assertions для `^`-prefix, `.*X`-bridge, `|Q`-no-leak.
-  - Test 2 (OR + EXCLUDE(LITERAL)): assertion `X(?!.*A)` → `^(?!.*A).*X` (exact match).
-  - Test 3 (top-level AND): без изменений (item-wide `!A|B|C` формат unchanged).
-  - Test 4 (multi-LITERAL AND): без изменений (no transform для этого shape).
-- 6: Добавлены 2 NEW backward-exclude tests (minion-блок data):
-  - Test A: top-level AND с exclude «Приспеш» — компилируется как `"повышение скорости атаки" "!Приспеш"` (no transform для top-level AND, lock boundary).
-  - Test B: OR(AND(LITERAL, EXCLUDE(LITERAL)), LITERAL) с minion data — компилируется exactly в `^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений` (lock iter 46 format).
-- 7: End-to-end regression test обновлён: добавлены 3 новых assertions (starts with `^`, no `|^` leak, `.*повышение скорости атаки` bridge). Существующие assertions (9 lookaheads, 4 positive literals, length ≤250) остались — все проходят.
-- 8: Верификация:
-  - `npx vitest run tests/core/optimizer.test.ts` → **72 passed** (70 baseline + 2 NEW iter 46).
-  - `npx vitest run` (full suite) → **1108 passed** (1106 baseline + 2 NEW).
-  - `npx tsc -b` → **0 errors**.
-  - Inline verify script: user scenario компилируется exactly в `"^(?!.*Приспеш)(?!.*топорами)(?!.*луками)(?!.*самострелами)(?!.*кинжалами)(?!.*посохами)(?!.*мечами)(?!.*без)(?!.*боевыми).*повышение скорости атаки|перезарядки умений|передвижения|атаки копьями"` — 195 chars ≤250, starts with `^`, no `|^` leak.
+- 1: Клонирован репозиторий, прочитан контекст: AGENT_NAVIGATION v47 (§6 dialect, §8 Pitfall 16), STATUS.md iter 46 (Known Issues #2/#4/#5 OPEN), worklog Task 47 (cleanup) + Task 46 (последний code-фикс), src/core/poe2-regex-matcher.ts (tokenizer + parser + matcher), tests/core/poe2-regex-matcher.test.ts (Sections 1-10), tests/core/optimizer.test.ts (iter 44/46 structural tests для AND-in-OR EXCLUDE), регис/Самоцветы моды.md:144 + Амулеты моды.md:57 (minion-block source data).
+- 2: Базовая верификация `npx tsx scripts/verify-baseline.ts` — текущий симулятор ИМПЛИЦИТНО даёт корректные результаты для iter 46 production form `^(?!.*X).*Z` (потому что `?` молча дропается → `!` становится block-wide negation), но это fragile поведение. Forward-only form `Z(?!.*X)` тоже блок-wide (вместо in-game FP) — неконсистентно.
+- 3: Реализован фикс (3 surgical изменения в `src/core/poe2-regex-matcher.ts`):
+  - **Tokenizer:** добавлены `lookaheadNegOpen` + `lookaheadClose` token types. Stack-based paren tracking: при `(?!` emit `lookaheadNegOpen`, push 'lookaheadNeg' на стек; при `)` pop, emit `lookaheadClose` если 'lookaheadNeg', иначе `groupClose`.
+  - **Parser:** новый AST node type `{ type: 'lookaheadNeg', inner }`. В `parseSequence`: при `lookaheadNegOpen` → parse inner alternation → expect `lookaheadClose` → push `lookaheadNeg` node. Также `lookaheadClose` добавлен в break-условие `parseSequence`.
+  - **Matcher:** `case 'lookaheadNeg'` в `matchAt` — zero-width assertion: succeed iff `matchAt(regex.inner, text, startIndex).matched === false`. Для `^(?!.*X)`: at position 0, `.*X` matches iff X есть где-то от position 0 → lookahead = bidirectional block-wide absence.
+- 4: Повторная верификация `npx tsx scripts/verify-baseline.ts`:
+  - Single-quoted `^(?!.*Приспеш).*повышение скорости атаки`: non-minion=true, minion=false ✓
+  - OR-context: ^ applies only to first alt, no leak ✓
+  - Multi-block item-level matching ✓
+  - Forward-only form `Z(?!.*X)` теперь даёт TRUE (как in-game FP из iter 45 finding) — симулятор теперь КОНСИСТЕНТЕН с in-game behavior.
+- 5: Добавлены 10 NEW semantic regression tests в `tests/core/poe2-regex-matcher.test.ts` Section 11:
+  - Single-quoted: non-minion matches, minion excluded (bidirectional exclude).
+  - OR-context: non-minion via first alt, minion excluded (no second-alt fallback), ^-no-leak via second alt.
+  - Multi-block item-level: minion + non-minion → matches via non-minion; only minion → no match; minion + second-alt-block → matches via second alt.
+  - Multiple lookaheads `^(?!.*A)(?!.*B).*Z` — оба excludes enforced.
+  - Backward compat: `?` outside lookahead context still parsed as `optional` (no regression).
+- 6: Верификация:
+  - `npx vitest run tests/core/poe2-regex-matcher.test.ts` → все тесты PASS (вкл. 10 NEW).
+  - `pnpm test` (full suite) → **1118 passed** (1108 baseline + 10 NEW iter 48).
+  - `pnpm exec tsc -b` → **0 errors**.
+  - `pnpm lint` → 59 problems (pre-existing — same count before/after, no new errors in изменённых файлах).
+- 7: Обновлена документация:
+  - `STATUS.md` — iter 48 fix section + Known Issue #2 → CLOSED iter 48. Tests count 1118.
+  - `AGENT_NAVIGATION.md` — current state iter 48, §6 dialect note updated, §8 Pitfall 16 rewritten (closed).
+  - `docs/IN_GAME_TESTS.md` — dialect table note + rule #10 updated.
+  - `tests/core/optimizer.test.ts` — комментарий iter 46 structural tests обновлён (refer to iter 48 semantic tests).
+  - `worklog.md` — Task 48 entry (this).
 
 Stage Summary:
-- **iter 46 FIX IMPLEMENTED + IN-GAME VERIFIED:** `compiler.ts` normalizeAst — `Z(?!…)` → `^(?!…).*Z` (bidirectional exclude). One-line change.
-- **In-game verify (Tests A+B PASS, C confirms root cause):** `^` works in OR-context (applies only to first alt, no leak). `(?!…)` forward-only semantic confirmed via Test C FP.
-- **Tests:** 1108 passed (+2 NEW backward-exclude regression tests for minion-блок data). TypeScript clean.
-- **Production regex для user scenario:** `"^(?!.*Приспеш)(?!.*топорами)(?!.*луками)(?!.*самострелами)(?!.*кинжалами)(?!.*посохами)(?!.*мечами)(?!.*без)(?!.*боевыми).*повышение скорости атаки|перезарядки умений|передвижения|атаки копьями"` (195 chars).
-- **Files MODIFIED (5 source/docs + 1 deleted):**
-  - `src/core/compiler.ts` — one-line fix + docstring update.
-  - `tests/core/optimizer.test.ts` — 4 iter 44 tests updated + 2 NEW iter 46 tests added.
-  - `worklog.md` — Task ID 46.
-  - `STATUS.md` — iter 46 section.
-  - `AGENT_NAVIGATION.md` — v32.
-  - `docs/IN_GAME_TESTS.md` — iter 46 VERIFICATION block.
-  - `docs/ARCHITECTURE.md` — §3 Path D history iter 46 note + dialect table updated.
-- **Known Issues (после iter 46):**
-  - ✅ #1 CLOSED — `(?!…)` forward-only FP FIXED via `^(?!…).*Z`.
-  - ⚠️ #2 OPEN — Simulator `(?!…)` gap remains (регрессионные тесты structural, не semantic). iter 47 todo.
-  - ✅ #3 CLOSED — `^` в OR-context verified in-game (Tests A+B PASS).
+- **iter 48 FIX IMPLEMENTED:** `src/core/poe2-regex-matcher.ts` — explicit `(?!…)` lookahead tokenization (was: implicit via `?` being silently dropped). 3 surgical changes.
+- **Known Issue #2 CLOSED.** Simulator now models `(?!…)` as `lookaheadNeg` AST node. Semantic regression tests verify in-game behavior verified in iter 46.
+- **Tests:** 1118 passed (+10 NEW semantic regression tests для minion-block data). TypeScript clean. Lint: no new errors.
+- **Files MODIFIED (5):**
+  - `src/core/poe2-regex-matcher.ts` — tokenizer (lookaheadNegOpen/Close tokens) + parser (lookaheadNeg AST node) + matcher (lookaheadNeg case).
+  - `tests/core/poe2-regex-matcher.test.ts` — Section 11 added (10 semantic regression tests).
+  - `STATUS.md` — iter 48 fix section + Known Issue #2 CLOSED.
+  - `AGENT_NAVIGATION.md` — current state + §6 dialect note + §8 Pitfall 16 updated.
+  - `docs/IN_GAME_TESTS.md` — dialect table + rule #10 updated.
+  - `tests/core/optimizer.test.ts` — iter 46 structural test comment updated (refer to iter 48 semantic tests).
+  - `worklog.md` — Task 48 entry (this).
+- **Known Issues (после iter 48):**
+  - ✅ #1 CLOSED iter 46 — `(?!…)` forward-only FP FIXED via `^(?!…).*Z`.
+  - ✅ #2 CLOSED iter 48 — Simulator `(?!…)` gap CLOSED via explicit lookaheadNeg tokenizer + semantic tests.
+  - ✅ #3 CLOSED iter 46 — `^` в OR-context verified in-game.
   - ⚠️ #4 OPEN — AND-in-OR с regexPrefixContext + LITERAL + EXCLUDE — nested quotes (rare case).
   - ⚠️ #5 OPEN — 2 over-limit entries в jewel (ETL diagnostic only).
-- **Точка остановки:** iter 46 COMPLETE. Code + tests + docs updated.
-- **For new chat:** читать `AGENT_NAVIGATION.md` (entry), `STATUS.md` (current state + Known Issues), `worklog.md` (Task ID 46 для деталей фикса).
+- **Точка остановки:** iter 48 COMPLETE. Code + tests + docs updated.
+- **For new chat:** читать `AGENT_NAVIGATION.md` (entry, ~192 lines), `STATUS.md` (current state + Known Issues #4/#5 OPEN, ~82 lines), `worklog.md` (Task 48 для деталей фикса + Task 47/46 для контекста).
 
 ---
-Task ID: 47 (CURRENT)
+Task ID: 47
 Agent: main
 Task: Анализ репозитория + актуализация/чистка документации под LLM/agent consumption. Никаких правок кода — только docs cleanup.
 

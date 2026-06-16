@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 46 (`^(?!…).*Z` bidirectional exclude — in-game verified).
+> **Entry document.** Read this first. Current state: iter 48 (`(?!…)` lookahead tokenizer — simulator now models negative lookahead semantically).
 
 ---
 
@@ -89,7 +89,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL, EXCLUDE) in
 | `[]` | Character class | ✅ |
 | `\d` | Digit shorthand | ✅ |
 | `{N,}` | Quantifier "N or more" | ✅ |
-| `(?!…)` Negative lookahead — bidirectional via `^(?!…).*Z` | ✅ in-game verified | Forward-only `Z(?!…)` is FP. Lookbehind `(?<!…)` NOT supported. **Simulator does NOT model `(?!…)`** — Known Issue #2. |
+| `(?!…)` Negative lookahead — bidirectional via `^(?!…).*Z` | ✅ in-game verified | Forward-only `Z(?!…)` is FP. Lookbehind `(?<!…)` NOT supported. **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED).** Semantic regression tests: `tests/core/poe2-regex-matcher.test.ts` Section 11. |
 | Regex char limit ≈ 250 chars | Single regex >250 chars silently rejected by game | ⚠️ ETL diagnostic only (`findOverLimitEntries`) |
 
 **NOT supported:** `?` (optional), `$` (unreliable), `.*` across blocks, non-greedy, backreferences.
@@ -125,7 +125,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL, EXCLUDE) in
 13. **regexExclude word forms:** Use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
 14. **Opt-table strict-subset skip:** `applyOptimizationTable` SKIPS opt-entries with top-level `|` when user's selection is a STRICT SUBSET (`matchedIds.size < entry.ids.length`). Plain shared-substring entries (no `|`) are still applied on subset (Phase 1 dedup handles them safely).
 15. **Cross-block FP risk:** `"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT mod blocks. Use `.*` bridge in ONE quoted group (`"X.*Y"`) to force same-block match. Note: `"X" "Y"` ALSO matches when X and Y are in the SAME block.
-16. **Simulator does NOT tokenize `(?!…)`:** `?` is treated as `optional` quantifier → lookahead is effectively IGNORED in `poe2-regex-matcher.ts`. Regression tests for `(?!…)` are STRUCTURAL (compiled-string shape), NOT SEMANTIC. To close: add `(?!…)` tokenizer + semantic regression test against minion-блок data.
+16. **`(?!…)` lookahead tokenized explicitly (iter 48 — Known Issue #2 CLOSED):** Tokenizer detects `(?!` as `lookaheadNegOpen`, parser creates `lookaheadNeg` AST node, matcher handles as zero-width assertion (succeeds iff inner does NOT match at current position). For `^(?!.*X).*Z`: `^`-anchor + `.*` inside lookahead = bidirectional block-wide absence. Semantic regression tests in `tests/core/poe2-regex-matcher.test.ts` Section 11 (minion-block data from регис/Самоцветы моды.md:144 + Амулеты моды.md:57).
 17. **PoE2 regex char limit ≈ 250 chars:** Single regex string >250 chars is silently rejected. ETL `findOverLimitEntries()` logs warnings; entries are kept (useful for subset selection — compiler picks matching subset when fewer ids are selected).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)

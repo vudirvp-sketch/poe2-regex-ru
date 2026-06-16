@@ -825,3 +825,117 @@ describe('Phase 9: Enumerated numeric range [27, 30]', () => {
     expect(matchPoE2RegexItem(enumRegex, itemWithRangeNotation)).toBe(false);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 11: iter 48 — (?!...) NEGATIVE LOOKAHEAD SEMANTIC REGRESSION
+// Closes Known Issue #2: simulator now explicitly tokenizes (?!...) as
+// lookaheadNeg (was: `?` silently dropped → `!` became block-wide negation,
+// implicit + fragile). These tests verify the simulator matches the in-game
+// behavior verified in iter 46 (Tests A/B/C — see docs/IN_GAME_TESTS.md).
+//
+// Block data source: регис/Самоцветы моды.md line 144, регис/Амулеты моды.md line 57
+//   minion block: "Приспешники имеют (2—4)% повышение скорости атаки и сотворения чар"
+//   non-minion block (e.g., weapon/jewel plain mod): "+(8—12)% повышение скорости атаки"
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('iter 48: (?!...) negative lookahead — bidirectional exclude (minion-block data)', () => {
+  // Source data (регис/Самоцветы моды.md:144, Амулеты моды.md:57)
+  const minionBlock = 'Приспешники имеют (2—4)% повышение скорости атаки и сотворения чар';
+  const nonMinionBlock = '+(8—12)% повышение скорости атаки';
+
+  // iter 46 production form: ^(?!.*X).*Z — bidirectional exclude (in-game verified)
+  const regexSingle = '"^(?!.*Приспеш).*повышение скорости атаки"';
+  // OR-context: ^ applies only to first alt (in-game Test B verified)
+  const regexOr = '"^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений"';
+
+  // ─── Single-quoted (iter 46 in-game Test A scenario) ───
+
+  it('non-minion block matches ^(?!.*Приспеш).*повышение скорости атаки', () => {
+    // Block has повышение but no Приспеш → lookahead succeeds, .*повышение matches.
+    expect(matchPoE2Regex(regexSingle, nonMinionBlock)).toBe(true);
+  });
+
+  it('minion block does NOT match — bidirectional exclude (Приспеш precedes повышение)', () => {
+    // iter 45 finding root cause: forward-only `Z(?!.*X)` would FP here.
+    // iter 46 fix `^(?!.*X).*Z` anchored at block start + .* inside lookahead
+    // covers WHOLE block → Приспеш detected → lookahead fails → no match.
+    expect(matchPoE2Regex(regexSingle, minionBlock)).toBe(false);
+  });
+
+  // ─── OR-context (iter 46 in-game Test B scenario) ───
+
+  it('OR-context: non-minion block matches via first alternative', () => {
+    expect(matchPoE2Regex(regexOr, nonMinionBlock)).toBe(true);
+  });
+
+  it('OR-context: minion block excluded — no second-alt fallback either', () => {
+    // Block contains «повышение скорости атаки» (would match first alt without
+    // lookahead) AND Приспеш (lookahead fails first alt). Block does NOT contain
+    // «перезарядки умений» → second alt also fails. → no match.
+    expect(matchPoE2Regex(regexOr, minionBlock)).toBe(false);
+  });
+
+  it('OR-context: ^-anchor does NOT leak to second alternative', () => {
+    // Block matches second alt «перезарядки умений» at non-start position.
+    // If ^ leaked to second alt, this would fail (^ requires position 0).
+    // In-game Test B verified ^ applies only to FIRST alternative.
+    const secondAltBlock = '+(5—8)% к перезарядки умений';
+    expect(matchPoE2Regex(regexOr, secondAltBlock)).toBe(true);
+  });
+
+  // ─── Multi-block item-level matching (matchPoE2RegexItem) ───
+
+  it('item with minion + non-minion blocks: matches via non-minion block', () => {
+    // Each quoted group is matched against EACH block independently.
+    // minion block: lookahead fails → no match for this block.
+    // non-minion block: lookahead passes + .*повышение matches → MATCH.
+    // Item matches because AT LEAST ONE block matches.
+    const item = {
+      name: 'Тестовый самоцвет',
+      mods: [minionBlock, nonMinionBlock],
+    };
+    expect(matchPoE2RegexItem(regexSingle, item)).toBe(true);
+  });
+
+  it('item with only minion block: no match (no positive block to satisfy)', () => {
+    const item = {
+      name: 'Тестовый самоцвет',
+      mods: [minionBlock],
+    };
+    expect(matchPoE2RegexItem(regexSingle, item)).toBe(false);
+  });
+
+  it('item with minion block + second-alt block: matches via second alt', () => {
+    // First alt (with lookahead) fails on minion block.
+    // Second alt (перезарядки умений) matches the OTHER block.
+    const item = {
+      name: 'Амулет',
+      mods: [minionBlock, '+(5—8)% к перезарядки умений'],
+    };
+    expect(matchPoE2RegexItem(regexOr, item)).toBe(true);
+  });
+
+  // ─── Multiple lookaheads (compiler output for 9-exclude case) ───
+
+  it('multiple lookaheads: ^(?!.*A)(?!.*B).*Z — both excludes enforced', () => {
+    // Compiler emits stacked lookaheads when AND(LITERAL, EXCLUDE(OR(many)))
+    // is transformed. Verify simulator handles sequence of >1 lookahead.
+    const regexMulti = '"^(?!.*Приспеш)(?!.*топорами).*повышение скорости атаки"';
+    expect(matchPoE2Regex(regexMulti, nonMinionBlock)).toBe(true);
+    expect(matchPoE2Regex(regexMulti, minionBlock)).toBe(false); // has Приспеш
+    expect(matchPoE2Regex(regexMulti, '+(8—12)% повышение скорости атаки топорами')).toBe(false); // has топорами
+    expect(matchPoE2Regex(regexMulti, '+10% к перезарядки умений')).toBe(false); // no повышение
+  });
+
+  // ─── Backward compatibility: optional `?` (not lookahead) still works ───
+
+  it('optional `?` quantifier still parsed (backward compat — PoE2 does not support, but tokenizer should not break)', () => {
+    // `?` as optional quantifier is not a PoE2 feature, but the tokenizer
+    // must still handle it gracefully (existing behavior — was used implicitly
+    // for `(?!)` before iter 48). Verify the `?` outside lookahead context
+    // still produces an `optional` token (no regression).
+    // Note: PoE2 game does NOT support `?` — this test only locks tokenizer behavior.
+    expect(matchPoE2Regex('"abc?"', 'ab')).toBe(true);   // `c?` optional — matches "ab"
+    expect(matchPoE2Regex('"abc?"', 'abc')).toBe(true);  // `c?` matches "abc"
+  });
+});
