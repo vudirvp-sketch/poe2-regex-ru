@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 54 (cleanup `CategoryControlPanel` — удалена legacy ветка + неиспользуемые пропсы + мёртвый CSS).
+> **Entry document.** Read this first. Current state: iter 55 (UI Фаза 3 — `RegexOutput` получил Level 1 frame: gold border + glow).
 
 ---
 
@@ -136,6 +136,11 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **iter 54 cleanup removed:** legacy branch (sticky wrapper + embedded `<RegexOutput>`), `hideRegexOutput` prop, `regex`/`isOverflow`/`regexParts`/`filterStore` props (all unused in split mode). Dead CSS: `.control-panel-sticky`, `.sticky.top-0` mobile rules.
     - **Kept:** `activeTokenCount` (used for active-tokens counter in controls row), `extraControls` slot (waystone corrupted/delirious, jewel type filter, tablet type/rarity/uses), `clearButton` slot (Vendor).
     - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). JewelPage's "Hidden mods warning" stays in left column (between controls and ModList). TabletPage's status block is custom (includes type/rarity/uses info).
+
+21. **Level 1 visual frames (iter 55):** Two families of Level 1 decorative frames exist in `index.css` — both use the same pattern (gradient bg + 1px subtle border + 3px colored border-left + corner accents via `::before`/`::after`):
+    - **Affix headers** (`.affix-header-prefix` / `-suffix` / `-implicit`): blue / orange / amber colors. Used by `ModList` to label affix groups.
+    - **`RegexOutput`** (`.regex-output`): **gold** (`--poe-gold` = `#C89A4A`, brand accent) + glow `box-shadow`. Marks the primary output element. Padding `12px` desktop, `10px` mobile.
+    - **Do NOT** re-add inline `style={{ background: ... }}` on `RegexOutput` root div — `.regex-output` CSS owns the background now (inline style was removed iter 55).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

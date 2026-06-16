@@ -1,59 +1,59 @@
 # Worklog
 
 ---
-Task ID: 54
+Task ID: 55
 Agent: main
-Task: Cleanup `CategoryControlPanel` — удалить legacy ветку (больше не используется после iter 53) + неиспользуемые в split mode пропсы (`regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput`) + мёртвый CSS, привязанный к legacy sticky wrapper.
+Task: UI redesign Фаза 3 — возвышение `RegexOutput` до Level 1 (gold border + glow). Чисто CSS-изменения + 2 строки в TSX (удаление inline style + Tailwind padding override).
 
 Work Log:
-- 1: Клонирован репозиторий. `pnpm install` (4.7s). Baseline: 1144 tests pass, 59 lint problems (все pre-existing в `tests/`), TypeScript clean, Vite build OK.
-- 2: Изучен `CategoryControlPanel.tsx` (363 строки). Анализ использования пропсов в split mode:
-  - `regex`, `isOverflow`, `regexParts`, `filterStore` — используются ТОЛЬКО в legacy `return`-блоке (строка 356, передаются в `<RegexOutput>`). В controlsRow (split mode) не используются → DELETE.
-  - `activeTokenCount` — используется в controlsRow (строка 181, "active tokens counter") И в legacy `return`-блоке → KEEP (STATUS.md в iter 53 неточно перечислял его как неиспользуемый).
-  - `hideRegexOutput` — флаг для switch между split/legacy. После удаления legacy ветки флаг не нужен → DELETE.
-  - Импорты `RegexOutput` и `FilterStoreApi` type — нужны только для legacy ветки → DELETE.
-- 3: `CategoryControlPanel.tsx` переписан (363 → 262 строки, −101, −28%):
-  - Удалены пропсы `regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput` из interface и destructuring.
-  - Удалены импорты `RegexOutput` и `FilterStoreApi`.
-  - Удалена legacy ветка `return <div className="sticky top-0 z-10 ...">...</div>` (строки 347-361 оригинала).
-  - Удалено `if (hideRegexOutput) {...}` ветвление — теперь компонент всегда возвращает controls-only wrapper.
-  - Удалён `mt-2` условный класс в controlsRow (нужен был только для spacing под RegexOutput в legacy mode).
-  - Обновлён docstring: история iter 52-54, текущее состояние (split-only).
-- 4: Обновлены 8 страниц — из каждой `<CategoryControlPanel>` invocation удалены `hideRegexOutput`, `regex`, `isOverflow`, `regexParts`, `filterStore`. `<RegexOutput>` остаётся в `regexOutput` slot `<CategoryLayout>` без изменений. Файлы: WaystonePage, RingPage, AmuletPage, BeltPage, RelicPage, JewelPage, TabletPage, VendorPage.
-- 5: Удалён мёртвый CSS из `index.css`:
-  - `.control-panel-sticky` + `::before` pseudo (sticky gap fix для legacy mode).
-  - Mobile media query rules: `.control-panel-sticky, .sticky.top-0 { padding-bottom: 12px }`, `.sticky.top-0 button {...}`, `.sticky.top-0 .flex-wrap { gap: 4px }` — все ссылались только на legacy sticky wrapper (grep подтвердил: `sticky top-0` класс использовался только в legacy CategoryControlPanel).
-- 6: Верификация:
+- 1: Клонирован репозиторий, `pnpm install` (23.7s). Baseline: 1144 tests pass, 59 lint problems (все pre-existing в `tests/`), TypeScript clean, Vite build OK (152 modules, 9 prerendered HTML).
+- 2: Изучен контекст: `src/ui/components/RegexOutput.tsx` (319 строк) — root `<div className="regex-output -mx-1 px-1 py-1" style={{ background: 'var(--poe-bg, #0a0a0f)' }}>`. Класс `.regex-output` существует в JSX, но в `index.css` после iter 54 cleanup не имеет CSS-правил (все ссылки были в удалённой light-теме). Tailwind `-mx-1 px-1 py-1` — негативный margin + padding override для старого sticky wrapper (iter 51). Inline `style={{ background }}` — задаёт solid `#0D0B09`, перебивает любой CSS background.
+- 3: Изучен паттерн Level 1 frames в `index.css`: `.affix-header-prefix` (blue), `.affix-header-suffix` (orange), `.affix-header-implicit` (amber) — все используют pattern: gradient bg + 1px subtle border + 3px colored border-left + corner accents (::before/::after). Plan: применить тот же pattern с gold (`--poe-gold` = `#C89A4A`) для `.regex-output`.
+- 4: `src/index.css` — добавлен блок `.regex-output` после `.affix-header-implicit` секции:
+  - Background: `linear-gradient(135deg, rgba(200,154,74,0.08) 0%, rgba(200,154,74,0.02) 100%), var(--poe-bg)` — тёплый gold-tint поверх base bg.
+  - Border: `1px solid rgba(200,154,74,0.35)` + `border-left: 3px solid var(--poe-gold)`.
+  - Border-radius: `6px`, padding `12px`, margin `0`.
+  - Box-shadow: `0 0 0 1px rgba(200,154,74,0.06), 0 0 18px rgba(200,154,74,0.10)` — двойной glow (halo + aura).
+  - Corner accents: `::before` (top-right, `--poe-gold-bright`) + `::after` (bottom-left, `--poe-gold-bright`), 8×8px, opacity 0.55.
+- 5: `src/index.css` — добавлено mobile правило в `@media (max-width: 768px)`: `.regex-output { padding: 10px }` (чуть компактнее на mobile).
+- 6: `src/ui/components/RegexOutput.tsx`:
+  - Root `<div>` className: `"regex-output -mx-1 px-1 py-1"` → `"regex-output"` (CSS padding теперь управляется классом).
+  - Удалён inline `style={{ background: 'var(--poe-bg, #0a0a0f)' }}` — background теперь часть `.regex-output` frame.
+  - Docstring обновлён: добавлена строка "Level 1 visual frame (iter 55, UI redesign Phase 3): gold border + glow + corner accents via .regex-output CSS class — marks the primary output element."
+- 7: Верификация:
   - `pnpm exec tsc -b` → 0 errors.
-  - `pnpm test` → **1144 passed** (35 файлов, без регрессий).
-  - `pnpm lint` → **59 problems** (baseline сохранён — все pre-existing в `tests/`; в изменённых файлах те же 2 pre-existing `setState synchronously within an effect` на filterStore sync в WaystonePage/JewelPage/TabletPage, что и в iter 53).
-  - `pnpm build` → success (9 prerendered HTML).
-- 7: Документация:
-  - `STATUS.md` — полная перезапись: iter 54, "Cleanup CategoryControlPanel", список удалённых пропсов и CSS-правил, убран tech debt entry из Known Issues (теперь явно закрыт). План 9 фаз — Фаза 3 = next.
-  - `AGENT_NAVIGATION.md` — current state iter 54, Pitfall 20 переписан: split-only (был split-mode с legacy веткой). Убрано упоминание legacy/`hideRegexOutput`.
-  - `docs/ARCHITECTURE.md` — обновлена секция `CategoryControlPanel` (Sticky → Controls-only, описание слотов).
-  - `worklog.md` — Task 54 entry (этот). Task 53 уплотнён до Stage Summary.
+  - `pnpm test` → **1144 passed** (35 файлов, без регрессий). `tests/ui/RegexOutput.test.tsx` (17 tests) — все зелёные (тесты не проверяют inline style или padding, только функциональность).
+  - `pnpm lint` → **59 problems** (baseline сохранён — все pre-existing в `tests/`, в изменённых файлах 0).
+  - `pnpm build` → success. CSS bundle: 40.74 KB (gzipped 8.93 KB) — было ~38 KB (до iter 55). +~1.5 KB на gold-frame CSS. 9 prerendered HTML сгенерированы.
+- 8: Документация:
+  - `STATUS.md` — полная перезапись: iter 55, "UI Фаза 3: RegexOutput Level 1", детали CSS-правила + TSX изменений, результат верификации. План 9 фаз — Фаза 3 = ✅, Фаза 4 = next.
+  - `AGENT_NAVIGATION.md` — current state iter 55, добавлен Pitfall 21 (Level 1 visual frames — два семейства: affix-header-* + .regex-output, предупреждение не re-add inline style).
+  - `docs/ARCHITECTURE.md` — в Section 9 (Visual Hierarchy) добавлен subsection "RegexOutput Level 1 Frame (iter 55, UI Phase 3)" с таблицей свойств frame.
+  - `worklog.md` — Task 55 entry (этот). Task 54 уплотнён до Stage Summary (был полным Work Log).
 
 Stage Summary:
-- **iter 54 Cleanup COMPLETE.** Удалена legacy ветка `CategoryControlPanel` + 5 неиспользуемых пропсов (`regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput`) + 2 неиспользуемых импорта + мёртвый CSS (4 правила). Все 8 страниц обновлены — удалены лишние пропсы из `<CategoryControlPanel>` invocations.
-- **Изменённые файлы (12):**
-  - `src/ui/components/CategoryControlPanel.tsx` — 363 → 262 строки (−28%).
-  - `src/ui/pages/waystone/WaystonePage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/ring/RingPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/amulet/AmuletPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/belt/BeltPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/relic/RelicPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/jewel/JewelPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/tablet/TabletPage.tsx` — удалены 5 пропсов.
-  - `src/ui/pages/vendor/VendorPage.tsx` — удалены 5 пропсов.
-  - `src/index.css` — удалено 4 мёртвых CSS-правила (~22 строки).
-  - `STATUS.md` — iter 54 rewrite + tech debt закрыт.
-  - `AGENT_NAVIGATION.md` — iter 54 + Pitfall 20 переписан.
-  - `docs/ARCHITECTURE.md` — секция CategoryControlPanel обновлена.
-- **Tests:** 1144 passed (без регрессий). TypeScript clean. Vite build OK (9 prerendered HTML). Lint baseline 59 сохранён.
-- **Known Issues:** открытыми нет. Тех. долг по CategoryControlPanel закрыт.
-- **Риски:** нулевые. `activeTokenCount` сохранён (в STATUS.md iter 53 был ошибочно перечислен как неиспользуемый). `<RegexOutput>` во всех страницах остаётся без изменений в `regexOutput` slot `<CategoryLayout>`.
-- **Точка остановки:** iter 54 Cleanup COMPLETE. Следующая итерация — Фаза 3 (возвышение `RegexOutput` до Level 1: gold border + glow).
+- **iter 55 Фаза 3 COMPLETE.** `RegexOutput` получил Level 1 visual frame (gold border + glow + corner accents) — соответствует паттерну `.affix-header-*`, но с brand-accent gold. Чистый CSS + 2 строки в TSX (удаление inline style + Tailwind padding override).
+- **Изменённые файлы (5):**
+  - `src/index.css` — +44 строки (блок `.regex-output` + corner accents + mobile padding rule).
+  - `src/ui/components/RegexOutput.tsx` — root `<div>` className упрощён (`"regex-output"` вместо `"regex-output -mx-1 px-1 py-1"`), удалён inline `style={{ background }}`, docstring обновлён.
+  - `STATUS.md` — iter 55 rewrite, Фаза 3 = ✅.
+  - `AGENT_NAVIGATION.md` — iter 55 + Pitfall 21 (Level 1 frames).
+  - `docs/ARCHITECTURE.md` — Section 9 + subsection "RegexOutput Level 1 Frame".
+- **Tests:** 1144 passed (без регрессий — `RegexOutput.test.tsx` 17 tests зелёные). TypeScript clean. Vite build OK (152 modules, 9 prerendered HTML, CSS 40.74 KB). Lint baseline 59 сохранён.
+- **Known Issues:** открытыми нет.
+- **Риски:** нулевые. CSS-only изменения + удаление inline style (раньше перебивал любой CSS background). Tailwind `-mx-1 px-1 py-1` были legacy от iter 51 sticky wrapper — больше не нужны (RegexOutput в right-column sticky `<aside>` `CategoryLayout`). Здоровье regex (green/yellow/red) по-прежнему видно через health bar внутри блока.
+- **Точка остановки:** iter 55 Фаза 3 COMPLETE. Следующая итерация — Фаза 4 (навигация как «режимы»: усиленный active-state, mobile tabs в Sidebar).
+
+---
+
+Task ID: 54
+Agent: main
+Task: Cleanup `CategoryControlPanel` — удалить legacy ветку + неиспользуемые пропсы + мёртвый CSS.
+
+Stage Summary:
+- **iter 54 Cleanup COMPLETE.** Удалена legacy ветка `CategoryControlPanel` + 5 неиспользуемых пропсов (`regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput`) + 2 неиспользуемых импорта + мёртвый CSS (4 правила). Все 8 страниц обновлены.
+- **Изменённые файлы (12):** `CategoryControlPanel.tsx` (363 → 262 строки, −28%) + 8 страниц + `index.css` (−22 строки) + `STATUS.md` + `AGENT_NAVIGATION.md` + `ARCHITECTURE.md`.
+- **Tests:** 1144 passed. TypeScript clean. Vite build OK. Lint baseline 59 сохранён.
 
 ---
 

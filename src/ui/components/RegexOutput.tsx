@@ -10,6 +10,8 @@
  * - Sticky positioning so output is always visible while adjusting filters
  * - Auto-copy on regex generation (optional, toggled by checkbox)
  * - Keyboard shortcut: Ctrl+Shift+X to copy regex
+ * - Level 1 visual frame (iter 55, UI redesign Phase 3): gold border + glow +
+ *   corner accents via .regex-output CSS class — marks the primary output element.
  *
  * Health bar thresholds (from limits.ts):
  * - Green: 0-200 characters
@@ -197,8 +199,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const healthPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
 
   return (
-    <div className="regex-output -mx-1 px-1 py-1"
-      style={{ background: 'var(--poe-bg, #0a0a0f)' }}
+    <div className="regex-output"
       role="region"
       aria-label={t('regex.title')}
       aria-live="off"

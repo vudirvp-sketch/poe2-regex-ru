@@ -495,6 +495,49 @@ main {
   border-radius: 0 0 0 4px;
 }
 
+/* ─── RegexOutput — Level 1 frame (gold border + glow) ─── */
+/* iter 55, UI redesign Phase 3: visual accent on the primary output component.
+   Pattern mirrors .affix-header-* Level 1 frames (gradient bg + colored border-l
+   + corner accents) but uses the gold brand accent (var(--poe-gold) = #C89A4A)
+   to mark RegexOutput as the central functional element of every category page. */
+.regex-output {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(200, 154, 74, 0.08) 0%, rgba(200, 154, 74, 0.02) 100%),
+    var(--poe-bg);
+  border: 1px solid rgba(200, 154, 74, 0.35);
+  border-left: 3px solid var(--poe-gold);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0;
+  box-shadow:
+    0 0 0 1px rgba(200, 154, 74, 0.06),
+    0 0 18px rgba(200, 154, 74, 0.10);
+}
+
+/* Corner accents — gold, matching .affix-header-* pattern */
+.regex-output::before,
+.regex-output::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.regex-output::before {
+  top: -1px; right: -1px;
+  border-top: 2px solid var(--poe-gold-bright);
+  border-right: 2px solid var(--poe-gold-bright);
+  border-radius: 0 6px 0 0;
+}
+.regex-output::after {
+  bottom: -1px; left: -1px;
+  border-bottom: 2px solid var(--poe-gold-bright);
+  border-left: 2px solid var(--poe-gold-bright);
+  border-radius: 0 0 0 6px;
+}
+
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
   .mod-list button[class*="inline-flex"],
@@ -529,6 +572,9 @@ main {
   .affix-header-implicit {
     padding: 4px 8px;
     margin: 6px 0;
+  }
+  .regex-output {
+    padding: 10px;
   }
   .virtualized-mod-list img,
   .mod-list img {

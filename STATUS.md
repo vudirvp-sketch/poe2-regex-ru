@@ -2,32 +2,28 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 54 — cleanup `CategoryControlPanel` (удалена legacy ветка + неиспользуемые пропсы + мёртвый CSS)
+> **Текущая итерация:** 55 — UI Фаза 3 (возвышение `RegexOutput` до Level 1: gold border + glow)
 
 ---
 
-## iter 54 — Cleanup CategoryControlPanel
+## iter 55 — UI Фаза 3: RegexOutput Level 1
 
-**Что:** Удалена legacy ветка из `CategoryControlPanel` (которая рендерила `<RegexOutput>` + sticky wrapper). Все 8 категорийных страниц уже используют split mode через `<CategoryLayout>` (с iter 53), legacy была мёртвым кодом.
+**Что:** `<RegexOutput>` получил визуальный Level 1 frame (золотая рамка + свечение + угловые акценты) — соответствует паттерну `.affix-header-*` (prefix/suffix/implicit), но использует золотой brand-accent (`--poe-gold` = `#C89A4A`). Цель — визуально выделить главную функциональную единицу каждой категорийной страницы.
 
-**Удалено из `CategoryControlPanel`:**
-- Пропсы: `regex`, `isOverflow`, `regexParts`, `filterStore`, `hideRegexOutput` (никогда не использовались в split mode — split mode рендерит только controls row, без `<RegexOutput>`).
-- Импорты: `RegexOutput` (больше не рендерится внутри), `FilterStoreApi` type (только для `filterStore`).
-- Legacy `return`-блок с sticky wrapper + `<RegexOutput>`.
-- `if (hideRegexOutput) {...}` ветвление — теперь всегда split mode.
-- `mt-2` условный класс в controlsRow (нужен был только для spacing под RegexOutput в legacy mode).
+**Изменения — чистый CSS + 2 строки в TSX:**
 
-**Сохранено:**
-- `activeTokenCount` — используется в controls row (active tokens counter, строка `{activeTokenCount} {t('selected')}`).
-- Все остальные пропсы (searchLogic, hasRangedTokens, range filter, round10, threshold, priorityFilter, extraControls, clearButton, excludedCount).
+- `src/index.css` — добавлен блок `.regex-output` (Level 1 frame, gold):
+  - Background: `linear-gradient(135deg, rgba(200,154,74,0.08) → 0.02), var(--poe-bg)` — тёплый gold-tint поверх базового bg.
+  - Border: `1px solid rgba(200,154,74,0.35)` + `border-left: 3px solid var(--poe-gold)`.
+  - Border-radius: `6px`, padding `12px` (mobile: `10px`).
+  - Box-shadow: `0 0 0 1px rgba(200,154,74,0.06), 0 0 18px rgba(200,154,74,0.10)` — двойной glow (halo + aura).
+  - Corner accents (`::before`/`::after`): золотые уголки 8×8px в TR/BL позициях (как у `.affix-header-*`).
+- `src/ui/components/RegexOutput.tsx`:
+  - Удалён inline `style={{ background: 'var(--poe-bg, #0a0a0f)' }}` — background теперь управляется CSS-классом.
+  - Удалены Tailwind утилиты `-mx-1 px-1 py-1` (негативный margin + padding override) — padding теперь часть `.regex-output` frame.
+  - Docstring обновлён: упоминание iter 55 / Phase 3 / Level 1 frame.
 
-**Обновлено в 8 страницах:** `WaystonePage`, `RingPage`, `AmuletPage`, `BeltPage`, `RelicPage`, `JewelPage`, `TabletPage`, `VendorPage` — из каждой `<CategoryControlPanel>` invocation удалены `hideRegexOutput`, `regex`, `isOverflow`, `regexParts`, `filterStore`. `<RegexOutput>` остаётся в `regexOutput` slot `<CategoryLayout>` (правая колонка, sticky).
-
-**Удалено мёртвого CSS из `index.css`:**
-- `.control-panel-sticky` + `::before` pseudo (sticky gap fix для legacy mode).
-- Mobile media query rules для `.control-panel-sticky, .sticky.top-0 { padding-bottom: 12px }`, `.sticky.top-0 button {...}`, `.sticky.top-0 .flex-wrap { gap: 4px }` — все ссылались только на legacy sticky wrapper.
-
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (9 prerendered HTML). Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (9 prerendered HTML). Lint baseline 59 сохранён. CSS bundle +~1.5 KB (40.74 KB gzipped 8.93 KB).
 
 ---
 
@@ -37,7 +33,7 @@
 |---|-------|--------|
 | ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
 
-**Открытых Known Issues нет.** Технического долга по CategoryControlPanel больше нет (закрыт iter 54).
+**Открытых Known Issues нет.**
 
 ---
 
@@ -63,8 +59,8 @@
 | 0 | ✅ iter 51 | Аудит CSS-токенов, таблица маппинга |
 | 1 | ✅ iter 51 | Миграция design tokens (тёплая палитра, удаление light-темы, приглушение bg-forest) |
 | 2 | ✅ iter 52-53 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Все 8 страниц мигрированы** |
-| 3 | ⏳ next | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
-| 4 | ⏳ | Навигация как «режимы» (усиленный active-state, mobile tabs) |
+| 3 | ✅ iter 55 | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
+| 4 | ⏳ next | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
 | 5 | ⏳ | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
 | 6 | ⏳ | Единая панель статусов (`StatusPanel.tsx`) |
 | 7 | ⏳ | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |

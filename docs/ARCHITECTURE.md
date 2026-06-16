@@ -225,6 +225,21 @@ All category pages use 3-level visual hierarchy. Headers are **block-level** (ne
 | 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-[14px]` | Bold uppercase badge, bg+border+border-l, origin-specific color + 17px icon. |
 | 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / ... | `text-[12px]` | Semibold uppercase badge, bg+border, category-specific color |
 
+### RegexOutput Level 1 Frame (iter 55, UI Phase 3)
+
+In addition to the 3-level affix hierarchy, **`<RegexOutput>`** itself uses a Level 1 decorative frame — same pattern as affix headers but in **gold** (brand accent) — to mark it as the primary functional element of every category page.
+
+| Property | Value |
+|----------|-------|
+| CSS class | `.regex-output` (in `index.css`) |
+| Background | `linear-gradient(135deg, rgba(200,154,74,0.08) → 0.02), var(--poe-bg)` |
+| Border | `1px solid rgba(200,154,74,0.35)` + `border-left: 3px solid var(--poe-gold)` |
+| Box-shadow | `0 0 0 1px rgba(200,154,74,0.06), 0 0 18px rgba(200,154,74,0.10)` (halo + aura glow) |
+| Corner accents | `::before` (TR), `::after` (BL), 8×8px, `var(--poe-gold-bright)` |
+| Padding | `12px` desktop / `10px` mobile |
+
+The `.regex-output` class is applied to the root `<div>` of `RegexOutput.tsx`. Inline `style={{ background }}` was removed (iter 55) — CSS owns the background now.
+
 **CategoryLabel interface** (in `mod-classifier.ts`):
 ```ts
 interface CategoryLabel {
