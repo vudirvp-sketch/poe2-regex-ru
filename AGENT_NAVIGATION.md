@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 59 (UI Фаза 7 — `MobileRegexBar.tsx` mobile sticky bottom-bar).
+> **Entry document.** Read this first. Current state: iter 60 (fix Known Issue #7 — `MobileRegexBar` visible on desktop due to CSS specificity conflict).
 
 ---
 
@@ -16,7 +16,7 @@
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53, updated iter 59). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
 | `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages (iter 58, Phase 6). Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
-| `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar (iter 59, Phase 7). Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. Wraps RegexOutput + alerts in `position: sticky; bottom: 0` container. | Used by all 8 category pages. Desktop unaffected — RegexOutput stays in right-column aside. |
+| `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar (iter 59, Phase 7). Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. Wraps RegexOutput + alerts in `position: sticky; bottom: 0` container. | Used by all 8 category pages. Desktop unaffected — RegexOutput stays in right-column aside. **iter 60:** `.mobile-regex-bar*` CSS rules are wrapped in `@media (max-width: 1023px)` to avoid specificity conflict with `lg:hidden` (see Pitfall 26). |
 | `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). iter 56. | Single source — do not duplicate nav list in either component. |
 | `src/ui/layout/Sidebar.tsx` | Desktop-only vertical nav (`hidden md:flex`). iter 56: mobile drawer removed. | Mobile nav lives in `MobileNavTabs.tsx`. |
 | `src/ui/layout/MobileNavTabs.tsx` | Mobile-only horizontal scrollable chip tabs (`md:hidden`). Sticky below Header. iter 56. | Replaces previous hamburger drawer. |
@@ -176,6 +176,11 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **Vendor price-filter (iter 59):** VendorPage passes `hasRangedTokens={false}` to `<CategoryControlPanel>` — the global min/max inputs were no-ops (setMinValue/setMaxValue were empty functions). Per-chip range inputs in `<FilterChip>` are the primary UX for vendor ("Ур. предмета ≥N" / "Треб. уровень ≥N" each have their own min input).
     - **HomePage category cards (iter 59):** Verbose descriptions ("Полное покрытие префиксов и суффиксов" etc.) removed from category cards. Cards now show only icon + name + affix count. 8 unused `home.*_desc` i18n keys deleted.
     - **Pre-existing bug closed (iter 59):** `tsc -b` was failing — 4 standard pages (Belt/Amulet/Ring/Relic) were missing `import { t } from '@shared/i18n'` (regression from iter 58 — import was removed as "unused" but `t()` is called in `header`), and JewelPage was missing `import { groupTokensByFamily }`. `tsc --noEmit` was silent but `tsc -b` (build mode with project references) caught it. All imports restored.
+
+26. **CSS specificity vs Tailwind responsive utilities (iter 60, Known Issue #7):** When you write a custom CSS rule in `index.css` that targets a class ALSO used as a Tailwind responsive utility (e.g. `.my-class { display: flex }` + JSX `className="my-class lg:hidden"`), the custom rule has specificity (0,1,0) and the Tailwind `.lg\:hidden { display: none }` ALSO has specificity (0,1,0). Tie → source-order wins. Tailwind utilities are emitted FIRST (from `@import "tailwindcss"` at top of `index.css`); custom CSS comes AFTER. So at ≥lg viewport, the custom `display: flex` was overriding Tailwind's `display: none` — making `lg:hidden` appear broken.
+    - **Symptom:** element with `lg:hidden` was visible on desktop.
+    - **Fix:** wrap ALL custom CSS rules for mobile-only elements inside `@media (max-width: 1023px)`. Then on desktop, the rule never applies, and `lg:hidden` is uncontested. This is the pattern used for `.mobile-regex-bar*` rules.
+    - **General rule:** if a custom CSS class coexists with a Tailwind responsive utility class on the same element AND sets the same property (`display`, `position`, etc.), wrap the custom rule in the inverse media query (`max-width: <bp>-1px`). Do NOT use `!important` — it makes future overrides harder.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

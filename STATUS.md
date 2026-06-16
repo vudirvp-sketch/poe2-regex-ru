@@ -2,29 +2,19 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 59 — UI Фаза 7 (`MobileRegexBar.tsx` mobile sticky bottom-bar) + cleanup
+> **Текущая итерация:** 60 — Fix Known Issue #7 (MobileRegexBar visible on desktop due to CSS specificity)
 
 ---
 
-## iter 59 — UI Фаза 7: Mobile sticky bottom-bar + HomePage cleanup + Vendor price-filter fix
+## iter 60 — Fix: MobileRegexBar visible on desktop (Known Issue #7)
 
-**Что:**
-1. **Фаза 7 — `MobileRegexBar.tsx`**: на mobile (< lg) `RegexOutput` перемещён из правой колонки в sticky bottom-bar. StatusPanel alerts (Jewel hidden-mods warning, Vendor verification note) следуют за ним в тот же bar. Desktop (lg+) не изменился — `RegexOutput` + `StatusPanel` остаются в правой колонке `aside`.
-2. **HomePage cleanup**: убраны многословные описания категорий («Полное покрытие префиксов и суффиксов» и пр.) — карточки теперь содержат только иконку + название + количество аффиксов. Удалены 8 неиспользуемых i18n-ключей `home.*_desc`.
-3. **Vendor price-filter fix**: глобальные min/max inputs на VendorPage были no-op (setMinValue/setMaxValue — пустые функции). Скрыты через `hasRangedTokens={false}`. Per-chip range inputs в `FilterChip` уже работали и остаются основным UX для vendor.
+**Симптом:** Sticky-bottom `MobileRegexBar` дублировал основной `RegexOutput` на десктопе (≥1024px), хотя должен был быть скрыт через `lg:hidden`.
 
-**Изменения:**
+**Причина:** CSS-специфичность. `.mobile-regex-bar { display: flex; ... }` (custom CSS в конце `index.css`) и `.lg\:hidden { display: none }` (Tailwind, в начале файла внутри `@media (width>=64rem)`) имеют одинаковую специфичность (0,1,0). При равной специфичности побеждает позднее правило в source-order — custom `.mobile-regex-bar` перекрывал `lg:hidden` на десктопе.
 
-- **NEW** `src/ui/components/MobileRegexBar.tsx` — sticky-bottom контейнер (`position: sticky; bottom: 0`) для mobile. Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`.
-- **MODIFIED** `src/ui/layout/CategoryLayout.tsx` — добавлен `mobileBar?: ReactNode` slot. Когда передан, `aside` получает `hidden lg:flex` (десктоп-only), а `status` + `sidebar` рендерятся в отдельной mobile-only секции над sticky-bar. Backward compat: без `mobileBar` `aside` виден на всех viewport.
-- **MODIFIED** все 8 страниц категорий — передают `mobileBar={<MobileRegexBar regexOutput={...} alerts={...} />}`. Jewel и Vendor дополнительно прокидывают `alerts` (повторно из StatusPanel) в MobileRegexBar.
-- **MODIFIED** `src/ui/pages/home/HomePage.tsx` — убран `<p>{t(cat.descKey)}</p>` из карточек категорий. Поле `descKey` удалено из массива `categories`.
-- **MODIFIED** `src/ui/pages/vendor/VendorPage.tsx` — `hasRangedTokens={false}` (hide no-op global min/max). `showRound10` prop удалён (тоже не нужен для vendor).
-- **MODIFIED** `src/shared/i18n.ts` — удалены 8 ключей `home.{waystone,tablet,relic,jewel,vendor,belt,ring,amulet}_desc`.
-- **MODIFIED** `src/index.css` — добавлен `.mobile-regex-bar` блок (sticky bottom, backdrop-blur, max-h 60vh, safe-area-inset-bottom).
-- **FIX** (pre-existing bug closed): 4 страницы (Belt/Amulet/Ring/Relic) не импортировали `t` (regression из iter 58 — импорт был удалён как «неиспользуемый», но `t()` вызывается в `header`). JewelPage не импортировал `groupTokensByFamily`. `tsc --noEmit` молчал, но `tsc -b` падал. Импорты восстановлены.
+**Фикс:** Все правила `.mobile-regex-bar*` обёрнуты в `@media (max-width: 1023px)`. На десктопе они больше не применяются, `lg:hidden` спокойно прячет элемент. См. Pitfall 26 в `AGENT_NAVIGATION.md`.
 
-**Результат:** 1144 теста зелёные. `tsc -b` clean (исправлен pre-existing bug). Vite build OK. Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. `tsc -b` clean. Vite build OK (156 модулей, 9 prerendered HTML, CSS 42.87 KB / gzip 9.34 KB).
 
 ---
 
@@ -34,6 +24,7 @@
 |---|-------|--------|
 | ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
 | ~~6~~ | `tsc -b` failing — 4 pages missing `t` import (iter 58 regression), JewelPage missing `groupTokensByFamily` | ✅ CLOSED iter 59 |
+| ~~7~~ | `MobileRegexBar` visible on desktop — `.mobile-regex-bar { display: flex }` overrode `lg:hidden` (same specificity, source-order tie-break) | ✅ CLOSED iter 60 |
 
 **Открытых Known Issues нет.**
 
@@ -58,16 +49,9 @@
 
 | Фаза | Статус | Что |
 |------|--------|-----|
-| 0 | ✅ iter 51 | Аудит CSS-токенов, таблица маппинга |
-| 1 | ✅ iter 51 | Миграция design tokens (тёплая палитра, удаление light-темы, приглушение bg-forest) |
-| 2 | ✅ iter 52-53 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Все 8 страниц мигрированы** |
-| 3 | ✅ iter 55 | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
-| 4 | ✅ iter 56 | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
-| 5 | ✅ iter 57 | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
-| 6 | ✅ iter 58 | Единая панель статусов (`StatusPanel.tsx`) |
-| 7 | ✅ iter 59 | Mobile sticky copy bar (`MobileRegexBar.tsx`) — RegexOutput + alerts в sticky bottom-bar на mobile |
+| 0-7 | ✅ iter 51-59 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar |
 | 8 | ⏳ next | Полировка: снять шум, оставить «дорогую тишину» |
-| 9 | ⏳ | Документация финальная |
+| 9 | ⏳ | Финальная документация |
 
 ---
 
