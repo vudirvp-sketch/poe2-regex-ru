@@ -1,12 +1,18 @@
 /**
  * VendorPage — Vendor regex filter for the Russian game client.
  *
- * Layout v3 (iteration 9): Uses useCategoryPage with customData
- * from buildVendorCategoryData(). Renders FilterChip.
- * Groups chips by vendor property group (from tags: group:${group}).
+ * Layout v4 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
+ * FilterChip groups on left, sticky RegexOutput on right), 1-column mobile.
  *
- * AND mode (default): each property is a separate AND condition — ALL must match.
- * Switch to OR mode for "any matches" behavior.
+ * Vendor-specific notes:
+ * - No <PageStateWrapper>: vendor data is built synchronously via
+ *   buildVendorCategoryData() (no async loading/error state).
+ * - No <ProfilePanel>: vendor has no profile system. `sidebar` slot is
+ *   left empty — RegexOutput is the only right-column content.
+ * - clearButton slot: a "Clear (N)" button is rendered inside
+ *   <CategoryControlPanel> when tokens are selected.
+ * - Verification note: rendered at the end of the left column (below
+ *   the chip groups) — a final in-game verification reminder.
  *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.
@@ -17,6 +23,8 @@ import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { buildVendorCategoryData } from '@data/vendor-adapter';
 import { FilterChip } from '@ui/components/FilterChip';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
+import { RegexOutput } from '@ui/components/RegexOutput';
+import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { groupTokensByFamily } from '@shared/family-grouper';
 import { t } from '@shared/i18n';
 import type { FamilyGroup } from '@shared/types';
@@ -144,51 +152,62 @@ export function VendorPage() {
   )];
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
-          <img src={`${import.meta.env.BASE_URL}icons/vendor.png`} alt="" width={24} height={24} className="object-contain" />
-          {t('vendor.title')}
-        </h2>
-        <span className="text-xs text-dim">
-          {selectedIds.size} {t('selected')}
-        </span>
-      </div>
-
-      {/* Shared control panel: regex output + mode toggle + round10 + clear */}
-      <CategoryControlPanel
-        regex={regex}
-        isOverflow={isRegexOverflow}
-        regexParts={regexParts}
-        filterStore={filterStore}
-        hasRangedTokens={hasRangedTokens}
-        minValue={null}
-        setMinValue={() => {}}
-        maxValue={null}
-        setMaxValue={() => {}}
-        rangedSuffixes={rangedSuffixes}
-        round10Enabled={round10Enabled}
-        setRound10Enabled={setRound10Enabled}
-        thresholdEnabled={thresholdEnabled}
-        setThresholdEnabled={setThresholdEnabled}
-        searchLogic={searchLogic}
-        setSearchLogic={setSearchLogic}
-        showRound10={hasRangedTokens}
-        excludedCount={excludeCount}
-        activeTokenCount={allActiveTokens.length}
-        clearButton={
-          selectedIds.size > 0 ? (
-            <button
-              onClick={clearSelections}
-              className="px-2 py-1 bg-raised border border-edge rounded text-xs text-soft hover:bg-gray-600 transition-colors"
-            >
-              {t('filter.clear')} ({selectedIds.size})
-            </button>
-          ) : undefined
-        }
-      />
-
+    <CategoryLayout
+      header={
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+            <img src={`${import.meta.env.BASE_URL}icons/vendor.png`} alt="" width={24} height={24} className="object-contain" />
+            {t('vendor.title')}
+          </h2>
+          <span className="text-xs text-dim">
+            {selectedIds.size} {t('selected')}
+          </span>
+        </div>
+      }
+      controls={
+        <CategoryControlPanel
+          hideRegexOutput
+          regex={regex}
+          isOverflow={isRegexOverflow}
+          regexParts={regexParts}
+          filterStore={filterStore}
+          hasRangedTokens={hasRangedTokens}
+          minValue={null}
+          setMinValue={() => {}}
+          maxValue={null}
+          setMaxValue={() => {}}
+          rangedSuffixes={rangedSuffixes}
+          round10Enabled={round10Enabled}
+          setRound10Enabled={setRound10Enabled}
+          thresholdEnabled={thresholdEnabled}
+          setThresholdEnabled={setThresholdEnabled}
+          searchLogic={searchLogic}
+          setSearchLogic={setSearchLogic}
+          showRound10={hasRangedTokens}
+          excludedCount={excludeCount}
+          activeTokenCount={allActiveTokens.length}
+          clearButton={
+            selectedIds.size > 0 ? (
+              <button
+                onClick={clearSelections}
+                className="px-2 py-1 bg-raised border border-edge rounded text-xs text-soft hover:bg-gray-600 transition-colors"
+              >
+                {t('filter.clear')} ({selectedIds.size})
+              </button>
+            ) : undefined
+          }
+        />
+      }
+      regexOutput={
+        <RegexOutput
+          regex={regex}
+          isOverflow={isRegexOverflow}
+          regexParts={regexParts}
+          filterStore={filterStore}
+          activeTokenCount={allActiveTokens.length}
+        />
+      }
+    >
       {/* Chip-based property groups */}
       <div className="flex flex-col gap-3">
         {Array.from(groupedFamilies.entries()).map(([groupName, families]) => {
@@ -223,6 +242,6 @@ export function VendorPage() {
       <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
         <strong>{t('vendor.verification')}</strong>
       </div>
-    </div>
+    </CategoryLayout>
   );
 }

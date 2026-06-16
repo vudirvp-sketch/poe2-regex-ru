@@ -1,10 +1,10 @@
 /**
  * TabletPage — Category page for Tablets (Башни Предтеч).
  *
- * Layout v2: Control panel sticky at top with tablet-specific controls
- * (type filter, rarity filter, uses remaining), mod list full width below
- * with two-column prefix/suffix layout and tablet-type sub-grouping
- * (Ритуал/Бездна/Делириум/Ваал/Экспедиция/Общие).
+ * Layout v3 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
+ * ModList on left, sticky RegexOutput + status + ProfilePanel on right),
+ * 1-column mobile (RegexOutput appears below ModList until Phase 7 moves
+ * it to a sticky bottom-bar).
  *
  * Tablet-specific features:
  * - Type filter: Бездна / Делириум / Ритуал / Ваал (as extra AST nodes)
@@ -19,8 +19,10 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
+import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
+import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { t } from '@shared/i18n';
 import { countUniqueFamilyKeys } from '@shared/family-grouper';
 import { literal, or, range } from '@core/ast';
@@ -139,115 +141,99 @@ export function TabletPage() {
         )];
 
         return (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
-                <img src={`${import.meta.env.BASE_URL}icons/tablet.png`} alt="" width={24} height={24} className="object-contain" />
-                {t('tablet.title')}
-              </h2>
-              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
-            </div>
+          <CategoryLayout
+            header={
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+                  <img src={`${import.meta.env.BASE_URL}icons/tablet.png`} alt="" width={24} height={24} className="object-contain" />
+                  {t('tablet.title')}
+                </h2>
+                <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
+              </div>
+            }
+            controls={
+              <CategoryControlPanel
+                hideRegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                searchLogic={searchLogic}
+                setSearchLogic={setSearchLogic}
+                hasRangedTokens={hasRangedTokens}
+                minValue={minValue}
+                setMinValue={setMinValue}
+                maxValue={maxValue}
+                setMaxValue={setMaxValue}
+                rangedSuffixes={rangedSuffixes}
+                round10Enabled={round10Enabled}
+                setRound10Enabled={setRound10Enabled}
+                thresholdEnabled={thresholdEnabled}
+                setThresholdEnabled={setThresholdEnabled}
+                priorityFilter={priorityFilter}
+                setPriorityFilter={setPriorityFilter}
+                showPriorityFilter
+                excludedCount={excludeTokens.length}
+                activeTokenCount={allActiveTokens.length}
+                extraControls={
+                  <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
+                    {/* Tablet type buttons */}
+                    <span className="text-[10px] text-dim">{t('tablet.type_label')}</span>
+                    {TABLET_TYPES.map(typeDef => (
+                      <button key={typeDef.id}
+                        onClick={() => toggleType(typeDef.id)}
+                        title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                          selectedTypes.has(typeDef.id)
+                            ? 'bg-raised border-gray-500 text-bright'
+                            : 'bg-surface border-edge-panel text-dim hover:border-edge'
+                        } ${typeDef.id === 'expedition' ? 'opacity-60' : ''}`}
+                      >
+                        <span className={selectedTypes.has(typeDef.id) ? typeDef.color : ''}>
+                          {typeDef.label}
+                        </span>
+                      </button>
+                    ))}
 
-            <CategoryControlPanel
-              regex={regex}
-              isOverflow={isRegexOverflow}
-              regexParts={regexParts}
-              filterStore={filterStore}
-              searchLogic={searchLogic}
-              setSearchLogic={setSearchLogic}
-              hasRangedTokens={hasRangedTokens}
-              minValue={minValue}
-              setMinValue={setMinValue}
-              maxValue={maxValue}
-              setMaxValue={setMaxValue}
-              rangedSuffixes={rangedSuffixes}
-              round10Enabled={round10Enabled}
-              setRound10Enabled={setRound10Enabled}
-              thresholdEnabled={thresholdEnabled}
-              setThresholdEnabled={setThresholdEnabled}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
-              showPriorityFilter
-              excludedCount={excludeTokens.length}
-              activeTokenCount={allActiveTokens.length}
-              extraControls={
-                <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
-                  {/* Tablet type buttons */}
-                  <span className="text-[10px] text-dim">{t('tablet.type_label')}</span>
-                  {TABLET_TYPES.map(typeDef => (
-                    <button key={typeDef.id}
-                      onClick={() => toggleType(typeDef.id)}
-                      title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
-                        selectedTypes.has(typeDef.id)
-                          ? 'bg-raised border-gray-500 text-bright'
-                          : 'bg-surface border-edge-panel text-dim hover:border-edge'
-                      } ${typeDef.id === 'expedition' ? 'opacity-60' : ''}`}
-                    >
-                      <span className={selectedTypes.has(typeDef.id) ? typeDef.color : ''}>
-                        {typeDef.label}
-                      </span>
-                    </button>
-                  ))}
+                    {/* Rarity buttons */}
+                    <span className="text-[10px] text-dim ml-1">{t('tablet.rarity_label')}</span>
+                    {RARITY_OPTIONS.map(rarityDef => (
+                      <button key={rarityDef.id}
+                        onClick={() => toggleRarity(rarityDef.id)}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                          selectedRarities.has(rarityDef.id)
+                            ? 'bg-raised border-gray-500 text-bright'
+                            : 'bg-surface border-edge-panel text-dim hover:border-edge'
+                        }`}
+                      >
+                        <span className={selectedRarities.has(rarityDef.id) ? rarityDef.color : ''}>
+                          {rarityDef.label}
+                        </span>
+                      </button>
+                    ))}
 
-                  {/* Rarity buttons */}
-                  <span className="text-[10px] text-dim ml-1">{t('tablet.rarity_label')}</span>
-                  {RARITY_OPTIONS.map(rarityDef => (
-                    <button key={rarityDef.id}
-                      onClick={() => toggleRarity(rarityDef.id)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
-                        selectedRarities.has(rarityDef.id)
-                          ? 'bg-raised border-gray-500 text-bright'
-                          : 'bg-surface border-edge-panel text-dim hover:border-edge'
-                      }`}
-                    >
-                      <span className={selectedRarities.has(rarityDef.id) ? rarityDef.color : ''}>
-                        {rarityDef.label}
-                      </span>
-                    </button>
-                  ))}
-
-                  {/* Uses remaining */}
-                  <span className="text-[10px] text-dim ml-1">{t('tablet.uses_label')}</span>
-                  <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
-                    onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
-                    placeholder="≥N"
-                    className="w-14 px-1.5 py-0.5 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              }
-            />
-
-            <ModList
-              tokens={data.tokens}
-              selectedIds={selectedIds}
-              excludedIds={excludedIds}
-              searchText={searchText}
-              affixFilter={affixFilter}
-              originFilter={originFilter}
-              onToggleTokens={toggleTokens}
-              onToggleExclude={toggleExclude}
-              onSearchChange={setSearchText}
-              onAffixFilterChange={setAffixFilter}
-              onOriginFilterChange={setOriginFilter}
-              onClearSelections={clearSelections}
-              perTokenRanges={perTokenRanges}
-              onSetTokenRange={setTokenRange}
-              onClearTokenRange={clearTokenRange}
-              collapsedTokenIds={collapsedTokenIds}
-              groupMode="tablet-type"
-              category="tablet"
-              priorityFilter={priorityFilter}
-            />
-
-            <div className="flex flex-col gap-3">
-              <ProfilePanel
-                category={categoryId}
-                currentFilterData={filterStore.serialize()}
-                onRestore={restoreFilterState}
+                    {/* Uses remaining */}
+                    <span className="text-[10px] text-dim ml-1">{t('tablet.uses_label')}</span>
+                    <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
+                      onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
+                      placeholder="≥N"
+                      className="w-14 px-1.5 py-0.5 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                }
               />
-
-              {(allActiveTokens.length > 0 || selectedTypes.size > 0 || selectedRarities.size > 0 || usesMin !== null) && (
+            }
+            regexOutput={
+              <RegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                activeTokenCount={allActiveTokens.length}
+              />
+            }
+            status={
+              (allActiveTokens.length > 0 || selectedTypes.size > 0 || selectedRarities.size > 0 || usesMin !== null) ? (
                 <div className="bg-panel border border-edge-panel rounded p-3">
                   <div className="text-xs text-muted mb-1">
                     {t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}
@@ -269,9 +255,38 @@ export function TabletPage() {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
+              ) : undefined
+            }
+            sidebar={
+              <ProfilePanel
+                category={categoryId}
+                currentFilterData={filterStore.serialize()}
+                onRestore={restoreFilterState}
+              />
+            }
+          >
+            <ModList
+              tokens={data.tokens}
+              selectedIds={selectedIds}
+              excludedIds={excludedIds}
+              searchText={searchText}
+              affixFilter={affixFilter}
+              originFilter={originFilter}
+              onToggleTokens={toggleTokens}
+              onToggleExclude={toggleExclude}
+              onSearchChange={setSearchText}
+              onAffixFilterChange={setAffixFilter}
+              onOriginFilterChange={setOriginFilter}
+              onClearSelections={clearSelections}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={setTokenRange}
+              onClearTokenRange={clearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+              groupMode="tablet-type"
+              category="tablet"
+              priorityFilter={priorityFilter}
+            />
+          </CategoryLayout>
         );
       }}
     </PageStateWrapper>

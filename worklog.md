@@ -1,53 +1,74 @@
 # Worklog
 
 ---
-Task ID: 52
+Task ID: 53
 Agent: main
-Task: UI redesign Фаза 2 — создать `src/ui/layout/CategoryLayout.tsx` (grid `lg:grid-cols-[1fr_380px]`), пилотная миграция `WaystonePage.tsx`. Не сломать sticky-режим `RegexOutput` и `extraControls`. Остальные 7 страниц — в следующей итерации.
+Task: UI redesign Фаза 2 — мигрировать оставшиеся 7 страниц на `<CategoryLayout>` (Ring, Amulet, Belt, Relic, Jewel, Tablet, Vendor). Пилот на WaystonePage уже сделан в iter 52. Не сломать extraControls, hidden mods warning (Jewel), кастомный status (Tablet), clearButton + verification note (Vendor).
 
 Work Log:
-- 1: Клонирован репозиторий (commit f1db7a9 iter 51). Прочитан контекст: STATUS.md (iter 51, Фаза 1 complete), AGENT_NAVIGATION.md (Pitfalls 1-19), worklog.md (Task 51 = design tokens migration).
-- 2: `pnpm install` (4.2s). `pnpm test` baseline → **1144 passed**. Lint baseline → 59 problems (55 errors / 4 warnings) — все pre-existing в `tests/`.
-- 3: Изучен текущий layout всех 9 страниц: `WaystonePage`, `RingPage`, `VendorPage`, `BeltPage`, `AmuletPage`, `RelicPage`, `JewelPage`, `TabletPage` (плоский flex-col с `<CategoryControlPanel>` сверху, `<ModList>` посередине, `<ProfilePanel>` + status блок снизу). Изучен `CategoryControlPanel` (sticky `top-0 z-10` wrapper + embedded `<RegexOutput>` + controls row + `extraControls` slot). Изучен `RegexOutput` (health bar + copy/share + split-parts logic — компонент самостоятельный, не завязан на родителя). Изучен `Layout.tsx` (sidebar + header + `<main className="overflow-auto">` = scroll container). Изучен `tests/ui/RegexOutput.test.tsx` (17 тестов, тестируют компонент в изоляции — мой рефакторинг их не заденет).
-- 4: Дизайн `CategoryLayout` (slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`). Desktop: `grid lg:grid-cols-[1fr_380px] lg:items-start` — левая колонка controls + ModList (естественный скролл), правая колонка `<aside className="lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto">` — RegexOutput + status + ProfilePanel. Mobile: grid collapses to 1 column, DOM order: header → controls → ModList → RegexOutput → status → ProfilePanel (Phase 7 переместит RegexOutput в sticky bottom-bar).
-- 5: Дизайн non-breaking API change для `CategoryControlPanel`: добавлен optional prop `hideRegexOutput?: boolean` (default `false`). При `hideRegexOutput=true`: рендерит ТОЛЬКО controls row, без `<RegexOutput>`, без sticky wrapper. 7 старых страниц продолжают работать без изменений.
-- 6: Создан `src/ui/layout/CategoryLayout.tsx` (81 строка, JSDoc + ASCII-диаграмма desktop layout).
-- 7: `CategoryControlPanel.tsx` MultiEdit:
-  - (a) Обновлён JSDoc — описаны два режима (legacy + split).
-  - (b) Добавлен optional prop `hideRegexOutput?: boolean` в interface.
-  - (c) destructured `hideRegexOutput = false` в функции.
-  - (d) controls row вынесен в `const controlsRow = (...)` — устранено дублирование между двумя режимами. `mt-2` класс добавляется только в legacy mode (когда над controls row есть `<RegexOutput>`).
-  - (e) Добавлен `if (hideRegexOutput) return <div role="toolbar">{controlsRow}</div>;` ветка для split mode.
-  - (f) Legacy return сохранён без изменений (только `<RegexOutput>` + `{controlsRow}` вместо инлайна).
-- 8: `WaystonePage.tsx` переписан: импорт `CategoryLayout` + `RegexOutput`. Все элементы переданы как slots: `header` (icon + title + count), `controls` (`<CategoryControlPanel hideRegexOutput ... />` с тем же `extraControls` для corrupted/uncorrupted/delirious), `regexOutput` (`<RegexOutput ... />`), `status` (conditional блок с summary), `sidebar` (`<ProfilePanel>`), `children` (`<ModList>`). `useCategoryPage` hook и waystone-specific state (corrupted/uncorrupted/delirious + filterStore sync) — без изменений.
-- 9: Верификация:
+- 1: Клонирован репозиторий. `pnpm install` (5.8s). Baseline: 1144 tests pass, 59 lint problems (все pre-existing в `tests/`).
+- 2: Изучен пилот `WaystonePage.tsx` (iter 52) и паттерн миграции. Изучены 7 оставшихся страниц. Группировка по сложности:
+  - Простые (3): Ring, Amulet, Belt — `VirtualizedModList` + `priorityFilter` + стандартный status + ProfilePanel. Идентичная структура.
+  - Простая (1): Relic — `ModList` (affix-only), без `priorityFilter`, стандартный status + ProfilePanel.
+  - С extraControls (1): Jewel — `VirtualizedModList` + jewel type filter + hidden mods warning (alert между controls и ModList) + ProfilePanel.
+  - С кастомным status (1): Tablet — `ModList` + extraControls (тип/редкость/использования) + кастомный status block с инфо о типах/редкости/использованиях.
+  - Особая (1): Vendor — `FilterChip` группы, БЕЗ `PageStateWrapper` (sync data), БЕЗ `ProfilePanel` (sidebar пустой), `clearButton` slot, verification note.
+- 3: Миграция Ring/Amulet/Belt — `Write` каждого файла целиком. Шаблон: outer `<div className="flex flex-col gap-4">` → `<CategoryLayout>`; header передан в `header` slot; `<CategoryControlPanel hideRegexOutput ... />` в `controls` slot; `<RegexOutput ... />` отдельно в `regexOutput` slot; status block (conditional, `allActiveTokens.length > 0`) в `status` slot; `<ProfilePanel>` в `sidebar` slot; `<VirtualizedModList>` остаётся в `children`. Импорты добавлены: `RegexOutput` (раньше был встроен в CategoryControlPanel), `CategoryLayout`. Логика `useCategoryPage` и `priorityFilter` без изменений.
+- 4: Миграция Relic — тот же шаблон, но `ModList` (не Virtualized) + `groupMode="affix-only"` + без `priorityFilter`. Status block стандартный.
+- 5: Миграция Jewel — тот же шаблон + `extraControls` (jewel type filter buttons) сохранены в `controls` slot. Hidden mods warning (`hiddenActiveCount > 0`) — помещён в `children` ПЕРЕД `<VirtualizedModList>` (в левой колонке, между controls и ModList — та же позиция что в оригинале). `useCategoryPage` с `mergeCategories: ['jewel-desecrated', 'jewel-corrupted']`, jewelTypeFilter sync с filterStore — без изменений.
+- 6: Миграция Tablet — тот же шаблон + `extraControls` (тип/редкость/использования) сохранены. Кастомный status block (conditional на `allActiveTokens.length > 0 || selectedTypes.size > 0 || selectedRarities.size > 0 || usesMin !== null`) передан в `status` slot. `extraAstNodes` (literal/or/range для типов/редкости/использований) — без изменений.
+- 7: Миграция Vendor — особый случай:
+  - Нет `PageStateWrapper` — данные строятся синхронно через `buildVendorCategoryData()`.
+  - Нет `ProfilePanel` — `sidebar` slot не передаётся (undefined).
+  - Нет status block — `status` slot не передаётся.
+  - `clearButton` slot сохранён внутри `<CategoryControlPanel>`.
+  - Verification note — помещён в `children` ПОСЛЕ `<FilterChip>` групп (в левой колонке, в конце — та же позиция что в оригинале).
+  - Шаблон: outer `<div>` → `<CategoryLayout>`; header + controls (hideRegexOutput) + regexOutput как обычно; `children` = chip groups + verification note.
+- 8: Верификация:
   - `pnpm exec tsc -b` → 0 errors.
-  - `pnpm test` → **1144 passed** (35 files, без регрессий — `RegexOutput.test.tsx` 17 тестов зелёные, компонент не тронут).
-  - `pnpm exec vite build` → success (152 modules transformed, 505 kB bundle, 4.97 kB HTML).
-  - `pnpm lint` → 59 problems (baseline сохранён, проверено через `git stash` — те же 59 в исходном коде; одна ошибка в WaystonePage.tsx pre-existing — `setState synchronously within an effect` на строке 65:37, в оригинале была на 62:37, сместилась из-за добавленных импортов `RegexOutput` и `CategoryLayout`).
-- 10: Документация:
-  - `STATUS.md` — полная перезапись: iter 52, ASCII-диаграмма desktop layout, секция "Non-breaking API change" (описание `hideRegexOutput`), секция "Sticky behavior preserved", чек-лист "Фаза 2 — что осталось мигрировать" (7 страниц в порядке приоритета с заметками про особенности каждой).
-  - `AGENT_NAVIGATION.md` — current state iter 52, добавлена запись про `CategoryLayout.tsx` в таблицу "Where Things Are", добавлен Pitfall 20 (`CategoryControlPanel` split-mode — описание обоих режимов + инструкция по миграции остальных страниц).
-  - `worklog.md` — Task 52 entry (этот). Task 51 сохранён как есть (он уже лёгкий). Task 50 и "Older iterations" не тронуты.
+  - `pnpm test` → **1144 passed** (35 файлов, без регрессий).
+  - `pnpm lint` → **59 problems** (baseline сохранён — все pre-existing в `tests/`; в мигрированных страницах 2 ошибки pre-existing `setState synchronously within an effect` на filterStore sync — те же что в WaystonePage пилоте).
+  - `pnpm build` → success (152 modules, 9 prerendered HTML: home + waystone + tablet + relic + jewel + vendor + belt + ring + amulet).
+- 9: Документация:
+  - `STATUS.md` — полная перезапись: iter 53, "Фаза 2 COMPLETE", особенности каждой страницы (Ring/Amulet/Belt/Relic/Jewel/Tablet/Vendor), обновлён план 9 фаз (Фаза 2 = ✅), убран блок "Фаза 2 — что осталось мигрировать". В Known Issues добавлен тех. долг (legacy ветка CategoryControlPanel + неиспользуемые пропсы в split mode — cleanup на следующую итерацию).
+  - `AGENT_NAVIGATION.md` — current state iter 53, обновлена строка CategoryLayout (adopted by ALL 8 pages), Pitfall 20 переписан (migration pattern complete + page-specific notes: Vendor без PageStateWrapper/ProfilePanel, Jewel hidden mods warning, Tablet custom status).
+  - `worklog.md` — Task 53 entry (этот). Task 52 уплотнён до Stage Summary (полные Work Log записи удалены — они в git history).
 
 Stage Summary:
-- **iter 52 Фаза 2 (пилот) COMPLETE.** Создан `CategoryLayout` (2-col desktop / 1-col mobile) + `CategoryControlPanel` получил non-breaking `hideRegexOutput` prop + `WaystonePage` мигрирован на новый layout. 7 страниц ожидают миграции в следующей итерации.
-- **Изменённые файлы (5):**
-  - `src/ui/layout/CategoryLayout.tsx` — NEW (81 строка, 2-col grid + sticky right `<aside>`).
-  - `src/ui/components/CategoryControlPanel.tsx` — добавлен `hideRegexOutput?: boolean` prop + split-mode ветка. Controls row вынесен в `const controlsRow` для устранения дублирования. Legacy mode (default) полностью обратно совместим.
-  - `src/ui/pages/waystone/WaystonePage.tsx` — переписан с использованием `<CategoryLayout>`. `extraControls` (corrupted/uncorrupted/delirious) сохранены в `controls` slot. `RegexOutput` передан отдельно в `regexOutput` slot.
-  - `STATUS.md` — iter 52 rewrite + ASCII-диаграмма + чек-лист оставшихся 7 страниц.
-  - `AGENT_NAVIGATION.md` — iter 52 + `CategoryLayout` в "Where Things Are" + Pitfall 20 (split-mode инструкция).
-- **Tests:** 1144 passed (без регрессий — `RegexOutput.test.tsx` 17 зелёные, компонент не тронут). TypeScript clean. Vite build OK. Lint baseline 59 сохранён.
-- **Known Issues:** открытыми нет.
-- **Риски:** нулевые для regex-движка/ETL/тестов/7 старых страниц. Sticky-режим RegexOutput сохранён (механизм сменился с `CategoryControlPanel`'s `sticky top-0` wrapper на `<aside>`'s `lg:sticky lg:top-0` — UX эквивалентен на desktop, на mobile нет sticky до Phase 7).
-- **Решения, которые я принял за пользователя (можно скорректировать в следующем чате):**
-  1. Controls НЕ sticky в новом layout — скроллятся вместе с ModList. Если нужно sticky-controls, можно добавить `sticky top-0` на controls wrapper в `CategoryLayout` (но это усложнит layout — нужно решить отдельно).
-  2. Правая колонка `lg:max-h-[calc(100vh-1rem)] lg:overflow-auto` — если контента в RegexOutput + status + ProfilePanel больше viewport, появится внутренний скролл. На waystone это маловероятно, но на странице с большим ProfilePanel может быть заметно.
-  3. Breakpoint `lg` (≥1024px) для переключения 1-col → 2-col. Можно сделать раньше (`md` ≥768px), но тогда на tablet правая колонка будет узкой (380px из 768px = 50% ширины).
-- **Точка остановки:** iter 52 Фаза 2 (пилот Waystone) COMPLETE. Следующая итерация — миграция оставшихся 7 страниц на `CategoryLayout` (порядок: Ring → Amulet → Belt → Relic → Jewel → Tablet → Vendor). После этого — Фаза 3 (возвышение RegexOutput до Level 1: gold border + glow).
+- **iter 53 Фаза 2 COMPLETE.** Мигрированы оставшиеся 7 страниц на `<CategoryLayout>` (Ring, Amulet, Belt, Relic, Jewel, Tablet, Vendor). Все 8 категорийных страниц теперь используют единый 2-col desktop / 1-col mobile layout.
+- **Изменённые файлы (9):**
+  - `src/ui/pages/ring/RingPage.tsx` — миграция на `<CategoryLayout>`.
+  - `src/ui/pages/amulet/AmuletPage.tsx` — миграция на `<CategoryLayout>`.
+  - `src/ui/pages/belt/BeltPage.tsx` — миграция на `<CategoryLayout>`.
+  - `src/ui/pages/relic/RelicPage.tsx` — миграция на `<CategoryLayout>`.
+  - `src/ui/pages/jewel/JewelPage.tsx` — миграция + extraControls (jewel type filter) + hidden mods warning в children.
+  - `src/ui/pages/tablet/TabletPage.tsx` — миграция + extraControls (тип/редкость/использования) + кастомный status block.
+  - `src/ui/pages/vendor/VendorPage.tsx` — миграция (особый случай: без PageStateWrapper, без ProfilePanel, с clearButton, verification note в children).
+  - `STATUS.md` — iter 53 rewrite + Фаза 2 COMPLETE + особенности страниц.
+  - `AGENT_NAVIGATION.md` — iter 53 + Pitfall 20 переписан (migration complete).
+- **Tests:** 1144 passed (без регрессий). TypeScript clean. Vite build OK (152 modules, 9 prerendered HTML). Lint baseline 59 сохранён.
+- **Known Issues:** открытыми нет. Тех. долг: legacy ветка CategoryControlPanel + неиспользуемые пропсы в split mode (на следующую cleanup-итерацию).
+- **Риски:** нулевые для regex-движка/ETL/тестов. Все extraControls (waystone corrupted/uncorrupted/delirious, jewel type filter, tablet type/rarity/uses) сохранены в `controls` slot. Hidden mods warning (Jewel) и verification note (Vendor) сохранены в `children` (та же позиция в DOM — между/после основного контента).
+- **Решения за пользователя (можно скорректировать):**
+  1. Controls НЕ sticky в новом layout — скроллятся вместе с ModList (как в пилоте iter 52). Если нужно sticky-controls, добавить `sticky top-0` на controls wrapper в `CategoryLayout` (отдельное решение).
+  2. Правая колонка `lg:max-h-[calc(100vh-1rem)] lg:overflow-auto` — если контента в RegexOutput + status + ProfilePanel больше viewport, появится внутренний скролл (как в пилоте iter 52).
+  3. Breakpoint `lg` (≥1024px) для 1-col → 2-col (как в пилоте iter 52).
+- **Точка остановки:** iter 53 Фаза 2 COMPLETE. Все 8 категорийных страниц на `<CategoryLayout>`. Следующая итерация — Фаза 3 (возвышение RegexOutput до Level 1: gold border + glow) ИЛИ cleanup CategoryControlPanel (удалить legacy ветку + неиспользуемые пропсы в split mode).
 
 ---
+
+Task ID: 52
+Agent: main
+Task: UI redesign Фаза 2 — создать `src/ui/layout/CategoryLayout.tsx`, пилотная миграция `WaystonePage.tsx`.
+
+Stage Summary:
+- **iter 52 Фаза 2 (пилот) COMPLETE.** Создан `CategoryLayout` (2-col desktop / 1-col mobile) + `CategoryControlPanel` получил non-breaking `hideRegexOutput` prop + `WaystonePage` мигрирован на новый layout. 7 страниц ожидали миграции в iter 53 (теперь COMPLETE).
+- **Изменённые файлы (5):** `src/ui/layout/CategoryLayout.tsx` (NEW), `src/ui/components/CategoryControlPanel.tsx` (hideRegexOutput prop + split-mode ветка), `src/ui/pages/waystone/WaystonePage.tsx` (pilot migration), `STATUS.md`, `AGENT_NAVIGATION.md`.
+- **Tests:** 1144 passed. TypeScript clean. Vite build OK. Lint baseline 59 сохранён.
+- **Подробные Work Log записи — в git history (commit iter 52).**
+
+---
+
 Task ID: 51
 Agent: main
 Task: UI redesign Фаза 0+1 — аудит CSS-токенов + миграция на тёплую dark-fantasy палитру ТЗ + удаление light-темы + приглушение bg-forest.webp. Документация: чисто, без мусора.

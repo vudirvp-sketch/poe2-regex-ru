@@ -2,13 +2,13 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 52 — UI redesign Фаза 2: `CategoryLayout` (2-col desktop / 1-col mobile) + пилот на WaystonePage
+> **Текущая итерация:** 53 — UI redesign Фаза 2 COMPLETE: все 8 категорийных страниц на `<CategoryLayout>`
 
 ---
 
-## iter 52 — CategoryLayout + WaystonePage pilot (Фаза 2 из 9)
+## iter 53 — Фаза 2 COMPLETE: мигрированы оставшиеся 7 страниц
 
-**Что:** Создан `src/ui/layout/CategoryLayout.tsx` — 2-колоночный desktop / 1-колоночный mobile shell для категорийных страниц. `CategoryControlPanel` получил non-breaking опциональный проп `hideRegexOutput` (default `false`) для split-mode. `WaystonePage` мигрирован на новый layout (пилот). Остальные 7 страниц не тронуты — мигрируют в следующей итерации.
+**Что:** Мигрированы RingPage, AmuletPage, BeltPage, RelicPage, JewelPage, TabletPage, VendorPage на `<CategoryLayout>`. Все 8 категорийных страниц теперь используют единый 2-колоночный desktop / 1-колоночный mobile layout.
 
 **Layout (desktop ≥1024px):**
 ```
@@ -20,30 +20,25 @@
 │  Panel, no regex)   │ Status block   │
 │                     │                │
 │ ModList             │ ProfilePanel   │
-│ (scrolls naturally) │                │
+│ (scrolls naturally) │ (vendor: — )   │
 └─────────────────────┴────────────────┘
        1fr                  380px
 ```
 
 **Layout (mobile <1024px):** grid collapses to 1 column. DOM order: header → controls → ModList → RegexOutput → status → ProfilePanel. **Phase 7** will move RegexOutput to a sticky bottom-bar on mobile.
 
-**Non-breaking API change:**
-- `CategoryControlPanel` добавлен optional prop `hideRegexOutput?: boolean` (default `false`).
-- При `hideRegexOutput=true`: рендерит ТОЛЬКО controls row (без `<RegexOutput>`, без sticky-обёртки `control-panel-sticky`). Страница передаёт `<RegexOutput>` отдельно в `CategoryLayout`'s `regexOutput` slot.
-- 7 старых страниц продолжают работать без изменений (`hideRegexOutput=false` = legacy behavior).
+**Особенности по страницам:**
+- **Ring/Amulet/Belt** — `VirtualizedModList` + `priorityFilter`. Стандартный status block.
+- **Relic** — `ModList` (affix-only grouping). Без `priorityFilter`. Стандартный status.
+- **Jewel** — `VirtualizedModList` + `extraControls` (jewel type filter: All/Ruby/Emerald/Sapphire). Hidden mods warning (alert + Deselect button) — остаётся в левой колонке между controls и ModList.
+- **Tablet** — `ModList` + `extraControls` (тип: Бездна/Делириум/Ритуал/Ваал/Экспедиция, редкость: Обычный/Волшебный/Редкий, использования: ≥N input). Кастомный status block с инфо о типах/редкости/использованиях.
+- **Vendor** — `FilterChip` группы. БЕЗ `PageStateWrapper` (данные синхронные через `buildVendorCategoryData()`). БЕЗ `ProfilePanel` (sidebar пустой). `clearButton` slot внутри `CategoryControlPanel`. Verification note — в конце левой колонки.
 
 **Sticky behavior preserved:**
-- Legacy (7 страниц): `CategoryControlPanel` имеет `sticky top-0 z-10` wrapper.
-- Split (Waystone): правый `<aside>` имеет `lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto`. RegexOutput остаётся видимым при скролле ModList.
+- Правый `<aside>` имеет `lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto`. RegexOutput остаётся видимым при скролле ModList.
 - Mobile: нет sticky (Phase 7).
 
-**Риски, что НЕ случилось:**
-- `extraControls` (waystone corrupted/uncorrupted/delirious) работает — проп передаётся в `CategoryControlPanel` как раньше.
-- Тесты `RegexOutput.test.tsx` (17 штук) зелёные — компонент не тронут, тестируется в изоляции.
-- `CategoryControlPanel` API обратно совместим — 7 старых страниц не сломаны.
-- Lint baseline 59 сохранён.
-
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK. Lint baseline сохранён (59).
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (152 modules, 9 prerendered HTML). Lint baseline 59 сохранён.
 
 ---
 
@@ -54,6 +49,9 @@
 | ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
 
 **Открытых Known Issues нет.**
+
+**Технический долг (НЕ баги, на следующую итерацию):**
+- `CategoryControlPanel` имеет две ветки (legacy + split). Все 8 страниц используют split mode (`hideRegexOutput=true`). Legacy ветка и неиспользуемые в split mode пропсы (`regex`, `isOverflow`, `regexParts`, `filterStore`, `activeTokenCount`) могут быть удалены в отдельной cleanup-итерации.
 
 ---
 
@@ -78,7 +76,7 @@
 |------|--------|-----|
 | 0 | ✅ iter 51 | Аудит CSS-токенов, таблица маппинга |
 | 1 | ✅ iter 51 | Миграция design tokens (тёплая палитра, удаление light-темы, приглушение bg-forest) |
-| 2 | 🚧 iter 52 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Пилот: WaystonePage готов. Осталось мигрировать 7 страниц** |
+| 2 | ✅ iter 52-53 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Все 8 страниц мигрированы** |
 | 3 | ⏳ next | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
 | 4 | ⏳ | Навигация как «режимы» (усиленный active-state, mobile tabs) |
 | 5 | ⏳ | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
@@ -86,15 +84,6 @@
 | 7 | ⏳ | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
 | 8 | ⏳ | Полировка: снять шум, оставить «дорогую тишину» |
 | 9 | ⏳ | Документация финальная |
-
-**Фаза 2 — что осталось мигрировать (после WaystonePage):**
-1. `RingPage.tsx` (использует `VirtualizedModList`)
-2. `AmuletPage.tsx`
-3. `BeltPage.tsx`
-4. `RelicPage.tsx`
-5. `JewelPage.tsx` (есть jewelTypeFilter extraControls)
-6. `TabletPage.tsx`
-7. `VendorPage.tsx` (использует `FilterChip` + `clearButton`, БЕЗ ProfilePanel)
 
 ---
 

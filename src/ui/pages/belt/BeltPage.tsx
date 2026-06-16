@@ -1,15 +1,21 @@
 /**
  * BeltPage — Category page for Belts.
  *
- * Layout v2: Control panel (regex + controls) sticky at top,
- * mod list full width below with two-column prefix/suffix layout
+ * Layout v3 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
+ * ModList on left, sticky RegexOutput + status + ProfilePanel on right),
+ * 1-column mobile (RegexOutput appears below ModList until Phase 7 moves
+ * it to a sticky bottom-bar).
+ *
+ * Mod list uses VirtualizedModList with two-column prefix/suffix layout
  * and semantic sub-grouping (offensive/defensive/attribute/neutral).
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
+import { RegexOutput } from '@ui/components/RegexOutput';
 import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
+import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { t } from '@shared/i18n';
 import { countUniqueFamilyKeys } from '@shared/family-grouper';
 
@@ -43,39 +49,77 @@ export function BeltPage() {
         )];
 
         return (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
-                <img src={`${import.meta.env.BASE_URL}icons/belt.png`} alt="" width={24} height={24} className="object-contain" />
-                {t('belt.title')}
-              </h2>
-              <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
-            </div>
-
-            <CategoryControlPanel
-              regex={regex}
-              isOverflow={isRegexOverflow}
-              regexParts={regexParts}
-              filterStore={filterStore}
-              searchLogic={searchLogic}
-              setSearchLogic={setSearchLogic}
-              hasRangedTokens={hasRangedTokens}
-              minValue={minValue}
-              setMinValue={setMinValue}
-              maxValue={maxValue}
-              setMaxValue={setMaxValue}
-              rangedSuffixes={rangedSuffixes}
-              round10Enabled={round10Enabled}
-              setRound10Enabled={setRound10Enabled}
-              thresholdEnabled={thresholdEnabled}
-              setThresholdEnabled={setThresholdEnabled}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
-              showPriorityFilter
-              excludedCount={excludeTokens.length}
-              activeTokenCount={allActiveTokens.length}
-            />
-
+          <CategoryLayout
+            header={
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+                  <img src={`${import.meta.env.BASE_URL}icons/belt.png`} alt="" width={24} height={24} className="object-contain" />
+                  {t('belt.title')}
+                </h2>
+                <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
+              </div>
+            }
+            controls={
+              <CategoryControlPanel
+                hideRegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                searchLogic={searchLogic}
+                setSearchLogic={setSearchLogic}
+                hasRangedTokens={hasRangedTokens}
+                minValue={minValue}
+                setMinValue={setMinValue}
+                maxValue={maxValue}
+                setMaxValue={setMaxValue}
+                rangedSuffixes={rangedSuffixes}
+                round10Enabled={round10Enabled}
+                setRound10Enabled={setRound10Enabled}
+                thresholdEnabled={thresholdEnabled}
+                setThresholdEnabled={setThresholdEnabled}
+                priorityFilter={priorityFilter}
+                setPriorityFilter={setPriorityFilter}
+                showPriorityFilter
+                excludedCount={excludeTokens.length}
+                activeTokenCount={allActiveTokens.length}
+              />
+            }
+            regexOutput={
+              <RegexOutput
+                regex={regex}
+                isOverflow={isRegexOverflow}
+                regexParts={regexParts}
+                filterStore={filterStore}
+                activeTokenCount={allActiveTokens.length}
+              />
+            }
+            status={
+              allActiveTokens.length > 0 ? (
+                <div className="bg-panel border border-edge-panel rounded p-3">
+                  <div className="text-xs text-muted mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-xs text-accent-red mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
+                  )}
+                  <div className="text-[10px] text-faint">
+                    {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                  </div>
+                  {excludeTokens.length > 0 && (
+                    <div className="text-[10px] text-accent-red-dim">
+                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
+                    </div>
+                  )}
+                </div>
+              ) : undefined
+            }
+            sidebar={
+              <ProfilePanel
+                category={categoryId}
+                currentFilterData={filterStore.serialize()}
+                onRestore={restoreFilterState}
+              />
+            }
+          >
             <VirtualizedModList
               tokens={data.tokens}
               selectedIds={selectedIds}
@@ -98,32 +142,7 @@ export function BeltPage() {
               category="belt"
               priorityFilter={priorityFilter}
             />
-
-            <div className="flex flex-col gap-3">
-              <ProfilePanel
-                category={categoryId}
-                currentFilterData={filterStore.serialize()}
-                onRestore={restoreFilterState}
-              />
-
-              {allActiveTokens.length > 0 && (
-                <div className="bg-panel border border-edge-panel rounded p-3">
-                  <div className="text-xs text-muted mb-1">{t('summary.selected')}: {countUniqueFamilyKeys(wantTokens)} {t('mods_word')}</div>
-                  {excludeTokens.length > 0 && (
-                    <div className="text-xs text-accent-red mb-1">{t('summary.exclude')}: {countUniqueFamilyKeys(excludeTokens)} {t('mods_word')}</div>
-                  )}
-                  <div className="text-[10px] text-faint">
-                    {t('summary.include')}: {wantTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                  </div>
-                  {excludeTokens.length > 0 && (
-                    <div className="text-[10px] text-accent-red-dim">
-                      {t('summary.exclude')}: {excludeTokens.map(tok => tok.rawText.ru.slice(0, 30)).join(', ')}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          </CategoryLayout>
         );
       }}
     </PageStateWrapper>

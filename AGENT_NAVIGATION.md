@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 52 (UI redesign Фаза 2 — `CategoryLayout` 2-col/1-col shell, пилот на WaystonePage, остальные 7 страниц не мигрированы).
+> **Entry document.** Read this first. Current state: iter 53 (UI redesign Фаза 2 COMPLETE — все 8 категорийных страниц мигрированы на `CategoryLayout`).
 
 ---
 
@@ -14,7 +14,7 @@
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by WaystonePage (pilot). 7 other pages still use legacy single-col layout (todo: migrate). |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by ALL 8 category pages (waystone, ring, amulet, belt, relic, jewel, tablet, vendor). |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
@@ -131,11 +131,12 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 18. **ETL `patchOptimizationEntries` mixed-context bug (iter 50):** `regexPrefixContext` must only be added when ALL tokens in the opt entry share the SAME non-empty context. Mixed contexts (some have "имеют", others empty) must NOT be patched — causes FN.
 19. **Dark-only theme (iter 51):** Light theme removed from CSS. `Header.tsx` sets `data-theme="dark"` once on mount (no toggle). `theme.light`/`theme.dark` i18n keys removed. CSS tokens are warm dark-fantasy (`#0D0B09` / `#15110E` / `#3A2C22` / `#C89A4A` gold). Do NOT re-add light theme.
 
-20. **`CategoryControlPanel` split-mode (iter 52):** Component has optional prop `hideRegexOutput?: boolean` (default `false`).
-    - Legacy mode (`hideRegexOutput=false`, default): renders `<RegexOutput>` + controls row inside a `sticky top-0 z-10 control-panel-sticky` wrapper. Used by 7 unmigrated pages (Ring, Amulet, Belt, Relic, Jewel, Tablet, Vendor).
+20. **`CategoryControlPanel` split-mode (iter 52-53):** Component has optional prop `hideRegexOutput?: boolean` (default `false`).
     - Split mode (`hideRegexOutput=true`): renders ONLY the controls row, NO `<RegexOutput>`, NO sticky wrapper. Page passes `<RegexOutput>` separately to `<CategoryLayout>`'s `regexOutput` slot (right column, sticky via `<aside>`).
-    - **When migrating a page:** set `hideRegexOutput` on `<CategoryControlPanel>`, wrap the page in `<CategoryLayout>`, move `<RegexOutput>` and status block and `<ProfilePanel>` into the right-column slots. Keep `extraControls` and `clearButton` slots on `<CategoryControlPanel>` (they don't move).
-    - **DO NOT** delete the legacy branch in `CategoryControlPanel.tsx` until all 7 pages are migrated.
+    - **All 8 category pages now use split mode** (iter 53 complete).
+    - Legacy mode (`hideRegexOutput=false`, default): renders `<RegexOutput>` + controls row inside a `sticky top-0 z-10 control-panel-sticky` wrapper. Currently UNUSED — kept for backward-compat. Can be removed in a future cleanup iteration (also unused props: `regex`, `isOverflow`, `regexParts`, `filterStore`, `activeTokenCount` in split mode).
+    - **Migration pattern (complete):** wrap page in `<CategoryLayout>`, set `hideRegexOutput` on `<CategoryControlPanel>`, move `<RegexOutput>` + status block + `<ProfilePanel>` into right-column slots. Keep `extraControls` and `clearButton` slots on `<CategoryControlPanel>` (they don't move).
+    - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). JewelPage's "Hidden mods warning" stays in left column (between controls and ModList). TabletPage's status block is custom (includes type/rarity/uses info).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
