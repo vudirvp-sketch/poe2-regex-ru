@@ -1,7 +1,31 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
+> **Верификация v12:** 2026-06-17 — iter 45: `(?!…)` lookahead — **FORWARD-ONLY** (user in-game confirmed FP). Симулятор `(?!…)` не моделирует вообще. iter 44 regression test был structural, не semantic. Фикс предложен для iter 46: `^(?!…).*Z` вместо `Z(?!…)` — требует in-game verify `^` в OR-context.
 > **Верификация v11:** 2026-06-16 — iter 41: D5 DONE — Path D production-verified на 5 категориях (jewel, amulet, ring, waystone, tablet), 5/5 in-game тестов PASS. Same-block AND confirmed. PoE2 regex char limit ≈ 250 chars обнаружен.
+
+---
+
+## ⚠️ iter 45 FINDING — `(?!…)` is FORWARD-ONLY
+
+**User-reported FP:** iter 44 regex `"повышение скорости атаки(?!.*Приспеш)(?!.*топорами)…|перезарядки умений|передвижения|атаки копьями"` совпадал с minion-аффиксом «Приспешники имеют х% повышение скорости атаки и сотворения чар».
+
+**Root cause:** `(?!.*X)` проверяет текст **только ВПЕРЁД** от текущей позиции (позиция курсора — сразу после matched-суффикса «повышение скорости атаки»). `.*` из этой позиции захватывает только остаток блока — « и сотворения чар». В этом остатке «Приспеш» нет → lookahead проходит → FP.
+
+**Где стоит «Приспеш»:** в начале блока, **ДО** суффикса — forward-only lookahead его не видит.
+
+**Lookbehind `(?<!…)` НЕ поддерживается в PoE2** (см. §9 AGENT_NAVIGATION.md: «NOT supported: ?»).
+
+**Simulator gap:** `poe2-regex-matcher.ts` не токенизирует `(?!…)` вообще (токен `?` обрабатывается как `optional` quantifier). iter 44 regression test (optimizer.test.ts lines 888-968) проверял STRUCTURE скомпилированной строки (contains `(?!.*A)`, no nested quotes, length ≤250), а не SEMANTIC behavior. Симулятор пропускал lookahead молча.
+
+**Proposed fix (iter 46 — NOT YET IMPLEMENTED):** change compiler output from `Z(?!.*X)(?!.*Y)` to `^(?!.*X)(?!.*Y).*Z`. `^` анкер ставит курсор в начало блока, `.*` внутри lookahead покрывает ВЕСЬ блок (до и после позиции суффикса) → bidirectional exclude. +3 chars per LITERAL. **Risk:** in-game verify нужен, что `^` работает внутри `|`-группы (применяется только к первой альтернативе) — в docs `^` верифицирован только для single-quoted `"^28%"` (Phase 9b), не для `"^…|B|C"`.
+
+**In-game test plan for iter 46 verification:**
+1. Тест A — `^` в single-quoted, простая проверка: `"^(?!.*Приспеш).*повышение скорости атаки"` — должно матчить только non-minion блоки.
+2. Тест B — `^` в OR-context: `"^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений"` — должно матчить (a) блоки с «повышение скорости атаки» без «Приспеш» И (b) блоки с «перезарядки умений» (любые).
+3. Тест C — контролный: `"X(?!.*Приспеш)|Y"` (старый формат iter 44) должен ВСЁ ЕЩЁ давать FP с minion-блоком — подтверждает root cause.
+
+Если Тест A + B PASS — внедрить фикс в `compiler.ts` (одна строка в `normalizeAst` AND-in-OR transform).
 
 ---
 
@@ -20,13 +44,15 @@
 | `.*` bridging (prefix→suffix) | ✅ | `"увеличение урона.*луками"` |
 | `-` literal | ✅ | `"-11"` matches negative values |
 | `%` and `+` are literals | ✅ | `"+66"`, `\+` matches literal + |
-| `^` start-of-block anchor | ✅ | `"^28%"` anchors to block start |
+| `^` start-of-block anchor (single-quoted) | ✅ | `"^28%"` anchors to block start |
+| `^` start-of-block anchor (внутри `\|`-группы) | ⚠️ UNVERIFIED | iter 46 test needed (см. выше) |
 | Case insensitive | ✅ | Cyrillic verified |
 | `!X` item-wide | ✅ | Excludes item if X in ANY block |
 | AND across blocks (cross-block) | ✅ | `"максимуму здоровья" "к силе"` |
 | AND within single block (same-block AND) | ✅ | iter 41 D5-2: `"имеют" "повышение.*шанса критического удара"` matches waystone mod "Монстры имеют X повышение шанса критического удара" (BOTH in ONE block) |
 | Threshold ≥N% | ✅ | `"Монстры с (3[4-9]\|[4-9][0-9]\|\d{3,})%.*отравление"` |
 | Substring search (truncated words) | ✅ | `"оберег"` matches `"оберега"`, `"посох"` matches `"посохами"` |
+| `(?!…)` negative lookahead — **FORWARD-ONLY** | ⚠️ iter 45 | Проверяет текст только ВПЕРЁД от позиции. Не видит excludes ДО суффикса в блоке. **Симулятор не моделирует.** iter 46 fix: `^(?!…).*Z` |
 | `"prefix (A\|B)"` (`\|` after non-`.*` prefix inside quotes) | ❌ | Test 16 — matches only the prefix broadly |
 | `"(A B\|C D)"` (multi-word `\|` inside `()`) | ❌ | Test 15 — nothing matches |
 | `"X"\|"Y"` (`\|` BETWEEN two quoted groups) | ❌ | **B0 CONFIRMED BROKEN iter 38** — zero matches |
@@ -42,6 +68,7 @@
 7. Item rarity label IS indexed — «редк» matches all rare items
 8. **`|` works at the TOP LEVEL of a single quoted group** (with or without `.*` in alternatives). It does NOT work between two quoted groups (`"X"|"Y"`), and it does NOT work inside `()` with multi-word alternatives (`"(A B|C D)"`).
 9. **Regex total length limit ≈ 250 chars** (iter 41) — single regex >250 chars не примется игрой.
+10. **`(?!…)` is forward-only** (iter 45 finding) — lookahead checks text AFTER current position only. Lookbehind `(?<!…)` NOT supported. Workaround: anchor lookahead at block start with `^(?!…).*Z` (iter 46 proposed, needs in-game verify).
 
 ---
 

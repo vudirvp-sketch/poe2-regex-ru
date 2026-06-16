@@ -1,89 +1,94 @@
 # Worklog
 
 ---
-Task ID: 44
+Task ID: 45
 Agent: main
-Task: Fix user-reported FP in jewel selection. User selected 4 affixes in OR mode — generator produced regex with FP (matched «повышение скорости атаки луками», «...самострелами», «накопления шкалы заморозки боевыми посохами», «перезарядки самострела», «перезарядки боевых кличей»). Analyze, plan, implement minimal fixes, update docs.
+Task: Анализ FP из iter 44 — пользователь in-game проверил regex и обнаружил, что «Приспешники имеют повышение скорости атаки и сотворения чар» всё ещё матчится (FP). Проанализировать root cause, предложить оптимальный фикс, обновить документацию. Код НЕ менять (принцип «лучше недоделать, чем сломать») — фикс требует in-game verify перед внедрением.
 
 Work Log:
-- 1: Клонирован репозиторий, прочитан контекст: STATUS.md (iter 43 pre-analysis), worklog Task IDs 42-43, AGENT_NAVIGATION.md v29, docs/IN_GAME_TESTS.md, docs/ARCHITECTURE.md §3
-- 2: Проанализированы 4 выбранных пользователем токена в `public/generated/jewel.json`:
-  - jewel.mod_am4lla (повышение скорости атаки, 10 regexExclude values)
-  - jewel.mod_26n6rw (атаки копьями, no excludes)
-  - jewel.mod_sbryhz (передвижения, no excludes)
-  - jewel.mod_kcvuf (перезарядки умений, no excludes)
-- 3: Найден opt-entry `jewel.mod_atixoo:jewel.mod_kcvuf:jewel.mod_sbryhz:jewel.mod_vr3sas` (4 IDs, regex с top-level `|`) — пользователь выбрал только 2 из 4 IDs
-- 4: Воспроизведён баг в unit-тесте `tests/_debug/repro-user-bug.test.ts` (временный, удалён после фиксов): TP=4, FP=5, FN=0 — баг подтверждён
-- 5: Идентифицированы 3 compaund-бага:
-  - Bug 1: `removeConflictingExcludes` удаляет ВЕСЬ EXCLUDE если хотя бы один литерал конфликтует (должен удалять только конфликтующие)
-  - Bug 2: `applyOptimizationTable` применяет полный regex opt-entry при strict subset (должен скипать)
-  - Bug 3: `compiler.ts` порождает nested quotes когда AND внутри OR (PoE2 strip-ит inner quotes → exclude-паттерны становятся позитивными альтернативами)
-- 6: Реализован **Fix Bug 1** в `src/core/core-optimizations.ts`:
-  - Добавлены `findConflictingExcludeValues` (возвращает LIST конфликтующих значений) и `removeExcludeValues` (surgical removal из EXCLUDE's OR)
-  - `removeConflictingExcludes` переписана: собирает конфликтующие values, удаляет только их, сохраняет остальные
-  - Если OR становится пустым → удаляет EXCLUDE; если остаётся 1 literal → unwraps OR to LITERAL
-- 7: Реализован **Fix Bug 2** в `src/core/optimization-strategies.ts`:
-  - В `applyOptimizationTable` добавлена проверка: если `matchedIds.size < entry.ids.length` И regex имеет top-level `|` (через `hasTopLevelAlternation`) — skip opt-entry
-  - Для family-based entries (без `|` в regex) — поведение не меняется (Phase 1 dedup даёт тот же single-LITERAL)
-- 8: Реализован **Fix Bug 3** в `src/core/compiler.ts`:
-  - В `normalizeAst` добавлен transform для case `OR → AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...)))`:
-    - Заменяет AND на single LITERAL со значением `X(?!.*A)(?!.*B)(?!.*C)...` (per-block lookahead)
-    - Только для AND с exactly 1 LITERAL + 1 EXCLUDE (консервативно)
-    - Multi-LITERAL AND (с regexPrefixContext) — не трансформируется (rare case, Pitfall 11 updated)
-- 9: Добавлены 12 новых unit-тестов в `tests/core/optimizer.test.ts`:
-  - 4 теста для surgical `removeConflictingExcludes` (keep all, remove 1 of N, remove all, unwrap OR to LITERAL)
-  - 3 теста для strict-subset skip opt-entry (skip on subset, apply on exact match, allow subset for no-`|` entries)
-  - 4 теста для compiler AND-in-OR transform (multi-literal exclude, single-literal exclude, top-level AND unchanged, multi-LITERAL AND unchanged)
-  - 1 end-to-end regression тест для user-reported jewel scenario (full AST + opt-table, verify all 3 fixes work together)
-- 10: Все 1106 тестов проходят (1094 + 12 новых, +0 regressions)
-- 11: TypeScript компилируется (`tsc -b`) — 0 ошибок
-- 12: ETL regenerирован (`npx tsx scripts/run-etl.ts`) — без изменений метрик (FN=0 для всех 10 категорий), только timestamp updated
-- 13: Воспроизведённый test удалён (`tests/_debug/` очищен)
-- 14: Обновлена документация (чисто, без мусора):
-  - STATUS.md → iter 44, 3 fixes описаны, Known Issues обновлены (Bug 1+3 closed, Bug 2 closed, Pitfall 11 partially fixed)
-  - AGENT_NAVIGATION.md → v30, §5 iter 44 added, Pitfall 11/12/14/20/21 updated, §12 Principle 8 updated, iter 44 summary block added
-  - docs/ARCHITECTURE.md → iter 44 row added в §3 Path D history
-  - worklog.md → Task ID 44 (этот), Task IDs 42-43 сжаты в Stage Summary
+- 1: Клонирован репозиторий, прочитан контекст: STATUS.md (iter 44), worklog Task 44, AGENT_NAVIGATION.md v30, docs/IN_GAME_TESTS.md, src/core/compiler.ts, src/core/core-optimizations.ts, src/core/optimization-strategies.ts, src/core/poe2-regex-matcher.ts, public/generated/jewel.json (4 user-selected tokens), tests/core/optimizer.test.ts (iter 44 regression lines 888-968)
+- 2: Идентифицирован ROOT CAUSE — `(?!…)` lookahead в PoE2 FORWARD-ONLY:
+  - Проверяет текст только ВПЕРЁД от текущей позиции (после matched-суффикса)
+  - В блоке «Приспешники имеют … повышение скорости атаки и сотворения чар» слово «Приспеш» стоит ДО суффикса
+  - Lookahead `повышение скорости атаки(?!.*Приспеш)` проверяет только остаток « и сотворения чар» — там «Приспеш» нет → lookahead проходит → FP
+  - Lookbehind `(?<!…)` НЕ поддерживается в PoE2 (см. §9 AGENT_NAVIGATION.md)
+- 3: Найден SIMULATOR GAP — `poe2-regex-matcher.ts` НЕ токенизирует `(?!…)` вообще:
+  - Grep по файлу: 0 matches для `lookahead`, `negative`, `\(\?!`, `\(\?`
+  - Токен `?` обрабатывается как `optional` quantifier
+  - `(?!…)` токенизируется как `(` `?` `!` `…` `)` — не работает как lookahead
+  - Следствие: iter 44 regression test (lines 888-968 optimizer.test.ts) проверял STRUCTURE строки (contains `(?!.*A)`, no nested quotes, length ≤250), а НЕ SEMANTIC behavior
+- 4: Проанализирован пользовательский вопрос про «медвежью услугу»:
+  - Iter 44 заменил item-wide `!` (корректный, но порождает nested quotes в OR-context) на per-block `(?!…)` (избегает nested quotes, но forward-only)
+  - Это trade-off, который ломается именно на кейсе пользователя (exclude ДО суффикса)
+  - Пользователь прав — iter 44 fix неполный
+- 5: Предложен ФИКС для iter 46 (НЕ внедрён в этой итерации):
+  - Одна строка в `src/core/compiler.ts` normalizeAst AND-in-OR transform:
+    - БЫЛО: `const mergedValue = `${literalChild.value}${lookaheads}`;`
+    - СТАЛО: `const mergedValue = `^${lookaheads}.*${literalChild.value}`;`
+  - Результат: `^(?!.*A)(?!.*B).*Z` вместо `Z(?!.*A)(?!.*B)`
+  - `^` анкер ставит курсор в начало блока, `.*` внутри lookahead покрывает ВЕСЬ блок (до и после позиции суффикса) → bidirectional exclude
+  - Длина: +3 chars per LITERAL (192 → 195 chars для user case, ≤250 OK)
+- 6: Аудит использования in-game verified паттернов:
+  - Path D — используется оптимально ✅
+  - `.*` — используется оптимально ✅
+  - `\|` top-level — используется оптимально ✅
+  - `^` — верифицирован Phase 9b, но используется ТОЛЬКО для RANGE, НЕ для LITERAL с excludes ⚠️ — главная упущенная возможность
+  - `!` item-wide — используется для top-level AND ✅
+  - `(?!…)` — используется в iter 44, но forward-only → FP ❌
+  - Number enumeration, truncated stems, subset-skip — используются оптимально ✅
+- 7: Решено НЕ менять код в этой итерации:
+  - Пользователь явно просил АНАЛИЗ, не фикс: «Пропиши текстом в чат выводы, мысли и прочее»
+  - Принцип «лучше недоделать, чем сломать»
+  - Фикс `^(?!…).*Z` требует in-game verify, что `^` работает внутри `|`-группы (в docs не подтверждено — Phase 9b verified только single-quoted `"^28%"`)
+  - Без verify смена выхода compiler может сломать частично-рабочий iter 44 fix
+- 8: Документация обновлена (4 файла):
+  - STATUS.md → iter 45 analysis section, root cause, proposed fix, optimal-use audit table, Known Issues updated (5 issues, prioritized)
+  - AGENT_NAVIGATION.md → v31, §5 iter 45 added, §9 `(?!…)` помечен как forward-only, §9 `^` в OR-context помечен UNVERIFIED, §11 Pitfall 12 REWRITTEN (forward-only semantic + iter 46 proposed fix), §11 Pitfall 16 EXPANDED (simulator gap), §11 Pitfall 22 ADDED (`^`-anchor underused), §12 iter 45 note added
+  - docs/IN_GAME_TESTS.md → iter 45 FINDING block + in-game test plan for iter 46 verification (3 tests: A/B/C), dialect table updated (`(?!…)` ⚠️ forward-only, `^` in OR ⚠️ UNVERIFIED), syntax rule 10 added
+  - worklog.md → Task ID 45 (этот), Task 44 сжат в Stage Summary
+- 9: Базовая верификация:
+  - `pnpm test` → 1106 passed (без изменений, код не трогался)
+  - `npx tsc -b` → 0 errors (без изменений)
 
 Stage Summary:
-- **3 FP-бага исправлены** в shared `src/core/` — все категории выигрывают (jewel, amulet, ring, belt, waystone, tablet, relic)
-- **TP=4, FP=0, FN=0, TN=6** в reproduction test (раньше TP=4, FP=5, FN=0, TN=1)
-- **Все 1106 тестов проходят** (1094 + 12 новых), TypeScript компилируется
-- **ETL unchanged** — FN=0 для всех категорий, только timestamp updated
-- **Files MODIFIED**:
-  - `src/core/core-optimizations.ts` (+90 строк: surgical removeConflictingExcludes + helpers)
-  - `src/core/optimization-strategies.ts` (+15 строк: strict-subset skip)
-  - `src/core/compiler.ts` (+50 строк: AND-in-OR transform в normalizeAst)
-  - `tests/core/optimizer.test.ts` (+270 строк: 12 новых тестов)
-  - DOCS: STATUS.md, AGENT_NAVIGATION.md, docs/ARCHITECTURE.md, worklog.md
-  - REGENERATED: all 10 `public/generated/*.json` (только timestamp)
-- **Точка остановки:** iter 44 FP-fixes COMPLETE. Возможные следующие шаги (опциональные, не блокирующие):
-  1. **In-game verify** per-block `(?!…)` semantic в OR-context (фикс Bug 3 использует semantic change — нужен живой тест)
-  2. **Pitfall 11 extended**: AND с regexPrefixContext + LITERAL + EXCLUDE всё ещё порождает nested quotes (rare case, не user-bug)
-  3. **D3 regexExclude усечённые основы** (iter 43 pre-analysis) — отдельная задача, не связана с iter 44
-  4. **Char-limit auto-split** для 2 over-limit jewel entries
+- **ROOT CAUSE identified:** `(?!…)` lookahead в PoE2 forward-only, не видит excludes ДО суффикса в блоке → FP с minion affixes остался
+- **SIMULATOR GAP identified:** `poe2-regex-matcher.ts` не токенизирует `(?!…)` → iter 44 regression test был structural, не semantic
+- **PROPOSED FIX для iter 46:** `^(?!…).*Z` вместо `Z(?!…)` — одна строка в `compiler.ts`. +3 chars per LITERAL. Bidirectional exclude semantic.
+- **Код НЕ менялся** — только документация (4 файла)
+- **Files MODIFIED (docs only)**:
+  - STATUS.md — iter 45 section, root cause, proposed fix, optimal-use audit, Known Issues
+  - AGENT_NAVIGATION.md — v31, §5/§9/§11 (Pitfall 12 rewritten, Pitfall 22 added)/§12 updates
+  - docs/IN_GAME_TESTS.md — iter 45 FINDING block + iter 46 in-game test plan
+  - worklog.md — Task ID 45 + сжатый Task 44
+- **Точка остановки:** iter 45 ANALYSIS COMPLETE. Код не тронут. Возможные следующие шаги:
+  1. **iter 46 — In-game verify `^` в OR-context** (по тест-плану в docs/IN_GAME_TESTS.md iter 45 section):
+     - Тест A: `"^(?!.*Приспеш).*повышение скорости атаки"` (single-quoted, baseline)
+     - Тест B: `"^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений"` (OR-context, ключевой)
+     - Тест C: `"повышение скорости атаки(?!.*Приспеш)|перезарядки умений"` (старый формат, должен давать FP — control)
+  2. **iter 46 — Внедрить фикс** если Тест A+B PASS:
+     - `src/core/compiler.ts` normalizeAst — одна строка
+     - `tests/core/optimizer.test.ts` — обновить 4 iter 44 tests (новый формат `^(?!…).*Z`)
+     - Добавить 2 NEW tests для backward-exclude case (minion-блок data)
+  3. **iter 47 — Simulator extension** (опционально): добавить `(?!…)` tokenization в `poe2-regex-matcher.ts` + semantic regression test
+- **For new chat:** читать worklog.md (Task ID 45), STATUS.md (iter 45), docs/IN_GAME_TESTS.md (iter 45 FINDING section с test plan для iter 46).
 
 ---
-Task ID: 43
+Task ID: 44
 Agent: main
-Task: D3 pre-analysis — анализ паттернов аффиксов и правил усечения основ для regexExclude. Без изменения кода.
+Task: Fix user-reported FP in jewel selection. 3 compaund bugs found & fixed in shared `src/core/`.
 
 Stage Summary:
-- **D3 pre-analysis COMPLETE** — 95 опасных пар, 5 типов опасностей, 8 паттернов аффиксов, план реализации
-- **Код НЕ изменён** — только анализ и документация
-- **Точка остановки:** D3 pre-analysis DONE. iter 44 closed связанный FP через compiler/optimizer fixes — D3 теперь опционален.
-
----
-Task ID: 42
-Agent: main
-Task: ETL char-limit diagnostic (D7) — `findOverLimitEntries()` + Phase D1 + final summary, diagnostic-only policy.
-
-Stage Summary:
-- **Реализован ETL char-limit diagnostic** — entries НЕ удаляются, только логируются
-- **Все 1094 тестов проходят**, ETL verified end-to-end (2 over-limit entries в jewel: 317, 260 chars)
+- **3 FP-бага исправлены** в shared `src/core/` — surgical removeConflictingExcludes + strict-subset skip + AND-in-OR transform
+- **TP=4, FP=0, FN=0, TN=6** в structural regression test (⚠️ iter 45: симулятор не моделирует `(?!…)` → test был structural, не semantic)
+- **Все 1106 тестов проходят**, TypeScript компилируется
+- **Files MODIFIED**: src/core/{core-optimizations,optimization-strategies,compiler}.ts, tests/core/optimizer.test.ts, 4 doc files, 10 regenerated JSON
+- **iter 45 ADDENDUM:** FP остался в production — `(?!…)` forward-only. См. Task 45.
 
 ---
 
-## Older iterations (41 and before)
+## Older iterations (43 and before)
 
-Iterations 15-41 covered: legacy in-game tests (Tests 15-17 BROKEN), hypothesis pattern verification, FP prevention anchors (5 levels), 9 pattern types, truncated word tails, Path D (D1-D7: in-game test → ETL → runtime → production-verify → char-limit diagnostic). Results consolidated in `docs/IN_GAME_TESTS.md` reference tables. See git history for detailed work logs of these iterations.
+- **iter 43**: D3 pre-analysis — 95 опасных пар, 5 типов опасностей, 8 паттернов. Код не изменён.
+- **iter 42**: ETL char-limit diagnostic — `findOverLimitEntries()`. Все 1094 тестов проходят.
+- **iter 41**: D5 production-verified — 5/5 in-game tests PASS (jewel, amulet, ring, waystone, tablet).
+- **iter 15-40**: covered legacy in-game tests, hypothesis pattern verification, FP prevention anchors, Path D D1-D7. See git history for details.
