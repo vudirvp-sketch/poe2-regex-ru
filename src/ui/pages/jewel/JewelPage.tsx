@@ -1,10 +1,10 @@
 /**
  * JewelPage — Category page for Jewels.
  *
- * Layout v5 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
- * ModList on left, sticky RegexOutput + status + ProfilePanel on right),
- * 1-column mobile (RegexOutput appears below ModList until Phase 7 moves
- * it to a sticky bottom-bar).
+ * Layout v4 (iter 59): Uses <CategoryLayout> with mobileBar slot —
+ * 2-column desktop (controls + ModList on left, sticky RegexOutput + status +
+ * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
+ * RegexOutput + alerts in sticky bottom-bar via <MobileRegexBar>).
  *
  * Loads and merges three JSON files:
  * - jewel.json (193 normal tokens)
@@ -18,7 +18,7 @@
  *
  * Hidden mods warning: when active (selected/excluded) tokens are filtered
  * out by the jewel type filter, an alert with a "Deselect hidden" button
- * appears between controls and ModList (left column).
+ * appears in StatusPanel (desktop) and inside MobileRegexBar (mobile).
  */
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
@@ -29,8 +29,10 @@ import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
+import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
 import { classifyJewelType, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
+import { groupTokensByFamily } from '@shared/family-grouper';
 import type { GameToken } from '@shared/types';
 
 /** Jewel type filter options for the control panel */
@@ -235,6 +237,30 @@ export function JewelPage() {
                 category={categoryId}
                 currentFilterData={filterStore.serialize()}
                 onRestore={restoreFilterState}
+              />
+            }
+            mobileBar={
+              <MobileRegexBar
+                regexOutput={
+                  <RegexOutput
+                    regex={regex}
+                    isOverflow={isRegexOverflow}
+                    regexParts={regexParts}
+                    filterStore={filterStore}
+                    activeTokenCount={allActiveTokens.length}
+                  />
+                }
+                alerts={hiddenActiveCount > 0 ? [
+                  <div className="flex items-center gap-2 px-3 py-2 bg-section-amber border border-aborder-amber rounded text-xs text-atext-amber" role="alert">
+                    <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
+                    <button
+                      onClick={deselectHidden}
+                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
+                    >
+                      {t('jewel.deselect_hidden')}
+                    </button>
+                  </div>
+                ] : []}
               />
             }
           >

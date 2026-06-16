@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 58 (UI Фаза 6 — единая панель статусов `StatusPanel.tsx`).
+> **Entry document.** Read this first. Current state: iter 59 (UI Фаза 7 — `MobileRegexBar.tsx` mobile sticky bottom-bar).
 
 ---
 
@@ -14,8 +14,9 @@
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53, updated iter 59). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
 | `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages (iter 58, Phase 6). Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
+| `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar (iter 59, Phase 7). Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. Wraps RegexOutput + alerts in `position: sticky; bottom: 0` container. | Used by all 8 category pages. Desktop unaffected — RegexOutput stays in right-column aside. |
 | `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). iter 56. | Single source — do not duplicate nav list in either component. |
 | `src/ui/layout/Sidebar.tsx` | Desktop-only vertical nav (`hidden md:flex`). iter 56: mobile drawer removed. | Mobile nav lives in `MobileNavTabs.tsx`. |
 | `src/ui/layout/MobileNavTabs.tsx` | Mobile-only horizontal scrollable chip tabs (`md:hidden`). Sticky below Header. iter 56. | Replaces previous hamburger drawer. |
@@ -51,10 +52,10 @@ shared <- core <- strategies <- store <- data <- ui
 ## 4. Build & Run
 
 ```bash
-pnpm install              # Install dependencies
+pnpm install              # Install dependencies (or: npm install)
 pnpm dev                  # Vite dev server
-pnpm build                # tsc + vite build + shell prerender (no Playwright)
-pnpm build:full           # tsc + vite build + shell prerender + Playwright prerender
+pnpm build                # tsc -b + vite build + shell prerender (no Playwright)
+pnpm build:full           # tsc -b + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
 pnpm test                 # Vitest (all tests) — current: 1144 passing
 pnpm etl                  # Full ETL with optimizer
@@ -63,6 +64,8 @@ pnpm etl:check-stale      # Check source HTML staleness
 pnpm optimize             # Run iterative optimizer only
 pnpm analyze-fn           # FN/FP analysis report
 ```
+
+**Note:** If `pnpm` is not installed, `npm run <script>` works as a drop-in replacement. The build uses `tsc -b` (build mode with project references) — this is **stricter** than `tsc --noEmit` and catches missing imports that `--noEmit` silently ignores. Always run `pnpm build` (or `npx tsc -b`) to verify, not just `tsc --noEmit`.
 
 ## 5. Core Optimizer Module Structure
 
@@ -164,6 +167,15 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **VendorPage** now has a `status` slot (previously had none — verification note was in left column children).
     - **JewelPage** hidden-mods alert moved from left column `children` to `status` slot `alerts` — renders in right column alongside the summary panel.
     - **Do NOT** re-add inline status JSX to any page — always extend StatusPanel via `badges`/`alerts` props. If a new page needs a status variant, add a new prop to StatusPanel rather than duplicating JSX.
+
+25. **MobileRegexBar — mobile sticky bottom bar (iter 59, UI Phase 7):** On mobile (< lg), `RegexOutput` moves from the right-column aside into a sticky-bottom bar (`MobileRegexBar.tsx`). StatusPanel `alerts` (Jewel hidden-mods warning, Vendor verification note) follow it into the same bar. Desktop (lg+) is unchanged.
+    - **CategoryLayout `mobileBar` slot:** When a page passes `mobileBar={<MobileRegexBar .../>}`, the layout (a) hides the right-column aside on mobile via `hidden lg:flex`, (b) renders `status` + `sidebar` in a separate `lg:hidden` section above the bar so they stay accessible, (c) renders the `mobileBar` as the last child in a sticky-bottom container.
+    - **Double-render tradeoff:** `RegexOutput` is mounted in BOTH the desktop aside AND the mobile bar. Each instance has its own transient React state (`copied`, `shareCopied`), but `autoCopy` is persisted to localStorage so both stay in sync. The auto-copy effect fires twice on regex change — clipboard write is idempotent so this is harmless. The keyboard shortcut handler (Ctrl+Shift+X) is attached by both instances — both fire on the same keystroke, both write the same content. Acceptable cost to avoid CSS hacks for single-DOM-node teleportation.
+    - **Alerts duplication:** For Jewel/Vendor pages, `alerts` array is passed to BOTH `<StatusPanel alerts={...}>` (desktop aside) AND `<MobileRegexBar alerts={...}>` (mobile bar). Only one is visible at a time per viewport.
+    - **CSS:** `.mobile-regex-bar` class in `index.css` — `position: sticky; bottom: 0; z-index: 15; backdrop-filter: blur(6px); max-height: 60vh; overflow-y: auto`. Sticks to viewport bottom while scrolling, sits at natural position (end of page) when scrolled to bottom.
+    - **Vendor price-filter (iter 59):** VendorPage passes `hasRangedTokens={false}` to `<CategoryControlPanel>` — the global min/max inputs were no-ops (setMinValue/setMaxValue were empty functions). Per-chip range inputs in `<FilterChip>` are the primary UX for vendor ("Ур. предмета ≥N" / "Треб. уровень ≥N" each have their own min input).
+    - **HomePage category cards (iter 59):** Verbose descriptions ("Полное покрытие префиксов и суффиксов" etc.) removed from category cards. Cards now show only icon + name + affix count. 8 unused `home.*_desc` i18n keys deleted.
+    - **Pre-existing bug closed (iter 59):** `tsc -b` was failing — 4 standard pages (Belt/Amulet/Ring/Relic) were missing `import { t } from '@shared/i18n'` (regression from iter 58 — import was removed as "unused" but `t()` is called in `header`), and JewelPage was missing `import { groupTokensByFamily }`. `tsc --noEmit` was silent but `tsc -b` (build mode with project references) caught it. All imports restored.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

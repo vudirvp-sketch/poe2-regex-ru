@@ -5,16 +5,18 @@ import { loadCategoryData, loadMergedCategoryData } from '@data/loader'
 import { VENDOR_PROPERTIES } from '@data/vendor-properties'
 import { SeoBlock } from './SeoBlock'
 
-/** Category config for the home page — tag is now dynamically computed */
+/** Category config for the home page — tag is now dynamically computed.
+ *  iter 59: removed descKey (verbose category descriptions like "Полное покрытие
+ *  префиксов и суффиксов"). Cards now show only icon + name + affix count. */
 const categories = [
-  { path: '/waystone', labelKey: 'waystone.title', descKey: 'home.waystone_desc', icon: 'waystone', jsonId: 'waystone' },
-  { path: '/tablet', labelKey: 'tablet.title', descKey: 'home.tablet_desc', icon: 'tablet', jsonId: 'tablet' },
-  { path: '/relic', labelKey: 'relic.title', descKey: 'home.relic_desc', icon: 'relic', jsonId: 'relic' },
-  { path: '/jewel', labelKey: 'jewel.title', descKey: 'home.jewel_desc', icon: 'jewel', jsonId: 'jewel', mergeIds: ['jewel-desecrated', 'jewel-corrupted'] },
-  { path: '/vendor', labelKey: 'vendor.title', descKey: 'home.vendor_desc', icon: 'vendor', jsonId: 'vendor', vendorCount: true },
-  { path: '/belt', labelKey: 'belt.title', descKey: 'home.belt_desc', icon: 'belt', jsonId: 'belt' },
-  { path: '/ring', labelKey: 'ring.title', descKey: 'home.ring_desc', icon: 'ring', jsonId: 'ring' },
-  { path: '/amulet', labelKey: 'amulet.title', descKey: 'home.amulet_desc', icon: 'amulet', jsonId: 'amulet' },
+  { path: '/waystone', labelKey: 'waystone.title', icon: 'waystone', jsonId: 'waystone' },
+  { path: '/tablet', labelKey: 'tablet.title', icon: 'tablet', jsonId: 'tablet' },
+  { path: '/relic', labelKey: 'relic.title', icon: 'relic', jsonId: 'relic' },
+  { path: '/jewel', labelKey: 'jewel.title', icon: 'jewel', jsonId: 'jewel', mergeIds: ['jewel-desecrated', 'jewel-corrupted'] },
+  { path: '/vendor', labelKey: 'vendor.title', icon: 'vendor', jsonId: 'vendor', vendorCount: true },
+  { path: '/belt', labelKey: 'belt.title', icon: 'belt', jsonId: 'belt' },
+  { path: '/ring', labelKey: 'ring.title', icon: 'ring', jsonId: 'ring' },
+  { path: '/amulet', labelKey: 'amulet.title', icon: 'amulet', jsonId: 'amulet' },
 ]
 
 /** Format a number with thin space for thousands separator (Russian style) */
@@ -110,14 +112,11 @@ export function HomePage() {
                   style={{ imageRendering: 'auto', maxHeight: '40px', maxWidth: '40px' }}
                 />
               </div>
-              <h3 className="mb-1 text-[15px] font-semibold" style={{ color: 'var(--poe-gold)' }}>
+              <h3 className="mb-1.5 text-[15px] font-semibold" style={{ color: 'var(--poe-gold)' }}>
                 {t(cat.labelKey)}
               </h3>
-              <p className="text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-                {t(cat.descKey)}
-              </p>
               {tagText && (
-                <span className="mt-1.5 inline-block rounded px-1.5 py-0.5 text-[12px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
+                <span className="inline-block rounded px-1.5 py-0.5 text-[12px]" style={{ background: 'var(--poe-bg-secondary)', color: 'var(--poe-text)', opacity: 0.5 }}>
                   {tagText}
                 </span>
               )}

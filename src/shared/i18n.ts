@@ -104,14 +104,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'range.min_aria_dual_2': 'Минимальное значение второго числа',
     'range.max_aria_dual_2': 'Максимальное значение второго числа',
     'range.boundary_warning': 'Внимание: фильтр ≥40 может давать ложные срабатывания на однозначных числах в других аффиксах. Это ограничение поискового движка PoE2.',
-    'home.waystone_desc': 'Аффиксы карт и модификаторы риска',
-    'home.tablet_desc': 'Свойства плиток Предтеч',
-    'home.relic_desc': 'Префиксы и суффиксы реликвий',
-    'home.jewel_desc': 'Характеристики самоцветов всех типов',
-    'home.vendor_desc': 'Фильтр товаров по свойствам и ценам',
-    'home.belt_desc': 'Атакующие, защитные и универсальные свойства',
-    'home.ring_desc': 'Аффиксы всех источников и типов',
-    'home.amulet_desc': 'Полное покрытие префиксов и суффиксов',
 
     // TabletPage extraControls labels
     'tablet.type_label': 'Тип:',

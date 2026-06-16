@@ -1,10 +1,10 @@
 /**
  * TabletPage — Category page for Tablets (Башни Предтеч).
  *
- * Layout v3 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
- * ModList on left, sticky RegexOutput + status + ProfilePanel on right),
- * 1-column mobile (RegexOutput appears below ModList until Phase 7 moves
- * it to a sticky bottom-bar).
+ * Layout v4 (iter 59): Uses <CategoryLayout> with mobileBar slot —
+ * 2-column desktop (controls + ModList on left, sticky RegexOutput + status +
+ * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
+ * RegexOutput in sticky bottom-bar via <MobileRegexBar>).
  *
  * Tablet-specific features:
  * - Type filter: Бездна / Делириум / Ритуал / Ваал (as extra AST nodes)
@@ -24,6 +24,7 @@ import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
+import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
 import { literal, or, range } from '@core/ast';
 import type { ASTNode } from '@shared/types';
@@ -244,6 +245,19 @@ export function TabletPage() {
                 category={categoryId}
                 currentFilterData={filterStore.serialize()}
                 onRestore={restoreFilterState}
+              />
+            }
+            mobileBar={
+              <MobileRegexBar
+                regexOutput={
+                  <RegexOutput
+                    regex={regex}
+                    isOverflow={isRegexOverflow}
+                    regexParts={regexParts}
+                    filterStore={filterStore}
+                    activeTokenCount={allActiveTokens.length}
+                  />
+                }
               />
             }
           >

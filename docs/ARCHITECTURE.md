@@ -405,6 +405,28 @@ All 8 category pages use `<StatusPanel>` in the `status` slot of `<CategoryLayou
 - Badges rendered as `<span>` elements inline after the count row.
 - Alerts rendered as separate `<div>` blocks below the summary panel.
 
+### MobileRegexBar — mobile sticky bottom bar (iter 59, UI Phase 7)
+
+On mobile (< lg), `RegexOutput` moves out of the right-column aside and into a sticky bottom bar. StatusPanel alerts (Jewel hidden-mods warning, Vendor verification note) follow it into the same bar. Desktop (lg+) is unchanged.
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `regexOutput` | `ReactNode` | Yes | `<RegexOutput>` element (constructed by the page) |
+| `alerts` | `ReactNode[]` | No | Alert blocks rendered above the regex output inside the bar |
+
+**CategoryLayout `mobileBar` slot:**
+
+When a page passes `mobileBar={<MobileRegexBar .../>}` to `<CategoryLayout>`:
+1. The right-column `<aside>` gets `hidden lg:flex` (desktop-only).
+2. `status` + `sidebar` slots are rendered in a separate `lg:hidden` section above the bar — they stay accessible on mobile.
+3. The `mobileBar` is rendered as the last child of the page content in a `position: sticky; bottom: 0` container.
+
+**Double-render tradeoff:** `RegexOutput` is mounted in BOTH the desktop aside AND the mobile bar. Each instance has its own transient React state, but `autoCopy` is persisted to localStorage so both stay in sync. Auto-copy fires twice on regex change — clipboard write is idempotent. Acceptable cost vs CSS hacks for single-DOM-node teleportation.
+
+**CSS:** `.mobile-regex-bar` in `index.css` — `position: sticky; bottom: 0; z-index: 15; backdrop-filter: blur(6px); max-height: 60vh; overflow-y: auto`. Sticks to viewport bottom while scrolling, sits at natural position (end of page) when scrolled to bottom. Safe-area-inset-bottom padding for iPhone notch.
+
 ## 13. Optimizer Collapse Indicator
 
 When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears on FilterChip.

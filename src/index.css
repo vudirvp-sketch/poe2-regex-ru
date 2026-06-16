@@ -651,6 +651,46 @@ main {
   padding: 14px 16px 18px;
 }
 
+/* ─── Mobile sticky bottom bar (iter 59, UI Phase 7) ─── */
+/* MobileRegexBar wraps RegexOutput + alerts in a sticky-bottom container so
+   the regex output is always visible while scrolling the mod list on mobile.
+   Hidden on desktop (lg:hidden in JSX). Uses `position: sticky; bottom: 0`
+   inside <main> (the scroll container) — the bar sticks to the viewport
+   bottom while scrolling, and sits at its natural position (end of page)
+   when scrolled to the bottom. */
+.mobile-regex-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  background: rgba(13, 11, 9, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-top: 1px solid var(--poe-border);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  margin: 0 -12px; /* extend to screen edges on mobile (offsets <main> p-3) */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh; /* cap height so a long overflow regex doesn't consume the viewport */
+  overflow-y: auto;
+}
+
+.mobile-regex-bar-alerts {
+  flex-shrink: 0;
+}
+
+.mobile-regex-bar-output {
+  flex-shrink: 0;
+}
+
+/* On mobile, the RegexOutput inside the bar uses slightly tighter padding
+   to save vertical space. */
+@media (max-width: 1023px) {
+  .mobile-regex-bar .regex-output {
+    padding: 8px 10px;
+  }
+}
+
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
   .mod-list button[class*="inline-flex"],

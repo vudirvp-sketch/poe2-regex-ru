@@ -1,25 +1,33 @@
 /**
  * CategoryLayout — 2-column desktop / 1-column mobile shell for category pages.
  *
- * Layout (iter 52, UI redesign Phase 2):
+ * Layout:
  * - Header (icon + title + count) — full width on top
  * - Desktop (lg+): grid [1fr 380px]
  *     • Left column:  CategoryControlPanel (controls, no RegexOutput) + ModList
  *     • Right column: RegexOutput + status block + ProfilePanel (sticky)
  * - Mobile (< lg): single column, natural DOM order:
- *     header → controls → ModList → regexOutput → status → sidebar.
- *   Phase 7 will move RegexOutput to a sticky bottom-bar on mobile.
+ *     header → controls → ModList → status → sidebar → mobileBar (sticky bottom).
  *
- * Non-breaking: pages that don't use CategoryLayout continue to render
- * <CategoryControlPanel> (with embedded RegexOutput, sticky) as before.
+ * iter 59, UI Phase 7: Added `mobileBar` slot. When provided:
+ *   - The desktop aside gets `hidden lg:flex` (RegexOutput + status + sidebar
+ *     are desktop-only inside the aside).
+ *   - `status` and `sidebar` are rendered in a separate mobile-only section
+ *     (`lg:hidden`) below the grid so they stay accessible on mobile.
+ *   - `mobileBar` is rendered last as a sticky-bottom bar (`lg:hidden`),
+ *     typically wrapping `<MobileRegexBar>` with RegexOutput + alerts.
  *
- * Usage (pilot — WaystonePage):
+ * When `mobileBar` is NOT provided (backward compat): the aside is visible
+ * on all viewports, no mobile-specific sections are rendered.
+ *
+ * Usage (Phase 7):
  *   <CategoryLayout
  *     header={...}
- *     controls={<CategoryControlPanel hideRegexOutput ... />}
+ *     controls={<CategoryControlPanel ... />}
  *     regexOutput={<RegexOutput ... />}
- *     status={<StatusBlock/>}
+ *     status={<StatusPanel ... />}
  *     sidebar={<ProfilePanel ... />}
+ *     mobileBar={<MobileRegexBar regexOutput={<RegexOutput ... />} alerts={[...]} />}
  *   >
  *     <ModList ... />
  *   </CategoryLayout>
@@ -37,6 +45,10 @@ interface CategoryLayoutProps {
   status?: React.ReactNode;
   /** Right column sidebar (ProfilePanel). Below status. */
   sidebar?: React.ReactNode;
+  /** Mobile-only sticky bottom bar (typically <MobileRegexBar>).
+   *  When provided, the aside is hidden on mobile and status/sidebar are
+   *  rendered in a separate mobile section above the bar. */
+  mobileBar?: React.ReactNode;
   /** Left column main content (ModList / VirtualizedModList / chips). */
   children: React.ReactNode;
 }
@@ -55,8 +67,13 @@ export function CategoryLayout({
   regexOutput,
   status,
   sidebar,
+  mobileBar,
   children,
 }: CategoryLayoutProps) {
+  // Phase 7: when mobileBar is provided, aside is desktop-only and we add
+  // a separate mobile section for status + sidebar so they stay accessible.
+  const hasMobileBar = Boolean(mobileBar);
+
   return (
     <div className="flex flex-col gap-4">
       {header}
@@ -69,14 +86,30 @@ export function CategoryLayout({
         </div>
 
         {/* Right column: RegexOutput (sticky) + status + sidebar.
-            On mobile, appears below left column (Phase 7 will move RegexOutput
-            to a sticky bottom-bar). */}
-        <aside className={`flex flex-col gap-3 ${RIGHT_COL_STICKY_CLASS}`}>
+            Phase 7: when mobileBar is provided, aside is desktop-only. */}
+        <aside
+          className={`flex flex-col gap-3 ${RIGHT_COL_STICKY_CLASS} ${
+            hasMobileBar ? 'hidden lg:flex' : ''
+          }`}
+        >
           {regexOutput}
           {status}
           {sidebar}
         </aside>
       </div>
+
+      {/* Phase 7: mobile-only section for status + sidebar (kept accessible
+          when aside is hidden on mobile). */}
+      {hasMobileBar && (status || sidebar) && (
+        <div className="flex flex-col gap-3 lg:hidden">
+          {status}
+          {sidebar}
+        </div>
+      )}
+
+      {/* Phase 7: mobile-only sticky bottom bar (typically MobileRegexBar
+          with RegexOutput + alerts). Hidden on desktop. */}
+      {hasMobileBar && mobileBar}
     </div>
   );
 }

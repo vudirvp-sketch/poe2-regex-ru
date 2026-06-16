@@ -1,8 +1,10 @@
 /**
  * VendorPage — Vendor regex filter for the Russian game client.
  *
- * Layout v4 (iter 53): Uses <CategoryLayout> — 2-column desktop (controls +
- * FilterChip groups on left, sticky RegexOutput on right), 1-column mobile.
+ * Layout v4 (iter 59): Uses <CategoryLayout> with mobileBar slot —
+ * 2-column desktop (controls + FilterChip groups on left, sticky RegexOutput
+ * on right), 1-column mobile (status below ModList, RegexOutput + verification
+ * alert in sticky bottom-bar via <MobileRegexBar>).
  *
  * Vendor-specific notes:
  * - No <PageStateWrapper>: vendor data is built synchronously via
@@ -11,8 +13,8 @@
  *   left empty — RegexOutput is the only right-column content.
  * - clearButton slot: a "Clear (N)" button is rendered inside
  *   <CategoryControlPanel> when tokens are selected.
- * - Verification note: rendered at the end of the left column (below
- *   the chip groups) — a final in-game verification reminder.
+ * - Verification note: rendered in StatusPanel (desktop) and inside
+ *   MobileRegexBar (mobile) — a final in-game verification reminder.
  *
  * The hardcoded Russian regex strings in VENDOR_PROPERTIES are OK —
  * vendor properties are NOT mod-based and don't come from ETL data.
@@ -25,6 +27,7 @@ import { FilterChip } from '@ui/components/FilterChip';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { RegexOutput } from '@ui/components/RegexOutput';
 import { StatusPanel } from '@ui/components/StatusPanel';
+import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { groupTokensByFamily } from '@shared/family-grouper';
 import { t } from '@shared/i18n';
@@ -145,7 +148,8 @@ export function VendorPage() {
   // Count active tokens
   const allActiveTokens = data?.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id)) ?? [];
   const excludeCount = data?.tokens.filter(tok => excludedIds.has(tok.id)).length ?? 0;
-  const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
+  /* hasRangedTokens removed in iter 59: global min/max is hidden for vendor
+     (no-op setters were misleading). Per-chip range inputs in FilterChip work. */
 
   // Ranged suffixes for CategoryControlPanel
   const rangedSuffixes = [...new Set(
@@ -167,7 +171,12 @@ export function VendorPage() {
       }
       controls={
         <CategoryControlPanel
-          hasRangedTokens={hasRangedTokens}
+          /* iter 59: hide global min/max inputs — they were no-ops (setMinValue/
+             setMaxValue were empty functions). Per-chip range inputs (FilterChip)
+             already work for vendor: each "Ур. предмета ≥N" / "Треб. уровень ≥N"
+             chip has its own min input. Global slider is misleading UX for vendor
+             since each property is semantically different (level vs req-level). */
+          hasRangedTokens={false}
           minValue={null}
           setMinValue={() => {}}
           maxValue={null}
@@ -179,7 +188,6 @@ export function VendorPage() {
           setThresholdEnabled={setThresholdEnabled}
           searchLogic={searchLogic}
           setSearchLogic={setSearchLogic}
-          showRound10={hasRangedTokens}
           excludedCount={excludeCount}
           activeTokenCount={allActiveTokens.length}
           clearButton={
@@ -208,6 +216,24 @@ export function VendorPage() {
           wantTokens={data?.tokens.filter(tok => selectedIds.has(tok.id)) ?? []}
           excludeTokens={data?.tokens.filter(tok => excludedIds.has(tok.id)) ?? []}
           allActiveTokens={allActiveTokens}
+          alerts={[
+            <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
+              <strong>{t('vendor.verification')}</strong>
+            </div>
+          ]}
+        />
+      }
+      mobileBar={
+        <MobileRegexBar
+          regexOutput={
+            <RegexOutput
+              regex={regex}
+              isOverflow={isRegexOverflow}
+              regexParts={regexParts}
+              filterStore={filterStore}
+              activeTokenCount={allActiveTokens.length}
+            />
+          }
           alerts={[
             <div className="bg-section-yellow border border-aborder-yellow rounded p-3 text-xs text-accent-yellow-dim" role="alert">
               <strong>{t('vendor.verification')}</strong>

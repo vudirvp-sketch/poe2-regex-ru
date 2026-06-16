@@ -2,29 +2,29 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 58 — UI Фаза 6 (единая панель статусов `StatusPanel.tsx`)
+> **Текущая итерация:** 59 — UI Фаза 7 (`MobileRegexBar.tsx` mobile sticky bottom-bar) + cleanup
 
 ---
 
-## iter 58 — UI Фаза 6: Единая панель статусов
+## iter 59 — UI Фаза 7: Mobile sticky bottom-bar + HomePage cleanup + Vendor price-filter fix
 
-**Что:** Разрозненные статус-блоки на 8 страницах категорий объединены в единый компонент `StatusPanel.tsx`. Компонент устраняет дублирование JSX (~15-20 строк inline-кода на каждой странице) и предоставляет расширяемый API через `badges` и `alerts` слоты.
+**Что:**
+1. **Фаза 7 — `MobileRegexBar.tsx`**: на mobile (< lg) `RegexOutput` перемещён из правой колонки в sticky bottom-bar. StatusPanel alerts (Jewel hidden-mods warning, Vendor verification note) следуют за ним в тот же bar. Desktop (lg+) не изменился — `RegexOutput` + `StatusPanel` остаются в правой колонке `aside`.
+2. **HomePage cleanup**: убраны многословные описания категорий («Полное покрытие префиксов и суффиксов» и пр.) — карточки теперь содержат только иконку + название + количество аффиксов. Удалены 8 неиспользуемых i18n-ключей `home.*_desc`.
+3. **Vendor price-filter fix**: глобальные min/max inputs на VendorPage были no-op (setMinValue/setMaxValue — пустые функции). Скрыты через `hasRangedTokens={false}`. Per-chip range inputs в `FilterChip` уже работали и остаются основным UX для vendor.
 
 **Изменения:**
 
-- **NEW** `src/ui/components/StatusPanel.tsx` — единый компонент:
-  - Props: `wantTokens`, `excludeTokens`, `allActiveTokens` (обязательные); `badges` (ReactNode[], по умолчанию []); `alerts` (ReactNode[], по умолчанию []).
-  - Рендерит: (1) summary-панель с selected/excluded counts + truncated token lists; (2) inline badges после count-строки; (3) alert-блоки под summary.
-  - Возвращает `null` когда нет активных токенов, badges и alerts.
-- **Обновлены 8 страниц** — inline status JSX заменён на `<StatusPanel>`:
-  - BeltPage, AmuletPage, RingPage, RelicPage — стандартный вызов (3 props, без badges/alerts).
-  - JewelPage — `alerts` для amber "hidden mods" warning (ранее в left column children).
-  - WaystonePage — `badges` для corrupted/uncorrupted/delirious (ранее inline string interpolation).
-  - TabletPage — `badges` для type/rarity/uses (ранее inline string interpolation).
-  - VendorPage — `alerts` для yellow verification note (ранее в left column children). Добавлен `status` slot (ранее отсутствовал).
-- Удалены неиспользуемые импорты `countUniqueFamilyKeys` из 6 страниц и `t` из 4 стандартных страниц (Belt/Amulet/Ring/Relic — `t` больше не используется напрямую).
+- **NEW** `src/ui/components/MobileRegexBar.tsx` — sticky-bottom контейнер (`position: sticky; bottom: 0`) для mobile. Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`.
+- **MODIFIED** `src/ui/layout/CategoryLayout.tsx` — добавлен `mobileBar?: ReactNode` slot. Когда передан, `aside` получает `hidden lg:flex` (десктоп-only), а `status` + `sidebar` рендерятся в отдельной mobile-only секции над sticky-bar. Backward compat: без `mobileBar` `aside` виден на всех viewport.
+- **MODIFIED** все 8 страниц категорий — передают `mobileBar={<MobileRegexBar regexOutput={...} alerts={...} />}`. Jewel и Vendor дополнительно прокидывают `alerts` (повторно из StatusPanel) в MobileRegexBar.
+- **MODIFIED** `src/ui/pages/home/HomePage.tsx` — убран `<p>{t(cat.descKey)}</p>` из карточек категорий. Поле `descKey` удалено из массива `categories`.
+- **MODIFIED** `src/ui/pages/vendor/VendorPage.tsx` — `hasRangedTokens={false}` (hide no-op global min/max). `showRound10` prop удалён (тоже не нужен для vendor).
+- **MODIFIED** `src/shared/i18n.ts` — удалены 8 ключей `home.{waystone,tablet,relic,jewel,vendor,belt,ring,amulet}_desc`.
+- **MODIFIED** `src/index.css` — добавлен `.mobile-regex-bar` блок (sticky bottom, backdrop-blur, max-h 60vh, safe-area-inset-bottom).
+- **FIX** (pre-existing bug closed): 4 страницы (Belt/Amulet/Ring/Relic) не импортировали `t` (regression из iter 58 — импорт был удалён как «неиспользуемый», но `t()` вызывается в `header`). JewelPage не импортировал `groupTokensByFamily`. `tsc --noEmit` молчал, но `tsc -b` падал. Импорты восстановлены.
 
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (155 модулей, CSS 42.49 KB / gzip 9.28 KB — −0.15 KB за счёт устранения дублирующихся inline JSX-строк). Lint baseline 59 сохранён.
+**Результат:** 1144 теста зелёные. `tsc -b` clean (исправлен pre-existing bug). Vite build OK. Lint baseline 59 сохранён.
 
 ---
 
@@ -33,6 +33,7 @@
 | # | Issue | Status |
 |---|-------|--------|
 | ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
+| ~~6~~ | `tsc -b` failing — 4 pages missing `t` import (iter 58 regression), JewelPage missing `groupTokensByFamily` | ✅ CLOSED iter 59 |
 
 **Открытых Known Issues нет.**
 
@@ -64,8 +65,8 @@
 | 4 | ✅ iter 56 | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
 | 5 | ✅ iter 57 | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
 | 6 | ✅ iter 58 | Единая панель статусов (`StatusPanel.tsx`) |
-| 7 | ⏳ next | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
-| 8 | ⏳ | Полировка: снять шум, оставить «дорогую тишину» |
+| 7 | ✅ iter 59 | Mobile sticky copy bar (`MobileRegexBar.tsx`) — RegexOutput + alerts в sticky bottom-bar на mobile |
+| 8 | ⏳ next | Полировка: снять шум, оставить «дорогую тишину» |
 | 9 | ⏳ | Документация финальная |
 
 ---
