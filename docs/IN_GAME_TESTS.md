@@ -1,16 +1,16 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Верификация v8:** 2026-06-16 — итерация 38: B0 RESOLVED (broken), D7-3 CONFIRMED WORKING (game patched), Path D — новая стратегия.
+> **Верификация v9:** 2026-06-16 — итерация 39: D1 VERIFIED — Path D работает на 3+ альтернативах + AND-комбинация.
 
 ---
 
-## PoE2 Regex Dialect — VERIFIED (iter 38)
+## PoE2 Regex Dialect — VERIFIED (iter 39)
 
 | Feature | Status | Key test |
 |---------|--------|----------|
 | `\|` OR (single-word, whole quoted group) | ✅ | `"огня\|холоду"`, `"луками\|посохами"` |
-| `\|` OR (multi-word with `.*` inside ONE quoted group) | ✅ | `"увеличение урона.*луками\|увеличение урона.*посохами"` (D7-3, iter 38) |
+| `\|` OR (multi-word with `.*` inside ONE quoted group) | ✅ | `"увеличение урона.*луками\|увеличение урона.*посохами"` (D7-3, iter 38); 3+4 alt + AND (iter 39, D1) |
 | `()` grouping (single-word OR, alone) | ✅ | `"(огня\|холоду)"` |
 | `\d` digit shorthand | ✅ | `"\d.*к максимуму здоровья"` |
 | `{N,}` quantifier | ✅ | `"\d{2,}%.*золота"` |
@@ -83,12 +83,76 @@ When the user wants ANY of N mods from the same family (e.g., damage with differ
 This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C)"` (Tests 16-17).
 
 **Status:**
-- ✅ 2 alternatives verified in-game (D7-3, iter 37)
-- ⚠️ 3+ alternatives: PENDING in-game verification (next iteration)
+- ✅ 2 alternatives verified in-game (D7-3, iter 38)
+- ✅ 3+4 alternatives verified in-game (iter 39, D1) — see below
+- ✅ Path D + AND combination verified in-game (iter 39, D1)
 
 **Fallback options if Path D fails on 3+ alternatives:**
 - (b) UI redesign: each same-family mod becomes a SEPARATE AND filter (mutually exclusive choice in UI)
 - (c) Fall back to AND (user must accept that selecting multiple same-family mods requires ALL to be present, not ANY)
+
+---
+
+## Iteration 39 — D1 VERIFIED (Path D on 3+ alternatives)
+
+3 functional in-game tests, all PASS exactly as predicted. Test items: 16 предметов from `регис/предметы для теста с аффиксами имплиситами_новый.md` (3 кольца + 3 путевых камня + 3 плиты + 3 амулета + 4 самоцвета).
+
+### Test 1 — 4 alternatives (damage family)
+
+**Regex:** `"увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками|увеличение урона.*посохами"`
+
+| Item | Matched mod | Alt |
+|------|-------------|-----|
+| Кольцо «Отвратительное потрясение» | `28% увеличение урона от огня` | `.*огня` |
+| Кольцо «Ненавистное потрясение» | `15% увеличение урона хаосом` | `.*хаосом` |
+| Самоцвет «Племенная лучина» | `15% увеличение урона боевыми посохами` | `.*посохами` |
+| Самоцвет «Гипнотическая сущность» | `6% увеличение урона луками` | `.*луками` |
+
+**Critical FP-control checks (NOT matched):**
+- Самоцвет «Почётная мечта» — has `2% повышение скорости атаки боевыми посохами` (contains `посохами`) but NO `увеличение урона` in same block → `.*` bridge correctly fails
+- Кольцо «Расколотый завиток» — has `Добавляет ... урона от огня к атакам` but prefix is `Добавляет` not `увеличение урона` → correctly NOT matched
+
+**Result:** ✅ PASS — exactly 4 items matched, all FP-control items correctly rejected.
+
+### Test 2 — 3 alternatives (resistance family, cross-category)
+
+**Regex:** `"сопротивлению.*молнии|сопротивлению.*холоду|сопротивлению.*хаосу"`
+
+| Item | Matched mod | Alt |
+|------|-------------|-----|
+| Кольцо «Отвратительное потрясение» | `+35% к сопротивлению молнии` | `.*молнии` |
+| Амулет «Унылый фермуар» | `+12% к сопротивлению холоду` | `.*холоду` |
+| Амулет «Крутящий горжет» | `+24% к сопротивлению молнии` | `.*молнии` |
+| Амулет «Племенной медальон» | `+34% к сопротивлению молнии` + `+14% к сопротивлению хаосу` | both |
+
+**Critical FP-control check (NOT matched):**
+- Кольцо «Расколотый завиток» — has `+13% к сопротивлению всем стихиям` — `всем стихиям` is NOT in alternatives → correctly NOT matched (key FP-control test)
+
+**Result:** ✅ PASS — exactly 4 items matched, FP-control on shared prefix works.
+
+### Test 3 — Path D + AND combination (production scenario)
+
+**Regex:** `"увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками" "сопротивлению.*молнии"`
+
+| Item | Why matched |
+|------|-------------|
+| Кольцо «Отвратительное потрясение» | Has BOTH `28% увеличение урона от огня` (1st group) AND `+35% к сопротивлению молнии` (2nd group) |
+
+**All 15 other items correctly NOT matched** (each missing at least one of the two AND components):
+- «Ненавистное потрясение» — has урона хаосом, no сопротивлению молнии
+- «Гипнотическая сущность» — has урона луками, no сопротивления
+- «Крутящий горжет», «Племенной медальон» — have сопротивлению молнии, no увеличение урона
+- «Расколотый завиток» — has `сопротивлению всем стихиям` (≠ молнии) and no урона-увеличения
+
+**Result:** ✅ PASS — exactly 1 item matched (AND semantics preserved with Path D).
+
+### D1 conclusions
+
+1. **Path D scales to 4+ alternatives** — no degradation observed
+2. **Path D generalizes across prefix families** — verified on damage and resistance
+3. **Path D composes safely with AND** — production use case verified
+4. **FP-control via `.*` bridge works** — different prefix/suffix correctly rejected even when shared words appear
+5. **Path D is ready for ETL implementation (D2)**
 
 ---
 
