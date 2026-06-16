@@ -311,6 +311,32 @@ Categories with priority: ring, amulet, belt, waystone, tablet. Others (jewel, r
 - Home card icons: 44×44px, Sidebar icons: 28×28px (maxHeight/maxWidth constrained)
 - Header title: `text-lg`, Regex output: `text-base`
 
+### Navigation "mode" pattern (iter 56, UI Phase 4)
+
+Navigation is split by viewport:
+
+| Viewport | Component | Layout | Active state |
+|----------|-----------|--------|--------------|
+| ≥ `md` (768px) | `<Sidebar>` (vertical aside, `hidden md:flex`) | Left column, 224px (`w-56`) | `.nav-mode-active` |
+| < `md` | `<MobileNavTabs>` (horizontal scrollable chips, `md:hidden`) | Sticky bar below `<Header>` | `.nav-mode-active` |
+
+Both components consume the same `navItems` array from `src/ui/layout/nav-items.ts` — single source of truth (9 entries: home + 8 categories).
+
+**`.nav-mode-active` CSS class** (defined in `index.css`):
+- `border-left: 3px solid var(--poe-gold)` — gold accent stripe
+- `background`: gold-tinted gradient `linear-gradient(135deg, rgba(200,154,74,0.12) → 0.04)` over `var(--poe-bg-tertiary)`
+- `box-shadow`: `0 0 0 1px rgba(200,154,74,0.08), 0 0 12px rgba(200,154,74,0.10)` (halo + aura glow)
+- `font-weight: 600` (semibold, between normal and bold)
+- Padding-compensation rules (`.nav-mode-link.nav-mode-active` and `.mobile-nav-tab.nav-mode-active`) set `padding-left: calc(<tailwind-px> - 3px)` so icons stay aligned with inactive items.
+
+Pattern echoes Level-1 frames (`.regex-output`, `.affix-header-*`) but is a nav-specific class — do not reuse Level-1 classes on nav items.
+
+**Mobile tabs container (`.mobile-nav-tabs`):**
+- `position: sticky; top: 0; z-index: 20` — stays visible when main content scrolls
+- `background: rgba(13, 11, 9, 0.92)` + `backdrop-filter: blur(4px)` — semi-transparent warm overlay
+- `border-bottom: 1px solid var(--poe-border)`
+- Inner scroll container `.mobile-nav-tabs-scroll` has hidden scrollbar (cross-browser: `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) but scroll/touch/keyboard still works.
+
 ## 13. Optimizer Collapse Indicator
 
 When runtime optimizer replaces multiple tokens with shared regex, ⚡ appears on FilterChip.

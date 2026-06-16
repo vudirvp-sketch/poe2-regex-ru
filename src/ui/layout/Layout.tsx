@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { MobileNavTabs } from './MobileNavTabs'
 
 export function Layout() {
   return (
@@ -9,6 +10,7 @@ export function Layout() {
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0 content-area">
         <Header />
+        <MobileNavTabs />
         <main id="main-content" className="flex-1 overflow-auto p-3 md:p-6" tabIndex={-1}>
           <Outlet />
         </main>

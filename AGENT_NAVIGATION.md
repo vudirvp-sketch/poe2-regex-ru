@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 55 (UI Фаза 3 — `RegexOutput` получил Level 1 frame: gold border + glow).
+> **Entry document.** Read this first. Current state: iter 56 (UI Фаза 4 — навигация как «режимы»: усиленный active-state + mobile tabs).
 
 ---
 
@@ -15,6 +15,9 @@
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `children`. | Adopted by ALL 8 category pages (waystone, ring, amulet, belt, relic, jewel, tablet, vendor). |
+| `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). iter 56. | Single source — do not duplicate nav list in either component. |
+| `src/ui/layout/Sidebar.tsx` | Desktop-only vertical nav (`hidden md:flex`). iter 56: mobile drawer removed. | Mobile nav lives in `MobileNavTabs.tsx`. |
+| `src/ui/layout/MobileNavTabs.tsx` | Mobile-only horizontal scrollable chip tabs (`md:hidden`). Sticky below Header. iter 56. | Replaces previous hamburger drawer. |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
@@ -141,6 +144,11 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **Affix headers** (`.affix-header-prefix` / `-suffix` / `-implicit`): blue / orange / amber colors. Used by `ModList` to label affix groups.
     - **`RegexOutput`** (`.regex-output`): **gold** (`--poe-gold` = `#C89A4A`, brand accent) + glow `box-shadow`. Marks the primary output element. Padding `12px` desktop, `10px` mobile.
     - **Do NOT** re-add inline `style={{ background: ... }}` on `RegexOutput` root div — `.regex-output` CSS owns the background now (inline style was removed iter 55).
+
+22. **Navigation as "modes" (iter 56):** Sidebar is desktop-only (`hidden md:flex`); mobile nav is `<MobileNavTabs>` (horizontal scrollable chip tabs, `md:hidden`, sticky below Header). Both share `navItems` from `src/ui/layout/nav-items.ts` — single source of truth.
+    - **Active state** uses `.nav-mode-active` CSS class (gold border-l 3px + box-shadow glow + gold-tinted gradient bg + font-weight 600). Pattern echoes Level-1 frames but is a nav-specific class — do NOT reuse `.regex-output` or `.affix-header-*` for nav.
+    - **Padding compensation:** `.nav-mode-link.nav-mode-active` and `.mobile-nav-tab.nav-mode-active` set `padding-left: calc(<tailwind-padding> - 3px)` to keep icons aligned with inactive items (which have no border-l). If you change the Tailwind `px-*` on the NavLink, update the calc in `index.css` too.
+    - **No hamburger, no drawer, no focus trap** in `Sidebar.tsx` — all removed iter 56. Do NOT re-add them.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

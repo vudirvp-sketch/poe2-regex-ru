@@ -2,28 +2,30 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 55 — UI Фаза 3 (возвышение `RegexOutput` до Level 1: gold border + glow)
+> **Текущая итерация:** 56 — UI Фаза 4 (навигация как «режимы»: усиленный active-state + mobile tabs)
 
 ---
 
-## iter 55 — UI Фаза 3: RegexOutput Level 1
+## iter 56 — UI Фаза 4: Навигация как «режимы»
 
-**Что:** `<RegexOutput>` получил визуальный Level 1 frame (золотая рамка + свечение + угловые акценты) — соответствует паттерну `.affix-header-*` (prefix/suffix/implicit), но использует золотой brand-accent (`--poe-gold` = `#C89A4A`). Цель — визуально выделить главную функциональную единицу каждой категорийной страницы.
+**Что:** Навигация воспринимается как переключение «режимов» — активный маршрут получает визуальный Level-1-style акцент (gold border-l + glow + tinted bg), а на mobile гамбургер-drawer заменён на горизонтальные sticky-чипсы.
 
-**Изменения — чистый CSS + 2 строки в TSX:**
+**Изменения:**
 
-- `src/index.css` — добавлен блок `.regex-output` (Level 1 frame, gold):
-  - Background: `linear-gradient(135deg, rgba(200,154,74,0.08) → 0.02), var(--poe-bg)` — тёплый gold-tint поверх базового bg.
-  - Border: `1px solid rgba(200,154,74,0.35)` + `border-left: 3px solid var(--poe-gold)`.
-  - Border-radius: `6px`, padding `12px` (mobile: `10px`).
-  - Box-shadow: `0 0 0 1px rgba(200,154,74,0.06), 0 0 18px rgba(200,154,74,0.10)` — двойной glow (halo + aura).
-  - Corner accents (`::before`/`::after`): золотые уголки 8×8px в TR/BL позициях (как у `.affix-header-*`).
-- `src/ui/components/RegexOutput.tsx`:
-  - Удалён inline `style={{ background: 'var(--poe-bg, #0a0a0f)' }}` — background теперь управляется CSS-классом.
-  - Удалены Tailwind утилиты `-mx-1 px-1 py-1` (негативный margin + padding override) — padding теперь часть `.regex-output` frame.
-  - Docstring обновлён: упоминание iter 55 / Phase 3 / Level 1 frame.
+- `src/ui/layout/nav-items.ts` (NEW) — общий массив `navItems` для desktop и mobile (источник истины: 9 пунктов: Главная + 8 категорий).
+- `src/ui/layout/Sidebar.tsx` — упрощён до desktop-only (`hidden md:flex`). Удалены: `mobileOpen` state, focus trap (useEffect/keydown), overlay, hamburger `<button>`, slide-in animation. Активный NavLink получает классы `nav-mode-link nav-mode-active` вместо inline style.
+- `src/ui/layout/MobileNavTabs.tsx` (NEW) — mobile-only (`md:hidden`) горизонтальные scrollable chip-табы. Sticky под Header. Chip = icon (20×20) + label. Использует те же `navItems` + `nav-mode-active` для active-state.
+- `src/ui/layout/Layout.tsx` — добавлен `<MobileNavTabs />` между Header и main.
+- `src/ui/layout/Header.tsx` — убран `pl-12 md:pl-4` → `px-4` (гамбургер удалён, отступ больше не нужен).
+- `src/shared/i18n.ts` — добавлен ключ `'nav.categories': 'Категории'` для aria-label навигации.
+- `src/index.css` — добавлены блоки:
+  - `.nav-mode-active` — gold border-l (3px) + tinted bg (gold gradient поверх `--poe-bg-tertiary`) + box-shadow glow (`0 0 0 1px rgba(200,154,74,0.08), 0 0 12px rgba(200,154,74,0.10)`) + font-weight 600. Паттерн повторяет Level-1 frames (`.regex-output`, `.affix-header-*`).
+  - Padding-compensation: `.nav-mode-link.nav-mode-active` (`padding-left: calc(0.75rem - 3px)`) и `.mobile-nav-tab.nav-mode-active` (`padding-left: calc(0.625rem - 3px)`) — компенсируют 3px border-l, чтобы иконка не смещалась.
+  - `.mobile-nav-tabs` — sticky-top (z-20), semi-transparent warm bg (`rgba(13,11,9,0.92)`), `backdrop-filter: blur(4px)`, border-bottom.
+  - `.mobile-nav-tabs-scroll` — flex row, `overflow-x: auto`, скрытый scrollbar (cross-browser: `scrollbar-width: none`, `::-webkit-scrollbar { display: none }`).
+  - `.mobile-nav-tab` — chip-style (flex-shrink: 0, transparent border, `--chip-bg`).
 
-**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (9 prerendered HTML). Lint baseline 59 сохранён. CSS bundle +~1.5 KB (40.74 KB gzipped 8.93 KB).
+**Результат:** 1144 теста зелёные. TypeScript clean. Vite build OK (154 модуля, 9 prerendered HTML, CSS 40.29 KB / gzip 8.96 KB). Lint baseline 59 сохранён.
 
 ---
 
@@ -60,8 +62,8 @@
 | 1 | ✅ iter 51 | Миграция design tokens (тёплая палитра, удаление light-темы, приглушение bg-forest) |
 | 2 | ✅ iter 52-53 | `CategoryLayout` — 2 колонки desktop / 1 mobile. **Все 8 страниц мигрированы** |
 | 3 | ✅ iter 55 | Возвышение `RegexOutput` до Level 1 (gold border + glow) |
-| 4 | ⏳ next | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
-| 5 | ⏳ | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
+| 4 | ✅ iter 56 | Навигация как «режимы» (усиленный active-state, mobile tabs в Sidebar) |
+| 5 | ⏳ next | Компактизация HomePage (хаб категорий, SeoBlock в `<details>`) |
 | 6 | ⏳ | Единая панель статусов (`StatusPanel.tsx`) |
 | 7 | ⏳ | Mobile sticky copy bar (`MobileRegexBar.tsx`) — заодно переместит RegexOutput на mobile в sticky bottom-bar |
 | 8 | ⏳ | Полировка: снять шум, оставить «дорогую тишину» |

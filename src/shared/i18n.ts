@@ -153,6 +153,9 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // Sidebar feedback
     'sidebar.feedback': 'Баги и идеи → Discord: woonderdad',
+
+    // Navigation
+    'nav.categories': 'Категории',
   },
 };
 

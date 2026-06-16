@@ -538,6 +538,69 @@ main {
   border-radius: 0 0 0 6px;
 }
 
+/* ─── Navigation "mode" active-state (iter 56, UI redesign Phase 4) ─── */
+/* Applied to active NavLink in both Sidebar (desktop vertical) and
+   MobileNavTabs (mobile horizontal). Echoes the Level-1 frame pattern
+   (`.regex-output`, `.affix-header-*`): gold border-l + subtle glow +
+   gold-tinted background — marks the active route as a "mode" rather
+   than a generic highlighted link. */
+.nav-mode-active {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(200, 154, 74, 0.12) 0%, rgba(200, 154, 74, 0.04) 100%),
+    var(--poe-bg-tertiary);
+  border-left: 3px solid var(--poe-gold);
+  box-shadow:
+    0 0 0 1px rgba(200, 154, 74, 0.08),
+    0 0 12px rgba(200, 154, 74, 0.10);
+  font-weight: 600;
+}
+
+/* Compensate for the 3px border-l so the icon stays aligned with
+   inactive items (which have no border-l). */
+.nav-mode-link.nav-mode-active {
+  padding-left: calc(0.75rem - 3px);
+}
+.mobile-nav-tab.nav-mode-active {
+  padding-left: calc(0.625rem - 3px);
+}
+
+/* ─── Mobile horizontal tabs (iter 56, Phase 4) ─── */
+/* Sticky bar below Header. Horizontal scrollable chip list. Hidden on
+   desktop (md:hidden in JSX). Scrollbar hidden visually but scroll
+   still works (touch + wheel + keyboard via Tab on links). */
+.mobile-nav-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(13, 11, 9, 0.92);
+  border-bottom: 1px solid var(--poe-border);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mobile-nav-tabs-scroll {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE10+ */
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-nav-tabs-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.mobile-nav-tab {
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  background: var(--chip-bg);
+}
+.mobile-nav-tab:not(.nav-mode-active):hover {
+  background: var(--chip-bg-hover);
+}
+
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
   .mod-list button[class*="inline-flex"],
