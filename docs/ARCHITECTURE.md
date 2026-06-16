@@ -74,7 +74,7 @@ poe2db.tw/ru/*
 | `"prefix (A\|B)"` (non-`.*` prefix + `()` + `\|`) | BROKEN — matches only prefix broadly | `"повышение (брони\|скорости)"` | ❌ Test 16 |
 | `\d` | Digit shorthand | `\d..` | Yes |
 | `%` `+` | Literals (not special) | `"+66"`, `"% к сопр"` | Yes |
-| `(?!…)` | Negative lookahead — **per-block** | `скорости(?!.*луками)` | Yes |
+| `(?!…)` | Negative lookahead — **bidirectional via `^(?!…).*Z` (iter 46)** | `^(?!.*луками).*скорости` | Yes |
 
 **NOT supported:** `?` (optional), `.*` across blocks, non-greedy quantifiers, backreferences.
 
@@ -90,7 +90,7 @@ poe2db.tw/ru/*
 5. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
 6. **Case insensitive** — verified with Cyrillic.
 7. **`!X` is item-wide** — excludes the entire item if X appears in ANY block.
-8. **`(?!X)` is per-block** — unlike `!`, lookahead only checks the current block. Chain: `(?!.*A)(?!.*B)` works.
+8. **`(?!X)` is per-block, bidirectional via `^(?!…).*Z` (iter 46)** — `Z(?!.*X)` is forward-only (FP if X precedes Z). Anchor with `^` + `.*` bridge to make `.*` inside lookahead cover the WHOLE block: `^(?!.*X).*Z`. Lookbehind `(?<!…)` NOT supported.
 9. **Description/tooltip text is NOT indexed** — not searchable.
 10. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
 
@@ -111,13 +111,13 @@ This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C
 - iter 44: **3 FP-fixes in shared `src/core/`** (user-reported jewel FP):
   1. `removeConflictingExcludes` (core-optimizations.ts) — surgical: removes only conflicting literals from EXCLUDE's OR, not entire EXCLUDE
   2. `applyOptimizationTable` (optimization-strategies.ts) — skips opt-entries with top-level `|` when user's selection is a STRICT SUBSET (`matchedIds.size < entry.ids.length`) — prevents FP from unselected alternatives
-  3. `normalizeAst` in `compiler.ts` — transforms AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...))) inside OR into a single LITERAL with per-block lookahead `X(?!.*A)(?!.*B)...` — avoids nested quotes that broke PoE2 parsing
-  All 1106 tests pass (1094 + 12 new). ETL unchanged (FN=0). Fixes apply globally to all categories.
+  3. `normalizeAst` in `compiler.ts` — transforms AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...))) inside OR into a single LITERAL with lookahead (avoids nested quotes that broke PoE2 parsing). Format refined in iter 46 from `X(?!.*A)(?!.*B)` (forward-only) to `^(?!.*A)(?!.*B).*X` (bidirectional — see iter 46 below).
+- iter 46: **Forward-only `(?!…)` FP — RESOLVED + in-game verified.** iter 44's `X(?!.*A)(?!.*B)` was forward-only — failed when exclude `A` PRECEDED `X` in same block (FP with minion affix «Приспешники имеют … повышение скорости атаки»). **iter 46 FIX:** compiler now produces `^(?!.*A)(?!.*B).*X` — `^`-anchor + `.*` bridge = bidirectional exclude. In-game verified (Tests A+B PASS, Test C confirms old FP). Works in OR-context (`^` applies only to first alt, no leak — Test B verified). One-line change in `compiler.ts` normalizeAst. 4 iter 44 tests updated to new format, 2 NEW backward-exclude regression tests added (minion-блок data). 1108 tests pass.
 
 **Other alternative strategies for multi-word OR:**
 
 - **`.*` bridging within single block:** `"скорости.*копьями"` matches «скорости атаки копьями» — `.*` bridges the gap between "скорости" and "копьями" within one block
-- **`(?!…)` per-block exclusions:** `"скорости(?!.*луками)(?!.*посоха)"` matches «скорости» in blocks without weapon-specific words
+- **`(?!…)` bidirectional exclusions (iter 46):** `"^(?!.*луками).*скорости"` matches «скорости» in blocks without «луками» anywhere (forward-only `скорости(?!.*луками)` would miss «луками … скорости»). Anchor with `^` + `.*` bridge to make `.*` inside lookahead cover the WHOLE block.
 - **AND decomposition:** Instead of one shared regex with `|`, use separate quoted groups per alternative combined via AND
 
 ## 3.1. Deterministic Regex Strategy (8 Principles) — UNIFIED for ALL categories

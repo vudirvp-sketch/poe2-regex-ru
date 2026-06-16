@@ -806,11 +806,12 @@ describe('applyOptimizationTable: strict subset FP prevention (iter 44)', () => 
   });
 });
 
-// ─── iter 44: compiler AND-in-OR with EXCLUDE → per-block lookahead (Bug 3 fix) ───
+// ─── iter 44/46: compiler AND-in-OR with EXCLUDE → anchored lookahead (Bug 3 fix) ───
 
-describe('compile: AND-in-OR with EXCLUDE → per-block lookahead (iter 44)', () => {
+describe('compile: AND-in-OR with EXCLUDE → anchored lookahead (iter 44 → iter 46)', () => {
   it('compiles OR(AND(LITERAL, EXCLUDE(OR))), LITERAL) without nested quotes', () => {
     // The user's bug scenario: token "X" with regexExclude [A, B, C] inside OR
+    // iter 46 format: ^(?!.*A)(?!.*B)(?!.*C).*X|Q
     const ast = or(
       and(
         literal('X'),
@@ -825,17 +826,26 @@ describe('compile: AND-in-OR with EXCLUDE → per-block lookahead (iter 44)', ()
     // No nested quotes inside
     const inner = result.slice(1, -1);
     expect(inner.includes('"')).toBe(false);
-    // Should contain per-block lookahead for each exclude value
+    // iter 46: should START with ^ (anchor at block start, applies only to first alt)
+    expect(inner.startsWith('^')).toBe(true);
+    // Should contain per-block lookahead for each exclude value (in any order)
     expect(inner).toContain('(?!.*A)');
     expect(inner).toContain('(?!.*B)');
     expect(inner).toContain('(?!.*C)');
-    // Should contain the positive LITERAL X
-    expect(inner).toContain('X');
-    // Should contain the other OR alternative Q
+    // iter 46: lookaheads come BEFORE .*X, not after (bidirectional exclude)
+    const lookaheadBlock = inner.slice(0, inner.indexOf('.*X') + 3);
+    expect(lookaheadBlock).toContain('(?!.*A)');
+    expect(lookaheadBlock).toContain('(?!.*B)');
+    expect(lookaheadBlock).toContain('(?!.*C)');
+    // Should contain the positive LITERAL X (after .* bridge)
+    expect(inner).toContain('.*X');
+    // Should contain the other OR alternative Q (without ^ — ^ doesn't leak)
     expect(inner).toContain('|Q');
+    expect(inner.indexOf('|Q')).toBeGreaterThan(inner.indexOf('X'));
   });
 
   it('compiles OR(AND(LITERAL, EXCLUDE(LITERAL))), LITERAL) — single-literal exclude', () => {
+    // iter 46 format: ^(?!.*A).*X|Q (was X(?!.*A)|Q in iter 44)
     const ast = or(
       and(
         literal('X'),
@@ -846,7 +856,7 @@ describe('compile: AND-in-OR with EXCLUDE → per-block lookahead (iter 44)', ()
     const result = compile(ast);
     const inner = result.slice(1, -1);
     expect(inner.includes('"')).toBe(false);
-    expect(inner).toContain('X(?!.*A)');
+    expect(inner).toBe('^(?!.*A).*X|Q');
     expect(inner).toContain('|Q');
   });
 
@@ -880,6 +890,63 @@ describe('compile: AND-in-OR with EXCLUDE → per-block lookahead (iter 44)', ()
     expect(result).toContain('"X"');
     expect(result).toContain('"!A|B"');
     expect(result).toContain('Q');
+  });
+
+  // ─── iter 46: NEW backward-exclude regression tests (minion-block FP root cause) ───
+  //
+  // iter 45 in-game finding: old format `X(?!.*A)` was forward-only — failed when
+  // exclude value PRECEDED the suffix in same block (FP with minion affix
+  // «Приспешники имеют повышение скорости атаки и сотворения чар», where «Приспеш»
+  // is at block start and «повышение скорости атаки» is mid-block).
+  // iter 46 fix: `^(?!.*A).*X` — ^-anchor + .* inside lookahead = bidirectional.
+  // In-game verified (Tests A+B PASS, Test C confirms old FP — see docs/IN_GAME_TESTS.md).
+  //
+  // These tests are STRUCTURAL (simulator does not model `(?!…)` lookahead — Known Issue #2).
+  // They lock the iter 46 compiled format so any regression to forward-only form is caught.
+
+  it('iter 46: backward-exclude compiles to ^(?!.*Приспеш).*повышение скорости атаки (single-quoted)', () => {
+    // Replicates iter 46 in-game Test A scenario:
+    //   user wants «повышение скорости атаки» BUT NOT minion variant
+    //   minion block: «Приспешники имеют X% повышение скорости атаки и сотворения чар»
+    //   exclude value «Приспеш» PRECEDES suffix in same block — root cause of iter 44 FP.
+    const ast = and(
+      literal('повышение скорости атаки'),
+      exclude(literal('Приспеш'))
+    );
+    const result = compile(ast);
+    // Top-level AND (not inside OR) → compiles as item-wide NOT (no transform).
+    // The ^-anchored format only applies to AND-in-OR. This assertion locks the boundary.
+    expect(result).toBe('"повышение скорости атаки" "!Приспеш"');
+  });
+
+  it('iter 46: backward-exclude inside OR compiles to ^-anchored bidirectional format', () => {
+    // Replicates iter 46 in-game Test B scenario (KEY TEST):
+    //   user selects «повышение скорости атаки» (with minion exclude) OR «перезарядки умений»
+    //   expected: ^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений
+    //   - ^ applies only to first alternative (no leak to «перезарядки умений»)
+    //   - .* inside lookahead covers WHOLE block (bidirectional exclude)
+    //   - minions with «Приспеш…повышение скорости атаки» are NOT matched (forward-only FP fixed)
+    const ast = or(
+      and(
+        literal('повышение скорости атаки'),
+        exclude(literal('Приспеш'))
+      ),
+      literal('перезарядки умений')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    // Structural assertions — lock iter 46 format
+    expect(inner).toBe('^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений');
+    // ^-anchor at start of FIRST alternative only
+    expect(inner.startsWith('^(?!.*Приспеш)')).toBe(true);
+    // .* bridge between lookahead block and positive literal
+    expect(inner).toContain('(?!.*Приспеш).*повышение скорости атаки');
+    // Second alternative has NO ^ (no leak)
+    expect(inner).not.toContain('|^');
+    // OR-separator present
+    expect(inner).toContain('|перезарядки умений');
+    // Length within PoE2 hard limit (≈250 chars)
+    expect(result.length).toBeLessThanOrEqual(250);
   });
 });
 
@@ -952,6 +1019,16 @@ describe('iter 44 regression: user-reported FP scenario', () => {
     expect(inner).toContain('(?!.*мечами)');
     expect(inner).toContain('(?!.*без)');
     expect(inner).toContain('(?!.*боевыми)');
+
+    // 2b. iter 46: ^-anchor at start of FIRST alternative only (bidirectional exclude).
+    // Old iter 44 format was `Z(?!.*A)` (forward-only) — failed when exclude value
+    // preceded suffix in same block (FP with «Приспеш…повышение скорости атаки»).
+    // New iter 46 format is `^(?!.*A)(?!.*B)….*Z` — ^ + .* = bidirectional.
+    expect(inner.startsWith('^')).toBe(true);
+    // ^ does NOT leak to other alternatives (in-game verified Test B)
+    expect(inner).not.toContain('|^');
+    // .* bridge between lookahead block and positive literal
+    expect(inner).toContain('.*повышение скорости атаки');
 
     // 3. NO opt-entry alternatives (Bug 2 fixed — strict subset skipped)
     expect(inner).not.toContain('пере.*зарядки.*самострела');

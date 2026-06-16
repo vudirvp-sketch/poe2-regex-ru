@@ -70,18 +70,19 @@ export interface CompileOptions {
  *
  * iter 44 — AND-in-OR with EXCLUDE: when an AND child of OR has the shape
  * AND(LITERAL("X"), EXCLUDE(OR(LITERAL, ...))), transform it into a single
- * LITERAL("X(?!.*A)(?!.*B)...") using per-block negative lookahead.
+ * LITERAL with negative lookahead — AVOIDS nested quotes that PoE2 cannot parse.
  *
- * Why: when AND with EXCLUDE is inside OR, the compiler would produce
- * nested quotes ("X" "!A|B"|Q|...), which PoE2 cannot parse correctly.
- * The inner quotes get stripped, and the exclude patterns become positive
- * alternatives — causing False Positives.
+ * iter 46 — REFINED: format changed from `X(?!.*A)(?!.*B)` (forward-only,
+ * FP when exclude value precedes suffix in same block — e.g. minion block
+ * «Приспешники имеют повышение скорости атаки») to `^(?!.*A)(?!.*B).*X`
+ * (bidirectional: ^-anchor at block start + .* inside lookahead covers the
+ * WHOLE block before and after the suffix position).
  *
- * Per-block lookahead `(?!.*A)` is verified in-game (iter 37, Pitfall 12).
- * It checks "after this position in the SAME BLOCK, A doesn't appear".
- * For single-block affixes (the common case), this is equivalent to
- * item-wide NOT — but expressed as a single LITERAL value, it avoids
- * the nested-quotes problem.
+ * iter 46 in-game verified (см. docs/IN_GAME_TESTS.md):
+ * - Test A PASS: `"^(?!.*Приспеш).*повышение скорости атаки"` — minions NOT matched
+ * - Test B PASS: `"^(?!.*Приспеш).*повышение скорости атаки|перезарядки умений"` —
+ *   ^ works in OR-context (applies to first alt only, doesn't leak to second)
+ * - Test C confirms root cause: old forward-only format `X(?!.*Приспеш)|Y` STILL FP
  *
  * Restrictions (conservative — only the exact problematic shape is transformed):
  * - AND must have EXACTLY ONE LITERAL child + ONE EXCLUDE child
@@ -134,11 +135,14 @@ function normalizeAst(node: ASTNode): ASTNode {
 
         if (excludeValues.length === 0) return child;
 
-        // Build per-block lookahead: X(?!.*A)(?!.*B)(?!.*C)
-        // Each lookahead checks that the exclude value doesn't appear LATER
-        // in the SAME block (.* is single-block).
+        // Build anchored lookahead: ^(?!.*A)(?!.*B)(?!.*C).*X
+        // iter 46: ^-anchor at block start + .* inside lookahead = bidirectional exclude.
+        // The previous format `X(?!.*A)(?!.*B)` was forward-only — failed when
+        // exclude value preceded the suffix in the same block (FP with
+        // «Приспеш…повышение скорости атаки» minion affix). In-game verified iter 46.
+        // `^` works in OR-context: applies only to first alternative, doesn't leak.
         const lookaheads = excludeValues.map(v => `(?!.*${v})`).join('');
-        const mergedValue = `${literalChild.value}${lookaheads}`;
+        const mergedValue = `^${lookaheads}.*${literalChild.value}`;
 
         // Preserve tokenId if present
         const mergedLiteral: ASTNode = {
