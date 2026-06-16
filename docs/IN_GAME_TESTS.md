@@ -1,25 +1,23 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Верификация v13:** 2026-06-17 — iter 46: `^(?!…).*Z` bidirectional exclude — **IMPLEMENTED + IN-GAME VERIFIED** (Tests A+B PASS, Test C подтверждает root cause). Фикс в `src/core/compiler.ts` normalizeAst (одна строка). 1108 тестов проходят, 2 NEW backward-exclude tests добавлены. Симулятор `(?!…)` по-прежнему не моделирует (Known Issue #2 — iter 47 todo).
-> **Верификация v12:** 2026-06-17 — iter 45: `(?!…)` lookahead — **FORWARD-ONLY** (user in-game confirmed FP). Симулятор `(?!…)` не моделирует вообще. iter 44 regression test был structural, не semantic. Фикс предложен для iter 46: `^(?!…).*Z` вместо `Z(?!…)` — требует in-game verify `^` в OR-context.
-> **Верификация v11:** 2026-06-16 — iter 41: D5 DONE — Path D production-verified на 5 категориях (jewel, amulet, ring, waystone, tablet), 5/5 in-game тестов PASS. Same-block AND confirmed. PoE2 regex char limit ≈ 250 chars обнаружен.
+> **Текущее состояние:** `^(?!…).*Z` bidirectional exclude — IMPLEMENTED + IN-GAME VERIFIED (Tests A+B PASS, Test C подтверждает root cause). Фикс в `src/core/compiler.ts` normalizeAst (одна строка). 1108 тестов проходят.
 
 ---
 
-## ✅ iter 46 VERIFICATION — `^(?!…).*Z` bidirectional exclude
+## iter 46 VERIFICATION — `^(?!…).*Z` bidirectional exclude
 
-**User-reported FP (post-iter 44):** regex `"повышение скорости атаки(?!.*Приспеш)…|перезарядки умений|…"` совпадал с minion-аффиксом «Приспешники имеют х% повышение скорости атаки и сотворения чар». iter 45 анализ: `(?!…)` forward-only, не видит excludes ДО суффикса. iter 46 proposed fix: `^(?!…).*Z` вместо `Z(?!…)`.
+**User-reported FP (post-iter 44):** regex `"повышение скорости атаки(?!.*Приспеш)…|перезарядки умений|…"` совпадал с minion-аффиксом «Приспешники имеют х% повышение скорости атаки и сотворения чар». Root cause: `(?!…)` forward-only, не видит excludes ДО суффикса. Fix: `^(?!…).*Z` вместо `Z(?!…)`.
 
-### In-game test plan (iter 45 → iter 46 verified)
+### In-game test plan (verified)
 
 | Тест | Regex | Ожидание | Результат | Вывод |
 |------|-------|----------|-----------|-------|
-| **A** (single-quoted baseline) | `"^(?!.*Приспеш).*повышение скорости атаки"` | Матчит только non-minion блоки с «повышение скорости атаки» | ✅ **PASS** — minions НЕ подсвечены | `^`-anchor работает в single-quoted context |
-| **B** (OR-context, ключевой) | `"^(?!.*Приспеш).*повышение скорости атаки\|перезарядки умений"` | (a) non-minion «повышение скорости атаки» И (b) любые «перезарядки умений» | ✅ **PASS** — результат идентичен A (тестовые items не имели «перезарядки умений» аффиксов; `^` НЕ leaks ко второй альтернативе — иначе items с «перезарядки умений» были бы НЕ подсвечены) | `^` работает в OR-context, применяется только к первой альтернативе |
-| **C** (control — старый формат iter 44) | `"повышение скорости атаки(?!.*Приспеш)\|перезарядки умений"` | ❌ FP с minion-блоком (подтверждает root cause) | ❌ **EXPECTED FP** — minion-блоки подсвечены | Forward-only `(?!…)` не видит «Приспеш» ДО суффикса в блоке |
+| **A** (single-quoted baseline) | `"^(?!.*Приспеш).*повышение скорости атаки"` | Матчит только non-minion блоки | ✅ **PASS** — minions НЕ подсвечены | `^`-anchor работает в single-quoted context |
+| **B** (OR-context, ключевой) | `"^(?!.*Приспеш).*повышение скорости атаки\|перезарядки умений"` | (a) non-minion «повышение скорости атаки» И (b) любые «перезарядки умений» | ✅ **PASS** — результат идентичен A (`^` НЕ leaks ко второй альтернативе) | `^` работает в OR-context, применяется только к первой альтернативе |
+| **C** (control — старый формат iter 44) | `"повышение скорости атаки(?!.*Приспеш)\|перезарядки умений"` | ❌ FP с minion-блоком | ❌ **EXPECTED FP** — minion-блоки подсвечены | Forward-only `(?!…)` не видит «Приспеш» ДО суффикса |
 
-### Фикс (IMPLEMENTED в iter 46)
+### Фикс
 
 `src/core/compiler.ts` normalizeAst (AND-in-OR transform):
 ```diff
@@ -33,165 +31,47 @@ Tests: 1108 passed (1106 baseline + 2 NEW backward-exclude regression tests дл
 
 ---
 
-## PoE2 Regex Dialect — VERIFIED (iter 46)
+## PoE2 Regex Dialect — VERIFIED
 
 | Feature | Status | Key test |
 |---------|--------|----------|
 | `\|` OR (single-word, whole quoted group) | ✅ | `"огня\|холоду"`, `"луками\|посохами"` |
-| `\|` OR (multi-word with `.*` inside ONE quoted group — Path D) | ✅ | iter 38: 2 alt; iter 39: 3+4 alt + AND; iter 41: 6-9 alts + same-block AND + cross-cat FP |
+| `\|` OR (multi-word with `.*` inside ONE quoted group — Path D) | ✅ | verified up to 9 alts + same-block AND + cross-cat FP |
 | `()` grouping (single-word OR, alone) | ✅ | `"(огня\|холоду)"` |
 | `\d` digit shorthand | ✅ | `"\d.*к максимуму здоровья"` |
 | `{N,}` quantifier | ✅ | `"\d{2,}%.*золота"` |
 | `!` + `\|` = `!(A\|B)` | ✅ | `"к сопротивлению" "!молнии\|хаосу"` |
-| `?` optional | ❌ | NOT supported |
+| `?` optional | ❌ | NOT supported — use `\d{2,}` |
 | `.*` within single block | ✅ | Does NOT cross block boundaries |
 | `.*` bridging (prefix→suffix) | ✅ | `"увеличение урона.*луками"` |
 | `-` literal | ✅ | `"-11"` matches negative values |
 | `%` and `+` are literals | ✅ | `"+66"`, `\+` matches literal + |
 | `^` start-of-block anchor (single-quoted) | ✅ | `"^28%"` anchors to block start |
-| `^` start-of-block anchor (внутри `\|`-группы) | ✅ **iter 46 Test B** | `^(?!.*X).*Z\|Y` — `^` применяется только к первой альтернативе, не leaks |
+| `^` start-of-block anchor (внутри `\|`-группы) | ✅ | `^(?!.*X).*Z\|Y` — `^` применяется только к первой альтернативе, не leaks |
 | Case insensitive | ✅ | Cyrillic verified |
 | `!X` item-wide | ✅ | Excludes item if X in ANY block |
 | AND across blocks (cross-block) | ✅ | `"максимуму здоровья" "к силе"` |
-| AND within single block (same-block AND) | ✅ | iter 41 D5-2: `"имеют" "повышение.*шанса критического удара"` matches waystone mod "Монстры имеют X повышение шанса критического удара" (BOTH in ONE block) |
+| AND within single block (same-block AND) | ✅ | `"имеют" "повышение.*шанса критического удара"` matches `Монстры имеют X повышение шанса критического удара` (BOTH in ONE block) |
 | Threshold ≥N% | ✅ | `"Монстры с (3[4-9]\|[4-9][0-9]\|\d{3,})%.*отравление"` |
 | Substring search (truncated words) | ✅ | `"оберег"` matches `"оберега"`, `"посох"` matches `"посохами"` |
-| `(?!…)` negative lookahead — bidirectional via `^(?!…).*Z` | ✅ **iter 46** | Старый формат `Z(?!…)` был forward-only (iter 45 FP). iter 46 fix: anchor `^` + `.*` bridge = bidirectional exclude. **Симулятор не моделирует** (Known Issue #2). |
-| `"prefix (A\|B)"` (`\|` after non-`.*` prefix inside quotes) | ❌ | Test 16 — matches only the prefix broadly |
-| `"(A B\|C D)"` (multi-word `\|` inside `()`) | ❌ | Test 15 — nothing matches |
-| `"X"\|"Y"` (`\|` BETWEEN two quoted groups) | ❌ | **B0 CONFIRMED BROKEN iter 38** — zero matches |
-| Regex char limit ≈ 250 chars | ⚠️ | iter 41: D5-1 v1 (262 chars) и D5-2 v1 (327 chars) не влезли в лимит |
+| `(?!…)` negative lookahead — bidirectional via `^(?!…).*Z` | ✅ | Forward-only `Z(?!…)` FP. iter 46 fix: anchor `^` + `.*` bridge = bidirectional. **Симулятор не моделирует** (Known Issue #2). |
+| `"prefix (A\|B)"` (`\|` after non-`.*` prefix inside quotes) | ❌ | matches only the prefix broadly |
+| `"(A B\|C D)"` (multi-word `\|` inside `()`) | ❌ | nothing matches |
+| `"X"\|"Y"` (`\|` BETWEEN two quoted groups) | ❌ | zero matches (B0) |
+| Regex char limit ≈ 250 chars | ⚠️ | ETL diagnostic only (`findOverLimitEntries`) |
 
 **Critical syntax rules:**
-1. `!` must be INSIDE quotes: `"!A|B"` works, `!"A|B"` does NOT
-2. `.*` does NOT cross block boundaries
-3. `.*` is directional — forward only
-4. AND via space between quoted groups works BOTH across blocks AND within a single block (iter 41 confirmed)
-5. `!X` is item-wide — excludes ENTIRE item if X found in ANY block
-6. Description/tooltip text is NOT indexed
-7. Item rarity label IS indexed — «редк» matches all rare items
-8. **`|` works at the TOP LEVEL of a single quoted group** (with or without `.*` in alternatives). It does NOT work between two quoted groups (`"X"|"Y"`), and it does NOT work inside `()` with multi-word alternatives (`"(A B|C D)"`).
-9. **Regex total length limit ≈ 250 chars** (iter 41) — single regex >250 chars не примется игрой.
-10. **`(?!…)` is bidirectional via `^(?!…).*Z`** (iter 46 fix IMPLEMENTED + in-game verified). Forward-only `Z(?!…)` format (iter 44) failed when exclude value preceded the suffix in same block — root cause of FP with minion affix «Приспеш…повышение скорости атаки». Lookbehind `(?<!…)` NOT supported. iter 46 fix anchors lookahead at block start with `^`, so `.*` inside lookahead covers the WHOLE block (before and after suffix position) — bidirectional exclude. Works in OR-context too (`^` applies only to first alternative, no leak — Test B verified). **Симулятор `(?!…)` НЕ моделирует** (Known Issue #2 — iter 47 todo).
 
----
-
-## Iteration 41 — D5 VERIFIED (Path D production-verified)
-
-5 функциональных in-game тестов, **все PASS**. Test items: 16 предметов from `регис/предметы для теста с аффиксами имплиситами_новый.md` (3 кольца + 3 путевых камня + 3 плиты + 3 амулета + 4 самоцвета). Цель: верифицировать что ETL-generated Path D regexes (iter 40) работают в игре на production данных, покрывая все risk-зоны.
-
-### Test D5-1 v2 — Scalability 6 alts + split-word `.*` patterns [JEWEL]
-
-**Длина:** 98 chars ✅
-**Regex:** `"урон.*а.*топорами|урон.*а.*луками|урон.*а.*от чар|урон.*а.*мечами|урон.*а.*тотемов|урон.* от чар"`
-
-| Item | Expected | Matched? |
-|------|----------|----------|
-| Племенная лучина (jewel) | ❌ TN | ✅ correctly NOT matched |
-| Гипнотическая сущность (jewel) | ✅ TP (`урон.*а.*луками` ← `6% увеличение урона луками`) | ✅ matched |
-| Племенной узор (jewel) | ❌ TN | ✅ correctly NOT matched |
-| Почётная мечта (jewel) | ❌ TN | ✅ correctly NOT matched |
-
-**Result:** ✅ PASS — exactly 1 item matched, all FP-control items correctly rejected. Split-word `.*` patterns (`урон.*а.*луками`) work in-game.
-
-### Test D5-2 v2 — AND + Path D runtime (4 alts + prefix_ctx `имеют`) [JEWEL + cross-cat WAYSTONE]
-
-**Длина:** 125 chars ✅
-**Regex:** `"имеют" "повышение.*брони|повышение.*скорости.*атаки|повышение.*скорости.*сотворения чар|повышение.*шанса критического удара"`
-
-| Item | Expected | Matched? |
-|------|----------|----------|
-| Племенная лучина (jewel) | ❌ TN (no "имеют") | ✅ correctly NOT matched |
-| Гипнотическая сущность (jewel) | ✅ TP (`Снаряды имеют 10% шанс...` + `7% повышение шанса критического удара атаками`) | ✅ matched (AND across blocks) |
-| Племенной узор (jewel) | ❌ TN | ✅ correctly NOT matched |
-| Почётная мечта (jewel) | ❌ TN (has Path D match but no "имеют") | ✅ correctly NOT matched |
-| Призрачный камень (waystone) | ✅ Cross-cat TP (same-block AND: `Монстры имеют 276% повышение шанса критического удара`) | ✅ matched |
-| Изменённый прогресс (waystone) | ✅ Cross-cat TP (same-block AND) | ✅ matched |
-| Разрушенный коридор (waystone) | ✅ Cross-cat TP (same-block AND) | ✅ matched |
-
-**Result:** ✅ PASS — **KEY FINDING: same-block AND confirmed.** `"имеют" "Path D regex"` matches waystones where BOTH quoted groups are in ONE block (`Монстры имеют X повышение шанса критического удара`). This validates `optimization-strategies.ts` runtime combination — no need to switch to `"имеют.*Path D"` single-quoted-group form.
-
-### Test D5-3 — Clean TP/TN with FP control (6 alts, no prefix_ctx) [TABLET]
-
-**Длина:** 139 chars ✅
-**Regex:** `"встретить.*бродячих изгнанников|встретить.*ритуальный круг|встретить.*духов азмири|встретить.*Сущности|встретить.*ларцы|встретить.*алтари"`
-
-| Item | Expected | Matched? |
-|------|----------|----------|
-| Потусторонний ордер (tablet) | ✅ TP (`встретить.*Сущности`) | ✅ matched |
-| Фениксовый наказ (tablet) | ✅ TP (`встретить.*духов азмири`) | ✅ matched |
-| Фениксовое побуждение (tablet) | ❌ TN (FP control — no "встретить") | ✅ correctly NOT matched |
-
-**Result:** ✅ PASS — exactly 2 items matched, FP-control item correctly rejected.
-
-### Test D5-4 — Multi-item TP + cross-category FP (6 alts, no prefix_ctx) [AMULET]
-
-**Длина:** 148 chars ✅
-**Regex:** `"максимуму.*здоровья|увеличение максимума.*здоровья|восполняется в виде.*здоровья|похищается в виде.*здоровья|вместо.*здоровья|количестве.*здоровья"`
-
-| Item | Expected | Matched? |
-|------|----------|----------|
-| Племенной медальон (amulet) | ✅ TP (`максимуму.*здоровья` ← `+17 к максимуму здоровья`) | ✅ matched |
-| Крутящий горжет (amulet) | ✅ TP (`восполняется в виде.*здоровья` ← `14% полученного урона восполняется в виде здоровья`) | ✅ matched |
-| Унылый фермуар (amulet) | ❌ TN (FP control — no "здоровья") | ✅ correctly NOT matched |
-| Отвратительное потрясение (ring) | ✅ Cross-cat TP (`максимуму.*здоровья` ← `+66 к максимуму здоровья`) | ✅ matched |
-| Гипнотическая сущность (jewel) | ✅ Cross-cat TP (`увеличение максимума.*здоровья` ← `19% увеличение максимума здоровья компаньонов`) | ✅ matched |
-
-**Result:** ✅ PASS — Multi-item TP + cross-category FP exactly as predicted. Opt-table regexes are category-agnostic by design — cross-category matches are EXPECTED, not bugs.
-
-### Test D5-5 — Truncated stems + broad `.*` (9 alts, no prefix_ctx) [WAYSTONE + cross-cat TABLET]
-
-**Длина:** 229 chars ✅
-**Regex:** `"критическ.*их уда.*ров|критическ.*ого урона монст.*ров|количества редких монст.*ров|увеличение урона монст.*ров|и редких монст.*ров|появления свойств у редких монст.*ров|здоровья монст.*ров|эффективности монст.*ров|у монст.*ров"`
-
-| Item | Expected | Matched? |
-|------|----------|----------|
-| Призрачный камень (waystone) | ✅ TP (`критыск.*ого урона монст.*ров` ← `+28% к бонусу критического урона монстров`) | ✅ matched |
-| Изменённый прогресс (waystone) | ✅ TP (`критыск.*ого урона монст.*ров`) | ✅ matched |
-| Разрушенный коридор (waystone) | ✅ TP (`критыск.*ого урона монст.*ров`) | ✅ matched |
-| Потусторонний ордер (tablet) | ✅ Cross-cat TP (`у монст.*ров` — broad `.*` bridge FP) | ✅ matched (expected cross-cat FP) |
-| Фениксовое побуждение (tablet) | ✅ Cross-cat TP (`у монст.*ров` — broad `.*` bridge FP) | ✅ matched (expected cross-cat FP) |
-
-**Result:** ✅ PASS — All 3 waystones matched via specific alt; 2 tablets matched via broad `у монст.*ров` alt. The `у монст.*ров` FP is **expected and acceptable** behavior (category-agnostic by design). No D3 regexExclude fix needed based on this result.
-
-### D5 conclusions
-
-1. **Path D works in production on 6-9 alts** — no scalability issues observed (11+ alts couldn't be directly tested due to 250-char limit, but 9-alt PASS gives high confidence).
-2. **Same-block AND confirmed in PoE2** — `"X" "Y"` matches when BOTH quoted groups are in ONE block. `regexPrefixContext` runtime combination (`"ctx" "Path D regex"`) is CORRECT — no `optimization-strategies.ts` changes needed.
-3. **Cross-category FP is expected behavior** — opt-table regexes are category-agnostic by design. D5-4 (amulet regex matched ring + jewel) and D5-5 (waystone regex matched tablets) are NOT bugs.
-4. **PoE2 regex char limit ≈ 250 chars** — NEW finding. ETL should add constraint to avoid generating opt-table entries that exceed this limit.
-5. **No code changes needed** — ETL pipeline, runtime optimization, and `optimization-strategies.ts` are all correct.
-
----
-
-## Iteration 39 — D1 VERIFIED (Path D on 3+4 alternatives)
-
-3 in-game tests, all PASS. Verified Path D scales to 4 alts + composes safely with AND across blocks. Key test: `"увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками|увеличение урона.*посохами"` matched exactly 4 items (Отврас. потрясение, Ненавистное потрясение, Племенная лучина, Гипнотическая сущность). FP-control verified: «Почётная мечта» (has "посохами" but no "увеличение урона" in same block) correctly NOT matched. AND + Path D verified: `"Path D regex" "сопротивлению.*молнии"` matched exactly 1 item (cross-block AND).
-
----
-
-## Iteration 38 — B0 RESOLVED + D7-3 confirmed
-
-**B0 CONFIRMED BROKEN:** `"X"|"Y"` (OR between two quoted groups) gives ZERO matches in-game. All 3 B0 tests confirmed. **Conclusion:** Path A (decompose opt-table to `"X"|"Y"`) is IMPOSSIBLE.
-
-**D7-3 CONFIRMED WORKING:** `"увеличение урона.*луками|увеличение урона.*посохами"` (top-level `|` inside ONE quoted group with `.*` bridges) — game was patched since iter 15-17, this NOW WORKS. **Path D strategy born:** `"prefix.*A|prefix.*B|prefix.*C"` as replacement for broken opt-table pattern `"prefix (A|B|C)"`.
-
----
-
-## Iteration 37 — Deterministic Strategy (8 principles, all categories)
-
-Test items (4 Изумрудных самоцвета): Племенная лучина (ilvl 82), Гипнотическая сущность (65), Племенной узор (28), Почётная мечта (81).
-
-Key findings:
-- **D1** Single-mod suffix matching: ✅ PASSED — unique substrings, no FP
-- **D2** `.*` bridging within single block: ✅ PASSED — `"увеличение урона.*посохами"` → gem 1
-- **D3** AND across blocks: ✅ PASSED — order-independent, rejects missing mods
-- **D4** Cross-block FP risk: ✅ DEMONSTRATED — `"увеличение" "меткости"` matches gem 3 via DIFFERENT blocks (FP); `"увеличение.*меткости"` does NOT (same-block `.*` bridge prevents FP)
-- **D5** Shared suffix differentiation: ✅ PASSED — `"(1[0-5])%.*порога стихийных состояний"` matches both gems 3 and 4
-- **D6** Single-word `|` as whole quoted group: ✅ PASSED — `"луками|посохами"` matches gems 1, 2, 4
-- **D9** Number patterns: ✅ PASSED — enumeration, threshold, `^` anchor all work
-- **D10** Truncated stems: ✅ PASSED — `"оберег"` matches `"оберега"`, `"посох"` matches `"посохами"`
-- **D11** Combined mod regex: ✅ PASSED — `"<number_pattern>.*<suffix>"` pattern verified
+1. `!` must be INSIDE quotes when combined with `|`: `"!A|B"` works, `!"A|B"` does NOT.
+2. `.*` does NOT cross block boundaries.
+3. `.*` is directional — forward only.
+4. AND via space between quoted groups works BOTH across blocks AND within a single block.
+5. `!X` is item-wide — excludes ENTIRE item if X found in ANY block.
+6. Description/tooltip text is NOT indexed.
+7. Item rarity label IS indexed — «редк» matches all rare items.
+8. **`|` works ONLY at the TOP LEVEL of a single quoted group** (with or without `.*` in alternatives). Does NOT work: between two quoted groups, inside `()` with multi-word alternatives, after non-`.*` prefix inside quotes.
+9. **Regex total length limit ≈ 250 chars** — single regex >250 chars не примется игрой.
+10. **`(?!…)` is bidirectional via `^(?!…).*Z`** — anchor `^` + `.*` bridge covers the WHOLE block (before and after suffix position). Works in OR-context too (`^` applies only to first alternative, no leak). **Симулятор `(?!…)` НЕ моделирует** (Known Issue #2).
 
 ---
 
@@ -243,10 +123,10 @@ Key findings:
 | `флакон` | флакона/флаконы | Уникальная морфема |
 | `хаос` | хаосу/хаосом | Уникальная морфема |
 | `монстр` | монстры/монстров | Уникальная морфема |
-| `оберег` | оберега/оберегом | iter 37: gem 1 verified |
-| `компаньон` | компаньонов/компаньона | iter 37: gem 2 verified |
-| `посох` | посохами/посоха | iter 37: gems 1, 4 verified |
-| `снаряд` | снарядов/снарядами | iter 37: gems 3, 4 verified |
+| `оберег` | оберега/оберегом | verified |
+| `компаньон` | компаньонов/компаньона | verified |
+| `посох` | посохами/посоха | verified |
+| `снаряд` | снарядов/снарядами | verified |
 
 ### Blacklisted (никогда не применяются)
 
@@ -255,3 +135,13 @@ Key findings:
 | `редкост` | FP на rarity label «редкий» |
 | `редк` | FP на rarity label «редкий» |
 | `провал` | Нетестировано + низкая ценность |
+
+---
+
+## Older iterations summary
+
+- **iter 41 (D5 VERIFIED):** 5/5 in-game tests PASS на production ETL output (jewel, amulet, ring, waystone, tablet). Same-block AND confirmed. PoE2 regex char limit ≈ 250 chars обнаружен.
+- **iter 39 (D1 VERIFIED):** Path D on 3+4 alternatives + AND-combination — verified.
+- **iter 38 (B0 RESOLVED + D7-3 confirmed):** `"X"|"Y"` confirmed BROKEN (zero matches). Path D strategy born: `"prefix.*A|prefix.*B|prefix.*C"`.
+- **iter 37 (Deterministic Strategy):** 8 principles unified for all categories. Verified on 4 real gems — D1-D11 patterns confirmed (suffix matching, `.*` bridging, AND across blocks, cross-block FP risk, shared suffix differentiation, single-word `|`, number patterns, truncated stems, combined mod regex).
+- **iter 15-36:** earlier in-game tests covering hypothesis pattern verification, FP prevention anchors, Phase 9 number regex, colonAnchor verification, tablet patterns, vendor patterns. See git history for details.

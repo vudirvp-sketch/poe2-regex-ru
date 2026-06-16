@@ -2,123 +2,83 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
+> **Текущая итерация:** 46 — `^(?!…).*Z` bidirectional exclude (in-game verified)
 
 ---
 
-## Текущая итерация: 46 — `(?!…)` bidirectional fix IMPLEMENTED + in-game verified
+## Последний фикс (iter 46)
 
-### Резюме
+**Проблема:** iter 44 fix `X(?!.*A)(?!.*B)` был forward-only — FP, когда exclude-значение `A` предшествовало суффиксу `X` в том же блоке (миньон-аффикс «Приспешники имеют … повышение скорости атаки»).
 
-iter 45 предложил фикс `^(?!…).*Z` (вместо forward-only `Z(?!…)`). iter 46 — пользователь in-game проверил 3 теста (A/B/C), Tests A+B PASS, Test C подтверждает root cause. Фикс внедрён: одна строка в `src/core/compiler.ts` normalizeAst. 4 iter 44 tests обновлены под новый формат, 2 NEW backward-exclude tests добавлены (minion-блок data). 1108 тестов проходят, TypeScript чистый.
-
-### In-game verification (iter 46)
-
-| Тест | Regex | Результат | Вывод |
-|------|-------|-----------|-------|
-| **A** (single-quoted baseline) | `"^(?!.*Приспеш).*повышение скорости атаки"` | ✅ PASS — minions НЕ подсвечены, только non-minion блоки | `^`-anchor работает в single-quoted context |
-| **B** (OR-context, ключевой) | `"^(?!.*Приспеш).*повышение скорости атаки\|перезарядки умений"` | ✅ PASS — результат идентичен A | `^` работает в OR-context, применяется только к первой альтернативе, НЕ leaks ко второй |
-| **C** (control — старый формат iter 44) | `"повышение скорости атаки(?!.*Приспеш)\|перезарядки умений"` | ❌ FP — minion-блоки подсвечены (как и ожидалось) | Подтверждает root cause: forward-only `(?!…)` не видит excludes ДО суффикса |
-
-**Итог:** A+B PASS → фикс `^(?!…).*Z` внедрён. Альтернатива (ETL-level detection tokens) НЕ нужна.
-
-### Фикс iter 46 (IMPLEMENTED)
-
-**Одна строка в `src/core/compiler.ts`** (normalizeAst, AND-in-OR transform):
-
+**Фикс (1 строка в `src/core/compiler.ts` `normalizeAst`):**
 ```diff
 - const mergedValue = `${literalChild.value}${lookaheads}`;
 + const mergedValue = `^${lookaheads}.*${literalChild.value}`;
 ```
+Теперь produces `^(?!.*A)(?!.*B).*X` — `^`-anchor + `.*` bridge = bidirectional exclude. In-game verified (Tests A+B PASS, Test C подтверждает root cause). Works in OR-context (`^` применяется только к первой альтернативе, не leaks).
 
-**Production regex для пользовательского кейса** (jewel.mod_am4lla + 3 sibling literals):
-```
-"^(?!.*Приспеш)(?!.*топорами)(?!.*луками)(?!.*самострелами)(?!.*кинжалами)(?!.*посохами)(?!.*мечами)(?!.*без)(?!.*боевыми).*повышение скорости атаки|перезарядки умений|передвижения|атаки копьями"
-```
-Длина: 195 chars ≤ 250 ✅
+**Production regex для пользовательского кейса** (jewel.mod_am4lla + 3 sibling literals): `"^(?!.*Приспеш)(?!.*топорами)(?!.*луками)(?!.*самострелами)(?!.*кинжалами)(?!.*посохами)(?!.*мечами)(?!.*без)(?!.*боевыми).*повышение скорости атаки|перезарядки умений|передвижения|атаки копьями"` (195 chars ≤250 ✅).
 
-### Аудит использования in-game verified паттернов (iter 46)
+**Tests:** 1108 passing (+2 NEW backward-exclude regression tests для minion-блок data). TypeScript clean.
 
-| Паттерн | In-game verified | Используется оптимально? |
-|---------|------------------|--------------------------|
-| Path D (`prefix.*A\|prefix.*B\|...`) | ✅ iter 41 | ✅ Да |
-| `.*` within single block | ✅ iter 37 | ✅ Да |
-| `\|` top-level в одной quoted group | ✅ iter 38-41 | ✅ Да |
-| `^` start-of-block anchor (single-quoted) | ✅ Phase 9b | ✅ Да (RANGE) |
-| `^` start-of-block anchor (OR-context) | ✅ **iter 46 Test B** | ✅ Да (LITERAL + excludes с iter 46 fix) |
-| `!` item-wide | ✅ iter 14 | ✅ Да (top-level AND) |
-| `(?!…)` per-block forward-only | ⚠️ iter 45 (FP root cause) | ✅ **iter 46 FIX** — `^(?!…).*Z` bidirectional |
-| Number enumeration | ✅ Phase 9 | ✅ Да |
-| Truncated stems | ✅ iter 37 | ✅ Да |
-| Subset-skip opt-entry (iter 44) | n/a (logical) | ✅ Да |
+## In-game verification (iter 46)
 
-### Известные проблемы
+| Тест | Regex | Результат | Вывод |
+|------|-------|-----------|-------|
+| **A** (single-quoted baseline) | `"^(?!.*Приспеш).*повышение скорости атаки"` | ✅ PASS | `^`-anchor работает в single-quoted context |
+| **B** (OR-context, ключевой) | `"^(?!.*Приспеш).*повышение скорости атаки\|перезарядки умений"` | ✅ PASS | `^` работает в OR-context, применяется только к первой альтернативе, НЕ leaks ко второй |
+| **C** (control — старый формат iter 44) | `"повышение скорости атаки(?!.*Приспеш)\|перезарядки умений"` | ❌ FP (expected) | Подтверждает root cause: forward-only `(?!…)` не видит excludes ДО суффикса |
+
+## Известные проблемы (Known Issues)
 
 | # | Issue | Impact | Status |
 |---|-------|--------|--------|
 | ~~1~~ | ~~`(?!…)` forward-only FP~~ | ~~HIGH~~ | ✅ **CLOSED iter 46** — fix `^(?!…).*Z` IMPLEMENTED + in-game verified |
-| 2 | **Симулятор не моделирует `(?!…)`** — `poe2-regex-matcher.ts` не токенизирует lookahead → regression tests structural, не semantic | MEDIUM | OPEN — нужен extension tokenizer для `(?!…)` (iter 47 todo) |
+| 2 | **Симулятор не моделирует `(?!…)`** — `poe2-regex-matcher.ts` не токенизирует lookahead → regression tests structural, не semantic | MEDIUM | OPEN — iter 47 todo |
 | ~~3~~ | ~~`^` в OR-context не верифицирован in-game~~ | ~~MEDIUM~~ | ✅ **CLOSED iter 46** — Test B PASS |
-| 4 | **AND-in-OR с regexPrefixContext + LITERAL + EXCLUDE** — compiler порождает nested quotes для этого расширенного shape (rare case, Pitfall 11) | LOW | OPEN |
-| 5 | **PoE2 regex char limit ≈ 250 chars** — 2 over-limit entries в jewel | MEDIUM | DIAGNOSTIC iter 42 |
+| 4 | **AND-in-OR с regexPrefixContext + LITERAL + EXCLUDE** — compiler порождает nested quotes для этого расширенного shape (rare case, AGENT_NAVIGATION §8 Pitfall 11) | LOW | OPEN |
+| 5 | **PoE2 regex char limit ≈ 250 chars** — 2 over-limit entries в jewel (317, 260 chars) | MEDIUM | DIAGNOSTIC only — entries kept for subset selection |
 
-### Оптимальные стратегии (итог)
+## Оптимальные стратегии (итог)
 
 | Сценарий | Стратегия | Статус |
 |----------|-----------|--------|
 | Token с excludes в OR mode | `^(?!.*X)(?!.*Y).*Z` | ✅ iter 46 IMPLEMENTED (bidirectional) |
-| Token с excludes в top-level AND | `"Z" "!X\|Y"` (item-wide `!`, iter 14) | ✅ без изменений |
-| Same-family OR (Path D) | `"prefix.*A\|prefix.*B\|..."` | ✅ production-verified iter 41 |
+| Token с excludes в top-level AND | `"Z" "!X\|Y"` (item-wide `!`) | ✅ без изменений |
+| Same-family OR (Path D) | `"prefix.*A\|prefix.*B\|..."` | ✅ production-verified |
 | Number-anchored RANGE | `^N.*suffix` (Phase 9b) | ✅ без изменений |
 
----
-
-## Предыдущая итерация: 45 — анализ FP «Приспеш» (forward-only `(?!…)`)
-
-Анализ без правок кода: root cause `(?!…)` forward-only, simulator gap, proposed fix `^(?!…).*Z`. См. worklog Task 45.
-
-### Детерминированная стратегия регексов (8 принципов)
-
-| # | Принцип | Описание |
-|---|---------|----------|
-| 1 | **One Mod = One Quoted Group** | Каждый выбранный мод → одна quoted group |
-| 2 | **Multi-Mod = AND Across Blocks** | N модов → N quoted groups через пробел |
-| 3 | **`\|` Scope — TOP LEVEL** | `\|` работает только на верхнем уровне одного quoted group |
-| 4 | **`.*` Bridging Within Single Block** | `"prefix.*suffix"` мостит число и слова в одном блоке |
-| 5 | **Suffix Uniqueness** | Кратчайший suffix, уникальный для мода в категории |
-| 6 | **Shared Suffix → Number Enumeration** | `"(1[0-5])%.*suffix"` |
-| 7 | **Cross-Block FP Risk** | `"X" "Y"` может-match разные блоки → использовать `.*` bridge |
-| 8 | **Same-Family OR → Path D** | `"prefix.*A\|prefix.*B\|prefix.*C"` — production-verified (iter 41). Constraint: ≤250 chars |
-
-### Подтверждённые ограничения PoE2
+## Подтверждённые ограничения PoE2
 
 | Синтаксис | Работает? | Примечание |
 |-----------|-----------|------------|
 | `\|` между одиночными словами | ✅ | `"Бездн\|Делир"` |
-| `\|` top-level + `.*` мосты (Path D) | ✅ | iter 38-41 |
+| `\|` top-level + `.*` мосты (Path D) | ✅ | до 9 альтернатив |
 | `\|` между quoted groups | ❌ | zero matches (B0) |
 | `\|` многословный внутри `()` | ❌ | nothing matches |
-| Пробел = AND (same-block + cross-block) | ✅ | iter 41 |
+| Пробел = AND (same-block + cross-block) | ✅ | |
 | `.*` внутри одного блока | ✅ | |
-| `(?!…)` per-block forward-only | ⚠️ | **iter 46 FIX**: используй `^(?!…).*Z` (bidirectional) |
-| `!` item-wide | ✅ | iter 14; для top-level AND (не внутри OR) |
-| `^` start-of-block anchor (single-quoted) | ✅ | Phase 9b |
-| `^` start-of-block anchor (OR-context) | ✅ | **iter 46 Test B verified** |
+| `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` (iter 46) |
+| `!` item-wide | ✅ | для top-level AND (не внутри OR) |
+| `^` start-of-block anchor (single-quoted + OR-context) | ✅ | |
 | Number enumeration | ✅ | |
-| Regex char limit ≈ 250 chars | ⚠️ | diagnostic iter 42 |
+| Regex char limit ≈ 250 chars | ⚠️ | diagnostic-only |
 
-### Path D — финальный статус
+## Path D — финальный статус
 
 | Шаг | Статус |
 |-----|--------|
-| D1 In-game test | ✅ iter 39 |
-| D2 ETL + Phase D | ✅ iter 40 |
-| D3 regexExclude усечённые основы | ⏳ pre-analysis iter 43, не блокирует |
-| D4 Runtime совместимость | ✅ iter 40 |
-| D5 Production verification | ✅ iter 41 |
-| D6 Все категории | ✅ iter 41 |
-| D7 Char-limit diagnostic | ✅ iter 42 |
+| D1 In-game test | ✅ |
+| D2 ETL + Phase D | ✅ |
+| D3 regexExclude усечённые основы | ⏳ pre-analysis only, не блокирует |
+| D4 Runtime совместимость | ✅ |
+| D5 Production verification (5 категорий) | ✅ |
+| D6 Все категории | ✅ |
+| D7 Char-limit diagnostic | ✅ |
 
-### SEO-статус: ✅ полный набор реализован
+## SEO-статус: ✅ полный набор реализован
+
+См. `docs/SEO_PLAN.md` для ручной верификации GSC/Яндекс/Bing.
 
 ---
 Контакты: Discord **woonderdad**

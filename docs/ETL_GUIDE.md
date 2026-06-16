@@ -1,6 +1,6 @@
 # PoE2 Regex Architect — ETL Guide
 
-> **Version:** 15.0 | **Date:** 2026-06-16
+> **Version:** 16.0 | **Date:** 2026-06-17
 
 ---
 
@@ -145,7 +145,7 @@ Each mod object: `{ Name, Level, ModGenerationTypeID, ModFamilyList, DropChance,
 
 ## 8. Compute Regex Algorithm
 
-**Module structure (since iteration 18):**
+**Module structure:**
 - `compute-regex.ts` — Entry point: types + `computeMinimalUniqueSubstring` + `computeAllRegexes` + re-exports
 - `compute-regex-core.ts` — Template extraction (`normalizeTemplate`, `extractTemplateSuffix/Extended/Prefix`), uniqueness (`isSuffixUniqueInCategory`, `findShortestUniqueSuffix`), PoE2 validation (`containsPoE2Grouping`, `regexMatchesRawText`), text utilities
 - `compute-regex-strategies.ts` — Strategy implementations: `substringSearchFallback`, `tryWordTruncation`, `computeExcludePatterns`, `generateTruncatedSuffixes`, `checkYofication`, `isExcludeValid`
@@ -219,7 +219,7 @@ After FP repair, `patchOptimizationEntries()` enriches optimization entries with
 
 ## 12. Path D + Char-Limit Diagnostic (Step 4, Phase D + D1)
 
-### Path D transformation (iter 40, PRODUCTION-VERIFIED iter 41)
+### Path D transformation (PRODUCTION-VERIFIED)
 
 PoE2 cannot parse `()` with multi-word `|` inside a quoted group `"..."` (Tests 15-17). Path D replaces `"prefix(A|B|C)"` with `"prefix.*A|prefix.*B|prefix.*C"` — single quoted group, top-level `|`, `.*` bridges.
 
@@ -228,11 +228,11 @@ PoE2 cannot parse `()` with multi-word `|` inside a quoted group `"..."` (Tests 
 - Phase D in `compute-optimizations.ts` (after Phase C dialect opt) — applies `pathDTransform()` to entries containing alternation groups
 - `reoptimizeTable()` in `iterative-optimizer.ts` — applies Path D to new/updated entries
 
-**Status:** 327/529 opt-table entries in Path D format, 0 broken `()`-with-`|` remain. Production-verified iter 41 on 5 categories (jewel, amulet, ring, waystone, tablet), 5/5 in-game tests PASS, 6-9 alts verified.
+**Status:** 327/529 opt-table entries in Path D format, 0 broken `()`-with-`|` remain. Production-verified on 5 categories (jewel, amulet, ring, waystone, tablet), 5/5 in-game tests PASS, 6-9 alts verified.
 
-### Char-limit diagnostic (iter 42)
+### Char-limit diagnostic
 
-PoE2 silently rejects single regex strings >~250 chars (iter 41 D5-1v1 with 262 chars and D5-2v1 with 327 chars both failed in-game). Path D entries with many alternatives (10+) can exceed this limit.
+PoE2 silently rejects single regex strings >~250 chars (in-game confirmed: 262-char and 327-char regexes both failed). Path D entries with many alternatives (10+) can exceed this limit.
 
 **Implementation:**
 - `POE2_REGEX_CHAR_LIMIT = 250` constant in `scripts/etl/path-d-transform.ts` (canonical source of truth)
