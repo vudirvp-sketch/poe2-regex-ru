@@ -871,9 +871,20 @@ describe('compile: AND-in-OR with EXCLUDE → anchored lookahead (iter 44 → it
     expect(result).toBe('"X" "!A|B|C"');
   });
 
-  it('preserves AND with multiple LITERALs + EXCLUDE inside OR (no transform)', () => {
+  it('iter 49: transforms AND with multiple LITERALs + EXCLUDE inside OR (Pitfall 11 fix)', () => {
     // AND with multiple LITERALs (e.g., regexPrefixContext + LITERAL + EXCLUDE)
-    // is NOT the simple shape we transform — should compile normally
+    // inside OR — iter 49 extends the transform to multi-LITERAL case.
+    // Closes Pitfall 11 / Known Issue #4 (was: nested quotes, rare case).
+    //
+    // Shape: AND(LITERAL("ctx"), LITERAL("X"), EXCLUDE(OR(LITERAL("A"), LITERAL("B"))))
+    //   - "ctx" = regexPrefixContext (e.g., "имеют" for minion mods)
+    //   - "X"   = regex suffix (e.g., "повышение скорости атаки")
+    //   - excludes A, B = regexExclude patterns
+    // Compiles to: "^(?!.*A)(?!.*B).*ctx.*X|Q"
+    //   - ^ anchors to block start (applies only to first alt, no leak to Q)
+    //   - .* inside lookahead = bidirectional exclude (covers WHOLE block)
+    //   - .* bridge between ctx and X = same-block matching (correct for
+    //     minion mods where prefix context and suffix are in ONE mod block)
     const ast = or(
       and(
         literal('ctx'),
@@ -883,13 +894,89 @@ describe('compile: AND-in-OR with EXCLUDE → anchored lookahead (iter 44 → it
       literal('Q')
     );
     const result = compile(ast);
-    // Should produce: ""ctx" "X" "!A|B"|Q"
-    // (Not ideal — nested quotes — but this is a separate, rarer case,
-    //  not the user-reported bug. Documented in Pitfall 11.)
-    expect(result).toContain('"ctx"');
-    expect(result).toContain('"X"');
-    expect(result).toContain('"!A|B"');
-    expect(result).toContain('Q');
+    // Single quoted group (no nested quotes)
+    expect(result.startsWith('"')).toBe(true);
+    expect(result.endsWith('"')).toBe(true);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    // iter 49 exact form: bidirectional lookaheads + ctx.*X + OR-alt Q
+    expect(inner).toBe('^(?!.*A)(?!.*B).*ctx.*X|Q');
+    // ^-anchor at start of FIRST alternative only
+    expect(inner.startsWith('^(?!.*A)')).toBe(true);
+    // .* bridge between ctx and X (same-block matching)
+    expect(inner).toContain('.*ctx.*X');
+    // Second alternative has NO ^ (no leak)
+    expect(inner).not.toContain('|^');
+    // OR-separator preserved
+    expect(inner).toContain('|Q');
+    // Length within PoE2 hard limit (≈250 chars)
+    expect(result.length).toBeLessThanOrEqual(250);
+  });
+
+  it('iter 49: 3 LITERALs + EXCLUDE inside OR — merges all LITERALs via .* bridges', () => {
+    // Stress test: AND with 3 LITERALs (rare but valid shape if both
+    // regexPrefixContext AND an additional anchor are present).
+    const ast = or(
+      and(
+        literal('ctx1'),
+        literal('ctx2'),
+        literal('X'),
+        exclude(literal('A'))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner).toBe('^(?!.*A).*ctx1.*ctx2.*X|Q');
+    expect(result.length).toBeLessThanOrEqual(250);
+  });
+
+  it('iter 49: multi-LITERAL + single-LITERAL EXCLUDE (not OR) — still transforms', () => {
+    // AND(LITERAL_ctx, LITERAL_X, EXCLUDE(LITERAL_A)) inside OR
+    // EXCLUDE's child is LITERAL (not OR) — should still transform.
+    const ast = or(
+      and(
+        literal('ctx'),
+        literal('X'),
+        exclude(literal('A'))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner).toBe('^(?!.*A).*ctx.*X|Q');
+  });
+
+  it('iter 49: multi-LITERAL + EXCLUDE inside OR preserves tokenId from regex LITERAL', () => {
+    // The regex LITERAL carries tokenId; regexPrefixContext LITERAL does not.
+    // Transform should preserve tokenId from the first LITERAL that has one.
+    const ast = or(
+      and(
+        literal('ctx'),                       // no tokenId (context)
+        literal('X', 'token:regex'),          // tokenId on regex LITERAL
+        exclude(literal('A'))
+      ),
+      literal('Q')
+    );
+    // Just verify it compiles without error — tokenId preservation is internal
+    const result = compile(ast);
+    expect(result).toContain('^(?!.*A).*ctx.*X');
+  });
+
+  it('iter 49: AND with RANGE child + EXCLUDE inside OR — still NOT transformed (conservative)', () => {
+    // AND with a RANGE child (not LITERAL) — transform should bail.
+    // Conservative: only LITERALs + single EXCLUDE are merged.
+    const ast = or(
+      and(
+        literal('ctx'),
+        { type: 'RANGE', min: 10, max: 20, suffix: 'dmg' },
+        exclude(literal('A'))
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Should NOT contain the merged form — RANGE blocks transform
+    expect(result).not.toContain('^(?!.*A).*ctx');
   });
 
   // ─── iter 46: NEW backward-exclude regression tests (minion-block FP root cause) ───

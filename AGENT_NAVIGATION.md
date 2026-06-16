@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 48 (`(?!…)` lookahead tokenizer — simulator now models negative lookahead semantically).
+> **Entry document.** Read this first. Current state: iter 49 (`normalizeAst` multi-LITERAL AND-in-OR transform — closes Pitfall 11 / Known Issue #4).
 
 ---
 
@@ -51,7 +51,7 @@ pnpm dev                  # Vite dev server
 pnpm build                # tsc + vite build + shell prerender (no Playwright)
 pnpm build:full           # tsc + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
-pnpm test                 # Vitest (all tests) — current: 1108 passing
+pnpm test                 # Vitest (all tests) — current: 1132 passing
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # ETL without cache (regenerate all)
 pnpm etl:check-stale      # Check source HTML staleness
@@ -69,7 +69,7 @@ pnpm analyze-fn           # FN/FP analysis report
 | `core-optimizations.ts` | Phase 1 dedup + Phase 4 conflicting-exclude removal | `deduplicateOrGroups`, `removeConflictingExcludes` (surgical — removes only conflicting literals, not entire EXCLUDE), `expandTokenId`, `getValueKey` |
 | `optimization-strategies.ts` | Phase 2 opt-table + Phase 3 suffix truncation | `applyOptimizationTable` (skips opt-entries with top-level `\|` on STRICT SUBSET — prevents FP), `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
-Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL, EXCLUDE) inside OR**: produces `^(?!.*A)(?!.*B).*X` (bidirectional, in-game verified). Restrictive: only applies when AND has exactly one LITERAL + one EXCLUDE child whose inner is LITERAL or OR(LITERAL,...).
+Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE) inside OR**: produces `^(?!.*A)(?!.*B).*lit1.*lit2.*...` (bidirectional, in-game verified iter 46; extended to multi-LITERAL iter 49 — closes Pitfall 11). Restrictions: ≥1 LITERAL + exactly 1 EXCLUDE whose inner is LITERAL or OR(LITERAL,...); all other children must be LITERALs (no RANGE/AND/MULTI_RANGE).
 
 ## 6. PoE2 Regex Dialect (VERIFIED IN-GAME)
 
@@ -89,7 +89,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL, EXCLUDE) in
 | `[]` | Character class | ✅ |
 | `\d` | Digit shorthand | ✅ |
 | `{N,}` | Quantifier "N or more" | ✅ |
-| `(?!…)` Negative lookahead — bidirectional via `^(?!…).*Z` | ✅ in-game verified | Forward-only `Z(?!…)` is FP. Lookbehind `(?<!…)` NOT supported. **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED).** Semantic regression tests: `tests/core/poe2-regex-matcher.test.ts` Section 11. |
+| `(?!…)` Negative lookahead — bidirectional via `^(?!…).*Z` | ✅ in-game verified | Forward-only `Z(?!…)` is FP. Lookbehind `(?<!…)` NOT supported. **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED). Multi-LITERAL AND-in-OR transform extended iter 49 (Known Issue #4 CLOSED).** Semantic regression tests: `tests/core/poe2-regex-matcher.test.ts` Sections 11 + 12. |
 | Regex char limit ≈ 250 chars | Single regex >250 chars silently rejected by game | ⚠️ ETL diagnostic only (`findOverLimitEntries`) |
 
 **NOT supported:** `?` (optional), `$` (unreliable), `.*` across blocks, non-greedy, backreferences.
@@ -120,12 +120,12 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL, EXCLUDE) in
 8. **`getValueKey` for RANGE** must include ALL distinguishing fields.
 9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key — no text duplication.
 10. **`|` scope:** `|` works ONLY at TOP LEVEL of ONE quoted group (with or without `.*` in alternatives). Does NOT work (a) between two quoted groups, (b) inside `()` with multi-word alternatives, (c) after non-`.*` prefix inside quotes.
-11. **AND-in-OR with EXCLUDE — PARTIALLY handled:** Compiler transform covers `AND(LITERAL, EXCLUDE(LITERAL|OR(LITERAL,...)))` inside OR → produces `^(?!…).*Z`. **NOT YET handled:** AND with multiple LITERALs + EXCLUDE (e.g., `regexPrefixContext + LITERAL + EXCLUDE`) — produces nested quotes. Rare. Tracked as Known Issue #4 (Pitfall 11).
+11. **AND-in-OR with EXCLUDE — FULLY handled (iter 49):** Compiler transform covers `AND(LITERAL..., EXCLUDE(LITERAL|OR(LITERAL,...)))` inside OR → produces `^(?!.*A).*lit1.*lit2.*...` (single quoted group, no nested quotes). Multi-LITERAL merge via `.*` bridges — correct for minion mods where prefix context ("имеют") and suffix ("повышение...") are in the SAME mod block. iter 49 closes Pitfall 11 / Known Issue #4.
 12. **`(?!…)` bidirectional via `^(?!…).*Z`:** `Z(?!.*X)` is forward-only — fails if exclude `X` PRECEDES `Z` in same block. Fix: anchor with `^` + `.*` bridge so lookahead covers the WHOLE block. Works in OR-context (`^` applies only to first alt, no leak). +3 chars per LITERAL, still ≤250.
 13. **regexExclude word forms:** Use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
 14. **Opt-table strict-subset skip:** `applyOptimizationTable` SKIPS opt-entries with top-level `|` when user's selection is a STRICT SUBSET (`matchedIds.size < entry.ids.length`). Plain shared-substring entries (no `|`) are still applied on subset (Phase 1 dedup handles them safely).
 15. **Cross-block FP risk:** `"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT mod blocks. Use `.*` bridge in ONE quoted group (`"X.*Y"`) to force same-block match. Note: `"X" "Y"` ALSO matches when X and Y are in the SAME block.
-16. **`(?!…)` lookahead tokenized explicitly (iter 48 — Known Issue #2 CLOSED):** Tokenizer detects `(?!` as `lookaheadNegOpen`, parser creates `lookaheadNeg` AST node, matcher handles as zero-width assertion (succeeds iff inner does NOT match at current position). For `^(?!.*X).*Z`: `^`-anchor + `.*` inside lookahead = bidirectional block-wide absence. Semantic regression tests in `tests/core/poe2-regex-matcher.test.ts` Section 11 (minion-block data from регис/Самоцветы моды.md:144 + Амулеты моды.md:57).
+16. **`(?!…)` lookahead tokenized explicitly (iter 48 — Known Issue #2 CLOSED):** Tokenizer detects `(?!` as `lookaheadNegOpen`, parser creates `lookaheadNeg` AST node, matcher handles as zero-width assertion (succeeds iff inner does NOT match at current position). For `^(?!.*X).*Z`: `^`-anchor + `.*` inside lookahead = bidirectional block-wide absence. iter 49 extends the compiler transform to multi-LITERAL case (`AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...))` → `^(?!.*X).*ctx.*regex`) — closes Pitfall 11 / Known Issue #4. Semantic regression tests in `tests/core/poe2-regex-matcher.test.ts` Sections 11 (iter 48) + 12 (iter 49).
 17. **PoE2 regex char limit ≈ 250 chars:** Single regex string >250 chars is silently rejected. ETL `findOverLimitEntries()` logs warnings; entries are kept (useful for subset selection — compiler picks matching subset when fewer ids are selected).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)

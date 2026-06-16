@@ -2,30 +2,24 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 48 — `(?!…)` lookahead tokenizer (simulator semantic regression)
+> **Текущая итерация:** 49 — Pitfall 11 fix (multi-LITERAL AND-in-OR + EXCLUDE)
 
 ---
 
-## Последний фикс (iter 48)
+## Последний фикс (iter 49)
 
-**Проблема (Known Issue #2):** Симулятор `src/core/poe2-regex-matcher.ts` НЕ моделировал `(?!…)` — `?` молча дропался в `parseSequence` (когда items.length===0), `!` становился block-wide negation. Регрессионные тесты для `(?!…)` были STRUCTURAL (compile-string shape), НЕ semantic.
+**Проблема (Known Issue #4 / Pitfall 11):** Compiler transform в `src/core/compiler.ts` `normalizeAst` покрывал только `AND(LITERAL, EXCLUDE)` с РОВНО ОДНИМ LITERAL + одним EXCLUDE. Когда токен имеет ОБА `regexPrefixContext` И `regexExclude` (6 cases в amulet, 6 в jewel, 8 в ring — minion mods), `buildLiteralNode` порождает `AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...))` (3 child). В OR-context это компилировалось в nested quotes (`"ctx" "regex" "!A|B"|other`), которые PoE2 не парсит.
 
-**Фикс (3 surgical изменения в `src/core/poe2-regex-matcher.ts`):**
-1. **Tokenizer:** `(?!` детектится как `lookaheadNegOpen` (вместо groupOpen + optional). Stack-based paren tracking: `)` после lookahead → `lookaheadClose`, иначе `groupClose`.
-2. **Parser:** новый AST node `{ type: 'lookaheadNeg', inner }` (zero-width assertion).
-3. **Matcher:** `case 'lookaheadNeg'` — succeed iff `inner` НЕ матчит с текущей позиции. Для `^(?!.*X)`: anchored at 0, `.*X` matches iff X есть где-то в блоке → lookahead = bidirectional block-wide absence.
+**Фикс (1 surgical изменение в `src/core/compiler.ts` `normalizeAst` case 'OR'):**
+- Заменена проверка `child.children.length !== 2` на более гибкую: ≥1 LITERAL + ровно 1 EXCLUDE + все остальные child — LITERAL/EXCLUDE (без RANGE/AND/MULTI_RANGE).
+- LITERALs мерджатся через `.*` bridges: `^(?!.*A).*ctx.*regex` (same-block semantic — корректно для minion mods, где prefix context "имеют" и suffix "повышение..." в одном mod block).
+- tokenId preservation: берётся первый LITERAL с tokenId (regex LITERAL; context LITERAL обычно без tokenId).
 
-**Tests:** 1118 passing (+10 NEW semantic regression tests для minion-block data в `tests/core/poe2-regex-matcher.test.ts` Section 11). TypeScript clean. Lint clean (no new errors — pre-existing 59 unchanged).
+**Tests:** 1132 passing (+14 NEW: 4 structural в `tests/core/optimizer.test.ts` + 10 semantic в `tests/core/poe2-regex-matcher.test.ts` Section 12). TypeScript clean. Lint clean (no new errors — actually −1: убран `any` cast через proper type guards).
 
 ## In-game verification (iter 46 — production form `^(?!…).*Z`)
 
-| Тест | Regex | Результат | Вывод |
-|------|-------|-----------|-------|
-| **A** (single-quoted baseline) | `"^(?!.*Приспеш).*повышение скорости атаки"` | ✅ PASS | `^`-anchor работает в single-quoted context |
-| **B** (OR-context, ключевой) | `"^(?!.*Приспеш).*повышение скорости атаки\|перезарядки умений"` | ✅ PASS | `^` работает в OR-context, применяется только к первой альтернативе, НЕ leaks ко второй |
-| **C** (control — старый формат iter 44) | `"повышение скорости атаки(?!.*Приспеш)\|перезарядки умений"` | ❌ FP (expected) | Подтверждает root cause: forward-only `(?!…)` не видит excludes ДО суффикса |
-
-iter 48 semantic regression tests (`tests/core/poe2-regex-matcher.test.ts` Section 11) покрывают Tests A+B сценарии на симуляторе + multi-block item-level matching + multiple lookaheads.
+iter 49 использует ту же production form `^(?!…).*Z`, что была верифицирована in-game в iter 46 (Test A single-quoted PASS + Test B OR-context PASS + Test C confirms old FP). iter 49 расширяет transform на multi-LITERAL case — semantic tests на симуляторе покрывают new case. In-game verification iter 49 не требуется (та же form, только с `.*` bridge между LITERALs — `.*` bridge уже был верифицирован как same-block работа в Path D iter 38+).
 
 ## Известные проблемы (Known Issues)
 
@@ -34,17 +28,18 @@ iter 48 semantic regression tests (`tests/core/poe2-regex-matcher.test.ts` Secti
 | ~~1~~ | ~~`(?!…)` forward-only FP~~ | ~~HIGH~~ | ✅ **CLOSED iter 46** — fix `^(?!…).*Z` IMPLEMENTED + in-game verified |
 | ~~2~~ | ~~Симулятор не моделирует `(?!…)`~~ | ~~MEDIUM~~ | ✅ **CLOSED iter 48** — explicit `lookaheadNeg` tokenizer + semantic regression tests |
 | ~~3~~ | ~~`^` в OR-context не верифицирован in-game~~ | ~~MEDIUM~~ | ✅ **CLOSED iter 46** — Test B PASS |
-| 4 | **AND-in-OR с regexPrefixContext + LITERAL + EXCLUDE** — compiler порождает nested quotes для этого расширенного shape (rare case, AGENT_NAVIGATION §8 Pitfall 11) | LOW | OPEN |
-| 5 | **PoE2 regex char limit ≈ 250 chars** — 2 over-limit entries в jewel (317, 260 chars) | MEDIUM | DIAGNOSTIC only — entries kept for subset selection |
+| ~~4~~ | ~~AND-in-OR с regexPrefixContext + LITERAL + EXCLUDE — nested quotes~~ | ~~LOW~~ | ✅ **CLOSED iter 49** — multi-LITERAL transform + semantic tests |
+| 5 | **PoE2 regex char limit ≈ 250 chars** — 2 over-limit entries в jewel (317, 260 chars) | MEDIUM | OPEN — diagnostic-only, entries kept for subset selection. Next iter: ETL split-logic OR runtime UI split |
 
 ## Оптимальные стратегии (итог)
 
-| Сценарий | Стратегия | Статус |
+| Сценарий | Статегия | Статус |
 |----------|-----------|--------|
 | Token с excludes в OR mode | `^(?!.*X)(?!.*Y).*Z` | ✅ iter 46 IMPLEMENTED + iter 48 simulator-modeled |
 | Token с excludes в top-level AND | `"Z" "!X\|Y"` (item-wide `!`) | ✅ без изменений |
 | Same-family OR (Path D) | `"prefix.*A\|prefix.*B\|..."` | ✅ production-verified |
 | Number-anchored RANGE | `^N.*suffix` (Phase 9b) | ✅ без изменений |
+| **Token с regexPrefixContext + regexExclude в OR mode** | `^(?!.*X).*ctx.*Z` | ✅ **iter 49 IMPLEMENTED** |
 
 ## Подтверждённые ограничения PoE2
 
@@ -56,11 +51,11 @@ iter 48 semantic regression tests (`tests/core/poe2-regex-matcher.test.ts` Secti
 | `\|` многословный внутри `()` | ❌ | nothing matches |
 | Пробел = AND (same-block + cross-block) | ✅ | |
 | `.*` внутри одного блока | ✅ | |
-| `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` (iter 46) + simulator-modeled (iter 48) |
+| `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` (iter 46) + simulator-modeled (iter 48) + multi-LITERAL (iter 49) |
 | `!` item-wide | ✅ | для top-level AND (не внутри OR) |
 | `^` start-of-block anchor (single-quoted + OR-context) | ✅ | |
 | Number enumeration | ✅ | |
-| Regex char limit ≈ 250 chars | ⚠️ | diagnostic-only |
+| Regex char limit ≈ 250 chars | ⚠️ | diagnostic-only — Known Issue #5 OPEN |
 
 ## Path D — финальный статус
 

@@ -54,7 +54,7 @@ Tests: 1108 passed (1106 baseline + 2 NEW backward-exclude regression tests дл
 | AND within single block (same-block AND) | ✅ | `"имеют" "повышение.*шанса критического удара"` matches `Монстры имеют X повышение шанса критического удара` (BOTH in ONE block) |
 | Threshold ≥N% | ✅ | `"Монстры с (3[4-9]\|[4-9][0-9]\|\d{3,})%.*отравление"` |
 | Substring search (truncated words) | ✅ | `"оберег"` matches `"оберега"`, `"посох"` matches `"посохами"` |
-| `(?!…)` negative lookahead — bidirectional via `^(?!…).*Z` | ✅ | Forward-only `Z(?!…)` FP. iter 46 fix: anchor `^` + `.*` bridge = bidirectional. **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED).** |
+| `(?!…)` negative lookahead — bidirectional via `^(?!…).*Z` | ✅ | Forward-only `Z(?!…)` FP. iter 46 fix: anchor `^` + `.*` bridge = bidirectional. **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED). Multi-LITERAL AND-in-OR transform extended iter 49 (Known Issue #4 CLOSED) — `^(?!…).*ctx.*Z` form.** |
 | `"prefix (A\|B)"` (`\|` after non-`.*` prefix inside quotes) | ❌ | matches only the prefix broadly |
 | `"(A B\|C D)"` (multi-word `\|` inside `()`) | ❌ | nothing matches |
 | `"X"\|"Y"` (`\|` BETWEEN two quoted groups) | ❌ | zero matches (B0) |
@@ -71,7 +71,7 @@ Tests: 1108 passed (1106 baseline + 2 NEW backward-exclude regression tests дл
 7. Item rarity label IS indexed — «редк» matches all rare items.
 8. **`|` works ONLY at the TOP LEVEL of a single quoted group** (with or without `.*` in alternatives). Does NOT work: between two quoted groups, inside `()` with multi-word alternatives, after non-`.*` prefix inside quotes.
 9. **Regex total length limit ≈ 250 chars** — single regex >250 chars не примется игрой.
-10. **`(?!…)` is bidirectional via `^(?!…).*Z`** — anchor `^` + `.*` bridge covers the WHOLE block (before and after suffix position). Works in OR-context too (`^` applies only to first alternative, no leak). **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED)** — semantic regression tests in `tests/core/poe2-regex-matcher.test.ts` Section 11 (minion-block data).
+10. **`(?!…)` is bidirectional via `^(?!…).*Z`** — anchor `^` + `.*` bridge covers the WHOLE block (before and after suffix position). Works in OR-context too (`^` applies only to first alternative, no leak). **Simulator models `(?!…)` as `lookaheadNeg` AST node (iter 48 — Known Issue #2 CLOSED)** — semantic regression tests in `tests/core/poe2-regex-matcher.test.ts` Section 11 (minion-block data). **iter 49 extends the compiler transform to multi-LITERAL case (`AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...))` → `^(?!…).*ctx.*Z`) — closes Pitfall 11 / Known Issue #4. Semantic regression tests in Section 12.**
 
 ---
 

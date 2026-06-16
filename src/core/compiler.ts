@@ -84,10 +84,18 @@ export interface CompileOptions {
  *   ^ works in OR-context (applies to first alt only, doesn't leak to second)
  * - Test C confirms root cause: old forward-only format `X(?!.*Приспеш)|Y` STILL FP
  *
- * Restrictions (conservative — only the exact problematic shape is transformed):
- * - AND must have EXACTLY ONE LITERAL child + ONE EXCLUDE child
+ * iter 49 — EXTENDED to multi-LITERAL AND (closes Pitfall 11 / Known Issue #4):
+ * AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...)) — common shape produced by
+ * `buildLiteralNode` when token has BOTH `regexPrefixContext` AND `regexExclude`.
+ * Without the transform, this AND compiles to nested quotes (`"ctx" "regex" "!A|B"`)
+ * inside OR, which PoE2 cannot parse. Now merges LITERALs via `.*` bridges into
+ * `^(?!…).*ctx.*regex` (same-block semantic — correct for minion mods where the
+ * prefix context word and the suffix are in the SAME mod block).
+ *
+ * Restrictions (conservative):
+ * - AND must have ≥1 LITERAL child + EXACTLY ONE EXCLUDE child
+ * - All non-LITERAL children must be the single EXCLUDE (no RANGE, no nested AND)
  * - EXCLUDE's child must be LITERAL or OR(LITERAL, ...)
- * - Other AND shapes (multiple LITERALs, RANGE, etc.) are left untouched
  */
 function normalizeAst(node: ASTNode): ASTNode {
   switch (node.type) {
@@ -109,14 +117,25 @@ function normalizeAst(node: ASTNode): ASTNode {
       // Normalize each child, then apply AND-in-OR-with-EXCLUDE transform
       const normalizedChildren = node.children.map(normalizeAst);
       const transformedChildren = normalizedChildren.map(child => {
-        // Detect: AND(LITERAL, EXCLUDE(LITERAL | OR(LITERAL, ...)))
+        // Detect: AND(LITERAL..., EXCLUDE(LITERAL | OR(LITERAL, ...)))
+        // iter 49: extended from "exactly 1 LITERAL + 1 EXCLUDE" to "1+ LITERALs + 1 EXCLUDE"
+        // (closes Pitfall 11 / Known Issue #4 — AND(regexPrefixContext, regex, EXCLUDE)).
         if (child.type !== 'AND') return child;
-        if (child.children.length !== 2) return child;
 
-        const literalChild = child.children.find(c => c.type === 'LITERAL');
-        const excludeChild = child.children.find(c => c.type === 'EXCLUDE');
-        if (!literalChild || !excludeChild) return child;
-        if (literalChild.type !== 'LITERAL' || excludeChild.type !== 'EXCLUDE') return child;
+        const literalChildren = child.children.filter(
+          (c): c is Extract<ASTNode, { type: 'LITERAL' }> => c.type === 'LITERAL'
+        );
+        const excludeChildren = child.children.filter(
+          (c): c is Extract<ASTNode, { type: 'EXCLUDE' }> => c.type === 'EXCLUDE'
+        );
+
+        // Require: ≥1 LITERAL + exactly 1 EXCLUDE + all other children are LITERAL/EXCLUDE
+        // (no RANGE, no nested AND, no MULTI_RANGE — those are left untouched)
+        if (literalChildren.length === 0) return child;
+        if (excludeChildren.length !== 1) return child;
+        if (literalChildren.length + excludeChildren.length !== child.children.length) return child;
+
+        const excludeChild = excludeChildren[0];
 
         // Collect exclude values
         const exNode = excludeChild.child;
@@ -127,7 +146,7 @@ function normalizeAst(node: ASTNode): ASTNode {
           // All children must be LITERAL
           const allLiteral = exNode.children.every(c => c.type === 'LITERAL');
           if (!allLiteral) return child;
-          excludeValues = exNode.children.map(c => (c as any).value as string);
+          excludeValues = exNode.children.map(c => (c as Extract<ASTNode, { type: 'LITERAL' }>).value);
         } else {
           // Complex shape (RANGE, AND, nested) — leave untouched
           return child;
@@ -135,20 +154,30 @@ function normalizeAst(node: ASTNode): ASTNode {
 
         if (excludeValues.length === 0) return child;
 
-        // Build anchored lookahead: ^(?!.*A)(?!.*B)(?!.*C).*X
+        // Build anchored lookahead: ^(?!.*A)(?!.*B).*literal1.*literal2.*...
         // iter 46: ^-anchor at block start + .* inside lookahead = bidirectional exclude.
         // The previous format `X(?!.*A)(?!.*B)` was forward-only — failed when
         // exclude value preceded the suffix in the same block (FP with
         // «Приспеш…повышение скорости атаки» minion affix). In-game verified iter 46.
         // `^` works in OR-context: applies only to first alternative, doesn't leak.
+        //
+        // iter 49: multi-LITERAL merge via `.*` bridges. The regexPrefixContext
+        // (e.g., "имеют") is typically a word stem from the SAME mod block as the
+        // suffix (e.g., "Приспешники имеют … повышение скорости атаки"), so the
+        // `.*` bridge correctly enforces same-block matching. The order of
+        // LITERALs is preserved (context first, then suffix) to match the natural
+        // word order in the mod block.
         const lookaheads = excludeValues.map(v => `(?!.*${v})`).join('');
-        const mergedValue = `^${lookaheads}.*${literalChild.value}`;
+        const mergedLiterals = literalChildren.map(l => l.value).join('.*');
+        const mergedValue = `^${lookaheads}.*${mergedLiterals}`;
 
-        // Preserve tokenId if present
+        // Preserve tokenId from the first LITERAL that has one
+        // (regex LITERAL carries tokenId; regexPrefixContext LITERAL typically does not)
+        const firstLiteralWithId = literalChildren.find(l => l.tokenId);
         const mergedLiteral: ASTNode = {
           type: 'LITERAL',
           value: mergedValue,
-          ...(literalChild.tokenId ? { tokenId: literalChild.tokenId } : {}),
+          ...(firstLiteralWithId?.tokenId ? { tokenId: firstLiteralWithId.tokenId } : {}),
         };
         return mergedLiteral;
       });
