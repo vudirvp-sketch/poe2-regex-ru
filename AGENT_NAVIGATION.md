@@ -118,17 +118,24 @@ shared <- core <- strategies <- store <- data <- ui
 | Syntax | Meaning | Verified |
 |--------|---------|----------|
 | `substring` | Simple substring match | ✅ |
-| `\|` | OR | ✅ |
+| `\|` | OR — **ONLY between single-word alternatives** | ⚠️ Partial |
 | `!` | NOT (must be INSIDE quotes with `\|`) | ✅ |
 | `""` | Phrase grouping + AND separator | ✅ |
 | `.*` | Within single block only | ✅ |
 | `[]` | Character class | ✅ |
 | `^` | Start-of-block anchor | ✅ |
-| `()` | Grouping | ✅ |
+| `()` | Grouping — **`|` inside `()` with multi-word UNVERIFIED** | ⚠️ Partial |
 | `\d` | Digit shorthand | ✅ |
 | `{N,}` | Quantifier "N or more" | ✅ |
+| `(?!…)` | Negative lookahead — **per-block, works but was undocumented** | ✅ (new) |
 
-**NOT supported:** `?`, `$`, `.*` across blocks, negative lookahead, non-greedy, backreferences.
+**CRITICAL limitation:** `|` does NOT work with multi-word (space-containing) alternatives.
+PoE2 tokenizes on spaces — `|` only ORs adjacent words. `скорости атаки|передвижения` → nothing.
+This BREAKS the optimization table which uses `|` inside `()` with multi-word alternatives.
+Whether `()` preserves `|` for multi-word alternatives is **UNVERIFIED** — needs in-game test.
+
+**NOT supported:** `?`, `$` (unreliable), `.*` across blocks, non-greedy, backreferences.
+**Previously listed as NOT supported but now VERIFIED:** `(?!…)` negative lookahead (per-block).
 
 ## 10. FP Prevention (5 levels)
 
@@ -152,6 +159,9 @@ shared <- core <- strategies <- store <- data <- ui
 8. `getValueKey` for RANGE must include ALL distinguishing fields
 9. **Home page i18n:** Each zone (sidebar, header, hero) uses a separate key — never reuse `home.title` across multiple components
 10. **CRITICAL — OR-mode nested quotes:** When AND(LITERAL, EXCLUDE) is a child of OR, `compileInner(AND)` produces `"child1" "child2"` which creates nested quotes. PoE2 cannot parse nested quotes — the OR structure collapses into AND. Fix: compile AND inside OR using `()` grouping instead of `"..."` per child.
+11. **CRITICAL — `|` breaks with multi-word patterns:** PoE2 tokenizes on spaces, so `|` only works between single words. `скорости атаки|передвижения` = nothing. Optimization table entries with `|` between multi-word alternatives are BROKEN. Needs in-game verification: does `()` preserve `|` for multi-word?
+12. **`(?!…)` works per-block** — despite being listed as NOT supported in ARCHITECTURE.md. Verified in-game Tests 3, 12, 13. This is a per-block lookahead, unlike `!` which is item-wide.
+13. **regexExclude word forms:** Exclude patterns must use truncated stems to cover all inflections. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
 
 ## 12. Documentation Map
 

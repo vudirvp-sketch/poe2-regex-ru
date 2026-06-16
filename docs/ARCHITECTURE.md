@@ -60,7 +60,7 @@ poe2db.tw/ru/*
 | Syntax | Meaning | Example | Verified |
 |--------|---------|---------|----------|
 | `substring` | Simple substring match | `Бездн` | Yes |
-| `\|` | OR (alternation) | `Бездн\|Делир` | Yes |
+| `\|` | OR (alternation) — **ONLY single-word alternatives** | `Бездн\|Делир` | ⚠️ Single-word only |
 | `!` | NOT (negation) | `!Бездн` | Yes |
 | `""` | Phrase grouping + AND separator | `"Бездн" "карт"` | Yes |
 | `.` | Any single character (wildcard) | `Б.здн` | Yes |
@@ -68,22 +68,27 @@ poe2db.tw/ru/*
 | `[]` | Character class | `Делири[уф]` | Yes |
 | `^` | Start-of-block anchor | `^(2[7-9]\|30).*suffix` | Yes (Phase 9b) |
 | `$` | End anchor | — | Unreliable, do not use |
-| `()` | Grouping | `([5-9]\|..)` | Yes |
+| `()` | Grouping — **`|` inside `()` with multi-word UNVERIFIED** | `([5-9]\|..)` | Partial |
 | `\d` | Digit shorthand | `\d..` | Yes |
 | `%` `+` | Literals (not special) | `"+66"`, `"% к сопр"` | Yes |
 
-**NOT supported:** `?` (optional), `.*` across blocks (VERIFIED B1-B2), negative lookahead, non-greedy quantifiers, backreferences.
+| `(?!…)` | Negative lookahead — **per-block** | `скорости(?!.*луками)` | Yes (new) |
+
+**NOT supported:** `?` (optional), `.*` across blocks (VERIFIED B1-B2), non-greedy quantifiers, backreferences.
+**Previously listed as NOT supported but now VERIFIED:** `(?!…)` negative lookahead (per-block, not item-wide).
 
 **Critical syntax rules:**
 
 1. **`!` must be INSIDE quotes when combined with `|`:** `"!A|B"` works, `!"A|B"` does NOT.
-2. **`.*` does NOT cross block boundaries** — each mod/implicit/property/name/state is a separate searchable block. Use AND (`"X" "Y"`) to search across blocks.
-3. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш" in the same block. For bidirectional, use AND.
-4. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
-5. **Case insensitive** — verified with Cyrillic.
-6. **`!X` is item-wide** — excludes the entire item if X appears in ANY block.
-7. **Description/tooltip text is NOT indexed** — not searchable.
-8. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
+2. **`|` does NOT work with multi-word (space-containing) alternatives.** PoE2 tokenizes on spaces — `|` only ORs adjacent words. `скорости атаки|передвижения` → nothing. Whether `()` preserves `|` for multi-word is **UNVERIFIED** — this is the critical question for the optimization table.
+3. **`.*` does NOT cross block boundaries** — each mod/implicit/property/name/state is a separate searchable block. Use AND (`"X" "Y"`) to search across blocks.
+4. **`.*` is directional** — `"огня.*приспеш"` only matches if "огня" appears BEFORE "приспеш" in the same block. For bidirectional, use AND.
+5. **AND via space between quoted groups is order-independent** and works ACROSS blocks.
+6. **Case insensitive** — verified with Cyrillic.
+7. **`!X` is item-wide** — excludes the entire item if X appears in ANY block.
+8. **`(?!X)` is per-block** — unlike `!`, lookahead only checks the current block. Chain: `(?!.*A)(?!.*B)` works.
+9. **Description/tooltip text is NOT indexed** — not searchable.
+10. **State text IS indexed** — "Осквернено", "Делириум" are searchable.
 
 **Word Truncation:** PoE2 is substring search. Truncating the END of a word works (`"к си"` → matches `"к силе"`). Mid-word extraction does NOT work. Minimum 3 significant chars per truncated word. **CRITICAL:** Truncation is only safe at the END of the suffix string — truncating a word followed by more text breaks the contiguous substring property (e.g., `"монстр на карте"` does NOT match `"монстров на карте"`). This applies to BOTH runtime Phase 3 (`truncateSuffix`) and ETL (`generateTruncatedSuffixes`) — both enforce last-word-only truncation.
 
