@@ -1,133 +1,76 @@
 # Worklog
 
 ---
-Task ID: 50
+Task ID: 51
 Agent: main
-Task: Закрыть Known Issue #5 — runtime split для over-limit regex (>250 chars) + фикс ETL bug (patchOptimizationEntries mixed context). Документация: чисто, без мусора.
+Task: UI redesign Фаза 0+1 — аудит CSS-токенов + миграция на тёплую dark-fantasy палитру ТЗ + удаление light-темы + приглушение bg-forest.webp. Документация: чисто, без мусора.
 
 Work Log:
-- 1: Клонирован репозиторий, прочитан контекст: AGENT_NAVIGATION v49, STATUS.md iter 49 (Known Issue #5 OPEN), worklog Task 49 (multi-LITERAL AND-in-OR transform).
-- 2: Глубокий анализ проблемы — найдено 2 over-limit записи в jewel: 317 chars (9 alts, «увеличение.*области действия|...») и 260 chars (11 alts, «увеличение.*уклон.*ения|...»). Проанализированы два подхода: ETL split vs runtime split.
-- 3: Семантический анализ: ETL split меняет семантику OR→AND (неверно). Runtime split — правильный подход: каждая часть — корректный OR, пользователь ищет по очереди.
-- 4: Найден ETL Bug: `patchOptimizationEntries()` в `run-etl.ts` некорректно добавляла regexPrefixContext когда часть токенов имела контекст, а часть — нет. Условие `contexts.size <= 2 && contexts.has('')` → FN (не-миньонные альтернативы требовали "имеют").
-- 5: Фикс ETL Bug: изменено условие на `contexts.size === 1` (ВСЕ токены должны иметь одинаковый непустой контекст). Файл: `scripts/run-etl.ts`.
-- 6: Удалён некорректный `regexPrefixContext` из 317-char записи в `public/generated/jewel.json`.
-- 7: Реализован runtime split — `splitOverLimitRegex()` в `src/core/limits.ts`:
-  - `splitTopLevelAlternations()`: разбивает regex на альтернативы по top-level `|`
-  - `groupAlternativesByBudget()`: группирует альтернативы в чанки ≤250 chars
-  - `splitOverLimitRegex()`: публичная функция, вызывается из useCategoryPage
-- 8: Обновлён `useCategoryPage.ts`: добавлено `regexParts: string[] | undefined` — результат `splitOverLimitRegex()` при overflow.
-- 9: Обновлён `RegexOutput.tsx`: при `showParts` (overflow + regexParts.length > 1) отображает split hint + каждый part с кнопкой копирования и счётчиком символов. Компонент `PartCopyButton` для per-part copy.
-- 10: Обновлён `CategoryControlPanel.tsx` + все 8 category pages — добавлен prop `regexParts`.
-- 11: Добавлены i18n ключи: `regex.part_label` ("Часть {n} из {total}"), `regex.split_hint` ("Регулярка >250 символов — разбита на части...").
-- 12: Добавлены 12 NEW tests в `tests/core/limits.test.ts` для `splitOverLimitRegex()`: within limit, no top-level |, split at |, reconstruct, escape sequences, character classes, grouping depth, actual jewel entries (317+260 chars), ^ anchor preservation.
-- 13: Верификация: `npx tsc -b` → 0 errors. `npx vitest run` → **1144 passed** (1132 baseline + 12 NEW).
+- 1: Клонирован репозиторий, прочитан контекст: AGENT_NAVIGATION v50, STATUS.md iter 50 (all Known Issues CLOSED), worklog Task 50 (runtime split + ETL context bug fix), src/index.css (832 lines — cold blue-gray palette + full light theme block), src/ui/layout/Header.tsx (theme toggle), src/ui/layout/Sidebar.tsx, src/ui/layout/Layout.tsx, src/shared/i18n.ts (theme.light/theme.dark keys), index.html.
+- 2: Фаза 0 — составлена таблица маппинга токенов old → new по палитре ТЗ:
+  - Core: `--poe-bg` `#0a0a0f→#0D0B09`, `--poe-bg-secondary` `#12121a→#15110E`, `--poe-bg-tertiary` `#1a1a25→#1F1812`, `--poe-border` `#2a2a3a→#3A2C22`, `--poe-text` `#c8c8d0→#D4C9B8`, `--poe-text-bright` `#e8e8f0→#F0E6D2`, `--poe-gold` `#af882b→#C89A4A` (ТЗ accent), `--poe-gold-bright` `#d4a843→#E0B570`.
+  - Surface: `--input-bg` `#1f2937→#1F1812`, `--panel-bg` `#111827→#15110E`, `--raised-bg` `#374151→#3A2C22`, `--deep-bg` `#030712→#070503`.
+  - Chip: `--chip-bg-selected` blue-tint `rgba(30,58,95,.4)→gold-tint rgba(200,154,74,.18)`.
+  - Borders warm: `--input-border` `#4b5563→#4A3A2C`, `--panel-border` `#374151→#3A2C22`.
+  - Scrollbar: `#3a3a4a→#4A3A2C`. Focus ring: `#3b82f6 blue → #C89A4A gold` (brand accent).
+- 3: Подтверждено пользователем: (1) light-тему убрать; (2) bg-forest.webp приглушить; (3) HomePage = хаб; (4) mobile nav — решение за агентом (склоняюсь к горизонтальным чипам + усиленный active-state в Фазе 4).
+- 4: Проверено отсутствие тестов/скриптов, ссылающихся на theme toggle или `[data-theme="light"]`. Только Header.tsx + i18n.ts + index.css.
+- 5: Фаза 1 — `src/index.css` MultiEdit (атомарно):
+  - (a) Обновлены все dark-theme токены на тёплую палитру (core palette + surface + borders + scrollbar + focus ring).
+  - (b) Удалён весь `[data-theme="light"] { ... }` блок (123 строки — переопределения всех токенов).
+  - (c) Удалены все scattered `[data-theme="light"] ...` правила: body, sidebar-atmosphere, header-atmosphere, layout-shell, content-area, form element defaults, checkbox, control-panel-sticky, regex-output, affix-header-prefix/suffix/implicit, 4 mobile media query rules, 1 480px media query rule.
+  - (d) Atmospheric background: `background: #0a0a0f url(...)` заменено на `linear-gradient(rgba(13,11,9,0.40), rgba(13,11,9,0.40)), url(...)` — 40% warm dim overlay (приглушение). То же для mobile.
+  - (e) Sidebar/Header atmosphere overlay: `rgba(10,10,15,0.75) → rgba(13,11,9,0.78)` (warm).
+  - (f) Удалён `transition: background-color 0.2s ease, color 0.2s ease` из body (нет theme toggle — не нужен).
+  - (g) Подчищены устаревшие комментарии про light-тему (primary text, danger border).
+- 6: `src/ui/layout/Header.tsx` переписан: удалены `getInitialTheme`, `useState<'dark'|'light'>`, `toggleTheme`, toggle-кнопка (☀️/🌙). Только `useEffect` — выставляет `data-theme="dark"` + theme-color meta `#0D0B09` на mount.
+- 7: `src/shared/i18n.ts` — удалены ключи `theme.light` и `theme.dark` (больше не используются).
+- 8: `index.html` — `theme-color` meta: `#0f0f1a → #0D0B09`.
+- 9: Верификация:
+  - `npx tsc -b` → 0 errors.
+  - `npx vitest run` → **1144 passed** (35 test files). Тесты не затронуты — все зелёные.
+  - `npx eslint .` → 59 problems (55 errors, 4 warnings) — все pre-existing в `tests/`, ни одной в изменённых файлах. Baseline (Task 50) был 59 — не ухудшилось.
+- 10: `index.css` 832 → 633 строки (−199, −24%).
+- 11: Документация:
+  - `STATUS.md` — полная перезапись: iter 51, таблица палитры (old → new), раздел "UI Redesign — план (9 фаз)" с чек-листом статусов, удалена длинная история iter 50 fix details (оставлен только итог).
+  - `AGENT_NAVIGATION.md` — current state iter 51, добавлен Pitfall 19 (Dark-only theme).
+  - `worklog.md` — Task 51 entry (этот). Удалены детальные записи Task 49 (оставлен только Stage Summary) и все Task 41-48 (оставлен compact "Older iterations" блок).
+
+Stage Summary:
+- **iter 51 Фаза 0+1 COMPLETE.** Миграция CSS design tokens на тёплую dark-fantasy палитру ТЗ + полное удаление light-темы + приглушение bg-forest.webp (40% warm overlay).
+- **Изменённые файлы (4):**
+  - `src/index.css` — палитра warm dark-fantasy + удалено 199 строк light-темы (832 → 633 строки).
+  - `src/ui/layout/Header.tsx` — dark-only, toggle удалён.
+  - `src/shared/i18n.ts` — удалены `theme.light`/`theme.dark`.
+  - `index.html` — `theme-color` meta → `#0D0B09`.
+- **Документация (3):**
+  - `STATUS.md` — iter 51 rewrite + 9-фазный план.
+  - `AGENT_NAVIGATION.md` — iter 51 + Pitfall 19.
+  - `worklog.md` — Task 51 entry + чистка длинной истории.
+- **Tests:** 1144 passed (без изменений — код движка/ETL не тронут). TypeScript clean. Lint baseline сохранён.
+- **Known Issues:** открытыми нет (все 5 закрыты в iter 46-50).
+- **Риски:** нулевые для regex-движка/ETL/тестов. Имена CSS-переменных не менялись — весь JSX работает как прежде.
+- **Точка остановки:** iter 51 Фаза 1 COMPLETE. Следующая итерация — Фаза 2 (CategoryLayout 2-колоночный desktop / 1-col mobile).
+
+---
+
+Task ID: 50
+Agent: main
+Task: Закрыть Known Issue #5 — runtime split для over-limit regex (>250 chars) + фикс ETL bug (patchOptimizationEntries mixed context).
 
 Stage Summary:
 - **iter 50 FIX 1 (ETL Bug):** `patchOptimizationEntries()` в `run-etl.ts` — усилено условие для regexPrefixContext: `contexts.size === 1` вместо `contexts.size <= 2`. Смешанные контексты больше не патчатся.
 - **iter 50 FIX 2 (Known Issue #5 CLOSED):** Runtime split для over-limit regex. `splitOverLimitRegex()` в `limits.ts` разбивает OR-группы >250 chars на 2+ части, каждая ≤250 chars. UI показывает части отдельно.
-- **Real-world impact:** 2 over-limit записи в jewel (317+260 chars) теперь разбиваются на 2+ копируемых regex. 11 "увеличение" токенов больше не получают ошибочный regexPrefixContext "имеют".
 - **Tests:** 1144 passed (+12 NEW). TypeScript clean.
-- **Files MODIFIED (13) + NEW (0):**
-  - `scripts/run-etl.ts` — patchOptimizationEntries context condition fix
-  - `public/generated/jewel.json` — removed incorrect regexPrefixContext from 317-char entry
-  - `src/core/limits.ts` — added `splitOverLimitRegex()`, `splitTopLevelAlternations()`, `groupAlternativesByBudget()`
-  - `src/ui/hooks/useCategoryPage.ts` — added `regexParts` field, `splitOverLimitRegex()` call on overflow
-  - `src/ui/components/RegexOutput.tsx` — split regex display with per-part copy buttons
-  - `src/ui/components/CategoryControlPanel.tsx` — added `regexParts` prop
-  - `src/ui/pages/jewel/JewelPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/amulet/AmuletPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/ring/RingPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/belt/BeltPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/relic/RelicPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/waystone/WaystonePage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/tablet/TabletPage.tsx` — destructured + passed `regexParts`
-  - `src/ui/pages/vendor/VendorPage.tsx` — destructured + passed `regexParts`
-  - `src/shared/i18n.ts` — added `regex.part_label`, `regex.split_hint`
-  - `tests/core/limits.test.ts` — added 12 NEW tests for `splitOverLimitRegex()`
-  - `STATUS.md` — iter 50, Known Issue #5 CLOSED
-  - `AGENT_NAVIGATION.md` — iter 50, §6 dialect + §8 Pitfall 17/18 updated
-  - `worklog.md` — Task 50 entry (this)
-- **Known Issues (после iter 50):**
-  - ✅ #1-#5 ALL CLOSED
-  - No open known issues
-- **Точка остановки:** iter 50 COMPLETE. All Known Issues CLOSED. Code + tests + docs updated.
 
 ---
-Task ID: 49
-Agent: main
-Task: Закрыть Known Issue #4 / Pitfall 11 — расширить `normalizeAst` transform в `src/core/compiler.ts` для AND с multi-LITERAL + EXCLUDE внутри OR. Документация: чисто, без мусора.
 
-Work Log:
-- 1: Клонирован репозиторий, прочитан контекст: AGENT_NAVIGATION v48 (§6 dialect, §8 Pitfall 11/16), STATUS.md iter 48 (Known Issues #4/#5 OPEN), worklog Task 48 (последний code-фикс — `(?!…)` lookahead tokenizer) + Task 47 (docs cleanup) + Task 46 (production form `^(?!…).*Z` in-game verified), src/core/compiler.ts (normalizeAst case 'OR' — текущий transform с restriction `child.children.length !== 2`), tests/core/optimizer.test.ts (test на строке 874 явно документирует limitation: "preserves AND with multiple LITERALs + EXCLUDE inside OR (no transform)"), tests/core/poe2-regex-matcher.test.ts Section 11 (iter 48 semantic regression tests).
-- 2: Анализ данных — количество токенов с BOTH regexPrefixContext AND regexExclude (форма AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...))): amulet=6, jewel=6, ring=8 (миньоньи моды — "Приспешники имеют ... повышение..."). Без фикса эти 20 токенов в OR-mode компилируются в nested quotes (`"ctx" "regex" "!A|B"|other`), которые PoE2 не парсит. Реальный user-visible bug, не theoretical.
-- 3: Базовая верификация: `pnpm test` → 1118 passed (baseline iter 48). `pnpm exec tsc -b` → 0 errors. `pnpm lint` → 59 problems (pre-existing).
-- 4: Реализован фикс (1 surgical изменение в `src/core/compiler.ts` `normalizeAst` case 'OR'):
-  - Заменена проверка `child.children.length !== 2` на более гибкую: filter LITERALs + EXCLUDEs; require ≥1 LITERAL + ровно 1 EXCLUDE + sum equals child.children.length (no RANGE/AND/MULTI_RANGE).
-  - LITERALs мерджатся через `.*` bridges: `^(?!.*A).*lit1.*lit2.*...` (single quoted group).
-  - tokenId preservation: берётся первый LITERAL с tokenId (regex LITERAL; context LITERAL обычно без tokenId).
-  - Type guards через `(c): c is Extract<ASTNode, { type: 'LITERAL' }> => c.type === 'LITERAL'` — убирает `any` cast из baseline (lint improvement: 59 → 58 problems).
-- 5: Обновлён существующий test в `tests/core/optimizer.test.ts` (строка 874) — теперь assertions подтверждают NEW behavior (`"^(?!.*A)(?!.*B).*ctx.*X|Q"`). Добавлены 3 NEW structural tests: 3 LITERALs stress, single-LITERAL EXCLUDE (not OR), tokenId preservation, RANGE block (conservative bail).
-- 6: Добавлены 10 NEW semantic regression tests в `tests/core/poe2-regex-matcher.test.ts` Section 12 (iter 49): single-quoted multi-LITERAL, OR-context multi-LITERAL (^-no-leak), multiple excludes + multi-LITERAL, item-level matching. Source data: amulet.minioncriticalstrikechancering (регис/Амулеты моды.md + generated/amulet.json).
-- 7: Создан `scripts/verify-iter49.ts` — end-to-end verification скрипт (5 tests: multi-LITERAL transform, semantic checks, multi-excludes, top-level AND boundary, real-world amulet scenario). Запуск: `pnpm exec tsx scripts/verify-iter49.ts` → ALL TESTS PASS.
-- 8: Верификация:
-  - `pnpm exec tsc -b` → 0 errors.
-  - `pnpm test` (full suite) → **1132 passed** (1118 baseline + 4 structural iter 49 + 10 semantic iter 49).
-  - `pnpm lint` → 58 problems (was 59 — на 1 меньше, благодаря proper type guards вместо `any` cast).
-  - `pnpm exec tsx scripts/verify-iter49.ts` → ALL 5 verification tests PASS.
-- 9: Обновлена документация:
-  - `STATUS.md` — iter 49 fix section + Known Issue #4 → CLOSED. Tests count 1132. Стратегия "Token с regexPrefixContext + regexExclude в OR mode" добавлена в optimal strategies таблицу.
-  - `AGENT_NAVIGATION.md` — current state iter 49, §6 dialect note updated (multi-LITERAL), §8 Pitfall 11 rewritten (closed) + Pitfall 16 updated.
-  - `docs/IN_GAME_TESTS.md` — dialect table note + rule #10 updated.
-  - `worklog.md` — Task 49 entry (this).
+## Older iterations (49 and before)
 
-Stage Summary:
-- **iter 49 FIX IMPLEMENTED:** `src/core/compiler.ts` `normalizeAst` case 'OR' — extended AND-in-OR-with-EXCLUDE transform to multi-LITERAL case (was: only 1 LITERAL + 1 EXCLUDE). 1 surgical change.
-- **Known Issue #4 / Pitfall 11 CLOSED.** Compiler now handles `AND(LITERAL_ctx, LITERAL_regex, EXCLUDE(...))` inside OR → `^(?!…).*ctx.*regex` (single quoted group, no nested quotes).
-- **Real-world impact:** 20 токенов с BOTH regexPrefixContext AND regexExclude (amulet=6, jewel=6, ring=8 — minion mods) теперь компилируются корректно в OR-mode. Раньше — nested quotes = broken regex.
-- **Tests:** 1132 passed (+14 NEW: 4 structural + 10 semantic). TypeScript clean. Lint: −1 problem (59→58, proper type guards instead of `any`).
-- **Files MODIFIED (5) + NEW (1):**
-  - `src/core/compiler.ts` — `normalizeAst` case 'OR' extended (multi-LITERAL merge via `.*` bridges).
-  - `tests/core/optimizer.test.ts` — 1 test updated (was: documents limitation; now: asserts fix). +4 NEW structural tests.
-  - `tests/core/poe2-regex-matcher.test.ts` — Section 12 added (10 NEW semantic regression tests).
-  - `scripts/verify-iter49.ts` — NEW end-to-end verification script (5 tests, run via `pnpm exec tsx`).
-  - `STATUS.md` — iter 49 fix section + Known Issue #4 CLOSED.
-  - `AGENT_NAVIGATION.md` — current state + §6 dialect + §8 Pitfall 11/16 updated.
-  - `docs/IN_GAME_TESTS.md` — dialect table + rule #10 updated.
-  - `worklog.md` — Task 49 entry (this).
-- **Known Issues (после iter 49):**
-  - ✅ #1 CLOSED iter 46 — `(?!…)` forward-only FP FIXED via `^(?!…).*Z`.
-  - ✅ #2 CLOSED iter 48 — Simulator `(?!…)` gap CLOSED via explicit lookaheadNeg tokenizer + semantic tests.
-  - ✅ #3 CLOSED iter 46 — `^` в OR-context verified in-game.
-  - ✅ #4 CLOSED iter 49 — Multi-LITERAL AND-in-OR + EXCLUDE transform.
-  - ⚠️ #5 OPEN — 2 over-limit entries в jewel (ETL diagnostic only). Next iter: ETL split-logic OR runtime UI split.
-- **Точка остановки:** iter 49 COMPLETE. Code + tests + docs updated.
-- **For new chat:** читать `AGENT_NAVIGATION.md` (entry, ~192 lines), `STATUS.md` (current state + Known Issue #5 OPEN, ~80 lines), `worklog.md` (Task 49 для деталей фикса + Task 48/46 для контекста `(?!…)`).
-
----
-Task ID: 48
-Agent: main
-Task: Закрыть Known Issue #2 — добавить `(?!…)` lookahead tokenizer в `src/core/poe2-regex-matcher.ts` + semantic regression test против minion-блок data. Документация: чисто, без мусора.
-
-Stage Summary:
-- **iter 48 FIX:** `src/core/poe2-regex-matcher.ts` — explicit `(?!…)` lookahead tokenization (was: implicit via `?` being silently dropped). 3 surgical changes (tokenizer `lookaheadNegOpen`/`Close` + parser `lookaheadNeg` AST node + matcher `lookaheadNeg` case).
-- **Known Issue #2 CLOSED.** 1118 passed (+10 NEW semantic regression tests в `tests/core/poe2-regex-matcher.test.ts` Section 11).
-
----
-Task ID: 47
-Agent: main
-Task: Анализ репозитория + актуализация/чистка документации под LLM/agent consumption. Никаких правок кода — только docs cleanup.
-
-Stage Summary:
-- **Документация актуализирована.** Удалены: `README_ITER46.md`, `DELETIONS.txt`. Compact: `AGENT_NAVIGATION.md` (235→191 lines), `STATUS.md` (124→84), `docs/IN_GAME_TESTS.md` (257→147), `docs/ARCHITECTURE.md` (553→394). Total docs reduction: 1961→1568 lines (–20%).
-
----
-## Older iterations (46 and before)
-
-- **iter 46**: `(?!…)` forward-only FP FIXED — production form `^(?!…).*Z` IMPLEMENTED + in-game verified (Tests A+B PASS, Test C confirms old FP).
-- **iter 45**: ROOT CAUSE analysis — `(?!…)` lookahead forward-only в PoE2, simulator gap. Код НЕ менялся — только документация.
-- **iter 44**: 3 FP-бага исправлены в shared `src/core/` — surgical removeConflictingExcludes + strict-subset skip + AND-in-OR transform (`X(?!…)` forward-only, refined in iter 46).
-- **iter 43**: D3 pre-analysis — 95 опасных пар, 5 типов опасностей, 8 паттернов. Код не изменён.
-- **iter 42**: ETL char-limit diagnostic — `findOverLimitEntries()`.
-- **iter 41**: D5 production-verified — 5/5 in-game tests PASS (jewel, amulet, ring, waystone, tablet).
-- **iter 15-40**: covered legacy in-game tests, hypothesis pattern verification, FP prevention anchors, Path D D1-D7. See git history for details.
+- **iter 49**: Known Issue #4 CLOSED — `normalizeAst` extended for multi-LITERAL AND-in-OR with EXCLUDE. `^(?!…).*lit1.*lit2.*...`. +14 tests.
+- **iter 48**: Known Issue #2 CLOSED — explicit `(?!…)` lookahead tokenizer + semantic tests.
+- **iter 47**: Docs cleanup — AGENT_NAVIGATION 235→191, STATUS 124→84, IN_GAME_TESTS 257→147, ARCHITECTURE 553→394. Total −20%.
+- **iter 46**: `(?!…)` forward-only FP FIXED via `^(?!…).*Z` + in-game verified. Known Issue #1/#3 CLOSED.
+- **iter 44-45**: FP-bug analysis + 3 surgical fixes (removeConflictingExcludes, strict-subset skip, AND-in-OR transform).
+- **iter 41-43**: D5 production-verified (5/5 in-game PASS), D3 pre-analysis, ETL char-limit diagnostic.
+- **iter 15-40**: legacy in-game tests, hypothesis patterns, FP prevention anchors, Path D D1-D7. See git history.

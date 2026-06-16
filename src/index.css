@@ -1,41 +1,41 @@
 @import "tailwindcss";
 
 /* ─── Semantic theme tokens ─── */
-/* All theme-aware values are CSS custom properties that switch between
-   dark and light themes. Tailwind's @theme block exposes them as
-   utility classes (bg-surface, text-bright, border-edge, etc.).
-   NO !important overrides needed — theme switching is purely via CSS variables. */
+/* iter 51: WARM DARK-FANTASY PALETTE (per design spec).
+   Cold blue-gray tokens replaced with warm dirty-brown (#0D0B09 / #15110E / #3A2C22).
+   Gold accent brightened (#af882b → #C89A4A) to read as the brand accent.
+   Light theme removed (dark-only). */
 
-/* ─── Dark theme (default) ─── */
+/* ─── Dark theme (default + only) ─── */
 :root,
 [data-theme="dark"] {
-  /* Core palette */
-  --poe-bg: #0a0a0f;
-  --poe-bg-secondary: #12121a;
-  --poe-bg-tertiary: #1a1a25;
-  --poe-border: #2a2a3a;
-  --poe-text: #c8c8d0;
-  --poe-text-bright: #e8e8f0;
-  --poe-gold: #af882b;
-  --poe-gold-bright: #d4a843;
+  /* Core palette — warm dirty-brown dark-fantasy */
+  --poe-bg: #0D0B09;
+  --poe-bg-secondary: #15110E;
+  --poe-bg-tertiary: #1F1812;
+  --poe-border: #3A2C22;
+  --poe-text: #D4C9B8;
+  --poe-text-bright: #F0E6D2;
+  --poe-gold: #C89A4A;
+  --poe-gold-bright: #E0B570;
   --poe-red: #c44e4e;
   --poe-green: #4ec44e;
   --poe-yellow: #c4c44e;
 
-  /* Surface backgrounds */
-  --input-bg: #1f2937;
-  --panel-bg: #111827;
-  --raised-bg: #374151;
-  --deep-bg: #030712;
-  --chip-bg: rgba(31, 31, 41, 0.5);
-  --chip-bg-hover: rgba(55, 55, 65, 0.5);
-  --chip-bg-selected: rgba(30, 58, 95, 0.4);
+  /* Surface backgrounds — warm */
+  --input-bg: #1F1812;
+  --panel-bg: #15110E;
+  --raised-bg: #3A2C22;
+  --deep-bg: #070503;
+  --chip-bg: rgba(58, 44, 34, 0.4);
+  --chip-bg-hover: rgba(74, 56, 44, 0.5);
+  --chip-bg-selected: rgba(200, 154, 74, 0.18);
 
-  /* Border colors */
-  --input-border: #4b5563;
-  --panel-border: #374151;
+  /* Border colors — warm */
+  --input-border: #4A3A2C;
+  --panel-border: #3A2C22;
 
-  /* Primary text (white in dark, dark in light) */
+  /* Primary text */
   --text-primary: #ffffff;
 
   /* Text levels */
@@ -149,138 +149,14 @@
   --cborder-amber: rgba(217, 119, 6, 0.3);      /* amber-800/50 */
 
   /* Danger border colors */
-  --danger-border: #f87171;       /* ≈ red-700 (light override) */
-  --danger-border-strong: #ef4444; /* ≈ red-800 (light override) */
+  --danger-border: #f87171;       /* ≈ red-400 */
+  --danger-border-strong: #ef4444; /* ≈ red-500 */
 
-  /* Scrollbar */
-  --scrollbar-hover: #3a3a4a;
+  /* Scrollbar — warm */
+  --scrollbar-hover: #4A3A2C;
 
-  /* Focus ring */
-  --focus-ring: #3b82f6;
-}
-
-/* ─── Light theme ─── */
-[data-theme="light"] {
-  /* Core palette override */
-  --poe-bg: #f5f5f0;
-  --poe-bg-secondary: #eaeae5;
-  --poe-bg-tertiary: #ddddd8;
-  --poe-border: #c0c0bb;
-  --poe-text: #333338;
-  --poe-text-bright: #1a1a1f;
-  --poe-gold: #8a6a1b;
-  --poe-gold-bright: #6b5112;
-  --poe-red: #c44e4e;
-  --poe-green: #2d8a2d;
-  --poe-yellow: #8a8a2d;
-
-  /* Surface backgrounds override */
-  --input-bg: #ffffff;
-  --panel-bg: #ffffff;
-  --raised-bg: #ddddd8;
-  --deep-bg: #f5f5f0;
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-bg-hover: rgba(240, 240, 235, 0.9);
-  --chip-bg-selected: rgba(59, 130, 246, 0.15);
-
-  /* Border colors override */
-  --input-border: #c0c0bb;
-  --panel-border: #d0d0cb;
-
-  /* Primary text override */
-  --text-primary: #333338;
-
-  /* Text levels override */
-  --text-soft: #555558;
-  --text-muted-val: #666668;
-  --text-dim-val: #777778;
-  --text-faint-val: #888888;
-
-  /* Placeholder text override */
-  --placeholder-primary: #999999;
-  --placeholder-secondary: #aaaaaa;
-
-  /* Accent text colors override */
-  --accent-green-soft: #1a6b1a;
-  --accent-blue: #2563eb;
-  --accent-orange: #c2410c;
-  --accent-red-soft: #dc2626;
-  --accent-red: #dc2626;
-  --accent-emerald: #059669;
-  --accent-yellow: #d97706;
-  --accent-yellow-dim: #b45309;
-  --accent-violet: #7c3aed;
-  --accent-purple: #9333ea;
-  --accent-cyan: #0891b2;
-  --accent-amber: #d97706;
-  --accent-sky: #0284c7;
-  --accent-teal: #0d9488;
-
-  /* Accent text with opacity (light theme — darker base, same opacity) */
-  --accent-amber-soft: rgba(180, 83, 9, 0.65);    /* amber-800/65 */
-  --accent-amber-mid: rgba(180, 83, 9, 0.75);    /* amber-800/75 */
-  --accent-blue-soft: rgba(37, 99, 235, 0.65);    /* blue-600/65 */
-  --accent-blue-mid: rgba(37, 99, 235, 0.75);     /* blue-600/75 */
-  --accent-orange-mid: rgba(194, 65, 12, 0.75);   /* orange-700/75 */
-  --accent-amber-dimmer: rgba(146, 64, 14, 0.55); /* amber-900/55 */
-  --accent-amber-warn: rgba(180, 83, 9, 0.75);    /* amber-800/75 */
-  --accent-red-dim: rgba(185, 28, 28, 0.55);      /* red-700/55 */
-
-  /* Exclude button backgrounds (FilterChip) — light theme */
-  --exclude-bg-active: rgba(185, 28, 28, 0.15);    /* red-700/15 */
-  --exclude-bg-active-hover: rgba(220, 38, 38, 0.2); /* red-600/20 */
-  --exclude-bg-idle: rgba(55, 65, 81, 0.15);       /* raised/15 */
-  --exclude-bg-idle-hover: rgba(153, 27, 27, 0.1); /* red-800/10 */
-  --exclude-text-active: #991b1b;                    /* red-800 — excluded text */
-
-  /* Alert/notice border colors (light theme) */
-  --aborder-yellow: rgba(161, 98, 7, 0.35);        /* yellow-700/35 */
-  --aborder-amber: rgba(180, 83, 9, 0.35);         /* amber-700/35 */
-  --aborder-amber-strong: rgba(180, 83, 9, 0.4);   /* amber-700/40 */
-
-  /* Alert text colors (light theme) */
-  --atext-amber: #92400e;                          /* amber-800 */
-  --atext-amber-light: #78350f;                    /* amber-900 */
-
-  /* Alert background colors (light theme) */
-  --abg-amber: rgba(120, 53, 15, 0.08);            /* amber-800/8 */
-  --abg-amber-hover: rgba(180, 83, 9, 0.12);       /* amber-700/12 */
-  --aborder-amber-badge: rgba(217, 119, 6, 0.35);  /* amber-600/35 */
-
-  /* Button colors (same in light) */
-  --btn-primary: #2563eb;
-  --btn-primary-hover: #1d4ed8;
-  --btn-danger: #dc2626;
-  --btn-success: #16a34a;
-
-  /* Checkbox override (inverted for light) */
-  --checkbox-bg: #2563eb;
-  --checkbox-border: #2563eb;
-  --checkbox-text: #ffffff;
-
-  /* Indicator backgrounds (light theme — higher opacity for white bg) */
-  --indicator-green: rgba(16, 185, 129, 0.2);   /* emerald on white */
-  --indicator-yellow: rgba(234, 179, 8, 0.2);    /* yellow on white */
-  --indicator-red: rgba(239, 68, 68, 0.2);       /* red on white */
-  --indicator-red-deep: rgba(239, 68, 68, 0.12); /* red deeper on white */
-
-  /* Section backgrounds (light theme — slightly higher opacity for visibility) */
-  --section-yellow: rgba(234, 179, 8, 0.12);
-  --section-red: rgba(239, 68, 68, 0.12);
-  --section-emerald: rgba(16, 185, 129, 0.12);
-  --section-violet: rgba(139, 92, 246, 0.12);
-  --section-amber: rgba(217, 119, 6, 0.12);
-  --section-blue: rgba(59, 130, 246, 0.12);
-
-  /* Danger borders (light theme) */
-  --danger-border: #f87171;       /* red-400 */
-  --danger-border-strong: #ef4444; /* red-500 */
-
-  /* Scrollbar */
-  --scrollbar-hover: #b0b0ab;
-
-  /* Focus ring */
-  --focus-ring: #1d4ed8;
+  /* Focus ring — gold (brand accent) */
+  --focus-ring: #C89A4A;
 }
 
 /* ─── Tailwind v4 @theme: expose semantic tokens as utility classes ─── */
@@ -422,40 +298,43 @@ body {
   background: var(--poe-bg);
   color: var(--poe-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: background-color 0.2s ease, color 0.2s ease;
   position: relative;
 }
 
-/* ─── Atmospheric background (dark theme only) ─── */
+/* ─── Atmospheric background (dark-only, slight warm dim via overlay) ─── */
+/* iter 51: bg-forest.webp dimmed ~40% via warm rgba overlay to match dark-fantasy palette. */
 [data-theme="dark"] body,
 :root body {
-  background: #0a0a0f url('/poe2-regex-ru/bg-forest.webp') center/cover no-repeat fixed;
+  background-color: #0D0B09;
+  background-image:
+    linear-gradient(rgba(13, 11, 9, 0.40), rgba(13, 11, 9, 0.40)),
+    url('/poe2-regex-ru/bg-forest.webp');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-attachment: fixed, fixed;
+  background-repeat: no-repeat, no-repeat;
 }
 
 @media (max-width: 768px) {
   [data-theme="dark"] body,
   :root body {
-    background: #0a0a0f url('/poe2-regex-ru/bg-forest-mobile.webp') center/cover no-repeat scroll;
+    background-color: #0D0B09;
+    background-image:
+      linear-gradient(rgba(13, 11, 9, 0.40), rgba(13, 11, 9, 0.40)),
+      url('/poe2-regex-ru/bg-forest-mobile.webp');
+    background-size: cover, cover;
+    background-position: center, center;
+    background-attachment: scroll, scroll;
+    background-repeat: no-repeat, no-repeat;
   }
 }
 
-[data-theme="light"] body {
-  background: var(--poe-bg);
-}
-
-/* ─── Sidebar & Header: uniform semi-transparent overlay ─── */
+/* ─── Sidebar & Header: uniform semi-transparent warm overlay ─── */
 [data-theme="dark"] .sidebar-atmosphere,
 :root .sidebar-atmosphere,
 [data-theme="dark"] .header-atmosphere,
 :root .header-atmosphere {
-  background: rgba(10, 10, 15, 0.75);
-}
-
-[data-theme="light"] .sidebar-atmosphere {
-  background: var(--poe-bg-secondary);
-}
-[data-theme="light"] .header-atmosphere {
-  background: var(--poe-bg-secondary);
+  background: rgba(13, 11, 9, 0.78);
 }
 
 /* ─── Layout shell ─── */
@@ -463,17 +342,11 @@ body {
 :root .layout-shell {
   background: transparent;
 }
-[data-theme="light"] .layout-shell {
-  background: var(--poe-bg);
-}
 
 /* ─── Content area ─── */
 [data-theme="dark"] .content-area,
 :root .content-area {
   background: transparent;
-}
-[data-theme="light"] .content-area {
-  background: var(--poe-bg);
 }
 
 main {
@@ -501,33 +374,6 @@ main {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-hover);
-}
-
-/* ─── Light theme: form element defaults ─── */
-/* These use element selectors with [data-theme="light"] for sufficient specificity.
-   No !important needed because semantic classes (bg-surface, border-edge) already
-   resolve to the same CSS variables. */
-[data-theme="light"] select,
-[data-theme="light"] input[type="text"],
-[data-theme="light"] input[type="number"] {
-  background-color: var(--input-bg);
-  border-color: var(--input-border);
-  color: var(--poe-text);
-}
-
-/* Light theme: checkbox styling override */
-[data-theme="light"] input[type="checkbox"] {
-  accent-color: var(--checkbox-bg);
-}
-
-/* Light theme: control panel background (opaque, not semi-transparent) */
-[data-theme="light"] .control-panel-sticky {
-  background: var(--poe-bg);
-}
-
-/* Light theme: regex output area background */
-[data-theme="light"] .regex-output {
-  background: var(--poe-bg);
 }
 
 /* ─── Sticky control panel ─── */
@@ -666,48 +512,8 @@ main {
   border-radius: 0 0 0 4px;
 }
 
-/* Light theme: Level 1 affix frames */
-[data-theme="light"] .affix-header-prefix {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%);
-  border-color: rgba(37, 99, 235, 0.2);
-  border-left-color: rgba(37, 99, 235, 0.5);
-}
-[data-theme="light"] .affix-header-suffix {
-  background: linear-gradient(135deg, rgba(234, 88, 12, 0.06) 0%, rgba(234, 88, 12, 0.02) 100%);
-  border-color: rgba(234, 88, 12, 0.2);
-  border-left-color: rgba(234, 88, 12, 0.5);
-}
-[data-theme="light"] .affix-header-implicit {
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.06) 0%, rgba(217, 119, 6, 0.02) 100%);
-  border-color: rgba(217, 119, 6, 0.2);
-  border-left-color: rgba(217, 119, 6, 0.5);
-}
-
 /* ─── Mobile optimization ─── */
 @media (max-width: 768px) {
-  /* Light theme mobile: ensure control panel is opaque */
-  [data-theme="light"] .control-panel-sticky {
-    background: var(--poe-bg);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  }
-  /* Light theme mobile: affix frames need higher contrast */
-  [data-theme="light"] .affix-header-prefix {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.04) 100%);
-    border-color: rgba(37, 99, 235, 0.25);
-  }
-  [data-theme="light"] .affix-header-suffix {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.04) 100%);
-    border-color: rgba(234, 88, 12, 0.25);
-  }
-  [data-theme="light"] .affix-header-implicit {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.04) 100%);
-    border-color: rgba(217, 119, 6, 0.25);
-  }
-  /* Light theme mobile: chip readability improvement */
-  [data-theme="light"] .mod-list [class*="text-[13px]"],
-  [data-theme="light"] .virtualized-mod-list [class*="text-[13px]"] {
-    color: var(--poe-text);
-  }
   .mod-list button[class*="inline-flex"],
   .mod-list span[class*="inline-flex"],
   .virtualized-mod-list button[class*="inline-flex"],
@@ -761,11 +567,6 @@ main {
 }
 
 @media (max-width: 480px) {
-  /* Light theme small screen: regex output stays readable */
-  [data-theme="light"] .regex-output {
-    background: var(--poe-bg);
-    border-color: var(--input-border);
-  }
   .grid {
     min-width: 0;
   }

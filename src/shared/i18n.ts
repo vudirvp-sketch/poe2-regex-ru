@@ -66,8 +66,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'health.yellow': 'Много',
     'health.red': 'Критично',
     'tablet.title': 'Башни Предтеч',
-    'theme.light': 'Переключить на светлую тему',
-    'theme.dark': 'Переключить на тёмную тему',
     'chip.selected': 'выбрано',
     'chip.partial': 'частично выбрано',
     'chip.excluded': 'исключено',
