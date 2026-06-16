@@ -97,14 +97,26 @@ describe('computeOptimizations', () => {
       const dpEntry = entries.find(e => e.regex.ru.includes('сопротивлению'));
       expect(dpEntry).toBeDefined();
       if (dpEntry) {
-        // The factorized regex should be shorter than the flat OR
-        expect(dpEntry.regex.ru.length).toBeLessThan(
-          'к сопротивлению огню|к сопротивлению холоду|к сопротивлению молниям'.length
-        );
+        // After Path D (iter 40): the regex is in Path D format
+        // (top-level `|` with `.*` bridges), NOT the DP-factorized
+        // `prefix(A|B|C)` form (which is broken in PoE2).
+        //
+        // Path D regex: "к сопротивлению.*огню|к сопротивлению.*холоду|к сопротивлению.*молниям"
+        //
+        // This is NOT shorter than flat OR (each alt repeats the prefix),
+        // but it WORKS in PoE2 (single quoted group with top-level `|`),
+        // while flat OR (`"X"|"Y"|"Z"` — separate quoted groups) is BROKEN.
+        const regex = dpEntry.regex.ru;
+        expect(regex).toMatch(/\|/);                          // has top-level alternation
+        expect(regex).not.toMatch(/\([^)]*\|/);               // no `()` with `|` inside
+        expect(regex).toContain('к сопротивлению');            // common prefix preserved
+        expect(regex).toContain('огню');                       // alt 1
+        expect(regex).toContain('холоду');                     // alt 2
+        expect(regex).toContain('молниям');                    // alt 3
       }
     });
 
-    it('DP factorization produces shorter regexes than flat OR for similar families', () => {
+    it('DP factorization + Path D produces working regex for similar families', () => {
       const tokens: NormalizedMod[] = [
         makeMod({ id: 'test.a', rawText: { ru: 'увеличение урона' } }),
         makeMod({ id: 'test.b', rawText: { ru: 'увеличение защиты' } }),
@@ -119,10 +131,14 @@ describe('computeOptimizations', () => {
       const entries = Object.values(result);
       const dpEntry = entries.find(e => e.regex.ru.includes('увеличение'));
       if (dpEntry) {
-        // Factorized: "увеличение (урона|защиты)" < "увеличение урона|увеличение защиты"
-        expect(dpEntry.regex.ru.length).toBeLessThan(
-          'увеличение урона|увеличение защиты'.length
-        );
+        // After Path D: "увеличение.*урона|увеличение.*защиты"
+        // (NOT the broken "увеличение (урона|защиты)" form)
+        const regex = dpEntry.regex.ru;
+        expect(regex).toMatch(/\|/);                            // top-level alternation
+        expect(regex).not.toMatch(/\([^)]*\|/);                 // no `()` with `|` inside
+        expect(regex).toContain('увеличение');                   // common prefix
+        expect(regex).toContain('урона');                        // alt 1
+        expect(regex).toContain('защиты');                       // alt 2
       }
     });
   });

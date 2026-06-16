@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation Guide
 
-> **Version:** 26.0 | **Date:** 2026-06-16
+> **Version:** 27.0 | **Date:** 2026-06-16
 
 ---
 
@@ -79,7 +79,7 @@ tsc -b → vite build → prerender.ts (shell only)
 | `core-optimizations.ts` | Phase 1 deduplication + Phase 4 conflicting exclude removal + shared utilities | `deduplicateOrGroups`, `removeConflictingExcludes`, `expandTokenId`, `getValueKey`, `collectTokenIdsFromNode` |
 | `optimization-strategies.ts` | Phase 2 optimization table + Phase 3 suffix truncation + data | `applyOptimizationTable`, `truncateSuffixes`, `truncateSuffix`, `isTruncationSafe`, `TRUNCATED_TAILS_SAFE`, `TRUNCATED_TAILS_BLACKLIST` |
 
-**⚠️ CRITICAL:** Optimization table (Phase 2) is fundamentally broken for ~90% of entries because `|` inside `()` with multi-word alternatives doesn't work in PoE2 (Tests 15-17). Path D strategy (`"prefix.*A|prefix.*B|prefix.*C"` — top-level `|` in ONE quoted group with `.*` bridges) is the working replacement (verified iter 38: 2 alt; iter 39: 3+4 alt + AND-combination, D1 cleared). See STATUS.md for implementation plan.
+**✅ RESOLVED (iter 40):** Optimization table (Phase 2) was broken for ~90% of entries because `|` inside `()` with multi-word alternatives doesn't work in PoE2 (Tests 15-17). Path D strategy (`"prefix.*A|prefix.*B|prefix.*C"` — top-level `|` in ONE quoted group with `.*` bridges) is now IMPLEMENTED in ETL (`scripts/etl/path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 303/481 opt-table entries converted to Path D format, 0 broken `()` entries remain. See STATUS.md for D5 (in-game verification) plan.
 
 ## 6. Path Aliases
 
@@ -177,7 +177,7 @@ shared <- core <- strategies <- store <- data <- ui
 11. **AND-in-OR nested quotes:** When AND(LITERAL, EXCLUDE) is inside OR, compiler wraps in `"..."` creating nested quotes. PoE2 can't parse this. With Path D (single quoted group with top-level `|`), this issue becomes irrelevant for opt-table — but still relevant for manual OR+EXCLUDE combinations.
 12. **`(?!…)` works per-block** — unlike `!` which is item-wide. Chain: `(?!.*A)(?!.*B)` works.
 13. **regexExclude word forms:** Must use truncated stems. `самострелами` ≠ `самострела`. Use `самострел` to catch both.
-14. **Optimization table (Phase 2) broken** — `"prefix (A|B|C)"` pattern doesn't work in PoE2 (Tests 15-17). Replace with Path D: `"prefix.*A|prefix.*B|prefix.*C"` (single quoted group, top-level `|`, `.*` bridges). Verified iter 38 (2 alt); iter 39 (3+4 alt + AND-combination, D1 cleared). Next: D2 — implement Path D in ETL `compute-optimizations.ts`.
+14. **Optimization table (Phase 2) — RESOLVED iter 40:** `"prefix (A|B|C)"` pattern was broken in PoE2 (Tests 15-17). Path D (`"prefix.*A|prefix.*B|prefix.*C"` — single quoted group, top-level `|`, `.*` bridges) is now implemented in ETL (`path-d-transform.ts` + Phase D in `compute-optimizations.ts` + `reoptimizeTable` in `iterative-optimizer.ts`) and runtime (`applyOptimizationTable` applies Path D entries even with negative savings). 303/481 opt-table entries converted, 0 broken remain. Next: D5 — in-game verification on 4 gems + extended set.
 15. **Cross-block FP risk (iter 37):** `"X" "Y"` (AND across blocks) can match items where X and Y appear in DIFFERENT mod blocks. Use `.*` bridge in ONE quoted group (`"X.*Y"`) to force same-block match.
 16. **Simulator `(?!…)` divergence (iter 37):** Simulator parses `(?!X)` as item-wide negation (X must not appear ANYWHERE in block), while the game uses position-specific lookahead. For most use cases (Y at block start, X after Y) they agree; edge cases (X before Y) diverge.
 17. **Simulator `"X"|"Y"` divergence (RESOLVED iter 38):** Simulator parses `"X"|"Y"` as `"X"` AND `(|Y)` = `"X"` only. Game gives ZERO matches. Both are broken — neither gives OR semantics. Use Path D instead: `"X.*A|X.*B"` (single quoted group).

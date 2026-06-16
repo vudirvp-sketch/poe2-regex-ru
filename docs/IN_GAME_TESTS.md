@@ -1,11 +1,11 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Верификация v9:** 2026-06-16 — итерация 39: D1 VERIFIED — Path D работает на 3+ альтернативах + AND-комбинация.
+> **Верификация v10:** 2026-06-16 — итерация 40: D2+D4 DONE — Path D реализован в ETL + runtime, 303/481 opt-table entries преобразованы, 0 broken `()` остаются. Ожидает D5 in-game верификацию.
 
 ---
 
-## PoE2 Regex Dialect — VERIFIED (iter 39)
+## PoE2 Regex Dialect — VERIFIED (iter 40)
 
 | Feature | Status | Key test |
 |---------|--------|----------|
@@ -90,6 +90,74 @@ This is the WORKING replacement for the broken opt-table pattern `"prefix (A|B|C
 **Fallback options if Path D fails on 3+ alternatives:**
 - (b) UI redesign: each same-family mod becomes a SEPARATE AND filter (mutually exclusive choice in UI)
 - (c) Fall back to AND (user must accept that selecting multiple same-family mods requires ALL to be present, not ANY)
+
+---
+
+## Iteration 40 — D2+D4 DONE (Path D implemented in ETL + runtime)
+
+### What was done
+
+1. **D2 — ETL Path D implementation:**
+   - Created `scripts/etl/path-d-transform.ts` with `pathDTransform()` and `hasPathDGroup()` functions.
+   - Added Phase D in `compute-optimizations.ts` (after Phase C dialect optimizations): transforms `prefix(A|B|C)` → `prefix.*A|prefix.*B|prefix.*C` for all opt-table entries with `()` groups containing `|`.
+   - Updated `iterative-optimizer.ts` `reoptimizeTable()` to apply Path D after `applyDialectOptimizations`, with a condition to replace broken `()`-with-`|` entries even when Path D regex is longer.
+
+2. **D4 — Runtime Path D compatibility:**
+   - Updated `optimization-strategies.ts` `applyOptimizationTable()`:
+     - `approxLength` for plain LITERAL now uses `approxCompiledLength` (with quotes) — consistent savings comparison.
+     - Added `hasTopLevelAlternation()` helper to detect Path D entries (regex with top-level `|`).
+     - Path D entries are ALWAYS applied when `matchedIds.size >= 2`, even with negative savings — the alternative (separate quoted groups `"X"|"Y"`) is BROKEN in PoE2 (B0 confirmed iter 38).
+   - `buildOptimizedNode()` and `buildLiteralNode()` work unchanged — Path D regex passes through as a LITERAL value, compiler wraps it in `"..."` producing a single quoted group with top-level `|`.
+
+3. **Testing:**
+   - 35 unit tests for `path-d-transform.ts` (nested groups, optional `(ь|)`, char classes `[её]`, combined prefix+suffix, real-world patterns).
+   - 3 D4 runtime tests in `optimizer.test.ts`: opt-table Path D → `optimize()` → `compile()` → single quoted group with top-level `|`.
+   - 2 updated tests in `compute-optimizations.test.ts`: assertions changed from "shorter than flat OR" to "Path D format (top-level `|`, no `()` with `|`)".
+   - All 1084 tests pass (1046 baseline + 35 path-d-transform + 3 D4 runtime).
+
+4. **ETL regenerated all 10 JSON files** — Path D statistics:
+
+| Category | Total opt-entries | Path D (top-level `\|`) | Flat (no `\|`) | Broken `()` with `\|` |
+|----------|-------------------|-------------------------|----------------|------------------------|
+| Jewel | 113 | 112 | 1 | 0 |
+| Amulet | 114 | 54 | 60 | 0 |
+| Ring | 93 | 45 | 48 | 0 |
+| Belt | 83 | 47 | 36 | 0 |
+| Tablet | 35 | 30 | 5 | 0 |
+| Waystone | 43 | 15 | 28 | 0 |
+| **TOTAL** | **481** | **303** | **178** | **0** |
+
+### Sample Path D entries (before → after)
+
+**Jewel (was broken `()` with nested groups):**
+- Before: `увеличение (области действия|максимума (энергетического щита|здоровья)|уклонения|урона в ближнем бою|...)`
+- After: `увеличение.*области действия|увеличение.*максимума.*энергетического щита|увеличение.*максимума.*здоровья|увеличение.*уклонения|увеличение.*урона в ближнем бою|...`
+
+**Tablet (English, was broken `()`):**
+- Before: `(Rare|from Vaal Beacons|Monsters|pack(s) of Monsters around Vaal Beacons|for Monsters around Vaal Beacons) in Map`
+- After: `Rare.*in Map|from Vaal Beacons.*in Map|Monsters.*in Map|pack(s) of Monsters around Vaal Beacons.*in Map|for Monsters around Vaal Beacons.*in Map`
+
+Note: `pack(s)` (single-alt group, no `|`) is PRESERVED — Path D only transforms groups with `|` inside.
+
+### What's NOT done (next iteration)
+
+- **D5 — In-game verification on 4 gems + extended set:** Path D is now in production ETL output. Need to verify in-game that the ETL-generated Path D regexes work correctly (especially the long ones with 6+ alternatives and nested structures).
+- **D3 — regexExclude truncated stems:** `самострелами` ≠ `самострела`. Separate concern from Path D.
+- **D6 — Spread to all categories:** ETL already applies Path D to ALL categories. D6 is effectively DONE from ETL perspective; only in-game verification (D5) remains.
+
+### ⚠️ Risk: Path D `.*` bridges are more permissive
+
+Path D uses `.*` between prefix and each alternative. This is MORE permissive than the original `prefix(A|B|C)` (literal concat). Potential FP risk: `prefix.*A` could match text where "prefix" and "A" appear with unrelated words between them.
+
+**Mitigations:**
+- Prefix and alt are typically unique word stems — `.*` bridge rarely matches unrelated text.
+- iter 39 D1 verified FP-control works: `.*` bridge correctly rejects different prefixes/suffixes.
+- D5 in-game verification will confirm no FP on production data.
+
+If D5 reveals FP, options:
+1. D3 — improve `regexExclude` with truncated stems + `(?!…)` per-block.
+2. Targeted fixes for specific opt-table entries (manual override).
+3. Fallback to UI redesign (each same-family mod = separate AND filter).
 
 ---
 

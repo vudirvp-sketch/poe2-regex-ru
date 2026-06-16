@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-15T11:54:54.177Z",
+  "version": "2026-06-16T14:52:19.180Z",
   "category": "relic",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -2695,9 +2695,9 @@
         "relic.sanctummonstersdoublegoldchance4"
       ],
       "regex": {
-        "ru": "(выпас|дарова)ть двойное количество святой воды"
+        "ru": "выпас.*ть двойное количество святой воды|дарова.*ть двойное количество святой воды"
       },
-      "weight": 47,
+      "weight": 82,
       "count": 8
     },
     "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
@@ -2720,9 +2720,9 @@
         "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "(максимума|восстановления|сопротивлению) чести"
+        "ru": "максимума.*чести|восстановления.*чести|сопротивлению.*чести"
       },
-      "weight": 46,
+      "weight": 59,
       "count": 16
     }
   }

@@ -26,6 +26,7 @@
 import { matchQuotedGroup, matchPoE2RegexItem, getItemSearchBlocks } from '../../src/core/poe2-regex-matcher.js';
 import { batchDPFactorize, applyDialectOptimizations } from '../../src/core/dp-factorizer.js';
 import { containsPoE2Grouping } from './compute-regex-core.js';
+import { pathDTransform, hasPathDGroup } from './path-d-transform.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -720,9 +721,25 @@ function reoptimizeTable(data: JsonData): number {
 
     // Check if this is a new or improved optimization
     const existing = table[key];
-    const newRegex = applyDialectOptimizations(entry.result.regex);
+    // Apply dialect optimizations, then Path D transformation (iter 40).
+    // Path D flattens `prefix(A|B|C)` → `prefix.*A|prefix.*B|prefix.*C` because
+    // PoE2 does not parse `()` with multi-word `|` inside `"..."`.
+    const dialectOptimized = applyDialectOptimizations(entry.result.regex);
+    const newRegex = hasPathDGroup(dialectOptimized)
+      ? pathDTransform(dialectOptimized)
+      : dialectOptimized;
 
-    if (!existing || newRegex.length < existing.regex.ru.length) {
+    // Update the table entry if:
+    // - No existing entry (new), OR
+    // - New regex is shorter (improvement), OR
+    // - Existing regex has broken `()` with `|` and new regex doesn't
+    //   (Path D fix — must replace broken entries even if Path D is longer)
+    const shouldUpdate =
+      !existing ||
+      newRegex.length < existing.regex.ru.length ||
+      (hasPathDGroup(existing.regex.ru) && !hasPathDGroup(newRegex));
+
+    if (shouldUpdate) {
       table[key] = {
         ids,
         regex: { ru: newRegex },

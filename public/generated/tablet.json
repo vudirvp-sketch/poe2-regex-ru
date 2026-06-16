@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-15T11:54:52.939Z",
+  "version": "2026-06-16T14:52:18.297Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -3373,9 +3373,9 @@
         "tablet.mod_v2ddkt"
       ],
       "regex": {
-        "ru": "(Rare|from Vaal Beacons|Monsters|pack(s) of Monsters around Vaal Beacons|for Monsters around Vaal Beacons) in Map"
+        "ru": "Rare.*in Map|from Vaal Beacons.*in Map|Monsters.*in Map|pack(s) of Monsters around Vaal Beacons.*in Map|for Monsters around Vaal Beacons.*in Map"
       },
-      "weight": 113,
+      "weight": 144,
       "count": 6
     },
     "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
@@ -3387,9 +3387,9 @@
         "tablet.mod_v2ddkt"
       ],
       "regex": {
-        "ru": "(from Vaal Beacon|Monster|pack(s) of Monsters around Vaal Beacon|for Monsters around Vaal Beacon)s in Map"
+        "ru": "from Vaal Beacon.*s in Map|Monster.*s in Map|pack(s) of Monsters around Vaal Beacon.*s in Map|for Monsters around Vaal Beacon.*s in Map"
       },
-      "weight": 105,
+      "weight": 135,
       "count": 5
     },
     "tablet.mod_df7zhf:tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_jkqo0p:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
@@ -3403,9 +3403,9 @@
         "tablet.mod_v2ddkt"
       ],
       "regex": {
-        "ru": "(to the|Rare in|from Vaal Beacons in|Monsters in|pack(s) of Monsters around Vaal Beacons in|for Monsters around Vaal Beacons in) Map"
+        "ru": "to the.*Map|Rare in.*Map|from Vaal Beacons in.*Map|Monsters in.*Map|pack(s) of Monsters around Vaal Beacons in.*Map|for Monsters around Vaal Beacons in.*Map"
       },
-      "weight": 132,
+      "weight": 156,
       "count": 7
     },
     "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_o3kmu5:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
@@ -3418,9 +3418,9 @@
         "tablet.mod_xpt1fq"
       ],
       "regex": {
-        "ru": "встретить (бродячих изгнанников|ритуальный круг|духов азмири|Сущности|ларцы|алтари)"
+        "ru": "встретить.*бродячих изгнанников|встретить.*ритуальный круг|встретить.*духов азмири|встретить.*Сущности|встретить.*ларцы|встретить.*алтари"
       },
-      "weight": 83,
+      "weight": 137,
       "count": 6
     },
     "tablet.mod_i7llgb:tablet.mod_lqwqxg": {
@@ -3440,9 +3440,9 @@
         "tablet.mod_9l6crt"
       ],
       "regex": {
-        "ru": "(редкости|количества) предметов, выпадающих из боссов карт"
+        "ru": "редкости.*предметов, выпадающих из боссов карт|количества.*предметов, выпадающих из боссов карт"
       },
-      "weight": 58,
+      "weight": 95,
       "count": 2
     },
     "tablet.mod_c50n05:tablet.mod_nnpno6:tablet.mod_s74b0e": {
@@ -3452,9 +3452,9 @@
         "tablet.mod_s74b0e"
       ],
       "regex": {
-        "ru": "монстр(ов (Делириума|Экспедиции)|ами) на карте"
+        "ru": "монстр.*ов.*Делириума.*на карте|монстр.*ов.*Экспедиции.*на карте|монстр.*ами.*на карте"
       },
-      "weight": 46,
+      "weight": 86,
       "count": 3
     },
     "tablet.mod_a94wuy:tablet.mod_as23xk.2po3dj:tablet.mod_as23xk.i41rig:tablet.mod_sglt63:tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
@@ -3467,9 +3467,9 @@
         "tablet.mod_vc6g4q.3d4ulj"
       ],
       "regex": {
-        "ru": " можно встретить дополнительн(ую|ый)"
+        "ru": " можно встретить дополнительн.*ую| можно встретить дополнительн.*ый"
       },
-      "weight": 36,
+      "weight": 67,
       "count": 6
     },
     "tablet.mod_2jjyh7:tablet.mod_f87zsk:tablet.mod_guq13l:tablet.mod_yvoqjl": {
@@ -3480,9 +3480,9 @@
         "tablet.mod_yvoqjl"
       ],
       "regex": {
-        "ru": "количеств(а редких монстров на карте|о дани|а предметов, выпадающих из боссов карт|о монстров)"
+        "ru": "количеств.*а редких монстров на карте|количеств.*о дани|количеств.*а предметов, выпадающих из боссов карт|количеств.*о монстров"
       },
-      "weight": 94,
+      "weight": 127,
       "count": 4
     },
     "tablet.mod_ld06px:tablet.mod_mug63h": {
@@ -3504,9 +3504,9 @@
         "tablet.mod_l616q8"
       ],
       "regex": {
-        "ru": "(яет б|дополнительные Б|свойствами Б|Глубинам Б)ездны"
+        "ru": "яет б.*ездны|дополнительные Б.*ездны|свойствами Б.*ездны|Глубинам Б.*ездны"
       },
-      "weight": 53,
+      "weight": 74,
       "count": 4
     },
     "tablet.mod_5xy54:tablet.mod_ld06px:tablet.mod_mug63h:tablet.mod_xfrnuy": {
@@ -3517,9 +3517,9 @@
         "tablet.mod_xfrnuy"
       ],
       "regex": {
-        "ru": "карт(е (предметов|золота|путевых камней)|ы путевых камней)"
+        "ru": "карт.*е.*предметов|карт.*е.*золота|карт.*е.*путевых камней|карт.*ы путевых камней"
       },
-      "weight": 58,
+      "weight": 81,
       "count": 4
     },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
@@ -3529,9 +3529,9 @@
         "tablet.mod_l616q8"
       ],
       "regex": {
-        "ru": "(дополнительные|свойствами|Глубинам) Бездны"
+        "ru": "дополнительные.*Бездны|свойствами.*Бездны|Глубинам.*Бездны"
       },
-      "weight": 43,
+      "weight": 58,
       "count": 3
     },
     "tablet.mod_l616q8:tablet.mod_umh3r9": {
@@ -3540,9 +3540,9 @@
         "tablet.mod_umh3r9"
       ],
       "regex": {
-        "ru": "дополнительны(е Бездны|м свойством)"
+        "ru": "дополнительны.*е Бездны|дополнительны.*м свойством"
       },
-      "weight": 35,
+      "weight": 50,
       "count": 2
     },
     "tablet.mod_9lbzqh:tablet.mod_umh3r9": {
@@ -3551,9 +3551,9 @@
         "tablet.mod_umh3r9"
       ],
       "regex": {
-        "ru": "(случай|дополнитель)ным свойством"
+        "ru": "случай.*ным свойством|дополнитель.*ным свойством"
       },
-      "weight": 33,
+      "weight": 48,
       "count": 2
     },
     "tablet.mod_wrlukt:tablet.mod_yr6d7c": {
@@ -3562,9 +3562,9 @@
         "tablet.mod_yr6d7c"
       ],
       "regex": {
-        "ru": "увеличение (эффективности монстров|размера групп монстров на карте)"
+        "ru": "увеличение.*эффективности монстров|увеличение.*размера групп монстров на карте"
       },
-      "weight": 67,
+      "weight": 78,
       "count": 2
     },
     "tablet.mod_9l6crt:tablet.mod_gnrsv2": {
@@ -3573,9 +3573,9 @@
         "tablet.mod_gnrsv2"
       ],
       "regex": {
-        "ru": "редкости (монстров на карте|предметов, выпадающих из боссов карт)"
+        "ru": "редкости.*монстров на карте|редкости.*предметов, выпадающих из боссов карт"
       },
-      "weight": 65,
+      "weight": 74,
       "count": 2
     },
     "tablet.mod_87tys9:tablet.mod_8rpt3p": {
@@ -3584,9 +3584,9 @@
         "tablet.mod_8rpt3p"
       ],
       "regex": {
-        "ru": "уникальны(е|х боссов)"
+        "ru": "уникальны.*е|уникальны.*х боссов"
       },
-      "weight": 21,
+      "weight": 32,
       "count": 2
     },
     "tablet.mod_wrlukt:tablet.mod_yvoqjl": {
@@ -3595,9 +3595,9 @@
         "tablet.mod_yvoqjl"
       ],
       "regex": {
-        "ru": "(увеличение эффективности|количество) монстров"
+        "ru": "увеличение эффективности.*монстров|количество.*монстров"
       },
-      "weight": 46,
+      "weight": 55,
       "count": 2
     },
     "tablet.mod_93pla5:tablet.mod_gztigx": {
@@ -3606,9 +3606,9 @@
         "tablet.mod_gztigx"
       ],
       "regex": {
-        "ru": "волшебны(х монстров на карте|ми)"
+        "ru": "волшебны.*х монстров на карте|волшебны.*ми"
       },
-      "weight": 32,
+      "weight": 42,
       "count": 2
     },
     "tablet.implicit.ritual_altars:tablet.mod_swvjcv": {
@@ -3617,9 +3617,9 @@
         "tablet.mod_swvjcv"
       ],
       "regex": {
-        "ru": "(встретить|яет) алтари"
+        "ru": "встретить.*алтари|яет.*алтари"
       },
-      "weight": 22,
+      "weight": 29,
       "count": 2
     },
     "tablet.mod_4ej297:tablet.mod_ypihik": {
@@ -3628,9 +3628,9 @@
         "tablet.mod_ypihik"
       ],
       "regex": {
-        "ru": "ссеива(ется|нием)"
+        "ru": "ссеива.*ется|ссеива.*нием"
       },
-      "weight": 17,
+      "weight": 25,
       "count": 2
     },
     "tablet.mod_4ej297:tablet.mod_7jrajl:tablet.mod_7ms10f": {
@@ -3640,9 +3640,9 @@
         "tablet.mod_7ms10f"
       ],
       "regex": {
-        "ru": "(личиваю|появляе|ссеивае)тся"
+        "ru": "личиваю.*тся|появляе.*тся|ссеивае.*тся"
       },
-      "weight": 28,
+      "weight": 38,
       "count": 3
     },
     "tablet.mod_f87zsk:tablet.mod_ldczbk": {
@@ -3651,9 +3651,9 @@
         "tablet.mod_ldczbk"
       ],
       "regex": {
-        "ru": "(стоить|количество) дани"
+        "ru": "стоить.*дани|количество.*дани"
       },
-      "weight": 24,
+      "weight": 29,
       "count": 2
     },
     "tablet.implicit.abyss:tablet.implicit.ritual_altars": {
@@ -3662,9 +3662,9 @@
         "tablet.implicit.ritual_altars"
       ],
       "regex": {
-        "ru": "яет (алтари|бездны)"
+        "ru": "яет.*алтари|яет.*бездны"
       },
-      "weight": 19,
+      "weight": 23,
       "count": 2
     },
     "tablet.mod_4ej297:tablet.mod_7ms10f": {
@@ -3673,9 +3673,9 @@
         "tablet.mod_7ms10f"
       ],
       "regex": {
-        "ru": "(появля|ссеива)ется"
+        "ru": "появля.*ется|ссеива.*ется"
       },
-      "weight": 19,
+      "weight": 25,
       "count": 2
     },
     "tablet.mod_8rpt3p:tablet.mod_kbdifj": {
@@ -3684,9 +3684,9 @@
         "tablet.mod_kbdifj"
       ],
       "regex": {
-        "ru": "(отложен|уникаль)ные"
+        "ru": "отложен.*ные|уникаль.*ные"
       },
-      "weight": 20,
+      "weight": 25,
       "count": 2,
       "regexPrefixContext": {
         "ru": "снова"
@@ -3700,9 +3700,9 @@
         "tablet.mod_umh3r9"
       ],
       "regex": {
-        "ru": "дополнительны(е Бездны|х (монстров|групп монстров вокруг Маяков Ваал) на карте|м свойством)"
+        "ru": "дополнительны.*е Бездны|дополнительны.*х.*монстров.*на карте|дополнительны.*х.*групп монстров вокруг Маяков Ваал.*на карте|дополнительны.*м свойством"
       },
-      "weight": 91,
+      "weight": 149,
       "count": 4
     },
     "tablet.mod_q7wgu2:tablet.mod_vx5kd7": {
@@ -3711,9 +3711,9 @@
         "tablet.mod_vx5kd7"
       ],
       "regex": {
-        "ru": "разме(ра групп монстров вокруг Маяков Ваал|щения взрывчатки в событии Экспедиции) на карте"
+        "ru": "разме.*ра групп монстров вокруг Маяков Ваал.*на карте|разме.*щения взрывчатки в событии Экспедиции.*на карте"
       },
-      "weight": 90,
+      "weight": 108,
       "count": 2
     },
     "tablet.mod_2pzo3q:tablet.mod_g8qfur": {
@@ -3722,9 +3722,9 @@
         "tablet.mod_g8qfur"
       ],
       "regex": {
-        "ru": "осколков (зеркал|Симулякра)"
+        "ru": "осколков.*зеркал|осколков.*Симулякра"
       },
-      "weight": 27,
+      "weight": 36,
       "count": 2
     },
     "tablet.mod_jkqo0p:tablet.mod_vj1bxt": {
@@ -3733,9 +3733,9 @@
         "tablet.mod_vj1bxt"
       ],
       "regex": {
-        "ru": "(стать|окажутся) редкими"
+        "ru": "стать.*редкими|окажутся.*редкими"
       },
-      "weight": 24,
+      "weight": 32,
       "count": 2
     },
     "tablet.mod_24pi7h:tablet.mod_2pzo3q": {
@@ -3744,9 +3744,9 @@
         "tablet.mod_2pzo3q"
       ],
       "regex": {
-        "ru": "(осколков|хрупких) зеркал"
+        "ru": "осколков.*зеркал|хрупких.*зеркал"
       },
-      "weight": 25,
+      "weight": 32,
       "count": 2
     }
   }

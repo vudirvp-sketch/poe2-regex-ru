@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-15T11:54:51.724Z",
+  "version": "2026-06-16T14:52:17.387Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -6420,9 +6420,9 @@
         "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
-        "ru": "(количества редких|увеличение урона|и редких|появления свойств у редких|критического урона|здоровья|эффективности|у) монстров"
+        "ru": "количества редких.*монстров|увеличение урона.*монстров|и редких.*монстров|появления свойств у редких.*монстров|критического урона.*монстров|здоровья.*монстров|эффективности.*монстров|у.*монстров"
       },
-      "weight": 125,
+      "weight": 194,
       "count": 62
     },
     "waystone.mod_2195hd.xcp5e3:waystone.mod_2368r0.x4tupj:waystone.mod_2ht2hu.x4tupj:waystone.mod_2xv8m4.x4tupj:waystone.mod_3700im.1gskvl:waystone.mod_3700im.irs8zf:waystone.mod_453bd0.7bkmne:waystone.mod_453bd0.dkzoww:waystone.mod_453bd0.l28urr:waystone.mod_5j3ahj.x4tupj:waystone.mod_62dygh.ajq93o:waystone.mod_62dygh.ohnqoy:waystone.mod_62dygh.u5rs9k:waystone.mod_9svl5o.7bkmne:waystone.mod_9svl5o.dkzoww:waystone.mod_9svl5o.gt6q1l:waystone.mod_ags7hd.j328n0:waystone.mod_ags7hd.k7gsc2:waystone.mod_ags7hd.o849vg:waystone.mod_byn019.7bxq5y:waystone.mod_cgdb7m.1gskvl:waystone.mod_cgdb7m.irs8zf:waystone.mod_chnob5.ihp41g:waystone.mod_chnob5.ohnqoy:waystone.mod_chnob5.u5rs9k:waystone.mod_dv8kwa.mtgbg2:waystone.mod_eebmyy.hlk855:waystone.mod_eebmyy.k7gsc2:waystone.mod_eebmyy.o849vg:waystone.mod_eokrsq.mde121:waystone.mod_goqcn2.x4tupj:waystone.mod_htl5cc.1gskvl:waystone.mod_htl5cc.irs8zf:waystone.mod_i1gkuy.7bkmne:waystone.mod_i1gkuy.dkzoww:waystone.mod_i1gkuy.mctyuh:waystone.mod_j15ym2.5zjvw7:waystone.mod_j4aki5.1gskvl:waystone.mod_j4aki5.irs8zf:waystone.mod_k10uf8.j51fup:waystone.mod_k10uf8.ohnqoy:waystone.mod_k10uf8.u5rs9k:waystone.mod_kggkhy.tcq2o9:waystone.mod_khqk4q.uaugx5:waystone.mod_klpqrv.3fnpnc:waystone.mod_klpqrv.k7gsc2:waystone.mod_klpqrv.o849vg:waystone.mod_kp15r6.x4tupj:waystone.mod_l7rwtj.x4tupj:waystone.mod_mfedkw.gt494t:waystone.mod_nx4wv2.x4tupj:waystone.mod_omospl.x4tupj:waystone.mod_phffvg.7bkmne:waystone.mod_phffvg.dkzoww:waystone.mod_phffvg.ev4djt:waystone.mod_u6ht6b.x4tupj:waystone.mod_uns37d.quxea:waystone.mod_ux3o8n.x4tupj:waystone.mod_vgw675.4fnej8:waystone.mod_vkdkr4.fg1k8d:waystone.mod_vkdkr4.ohnqoy:waystone.mod_vkdkr4.u5rs9k:waystone.mod_wmq5d4.k7gsc2:waystone.mod_wmq5d4.o849vg:waystone.mod_y4nnlv.asn09": {
@@ -6494,9 +6494,9 @@
         "waystone.mod_y4nnlv.asn09"
       ],
       "regex": {
-        "ru": "(критическ(их уда|ого урона монст)|количества редких монст|увеличение урона монст|и редких монст|появления свойств у редких монст|здоровья монст|эффективности монст|у монст)ров"
+        "ru": "критическ.*их уда.*ров|критическ.*ого урона монст.*ров|количества редких монст.*ров|увеличение урона монст.*ров|и редких монст.*ров|появления свойств у редких монст.*ров|здоровья монст.*ров|эффективности монст.*ров|у монст.*ров"
       },
-      "weight": 176,
+      "weight": 227,
       "count": 65
     },
     "waystone.mod_2368r0.5ee2t3:waystone.mod_2xv8m4.9i43dz:waystone.mod_39zmx7.isxi7c:waystone.mod_5j3ahj.8mhogc:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_la7tcb.lmk0dk:waystone.mod_ux3o8n.gmxw9g": {
@@ -6511,9 +6511,9 @@
         "waystone.mod_ux3o8n.gmxw9g"
       ],
       "regex": {
-        "ru": "(отравл|кровотеч)ение при нанесении удара"
+        "ru": "отравл.*ение при нанесении удара|кровотеч.*ение при нанесении удара"
       },
-      "weight": 41,
+      "weight": 67,
       "count": 8
     },
     "waystone.mod_ags7hd.j328n0:waystone.mod_dv8kwa.mtgbg2:waystone.mod_dv8kwa.nnkbcj:waystone.mod_eebmyy.hlk855:waystone.mod_eokrsq.mde121:waystone.mod_eokrsq.v508lf:waystone.mod_klpqrv.3fnpnc:waystone.mod_uns37d.quxea:waystone.mod_uns37d.slejo:waystone.mod_y4nnlv.asn09:waystone.mod_y4nnlv.rpj316": {
@@ -6531,9 +6531,9 @@
         "waystone.mod_y4nnlv.rpj316"
       ],
       "regex": {
-        "ru": "критическ(ого у(дара|рона монстров)|их ударов)"
+        "ru": "критическ.*ого у.*дара|критическ.*ого у.*рона монстров|критическ.*их ударов"
       },
-      "weight": 46,
+      "weight": 75,
       "count": 11
     },
     "waystone.mod_1kh81h.413pny:waystone.mod_6j3xkx.tr2esi:waystone.mod_6ozv78.vwbm4v:waystone.mod_8bvhdx.54e72:waystone.mod_arwr8m.nszmll:waystone.mod_k6xeoc.5ozbbj:waystone.mod_q2uvfp.90zite:waystone.mod_zhrsdh.2xc6v6": {
@@ -6548,9 +6548,9 @@
         "waystone.mod_zhrsdh.2xc6v6"
       ],
       "regex": {
-        "ru": "сопротивлений (стихиям|игроков)"
+        "ru": "сопротивлений.*стихиям|сопротивлений.*игроков"
       },
-      "weight": 31,
+      "weight": 45,
       "count": 8
     },
     "waystone.implicit.waystone_drop_chance:waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_goqcn2.69pj5x:waystone.mod_kp15r6.85wna8:waystone.mod_l7rwtj.e4a1oc:waystone.mod_nx4wv2.cvd3r4:waystone.mod_omospl.wzz77g:waystone.mod_u6ht6b.fdx9pm:waystone.mod_zbjr94.cv8ywl": {
@@ -6567,9 +6567,9 @@
         "waystone.mod_zbjr94.cv8ywl"
       ],
       "regex": {
-        "ru": "(вор|порога оглуш|шкалы оглуш|пад)ения"
+        "ru": "вор.*ения|порога оглуш.*ения|шкалы оглуш.*ения|пад.*ения"
       },
-      "weight": 38,
+      "weight": 56,
       "count": 10
     },
     "waystone.mod_2368r0.5ee2t3:waystone.mod_2xv8m4.9i43dz:waystone.mod_39zmx7.isxi7c:waystone.mod_5j3ahj.8mhogc:waystone.mod_6tqcw0.hf8soz:waystone.mod_b6htj4.k8vav7:waystone.mod_dv8kwa.nnkbcj:waystone.mod_eokrsq.v508lf:waystone.mod_la7tcb.lmk0dk:waystone.mod_uns37d.slejo:waystone.mod_ux3o8n.gmxw9g:waystone.mod_y4nnlv.rpj316": {
@@ -6588,9 +6588,9 @@
         "waystone.mod_y4nnlv.rpj316"
       ],
       "regex": {
-        "ru": "(критического|отравление при нанесении|кровотечение при нанесении) удара"
+        "ru": "критического.*удара|отравление при нанесении.*удара|кровотечение при нанесении.*удара"
       },
-      "weight": 72,
+      "weight": 85,
       "count": 12
     },
     "waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_goqcn2.69pj5x:waystone.mod_kp15r6.85wna8:waystone.mod_l7rwtj.e4a1oc:waystone.mod_nx4wv2.cvd3r4:waystone.mod_omospl.wzz77g:waystone.mod_u6ht6b.fdx9pm": {
@@ -6605,9 +6605,9 @@
         "waystone.mod_u6ht6b.fdx9pm"
       ],
       "regex": {
-        "ru": "(порога|шкалы) оглушения"
+        "ru": "порога.*оглушения|шкалы.*оглушения"
       },
-      "weight": 24,
+      "weight": 34,
       "count": 8
     },
     "waystone.mod_6j3xkx.tr2esi:waystone.mod_arwr8m.nszmll:waystone.mod_o2lima.isuz7l:waystone.mod_pmwgig.9dehzp:waystone.mod_q2uvfp.90zite:waystone.mod_v6fsrm.wqtvq9:waystone.mod_vb57mm.mlqbj3:waystone.mod_zhrsdh.2xc6v6": {
@@ -6622,9 +6622,9 @@
         "waystone.mod_zhrsdh.2xc6v6"
       ],
       "regex": {
-        "ru": "(монстров|сопротивлений) стихиям"
+        "ru": "монстров.*стихиям|сопротивлений.*стихиям"
       },
-      "weight": 32,
+      "weight": 40,
       "count": 8
     },
     "waystone.mod_2ht2hu.3pn6w5:waystone.mod_2ht2hu.maa0ow:waystone.mod_2ht2hu.qzqh5s:waystone.mod_kp15r6.85wna8:waystone.mod_kp15r6.mjh0rp:waystone.mod_nx4wv2.cvd3r4:waystone.mod_nx4wv2.d4k3tx": {
@@ -6638,9 +6638,9 @@
         "waystone.mod_nx4wv2.d4k3tx"
       ],
       "regex": {
-        "ru": "порога (состояний|оглушения)"
+        "ru": "порога.*состояний|порога.*оглушения"
       },
-      "weight": 28,
+      "weight": 35,
       "count": 7
     },
     "waystone.mod_5dk06z.wwyr8i:waystone.mod_69f90c.vdpyhr:waystone.mod_9v0l0z.rdlceo:waystone.mod_d75rdn.kskgam:waystone.mod_l91d8v.snk51q:waystone.mod_liwit7.byeam:waystone.mod_makhsy.u5lm1r:waystone.mod_o2qq9u.1cpcjl:waystone.mod_pqhy2v.vmzylg:waystone.mod_t2n4fj.p1z2he:waystone.mod_v7b3by.jrnsbj:waystone.mod_xmq641.4ld0he": {
@@ -6659,9 +6659,9 @@
         "waystone.mod_xmq641.4ld0he"
       ],
       "regex": {
-        "ru": "от (огня|холода|молнии)"
+        "ru": "от.*огня|от.*холода|от.*молнии"
       },
-      "weight": 23,
+      "weight": 30,
       "count": 12
     },
     "waystone.mod_c387me.40f1ll:waystone.mod_mophca.q30fnd:waystone.mod_o2lima.isuz7l:waystone.mod_o5y5e2.i26cg7:waystone.mod_pmwgig.9dehzp:waystone.mod_v6fsrm.wqtvq9:waystone.mod_vb57mm.mlqbj3": {
@@ -6675,9 +6675,9 @@
         "waystone.mod_vb57mm.mlqbj3"
       ],
       "regex": {
-        "ru": "монстр(ов стихиям|ах)"
+        "ru": "монстр.*ов стихиям|монстр.*ах"
       },
-      "weight": 21,
+      "weight": 29,
       "count": 7
     },
     "waystone.mod_9qki3k.omwkm5:waystone.mod_vgw675.1n9i2q": {
@@ -6686,9 +6686,9 @@
         "waystone.mod_vgw675.1n9i2q"
       ],
       "regex": {
-        "ru": "(аб|им)остью"
+        "ru": "аб.*остью|им.*остью"
       },
-      "weight": 12,
+      "weight": 19,
       "count": 2
     },
     "waystone.mod_2d2vey.9i1nbb:waystone.mod_2ht2hu.3pn6w5:waystone.mod_e7qzo5.gppbbi:waystone.mod_kp15r6.mjh0rp:waystone.mod_m28f6y.3pfcd5:waystone.mod_nx4wv2.d4k3tx": {
@@ -6701,9 +6701,9 @@
         "waystone.mod_nx4wv2.d4k3tx"
       ],
       "regex": {
-        "ru": "п(орога состоя|ерезарядки уме)ний"
+        "ru": "п.*орога состоя.*ний|п.*ерезарядки уме.*ний"
       },
-      "weight": 33,
+      "weight": 43,
       "count": 6
     },
     "waystone.implicit.item_rarity:waystone.implicit.monster_effectiveness": {
@@ -6712,9 +6712,9 @@
         "waystone.implicit.monster_effectiveness"
       ],
       "regex": {
-        "ru": "(едк|ивн)ость"
+        "ru": "едк.*ость|ивн.*ость"
       },
-      "weight": 13,
+      "weight": 19,
       "count": 2
     }
   }

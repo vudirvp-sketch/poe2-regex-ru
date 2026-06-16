@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-15T11:54:53.927Z",
+  "version": "2026-06-16T14:52:19.025Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -2478,9 +2478,9 @@
         "jewel-desecrated.mod_xur8rl.qz3oep"
       ],
       "regex": {
-        "ru": "урона (от (атак|чар|молнии|холода|стихий|огня)|тотемов|шипами|хаосом)"
+        "ru": "урона.*от.*атак|урона.*от.*чар|урона.*от.*молнии|урона.*от.*холода|урона.*от.*стихий|урона.*от.*огня|урона.*тотемов|урона.*шипами|урона.*хаосом"
       },
-      "weight": 69,
+      "weight": 143,
       "count": 15
     },
     "jewel-desecrated.mod_jhgxor.6zvewd:jewel-desecrated.mod_o3en7o.gp88l4:jewel-desecrated.mod_xur8rl.2qgsp2": {
@@ -2490,9 +2490,9 @@
         "jewel-desecrated.mod_xur8rl.2qgsp2"
       ],
       "regex": {
-        "ru": "сопротивления (молнии|холоду|огню)"
+        "ru": "сопротивления.*молнии|сопротивления.*холоду|сопротивления.*огню"
       },
-      "weight": 34,
+      "weight": 63,
       "count": 3
     },
     "jewel-desecrated.mod_1hoszq.94gfrd:jewel-desecrated.mod_7owzgr:jewel-desecrated.mod_bqqkkx.gfd0if:jewel-desecrated.mod_ldjy55.94gfrd:jewel-desecrated.mod_ldjy55.gfd0if:jewel-desecrated.mod_qs13gh.gfd0if": {
@@ -2505,9 +2505,9 @@
         "jewel-desecrated.mod_qs13gh.gfd0if"
       ],
       "regex": {
-        "ru": "увеличение (уклонения|урона|максимума здоровья)"
+        "ru": "увеличение.*уклонения|увеличение.*урона|увеличение.*максимума здоровья"
       },
-      "weight": 47,
+      "weight": 70,
       "count": 6
     },
     "jewel-desecrated.mod_1hoszq.2el5wf:jewel-desecrated.mod_bqqkkx.2el5wf:jewel-desecrated.mod_vurd3w:jewel-desecrated.mod_y69s0v": {
@@ -2518,9 +2518,9 @@
         "jewel-desecrated.mod_y69s0v"
       ],
       "regex": {
-        "ru": "повышение (брони|ловкости|силы)"
+        "ru": "повышение.*брони|повышение.*ловкости|повышение.*силы"
       },
-      "weight": 31,
+      "weight": 52,
       "count": 4
     },
     "jewel-desecrated.mod_1hoszq.94gfrd:jewel-desecrated.mod_38l65n.5qhcxi:jewel-desecrated.mod_izhaok.kf75fq:jewel-desecrated.mod_izhaok.pzbcmc:jewel-desecrated.mod_ldjy55.94gfrd:jewel-desecrated.mod_t1xcyw.fz1xv": {
@@ -2533,9 +2533,9 @@
         "jewel-desecrated.mod_t1xcyw.fz1xv"
       ],
       "regex": {
-        "ru": "(увеличение уклон|отравл|наложения кровотеч|вами кровотеч|силы истощ)ения"
+        "ru": "увеличение уклон.*ения|отравл.*ения|наложения кровотеч.*ения|вами кровотеч.*ения|силы истощ.*ения"
       },
-      "weight": 73,
+      "weight": 97,
       "count": 6
     },
     "jewel-desecrated.mod_izhaok.kf75fq:jewel-desecrated.mod_izhaok.pzbcmc": {
@@ -2544,9 +2544,9 @@
         "jewel-desecrated.mod_izhaok.pzbcmc"
       ],
       "regex": {
-        "ru": "(наложения|вами) кровотечения"
+        "ru": "наложения.*кровотечения|вами.*кровотечения"
       },
-      "weight": 29,
+      "weight": 42,
       "count": 2
     },
     "jewel-desecrated.mod_jwh6ae.hgvpmu:jewel-desecrated.mod_jwh6ae.q21upq": {
@@ -2555,9 +2555,9 @@
         "jewel-desecrated.mod_jwh6ae.q21upq"
       ],
       "regex": {
-        "ru": "компаньон(ы|ов)"
+        "ru": "компаньон.*ы|компаньон.*ов"
       },
-      "weight": 15,
+      "weight": 26,
       "count": 2
     },
     "jewel-desecrated.mod_xur8rl.2qgsp2:jewel-desecrated.mod_xur8rl.qz3oep": {
@@ -2566,9 +2566,9 @@
         "jewel-desecrated.mod_xur8rl.qz3oep"
       ],
       "regex": {
-        "ru": "(урона от|сопротивления) молнии"
+        "ru": "урона от.*молнии|сопротивления.*молнии"
       },
-      "weight": 31,
+      "weight": 38,
       "count": 2
     },
     "jewel-desecrated.mod_1hoszq.2el5wf:jewel-desecrated.mod_bqqkkx.2el5wf:jewel-desecrated.mod_vbabcw.i87whb": {
@@ -2578,9 +2578,9 @@
         "jewel-desecrated.mod_vbabcw.i87whb"
       ],
       "regex": {
-        "ru": "(повышение|разрушаемой) брони"
+        "ru": "повышение.*брони|разрушаемой.*брони"
       },
-      "weight": 29,
+      "weight": 35,
       "count": 3
     },
     "jewel-desecrated.mod_bqqkkx.gfd0if:jewel-desecrated.mod_ldjy55.gfd0if:jewel-desecrated.mod_qs13gh.gfd0if:jewel-desecrated.mod_vbabcw.x1al00": {
@@ -2591,9 +2591,9 @@
         "jewel-desecrated.mod_vbabcw.x1al00"
       ],
       "regex": {
-        "ru": "(увеличение|физического) урона"
+        "ru": "увеличение.*урона|физического.*урона"
       },
-      "weight": 30,
+      "weight": 36,
       "count": 4
     },
     "jewel-desecrated.mod_izhaok.kf75fq:jewel-desecrated.mod_o8n5zg.4tmt3n": {
@@ -2602,9 +2602,9 @@
         "jewel-desecrated.mod_o8n5zg.4tmt3n"
       ],
       "regex": {
-        "ru": "вами (кровотечения|состояний)"
+        "ru": "вами.*кровотечения|вами.*состояний"
       },
-      "weight": 29,
+      "weight": 34,
       "count": 2
     },
     "jewel-desecrated.mod_eyjflj.271ywk:jewel-desecrated.mod_eyjflj.eqh213": {
@@ -2613,9 +2613,9 @@
         "jewel-desecrated.mod_eyjflj.eqh213"
       ],
       "regex": {
-        "ru": "боев(ого клича|ыми кличами)"
+        "ru": "боев.*ого клича|боев.*ыми кличами"
       },
-      "weight": 27,
+      "weight": 33,
       "count": 2
     },
     "jewel-desecrated.mod_2oddfi:jewel-desecrated.mod_vurd3w": {
@@ -2624,9 +2624,9 @@
         "jewel-desecrated.mod_vurd3w"
       ],
       "regex": {
-        "ru": "(восприимчив|повышение ловк)ости"
+        "ru": "восприимчив.*ости|повышение ловк.*ости"
       },
-      "weight": 32,
+      "weight": 38,
       "count": 2
     },
     "jewel-desecrated.mod_bqqkkx.hm26ic:jewel-desecrated.mod_eyjflj.271ywk:jewel-desecrated.mod_ldjy55.hm26ic:jewel-desecrated.mod_qs13gh.hm26ic": {
@@ -2637,9 +2637,9 @@
         "jewel-desecrated.mod_qs13gh.hm26ic"
       ],
       "regex": {
-        "ru": "(боевыми клич|урона шип)ами"
+        "ru": "боевыми клич.*ами|урона шип.*ами"
       },
-      "weight": 27,
+      "weight": 32,
       "count": 4
     }
   }

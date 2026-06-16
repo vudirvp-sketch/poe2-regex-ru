@@ -156,6 +156,44 @@ function approxCompiledLength(node: ASTNode): number {
 }
 
 /**
+ * Check if a regex string has top-level `|` (alternation at depth 0,
+ * not inside `(...)` or `[...]`).
+ *
+ * Used to detect Path D entries — regexes produced by ETL Phase D that
+ * have flattened `(...)` groups into top-level `|` with `.*` bridges.
+ * These entries MUST be applied at runtime (even with negative savings)
+ * because the alternative — separate quoted groups joined by `|` — is
+ * BROKEN in PoE2.
+ */
+function hasTopLevelAlternation(regex: string): boolean {
+  let depth = 0;
+  let i = 0;
+  while (i < regex.length) {
+    const ch = regex[i];
+
+    // Skip character classes [...]
+    if (ch === '[') {
+      i++;
+      while (i < regex.length && regex[i] !== ']') {
+        if (regex[i] === '\\') i++;
+        i++;
+      }
+      i++; // skip ]
+      continue;
+    }
+
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+
+    if (ch === '|' && depth === 0) return true;
+
+    if (ch === '\\') i++;
+    i++;
+  }
+  return false;
+}
+
+/**
  * Build the optimized replacement node for an optimization entry.
  *
  * When the optimization entry has regexPrefixContext, creates:
@@ -244,7 +282,15 @@ export function applyOptimizationTable(
               node: child,
               parent: node,
               index: i,
-              approxLength: child.value.length,
+              // Use approxCompiledLength (with quotes) for consistent
+              // savings comparison against the optimized replacement node.
+              // Previously this was child.value.length (without quotes),
+              // which underestimated the without-opt cost and caused
+              // Path D entries (which are ~same length as sum of individual
+              // regexes) to be skipped due to negative savings — even
+              // though the without-opt alternative (separate quoted groups
+              // joined by `|`) is BROKEN in PoE2.
+              approxLength: approxCompiledLength(child),
             });
           }
         } else if (child.type === 'AND') {
@@ -317,8 +363,21 @@ export function applyOptimizationTable(
 
     const savings = totalIndividualWithSeparators - optimizedLength;
 
-    if (savings > 0) {
-      candidateOptimizations.push({ entry, savings, matchedIds });
+    // Path D entries (regex with top-level `|`) MUST be applied even when
+    // savings <= 0, because the alternative — separate quoted groups joined
+    // by top-level `|` (e.g., `"X"|"Y"|"Z"`) — is BROKEN in PoE2 (iter 38:
+    // B0 confirmed zero matches). Path D produces a single quoted group
+    // with top-level `|` inside, which WORKS in PoE2.
+    //
+    // For non-Path D entries (simple shared substring, no top-level `|`),
+    // keep the `savings > 0` check — there's no correctness benefit to
+    // applying an entry that makes the regex longer.
+    const isPathDEntry = hasTopLevelAlternation(sharedRegex);
+    if (savings > 0 || isPathDEntry) {
+      // For Path D entries with negative savings, use a neutral savings (0)
+      // for sorting so they don't displace positive-savings entries.
+      const sortSavings = isPathDEntry && savings <= 0 ? 0 : savings;
+      candidateOptimizations.push({ entry, savings: sortSavings, matchedIds });
     }
   }
 

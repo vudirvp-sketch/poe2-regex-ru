@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { optimize, truncateSuffix, isTruncationSafe } from '@core/optimizer';
 import { removeConflictingExcludes, getValueKey } from '@core/core-optimizations';
 import { and, or, literal, range, exclude } from '@core/ast';
+import { compile } from '@core/compiler';
 import type { OptimizationEntry } from '@shared/types';
 
 describe('optimize', () => {
@@ -671,5 +672,115 @@ describe('getValueKey for RANGE nodes', () => {
     if (result.type === 'OR') {
       expect(result.children.length).toBe(2);
     }
+  });
+
+  // === Path D runtime consumption (iter 40, D4 verification) ===
+  //
+  // Path D opt-table entries have regexes like "prefix.*A|prefix.*B|prefix.*C"
+  // (top-level `|` with `.*` bridges). These MUST be applied at runtime even
+  // when the savings calculation is negative, because the alternative —
+  // separate quoted groups joined by `|` (e.g., `"X"|"Y"|"Z"`) — is BROKEN
+  // in PoE2 (iter 38: B0 confirmed zero matches).
+  //
+  // The opt-table entry replaces multiple LITERALs in an OR with a single
+  // LITERAL containing the Path D regex. The compiler then wraps it in
+  // quotes: `"prefix.*A|prefix.*B|prefix.*C"` — single quoted group with
+  // top-level `|`, which WORKS in PoE2.
+
+  describe('Path D runtime consumption (D4)', () => {
+    it('applies Path D opt-table entry to OR of plain LITERALs', () => {
+      // Path D entry: "увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками"
+      const pathDTable: Record<string, OptimizationEntry> = {
+        'jewel.fire:jewel.chaos:jewel.bow': {
+          ids: ['jewel.fire', 'jewel.chaos', 'jewel.bow'],
+          regex: { ru: 'увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками' },
+          weight: 68,
+          count: 3,
+        },
+      };
+
+      const ast = or(
+        literal('увеличение урона огня', 'jewel.fire'),
+        literal('увеличение урона хаосом', 'jewel.chaos'),
+        literal('увеличение урона луками', 'jewel.bow')
+      );
+
+      const result = optimize(ast, pathDTable);
+
+      // Should be replaced with a single LITERAL containing the Path D regex
+      expect(result.type).toBe('LITERAL');
+      if (result.type === 'LITERAL') {
+        expect(result.value).toBe('увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками');
+        expect(result.tokenId).toContain('opt:');
+      }
+    });
+
+    it('applies Path D opt-table entry even when savings is negative', () => {
+      // Path D regex is LONGER than sum of individual regexes (each alt repeats prefix).
+      // But it MUST be applied because the alternative is broken.
+      // Individual regexes: "к сопротивлению огню" (20) + "к сопротивлению холоду" (22) = 42 chars
+      // Path D regex: "к сопротивлению.*огню|к сопротивлению.*холоду" = 47 chars (LONGER)
+      // Without opt: compiler produces "к сопротивлению огню|к сопротивлению холоду" (single quoted group, WORKS for plain LITERALs)
+      // But for AND-wrapped LITERALs (regexPrefixContext), compiler produces BROKEN "X"|"Y".
+      // The opt-table is needed for the AND-wrapped case.
+      const pathDTable: Record<string, OptimizationEntry> = {
+        'belt.fire:belt.cold': {
+          ids: ['belt.fire', 'belt.cold'],
+          regex: { ru: 'к сопротивлению.*огню|к сопротивлению.*холоду' },
+          weight: 47,
+          count: 2,
+        },
+      };
+
+      // AND-wrapped LITERALs (simulating regexPrefixContext)
+      const ast = or(
+        and(literal('к'), literal('сопротивлению огню', 'belt.fire')),
+        and(literal('к'), literal('сопротивлению холоду', 'belt.cold'))
+      );
+
+      const result = optimize(ast, pathDTable);
+
+      // Should be replaced with a single LITERAL (Path D regex)
+      expect(result.type).toBe('LITERAL');
+      if (result.type === 'LITERAL') {
+        expect(result.value).toBe('к сопротивлению.*огню|к сопротивлению.*холоду');
+      }
+    });
+
+    it('compiled Path D regex is a single quoted group with top-level |', () => {
+      // Verify the full pipeline: optimize → compile produces WORKING regex.
+      // The compiled output must be a single quoted group (not "X"|"Y"|"Z").
+      const pathDTable: Record<string, OptimizationEntry> = {
+        'jewel.fire:jewel.chaos:jewel.bow': {
+          ids: ['jewel.fire', 'jewel.chaos', 'jewel.bow'],
+          regex: { ru: 'увеличение урона.*огня|увеличение урона.*хаосом|увеличение урона.*луками' },
+          weight: 68,
+          count: 3,
+        },
+      };
+
+      const ast = or(
+        literal('увеличение урона огня', 'jewel.fire'),
+        literal('увеличение урона хаосом', 'jewel.chaos'),
+        literal('увеличение урона луками', 'jewel.bow')
+      );
+
+      const optimized = optimize(ast, pathDTable);
+      const compiled = compile(optimized);
+
+      // Should be a single quoted group: "увеличение урона.*огня|..."
+      expect(compiled.startsWith('"')).toBe(true);
+      expect(compiled.endsWith('"')).toBe(true);
+
+      // Should have top-level | inside the quoted group
+      const inner = compiled.slice(1, -1); // remove surrounding quotes
+      expect(inner).toContain('|');
+
+      // Should NOT have "|\"" or ""|" (separate quoted groups joined by |)
+      expect(compiled).not.toMatch(/"\|"/);
+
+      // Should NOT have () with | inside (Path D flattens all such groups)
+      expect(inner).not.toMatch(/\([^)]*\|/);
+    });
   });
 });

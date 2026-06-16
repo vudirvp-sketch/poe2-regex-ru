@@ -170,3 +170,78 @@ Stage Summary:
   3. Прогнать `pnpm test` — ожидается что-то сломается (тесты на opt-table semantics); починить тесты под новый формат
   4. **D5** — повторные in-game тесты на 4 самоцветах + расширенный набор после ETL изменений
   5. **D6** — распространить на амулеты, кольца, пояса, плиты, путевые
+
+---
+Task ID: 40
+Agent: main
+Task: D2+D4 — реализовать Path D в ETL compute-optimizations.ts + iterative-optimizer.ts; проверить runtime совместимость с optimization-strategies.ts и useCategoryPage.ts
+
+Work Log:
+- 1: Клонирован репозиторий, прочитан контекст: STATUS.md (D1-D6 план, iter 39), worklog.md Task ID 39 (D1 VERIFIED), compute-optimizations.ts (Phase A/A1/B/C), optimization-strategies.ts (applyOptimizationTable, buildOptimizedNode), useCategoryPage.ts (buildLiteralNode, optimize call), tests/etl/compute-optimizations.test.ts, generated JSON opt-table entries
+- 2: Установлен pnpm + зависимости, baseline — все 1046 тестов проходят
+- 3: Создан `scripts/etl/path-d-transform.ts` — функция `pathDTransform()` рекурсивно преобразует `prefix(A|B|C)` → `prefix.*A|prefix.*B|prefix.*C`:
+  - `hasPathDGroup(regex)` — триггер: проверяет наличие `|` внутри `(...)`, пропускает `[char classes]` и single-alt groups типа `pack(s)`
+  - `findFirstAlternationGroup(regex)` — находит первую top-level группу с `|`, skips single-alt groups
+  - `splitTopLevelAlternation(regex)` — split by `|` на depth 0, preserves trailing empty alts (для `(ь|)`)
+  - `combineWithBridges(prefix, alt, suffix)` — вставляет `.*` между prefix/alt/suffix, trim boundary whitespace; empty alt → literal concat (no `.*`)
+  - Recursive: handles nested groups, multiple top-level groups, combined prefix+suffix
+- 4: Создан `tests/etl/path-d-transform.test.ts` — 35 unit-тестов: hasPathDGroup, basic transforms, nested groups (3 levels), optional (ь|), char classes preserved, edge cases, real-world patterns from jewel.json/tablet.json, escaped chars
+- 5: Все 35 тестов pass
+- 6: Интегрирован Phase D в `compute-optimizations.ts`:
+  - Добавлен import `pathDTransform, hasPathDGroup` из `./path-d-transform.js`
+  - После Phase C (dialect optimizations) добавлен Phase D: для каждого entry с `hasPathDGroup(regex)=true` применить `pathDTransform`, обновить `weight`
+  - Логирование: `Phase D: Path D transformed N entries`
+- 7: Обновлён `iterative-optimizer.ts` `reoptimizeTable()`:
+  - Добавлен import `pathDTransform, hasPathDGroup`
+  - После `applyDialectOptimizations` применяется `pathDTransform` если `hasPathDGroup`
+  - Условие обновления `shouldUpdate`: `!existing || newRegex.length < existing.length || (hasPathDGroup(existing) && !hasPathDGroup(newRegex))` — broken `()`-entries заменяются на Path D даже если Path D длиннее
+- 8: Обновлён `optimization-strategies.ts` `applyOptimizationTable()`:
+  - `approxLength` для plain LITERAL изменён с `child.value.length` на `approxCompiledLength(child)` (с quotes) — консистентное сравнение savings
+  - Добавлена helper-функция `hasTopLevelAlternation(regex)` — проверяет `|` на depth 0, пропускает `[...]`
+  - Savings check: `if (savings > 0 || isPathDEntry)` — Path D entries применяются ВСЕГДА при `matchedIds.size >= 2`, даже с negative savings (альтернатива — separate quoted groups — сломана)
+  - Path D entries с negative savings получают sortSavings=0 (не вытесняют positive-savings entries)
+- 9: Запущен `pnpm test` — 2 теста в compute-optimizations.test.ts failed (assertions "shorter than flat OR" не актуальны для Path D)
+- 10: Обновлены 2 теста в `compute-optimizations.test.ts`: assertions изменены с "length < flat OR length" на "has top-level `|`, no `()` with `|`, contains prefix and all alts"
+- 11: Запущен `pnpm test` — все 1081 тестов pass (1046 baseline + 35 path-d-transform)
+- 12: Добавлены 3 D4 runtime-теста в `tests/core/optimizer.test.ts`:
+  - "applies Path D opt-table entry to OR of plain LITERALs" — verify single LITERAL replacement
+  - "applies Path D opt-table entry even when savings is negative" — AND-wrapped LITERALs case
+  - "compiled Path D regex is a single quoted group with top-level |" — full pipeline: optimize → compile → single quoted group, no `"X"|"Y"`, no `()` with `|`
+- 13: Запущен `pnpm test` — все 1084 тестов pass
+- 14: TypeScript type check (`npx tsc -b --noEmit`) — без ошибок
+- 15: ESLint на изменённых файлах — 0 errors (4 pre-existing errors в compute-optimizations.ts/iterative-optimizer.ts не связаны с изменениями)
+- 16: Запущен `pnpm etl` — ETL pipeline перегенерировал все 10 JSON файлов
+- 17: Проверка Path D в сгенерированных JSON — 303/481 entries в Path D формате (top-level `|`), 0 broken `()`-with-`|` entries:
+  - jewel: 112/113 Path D, 0 broken
+  - amulet: 54/114 Path D, 0 broken
+  - ring: 45/93 Path D, 0 broken
+  - belt: 47/83 Path D, 0 broken
+  - tablet: 30/35 Path D, 0 broken
+  - waystone: 15/43 Path D, 0 broken
+- 18: Sample Path D entries проверены — корректное преобразование nested groups, combined prefix+suffix, English entries (tablet)
+- 19: Обновлена документация:
+  - STATUS.md → iter 40, D2+D4 DONE, статистика Path D по категориям, план D5
+  - docs/IN_GAME_TESTS.md → v10, добавлена секция "Iteration 40 — D2+D4 DONE"
+  - AGENT_NAVIGATION.md → v27, §5 и Pitfall 14 обновлены (RESOLVED iter 40)
+  - docs/ARCHITECTURE.md → v58, §3 Path D и §3.1 Principle 8 обновлены
+  - worklog.md → Task ID 40 (этот)
+
+Stage Summary:
+- **Код ИЗМЕНЁН** — 2 новых файла + 4 изменённых файла:
+  - NEW: `scripts/etl/path-d-transform.ts` (172 строки) — Path D transformation function
+  - NEW: `tests/etl/path-d-transform.test.ts` (185 строк) — 35 unit-тестов
+  - MODIFIED: `scripts/etl/compute-optimizations.ts` — Phase D добавлен после Phase C
+  - MODIFIED: `scripts/etl/iterative-optimizer.ts` — `reoptimizeTable` применяет Path D
+  - MODIFIED: `src/core/optimization-strategies.ts` — `approxLength` fix + `hasTopLevelAlternation` + Path D savings exception
+  - MODIFIED: `tests/core/optimizer.test.ts` — 3 D4 runtime-теста
+  - MODIFIED: `tests/etl/compute-optimizations.test.ts` — 2 теста обновлены под Path D формат
+  - REGENERATED: все 10 `public/generated/*.json` файлов
+- **D2 DONE** — Path D реализован в ETL (compute-optimizations.ts Phase D + iterative-optimizer.ts reoptimizeTable)
+- **D4 DONE** — Runtime совместимость проверена: applyOptimizationTable применяет Path D entries даже с negative savings; buildOptimizedNode/buildLiteralNode работают без изменений (Path D regex = LITERAL value)
+- **303/481 opt-table entries** в Path D формате, **0 broken `()`-with-`|`** entries остаются
+- **Все 1084 тестов проходят** (1046 baseline + 35 path-d-transform + 3 D4 runtime)
+- **Точка остановки**: D2+D4 cleared. Следующая итерация:
+  1. **D5** — in-game верификация на 4 самоцветах + расширенный набор (предметы из `регис/предметы для теста с аффиксами имплиситами_новый.md`). Проверить что ETL-generated Path D regexes работают в игре (особенно long entries с 6+ alternatives и nested structures).
+  2. Если D5 PASS — D6 effectively DONE (ETL уже применяет Path D ко всем категориям).
+  3. Если D5 выявит FP — D3 (regexExclude усечённые основы) или точечная починка конкретных entries.
+  4. ⚠️ Принцип итераций: Если D5 выявит неожиданные проблемы — откат к UI-редизайну (каждый OR-child = отдельный AND-фильтр). Лучше недоделать, чем сломать.

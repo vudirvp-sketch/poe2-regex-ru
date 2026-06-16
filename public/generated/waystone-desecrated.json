@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-15T11:54:51.954Z",
+  "version": "2026-06-16T14:52:17.551Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "sourceHash": "248ff2b201b2c44b",
@@ -1356,9 +1356,9 @@
         "waystone-desecrated.mod_jdkriz"
       ],
       "regex": {
-        "ru": "(количеств(о|а (волшебны|редки)х)|шансом могут породить как минимум волшебных) монстров"
+        "ru": "количеств.*о.*монстров|количеств.*а.*волшебны.*х.*монстров|количеств.*а.*редки.*х.*монстров|шансом могут породить как минимум волшебных.*монстров"
       },
-      "weight": 87,
+      "weight": 145,
       "count": 8
     },
     "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
@@ -1372,9 +1372,9 @@
         "waystone-desecrated.mod_tmrm3c"
       ],
       "regex": {
-        "ru": "количеств(о опыта|о монстров|а (волшебны|редки)х монстров)"
+        "ru": "количеств.*о опыта|количеств.*о монстров|количеств.*а.*волшебны.*х монстров|количеств.*а.*редки.*х монстров"
       },
-      "weight": 58,
+      "weight": 107,
       "count": 7
     },
     "waystone-desecrated.implicit.item_rarity:waystone-desecrated.implicit.monster_effectiveness:waystone-desecrated.mod_9crcta": {
@@ -1384,9 +1384,9 @@
         "waystone-desecrated.mod_9crcta"
       ],
       "regex": {
-        "ru": "(едк|ожн|ивн)ость"
+        "ru": "едк.*ость|ожн.*ость|ивн.*ость"
       },
-      "weight": 17,
+      "weight": 29,
       "count": 3
     },
     "waystone-desecrated.mod_34v9ul:waystone-desecrated.mod_cmq708.mhmuy1": {
@@ -1395,9 +1395,9 @@
         "waystone-desecrated.mod_cmq708.mhmuy1"
       ],
       "regex": {
-        "ru": "одерж(а|и)т"
+        "ru": "одерж.*а.*т|одерж.*и.*т"
       },
-      "weight": 11,
+      "weight": 23,
       "count": 2
     },
     "waystone-desecrated.implicit.monster_effectiveness:waystone-desecrated.mod_9crcta": {
@@ -1406,9 +1406,9 @@
         "waystone-desecrated.mod_9crcta"
       ],
       "regex": {
-        "ru": "(ож|ив)ность"
+        "ru": "ож.*ность|ив.*ность"
       },
-      "weight": 12,
+      "weight": 19,
       "count": 2
     },
     "waystone-desecrated.mod_sbcpi5.mp9l1p:waystone-desecrated.mod_z1e94l.z94mfv": {
@@ -1417,9 +1417,9 @@
         "waystone-desecrated.mod_z1e94l.z94mfv"
       ],
       "regex": {
-        "ru": "(вляе|екаю)тся"
+        "ru": "вляе.*тся|екаю.*тся"
       },
-      "weight": 14,
+      "weight": 19,
       "count": 2
     },
     "waystone-desecrated.mod_aoveo8:waystone-desecrated.mod_nue2hs.cwshdc": {
@@ -1428,9 +1428,9 @@
         "waystone-desecrated.mod_nue2hs.cwshdc"
       ],
       "regex": {
-        "ru": "(ожир|адыв)ают"
+        "ru": "ожир.*ают|адыв.*ают"
       },
-      "weight": 14,
+      "weight": 19,
       "count": 2
     }
   }

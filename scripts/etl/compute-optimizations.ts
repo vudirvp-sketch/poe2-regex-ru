@@ -1,14 +1,15 @@
 /**
  * Compute the optimization table for a category.
  *
- * ALGORITHM v3 — Family-based grouping + DP factorization + dialect optimizations:
+ * ALGORITHM v4 — Family-based grouping + DP factorization + dialect optimizations + Path D:
  *
  * 1. Group tokens by familyKey, create optimization entries for families with 2+ tokens
  * 2. Use batchDPFactorize() for cross-family factorization (replaces naive LCS)
  * 3. Apply applyDialectOptimizations() to all optimization regexes
- *
- * Phase 4+6 integration: dialect optimizations ([её], [юя], (ь|)) and DP
- * factorization are now part of the ETL pipeline.
+ * 4. Apply Path D transformation: `prefix(A|B|C)` → `prefix.*A|prefix.*B|prefix.*C`
+ *    (iter 40) — PoE2 does not parse `()` with multi-word `|` inside `"..."`.
+ *    Path D flattens such groups to top-level `|` with `.*` bridges, verified
+ *    working in-game (iter 38-39).
  */
 import type { Locale, OptimizationEntry } from '../../src/shared/types.js';
 import type { NormalizedMod } from './normalize.js';
@@ -19,6 +20,7 @@ import {
 } from '../../src/core/dp-factorizer.js';
 import { generateTruncatedSuffixes, containsPoE2Grouping } from './compute-regex.js';
 import { matchQuotedGroup } from '../../src/core/poe2-regex-matcher.js';
+import { pathDTransform, hasPathDGroup } from './path-d-transform.js';
 
 /**
  * Normalize a rawTextTemplate into a "family key".
@@ -242,6 +244,36 @@ export function computeOptimizations(
       entry.regex[locale] = optimizedRegex;
       entry.weight = optimizedRegex.length;
     }
+  }
+
+  // ─── Phase D: Path D transformation (iter 40) ───
+  // Flatten `prefix(A|B|C)` → `prefix.*A|prefix.*B|prefix.*C`
+  //
+  // PoE2 does NOT parse `()` with multi-word `|` inside `"..."` (Tests 15-17).
+  // Path D moves alternation to top-level `|` with `.*` bridges, verified
+  // working in-game (iter 38-39: 2/3/4 alt + AND-combination).
+  //
+  // Applied AFTER Phase C so that dialect-optimized `[её]` char classes
+  // (which don't need Path D) are already in place. Only `(...)` groups
+  // with `|` inside are transformed.
+  let pathDTransformedCount = 0;
+  for (const key of Object.keys(result)) {
+    const entry = result[key];
+    const originalRegex = entry.regex[locale];
+    if (!originalRegex) continue;
+
+    if (!hasPathDGroup(originalRegex)) continue;
+
+    const transformedRegex = pathDTransform(originalRegex);
+    if (transformedRegex !== originalRegex) {
+      entry.regex[locale] = transformedRegex;
+      entry.weight = transformedRegex.length;
+      pathDTransformedCount++;
+    }
+  }
+
+  if (pathDTransformedCount > 0) {
+    console.log(`  Phase D: Path D transformed ${pathDTransformedCount} entries (flat alternation)`);
   }
 
   return result;
