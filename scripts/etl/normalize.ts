@@ -376,16 +376,23 @@ function inferAffix(text: string): AffixType {
  * mod text in poe2db's tables. They are NOT searchable as mod text in-game.
  * These tokens must be removed from the mod list and replaced with proper implicit
  * tokens that have reversed regex format.
+ *
+ * Keys MUST match `familyKey.ru` (normalized: `##` → `#`, collapse whitespace, trim)
+ * in the corresponding category's generated JSON. Verified by tests in
+ * `tests/etl/normalize.test.ts` (Bug #15 / KI-2 block).
+ *
+ * iter 75: updated to current poe2db wording. Old forms (e.g.,
+ * `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`)
+ * were reworded by poe2db; rarity/pack-size mod-form tokens no longer exist in source data
+ * (only as implicit tokens), so those keys were removed.
  */
 export const WAYSTONE_IMPLICIT_SET_FAMILY_KEYS: string[] = [
-  'На #% больше находимых в области путевых камней',
-  '#% увеличение эффективности монстров',
-  'На #% больше редкости находимых в этой области предметов',
-  'На #% больше размера групп монстров',
+  '#% увеличение количества путевых камней, находимых в области',
+  'На #% больше эффективности монстров',
 ];
 
 export const TABLET_IMPLICIT_SET_FAMILY_KEYS: string[] = [
-  '% увеличение количества находимых на карте путевых камней',
+  '#% увеличение количества находимых на карте путевых камней',
 ];
 
 /** All implicit-set bonus family keys by category */

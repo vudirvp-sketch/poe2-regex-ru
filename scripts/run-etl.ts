@@ -696,9 +696,10 @@ async function runEtl() {
       }
 
       // Step 2b: Filter implicit-set bonuses and add implicit tokens
-      // Implicit-set bonus tokens (e.g., "На ##% больше находимых в области путевых камней")
+      // Implicit-set bonus tokens (e.g., "#% увеличение количества путевых камней, находимых в области")
       // are NOT searchable as mod text in-game. They must be removed and replaced
       // with proper implicit tokens that use reversed regex format.
+      // See WAYSTONE_IMPLICIT_SET_FAMILY_KEYS / TABLET_IMPLICIT_SET_FAMILY_KEYS in normalize.ts.
       const beforeImplicitFilter = normalized.length;
       const filteredMods = filterImplicitSetBonuses(normalized);
       const implicitTokens = getImplicitTokensForCategory(cat.name);

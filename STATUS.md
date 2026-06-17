@@ -2,29 +2,40 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 74
+> **Текущая итерация:** 75
 
 ---
 
 ## Known Issues
 
-### KI-2 (open, iter 74) — stale hardcoded implicit-set family keys
+### KI-3 (open, iter 75) — poe2db.tw reverted text forms
 
-`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` (4 ключа) и `TABLET_IMPLICIT_SET_FAMILY_KEYS` (1 ключ) в `scripts/etl/normalize.ts:380-390` **не матчат** ни один `familyKey.ru` в текущем сгенерированном JSON. Фильтр `isImplicitSetBonus()` молча no-op'ит → implicit-set bonus токены НЕ выфильтровываются из mod-списка (хотя должны — они не searchable как mod text in-game).
+Между 16 и 17 июня poe2db.tw откатил формулировки текстов модов к старым формам. Current `public/generated/*.json` (от 16 июня, `pnpm etl:fresh`) содержит NEW-формы, актуальный poe2db.tw — OLD-формы.
 
-**Симптом:** 0 совпадений по всем 5 ключам в `waystone.json` / `waystone-desecrated.json` / `tablet.json`.
+**Симптом:** `npx tsx scripts/run-etl.ts` (даже с `--fresh`) производит waystone.json с 302 токенами (vs 156 в current JSON) и OLD-формами familyKey (`На #% больше находимых в области путевых камней` вместо `#% увеличение количества путевых камней, находимых в области`).
 
-**Root cause:** poe2db переформулировал тексты (например, было `#% увеличение эффективности монстров` → стало `На #% больше эффективности монстров`).
+**Влияние:** нельзя запустить ETL для применения KI-2 фикса (фильтрации implicit-set bonus токенов) — ETL перегенерирует JSON с OLD-формами, что сломает ~40 тестов (cross-validation thresholds, regex content).
 
-**Тесты:** 3 `it.fails` в `tests/etl/normalize.test.ts` (Bug #15 / KI-2 блок). Тесты проходят (expected-fail), пока ключи не матчат. Когда ключи обновят — тесты начнут проходить нормально, `it.fails` сообщит об этом (нужно будет конвертировать в обычный `it`).
+**Решение** (отдельная итерация): либо (a) обновить хардкод-ключи KI-2 к OLD-формам + перегенерировать JSON + обновить test thresholds, либо (b) дождаться пока poe2db.tw снова вернёт NEW-формы. Требует анализа что правильнее: OLD или NEW формы.
 
-**Фикс** (отдельная итерация): обновить хардкод-ключи по актуальным `familyKey.ru` из JSON, запустить ETL. Проверить, что implicit-set bonus токены действительно исчезают из mod-списков.
+---
+
+### KI-2 (code-fixed, iter 75) — stale hardcoded implicit-set family keys
+
+`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` обновлены по актуальным `familyKey.ru` из current JSON (NEW-формы, итерация 16 июня). Тесты конвертированы `it.fails` → `it` (3 теста в `tests/etl/normalize.test.ts`).
+
+**Что сделано:** ключи обновлены (4→2 waystone ключа, 1 tablet ключ с typo-фиксом `%` → `#%`), тесты проходят, документация актуальна.
+
+**Что осталось (blocked by KI-3):** запустить ETL для применения фильтра. Current JSON всё ещё содержит implicit-set bonus токены (15 в waystone, 1 в tablet), потому что ETL не запускался. Когда KI-3 будет решён, ETL перегенерирует JSON и токены исчезнут.
+
+**Старые ключи (для справки):** `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`, `На #% больше редкости находимых в этой области предметов`, `На #% больше размера групп монстров`, `% увеличение количества находимых на карте путевых камней` (typo).
 
 ---
 
 ### История закрытых KI
 
-- **KI-1 (? tokenizer mismatch)** — закрыт iter 73. `hasUnsupportedOptional()` detector + runtime `console.warn` в `matchQuotedGroup` (dedup Set) + `OracleResult.unsupportedSyntax: string[]` field + ETL `iterative-optimizer.oracleValidateChange` reject. Generator `?` НЕ производит — defensive guard.
+- **KI-1 (? tokenizer mismatch)** — закрыт iter 73. `hasUnsupportedOptional()` detector + runtime `console.warn` в `matchQuotedGroup` (dedup Set) + `OracleResult.unsupportedSyntax: string[]` field + ETL `iterative-optimizer.oracleValidateChange` reject.
+- **KI-2 (stale implicit-set family keys)** — code-fixed iter 75 (ключи обновлены, тесты конвертированы). Data-level фикс blocked by KI-3.
 
 ---
 
