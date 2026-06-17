@@ -7,6 +7,12 @@
  * клика. Доступность нативная: keyboard-focusable, Enter/Space toggles,
  * ARIA-роли назначаются браузером автоматически.
  *
+ * iter 71: декоративный силуэт `hero-demon-blue.webp` на правом краю блока,
+ * появляется только при раскрытии `<details>` (CSS `[open]` селектор
+ * переключает opacity 0 → 0.10). lg+ only — на мобильных нет горизонтального
+ * места для silhouette. `pointer-events-none` + `aria-hidden` — декорация
+ * не влияет на доступность и клики.
+ *
  * Ключевые поисковые запросы: регексы poe2, регулярное выражение poe2,
  * фильтрация предметов poe2, поиск предметов poe2, поисковые строки poe2
  */
@@ -19,6 +25,17 @@ export function SeoBlock() {
       <summary className="home-seo-summary">
         <span className="home-seo-summary-text">{t('home.seo_summary')}</span>
       </summary>
+
+      {/* iter 71: decorative demon-blue silhouette, right side, lg+ only.
+          Visible only when <details> is open (see .home-seo-details[open]
+          .home-seo-demon rule in index.css). `mix-blend-screen` lets the
+          dark-blue demon face "etch" onto the warm bg without darkening it. */}
+      <img
+        src={`${import.meta.env.BASE_URL}atmosphere/hero-demon-blue.webp`}
+        alt=""
+        aria-hidden="true"
+        className="home-seo-demon pointer-events-none absolute right-0 top-0 hidden h-full w-auto max-w-[280px] object-contain object-top mix-blend-screen lg:block"
+      />
 
       <section className="home-seo-content space-y-8 text-[14px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.75 }}>
         {/* Что такое регексы в PoE2 */}

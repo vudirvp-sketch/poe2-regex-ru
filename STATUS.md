@@ -2,7 +2,7 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 70
+> **Текущая итерация:** 71
 
 ---
 
@@ -12,21 +12,14 @@
 |------|--------|-----|
 | 0-13 | ✅ iter 51-68 | CSS-токены → CategoryLayout → nav «режимы» → TopNav → атмосферная стилизация → `.poe-panel-header--inline` на 8 страницах |
 | 14 | ✅ iter 69 | HomePage hero decorations: 3 atmospheric images (bas-relief backdrop + 2 side ghosts) |
-| 15 | ✅ iter 70 | Visual review lg+/xl+ — hero OK; filter contrast fix (text-dim→text-muted); .btn-cta OLED glow toned; bg-forest.webp deleted |
+| 15 | ✅ iter 70 | Visual review lg+/xl+ — hero OK; filter contrast fix (text-dim→text-muted); `.btn-cta` OLED glow toned; `bg-forest.webp` deleted |
+| 16 | ✅ iter 71 | Интеграция 3 оставшихся atmospheric WebP: `hero-demon-blue` (SeoBlock), `early-access-banner` (новый `.poe-divider--banner`), `news-bg-center` (mobile hero backdrop) |
 
 ---
 
 ## Known Issues
 
 **Открытых Known Issues нет.**
-
----
-
-## iter 71+ Candidates
-
-1. **Интеграция `hero-demon-blue.webp`** — синий демон с лицом-черепом. В `/atmosphere/`, НЕ подключена. Кандидаты: декорация SeoBlock, accent на 404, background category page. Низкий приоритет.
-2. **Интеграция `early-access-banner.webp`** (1919×177) — декоративный баннер, кандидат для section divider. Низкий приоритет.
-3. **Интеграция `news-bg-center.webp`** (1681×260) — готический фон, кандидат для hero-секции. Низкий приоритет.
 
 ---
 
@@ -55,6 +48,25 @@
 | Number-anchored RANGE | `^N.*suffix` (Phase 9b) | ✅ |
 | Token с regexPrefixContext + regexExclude в OR | `^(?!.*X).*ctx.*Z` | ✅ iter 49 |
 | Over-limit OR (>250 chars) | Runtime split на 2+ regex parts | ✅ iter 50 |
+
+---
+
+## Atmospheric Assets (public/atmosphere/)
+
+Все WebP подключены (после iter 71). Чистых кандидатов на интеграцию больше нет.
+
+| Asset | Использование |
+|-------|---------------|
+| `bg.webp` | Body background (desktop + mobile, iter 65) |
+| `bg-2x.webp` | `.poe-divider--ornate` texture (iter 65) |
+| `title-bg-4x.webp` | Visual reference only — `.poe-panel-header` reinterpret (iter 65) |
+| `early-access-button-underlay.webp` | Visual reference only — `.btn-cta` reinterpret (iter 65) |
+| `early-access-banner.webp` | `.poe-divider--banner` — HomePage section divider Features↔SeoBlock (iter 71) |
+| `news-bg-center.webp` | Mobile-only (`<lg`) hero backdrop, замена невидимому bas-relief (iter 71) |
+| `hero-bas-relief.webp` | lg+ hero backdrop, `mix-blend-screen` opacity 0.18 (iter 69) |
+| `hero-horned-warrior.webp` | xl+ L side ghost, opacity 0.28 (iter 69) |
+| `hero-monster-red.webp` | xl+ R side ghost, opacity 0.28 (iter 69) |
+| `hero-demon-blue.webp` | SeoBlock right-edge decoration, visible only when `<details>` open, opacity 0.10, lg+ only (iter 71) |
 
 ---
 

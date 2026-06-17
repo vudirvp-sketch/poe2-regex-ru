@@ -78,6 +78,20 @@ export function HomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 hidden w-2/3 max-w-[640px] -translate-x-1/2 -translate-y-1/2 opacity-[0.18] mix-blend-screen lg:block"
         />
+        {/* iter 71: mobile-only alternative backdrop — `news-bg-center.webp`
+            (1681×260, gothic wide horizontal scene). On <lg viewports the
+            bas-relief is hidden, leaving the hero texturally flat. This
+            image fills that gap with a subtle wide-stripe backdrop, same
+            `mix-blend-screen` + low-opacity language as the lg+ bas-relief.
+            `lg:hidden` ensures it never shows alongside the bas-relief
+            (avoids double-decoration on desktop). Wider aspect (6.5:1)
+            fits the mobile portrait hero without cropping the text area. */}
+        <img
+          src={`${import.meta.env.BASE_URL}atmosphere/news-bg-center.webp`}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-[640px] -translate-x-1/2 -translate-y-1/2 opacity-[0.14] mix-blend-screen lg:hidden"
+        />
         {/* Side ghost: horned warrior (3-Photoroom). xl+ only (≥1280px) — below
             that, the content column has no room for side decorations without
             squeezing the text. Opacity 0.28 keeps it as a silhouette, not a
@@ -207,6 +221,14 @@ export function HomePage() {
           </section>
         </details>
       </div>
+
+      {/* iter 71: ornate banner divider between the Features <details> and
+          the SeoBlock <details>. Uses `early-access-banner.webp` (1919×177)
+          as a wide horizontal section break — taller and more illustrative
+          than `.poe-divider--ornate` (8px gold filigree), but still subtle
+          (opacity 0.35). Mirrors the divider used between hero and category
+          grid so the visual rhythm of the home page stays consistent. */}
+      <hr className="poe-divider--banner my-4" aria-hidden="true" />
 
       {/* SEO text block — wrapped in <details> (iter 57, UI Phase 5): collapsed by default */}
       <div className="mt-6">

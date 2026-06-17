@@ -452,6 +452,24 @@ body {
   flex-shrink: 0;
 }
 
+/* iter 71: .poe-divider--banner — wide horizontal banner decoration using
+   `early-access-banner.webp` (1919×177, ≈10:1 aspect). Taller than
+   `.poe-divider--ornate` (24px vs 8px) so the banner's silhouette is
+   discernible; alpha channel of the source WebP is respected (the banner
+   has its own transparency, so we don't apply mask-image — that would
+   double-clip and look harsh). Opacity 0.35 keeps it as a subtle section
+   break, not a focal element. Used on HomePage between the Features
+   <details> and the SeoBlock <details>. */
+.poe-divider--banner {
+  height: 24px;
+  background:
+    url('/poe2-regex-ru/atmosphere/early-access-banner.webp') center / auto 100% no-repeat;
+  opacity: 0.35;
+  border: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
 /* .btn-cta — primary CTA (Copy / Share). Dark metallic base with a faint
    crimson radial glow on hover, and a brighter crimson pulse on success
    (just-copied). Replaces `bg-btn-primary` (#2563eb, cold blue) on Copy.
@@ -852,10 +870,25 @@ main {
    Content stays in the DOM (Google indexes <details> content even when
    closed). Natively keyboard-accessible (Enter/Space toggles). */
 .home-seo-details {
+  position: relative;       /* iter 71: anchor for .home-seo-demon absolute img */
+  overflow: hidden;         /* iter 71: clip demon decoration to the details box */
   background: var(--poe-bg-secondary);
   border: 1px solid var(--poe-border);
   border-radius: 6px;
   padding: 0;
+}
+
+/* iter 71: decorative demon-blue silhouette (right side, lg+ only via JSX
+   `hidden lg:block`). Hidden by default (opacity 0); fades in when the
+   parent <details> is open. Stays `pointer-events-none` so it never blocks
+   text selection or links inside the SEO content. */
+.home-seo-demon {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 0;               /* below .home-seo-content (lifted via position:relative + z-index:1) */
+}
+.home-seo-details[open] .home-seo-demon {
+  opacity: 0.10;
 }
 
 .home-seo-summary {
@@ -893,6 +926,8 @@ main {
 }
 
 .home-seo-content {
+  position: relative;       /* iter 71: lift content above the demon decoration */
+  z-index: 1;
   padding: 14px 16px 18px;
 }
 
