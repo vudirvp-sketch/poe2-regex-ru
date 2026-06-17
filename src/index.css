@@ -309,13 +309,15 @@ body {
         so foreground text stays high-contrast (OLED-friendly) and the texture
         only "suggests" depth without competing with content.
      3) radial-gradient(vignette) — darker corners, draws the eye to center.
+   iter 67: vignette alpha softened from 0.55 to 0.40 after VLM screenshot
+   analysis confirmed it was too heavy at edges on desktop and mobile.
    bg-forest.webp / bg-forest-mobile.webp are kept in /public for backward
    compat with cached URLs, but no longer referenced. */
 [data-theme="dark"] body,
 :root body {
   background-color: #070503;
   background-image:
-    radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.55) 100%),
+    radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.40) 100%),
     linear-gradient(180deg, rgba(13, 11, 9, 0.78) 0%, rgba(7, 5, 3, 0.92) 100%),
     url('/poe2-regex-ru/atmosphere/bg.webp');
   background-size: cover, cover, cover;
@@ -332,7 +334,7 @@ body {
        background-attachment: fixed. */
     background-color: #070503;
     background-image:
-      radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.55) 100%),
+      radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.40) 100%),
       linear-gradient(180deg, rgba(13, 11, 9, 0.80) 0%, rgba(7, 5, 3, 0.94) 100%),
       url('/poe2-regex-ru/atmosphere/bg.webp');
     background-size: cover, cover, cover;
@@ -382,6 +384,37 @@ body {
 }
 .poe-panel-header::before { left: 6px; }
 .poe-panel-header::after  { right: 6px; }
+
+/* iter 67: hide gold dot accents on very narrow viewports where they can
+   overlap with the brand logo or crowd the tab row. Safe to hide because
+   the gold rim (box-shadow) still provides the filigree framing. */
+@media (max-width: 380px) {
+  .poe-panel-header::before,
+  .poe-panel-header::after {
+    display: none;
+  }
+}
+
+/* .poe-panel-header--inline — lighter variant for inline-flex headers
+   (e.g. category page <h2> with icon + title). Uses the same gold rim
+   and gradient background as .poe-panel-header but omits the 6px gold
+   dot accents (they conflict with inline icon/text) and adds horizontal
+   padding so the filigree frames the content naturally.
+   NOT YET APPLIED IN JSX — test in browser DevTools first (iter 68 candidate). */
+.poe-panel-header--inline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 14px;
+  background:
+    linear-gradient(180deg, rgba(200, 154, 74, 0.06) 0%, rgba(200, 154, 74, 0.0) 60%),
+    rgba(13, 11, 9, 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgba(200, 154, 74, 0.35),
+    inset 0 -1px 0 0 rgba(200, 154, 74, 0.20);
+  border-radius: 4px;
+}
 
 /* .poe-divider — thin iron/gold separator. Renders as a fading horizontal
    line (transparent → gold → transparent). No default vertical margin — the

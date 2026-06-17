@@ -2,21 +2,22 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 66 — cleanup: удалены неиспользуемые i18n ключи `home.header_title` и `app.title` (iter 64 stopping-point candidate, harm-less мусор)
+> **Текущая итерация:** 67 — vignette softened (0.55→0.40), gold dots hidden ≤380px, `.poe-panel-header--inline` CSS class added (not in JSX yet), new atmosphere assets added
 
 ---
 
-## UI Redesign — план (9 фаз + polish + Phase 10-11 + cleanup)
+## UI Redesign — план (9 фаз + polish + Phase 10-11 + cleanup + iter 67)
 
 | Фаза | Статус | Что |
 |------|--------|-----|
 | 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
-| 8 | ✅ iter 61-62 | Полировка «дорогая тишина». iter 61: убран always-on `⚠ Диапазон` badge. iter 62: Features в `<details>`; ModList Level-3 badges auto-suppression |
+| 8 | ✅ iter 61-62 | Полировка «дорогая тишина» |
 | 9 | ✅ iter 62 | Финальная документация |
-| polish | ✅ iter 63 | Palette consistency: все холодные tailwind-цвета заменены на тёплые палитровые токены. README переписан |
-| 10 | ✅ iter 64 | Sidebar → TopNav: вертикальный сайдбар (224px слева) + Header + MobileNavTabs объединены в единый горизонтальный `TopNav`. Освобождено ~224px под аффиксы на десктопе |
-| 11 | ✅ iter 65 | Атмосферная стилизация PoE2: `.poe-panel-header` (gold filigree rim) на TopNav; `.poe-divider` / `.poe-divider--ornate` на CategoryLayout + HomePage; `.btn-cta` (warm metallic + crimson glow) заменяет `bg-btn-primary` на Copy-кнопках; фон `bg-forest.webp` → `bg.webp` + vignette; Pitfall 28 фикс на `.skip-link` |
-| cleanup | ✅ iter 66 | Удалены неиспользуемые i18n ключи `home.header_title` (был у удалённого `<Header>`) и `app.title` (никогда не использовался). Документация почищена от упоминаний об этих ключах |
+| polish | ✅ iter 63 | Palette consistency |
+| 10 | ✅ iter 64 | Sidebar → TopNav |
+| 11 | ✅ iter 65 | Атмосферная стилизация PoE2 |
+| cleanup | ✅ iter 66 | Удалены неиспользуемые i18n ключи |
+| 12 | ✅ iter 67 | Vignette softened 0.55→0.40; gold dots hidden ≤380px; `.poe-panel-header--inline` CSS (not in JSX); new atmosphere assets (`early-access-banner.webp`, `news-bg-center.webp`) |
 
 ---
 
@@ -24,7 +25,17 @@
 
 **Открытых Known Issues нет.**
 
-Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency; iter 64 Sidebar/Header/MobileNavTabs удалены; iter 65 `bg-btn-primary` удалён + `.skip-link` Pitfall 28 фикс; iter 66 unused i18n keys removed.
+---
+
+## iter 68 Candidates (требуют in-browser visual review)
+
+1. **`.poe-panel-header--inline` на category page `<h2>`** (8 страниц) — CSS класс готов, но не применён в JSX. Тест: добавить класс в DevTools на любой category page `<h2>`, проверить визуальное объединение TopNav + page-header. Риск: рамка вокруг inline-flex h2 с иконкой может выглядеть «коробочно».
+2. **`.btn-cta` crimson glow на OLED** — проверить яркость. Если слишком яркий — снизить 0.40 alpha до 0.30 в `.btn-cta:hover`.
+3. **Удаление `public/bg-forest.webp` + `public/bg-forest-mobile.webp`** — после 1 release cycle (сейчас оставлены для cached-URL backward-compat).
+4. **Compact mode для TopNav tabs на md (768-1024px)** — проверить in-browser, помещаются ли все 9 табов без скролла. Если тесно — compact (icon-only) mode для md.
+5. **Tab font size на < md** — text-[13px] → text-[14px] если позволяет ширина.
+6. **Интеграция `early-access-banner.webp`** — декоративный баннер (1919×177), доступен в `/atmosphere/`. Кандидат для section divider или hero-декорации.
+7. **Интеграция `news-bg-center.webp`** — готический фон с фигурой (1681×260), доступен в `/atmosphere/`. Кандидат для HomePage hero-секции.
 
 ---
 
@@ -58,7 +69,7 @@
 
 ## SEO-статус
 
-✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock и Features в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
+✅ Полный набор реализован. См. `docs/SEO_PLAN.md`.
 
 ---
 Контакты: Discord **woonderdad**
