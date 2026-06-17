@@ -2,18 +2,19 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 63 — UI palette consistency + README revamp
+> **Текущая итерация:** 64 — Sidebar → TopNav (горизонтальная навигация сверху)
 
 ---
 
-## UI Redesign — план (9 фаз + polish)
+## UI Redesign — план (9 фаз + polish + Phase 10)
 
 | Фаза | Статус | Что |
 |------|--------|-----|
 | 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
 | 8 | ✅ iter 61-62 | Полировка «дорогая тишина». iter 61: убран always-on `⚠ Диапазон` badge. iter 62: Features в `<details>`; ModList Level-3 badges auto-suppression |
 | 9 | ✅ iter 62 | Финальная документация |
-| polish | ✅ iter 63 | Palette consistency: все холодные tailwind-цвета (indigo/gray-600/blue-500) заменены на тёплые палитровые токены. README переписан (SEO + clarity). Pitfall 28 добавлен |
+| polish | ✅ iter 63 | Palette consistency: все холодные tailwind-цвета заменены на тёплые палитровые токены. README переписан |
+| 10 | ✅ iter 64 | Sidebar → TopNav: вертикальный сайдбар (224px слева) + Header + MobileNavTabs объединены в единый горизонтальный `TopNav`. Освобождено ~224px под аффиксы на десктопе |
 
 ---
 
@@ -21,7 +22,7 @@
 
 **Открытых Known Issues нет.**
 
-Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency (indigo/gray-600/blue-500 → amber/raised/chip-hover/accent-*).
+Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency; iter 64 Sidebar/Header/MobileNavTabs удалены (заменены на TopNav).
 
 ---
 

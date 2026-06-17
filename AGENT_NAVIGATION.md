@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 63 (UI palette consistency + README revamp). All cold Tailwind colors (indigo/gray-600/blue-500) replaced with warm palette tokens; README rewritten for SEO + clarity. Pitfall 28 added.
+> **Entry document.** Read this first. Current state: iter 64 (Sidebar → TopNav). The 3-piece chrome (Sidebar + Header + MobileNavTabs) is consolidated into a single horizontal `TopNav` — frees ~224px of horizontal space on desktop for the affix list. Pitfall 22 updated; Pitfall 28 (palette consistency) still applies.
 
 ---
 
@@ -14,11 +14,12 @@
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages. Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
+| `src/ui/layout/TopNav.tsx` | Unified horizontal top navigation (iter 64). Single sticky bar at the top: brand (logo + title) \| tabs (scrollable) \| feedback hint (lg+). Replaces the previous `Sidebar` + `Header` + `MobileNavTabs` trio. | `role="banner"` on `<header>`, `role="navigation"` + `aria-label` on inner `<nav>`. Active state: `.nav-mode-active` class with gold `::after` border-b accent (overlaps the TopNav's bottom border). |
 | `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages. Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
+| `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Single source of truth — consumed by `TopNav.tsx`. | Single source — do not duplicate the nav list anywhere else. |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages. Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
 | `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar. Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. | Used by all 8 category pages. Desktop unaffected. `.mobile-regex-bar*` CSS rules MUST live inside `@media (max-width: 1023px)` — see Pitfall 26. |
-| `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). | Single source — do not duplicate nav list in either component. |
-| `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
+| `src/ui/layout/Layout.tsx` | Root application shell. Structure: `<TopNav>` + `<main>` (scrollable). Sets `data-theme="dark"` on `<html>` once on mount (dark-only theme). | Was 3-piece (Sidebar + Header + MobileNavTabs) before iter 64. |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
@@ -147,10 +148,14 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **`RegexOutput`** (`.regex-output`): **gold** (`--poe-gold` = `#C89A4A`, brand accent) + glow `box-shadow`. Marks the primary output element. Padding `12px` desktop, `10px` mobile.
     - **Do NOT** re-add inline `style={{ background: ... }}` on `RegexOutput` root div — `.regex-output` CSS owns the background now (inline style was removed iter 55).
 
-22. **Navigation as "modes" (iter 56):** Sidebar is desktop-only (`hidden md:flex`); mobile nav is `<MobileNavTabs>` (horizontal scrollable chip tabs, `md:hidden`, sticky below Header). Both share `navItems` from `src/ui/layout/nav-items.ts` — single source of truth.
-    - **Active state** uses `.nav-mode-active` CSS class (gold border-l 3px + box-shadow glow + gold-tinted gradient bg + font-weight 600). Pattern echoes Level-1 frames but is a nav-specific class — do NOT reuse `.regex-output` or `.affix-header-*` for nav.
-    - **Padding compensation:** `.nav-mode-link.nav-mode-active` and `.mobile-nav-tab.nav-mode-active` set `padding-left: calc(<tailwind-padding> - 3px)` to keep icons aligned with inactive items (which have no border-l). If you change the Tailwind `px-*` on the NavLink, update the calc in `index.css` too.
-    - **No hamburger, no drawer, no focus trap** in `Sidebar.tsx` — all removed iter 56. Do NOT re-add them.
+22. **Navigation as "modes" — unified `TopNav` (iter 56 → iter 64):** Iter 64 consolidated the previous 3-piece chrome (`Sidebar` desktop-only vertical + `Header` page-title bar + `MobileNavTabs` mobile-only horizontal) into a single horizontal `TopNav.tsx`. The desktop vertical sidebar is GONE — it was eating ~224px (`w-56`) of horizontal space, which is now available for the affix list (ModList) and the right-column RegexOutput/StatusPanel.
+    - **Layout:** `Layout.tsx` is now `flex flex-col h-screen` → `<TopNav>` (sticky top, ~52-56px) + `<main>` (scrollable, takes the rest). Previously was `flex` (row) with `<Sidebar>` + content column. The `data-theme="dark"` side-effect moved from `Header.tsx` to `Layout.tsx` (so it doesn't depend on the nav component existing).
+    - **TopNav structure:** brand (logo + title stack, title hidden on `< sm`) → tabs (`flex: 1` + `overflow-x: auto`, scrollable on narrow screens, fits on md+) → feedback hint (`hidden lg:block`). Single row, no drawer, no hamburger.
+    - **Active state** uses the same `.nav-mode-active` CSS class as before, but the visual language changed: was `border-left: 3px` (vertical sidebar), now `::after` pseudo-element with `border-bottom: 3px` gold accent that overlaps the TopNav's bottom border (so the active tab visually "anchors" to the bar). Subtle gold-tinted gradient bg + box-shadow glow + brand-gold text are preserved.
+    - **Padding compensation removed:** the previous `.nav-mode-link.nav-mode-active` / `.mobile-nav-tab.nav-mode-active` `padding-left: calc(<px> - 3px)` rules are GONE — the `::after` approach doesn't need padding compensation because the accent is a pseudo-element, not a real border that affects layout.
+    - **i18n key rename:** `sidebar.feedback` → `nav.feedback` (the `sidebar.*` namespace is gone together with the Sidebar component). `home.header_title` is now UNUSED (was the `<Header>` page-title text for route `/`) — kept in `i18n.ts` for backward-compat with any external references, but no component reads it anymore. The page title for `/` is rendered by `HomePage`'s own hero `<h1>` (`home.title`), and category pages render their title in `CategoryLayout`'s `header` slot.
+    - **Deleted files (iter 64):** `src/ui/layout/Sidebar.tsx`, `src/ui/layout/MobileNavTabs.tsx`, `src/ui/layout/Header.tsx`. Do NOT re-add them — they are superseded by `TopNav.tsx`. Do NOT re-add the hamburger / drawer / focus-trap patterns either (those were already removed iter 56).
+    - **CSS cleanup:** `.sidebar-atmosphere`, `.header-atmosphere`, `.mobile-nav-tabs`, `.mobile-nav-tabs-scroll`, `.mobile-nav-tab`, `.nav-mode-link.nav-mode-active`, `.mobile-nav-tab.nav-mode-active` rules are all DELETED from `src/index.css`. The `.topnav`, `.topnav-bar`, `.topnav-brand*`, `.topnav-tabs`, `.topnav-tab` rules replace them. If you need to debug nav styling, look at the `/* ─── TopNav (iter 64, UI Phase 10) ─── */` block in `index.css`.
 
 23. **HomePage compaction + `<details>` blocks (iter 57 + iter 62):** HomePage has TWO `<details>` blocks — both collapsed by default, content stays in DOM (Google indexes):
     - **Features section (iter 62, Phase 8b):** The 3-card grid (data / optimize / share) was visually noisy on a page whose hero already lists the same info as stat badges (mods count, categories, 250-char limit, regex optimization). Wrapped in `<details className="home-seo-details">` with summary `home.features_summary`. Inner cards keep their existing styling — same `.home-seo-*` CSS classes as SeoBlock.
@@ -233,15 +238,16 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 | Key | Text | Used In |
 |-----|------|---------|
-| `home.nav_label` | Главная | Sidebar nav link for `/` |
-| `home.header_title` | PoE2 Regex | Header `<h2>` for route `/` |
+| `home.nav_label` | Главная | TopNav tab label for `/` (via `navItems`) |
 | `home.title` | Генератор regex для PoE2 | Hero `<h1>` on HomePage |
 | `home.subtitle` | Выбирайте аффиксы — получайте готовую строку для вставки в игру | Hero subtitle |
 | `home.description_full` | Генератор поисковых строк… | Hero description paragraph |
 | `home.features_summary` | Возможности генератора… | `<summary>` of Features `<details>` (iter 62) |
 | `home.seo_summary` | Подробнее о регексах PoE2… | `<summary>` of SeoBlock `<details>` |
+| `nav.feedback` | Баги и идеи → Discord: woonderdad | TopNav right-side hint (lg+). Renamed from `sidebar.feedback` iter 64. |
+| `nav.categories` | Категории | TopNav `<nav>` `aria-label`. |
 
-**Design principle:** Each UI zone (sidebar, header, hero) has its own i18n key — no text duplication across zones.
+**Design principle:** Each UI zone has its own i18n key — no text duplication across zones. `home.header_title` is now UNUSED (was the deleted `<Header>` page-title for `/`) — kept in `i18n.ts` for backward-compat only; do not consume it in new code.
 
 ## 13. Documentation Map
 

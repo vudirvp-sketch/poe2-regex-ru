@@ -145,11 +145,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'priority.s_only': 'S',
     'priority.label': 'Приоритет:',
 
-    // Sidebar feedback
-    'sidebar.feedback': 'Баги и идеи → Discord: woonderdad',
-
     // Navigation
     'nav.categories': 'Категории',
+    'nav.feedback': 'Баги и идеи → Discord: woonderdad',
   },
 };
 

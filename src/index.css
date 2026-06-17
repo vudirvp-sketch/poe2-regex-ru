@@ -329,12 +329,15 @@ body {
   }
 }
 
-/* ─── Sidebar & Header: uniform semi-transparent warm overlay ─── */
-[data-theme="dark"] .sidebar-atmosphere,
-:root .sidebar-atmosphere,
-[data-theme="dark"] .header-atmosphere,
-:root .header-atmosphere {
-  background: rgba(13, 11, 9, 0.78);
+/* ─── TopNav: uniform semi-transparent warm overlay ─── */
+/* iter 64, UI Phase 10: replaces the previous .sidebar-atmosphere /
+   .header-atmosphere rules (those components are deleted). TopNav uses
+   the same warm overlay so the visual language is preserved. */
+[data-theme="dark"] .topnav,
+:root .topnav {
+  background: rgba(13, 11, 9, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* ─── Layout shell ─── */
@@ -538,67 +541,126 @@ main {
   border-radius: 0 0 0 6px;
 }
 
-/* ─── Navigation "mode" active-state (iter 56, UI redesign Phase 4) ─── */
-/* Applied to active NavLink in both Sidebar (desktop vertical) and
-   MobileNavTabs (mobile horizontal). Echoes the Level-1 frame pattern
-   (`.regex-output`, `.affix-header-*`): gold border-l + subtle glow +
-   gold-tinted background — marks the active route as a "mode" rather
-   than a generic highlighted link. */
-.nav-mode-active {
-  position: relative;
-  background:
-    linear-gradient(135deg, rgba(200, 154, 74, 0.12) 0%, rgba(200, 154, 74, 0.04) 100%),
-    var(--poe-bg-tertiary);
-  border-left: 3px solid var(--poe-gold);
-  box-shadow:
-    0 0 0 1px rgba(200, 154, 74, 0.08),
-    0 0 12px rgba(200, 154, 74, 0.10);
-  font-weight: 600;
-}
+/* ─── TopNav (iter 64, UI Phase 10) ─── */
+/* Unified horizontal top navigation. Replaces the previous Sidebar /
+   Header / MobileNavTabs trio. Single row at the top of the viewport:
+   brand (logo + title) | tabs (scrollable) | feedback hint (lg+).
 
-/* Compensate for the 3px border-l so the icon stays aligned with
-   inactive items (which have no border-l). */
-.nav-mode-link.nav-mode-active {
-  padding-left: calc(0.75rem - 3px);
-}
-.mobile-nav-tab.nav-mode-active {
-  padding-left: calc(0.625rem - 3px);
-}
+   Layout uses flexbox: brand and feedback are `shrink-0`, tabs take
+   `flex: 1` + `overflow-x: auto` so they shrink/scroll on narrow
+   viewports. On md+ the 9 tabs fit naturally without scrolling. */
 
-/* ─── Mobile horizontal tabs (iter 56, Phase 4) ─── */
-/* Sticky bar below Header. Horizontal scrollable chip list. Hidden on
-   desktop (md:hidden in JSX). Scrollbar hidden visually but scroll
-   still works (touch + wheel + keyboard via Tab on links). */
-.mobile-nav-tabs {
+.topnav {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background: rgba(13, 11, 9, 0.92);
+  z-index: 30;
   border-bottom: 1px solid var(--poe-border);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
-.mobile-nav-tabs-scroll {
+.topnav-bar {
   display: flex;
-  gap: 6px;
-  padding: 8px 12px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  height: 52px;
+}
+@media (min-width: 768px) {
+  .topnav-bar {
+    height: 56px;
+    padding: 0 1rem;
+    gap: 0.75rem;
+  }
+}
+
+/* Brand block: logo + stacked title/subtitle. Title hidden on < sm to
+   save horizontal space for the tab row. */
+.topnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+.topnav-brand-text {
+  display: none;
+  flex-direction: column;
+  line-height: 1.1;
+}
+@media (min-width: 640px) {
+  .topnav-brand-text {
+    display: flex;
+  }
+}
+.topnav-brand-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.topnav-brand-subtitle {
+  font-size: 11px;
+}
+
+/* Tab row: horizontally scrollable on small screens, fits on md+. */
+.topnav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE10+ */
   -webkit-overflow-scrolling: touch;
 }
-.mobile-nav-tabs-scroll::-webkit-scrollbar {
+.topnav-tabs::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+@media (min-width: 768px) {
+  .topnav-tabs {
+    gap: 6px;
+  }
+}
 
-.mobile-nav-tab {
+.topnav-tab {
   flex-shrink: 0;
+  position: relative;
   border: 1px solid transparent;
   background: var(--chip-bg);
 }
-.mobile-nav-tab:not(.nav-mode-active):hover {
+.topnav-tab:not(.nav-mode-active):hover {
   background: var(--chip-bg-hover);
+}
+
+/* Navigation "mode" active-state (iter 64, UI Phase 10).
+   Echoes the Level-1 frame pattern (`.regex-output`, `.affix-header-*`):
+   gold border-b via ::after (overlaps the TopNav's bottom border so the
+   active tab visually "anchors" to the bar), subtle gold-tinted gradient
+   bg + brand-gold text — marks the active route as a "mode" rather than
+   a generic highlighted link.
+
+   Note: previous iter 56 version used `border-left: 3px` (vertical
+   sidebar). That rule is gone together with the Sidebar component.
+   The ::after pseudo-element is preferred over a real border-bottom
+   because it overlays the parent `.topnav` border seamlessly without
+   needing negative margins or padding compensation. */
+.nav-mode-active {
+  background:
+    linear-gradient(180deg, rgba(200, 154, 74, 0.14) 0%, rgba(200, 154, 74, 0.04) 100%),
+    var(--poe-bg-tertiary);
+  box-shadow:
+    0 0 0 1px rgba(200, 154, 74, 0.10),
+    0 0 12px rgba(200, 154, 74, 0.10);
+  font-weight: 600;
+}
+.nav-mode-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: var(--poe-gold);
+  box-shadow: 0 0 6px rgba(200, 154, 74, 0.45);
+  pointer-events: none;
 }
 
 /* ─── Home SEO <details> (iter 57, UI Phase 5) ─── */
