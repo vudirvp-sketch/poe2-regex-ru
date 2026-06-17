@@ -23,7 +23,7 @@
  *   npx tsx scripts/etl/iterative-optimizer.ts [--max-iterations N] [--dry-run] [--verbose]
  *   OR called from run-etl.ts as Step 10
  */
-import { matchQuotedGroup, matchPoE2RegexItem, getItemSearchBlocks } from '../../src/core/poe2-regex-matcher.js';
+import { matchQuotedGroup, matchPoE2RegexItem, hasUnsupportedOptional } from '../../src/core/poe2-regex-matcher.js';
 import { batchDPFactorize, applyDialectOptimizations } from '../../src/core/dp-factorizer.js';
 import { containsPoE2Grouping, extractTemplateSuffix } from './compute-regex-core.js';
 import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from './path-d-transform.js';
@@ -107,12 +107,6 @@ const MIN_REGEX_LEN_BY_CATEGORY: Record<string, number> = {
   'jewel-corrupted': 7,
 };
 
-/** Maximum regex length in PoE2 */
-const POE2_REGEX_LIMIT = 250;
-
-/** Estimated overhead per mod in a multi-mod regex: quotes + separator + number regex */
-const ESTIMATED_MOD_OVERHEAD = 8;
-
 // ─── Core Logic ───
 
 /**
@@ -175,6 +169,15 @@ function oracleValidateChange(
     return { valid: false, crossFamilyFP: 0, fn: false };
   }
 
+  // KI-1 (closed iter 73): Reject regexes containing `?` outside `(?!…)`.
+  // PoE2 in-game does NOT support `?` quantifier — matcher still parses it
+  // (engine completeness), but Oracle marks such regexes invalid. Generator
+  // (compiler/factorizer) does not produce `?`, so this is a defensive check
+  // against future regressions.
+  if (hasUnsupportedOptional(newRegex)) {
+    return { valid: false, crossFamilyFP: 0, fn: false };
+  }
+
   // Check FN: regex must match its own rawText
   const fn = hasFN(newRegex, rawText);
   if (fn) {
@@ -190,9 +193,6 @@ function oracleValidateChange(
     if (other.familyKey.ru === tokenFamily) continue;
 
     // Use block-based matching for accurate in-game simulation
-    const itemBlocks = getItemSearchBlocks({
-      mods: [other.rawText.ru],
-    });
     const regexWithQuotes = newRegex.includes('"') ? newRegex : `"${newRegex}"`;
 
     if (matchPoE2RegexItem(regexWithQuotes, { mods: [other.rawText.ru] })) {

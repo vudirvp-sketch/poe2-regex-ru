@@ -38,6 +38,15 @@
  * current position: inner pattern must NOT match starting here. For `^(?!.*X)`, the
  * `.*` makes this block-wide absence (bidirectional exclude — iter 46 production form).
  *
+ * iter 73 (KI-1 CLOSED): `?` outside `(?!…)` lookahead now triggers a runtime
+ * warning via `hasUnsupportedOptional()` + `console.warn` (deduped per pattern).
+ * Oracle (`regex-oracle.ts`) treats `hasUnsupportedOptional(regex) === true` as
+ * `valid: false` (with `unsupportedSyntax: ['? optional']` populated) — so any
+ * generator regression that emits a `?` quantifier will be caught at ETL time.
+ * The matcher engine still PARSES `?` (no thrown error) so existing tests that
+ * intentionally use `?` for engine-internal scenarios keep working; they just
+ * emit a warning that the test layer can assert on via `vi.spyOn(console, 'warn')`.
+ *
  * This file is in src/core/ — ZERO external dependencies.
  */
 
@@ -185,6 +194,25 @@ function tokenize(pattern: string): Token[] {
   }
 
   return tokens;
+}
+
+/**
+ * Detect whether a pattern contains a `?` token that the PoE2 in-game engine
+ * does NOT support. `(?!…)` negative lookahead is parsed as `lookaheadNegOpen`
+ * (no `optional` token emitted), so any `optional` token in the stream is
+ * necessarily a bare `?` quantifier — unsupported in-game (verified Phase 7).
+ *
+ * Used by:
+ * - `matchQuotedGroup` (runtime `console.warn`, deduped per pattern)
+ * - Oracle `validateRegex` / `validateRegexItem` (sets `valid = false` +
+ *   `unsupportedSyntax = ['? optional']`)
+ * - ETL `iterative-optimizer.oracleValidateChange` (rejects candidate regex)
+ *
+ * Returns `true` if the pattern contains an unsupported `?` quantifier.
+ */
+export function hasUnsupportedOptional(pattern: string): boolean {
+  const tokens = tokenize(pattern);
+  return tokens.some(t => t.type === 'optional');
 }
 
 // ─── PoE2 Regex AST ───
@@ -483,10 +511,45 @@ function matchSequenceAt(
 }
 
 /**
+ * Set of patterns already warned about — avoids log spam when Oracle / ETL
+ * re-validate the same regex many times. Bounded by the number of distinct
+ * patterns in a category (~hundreds, never grows unbounded).
+ */
+const warnedUnsupportedOptionalPatterns: Set<string> = new Set();
+
+/**
+ * Emit a one-time `console.warn` if `pattern` contains an unsupported `?`
+ * quantifier (KI-1). Idempotent per pattern — second call with the same
+ * pattern is a no-op. Test layer asserts via `vi.spyOn(console, 'warn')`.
+ */
+function warnUnsupportedOptionalIfAny(pattern: string): void {
+  if (!hasUnsupportedOptional(pattern)) return;
+  if (warnedUnsupportedOptionalPatterns.has(pattern)) return;
+  warnedUnsupportedOptionalPatterns.add(pattern);
+  console.warn(
+    `[poe2-regex-matcher] Pattern "${pattern}" contains a \`?\` quantifier ` +
+    `outside (?!...) lookahead — PoE2 in-game does NOT support \`?\`. ` +
+    `Matcher will still parse it (engine completeness), but Oracle marks ` +
+    `such regexes as invalid. See STATUS.md → KI-1 (closed iter 73).`
+  );
+}
+
+/**
+ * TEST-ONLY: clear the dedup set so a fresh `console.warn` fires for patterns
+ * that were already warned about earlier in the same test run. Exported
+ * exclusively for `tests/core/poe2-regex-matcher.test.ts` — do NOT call from
+ * production code. Returns nothing.
+ */
+export function _clearWarnedUnsupportedOptionalPatternsForTests(): void {
+  warnedUnsupportedOptionalPatterns.clear();
+}
+
+/**
  * Check if a single quoted PoE2 regex group matches the item text.
  * Tries every starting position (substring search behavior).
  */
 export function matchQuotedGroup(pattern: string, text: string): boolean {
+  warnUnsupportedOptionalIfAny(pattern);
   const ast = parsePoE2Regex(pattern);
   for (let i = 0; i <= text.length; i++) {
     if (matchAt(ast, text, i).matched) return true;

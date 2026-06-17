@@ -869,3 +869,80 @@ describe('Regex Oracle: Negation regex (regexExclude)', () => {
     expect(result.crossFamilyFP).toHaveLength(0);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 11: UNSUPPORTED SYNTAX (KI-1 closed iter 73)
+// `?` outside `(?!…)` lookahead is NOT supported in PoE2 in-game (Phase 7).
+// Oracle detects this via `hasUnsupportedOptional()` and forces `valid = false`
+// with `unsupportedSyntax: ['? optional']` populated — defensive guard against
+// generator regressions.
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Regex Oracle: Unsupported syntax detection (KI-1)', () => {
+  it('validateRegex: bare `?` quantifier → valid=false + unsupportedSyntax populated', () => {
+    const result = validateRegex(
+      'abc?', // bare `?` — unsupported in PoE2
+      ['ab', 'abc'], // targets match (engine still parses `?`)
+      []
+    );
+
+    // Even though matcher would match targets, Oracle rejects on unsupported syntax
+    expect(result.valid).toBe(false);
+    expect(result.unsupportedSyntax).toEqual(['? optional']);
+    expect(result.falseNegatives).toHaveLength(0); // engine still matches
+  });
+
+  it('validateRegex: clean regex → unsupportedSyntax empty + valid (when no FP/FN)', () => {
+    const result = validateRegex(
+      'к сопротивлению огню',
+      ['к сопротивлению огню'],
+      ['к сопротивлению холоду']
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.unsupportedSyntax).toEqual([]);
+  });
+
+  it('validateRegex: `(?!…)` lookahead is NOT unsupported (detector returns false)', () => {
+    const result = validateRegex(
+      '^(?!.*редкост).*повышение',
+      ['повышение брони'],
+      ['редкость повышение брони']
+    );
+
+    // Lookahead is supported in PoE2 — unsupportedSyntax must be empty
+    expect(result.unsupportedSyntax).toEqual([]);
+    // valid depends on FP/FN, but NOT on unsupported syntax
+    expect(result.falseNegatives).toHaveLength(0);
+  });
+
+  it('validateRegexItem: bare `?` quantifier → valid=false + unsupportedSyntax populated', () => {
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к силе'],
+    };
+
+    const result = validateRegexItem(
+      'к силе?', // bare `?` after suffix
+      [targetItem],
+      []
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.unsupportedSyntax).toEqual(['? optional']);
+  });
+
+  it('validateRegexItem: clean regex → unsupportedSyntax empty', () => {
+    const targetItem: GameItemText = {
+      mods: ['+(5—8) к силе'],
+    };
+
+    const result = validateRegexItem(
+      'к силе',
+      [targetItem],
+      []
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.unsupportedSyntax).toEqual([]);
+  });
+});

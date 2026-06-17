@@ -19,7 +19,7 @@
  * 9. INTEGRATION: Full pipeline from compiler output to match
  * 10. BATCH UTILITY: testRegex helper
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   matchPoE2Regex,
   matchQuotedGroup,
@@ -27,6 +27,8 @@ import {
   matchPoE2RegexItem,
   testRegex,
   parseQuotedGroups,
+  hasUnsupportedOptional,
+  _clearWarnedUnsupportedOptionalPatternsForTests,
 } from '@core/poe2-regex-matcher';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -166,19 +168,77 @@ describe('PoE2 Regex Dialect: Character class []', () => {
   });
 });
 
-describe('PoE2 Regex Dialect: Optional quantifier ? (NOT supported in-game)', () => {
+describe('PoE2 Regex Dialect: Optional quantifier ? (NOT supported in-game — KI-1 closed iter 73)', () => {
   // VERIFIED IN-GAME (Phase 7): `?` does NOT work in PoE2 regex.
-  // Our matcher supports it for engine completeness, but PoE2 client ignores it.
-  // Do NOT use `?` in generated regexes.
-  it('.? matches zero or one character (in our matcher engine)', () => {
-    expect(matchPoE2Regex('"аб.?в"', 'абв')).toBe(true);
-    expect(matchPoE2Regex('"аб.?в"', 'абXв')).toBe(true);
-    expect(matchPoE2Regex('"аб.?в"', 'абXXв')).toBe(false);
+  // Our matcher engine still parses `?` for completeness (used implicitly before
+  // iter 48 for `(?!)` lookahead). Iter 73 added:
+  //   1. `hasUnsupportedOptional(pattern)` — pure detector exported from matcher
+  //   2. `matchQuotedGroup` emits a one-time `console.warn` per pattern that
+  //      contains a bare `?` (outside `(?!…)` lookahead)
+  //   3. Oracle treats `hasUnsupportedOptional(regex) === true` as `valid: false`
+  //
+  // Generator (compiler/factorizer) does NOT produce `?` patterns — these tests
+  // only verify the detector + warning behavior, NOT that `?` is a valid PoE2
+  // construct.
+
+  beforeEach(() => {
+    _clearWarnedUnsupportedOptionalPatternsForTests();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
-  it('\\d..? matches digit + 1-2 any chars (in our matcher engine)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('hasUnsupportedOptional: detects bare `?` quantifier', () => {
+    expect(hasUnsupportedOptional('abc?')).toBe(true);
+    expect(hasUnsupportedOptional('аб.?в')).toBe(true);
+    expect(hasUnsupportedOptional('\\d..?')).toBe(true);
+    expect(hasUnsupportedOptional('a|b?')).toBe(true);
+  });
+
+  it('hasUnsupportedOptional: returns false for `(?!…)` lookahead (NOT unsupported)', () => {
+    // `(?!` is negative lookahead — `?` is consumed as part of `lookaheadNegOpen`
+    // token, NOT emitted as `optional`. Detector must return false.
+    expect(hasUnsupportedOptional('^(?!.*X).*Z')).toBe(false);
+    expect(hasUnsupportedOptional('(?!abc)')).toBe(false);
+    expect(hasUnsupportedOptional('^(?!.*A)(?!.*B).*Z')).toBe(false);
+  });
+
+  it('hasUnsupportedOptional: returns false for clean patterns', () => {
+    expect(hasUnsupportedOptional('abc')).toBe(false);
+    expect(hasUnsupportedOptional('к сопротивлению огню')).toBe(false);
+    expect(hasUnsupportedOptional('[её]')).toBe(false);
+    expect(hasUnsupportedOptional('\\d{2,}.*суффикс')).toBe(false);
+    expect(hasUnsupportedOptional('')).toBe(false);
+  });
+
+  it('matchQuotedGroup: still matches `?`-patterns (engine completeness) but emits console.warn', () => {
+    // Engine still parses `?` — these matches succeed.
+    expect(matchQuotedGroup('аб.?в', 'абв')).toBe(true);
+    expect(matchQuotedGroup('аб.?в', 'абXв')).toBe(true);
+    expect(matchQuotedGroup('аб.?в', 'абXXв')).toBe(false);
     expect(matchQuotedGroup('\\d..?', '55')).toBe(true);
     expect(matchQuotedGroup('\\d..?', '555')).toBe(true);
+    // But the warn hook must have fired at least once for these patterns.
+    expect(console.warn).toHaveBeenCalled();
+    const warnCalls = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls;
+    const warnedPatterns = warnCalls
+      .map(call => String(call[0]))
+      .filter(msg => msg.includes('poe2-regex-matcher'));
+    expect(warnedPatterns.length).toBeGreaterThan(0);
+    expect(warnedPatterns.some(msg => msg.includes('?'))).toBe(true);
+  });
+
+  it('matchQuotedGroup: clean patterns do NOT emit warn', () => {
+    matchQuotedGroup('к сопротивлению огню', 'к сопротивлению огню');
+    // No warn calls for clean patterns (the spy from beforeEach is fresh per test).
+    // Note: only counts calls with `[poe2-regex-matcher]` prefix.
+    const warnCalls = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls;
+    const matcherWarns = warnCalls
+      .map(call => String(call[0]))
+      .filter(msg => msg.includes('poe2-regex-matcher'));
+    expect(matcherWarns).toHaveLength(0);
   });
 });
 
@@ -927,16 +987,33 @@ describe('iter 48: (?!...) negative lookahead — bidirectional exclude (minion-
     expect(matchPoE2Regex(regexMulti, '+10% к перезарядки умений')).toBe(false); // no повышение
   });
 
-  // ─── Backward compatibility: optional `?` (not lookahead) still works ───
+  // ─── Backward compatibility: optional `?` (not lookahead) still parsed + warns (KI-1) ───
 
-  it('optional `?` quantifier still parsed (backward compat — PoE2 does not support, but tokenizer should not break)', () => {
+  it('optional `?` quantifier still parsed + emits KI-1 warn (backward compat — tokenizer behavior locked)', () => {
     // `?` as optional quantifier is not a PoE2 feature, but the tokenizer
     // must still handle it gracefully (existing behavior — was used implicitly
     // for `(?!)` before iter 48). Verify the `?` outside lookahead context
     // still produces an `optional` token (no regression).
     // Note: PoE2 game does NOT support `?` — this test only locks tokenizer behavior.
+    //
+    // iter 73 (KI-1 closed): `matchQuotedGroup` now emits a one-time
+    // `console.warn` per pattern with bare `?`. We assert that the warning
+    // fires (so test layer catches regressions) AND that the engine still
+    // matches (no thrown error).
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    _clearWarnedUnsupportedOptionalPatternsForTests();
+
     expect(matchPoE2Regex('"abc?"', 'ab')).toBe(true);   // `c?` optional — matches "ab"
     expect(matchPoE2Regex('"abc?"', 'abc')).toBe(true);  // `c?` matches "abc"
+
+    // KI-1: warn must fire for `abc?` pattern (deduped, so only once per pattern)
+    expect(warnSpy).toHaveBeenCalled();
+    const matcherWarns = warnSpy.mock.calls
+      .map(call => String(call[0]))
+      .filter(msg => msg.includes('poe2-regex-matcher') && msg.includes('?'));
+    expect(matcherWarns.length).toBeGreaterThan(0);
+
+    warnSpy.mockRestore();
   });
 });
 

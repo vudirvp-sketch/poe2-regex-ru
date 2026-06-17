@@ -3,44 +3,68 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 72
+Task ID: 73
 Agent: main
-Task: iter 72 — Верификация анализа кодовой базы, дедупликация ETL-утилит, удаление dead code, документирование Bug #1 (? tokenizer mismatch) как Known Issue.
+Task: iter 73 — Закрыть Known Issue KI-1 (`?` tokenizer mismatch) через вариант (b): runtime warning в matcher + Oracle reject + ETL reject. Без ломания существующих тестов — engine всё ещё парсит `?` для completeness.
 
 Work Log:
-- 1: Клон репо, чтение STATUS.md / worklog.md / AGENT_NAVIGATION.md / package.json.
-- 2: pnpm install + `pnpm test` — baseline 1144 тестов зелёные.
-- 3: Верификация анализа из чата (чтение исходников):
-  - **Bug #1 (?)** — ПОДТВЕРЖДЁН. `poe2-regex-matcher.ts:111-113` парсит `?` как `optional`, matcher успешно матчит. Тесты в `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` явно залочивают поведение с комментарием "PoE2 does NOT support".
-  - **Bug #5 (limits.ts escape в [...])** — НЕ ПОДТВЕРЖДЁН. Код корректно обрабатывает escape внутри char class.
-  - **Bug #6 (path-d-transform.ts escape edge case)** — НЕ ПОДТВЕРЖДЁН. На практике regex не заканчивается на `\`, edge case не реален.
-  - **Bug #9 (`hasYofication/yoficationPositions` dead data flow)** — АНАЛИЗ ОШИБСЯ. Поля ИСПОЛЬЗУЮТСЯ в `useCategoryPage.ts:950, 976` в `applyRuntimeYofication`.
-  - **Bug #10 (`normalizeTemplate` дубликат)** — ПОДТВЕРЖДЁН. `compute-regex-core.ts:43-48` и `compute-optimizations.ts:30-35` — идентичны.
-  - **Bug #11 (`extractTemplateSuffix` дубликат)** — ПОДТВЕРЖДЁН. `compute-regex-core.ts:61-89` и `iterative-optimizer.ts:446-458` — идентичны.
-  - **Bug #12 (`longestCommonSubstring` dead code)** — ПОДТВЕРЖДЁН. 32 строки + `@ts-expect-error`.
-- 4: Фикс Bug #10 — удалил дубликат `normalizeTemplate` из `compute-optimizations.ts`, импортировал из `compute-regex-core.ts`.
-- 5: Фикс Bug #11 — удалил дубликат `extractTemplateSuffix` из `iterative-optimizer.ts`, импортировал из `compute-regex-core.ts`.
-- 6: Фикс Bug #12 — удалил dead code `longestCommonSubstring` (32 строки) из `compute-optimizations.ts`.
-- 7: Верификация: `npx tsc -b` — OK (0 ошибок). `pnpm test` — 1144/1144 зелёные. `npx eslint` на изменённых файлах — 3 ошибки в `iterative-optimizer.ts`, проверил через `git stash` — все 3 предсуществовали (POE2_REGEX_LIMIT, ESTIMATED_MOD_OVERHEAD, itemBlocks — unused vars), не связаны с моими правками.
-- 8: Документация:
-  - `STATUS.md` — полная переработка. Удалены устаревшие таблицы (UI Redesign phases, Atmospheric Assets table). Добавлен Known Issue KI-1 (`?` tokenizer mismatch) с описанием, mitigation, и планом фикса.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 72. Добавлен Pitfall 30 (`?` tokenizer mismatch = Oracle FP risk).
-  - `worklog.md` — iter 72 section, старые итерации сжаты до 1-строчного списка.
+- 1: Клон репо, pnpm install, baseline `pnpm test` — 1144/1144 зелёные. tsc -b чистый.
+- 2: Чтение ключевых файлов для планирования фикса:
+  - `src/core/poe2-regex-matcher.ts` — tokenize/parse/match pipeline, `matchQuotedGroup` exported.
+  - `src/core/regex-oracle.ts` — `validateRegex` / `validateRegexItem` / `OracleResult` interface.
+  - `scripts/etl/iterative-optimizer.ts` — `oracleValidateChange` (existing `containsPoE2Grouping` reject pattern).
+  - `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` — 2 теста, залочивающие `?`-matching behavior.
+- 3: Реализация KI-1 вариант (b) в `src/core/poe2-regex-matcher.ts`:
+  - Добавлен exported detector `hasUnsupportedOptional(pattern): boolean` — парсит pattern, возвращает true если есть `optional` token (это всегда `?` вне `(?!…)`).
+  - Добавлен internal `warnUnsupportedOptionalIfAny(pattern)` с dedup Set (`warnedUnsupportedOptionalPatterns`).
+  - `matchQuotedGroup` вызывает `warnUnsupportedOptionalIfAny` в начале.
+  - Добавлен test-only export `_clearWarnedUnsupportedOptionalPatternsForTests()` для сброса dedup Set в тестах.
+  - Обновлён header-комментарий: документирование iter 73 / KI-1 closed.
+- 4: Реализация в `src/core/regex-oracle.ts`:
+  - Импорт `hasUnsupportedOptional`.
+  - `OracleResult` extended с `unsupportedSyntax: string[]` (опциональное стало обязательным — backward-incompatible для consumers, но consumers проверяют только `valid`).
+  - `validateRegex` / `validateRegexItem` — проверка `hasUnsupportedOptional`, при true → `unsupportedSyntax = ['? optional']`, `valid = false`.
+- 5: Реализация в `scripts/etl/iterative-optimizer.ts`:
+  - Импорт `hasUnsupportedOptional`.
+  - `oracleValidateChange` — early reject на `hasUnsupportedOptional(newRegex)` (после existing `containsPoE2Grouping` check).
+  - Удалены 3 pre-existing unused-vars: `POE2_REGEX_LIMIT`, `ESTIMATED_MOD_OVERHEAD`, `itemBlocks` + unused import `getItemSearchBlocks`. Линты 58 → 55.
+- 6: Тесты `tests/core/poe2-regex-matcher.test.ts`:
+  - Блок "Optional quantifier ? (NOT supported in-game — KI-1 closed iter 73)": 5 тестов на detector + warn spy (с `beforeEach`/`afterEach` для `_clearWarnedUnsupportedOptionalPatternsForTests` + `vi.restoreAllMocks`).
+  - Блок "optional `?` quantifier still parsed + emits KI-1 warn" — переписан с warn spy assertions.
+- 7: Тесты `tests/core/regex-oracle.test.ts`:
+  - Новый Section 11 "Unsupported syntax detection (KI-1)" — 5 тестов: `validateRegex` с bare `?` → invalid; clean → valid; `(?!…)` lookahead → NOT unsupported; `validateRegexItem` аналогично.
+- 8: Верификация:
+  - `npx tsc -b` — 0 ошибок.
+  - `pnpm test` — **1152/1152 зелёные** (1144 baseline + 8 новых тестов).
+  - `pnpm lint` — 55 проблем (было 58, убраны 3 pre-existing unused vars в iterative-optimizer.ts).
+- 9: Документация:
+  - `STATUS.md` — KI-1 помечен как закрытый в iter 73, описан механизм fixed (detector + warn + Oracle reject + ETL reject). Iter → 73.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 73. Pitfall 30 → "RESOLVED iter 73" с описанием 4 компонентов фикса.
+  - `worklog.md` — iter 73 запись, iter 72 сжат до 1-строчного.
 
 Stage Summary:
-- **iter 72 COMPLETE.** 3 safe-фикса: дедупликация 2 ETL-утилит + удаление dead code. Bug #1 задокументирован как Known Issue KI-1 (фикс отложен — требует решения: ломать тесты или добавлять warning в matcher).
-- **Изменённые файлы (6):**
-  - `scripts/etl/compute-optimizations.ts` (−47 строк: -17 дубликат `normalizeTemplate`, -32 dead code `longestCommonSubstring`)
-  - `scripts/etl/iterative-optimizer.ts` (−16 строк: дубликат `extractTemplateSuffix` удалён, импорт из `compute-regex-core.ts`)
-  - `STATUS.md` (полная переработка, ~50 строк против ~80 ранее)
-  - `AGENT_NAVIGATION.md` (header iter 72 + Pitfall 30)
-  - `worklog.md` (iter 72 + сжатие)
-- **Точка остановки:** iter 72 done. Открыт Known Issue KI-1 (`?` tokenizer mismatch) — нужен дизайн-ф decision: (a) ломать тесты в `poe2-regex-matcher.test.ts` и делать `?` fatal-error, или (b) добавить runtime-warning в matcher + Oracle. Прочие архитектурные долги (Bug #8 `useCategoryPage` 1325 строк, Bug #13 skip ranged regexes) — не тронуты, низкий приоритет. Все 1144 теста зелёные, tsc -b чистый.
+- **iter 73 COMPLETE.** KI-1 закрыт через вариант (b) — runtime warning + Oracle/ETL reject. Engine по-прежнему парсит `?` (engine completeness), но:
+  - Detector `hasUnsupportedOptional()` — exported чистая функция.
+  - `matchQuotedGroup` эмитит `console.warn` (dedup Set).
+  - Oracle форсит `valid = false` + `unsupportedSyntax: ['? optional']`.
+  - ETL `iterative-optimizer` отклоняет candidate regex с `?`.
+  - Generator `?` НЕ производит — это defensive guard против регрессий.
+- Дополнительно подчистлены 3 pre-existing unused-vars в `iterative-optimizer.ts` (POE2_REGEX_LIMIT, ESTIMATED_MOD_OVERHEAD, itemBlocks + unused import getItemSearchBlocks).
+- **Изменённые файлы (7):**
+  - `src/core/poe2-regex-matcher.ts` (+~60 строк: detector + warn helper + test-only export + header doc)
+  - `src/core/regex-oracle.ts` (+~25 строк: `unsupportedSyntax` field + 2 checks)
+  - `scripts/etl/iterative-optimizer.ts` (+10/-12 строк: `hasUnsupportedOptional` check + unused-vars cleanup)
+  - `tests/core/poe2-regex-matcher.test.ts` (+~75 строк: 5 detector/warn tests + rewritten backward-compat test)
+  - `tests/core/regex-oracle.test.ts` (+~75 строк: Section 11 — 5 unsupported syntax tests)
+  - `STATUS.md` (KI-1 → closed history, iter 73)
+  - `AGENT_NAVIGATION.md` (header iter 73 + Pitfall 30 → RESOLVED)
+- **Точка остановки:** iter 73 done. Все Known Issues закрыты. Открытые архитектурные долги (Bug #8 `useCategoryPage` 1325 строк, Bug #13 skip ranged regexes в iterative-optimizer, Bug #15-20 мелкие) — не тронуты, низкий приоритет. Все 1152 теста зелёные, tsc -b чистый, lint на изменённых файлах чистый. `public/generated/*.json` не модифицировались — ETL не запускался.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 72**: Дедупликация ETL-утилит (`normalizeTemplate`, `extractTemplateSuffix`), удаление dead code (`longestCommonSubstring`), документирование Bug #1 как KI-1.
 - **iter 71** (Phase 16): Интеграция 3 leftover atmospheric WebP (`hero-demon-blue`, `early-access-banner`, `news-bg-center`).
 - **iter 70** (Phase 15): Visual review lg+/xl+; filter contrast fix; `bg-forest.webp` deleted.
 - **iter 69** (Phase 14): HomePage hero decorations — bas-relief backdrop + 2 side ghosts.

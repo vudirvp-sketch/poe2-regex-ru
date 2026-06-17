@@ -33,14 +33,15 @@
  *     familyKeyMap
  *   );
  */
-import { matchQuotedGroup, matchPoE2RegexItem } from './poe2-regex-matcher';
+import { matchQuotedGroup, matchPoE2RegexItem, hasUnsupportedOptional } from './poe2-regex-matcher';
 import type { GameItemText } from './poe2-regex-matcher';
 
 /** Maximum regex length in PoE2 (str.length, not bytes) */
 const POE2_REGEX_LIMIT = 250;
 
 export interface OracleResult {
-  /** True if no cross-family false positives AND no false negatives AND within limit */
+  /** True if no cross-family false positives AND no false negatives AND within limit
+   *  AND no unsupported syntax (e.g. `?` outside `(?!…)` — see KI-1) */
   valid: boolean;
   /** All tokens that should NOT match but do (both family-tier and cross-family) */
   falsePositives: string[];
@@ -54,6 +55,13 @@ export interface OracleResult {
   regexLength: number;
   /** True if regex length ≤ 250 */
   withinLimit: boolean;
+  /**
+   * Unsupported PoE2 syntax detected in the candidate regex (KI-1, closed iter 73).
+   * Populated when `hasUnsupportedOptional(regex)` is true — entries describe
+   * the offending construct (e.g. `'? optional'`). Empty array when clean.
+   * When non-empty, `valid` is forced to `false` regardless of FP/FN status.
+   */
+  unsupportedSyntax: string[];
 }
 
 /**
@@ -90,6 +98,13 @@ export function validateRegex(
   const regexLength = candidateRegex.length;
   const withinLimit = regexLength <= POE2_REGEX_LIMIT;
 
+  // KI-1 (closed iter 73): `?` outside `(?!…)` is unsupported in-game.
+  // Detect once up-front; force `valid = false` if present.
+  const unsupportedSyntax: string[] = [];
+  if (hasUnsupportedOptional(candidateRegex)) {
+    unsupportedSyntax.push('? optional');
+  }
+
   // Check false negatives: targets that should match but don't
   const falseNegatives: string[] = [];
   for (const text of targetModTexts) {
@@ -125,11 +140,12 @@ export function validateRegex(
     falsePositives, familyKeyMap, targetFamilyKey
   );
 
-  // Valid = no cross-family FP + no FN + within limit
+  // Valid = no cross-family FP + no FN + within limit + no unsupported syntax
   // Family-tier FP are "by design" and don't invalidate the regex
   const valid = falseNegatives.length === 0
     && crossFamilyFP.length === 0
-    && withinLimit;
+    && withinLimit
+    && unsupportedSyntax.length === 0;
 
   return {
     valid,
@@ -139,6 +155,7 @@ export function validateRegex(
     falseNegatives,
     regexLength,
     withinLimit,
+    unsupportedSyntax,
   };
 }
 
@@ -177,6 +194,12 @@ export function validateRegexItem(
 ): OracleResult {
   const regexLength = candidateRegex.length;
   const withinLimit = regexLength <= POE2_REGEX_LIMIT;
+
+  // KI-1 (closed iter 73): `?` outside `(?!…)` is unsupported in-game.
+  const unsupportedSyntax: string[] = [];
+  if (hasUnsupportedOptional(candidateRegex)) {
+    unsupportedSyntax.push('? optional');
+  }
 
   // Wrap in quotes if not already a quoted-group regex
   const fullRegex = candidateRegex.includes('"')
@@ -224,7 +247,8 @@ export function validateRegexItem(
 
   const valid = falseNegatives.length === 0
     && crossFamilyFP.length === 0
-    && withinLimit;
+    && withinLimit
+    && unsupportedSyntax.length === 0;
 
   return {
     valid,
@@ -234,6 +258,7 @@ export function validateRegexItem(
     falseNegatives,
     regexLength,
     withinLimit,
+    unsupportedSyntax,
   };
 }
 
