@@ -160,7 +160,7 @@ export function VendorPage() {
     <CategoryLayout
       header={
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
+          <h2 className="poe-panel-header--inline text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
             <img src={`${import.meta.env.BASE_URL}icons/vendor.png`} alt="" width={24} height={24} className="object-contain" />
             {t('vendor.title')}
           </h2>

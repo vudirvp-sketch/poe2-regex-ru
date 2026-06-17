@@ -400,7 +400,8 @@ body {
    and gradient background as .poe-panel-header but omits the 6px gold
    dot accents (they conflict with inline icon/text) and adds horizontal
    padding so the filigree frames the content naturally.
-   NOT YET APPLIED IN JSX — test in browser DevTools first (iter 68 candidate). */
+   iter 68: applied in JSX on 8 category pages (JewelPage, WaystonePage,
+   RingPage, RelicPage, AmuletPage, VendorPage, TabletPage, BeltPage). */
 .poe-panel-header--inline {
   position: relative;
   display: inline-flex;

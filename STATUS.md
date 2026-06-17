@@ -2,22 +2,21 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 67 — vignette softened (0.55→0.40), gold dots hidden ≤380px, `.poe-panel-header--inline` CSS class added (not in JSX yet), new atmosphere assets added
+> **Текущая итерация:** 68 — `.poe-panel-header--inline` applied to `<h2>` on 8 category pages; TopNav tab font 13px → 14px
 
 ---
 
-## UI Redesign — план (9 фаз + polish + Phase 10-11 + cleanup + iter 67)
+## UI Redesign — план
 
 | Фаза | Статус | Что |
 |------|--------|-----|
-| 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
-| 8 | ✅ iter 61-62 | Полировка «дорогая тишина» |
-| 9 | ✅ iter 62 | Финальная документация |
+| 0-9 | ✅ iter 51-62 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → polish → Phase 9 docs |
 | polish | ✅ iter 63 | Palette consistency |
 | 10 | ✅ iter 64 | Sidebar → TopNav |
 | 11 | ✅ iter 65 | Атмосферная стилизация PoE2 |
 | cleanup | ✅ iter 66 | Удалены неиспользуемые i18n ключи |
-| 12 | ✅ iter 67 | Vignette softened 0.55→0.40; gold dots hidden ≤380px; `.poe-panel-header--inline` CSS (not in JSX); new atmosphere assets (`early-access-banner.webp`, `news-bg-center.webp`) |
+| 12 | ✅ iter 67 | Vignette softened 0.55→0.40; gold dots hidden ≤380px; `.poe-panel-header--inline` CSS; new atmosphere assets |
+| 13 | ✅ iter 68 | `.poe-panel-header--inline` применён в JSX на 8 category pages; TopNav tab font 13px→14px |
 
 ---
 
@@ -27,15 +26,17 @@
 
 ---
 
-## iter 68 Candidates (требуют in-browser visual review)
+## iter 69 Candidates (требуют in-browser visual review)
 
-1. **`.poe-panel-header--inline` на category page `<h2>`** (8 страниц) — CSS класс готов, но не применён в JSX. Тест: добавить класс в DevTools на любой category page `<h2>`, проверить визуальное объединение TopNav + page-header. Риск: рамка вокруг inline-flex h2 с иконкой может выглядеть «коробочно».
-2. **`.btn-cta` crimson glow на OLED** — проверить яркость. Если слишком яркий — снизить 0.40 alpha до 0.30 в `.btn-cta:hover`.
-3. **Удаление `public/bg-forest.webp` + `public/bg-forest-mobile.webp`** — после 1 release cycle (сейчас оставлены для cached-URL backward-compat).
-4. **Compact mode для TopNav tabs на md (768-1024px)** — проверить in-browser, помещаются ли все 9 табов без скролла. Если тесно — compact (icon-only) mode для md.
-5. **Tab font size на < md** — text-[13px] → text-[14px] если позволяет ширина.
-6. **Интеграция `early-access-banner.webp`** — декоративный баннер (1919×177), доступен в `/atmosphere/`. Кандидат для section divider или hero-декорации.
-7. **Интеграция `news-bg-center.webp`** — готический фон с фигурой (1681×260), доступен в `/atmosphere/`. Кандидат для HomePage hero-секции.
+1. **`.btn-cta` crimson glow на OLED** — проверить яркость. Если слишком яркий — снизить 0.40 alpha до 0.30 в `.btn-cta:hover`.
+2. **Удаление `public/bg-forest.webp` + `public/bg-forest-mobile.webp`** — после 1 release cycle (сейчас оставлены для cached-URL backward-compat).
+3. **Интеграция `early-access-banner.webp`** — декоративный баннер (1919×177), доступен в `/atmosphere/`. Кандидат для section divider или hero-декорации. Визуальной проблемы не решает — низкий приоритет.
+4. **Интеграция `news-bg-center.webp`** — готический фон с фигурой (1681×260), доступен в `/atmosphere/`. Кандидат для HomePage hero-секции. Визуальной проблемы не решает — низкий приоритет.
+5. **Контраст мелкого текста в фильтрах на waystone page** — VLM отметил «низкий контраст мелкого текста в фильтрах». Проверить на широком viewport, при необходимости поднять opacity или размер.
+
+### Закрытые кандидаты (iter 68)
+
+- ~~Compact mode для TopNav tabs на md~~ — VLM подтвердил, что 9 табов помещаются без скролла даже на широких viewport. Закрыто.
 
 ---
 

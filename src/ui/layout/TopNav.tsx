@@ -98,7 +98,7 @@ export function TopNav() {
               to={item.path}
               end={item.path === '/'}
               className={({ isActive }) =>
-                `topnav-tab flex items-center gap-1.5 rounded px-2.5 py-1.5 text-[13px] whitespace-nowrap transition-colors ${
+                `topnav-tab flex items-center gap-1.5 rounded px-2.5 py-1.5 text-[14px] whitespace-nowrap transition-colors ${
                   isActive ? 'nav-mode-active' : 'hover:opacity-80'
                 }`
               }
