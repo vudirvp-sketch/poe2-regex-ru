@@ -136,7 +136,7 @@ describe('ETL vs регис cross-validation', () => {
       for (const file of files) {
         const data = loadCategoryData(file);
         const emptyRegexTokens = data.tokens.filter(
-          (t: any) => !t.regex?.ru || t.regex.ru.trim() === ''
+          (t: { regex?: { ru?: string } }) => !t.regex?.ru || t.regex.ru.trim() === ''
         );
         expect(emptyRegexTokens.length, `${file} has tokens with empty regex`).toBe(0);
       }
@@ -153,7 +153,7 @@ describe('ETL vs регис cross-validation', () => {
         const data = loadCategoryData(file);
         const minLen = minLenByFile[file] ?? 5;
         const shortRegexTokens = data.tokens.filter(
-          (t: any) => t.regex?.ru && t.regex.ru.length < minLen
+          (t: { regex?: { ru?: string } }) => t.regex?.ru && t.regex.ru.length < minLen
         );
         expect(shortRegexTokens.length, `${file} has ${shortRegexTokens.length} tokens with regex < ${minLen} chars`).toBe(0);
       }

@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { extractTextAndRanges, extractGenderForms, detectYofication, generateId } from '@etl/normalize';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import {
+  extractTextAndRanges,
+  extractGenderForms,
+  detectYofication,
+  generateId,
+  WAYSTONE_IMPLICIT_SET_FAMILY_KEYS,
+  TABLET_IMPLICIT_SET_FAMILY_KEYS,
+} from '@etl/normalize';
 
 describe('extractTextAndRanges', () => {
   it('extracts a numeric range from mod-value spans', () => {
@@ -134,5 +143,61 @@ describe('generateId', () => {
   it('generates hash-based ID when no modCode', () => {
     const id = generateId(undefined, 'waystone', 'some text', 'normal');
     expect(id).toMatch(/^waystone\.mod_[a-z0-9]+$/);
+  });
+});
+
+// ─── Bug #15 / KI-2: hardcoded implicit-set family keys must exist in data ───
+//
+// KI-2 (open, iter 74): WAYSTONE_IMPLICIT_SET_FAMILY_KEYS and
+// TABLET_IMPLICIT_SET_FAMILY_KEYS in scripts/etl/normalize.ts are STALE —
+// none of the 4 waystone keys nor the 1 tablet key match any actual
+// `familyKey.ru` in the generated JSON. As a result, `isImplicitSetBonus`
+// silently no-ops and implicit-set bonus tokens are NOT filtered out of
+// the mod list (they should be — they are not searchable as mod text in-game).
+//
+// These tests use `it.fails` to document the EXPECTED behavior: each
+// hardcoded key MUST be present in the corresponding category's
+// `familyKey.ru` set. They currently FAIL (assertion error) — `it.fails`
+// inverts this so the suite stays green. When KI-2 is fixed (keys updated
+// to match current poe2db source data), these tests will START PASSING,
+// `it.fails` will then report failure (alerting that the test should be
+// converted back to a plain `it`).
+
+describe('WAYSTONE_IMPLICIT_SET_FAMILY_KEYS / TABLET_IMPLICIT_SET_FAMILY_KEYS (Bug #15 / KI-2)', () => {
+  const projectRoot = join(__dirname, '..', '..');
+  const generatedDir = join(projectRoot, 'public', 'generated');
+
+  function loadFamilyKeys(filename: string): Set<string> {
+    const raw = readFileSync(join(generatedDir, filename), 'utf-8');
+    const data = JSON.parse(raw);
+    const familyKeys = new Set<string>();
+    for (const token of data.tokens ?? []) {
+      const fk = token?.familyKey?.ru;
+      if (typeof fk === 'string') {
+        // Apply the same normalization as `isImplicitSetBonus`:
+        // ## → #, collapse whitespace, trim.
+        const norm = fk.replace(/##/g, '#').replace(/\s+/g, ' ').trim();
+        if (norm) familyKeys.add(norm);
+      }
+    }
+    return familyKeys;
+  }
+
+  it.fails('KI-2: every WAYSTONE_IMPLICIT_SET_FAMILY_KEYS entry exists in waystone.json familyKey set', () => {
+    const familyKeys = loadFamilyKeys('waystone.json');
+    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !familyKeys.has(k));
+    expect(missing).toEqual([]);
+  });
+
+  it.fails('KI-2: every WAYSTONE_IMPLICIT_SET_FAMILY_KEYS entry exists in waystone-desecrated.json familyKey set', () => {
+    const familyKeys = loadFamilyKeys('waystone-desecrated.json');
+    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !familyKeys.has(k));
+    expect(missing).toEqual([]);
+  });
+
+  it.fails('KI-2: every TABLET_IMPLICIT_SET_FAMILY_KEYS entry exists in tablet.json familyKey set', () => {
+    const familyKeys = loadFamilyKeys('tablet.json');
+    const missing = TABLET_IMPLICIT_SET_FAMILY_KEYS.filter(k => !familyKeys.has(k));
+    expect(missing).toEqual([]);
   });
 });

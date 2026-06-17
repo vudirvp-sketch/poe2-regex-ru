@@ -18,7 +18,7 @@
 import { describe, it, expect } from 'vitest';
 import { matchPoE2RegexItem, type GameItemText } from '@core/poe2-regex-matcher';
 import { compile } from '@core/compiler';
-import { range, and, literal } from '@core/ast';
+import { range } from '@core/ast';
 
 // ─── Real tile items from in-game verification ───
 

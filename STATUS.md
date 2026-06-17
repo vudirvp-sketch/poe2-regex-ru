@@ -2,22 +2,29 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 73
+> **Текущая итерация:** 74
 
 ---
 
 ## Known Issues
 
-Нет открытых Known Issues. KI-1 закрыт в iter 73 (см. ниже историю).
+### KI-2 (open, iter 74) — stale hardcoded implicit-set family keys
 
-### История закрытых KI (для контекста агентов)
+`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` (4 ключа) и `TABLET_IMPLICIT_SET_FAMILY_KEYS` (1 ключ) в `scripts/etl/normalize.ts:380-390` **не матчат** ни один `familyKey.ru` в текущем сгенерированном JSON. Фильтр `isImplicitSetBonus()` молча no-op'ит → implicit-set bonus токены НЕ выфильтровываются из mod-списка (хотя должны — они не searchable как mod text in-game).
 
-- **KI-1 (? tokenizer mismatch)** — закрыт iter 73. Симулятор парсит `?` как `optional` quantifier для engine-completeness, но:
-  - Добавлен `hasUnsupportedOptional(pattern)` detector (exported из `src/core/poe2-regex-matcher.ts`).
-  - `matchQuotedGroup` эмитит `console.warn` (одноразово per pattern, dedup через `Set`) при обнаружении `?` вне `(?!…)`.
-  - Oracle (`validateRegex` / `validateRegexItem`) форсит `valid = false` + `unsupportedSyntax: ['? optional']`.
-  - ETL `iterative-optimizer.oracleValidateChange` отклоняет candidate regex с `?`.
-  - Generator (compiler / factorizer) `?` НЕ производит — это defensive guard против регрессий.
+**Симптом:** 0 совпадений по всем 5 ключам в `waystone.json` / `waystone-desecrated.json` / `tablet.json`.
+
+**Root cause:** poe2db переформулировал тексты (например, было `#% увеличение эффективности монстров` → стало `На #% больше эффективности монстров`).
+
+**Тесты:** 3 `it.fails` в `tests/etl/normalize.test.ts` (Bug #15 / KI-2 блок). Тесты проходят (expected-fail), пока ключи не матчат. Когда ключи обновят — тесты начнут проходить нормально, `it.fails` сообщит об этом (нужно будет конвертировать в обычный `it`).
+
+**Фикс** (отдельная итерация): обновить хардкод-ключи по актуальным `familyKey.ru` из JSON, запустить ETL. Проверить, что implicit-set bonus токены действительно исчезают из mod-списков.
+
+---
+
+### История закрытых KI
+
+- **KI-1 (? tokenizer mismatch)** — закрыт iter 73. `hasUnsupportedOptional()` detector + runtime `console.warn` в `matchQuotedGroup` (dedup Set) + `OracleResult.unsupportedSyntax: string[]` field + ETL `iterative-optimizer.oracleValidateChange` reject. Generator `?` НЕ производит — defensive guard.
 
 ---
 

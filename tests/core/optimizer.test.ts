@@ -668,7 +668,9 @@ describe('removeConflictingExcludes (Phase 4)', () => {
         if (exNode && exNode.type === 'EXCLUDE' && exNode.child.type === 'OR') {
           // Only B and C should remain (A removed due to conflict)
           expect(exNode.child.children).toHaveLength(2);
-          const values = exNode.child.children.map(c => (c as any).value).sort();
+          const values = exNode.child.children
+            .map(c => (c.type === 'LITERAL' ? c.value : ''))
+            .sort();
           expect(values).toEqual(['B', 'C']);
         }
       }
@@ -692,7 +694,9 @@ describe('removeConflictingExcludes (Phase 4)', () => {
     if (result.type === 'OR') {
       // AND unwrapped to LITERAL (only LITERAL child remains)
       expect(result.children[0].type).toBe('LITERAL');
-      expect((result.children[0] as any).value).toBe('X');
+      if (result.children[0].type === 'LITERAL') {
+        expect(result.children[0].value).toBe('X');
+      }
     }
   });
 
@@ -719,7 +723,9 @@ describe('removeConflictingExcludes (Phase 4)', () => {
         if (exNode && exNode.type === 'EXCLUDE') {
           // OR should be unwrapped to single LITERAL("C")
           expect(exNode.child.type).toBe('LITERAL');
-          expect((exNode.child as any).value).toBe('C');
+          if (exNode.child.type === 'LITERAL') {
+            expect(exNode.child.value).toBe('C');
+          }
         }
       }
     }
@@ -752,7 +758,9 @@ describe('applyOptimizationTable: strict subset FP prevention (iter 44)', () => 
     if (result.type === 'OR') {
       expect(result.children).toHaveLength(2);
       // Each LITERAL keeps its original value (not replaced with opt regex)
-      const values = result.children.map(c => (c as any).value).sort();
+      const values = result.children
+        .map(c => (c.type === 'LITERAL' ? c.value : ''))
+        .sort();
       expect(values).toEqual(['A', 'B']);
     }
   });

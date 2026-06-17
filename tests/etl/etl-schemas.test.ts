@@ -53,6 +53,7 @@ describe('RawModTierSchema', () => {
   });
 
   it('rejects missing required field', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { modCode, ...withoutCode } = validTier;
     const result = RawModTierSchema.safeParse(withoutCode);
     expect(result.success).toBe(false);
@@ -154,6 +155,7 @@ describe('RawModGroupDataSchema', () => {
   });
 
   it('rejects missing required field', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { origin, ...withoutOrigin } = validGroup;
     const result = RawModGroupDataSchema.safeParse(withoutOrigin);
     expect(result.success).toBe(false);
