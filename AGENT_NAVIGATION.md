@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 62 (Phase 8 polish COMPLETE; Phase 9 docs polish COMPLETE). HomePage Features collapsed into `<details>`; ModList Level-3 badges auto-suppressed when scope has only 1 sub-group; all docs trimmed to current truth.
+> **Entry document.** Read this first. Current state: iter 63 (UI palette consistency + README revamp). All cold Tailwind colors (indigo/gray-600/blue-500) replaced with warm palette tokens; README rewritten for SEO + clarity. Pitfall 28 added.
 
 ---
 
@@ -176,6 +176,23 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 27. **ModList Level-3 badge auto-suppression (iter 62, Phase 8c):** When a scope (affix column OR origin section OR jewel-type-filtered list) contains ONLY ONE sub-group, the Level-3 semantic badge is redundant — it just repeats what the parent header (affix name / origin name / jewel type filter) already says. The `ModSubGroupSection` component accepts a `hideLabel?: boolean` prop; callers compute it as `subGroups.length === 1`. Same logic applies to `renderJewelTypeSubGroups` (filtered jewel sub-groups). Do NOT suppress Level-2 origin headers or Level-1 affix headers — they always carry unique info (icon + origin name, affix count).
     - **General rule for future polish:** any UI label that has zero informational value in its current scope = noise. Auto-suppress it (don't make it a manual flag — derive from data).
+
+28. **Palette consistency — NEVER use raw cold Tailwind colors (iter 63):** The project uses a warm dark-fantasy palette defined in `:root` of `src/index.css` (`#0D0B09` / `#15110E` / `#3A2C22` / `#C89A4A` gold). Tailwind's default `indigo-*`, `gray-600/500`, `blue-500`, `purple-500`, `green-500` are COLD and clash visually with the warm tokens. Always use the semantic palette tokens instead:
+    | Forbidden (cold)              | Use (warm palette token)         |
+    |------------------------------|----------------------------------|
+    | `bg-indigo-600`              | `bg-amber-600` (active primary)  |
+    | `bg-gray-600` / `bg-gray-500`| `bg-raised` (warm raised) or `bg-amber-700` (deeper accent) |
+    | `hover:bg-gray-600/500`      | `hover:bg-chip-hover` (warm token) |
+    | `focus:border-blue-500`      | `focus:border-accent-amber` (brand gold focus ring) |
+    | `border-gray-500` (active)   | `border-accent-amber` (brand highlight on selected) |
+    | `text-blue-500` (checkbox tick) | `text-accent-amber` (brand)  |
+    | `text-purple-500` (corrupted tick) | `text-accent-purple` (palette token) |
+    | `text-green-500` (uncorrupted tick) | `text-accent-emerald` (palette token) |
+    | `text-amber-500` (threshold tick) | `text-accent-amber` (consistent with round10) |
+    - **Why:** the palette is exposed via Tailwind v4 `@theme` — every `--color-*` token creates `bg-*` / `text-*` / `border-*` utilities. Use them. Don't introduce raw Tailwind colors that drift from the brand.
+    - **Priority tier color hierarchy (preserved):** "Все" = neutral (`bg-raised`), "S+A" = deeper amber (`bg-amber-700`), "S" = brighter amber (`bg-amber-500`). Wider tier = less saturated; narrower/premium tier = brighter.
+    - **Checkbox tick colors carry semantics:** corrupted=purple, uncorrupted=emerald, delirious=blue, round10/threshold/auto-copy=amber (brand). Don't unify them all into amber — the per-checkbox distinction is meaningful.
+    - **Label size convention in CategoryControlPanel toolbar:** interactive buttons = `text-[13px]`; inline labels (priority, range, checkbox captions) = `text-[12px]`. Do NOT use `text-[10px]` for toolbar labels — it was an outlier on waystone extra-controls (fixed iter 63).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 

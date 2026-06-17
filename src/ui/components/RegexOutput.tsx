@@ -214,7 +214,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               type="checkbox"
               checked={autoCopy}
               onChange={(e) => setAutoCopy(e.target.checked)}
-              className="w-3.5 h-3.5 rounded bg-raised border-edge text-blue-500"
+              className="w-3.5 h-3.5 rounded bg-raised border-edge text-accent-amber"
             />
             <span className="text-[12px] text-dim">{t('regex.auto')}</span>
           </label>
@@ -225,7 +225,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               className={`px-2.5 py-1 text-[13px] rounded font-medium transition-colors ${
                 shareCopied
                   ? 'bg-btn-success text-bright'
-                  : 'bg-gray-600 text-soft hover:bg-gray-500'
+                  : 'bg-raised text-soft hover:bg-chip-hover'
               }`}
               title={t('regex.share_title')}
             >

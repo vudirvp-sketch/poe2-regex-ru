@@ -181,7 +181,7 @@ export function TabletPage() {
                         title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
                         className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                           selectedTypes.has(typeDef.id)
-                            ? 'bg-raised border-gray-500 text-bright'
+                            ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
                         } ${typeDef.id === 'expedition' ? 'opacity-60' : ''}`}
                       >
@@ -198,7 +198,7 @@ export function TabletPage() {
                         onClick={() => toggleRarity(rarityDef.id)}
                         className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                           selectedRarities.has(rarityDef.id)
-                            ? 'bg-raised border-gray-500 text-bright'
+                            ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
                         }`}
                       >
@@ -213,7 +213,7 @@ export function TabletPage() {
                     <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
                       onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
                       placeholder="≥N"
-                      className="w-14 px-1.5 py-0.5 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+                      className="w-14 px-1.5 py-0.5 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
                     />
                   </div>
                 }

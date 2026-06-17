@@ -696,14 +696,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
-          className="flex-1 min-w-[180px] px-3 py-2 bg-surface border border-edge rounded text-[15px] text-bright placeholder-ghost focus:outline-none focus:border-blue-500"
+          className="flex-1 min-w-[180px] px-3 py-2 bg-surface border border-edge rounded text-[15px] text-bright placeholder-ghost focus:outline-none focus:border-accent-amber"
         />
 
         <select
           value={affixFilter || 'all'}
           onChange={(e) => handleAffixFilter(e.target.value)}
           aria-label={t('filter.all_types')}
-          className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
+          className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber"
         >
           <option value="all">{t('filter.all_types')}</option>
           <option value="prefix">{t('affix.prefix')}</option>
@@ -716,7 +716,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             value={originFilter || 'all'}
             onChange={(e) => handleOriginFilter(e.target.value)}
             aria-label={t('filter.all_origins')}
-            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-blue-500"
+            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber"
           >
             <option value="all">{t('filter.all_origins')}</option>
             {availableOrigins.map((origin) => (
@@ -730,7 +730,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {selectedIds.size > 0 && (
           <button
             onClick={onClearSelections}
-            className="px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-gray-600 transition-colors"
+            className="px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>

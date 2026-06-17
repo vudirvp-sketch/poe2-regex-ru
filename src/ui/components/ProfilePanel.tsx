@@ -115,7 +115,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
               onChange={(e) => setProfileName(e.target.value)}
               placeholder={t('profile.add') + '...'}
               aria-label={t('profile.add')}
-              className="flex-1 px-2 py-1 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+              className="flex-1 px-2 py-1 bg-surface border border-edge rounded text-xs text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
             />
             <button
@@ -149,7 +149,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                       onChange={(e) => setEditName(e.target.value)}
                       onBlur={() => handleFinishRename(profile.id)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleFinishRename(profile.id); if (e.key === 'Escape') { setEditingId(null); setEditName(''); } }}
-                      className="flex-1 px-1 py-0.5 bg-raised border border-gray-500 rounded text-xs text-bright focus:outline-none"
+                      className="flex-1 px-1 py-0.5 bg-raised border border-accent-amber rounded text-xs text-bright focus:outline-none"
                       autoFocus
                     />
                   ) : (

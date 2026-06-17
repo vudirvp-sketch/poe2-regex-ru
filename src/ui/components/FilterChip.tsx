@@ -350,7 +350,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-[11px] font-bold transition-colors ${
             isExcluded
               ? 'bg-btn-danger text-bright hover:bg-red-500'
-              : 'bg-raised text-muted hover:bg-gray-600 hover:text-accent-red'
+              : 'bg-raised text-muted hover:bg-chip-hover hover:text-accent-red'
           }`}
           title={isExcluded ? t('chip.unexclude_tooltip') : t('chip.exclude_tooltip')}
           aria-label={isExcluded ? t('chip.unexclude_aria') : t('chip.exclude_aria')}
@@ -367,7 +367,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             step={1}
             placeholder={t('range.min')}
             aria-label={t('range.min_aria')}
-            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
             type="number"
             value={groupRange.min ?? ''}
             onChange={(e) => {
@@ -391,7 +391,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             step={1}
             placeholder={t('range.max')}
             aria-label={t('range.max_aria')}
-            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+            className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
             type="number"
             value={groupRange.max ?? ''}
             onChange={(e) => {
@@ -423,7 +423,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
               step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_1')}
-              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               type="number"
               value={slot0Range.min}
               onChange={handleSlot0MinChange}
@@ -434,7 +434,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
               step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_1')}
-              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               type="number"
               value={slot0Range.max}
               onChange={handleSlot0MaxChange}
@@ -449,7 +449,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
               step={1}
               placeholder={t('range.min')}
               aria-label={t('range.min_aria_dual_2')}
-              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               type="number"
               value={slot1Range.min}
               onChange={handleSlot1MinChange}
@@ -460,7 +460,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
               step={1}
               placeholder={t('range.max')}
               aria-label={t('range.max_aria_dual_2')}
-              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-blue-500"
+              className="w-14 px-1 py-0.5 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               type="number"
               value={slot1Range.max}
               onChange={handleSlot1MaxChange}

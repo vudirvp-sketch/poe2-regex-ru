@@ -194,7 +194,7 @@ export function VendorPage() {
             selectedIds.size > 0 ? (
               <button
                 onClick={clearSelections}
-                className="px-2 py-1 bg-raised border border-edge rounded text-xs text-soft hover:bg-gray-600 transition-colors"
+                className="px-2 py-1 bg-raised border border-edge rounded text-xs text-soft hover:bg-chip-hover transition-colors"
               >
                 {t('filter.clear')} ({selectedIds.size})
               </button>

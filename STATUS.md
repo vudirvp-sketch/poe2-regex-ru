@@ -2,17 +2,18 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 62 — Phase 8 (polish) COMPLETE; Phase 9 (docs) COMPLETE
+> **Текущая итерация:** 63 — UI palette consistency + README revamp
 
 ---
 
-## UI Redesign — план (9 фаз)
+## UI Redesign — план (9 фаз + polish)
 
 | Фаза | Статус | Что |
 |------|--------|-----|
 | 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
-| 8 | ✅ iter 61-62 | Полировка «дорогая тишина». iter 61: убран always-on `⚠ Диапазон` badge (tooltip instead). iter 62: Features на HomePage в `<details>`; ModList Level-3 badges скрываются когда в scope ровно 1 sub-group |
-| 9 | ✅ iter 62 | Финальная документация: STATUS/AGENT_NAVIGATION/ARCHITECTURE/ETL_GUIDE/IN_GAME_TESTS/SEO_PLAN/DATA_CONTRACTS почищены от устаревших секций, оставлены только актуальные pitfalls и контракты |
+| 8 | ✅ iter 61-62 | Полировка «дорогая тишина». iter 61: убран always-on `⚠ Диапазон` badge. iter 62: Features в `<details>`; ModList Level-3 badges auto-suppression |
+| 9 | ✅ iter 62 | Финальная документация |
+| polish | ✅ iter 63 | Palette consistency: все холодные tailwind-цвета (indigo/gray-600/blue-500) заменены на тёплые палитровые токены. README переписан (SEO + clarity). Pitfall 28 добавлен |
 
 ---
 
@@ -20,7 +21,7 @@
 
 **Открытых Known Issues нет.**
 
-Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility.
+Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency (indigo/gray-600/blue-500 → amber/raised/chip-hover/accent-*).
 
 ---
 

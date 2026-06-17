@@ -3,39 +3,42 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 62
+Task ID: 63
 Agent: main
-Task: Phase 8 (b)+(c) + Phase 9 (финальная документация).
+Task: UI palette consistency (заменить холодные tailwind-цвета на тёплые палитровые токены) + README revamp (SEO + clarity).
 
 Work Log:
-- 1: Клон репо, `npm install`, baseline `npx tsc -b` clean + `npx vitest run` 1144/1144 passed.
-- 2: Phase 8b — Features-секция на HomePage (3-card grid) обёрнута в `<details className="home-seo-details">` с новой i18n-ключом `home.features_summary`. Карточки внутри сохранены как есть (CSS reused). Логика: hero уже перечисляет те же факты как stat badges — Features-секция дублировала контент и доминировала над hub категорий. Контент остаётся в DOM (SEO-safe), визуально свёрнут.
-- 3: Phase 8c — ModList: добавлен optional prop `hideLabel?: boolean` на `ModSubGroupSection`. Callers (`AffixColumn` для обоих режимов `showOriginSubSections` и semantic-only, плюс `renderJewelTypeSubGroups`) вычисляют `hideLabel = subGroups.length === 1`. Когда в scope (affix column / origin section / jewel-type-filtered list) ровно 1 sub-group, Level-3 badge подавляется — он повторяет контекст родительского header. Level-2 origin headers и Level-1 affix headers НЕ тронуты (всегда несут уникальную инфу).
-- 4: Phase 9 — финальная документация:
-  - `STATUS.md`: полностью переписан. Убран длинный iter-by-iter backlog, оставлены: текущая итерация (62), таблица 9 фаз со статусом, пустой Known Issues, подтверждённые ограничения PoE2, оптимальные стратегии.
-  - `AGENT_NAVIGATION.md`: переписан. Заголовок iter 62. Pitfall 23 переписан — теперь описывает оба `<details>` блока на HomePage (Features iter 62 + SeoBlock iter 57). Pitfall 27 NEW — ModList Level-3 badge auto-suppression pattern. Pitfall 20 сохранён (range warnings). Все остальные pitfalls проверены и оставлены как есть.
-  - `docs/ARCHITECTURE.md`: обновлена секция UI Conventions / CategoryControlPanel range warnings (iter 61 описание сохранено), HomePage compaction pattern — добавлено упоминание Features `<details>` (iter 62), ModList добавлено описание hideLabel pattern.
-  - `docs/IN_GAME_TESTS.md`: удалён длинный «Older iterations summary» (4 строки про iter 15-41 — git history достаточно), оставлены актуальные VERIFIED-таблицы и iter 46 fix details.
-  - `docs/SEO_PLAN.md`: проверен, не менялся (уже чистый).
-  - `docs/ETL_GUIDE.md`: проверен, не менялся (уже чистый).
-  - `docs/DATA_CONTRACTS.md`: проверен, не менялся (уже чистый).
-  - `DELETIONS.md`: удалён (iter 47 cleanup note — давно неактуален, git history достаточно).
-  - `worklog.md` (этот файл): iter 61 сжат в одну строку в «Предыдущие итерации», iter 62 — полный раздел выше.
-- 5: Верификация: `npx tsc -b` clean, `npx vitest run` 1144/1144 passed.
+- 1: Клон репо (ZIP-архив codeload), `npm install`, baseline `npx tsc -b` clean + `npx vitest run` 1144/1144 passed.
+- 2: Анализ проблемы — пользователь указал, что И/ИЛИ кнопки горят холодным indigo, что не вяжется с тёплой dark-fantasy палитрой. Полный grep выявил: `bg-indigo-600` (И/ИЛИ), `bg-gray-600` (priority "all" + share button hover), `hover:bg-gray-600` (FilterChip/ModList/VirtualizedModList/VendorPage clear button), `text-blue-500` (waystone delirious + RegexOutput auto-copy + 6× focus borders в FilterChip/ModList/VirtualizedModList/ProfilePanel), `text-purple-500` (waystone corrupted), `text-green-500` (waystone uncorrupted), `text-amber-500` (threshold checkbox — единственный уже тёплый), `border-gray-500` (active state в Tablet/Jewel/Profile), `text-[10px]` outlier в waystone extra-controls.
+- 3: Замены по файлам:
+  - `CategoryControlPanel.tsx`: И/ИЛИ `bg-indigo-600` → `bg-amber-600` (бренд-золото). Priority "all" `bg-gray-600` → `bg-raised`; "S+A" `bg-amber-600` → `bg-amber-700` (deeper); "S" `bg-amber-500` (kept, brighter = premium). Round10 checkbox `text-blue-500` → `text-accent-amber`. Threshold checkbox `text-amber-500` → `text-accent-amber`. Range inputs `focus:border-blue-500` → `focus:border-accent-amber`. Hover `hover:bg-gray-600` → `hover:bg-chip-hover`. Inactive state `bg-raised text-muted` → `bg-surface text-muted` (consistent с FilterChip inactive pattern).
+  - `WaystonePage.tsx`: corrupted `text-purple-500` → `text-accent-purple`; uncorrupted `text-green-500` → `text-accent-emerald`; delirious `text-blue-500` → `text-accent-blue` (матчит Tablet delirium color). Все три label `text-[10px]` → `text-[12px]` (унification с остальными toolbar labels).
+  - `RegexOutput.tsx`: auto-copy checkbox `text-blue-500` → `text-accent-amber` (бренд). Share button `bg-gray-600 hover:bg-gray-500` → `bg-raised hover:bg-chip-hover` (тёплая палитра).
+  - `FilterChip.tsx`, `ModList.tsx`, `VirtualizedModList.tsx`, `ProfilePanel.tsx`: все `focus:border-blue-500` → `focus:border-accent-amber` (6+3+3+1 = 13 мест через sed).
+  - `FilterChip.tsx`, `ModList.tsx`, `VirtualizedModList.tsx`, `VendorPage.tsx`: `hover:bg-gray-600` → `hover:bg-chip-hover`.
+  - `TabletPage.tsx`, `JewelPage.tsx`, `ProfilePanel.tsx`: `border-gray-500` → `border-accent-amber` (active state highlight = бренд-золото).
+  - `TabletPage.tsx`: range input `focus:border-blue-500` → `focus:border-accent-amber`.
+- 4: README.md — полная переработка. Структура: hero-описание → "Что умеет" (8 буллетов фич) → таблица категорий → технологии → команды разработки → структура репо → таблица ограничений PoE2 regex → SEO-статус → баг-репорты → дисклеймер. SEO-ключевики: "регексы пое2", "поисковые строки", "фильтрация предметов", "русский клиент" — в первых строках. Длина ~95 строк — ёмко, без воды.
+- 5: Документация:
+  - `STATUS.md`: обновлён до iter 63. Добавлен polish-row в таблицу фаз. Known Issues пополнен закрытым iter 63 (palette consistency).
+  - `AGENT_NAVIGATION.md`: заголовок iter 63. Pitfall 28 NEW — palette consistency rule с таблицей forbidden→use замен и 4 sub-bullets (priority tier hierarchy, checkbox semantics, label size convention).
+  - `worklog.md`: iter 62 сжат в одну строку в «Предыдущие итерации», iter 63 — полный раздел выше.
+- 6: Верификация: `npx tsc -b` clean, `npx vitest run` 1144/1144 passed, `npx vite build` OK (156 modules, 503 KB JS / 41 KB CSS).
 
 Stage Summary:
-- **iter 62 COMPLETE.** Phase 8 (polish) — COMPLETE. Phase 9 (финальная документация) — COMPLETE. Known Issues: открытыми нет.
-- **Изменённые файлы (7):** `src/ui/pages/home/HomePage.tsx`, `src/shared/i18n.ts`, `src/ui/components/ModList.tsx`, `STATUS.md`, `AGENT_NAVIGATION.md`, `docs/ARCHITECTURE.md`, `docs/IN_GAME_TESTS.md`. Удалён: `DELETIONS.md`. Обновлён: `worklog.md`.
-- **Tests:** 1144 passed. `tsc -b` clean.
-- **Точка остановки:** Все 9 фаз UI redesign закрыты. Phase 9 (финальная документация) — выполнена. Дальше — только bug fixes / feature requests по мере поступления. План «9 фаз» завершён.
+- **iter 63 COMPLETE.** Все холодные tailwind-цвета (indigo/gray-600/blue-500/purple-500/green-500) заменены на тёплые палитровые токены (amber/raised/chip-hover/accent-amber/accent-purple/accent-emerald/accent-blue). README переписан (SEO + clarity). Pitfall 28 задокументирован.
+- **Изменённые файлы (10):** `README.md`, `STATUS.md`, `AGENT_NAVIGATION.md`, `worklog.md`, `src/ui/components/CategoryControlPanel.tsx`, `src/ui/components/RegexOutput.tsx`, `src/ui/components/FilterChip.tsx`, `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx`, `src/ui/components/ProfilePanel.tsx`, `src/ui/pages/waystone/WaystonePage.tsx`, `src/ui/pages/tablet/TabletPage.tsx`, `src/ui/pages/jewel/JewelPage.tsx`, `src/ui/pages/vendor/VendorPage.tsx`.
+- **Tests:** 1144 passed. `tsc -b` clean. `vite build` OK.
+- **Точка остановки:** Palette consistency fix + README revamp — выполнены. Открытых Known Issues нет. Дальше — bug fixes / feature requests по мере поступления.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
-- **iter 61** (Phase 8a polish): убран always-on `⚠ Диапазон` badge в CategoryControlPanel, FP-warning перенесён в tooltip range-контейнера. Pitfall 20 sub-bullet + новое правило «никогда не показывай warning-badge, который срабатывает на каждый нормальный use фичи».
-- **iter 60** (bug fix, Known Issue #7): `MobileRegexBar` visible on desktop — `.mobile-regex-bar { display: flex }` перекрывал `lg:hidden` (same specificity, source-order tie-break). Фикс: все `.mobile-regex-bar*` правила обёрнуты в `@media (max-width: 1023px)`. Pitfall 26 добавлен.
-- **iter 59** (Фаза 7): `MobileRegexBar.tsx` mobile sticky bottom-bar на 8 страницах. HomePage cleanup. Vendor price-filter fix.
+- **iter 62** (Phase 8b+c + Phase 9 docs): HomePage Features в `<details>`; ModList Level-3 badge auto-suppression через `hideLabel` prop; STATUS/AGENT_NAVIGATION/ARCHITECTURE/IN_GAME_TESTS почищены; DELETIONS.md удалён. Pitfall 27.
+- **iter 61** (Phase 8a polish): убран always-on `⚠ Диапазон` badge в CategoryControlPanel, FP-warning перенесён в tooltip range-контейнера. Pitfall 20 sub-bullet.
+- **iter 60** (bug fix, Known Issue #7): `MobileRegexBar` visible on desktop — specificity tie-break. Фикс: `.mobile-regex-bar*` правила обёрнуты в `@media (max-width: 1023px)`. Pitfall 26.
+- **iter 59** (Фаза 7): `MobileRegexBar.tsx` mobile sticky bottom-bar на 8 страницах. Vendor price-filter fix.
 - **iter 58** (Фаза 6): `StatusPanel.tsx` — единая панель статусов для 8 страниц.
 - **iter 57** (Фаза 5): HomePage compaction — SeoBlock в `<details>`, tighten отступов.
 - **iter 56** (Фаза 4): Навигация как «режимы» — `.nav-mode-active`, mobile tabs заменяют hamburger.

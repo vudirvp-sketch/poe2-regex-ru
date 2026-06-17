@@ -192,7 +192,7 @@ export function JewelPage() {
                         onClick={() => setJewelTypeFilter(opt.id)}
                         className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                           jewelTypeFilter === opt.id
-                            ? 'bg-raised border-gray-500 text-bright'
+                            ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
                         }`}
                       >
