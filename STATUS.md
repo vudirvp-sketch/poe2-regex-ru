@@ -2,33 +2,25 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 61 — Phase 8 (polish): drop always-on `⚠ Диапазон` badge in CategoryControlPanel
+> **Текущая итерация:** 62 — Phase 8 (polish) COMPLETE; Phase 9 (docs) COMPLETE
 
 ---
 
-## iter 61 — Phase 8 (polish): remove range-warning noise
+## UI Redesign — план (9 фаз)
 
-**Симптом:** При активации range-фильтра в `CategoryControlPanel` могли стакаться до 3 warning-бейджей: `⚠ ≥40` + `⚠ Округл.` + `⚠ Диапазон`. Третий (`⚠ Диапазон` — notation FP warning) показывался **всегда** при любом min/max — это константа, не actionable warning, чистый шум.
-
-**Фикс (principle «дорогая тишина»):**
-- **Удалён** always-on `⚠ Диапазон` visible badge.
-- FP-warning перенесён в `title` range-контейнера — ховер показывает предупреждение, info сохранён.
-- Видимыми остались **только конкретные/actionable** warnings: `⚠ ≥40` (PoE2 boundary at 40) и `⚠ Округл.` (round10 + AND fallback when range >50 values).
-- Когда ни одно из условий не выполняется — тишина, ни одного `⚠`.
-
-**Результат:** 1144 теста зелёные. `tsc -b` clean. Vite build OK.
+| Фаза | Статус | Что |
+|------|--------|-----|
+| 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
+| 8 | ✅ iter 61-62 | Полировка «дорогая тишина». iter 61: убран always-on `⚠ Диапазон` badge (tooltip instead). iter 62: Features на HomePage в `<details>`; ModList Level-3 badges скрываются когда в scope ровно 1 sub-group |
+| 9 | ✅ iter 62 | Финальная документация: STATUS/AGENT_NAVIGATION/ARCHITECTURE/ETL_GUIDE/IN_GAME_TESTS/SEO_PLAN/DATA_CONTRACTS почищены от устаревших секций, оставлены только актуальные pitfalls и контракты |
 
 ---
 
 ## Known Issues
 
-| # | Issue | Status |
-|---|-------|--------|
-| ~~1-5~~ | (см. git history) | ✅ CLOSED iter 46-50 |
-| ~~6~~ | `tsc -b` failing — 4 pages missing `t` import (iter 58 regression), JewelPage missing `groupTokensByFamily` | ✅ CLOSED iter 59 |
-| ~~7~~ | `MobileRegexBar` visible on desktop — `.mobile-regex-bar { display: flex }` overrode `lg:hidden` (same specificity, source-order tie-break) | ✅ CLOSED iter 60 |
-
 **Открытых Known Issues нет.**
+
+Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility.
 
 ---
 
@@ -47,16 +39,6 @@
 
 ---
 
-## UI Redesign — план (9 фаз)
-
-| Фаза | Статус | Что |
-|------|--------|-----|
-| 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
-| 8 | 🚧 in-progress | Полировка: снять шум, оставить «дорогую тишину». **iter 61:** убран always-on `⚠ Диапазон` badge в CategoryControlPanel. Pending: упростить Features-секцию на HomePage; пересмотреть плотность ModList. |
-| 9 | ⏳ | Финальная документация |
-
----
-
 ## Оптимальные стратегии (итог)
 
 | Сценарий | Статегия | Статус |
@@ -72,7 +54,7 @@
 
 ## SEO-статус
 
-✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
+✅ Полный набор реализован. См. `docs/SEO_PLAN.md`. SeoBlock и Features в `<details>` — контент остаётся в DOM, Google индексирует его даже в закрытом состоянии.
 
 ---
 Контакты: Discord **woonderdad**

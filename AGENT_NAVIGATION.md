@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 61 (Phase 8 polish — drop always-on `⚠ Диапазон` badge in `CategoryControlPanel`; FP warning moved to range-container tooltip).
+> **Entry document.** Read this first. Current state: iter 62 (Phase 8 polish COMPLETE; Phase 9 docs polish COMPLETE). HomePage Features collapsed into `<details>`; ModList Level-3 badges auto-suppressed when scope has only 1 sub-group; all docs trimmed to current truth.
 
 ---
 
@@ -14,12 +14,10 @@
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
 | `src/data/` | Runtime JSON loader (**Zod-validated**) + vendor properties | Fetches + validates `public/generated/*.json` |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages (iter 52-53, updated iter 59). Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
-| `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages (iter 58, Phase 6). Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
-| `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar (iter 59, Phase 7). Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. Wraps RegexOutput + alerts in `position: sticky; bottom: 0` container. | Used by all 8 category pages. Desktop unaffected — RegexOutput stays in right-column aside. **iter 60:** `.mobile-regex-bar*` CSS rules are wrapped in `@media (max-width: 1023px)` to avoid specificity conflict with `lg:hidden` (see Pitfall 26). |
-| `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). iter 56. | Single source — do not duplicate nav list in either component. |
-| `src/ui/layout/Sidebar.tsx` | Desktop-only vertical nav (`hidden md:flex`). iter 56: mobile drawer removed. | Mobile nav lives in `MobileNavTabs.tsx`. |
-| `src/ui/layout/MobileNavTabs.tsx` | Mobile-only horizontal scrollable chip tabs (`md:hidden`). Sticky below Header. iter 56. | Replaces previous hamburger drawer. |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell for category pages. Slots: `header`, `controls`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. When `mobileBar` is provided, aside is `hidden lg:flex` and `status`+`sidebar` render in a separate mobile-only section above the sticky bar. | Adopted by ALL 8 category pages. `status` slot uses `<StatusPanel>`. |
+| `src/ui/components/StatusPanel.tsx` | Unified status panel for all category pages. Props: `wantTokens`, `excludeTokens`, `allActiveTokens` + optional `badges` (ReactNode[]) + `alerts` (ReactNode[]). | Replaces ~15-20 lines of duplicated inline JSX per page. |
+| `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar. Props: `regexOutput` (ReactNode), `alerts` (ReactNode[]). `lg:hidden`. | Used by all 8 category pages. Desktop unaffected. `.mobile-regex-bar*` CSS rules MUST live inside `@media (max-width: 1023px)` — see Pitfall 26. |
+| `src/ui/layout/nav-items.ts` | Shared `navItems` array (9 entries: home + 8 categories). Source of truth for both Sidebar (desktop) and MobileNavTabs (mobile). | Single source — do not duplicate nav list in either component. |
 | `public/generated/` | ETL output — per-category JSON | **NEVER edit manually** — use `pnpm etl` |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
@@ -140,10 +138,9 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 20. **`CategoryControlPanel` — split-only (iter 52-54):** Component renders ONLY the controls row (no `<RegexOutput>`, no sticky wrapper). Page passes `<RegexOutput>` separately to `<CategoryLayout>`'s `regexOutput` slot (right column, sticky via `<aside>`).
     - **All 8 category pages** use this pattern: `<CategoryLayout>` wraps page; `<CategoryControlPanel>` (no special flags) in `controls` slot; `<RegexOutput>` + status + `<ProfilePanel>` in right-column slots; ModList in `children`.
-    - **iter 54 cleanup removed:** legacy branch (sticky wrapper + embedded `<RegexOutput>`), `hideRegexOutput` prop, `regex`/`isOverflow`/`regexParts`/`filterStore` props (all unused in split mode). Dead CSS: `.control-panel-sticky`, `.sticky.top-0` mobile rules.
     - **Kept:** `activeTokenCount` (used for active-tokens counter in controls row), `extraControls` slot (waystone corrupted/delirious, jewel type filter, tablet type/rarity/uses), `clearButton` slot (Vendor).
     - **Range warnings pattern (iter 61, Phase 8 «expensive silence»):** Visible warning badges are kept ONLY for specific/actionable conditions: `⚠ ≥40` (PoE2 boundary at min ≥ 40) and `⚠ Округл.` (round10 + AND fallback when range >50 values). The range notation FP warning was REMOVED as a visible badge (it was always-on whenever any min/max was set = pure noise) — instead it lives in the `title` attribute of the range-input container (hover to see). General rule for future polish: **never show a warning badge that fires on every normal use of a feature** — that's noise. Either make it conditional (specific threshold), or push it into a tooltip.
-    - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). All 8 pages use `<StatusPanel>` in `status` slot (iter 58). WaystonePage/TabletPage use `badges` prop; JewelPage/VendorPage use `alerts` prop.
+    - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). All 8 pages use `<StatusPanel>` in `status` slot. WaystonePage/TabletPage use `badges` prop; JewelPage/VendorPage use `alerts` prop.
 
 21. **Level 1 visual frames (iter 55):** Two families of Level 1 decorative frames exist in `index.css` — both use the same pattern (gradient bg + 1px subtle border + 3px colored border-left + corner accents via `::before`/`::after`):
     - **Affix headers** (`.affix-header-prefix` / `-suffix` / `-implicit`): blue / orange / amber colors. Used by `ModList` to label affix groups.
@@ -155,33 +152,30 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **Padding compensation:** `.nav-mode-link.nav-mode-active` and `.mobile-nav-tab.nav-mode-active` set `padding-left: calc(<tailwind-padding> - 3px)` to keep icons aligned with inactive items (which have no border-l). If you change the Tailwind `px-*` on the NavLink, update the calc in `index.css` too.
     - **No hamburger, no drawer, no focus trap** in `Sidebar.tsx` — all removed iter 56. Do NOT re-add them.
 
-23. **HomePage compaction + SeoBlock in `<details>` (iter 57, UI Phase 5):** The home page was tightened — vertical spacing reduced across all sections (mb-10→mb-6, mt-10→mt-6, mt-12→mt-6, mt-8→mt-6) and the long-form SEO/FAQ text is now wrapped in a native `<details>` element, closed by default. The category hub (8 cards in 2/3/4-col grid) stays as the central element.
-    - **SeoBlock structure:** `<details className="home-seo-details">` → `<summary className="home-seo-summary">` (gold text + custom `▸` marker that rotates 90° on open) → `<section className="home-seo-content">` with the 4 original SEO sections. CSS lives in `index.css` under the "Home SEO `<details>`" block.
-    - **SEO preservation:** `<details>` content stays in the DOM (Google indexes it even when closed). Do NOT add `hidden` or conditional rendering — that would strip SEO content. The `<details>` element is natively keyboard-accessible (Enter/Space toggles, no JS needed).
-    - **Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage — only margins, paddings, font sizes (e.g. stat badges `text-[13px]→[12px]`, Features title `text-xl→text-base`) and icon sizes (category cards `44→40px`) were reduced. If you need to add more sections, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
+23. **HomePage compaction + `<details>` blocks (iter 57 + iter 62):** HomePage has TWO `<details>` blocks — both collapsed by default, content stays in DOM (Google indexes):
+    - **Features section (iter 62, Phase 8b):** The 3-card grid (data / optimize / share) was visually noisy on a page whose hero already lists the same info as stat badges (mods count, categories, 250-char limit, regex optimization). Wrapped in `<details className="home-seo-details">` with summary `home.features_summary`. Inner cards keep their existing styling — same `.home-seo-*` CSS classes as SeoBlock.
+    - **SeoBlock (iter 57):** Long-form SEO/FAQ text. `<details className="home-seo-details">` → `<summary className="home-seo-summary">` (gold text + custom `▸` marker that rotates 90° on open) → `<section className="home-seo-content">` with the 4 original SEO sections.
+    - **SEO preservation:** `<details>` content stays in the DOM (Google indexes it even when closed). Do NOT add `hidden` or conditional rendering — that would strip SEO content.
+    - **Compaction philosophy:** Tighten spacing, NOT content. If you need to add more sections, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
     - **Do NOT** re-add the default `<summary>` triangle — `list-style: none` + `::-webkit-details-marker { display: none }` suppress it; the custom `▸` marker is in `::before`.
 
-24. **StatusPanel — unified status component (iter 58, UI Phase 6):** All 8 category pages now use `<StatusPanel>` for the right-column `status` slot instead of inline JSX. The component accepts `wantTokens`, `excludeTokens`, `allActiveTokens` (mandatory) plus optional `badges` (ReactNode[]) and `alerts` (ReactNode[]).
+24. **StatusPanel — unified status component (iter 58):** All 8 category pages use `<StatusPanel>` for the right-column `status` slot. The component accepts `wantTokens`, `excludeTokens`, `allActiveTokens` (mandatory) plus optional `badges` (ReactNode[]) and `alerts` (ReactNode[]).
     - **Standard pages** (Belt, Amulet, Ring, Relic): just `<StatusPanel wantTokens={...} excludeTokens={...} allActiveTokens={...} />`.
     - **Extended pages** pass category-specific data via `badges`: Waystone (corrupted/uncorrupted/delirious strings), Tablet (type/rarity/uses strings).
     - **Alert pages** pass warning blocks via `alerts`: Jewel (amber hidden-mods alert with "Deselect" button), Vendor (yellow verification note).
-    - **VendorPage** now has a `status` slot (previously had none — verification note was in left column children).
-    - **JewelPage** hidden-mods alert moved from left column `children` to `status` slot `alerts` — renders in right column alongside the summary panel.
-    - **Do NOT** re-add inline status JSX to any page — always extend StatusPanel via `badges`/`alerts` props. If a new page needs a status variant, add a new prop to StatusPanel rather than duplicating JSX.
+    - **Do NOT** re-add inline status JSX to any page — always extend StatusPanel via `badges`/`alerts` props.
 
-25. **MobileRegexBar — mobile sticky bottom bar (iter 59, UI Phase 7):** On mobile (< lg), `RegexOutput` moves from the right-column aside into a sticky-bottom bar (`MobileRegexBar.tsx`). StatusPanel `alerts` (Jewel hidden-mods warning, Vendor verification note) follow it into the same bar. Desktop (lg+) is unchanged.
-    - **CategoryLayout `mobileBar` slot:** When a page passes `mobileBar={<MobileRegexBar .../>}`, the layout (a) hides the right-column aside on mobile via `hidden lg:flex`, (b) renders `status` + `sidebar` in a separate `lg:hidden` section above the bar so they stay accessible, (c) renders the `mobileBar` as the last child in a sticky-bottom container.
-    - **Double-render tradeoff:** `RegexOutput` is mounted in BOTH the desktop aside AND the mobile bar. Each instance has its own transient React state (`copied`, `shareCopied`), but `autoCopy` is persisted to localStorage so both stay in sync. The auto-copy effect fires twice on regex change — clipboard write is idempotent so this is harmless. The keyboard shortcut handler (Ctrl+Shift+X) is attached by both instances — both fire on the same keystroke, both write the same content. Acceptable cost to avoid CSS hacks for single-DOM-node teleportation.
-    - **Alerts duplication:** For Jewel/Vendor pages, `alerts` array is passed to BOTH `<StatusPanel alerts={...}>` (desktop aside) AND `<MobileRegexBar alerts={...}>` (mobile bar). Only one is visible at a time per viewport.
-    - **CSS:** `.mobile-regex-bar` class in `index.css` — `position: sticky; bottom: 0; z-index: 15; backdrop-filter: blur(6px); max-height: 60vh; overflow-y: auto`. Sticks to viewport bottom while scrolling, sits at natural position (end of page) when scrolled to bottom.
-    - **Vendor price-filter (iter 59):** VendorPage passes `hasRangedTokens={false}` to `<CategoryControlPanel>` — the global min/max inputs were no-ops (setMinValue/setMaxValue were empty functions). Per-chip range inputs in `<FilterChip>` are the primary UX for vendor ("Ур. предмета ≥N" / "Треб. уровень ≥N" each have their own min input).
-    - **HomePage category cards (iter 59):** Verbose descriptions ("Полное покрытие префиксов и суффиксов" etc.) removed from category cards. Cards now show only icon + name + affix count. 8 unused `home.*_desc` i18n keys deleted.
-    - **Pre-existing bug closed (iter 59):** `tsc -b` was failing — 4 standard pages (Belt/Amulet/Ring/Relic) were missing `import { t } from '@shared/i18n'` (regression from iter 58 — import was removed as "unused" but `t()` is called in `header`), and JewelPage was missing `import { groupTokensByFamily }`. `tsc --noEmit` was silent but `tsc -b` (build mode with project references) caught it. All imports restored.
+25. **MobileRegexBar — mobile sticky bottom bar (iter 59):** On mobile (< lg), `RegexOutput` moves from the right-column aside into a sticky-bottom bar (`MobileRegexBar.tsx`). StatusPanel `alerts` follow it into the same bar. Desktop (lg+) is unchanged.
+    - **Double-render tradeoff:** `RegexOutput` is mounted in BOTH the desktop aside AND the mobile bar. Each instance has its own transient React state, but `autoCopy` is persisted to localStorage so both stay in sync. Acceptable cost to avoid CSS hacks for single-DOM-node teleportation.
+    - **Vendor price-filter (iter 59):** VendorPage passes `hasRangedTokens={false}` to `<CategoryControlPanel>` — the global min/max inputs were no-ops. Per-chip range inputs in `<FilterChip>` are the primary UX for vendor.
 
 26. **CSS specificity vs Tailwind responsive utilities (iter 60, Known Issue #7):** When you write a custom CSS rule in `index.css` that targets a class ALSO used as a Tailwind responsive utility (e.g. `.my-class { display: flex }` + JSX `className="my-class lg:hidden"`), the custom rule has specificity (0,1,0) and the Tailwind `.lg\:hidden { display: none }` ALSO has specificity (0,1,0). Tie → source-order wins. Tailwind utilities are emitted FIRST (from `@import "tailwindcss"` at top of `index.css`); custom CSS comes AFTER. So at ≥lg viewport, the custom `display: flex` was overriding Tailwind's `display: none` — making `lg:hidden` appear broken.
     - **Symptom:** element with `lg:hidden` was visible on desktop.
     - **Fix:** wrap ALL custom CSS rules for mobile-only elements inside `@media (max-width: 1023px)`. Then on desktop, the rule never applies, and `lg:hidden` is uncontested. This is the pattern used for `.mobile-regex-bar*` rules.
     - **General rule:** if a custom CSS class coexists with a Tailwind responsive utility class on the same element AND sets the same property (`display`, `position`, etc.), wrap the custom rule in the inverse media query (`max-width: <bp>-1px`). Do NOT use `!important` — it makes future overrides harder.
+
+27. **ModList Level-3 badge auto-suppression (iter 62, Phase 8c):** When a scope (affix column OR origin section OR jewel-type-filtered list) contains ONLY ONE sub-group, the Level-3 semantic badge is redundant — it just repeats what the parent header (affix name / origin name / jewel type filter) already says. The `ModSubGroupSection` component accepts a `hideLabel?: boolean` prop; callers compute it as `subGroups.length === 1`. Same logic applies to `renderJewelTypeSubGroups` (filtered jewel sub-groups). Do NOT suppress Level-2 origin headers or Level-1 affix headers — they always carry unique info (icon + origin name, affix count).
+    - **General rule for future polish:** any UI label that has zero informational value in its current scope = noise. Auto-suppress it (don't make it a manual flag — derive from data).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -227,6 +221,8 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 | `home.title` | Генератор regex для PoE2 | Hero `<h1>` on HomePage |
 | `home.subtitle` | Выбирайте аффиксы — получайте готовую строку для вставки в игру | Hero subtitle |
 | `home.description_full` | Генератор поисковых строк… | Hero description paragraph |
+| `home.features_summary` | Возможности генератора… | `<summary>` of Features `<details>` (iter 62) |
+| `home.seo_summary` | Подробнее о регексах PoE2… | `<summary>` of SeoBlock `<details>` |
 
 **Design principle:** Each UI zone (sidebar, header, hero) has its own i18n key — no text duplication across zones.
 

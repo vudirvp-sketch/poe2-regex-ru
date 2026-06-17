@@ -119,7 +119,11 @@ function splitByOriginThenSemantic(
   return result;
 }
 
-/** Render a sub-group with its Level 3 badge header and flex-wrap chips */
+/** Render a sub-group with its Level 3 badge header and flex-wrap chips.
+ *  iter 62 (Phase 8c): when `hideLabel` is true, the Level 3 badge is suppressed.
+ *  Caller sets this when the surrounding affix column / origin section contains
+ *  only ONE sub-group — the badge is then pure noise (it repeats context the
+ *  parent header already gives). */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
@@ -130,10 +134,12 @@ const ModSubGroupSection: React.FC<{
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
   collapsedTokenIds?: Set<string>;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
+  /** Suppress the Level 3 badge — set when the surrounding scope has only one sub-group. */
+  hideLabel?: boolean;
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel }) => {
   return (
     <div className="mb-2">
-      {subGroup.label && (
+      {subGroup.label && !hideLabel && (
         <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
           {subGroup.label} ({subGroup.groups.length})
         </div>
@@ -194,6 +200,10 @@ const AffixColumn: React.FC<{
         /* Group by origin first, then by semantic category within each origin */
         originSections.map((section, idx) => {
           const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
+          /* iter 62 (Phase 8c): when an origin section contains only ONE
+             semantic sub-group, the Level 3 badge just repeats the origin
+             header above it — suppress it. */
+          const hideSubLabel = section.subGroups.length === 1;
           return (
             <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
               <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
@@ -220,27 +230,34 @@ const AffixColumn: React.FC<{
                   onSetTokenRange={onSetTokenRange}
                   onClearTokenRange={onClearTokenRange}
                   collapsedTokenIds={collapsedTokenIds}
+                  hideLabel={hideSubLabel}
                 />
               ))}
             </div>
           );
         })
       ) : (
-        /* Group purely by semantic category */
-        subGroups.map((sg) => (
-          <ModSubGroupSection
-            key={sg.key}
-            subGroup={sg}
-            selectedIds={selectedIds}
-            excludedIds={excludedIds}
-            onToggleTokens={onToggleTokens}
-            onToggleExclude={onToggleExclude}
-            perTokenRanges={perTokenRanges}
-            onSetTokenRange={onSetTokenRange}
-            onClearTokenRange={onClearTokenRange}
-            collapsedTokenIds={collapsedTokenIds}
-          />
-        ))
+        /* Group purely by semantic category.
+           iter 62 (Phase 8c): if the affix column has only ONE semantic
+           sub-group, the Level 3 badge is redundant under the affix header. */
+        (() => {
+          const hideSubLabel = subGroups.length === 1;
+          return subGroups.map((sg) => (
+            <ModSubGroupSection
+              key={sg.key}
+              subGroup={sg}
+              selectedIds={selectedIds}
+              excludedIds={excludedIds}
+              onToggleTokens={onToggleTokens}
+              onToggleExclude={onToggleExclude}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={onSetTokenRange}
+              onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+              hideLabel={hideSubLabel}
+            />
+          ));
+        })()
       )}
     </div>
   );
@@ -379,22 +396,29 @@ export const ModList: React.FC<ModListProps> = ({
   const hasImplicit = implicitGroups.length > 0;
   const isOriginMode = groupMode === 'origin';
 
-  /** Render jewel type sub-groups within an affix column of an origin section */
+  /** Render jewel type sub-groups within an affix column of an origin section.
+   *  iter 62 (Phase 8c): when only ONE jewel-type sub-group survives the
+   *  filter (e.g. user picked "Рубин" and there's only Ruby + no shared),
+   *  the Level 3 badge is suppressed — the column header + origin header
+   *  already tell the user which type they're looking at. */
   const renderJewelTypeSubGroups = (groups: FamilyGroup[]) => {
-    const jewelSubGroups = classifyGroups(groups, 'jewel-type');
-    return jewelSubGroups
+    const jewelSubGroups = classifyGroups(groups, 'jewel-type')
       .filter(sg => {
         // When a specific type is selected, only show that type + shared
         if (jewelTypeFilter !== 'all') {
           return sg.key === jewelTypeFilter || sg.key === 'shared';
         }
         return true;
-      })
+      });
+    const hideLabel = jewelSubGroups.length === 1;
+    return jewelSubGroups
       .map(sg => (
         <div key={sg.key} className="mb-1.5">
-          <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
-            {sg.label} ({sg.groups.length})
-          </div>
+          {!hideLabel && (
+            <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
+              {sg.label} ({sg.groups.length})
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             {sg.groups.map(group => (
               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />

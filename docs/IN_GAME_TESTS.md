@@ -1,7 +1,7 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Текущее состояние:** `^(?!…).*Z` bidirectional exclude — IMPLEMENTED + IN-GAME VERIFIED (Tests A+B PASS, Test C подтверждает root cause). Фикс в `src/core/compiler.ts` normalizeAst (одна строка). 1108 тестов проходят.
+> **Текущее состояние:** `^(?!…).*Z` bidirectional exclude — IMPLEMENTED + IN-GAME VERIFIED. Фикс в `src/core/compiler.ts` normalizeAst.
 
 ---
 
@@ -26,8 +26,6 @@
 ```
 
 Production regex для user scenario: `"^(?!.*Приспеш)(?!.*топорами)(?!.*луками)(?!.*самострелами)(?!.*кинжалами)(?!.*посохами)(?!.*мечами)(?!.*без)(?!.*боевыми).*повышение скорости атаки|перезарядки умений|передвижения|атаки копьями"` (195 chars ≤250 ✅).
-
-Tests: 1108 passed (1106 baseline + 2 NEW backward-exclude regression tests для minion-блок data). TypeScript clean.
 
 ---
 
@@ -138,10 +136,6 @@ Tests: 1108 passed (1106 baseline + 2 NEW backward-exclude regression tests дл
 
 ---
 
-## Older iterations summary
+## Older iterations
 
-- **iter 41 (D5 VERIFIED):** 5/5 in-game tests PASS на production ETL output (jewel, amulet, ring, waystone, tablet). Same-block AND confirmed. PoE2 regex char limit ≈ 250 chars обнаружен.
-- **iter 39 (D1 VERIFIED):** Path D on 3+4 alternatives + AND-combination — verified.
-- **iter 38 (B0 RESOLVED + D7-3 confirmed):** `"X"|"Y"` confirmed BROKEN (zero matches). Path D strategy born: `"prefix.*A|prefix.*B|prefix.*C"`.
-- **iter 37 (Deterministic Strategy):** 8 principles unified for all categories. Verified on 4 real gems — D1-D11 patterns confirmed (suffix matching, `.*` bridging, AND across blocks, cross-block FP risk, shared suffix differentiation, single-word `|`, number patterns, truncated stems, combined mod regex).
-- **iter 15-36:** earlier in-game tests covering hypothesis pattern verification, FP prevention anchors, Phase 9 number regex, colonAnchor verification, tablet patterns, vendor patterns. See git history for details.
+iter 15-41: in-game verification of Path D (multi-word OR up to 9 alts), 8 deterministic principles, FP prevention anchors, Phase 9 number regex, colonAnchor, tablet/vendor patterns. All covered by current test suite (1144 tests). See git history for per-iter details.

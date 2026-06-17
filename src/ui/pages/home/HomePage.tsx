@@ -125,32 +125,43 @@ export function HomePage() {
         })}
       </div>
 
-      {/* Features section — iter 57: tightened (mt-10→mt-6, gap-4→gap-3, p-4→p-3, title text-xl→text-base, desc text-[13px]→[12px]) */}
-      <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
-            {t('home.feature_data_title')}
-          </div>
-          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-            {t('home.feature_data_desc')}
-          </p>
-        </div>
-        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
-            {t('home.feature_optimize_title')}
-          </div>
-          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-            {t('home.feature_optimize_desc')}
-          </p>
-        </div>
-        <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
-          <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
-            {t('home.feature_share_title')}
-          </div>
-          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-            {t('home.feature_share_desc')}
-          </p>
-        </div>
+      {/* Features section — iter 62 (Phase 8b): collapsed into <details> like
+          SeoBlock. The 3-card grid was visually noisy on a page whose hero
+          already lists the same info as stat badges (mods count, categories,
+          250-char limit, regex optimization). Content stays in the DOM (Google
+          indexes <details>), but visually hidden until user opens it. */}
+      <div className="mt-6">
+        <details className="home-seo-details">
+          <summary className="home-seo-summary">
+            <span className="home-seo-summary-text">{t('home.features_summary')}</span>
+          </summary>
+          <section className="home-seo-content grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+              <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
+                {t('home.feature_data_title')}
+              </div>
+              <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+                {t('home.feature_data_desc')}
+              </p>
+            </div>
+            <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+              <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
+                {t('home.feature_optimize_title')}
+              </div>
+              <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+                {t('home.feature_optimize_desc')}
+              </p>
+            </div>
+            <div className="rounded-lg border p-3" style={{ background: 'var(--poe-bg-secondary)', borderColor: 'var(--poe-border)' }}>
+              <div className="mb-1.5 text-base font-semibold" style={{ color: 'var(--poe-gold)' }}>
+                {t('home.feature_share_title')}
+              </div>
+              <p className="text-[12px] leading-relaxed" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+                {t('home.feature_share_desc')}
+              </p>
+            </div>
+          </section>
+        </details>
       </div>
 
       {/* SEO text block — wrapped in <details> (iter 57, UI Phase 5): collapsed by default */}

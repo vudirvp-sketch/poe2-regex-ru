@@ -225,6 +225,8 @@ All category pages use 3-level visual hierarchy. Headers are **block-level** (ne
 | 2 — Origin | Обычные / Очернённые / Осквернённые / Сущность / Разлом | `text-[14px]` | Bold uppercase badge, bg+border+border-l, origin-specific color + 17px icon. |
 | 3 — Semantic | Атакующие / Защитные / Характеристики / Прочие / ... | `text-[12px]` | Semibold uppercase badge, bg+border, category-specific color |
 
+**Level-3 badge auto-suppression (iter 62, Phase 8c):** When a scope (affix column OR origin section OR jewel-type-filtered list) contains ONLY ONE sub-group, the Level-3 badge is redundant — it just repeats what the parent Level-1/Level-2 header already says. `ModSubGroupSection` accepts `hideLabel?: boolean`; callers compute it as `subGroups.length === 1`. Level-1 affix headers and Level-2 origin headers are NEVER suppressed — they always carry unique info (icon + origin name, affix count). General rule: any UI label that has zero informational value in its current scope = noise — auto-suppress it (derive from data, don't make it a manual flag).
+
 ### RegexOutput Level 1 Frame (iter 55, UI Phase 3)
 
 In addition to the 3-level affix hierarchy, **`<RegexOutput>`** itself uses a Level 1 decorative frame — same pattern as affix headers but in **gold** (brand accent) — to mark it as the primary functional element of every category page.
@@ -340,30 +342,34 @@ Pattern echoes Level-1 frames (`.regex-output`, `.affix-header-*`) but is a nav-
 - `border-bottom: 1px solid var(--poe-border)`
 - Inner scroll container `.mobile-nav-tabs-scroll` has hidden scrollbar (cross-browser: `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) but scroll/touch/keyboard still works.
 
-### HomePage compaction pattern (iter 57, UI Phase 5)
+### HomePage compaction pattern (iter 57 + iter 62)
 
-The home page is a single-column layout (`max-w-4xl mx-auto`) with 5 vertical zones, tightened in iter 57:
+The home page is a single-column layout (`max-w-4xl mx-auto`) with 5 vertical zones. iter 57 tightened spacing; iter 62 collapsed the Features section into a `<details>` block (same pattern as SeoBlock) because the hero stat-badges already enumerate the same facts.
 
 | Zone | Compaction | Density tokens |
 |------|-----------|----------------|
 | Hero (title + subtitle + description + 4 stat badges) | `mb-10→mb-6`, badges `text-[13px]→[12px]`, `px-2 py-1→px-1.5 py-0.5`, `gap-3→gap-2` | `text-3xl md:text-4xl` h1, `text-lg` subtitle, `text-sm` desc |
 | Category hub (8 cards, 2/3/4-col responsive grid) | `gap-4→gap-3`, `p-4→p-3`, icon `44→40`, wrapper `h-12→h-10` | card title `text-[15px]` gold, desc `text-[13px]`, count tag `text-[12px]` |
-| Features (3 cards: data, optimize, share) | `mt-10→mt-6`, `gap-4→gap-3`, `p-4→p-3`, title `text-xl→text-base`, desc `text-[13px]→[12px]` | gold title, muted desc |
+| Features (3 cards: data, optimize, share) | iter 62: wrapped in `<details>` (closed by default); inner cards keep `p-3`, `gap-3`, `text-base` title, `text-[12px]` desc | gold title, muted desc |
 | SeoBlock | `mt-12→mt-6`, wrapped in `<details>` (closed by default) | see `.home-seo-*` CSS |
 | Footer | `mt-8→mt-6` | `text-[13px]`, opacity 0.4 |
 
-**SeoBlock `<details>` structure:**
+**`<details>` block structure** (identical for both Features and SeoBlock — same `.home-seo-*` CSS):
 
 ```
 <details className="home-seo-details">           ← card-style wrapper, padding 0
   <summary className="home-seo-summary">         ← gold text, custom ▸ marker
-    <span className="home-seo-summary-text">{t('home.seo_summary')}</span>
+    <span className="home-seo-summary-text">{t('home.<...>_summary')}</span>
   </summary>
-  <section className="home-seo-content">         ← 4 original SEO sections
-    ...existing FAQ content preserved...
+  <section className="home-seo-content">         ← original content preserved
+    ...content...
   </section>
 </details>
 ```
+
+Two `<details>` blocks on HomePage:
+- **Features** — summary key `home.features_summary` (iter 62). Inner: 3-card grid (data / optimize / share).
+- **SeoBlock** — summary key `home.seo_summary` (iter 57). Inner: 4 SEO sections (FAQ / how-to / ёфикация+250 / categories).
 
 CSS classes (defined in `index.css` after `.mobile-nav-tab`):
 
@@ -376,7 +382,7 @@ CSS classes (defined in `index.css` after `.mobile-nav-tab`):
 
 **SEO guarantee:** `<details>` content stays in the DOM (Google indexes it even when closed). No `hidden` attribute, no conditional rendering — both would strip SEO content. The `<details>`/`<summary>` pair is natively keyboard-accessible.
 
-**Compaction philosophy:** Tighten spacing, NOT content. No text was removed from HomePage in iter 57 — only margins, paddings, font sizes and icon sizes were reduced. If new sections are added later, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`).
+**Compaction philosophy:** Tighten spacing, NOT content. iter 57 reduced margins/paddings/font sizes; iter 62 collapsed Features into `<details>` because its info was already on screen as hero stat-badges (mods count, categories, 250-char limit, regex optimization). If new sections are added later, follow the same density tokens (`p-3`, `gap-3`, `text-[12-13px]`) and prefer `<details>` for non-essential marketing/SEO text.
 
 ### StatusPanel — unified status panel (iter 58, UI Phase 6)
 
