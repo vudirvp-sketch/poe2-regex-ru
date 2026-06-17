@@ -2,11 +2,11 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 65 — UI Phase 11: атмосферные ассеты PoE2 (title-bg-4x, bg-2x, bg, early-access-button-underlay) + Pitfall 28 фикс на .skip-link
+> **Текущая итерация:** 66 — cleanup: удалены неиспользуемые i18n ключи `home.header_title` и `app.title` (iter 64 stopping-point candidate, harm-less мусор)
 
 ---
 
-## UI Redesign — план (9 фаз + polish + Phase 10-11)
+## UI Redesign — план (9 фаз + polish + Phase 10-11 + cleanup)
 
 | Фаза | Статус | Что |
 |------|--------|-----|
@@ -15,7 +15,8 @@
 | 9 | ✅ iter 62 | Финальная документация |
 | polish | ✅ iter 63 | Palette consistency: все холодные tailwind-цвета заменены на тёплые палитровые токены. README переписан |
 | 10 | ✅ iter 64 | Sidebar → TopNav: вертикальный сайдбар (224px слева) + Header + MobileNavTabs объединены в единый горизонтальный `TopNav`. Освобождено ~224px под аффиксы на десктопе |
-| 11 | ✅ iter 65 | Атмосферная стилизация PoE2: `.poe-panel-header` (gold filigree rim по образу title-bg-4x) на TopNav; `.poe-divider` / `.poe-divider--ornate` (bg-2x texture) на CategoryLayout + HomePage; `.btn-cta` (warm metallic + crimson glow по образу early-access-button-underlay) заменяет холодный `bg-btn-primary` на Copy-кнопках; фон `bg-forest.webp` заменён на `bg.webp` + vignette; Pitfall 28 фикс на `.skip-link` (#2563eb → var(--poe-gold)) |
+| 11 | ✅ iter 65 | Атмосферная стилизация PoE2: `.poe-panel-header` (gold filigree rim) на TopNav; `.poe-divider` / `.poe-divider--ornate` на CategoryLayout + HomePage; `.btn-cta` (warm metallic + crimson glow) заменяет `bg-btn-primary` на Copy-кнопках; фон `bg-forest.webp` → `bg.webp` + vignette; Pitfall 28 фикс на `.skip-link` |
+| cleanup | ✅ iter 66 | Удалены неиспользуемые i18n ключи `home.header_title` (был у удалённого `<Header>`) и `app.title` (никогда не использовался). Документация почищена от упоминаний об этих ключах |
 
 ---
 
@@ -23,7 +24,7 @@
 
 **Открытых Known Issues нет.**
 
-Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency; iter 64 Sidebar/Header/MobileNavTabs удалены (заменены на TopNav); iter 65 `bg-btn-primary` (#2563eb) удалён с Copy-кнопок RegexOutput + `.skip-link` холодный синий заменён на brand gold (Pitfall 28 закрыт).
+Закрытые (см. git history): iter 46-50 lookahead/context/char-limit; iter 59 `tsc -b` missing imports; iter 60 MobileRegexBar desktop visibility; iter 63 palette consistency; iter 64 Sidebar/Header/MobileNavTabs удалены; iter 65 `bg-btn-primary` удалён + `.skip-link` Pitfall 28 фикс; iter 66 unused i18n keys removed.
 
 ---
 

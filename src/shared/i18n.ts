@@ -2,7 +2,6 @@ import type { Locale } from './types';
 
 const translations: Record<Locale, Record<string, string>> = {
   ru: {
-    'app.title': 'PoE2 Regex — Русский',
     'waystone.title': 'Путевые камни',
     'relic.title': 'Реликвии',
     'jewel.title': 'Самоцветы',
@@ -55,7 +54,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'home.feature_share_title': 'Профили и ссылки',
     'home.feature_share_desc': 'Сохраняйте фильтры в профили, делитесь настройками через сжатую ссылку. Копируйте строку прямо в поисковое окно игры одной кнопкой.',
     'home.nav_label': 'Главная',
-    'home.header_title': 'PoE2 Regex',
     'home.footer': 'Данные с poe2db.tw · Не связано с Grinding Gear Games',
     'home.mods': 'аффиксов',
     'home.properties': 'свойств',

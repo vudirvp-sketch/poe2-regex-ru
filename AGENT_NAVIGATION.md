@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 65 (UI Phase 11 — атмосферные ассеты PoE2). Три атмосферных CSS-примитива добавлены в `index.css`: `.poe-panel-header` (gold filigree rim по образу `title-bg-4x.webp`), `.poe-divider` / `.poe-divider--ornate` (bg-2x texture), `.btn-cta` (warm metallic + crimson glow по образу `early-access-button-underlay.webp`) — заменяет холодный `bg-btn-primary` на Copy-кнопках RegexOutput. Фон заменён с `bg-forest.webp` на `atmosphere/bg.webp` + vignette. `.skip-link` холодный синий (#2563eb) заменён на brand gold (Pitfall 28 фикс). Pitfall 22 + 28 + 29 актуальны.
+> **Entry document.** Read this first. Current state: iter 66 (cleanup). Три атмосферных CSS-примитива в `index.css`: `.poe-panel-header` (gold filigree rim по образу `title-bg-4x.webp`), `.poe-divider` / `.poe-divider--ornate` (bg-2x texture), `.btn-cta` (warm metallic + crimson glow по образу `early-access-button-underlay.webp`) — заменяет холодный `bg-btn-primary` на Copy-кнопках RegexOutput. Фон — `atmosphere/bg.webp` + vignette. `.skip-link` холодный синий (#2563eb) заменён на brand gold (Pitfall 28 фикс). iter 66: удалены неиспользуемые i18n ключи `home.header_title` и `app.title`. Pitfall 22 + 28 + 29 актуальны.
 
 ---
 
@@ -154,7 +154,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **TopNav structure:** brand (logo + title stack, title hidden on `< sm`) → tabs (`flex: 1` + `overflow-x: auto`, scrollable on narrow screens, fits on md+) → feedback hint (`hidden lg:block`). Single row, no drawer, no hamburger.
     - **Active state** uses the same `.nav-mode-active` CSS class as before, but the visual language changed: was `border-left: 3px` (vertical sidebar), now `::after` pseudo-element with `border-bottom: 3px` gold accent that overlaps the TopNav's bottom border (so the active tab visually "anchors" to the bar). Subtle gold-tinted gradient bg + box-shadow glow + brand-gold text are preserved.
     - **Padding compensation removed:** the previous `.nav-mode-link.nav-mode-active` / `.mobile-nav-tab.nav-mode-active` `padding-left: calc(<px> - 3px)` rules are GONE — the `::after` approach doesn't need padding compensation because the accent is a pseudo-element, not a real border that affects layout.
-    - **i18n key rename:** `sidebar.feedback` → `nav.feedback` (the `sidebar.*` namespace is gone together with the Sidebar component). `home.header_title` is now UNUSED (was the `<Header>` page-title text for route `/`) — kept in `i18n.ts` for backward-compat with any external references, but no component reads it anymore. The page title for `/` is rendered by `HomePage`'s own hero `<h1>` (`home.title`), and category pages render their title in `CategoryLayout`'s `header` slot.
+    - **i18n key rename:** `sidebar.feedback` → `nav.feedback` (the `sidebar.*` namespace is gone together with the Sidebar component). The page title for `/` is rendered by `HomePage`'s own hero `<h1>` (`home.title`); category pages render their title in `CategoryLayout`'s `header` slot. (iter 66 cleanup: unused `home.header_title` key removed from `i18n.ts`.)
     - **Deleted files (iter 64):** `src/ui/layout/Sidebar.tsx`, `src/ui/layout/MobileNavTabs.tsx`, `src/ui/layout/Header.tsx`. Do NOT re-add them — they are superseded by `TopNav.tsx`. Do NOT re-add the hamburger / drawer / focus-trap patterns either (those were already removed iter 56).
     - **CSS cleanup:** `.sidebar-atmosphere`, `.header-atmosphere`, `.mobile-nav-tabs`, `.mobile-nav-tabs-scroll`, `.mobile-nav-tab`, `.nav-mode-link.nav-mode-active`, `.mobile-nav-tab.nav-mode-active` rules are all DELETED from `src/index.css`. The `.topnav`, `.topnav-bar`, `.topnav-brand*`, `.topnav-tabs`, `.topnav-tab` rules replace them. If you need to debug nav styling, look at the `/* ─── TopNav (iter 64, UI Phase 10) ─── */` block in `index.css`.
 
@@ -256,7 +256,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 | `nav.feedback` | Баги и идеи → Discord: woonderdad | TopNav right-side hint (lg+). Renamed from `sidebar.feedback` iter 64. |
 | `nav.categories` | Категории | TopNav `<nav>` `aria-label`. |
 
-**Design principle:** Each UI zone has its own i18n key — no text duplication across zones. `home.header_title` is now UNUSED (was the deleted `<Header>` page-title for `/`) — kept in `i18n.ts` for backward-compat only; do not consume it in new code.
+**Design principle:** Each UI zone has its own i18n key — no text duplication across zones. (iter 66: unused `home.header_title` and `app.title` keys removed — neither was consumed by any component.)
 
 ## 13. Documentation Map
 
