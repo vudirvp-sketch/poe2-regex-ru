@@ -49,15 +49,18 @@ import { navItems } from './nav-items'
 export function TopNav() {
   return (
     <header
-      className="topnav"
+      className="topnav poe-panel-header"
       role="banner"
     >
       <div className="topnav-bar">
-        {/* Brand: logo + title stack. Title hidden on < sm. */}
+        {/* Brand: logo + title stack. Title hidden on < sm; on those viewports
+            the brand-link `title` attribute provides a tooltip fallback so
+            the "PoE2 Regex" name is still discoverable. */}
         <Link
           to="/"
           className="topnav-brand shrink-0"
           aria-label="PoE2 Regex — Главная"
+          title="PoE2 Regex — Главная"
         >
           <img
             src={`${import.meta.env.BASE_URL}icons/logo.png`}

@@ -301,33 +301,181 @@ body {
   position: relative;
 }
 
-/* ─── Atmospheric background (dark-only, slight warm dim via overlay) ─── */
-/* iter 51: bg-forest.webp dimmed ~40% via warm rgba overlay to match dark-fantasy palette. */
+/* ─── Atmospheric background (dark-only) ─── */
+/* iter 65, UI Phase 11: replaced bg-forest.webp with bg.webp (textured dark
+   stone canvas — closer to PoE2 in-game trade UI). Background stack (bottom→top):
+     1) bg.webp — base texture, sized cover + fixed.
+     2) linear-gradient(rgba(13,11,9,0.78) → rgba(7,5,3,0.92)) — strong warm dim
+        so foreground text stays high-contrast (OLED-friendly) and the texture
+        only "suggests" depth without competing with content.
+     3) radial-gradient(vignette) — darker corners, draws the eye to center.
+   bg-forest.webp / bg-forest-mobile.webp are kept in /public for backward
+   compat with cached URLs, but no longer referenced. */
 [data-theme="dark"] body,
 :root body {
-  background-color: #0D0B09;
+  background-color: #070503;
   background-image:
-    linear-gradient(rgba(13, 11, 9, 0.40), rgba(13, 11, 9, 0.40)),
-    url('/poe2-regex-ru/bg-forest.webp');
-  background-size: cover, cover;
-  background-position: center, center;
-  background-attachment: fixed, fixed;
-  background-repeat: no-repeat, no-repeat;
+    radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.55) 100%),
+    linear-gradient(180deg, rgba(13, 11, 9, 0.78) 0%, rgba(7, 5, 3, 0.92) 100%),
+    url('/poe2-regex-ru/atmosphere/bg.webp');
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-attachment: fixed, fixed, fixed;
+  background-repeat: no-repeat, no-repeat, no-repeat;
 }
 
 @media (max-width: 768px) {
   [data-theme="dark"] body,
   :root body {
-    background-color: #0D0B09;
+    /* Same stack — bg.webp is small enough (41 KB) for mobile. Scroll (not
+       fixed) on touch to avoid the well-known iOS repaint-jank with
+       background-attachment: fixed. */
+    background-color: #070503;
     background-image:
-      linear-gradient(rgba(13, 11, 9, 0.40), rgba(13, 11, 9, 0.40)),
-      url('/poe2-regex-ru/bg-forest-mobile.webp');
-    background-size: cover, cover;
-    background-position: center, center;
-    background-attachment: scroll, scroll;
-    background-repeat: no-repeat, no-repeat;
+      radial-gradient(ellipse at center, rgba(7, 5, 3, 0) 35%, rgba(7, 5, 3, 0.55) 100%),
+      linear-gradient(180deg, rgba(13, 11, 9, 0.80) 0%, rgba(7, 5, 3, 0.94) 100%),
+      url('/poe2-regex-ru/atmosphere/bg.webp');
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
+    background-attachment: scroll, scroll, scroll;
+    background-repeat: no-repeat, no-repeat, no-repeat;
   }
 }
+
+/* ─── PoE2 atmospheric decorative elements (iter 65, UI Phase 11) ─── */
+/* Two reusable primitives inspired by PoE2 trade UI asset pack:
+   - .poe-panel-header  → gold-filigree framed header bar (from title-bg-4x.webp
+                          geometry: dark metal base + top/bottom thin gold rim).
+   - .poe-divider       → thin decorative iron/gold separator line (from
+                          bg-2x.webp pattern; uses border-image so the texture
+                          scales with the element width).
+   - .btn-cta           → primary CTA button (Copy / Share). Dark metallic base
+                          + crimson radial glow on hover / active / .btn-cta-success
+                          (inspired by early-access-button-underlay.webp flash).
+                          Replaces the cold `bg-btn-primary` (#2563eb, Pitfall 28
+                          violation) on Copy buttons. */
+
+/* .poe-panel-header — used by TopNav's top accent strip and category-page <h2>.
+   Visual language: thin top + bottom gold rim via box-shadow inset (no real
+   border so layout box is unchanged), subtle gold-tinted gradient bg. */
+.poe-panel-header {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(200, 154, 74, 0.06) 0%, rgba(200, 154, 74, 0.0) 60%),
+    rgba(13, 11, 9, 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgba(200, 154, 74, 0.35),   /* top gold rim */
+    inset 0 -1px 0 0 rgba(200, 154, 74, 0.20);  /* bottom gold rim (dimmer) */
+}
+.poe-panel-header::before,
+.poe-panel-header::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--poe-gold);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.poe-panel-header::before { left: 6px; }
+.poe-panel-header::after  { right: 6px; }
+
+/* .poe-divider — thin iron/gold separator. Renders as a fading horizontal
+   line (transparent → gold → transparent). No default vertical margin — the
+   parent's `gap-*` should handle spacing (e.g. CategoryLayout uses `gap-4`).
+   If used outside a flex-gap context, add Tailwind `my-3` or similar. */
+.poe-divider {
+  height: 1px;
+  border: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(58, 44, 34, 0) 0%,
+      rgba(200, 154, 74, 0.35) 50%,
+      rgba(58, 44, 34, 0) 100%);
+  margin: 0;
+  flex-shrink: 0;
+}
+.poe-divider--ornate {
+  /* Thicker variant with a subtle gold texture from bg-2x.webp.
+     mask-image fades both ends so the texture reads as a decorative inset
+     rather than a full-width bar. Used between major page sections
+     (HomePage hero → category grid, etc.). */
+  height: 8px;
+  background:
+    url('/poe2-regex-ru/atmosphere/bg-2x.webp') center / auto 8px repeat-x,
+    linear-gradient(90deg,
+      rgba(58, 44, 34, 0) 0%,
+      rgba(200, 154, 74, 0.30) 50%,
+      rgba(58, 44, 34, 0) 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  opacity: 0.7;
+  border: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* .btn-cta — primary CTA (Copy / Share). Dark metallic base with a faint
+   crimson radial glow on hover, and a brighter crimson pulse on success
+   (just-copied). Replaces `bg-btn-primary` (#2563eb, cold blue) on Copy.
+   Color tokens: --poe-bg-tertiary (#1F1812) base, --poe-gold (#C89A4A) rim,
+   --poe-red (#c44e4e) glow accent. */
+.btn-cta {
+  position: relative;
+  background: linear-gradient(180deg, #2A1F18 0%, #1F1812 100%);
+  color: var(--poe-text-bright);
+  border: 1px solid rgba(200, 154, 74, 0.55);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(200, 154, 74, 0.25),
+    0 1px 0 0 rgba(0, 0, 0, 0.4);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.btn-cta:hover:not(:disabled) {
+  border-color: rgba(200, 154, 74, 0.85);
+  background: linear-gradient(180deg, #33261D 0%, #261D16 100%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(200, 154, 74, 0.40),
+    0 0 14px rgba(196, 78, 78, 0.40),
+    0 0 4px rgba(196, 78, 78, 0.30);
+}
+.btn-cta:active:not(:disabled) {
+  background: linear-gradient(180deg, #1F1812 0%, #2A1F18 100%);
+  box-shadow:
+    inset 0 1px 2px 0 rgba(0, 0, 0, 0.55),
+    0 0 10px rgba(196, 78, 78, 0.35);
+}
+.btn-cta:disabled {
+  /* Same visual language as the old `bg-raised text-dim cursor-not-allowed`
+     case — warm-raised bg, dimmed text. No gold rim, no glow. */
+  background: var(--raised-bg);
+  color: var(--text-dim-val);
+  border-color: var(--poe-border);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-cta-success,
+.btn-cta-success:hover {
+  /* "Copied!" state — brighter crimson glow + emerald-gold rim. */
+  background: linear-gradient(180deg, #2A3320 0%, #1F2417 100%);
+  color: var(--poe-text-bright);
+  border-color: rgba(78, 196, 78, 0.65);
+  box-shadow:
+    inset 0 1px 0 0 rgba(78, 196, 78, 0.30),
+    0 0 14px rgba(78, 196, 78, 0.35);
+}
+.btn-cta-error,
+.btn-cta-error:hover {
+  /* Copy-error state — red rim, no glow. */
+  background: linear-gradient(180deg, #3A1F1F 0%, #2A1818 100%);
+  color: var(--poe-text-bright);
+  border-color: rgba(239, 68, 68, 0.65);
+  box-shadow: inset 0 1px 0 0 rgba(239, 68, 68, 0.30);
+}
+
 
 /* ─── TopNav: uniform semi-transparent warm overlay ─── */
 /* iter 64, UI Phase 10: replaces the previous .sidebar-atmosphere /
@@ -842,15 +990,18 @@ input:focus:not(:focus-visible),
 }
 
 /* ─── Skip-to-content link for screen readers ─── */
+/* iter 65: bg swapped from cold #2563eb to brand gold var(--poe-gold)
+   (Pitfall 28 — palette consistency). Focus-only visibility preserved. */
 .skip-link {
   position: absolute;
   top: -40px;
   left: 0;
-  background: #2563eb;
-  color: #ffffff;
+  background: var(--poe-gold);
+  color: #1F1812;
   padding: 8px 16px;
   z-index: 100;
   font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
   border-radius: 0 0 4px 0;
 }

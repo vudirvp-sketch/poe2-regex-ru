@@ -78,6 +78,12 @@ export function CategoryLayout({
     <div className="flex flex-col gap-4">
       {header}
 
+      {/* iter 65: ornate gold filigree divider between the page header and the
+          2-column grid (or single column on mobile). Purely decorative — the
+          flex `gap-4` provides the vertical gutter; .poe-divider--ornate is
+          height 8px + 0 margin so spacing stays predictable. */}
+      <hr className="poe-divider--ornate" aria-hidden="true" />
+
       <div className="grid gap-4 lg:grid-cols-[1fr_380px] lg:items-start">
         {/* Left column: controls + main content (ModList). Scrolls naturally. */}
         <div className="flex flex-col gap-4 min-w-0">

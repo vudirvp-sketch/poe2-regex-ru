@@ -84,6 +84,11 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* iter 65: ornate gold filigree divider between the hero block and the
+          category cards grid. Mirrors the divider used by CategoryLayout so
+          the visual language is consistent across pages. */}
+      <hr className="poe-divider--ornate my-2" aria-hidden="true" />
+
       {/* Category cards — iter 57: tightened (gap-4→gap-3, p-4→p-3, icon 44→40, height 48→40, mb-2→mb-1.5) */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         {categories.map(cat => {

@@ -100,12 +100,12 @@ const PartCopyButton: React.FC<{ part: string; index: number; total: number }> =
         </span>
         <button
           onClick={handleCopy}
-          className={`px-2 py-0.5 text-[12px] rounded font-medium transition-colors ${
+          className={`px-2 py-0.5 text-[12px] rounded font-medium transition-all ${
             copyError
-              ? 'bg-btn-danger text-bright'
+              ? 'btn-cta-error'
               : copied
-                ? 'bg-btn-success text-bright'
-                : 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
+                ? 'btn-cta-success'
+                : 'btn-cta'
           }`}
         >
           {copyError ? t('regex.copy_error') : copied ? t('regex.copied') : t('regex.copy')}
@@ -232,18 +232,20 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               {shareCopied ? t('regex.share_copied') : t('regex.share')}
             </button>
           )}
-          {/* Copy button — disabled when overflow (unless showing split parts, each has its own copy) */}
+          {/* Copy button — disabled when overflow (unless showing split parts, each has its own copy).
+              iter 65: swapped cold `bg-btn-primary` (#2563eb) for `.btn-cta` (warm metallic +
+              crimson glow on hover). Success → `.btn-cta-success` (emerald-gold rim + green glow).
+              Error → `.btn-cta-error` (red rim). Disabled → `.btn-cta:disabled` (warm-raised, dim).
+              See Pitfall 28 (palette consistency) + Pitfall 29 (CTA state classes). */}
           <button
             onClick={handleCopy}
             disabled={!regex || isOverflow}
-            className={`px-3 py-1.5 text-[13px] rounded font-medium transition-colors ${
+            className={`px-3 py-1.5 text-[13px] rounded font-medium transition-all ${
               copyError
-                ? 'bg-btn-danger text-bright'
+                ? 'btn-cta-error'
                 : copied
-                  ? 'bg-btn-success text-bright'
-                  : isOverflow || !regex
-                    ? 'bg-raised text-dim cursor-not-allowed'
-                    : 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
+                  ? 'btn-cta-success'
+                  : 'btn-cta'
             }`}
             title={t('regex.copy_shortcut')} // Ctrl+Shift+X
           >
