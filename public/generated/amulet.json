@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-16T18:58:55.933Z",
+  "version": "2026-06-17T23:11:46.691Z",
   "category": "amulet",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "amulet.strength1",
@@ -20792,10 +20792,7 @@
         "ru": "повышение.*брони|повышение.*шанса критического удара|повышение.*скорости перезарядки"
       },
       "weight": 84,
-      "count": 20,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 20
     },
     "amulet.corruptionlifeleech1_corrupted:amulet.corruptionmanaleech1_corrupted": {
       "ids": [
@@ -20989,10 +20986,7 @@
         "ru": "здоро.*вья.*в секунду|здоро.*вья.*при убийстве|здоро"
       },
       "weight": 52,
-      "count": 17,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 17
     },
     "amulet.abyssmodringamuletkurgalsuffixexposureeffect_desecrated:amulet.corruptiondexterity1_corrupted:amulet.desecrated_23_desecrated:amulet.dexterity1:amulet.dexterity3:amulet.dexterity5:amulet.dexterity7:amulet.dexterity8:amulet.increasedaccuracy2:amulet.increasedaccuracy3:amulet.increasedaccuracy4:amulet.increasedaccuracy5:amulet.increasedaccuracy6:amulet.increasedaccuracy7:amulet.increasedaccuracy8:amulet.normal_11:amulet.normal_13:amulet.normal_156:amulet.normal_9": {
       "ids": [

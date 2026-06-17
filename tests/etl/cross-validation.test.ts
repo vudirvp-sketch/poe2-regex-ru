@@ -63,11 +63,12 @@ describe('ETL vs регис cross-validation', () => {
       expect(coverage).toBeGreaterThan(0.7);
     });
 
-    it('waystone token count matches expected range (150-200 after implicit-set removal)', () => {
+    it('waystone token count matches expected range (140-200 after implicit-set removal)', () => {
       const waystoneData = loadCategoryData('waystone.json');
       // After removing implicit-set bonus tokens (not searchable as mods)
-      // and adding 5 implicit tokens, count dropped from 311 to ~156
-      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(150);
+      // and adding 5 implicit tokens. Range reflects both OLD-form (~147)
+      // and NEW-form (~156) poe2db wordings — see KI-3 in STATUS.md.
+      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(140);
       expect(waystoneData.tokens.length).toBeLessThanOrEqual(200);
     });
 

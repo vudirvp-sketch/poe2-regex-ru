@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-16T18:58:47.343Z",
+  "version": "2026-06-17T23:11:42.921Z",
   "category": "jewel",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "jewel.mod_665j7w",
@@ -8936,10 +8936,7 @@
         "ru": "повышение.*брони|повышение.*скорости.*атаки|повышение.*скорости.*сотворения чар|повышение.*скорости.*накопления шкалы.*заморозки|повышение.*скорости.*накопления шкалы.*оглушения|повышение.*шанса критического удара"
       },
       "weight": 213,
-      "count": 7,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 7
     },
     "jewel.mod_28ty77:jewel.mod_a4hrrs:jewel.mod_d5o3e6:jewel.mod_of3hi9": {
       "ids": [
@@ -9032,10 +9029,7 @@
         "ru": "эффект.*а.*свойств-.*суф.*фиксов|эффект.*а.*свойств-.*пре.*фиксов|эффект.*а.*флакона|эффект.*а.*уме|эффект.*а.*Парирован|эффект.*ов на вас"
       },
       "weight": 138,
-      "count": 6,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 6
     },
     "jewel.mod_5ai0gr:jewel.mod_e6wevs:jewel.mod_kcoue9:jewel.mod_s6f4m2:jewel.mod_uxgq8o": {
       "ids": [
@@ -9412,10 +9406,7 @@
         "ru": "повышение шанса критического.*удара|кровотечение при нанесении.*удара|оцепенения при нанесении.*удара|отравить при нанесении.*удара"
       },
       "weight": 131,
-      "count": 5,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 5
     },
     "jewel.mod_h7jszs:jewel.mod_mx8nvj": {
       "ids": [
@@ -9638,10 +9629,7 @@
         "ru": "увеличение.*урона|глобального физического.*урона|получаемого физического.*урона"
       },
       "weight": 79,
-      "count": 3,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 3
     },
     "jewel.mod_k640km:jewel.mod_nh1y25:jewel.mod_nuzdb5:jewel.mod_z274du": {
       "ids": [
@@ -10154,10 +10142,7 @@
         "ru": "увеличение области дей.*ствия|присут.*ствия"
       },
       "weight": 43,
-      "count": 3,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 3
     },
     "jewel.mod_4mokx7:jewel.mod_su6el3": {
       "ids": [

@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-16T18:58:52.677Z",
+  "version": "2026-06-17T23:11:45.218Z",
   "category": "ring",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "ring.strength1",
@@ -17616,10 +17616,7 @@
         "ru": "увеличение.*урона.* от.*огня|увеличение.*урона.* от.*холода|увеличение.*урона.* от.*молнии|увеличение.*урона.* от.*чар|увеличение.*урона.* хаосом|увеличение.*урона|увеличение.*бонуса к критическому урону"
       },
       "weight": 203,
-      "count": 42,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 42
     },
     "ring.genesistreeringspelldamageasextrachaos_breachborn:ring.genesistreeringspelldamageasextracold_breachborn:ring.genesistreeringspelldamageasextrafire_breachborn:ring.genesistreeringspelldamageasextralightning_breachborn": {
       "ids": [
@@ -18467,10 +18464,7 @@
         "ru": "увеличение.*урона|ими физического.*урона"
       },
       "weight": 40,
-      "count": 10,
-      "regexPrefixContext": {
-        "ru": "имеют"
-      }
+      "count": 10
     },
     "ring.desecrated_0_desecrated:ring.genesistreeringtemporaryminionlimit_breachborn:ring.minioncriticalstrikemultiplierring1_breachborn:ring.minioncriticalstrikemultiplierring2_breachborn:ring.minioncriticalstrikemultiplierring3_breachborn:ring.minioncriticalstrikemultiplierring4_breachborn:ring.minioncriticalstrikemultiplierring5_breachborn:ring.minioncriticalstrikemultiplierring6_breachborn": {
       "ids": [

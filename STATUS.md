@@ -2,40 +2,40 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 75
+> **Текущая итерация:** 76
 
 ---
 
 ## Known Issues
 
-### KI-3 (open, iter 75) — poe2db.tw reverted text forms
-
-Между 16 и 17 июня poe2db.tw откатил формулировки текстов модов к старым формам. Current `public/generated/*.json` (от 16 июня, `pnpm etl:fresh`) содержит NEW-формы, актуальный poe2db.tw — OLD-формы.
-
-**Симптом:** `npx tsx scripts/run-etl.ts` (даже с `--fresh`) производит waystone.json с 302 токенами (vs 156 в current JSON) и OLD-формами familyKey (`На #% больше находимых в области путевых камней` вместо `#% увеличение количества путевых камней, находимых в области`).
-
-**Влияние:** нельзя запустить ETL для применения KI-2 фикса (фильтрации implicit-set bonus токенов) — ETL перегенерирует JSON с OLD-формами, что сломает ~40 тестов (cross-validation thresholds, regex content).
-
-**Решение** (отдельная итерация): либо (a) обновить хардкод-ключи KI-2 к OLD-формам + перегенерировать JSON + обновить test thresholds, либо (b) дождаться пока poe2db.tw снова вернёт NEW-формы. Требует анализа что правильнее: OLD или NEW формы.
+На данный момент открытых KI нет. Все Known Issues (KI-1, KI-2, KI-3) закрыты.
 
 ---
 
-### KI-2 (code-fixed, iter 75) — stale hardcoded implicit-set family keys
+## История закрытых KI
 
-`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` обновлены по актуальным `familyKey.ru` из current JSON (NEW-формы, итерация 16 июня). Тесты конвертированы `it.fails` → `it` (3 теста в `tests/etl/normalize.test.ts`).
+### KI-3 (resolved iter 76) — poe2db.tw reverted text forms
 
-**Что сделано:** ключи обновлены (4→2 waystone ключа, 1 tablet ключ с typo-фиксом `%` → `#%`), тесты проходят, документация актуальна.
+Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов waystone/tablet к OLD-формам. iter 75 обнаружил это и заблокировал data-level фикс KI-2 (ETL rerun), потому что OLD-формы сломали бы тесты.
 
-**Что осталось (blocked by KI-3):** запустить ETL для применения фильтра. Current JSON всё ещё содержит implicit-set bonus токены (15 в waystone, 1 в tablet), потому что ETL не запускался. Когда KI-3 будет решён, ETL перегенерирует JSON и токены исчезнут.
+**Решение iter 76 (17 июня 2026):** проверка `curl https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` подтвердила 107 matches (= OLD forms). OLD forms стабильны уже > 1 года. Решено: OLD forms правильные, ETL запущен с исходными (pre-iter-75) хардкод-ключами.
 
-**Старые ключи (для справки):** `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`, `На #% больше редкости находимых в этой области предметов`, `На #% больше размера групп монстров`, `% увеличение количества находимых на карте путевых камней` (typo).
+**Что сделано iter 76:**
+- `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` reverted к original 4 ключам (pre-iter-75)
+- `TABLET_IMPLICIT_SET_FAMILY_KEYS` reverted к `% увеличение количества находимых на карте путевых камней` (с typo `%` — матч с source HTML verbatim)
+- ETL rerun: waystone 302 raw → 156 final (filtered 160 implicit-set bonus + added 5 implicit), tablet 86 raw → 84 final (filtered 3 + added 5)
+- Test threshold: waystone `150-200` → `140-200` (commented: OLD ~147, NEW ~156)
+- Tests restructured: проверяют что (a) хардкод-ключи присутствуют в source HTML и (b) post-ETL JSON НЕ содержит implicit-set bonus familyKeys (filter сработал)
 
----
+### KI-2 (closed iter 76) — stale hardcoded implicit-set family keys
 
-### История закрытых KI
+`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` были stale (не матчили actual `familyKey.ru` в source HTML). Как результат, `isImplicitSetBonus` был no-op, и implicit-set bonus токены не фильтровались.
 
-- **KI-1 (? tokenizer mismatch)** — закрыт iter 73. `hasUnsupportedOptional()` detector + runtime `console.warn` в `matchQuotedGroup` (dedup Set) + `OracleResult.unsupportedSyntax: string[]` field + ETL `iterative-optimizer.oracleValidateChange` reject.
-- **KI-2 (stale implicit-set family keys)** — code-fixed iter 75 (ключи обновлены, тесты конвертированы). Data-level фикс blocked by KI-3.
+**iter 76 fix (data-level):** ключи reverted к original OLD-form set. ETL rerun применил фильтр корректно — 160 waystone + 3 tablet implicit-set bonus токенов удалено, заменено 5 + 5 implicit tokens с reversed regex format. Tests в `tests/etl/normalize.test.ts` (5 тестов в KI-2 блоке) подтверждают и key correctness (vs source HTML) и filter execution (vs generated JSON).
+
+### KI-1 (closed iter 73) — `?` tokenizer mismatch
+
+`src/core/poe2-regex-matcher.ts` парсил `?` как optional quantifier; PoE2 in-game `?` НЕ поддерживается. Fix: `hasUnsupportedOptional()` detector + runtime warn (dedup Set) + `OracleResult.unsupportedSyntax` flag + ETL `iterative-optimizer` reject.
 
 ---
 

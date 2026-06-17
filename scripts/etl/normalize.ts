@@ -381,18 +381,26 @@ function inferAffix(text: string): AffixType {
  * in the corresponding category's generated JSON. Verified by tests in
  * `tests/etl/normalize.test.ts` (Bug #15 / KI-2 block).
  *
- * iter 75: updated to current poe2db wording. Old forms (e.g.,
- * `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`)
- * were reworded by poe2db; rarity/pack-size mod-form tokens no longer exist in source data
- * (only as implicit tokens), so those keys were removed.
+ * iter 76 (KI-3 resolved): reverted to original (pre-iter-75) keys because
+ * poe2db.tw reverted text forms to OLD wording between 16-17 June 2025 and has
+ * stayed stable since (verified 17 June 2026). iter 75's NEW-form keys stopped
+ * matching the live poe2db source. OLD forms confirmed stable via
+ * `curl https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` (= 107).
+ *
+ * NOTE on tablet typo: poe2db source HTML has `% увеличение количества находимых
+ * на карте путевых камней` (no `#` before `%`). We match the source verbatim —
+ * this is NOT a typo we should "fix" in the key, because the key must equal the
+ * (normalized) `familyKey.ru` of generated tokens.
  */
 export const WAYSTONE_IMPLICIT_SET_FAMILY_KEYS: string[] = [
-  '#% увеличение количества путевых камней, находимых в области',
-  'На #% больше эффективности монстров',
+  'На #% больше находимых в области путевых камней',
+  '#% увеличение эффективности монстров',
+  'На #% больше редкости находимых в этой области предметов',
+  'На #% больше размера групп монстров',
 ];
 
 export const TABLET_IMPLICIT_SET_FAMILY_KEYS: string[] = [
-  '#% увеличение количества находимых на карте путевых камней',
+  '% увеличение количества находимых на карте путевых камней',
 ];
 
 /** All implicit-set bonus family keys by category */

@@ -1,8 +1,8 @@
 {
-  "version": "2026-06-16T18:58:45.842Z",
+  "version": "2026-06-17T23:11:42.232Z",
   "category": "tablet",
   "source": "poe2db.tw",
-  "sourceHash": "no-cache",
+  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "tablet.mod_5xy54",
@@ -3687,10 +3687,7 @@
         "ru": "отложен.*ные|уникаль.*ные"
       },
       "weight": 25,
-      "count": 2,
-      "regexPrefixContext": {
-        "ru": "снова"
-      }
+      "count": 2
     },
     "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_l616q8:tablet.mod_umh3r9": {
       "ids": [

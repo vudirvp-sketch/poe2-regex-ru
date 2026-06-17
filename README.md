@@ -1,89 +1,113 @@
-# PoE2 Regex RU — генератор поисковых строк для Path of Exile 2 (русский клиент)
+# iter 72 — Patch Archive
 
-> **Онлайн:** [vudirvp-sketch.github.io/poe2-regex-ru](https://vudirvp-sketch.github.io/poe2-regex-ru/)
+**Дата:** 2026-06-18
+**Итерация:** 72
+**Базовый commit:** 23c6844 (iter 71)
 
-Инструмент превращает выбор аффиксов в готовую поисковую строку для внутриигрового фильтра предметов **Path of Exile 2**. Учитывает лимит PoE2 в 250 символов, автоматически сокращает regex через дедупликацию, группировку семейств и ёфикацию, и отдаёт результат одной кнопкой — вставляйте прямо в поисковое окно игры.
+## Содержание патча
 
-## Что умеет
+5 файлов, зеркало структуры репозитория — для слияния с локальной директорией:
 
-- **8 категорий предметов:** путевые камни, башни Предтеч, реликвии, самоцветы, торговец, пояса, кольца, амулеты — для каждой свой набор аффиксов с poe2db.tw.
-- **Оптимизация под лимит 250 символов:** дедупликация OR-групп, группировка семейств (`prefix.*A|prefix.*B`), таблица суффиксных сокращений, ёфикация `е/ё`. При превышении лимита — автоматический split на несколько regex-частей, каждая со своей кнопкой копирования.
-- **Логика поиска И/ИЛИ:** «все аффиксы» (И,跨-блочный AND) или «любой из» (ИЛИ, OR внутри одной quoted-группы с `.*` мостами).
-- **Исключения:** отметьте аффикс как «не хочу» — он уйдёт в `(?!…)` negative lookahead. Для верхнеуровневого NOT — `!"X|Y"` форма.
-- **Числовые диапазоны:** глобальные min/max или per-chip min/max. Округление до 10 для широких диапазонов. Пороговый режим `≥min` для лаконичных regex.
-- **Профили и обмен ссылками:** сохраняйте наборы фильтров локально, делитесь сжатой ссылкой через URL.
-- **Авто-копирование:** при каждом изменении выбора строка копируется в буфер автоматически (опционально, Ctrl+Shift+X — ручное копирование).
-- **Приоритетные тиры (S / S+A):** для категорий с классификацией аффиксов по тирам (кольца, амулеты, пояса, путевые камни, башни).
-- **Тёмная палитра dark-fantasy:** тёплый dirty-brown фон `#0D0B09` с золотым акцентом `#C89A4A` — без светлой темы, без переключателя.
+```
+STATUS.md
+AGENT_NAVIGATION.md
+worklog.md
+scripts/etl/compute-optimizations.ts
+scripts/etl/iterative-optimizer.ts
+```
 
-## Категории
+## Что сделано
 
-| Категория | Что внутри |
-|-----------|-----------|
-| Путевые камни | 96 + 16 осквернённых токенов; фильтры осквернён/неосквернён/делириум |
-| Башни Предтеч | Типы (Бездна, Делириум, Ритуал, Ваал), редкость, остаток использований |
-| Реликвии | Базовые аффиксы + диапазоны |
-| Самоцветы | Ruby / Emerald / Sapphire + классификация по типу; merge desecrated + corrupted |
-| Торговец | Свойства торговца, фильтр по цене, проверка regex |
-| Пояса / Кольца / Амулеты | Полные префикс + суффикс + implicit; тиры S/S+A |
+### Реальные фиксы (3)
 
-## Технологии
+1. **Bug #10 — Дедуплицирован `normalizeTemplate`**
+   - Удалён из `scripts/etl/compute-optimizations.ts:30-35` (17 строк)
+   - Импортирован из `scripts/etl/compute-regex-core.ts:43-48` (canonical source)
 
-React 19 · Vite · TypeScript · Zustand · Tailwind CSS v4 · Vitest. Ядро regex-движка (`src/core/`) — чистый TypeScript, без npm-зависимостей.
+2. **Bug #11 — Дедуплицирован `extractTemplateSuffix`**
+   - Удалён из `scripts/etl/iterative-optimizer.ts:446-458` (16 строк)
+   - Импортирован из `scripts/etl/compute-regex-core.ts:61-89` (canonical source)
 
-## Разработка
+3. **Bug #12 — Удалён dead code `longestCommonSubstring`**
+   - Удалён из `scripts/etl/compute-optimizations.ts:301-337` (32 строки + `@ts-expect-error`)
+
+### Документация
+
+4. **`STATUS.md` — полная переработка**
+   - Удалены устаревшие таблицы (UI Redesign phases, Atmospheric Assets table)
+   - Добавлен Known Issue **KI-1** (`?` tokenizer mismatch) с описанием, mitigation, планом фикса
+   - Файл стал ~50 строк вместо ~80
+
+5. **`worklog.md` — iter 72 + сжатие**
+   - Добавлен Task ID 72 section (подробно)
+   - Старые итерации сжаты до 1-строчного списка
+
+6. **`AGENT_NAVIGATION.md` — header iter 72 + Pitfall 30**
+   - Header обновлён: убраны избыточные детали атмосферных ассетов (всё уже в Pitfall 29)
+   - Добавлен Pitfall 30 (`?` tokenizer mismatch — Oracle FP risk)
+
+## Верификация
+
+- `npx tsc -b` — **OK** (0 ошибок)
+- `pnpm test` — **1144/1144 тестов зелёные** (baseline сохранён)
+- `npx eslint` на изменённых файлах — 3 pre-existing ошибки в `iterative-optimizer.ts` (POE2_REGEX_LIMIT, ESTIMATED_MOD_OVERHEAD, itemBlocks — unused vars), **НЕ** вызваны моими правками (проверено через `git stash`)
+
+## Анализ кодовой базы — что верифицировано
+
+### Подтверждённые баги (исправлены в этой итерации)
+- Bug #10, Bug #11, Bug #12 — см. выше
+
+### Подтверждённые баги (документированы, фикс отложен)
+- **Bug #1 (`?` tokenizer mismatch)** — Known Issue KI-1. Фикс требует решения: ломать тесты или добавлять runtime warning в matcher.
+
+### Анализ ошибался (багов нет)
+- **Bug #5** (limits.ts escape в `[...]`): код корректно обрабатывает escape внутри char class
+- **Bug #6** (path-d-transform.ts escape edge case): на практике regex не заканчивается на `\`
+- **Bug #9** (`hasYofication/yoficationPositions` dead data flow): поля ИСПОЛЬЗУЮТСЯ в `useCategoryPage.ts:950, 976` в `applyRuntimeYofication`
+
+### Архитектурный долг (не тронут, низкий приоритет)
+- Bug #8 — `useCategoryPage.ts` 1325 строк (требует большого рефакторинга)
+- Bug #13 — `iterative-optimizer` skip ranged regexes
+- Bug #15-20 — мелкие упущения
+
+## Git-команды для обновления репозитория
 
 ```bash
-pnpm install        # зависимости (или npm install)
-pnpm dev            # dev-сервер
-pnpm build          # tsc -b + vite build + shell-пререндер
-pnpm build:full     # + Playwright-пререндер React-контента в HTML
-pnpm test           # vitest (все тесты)
-pnpm etl            # обновление данных с poe2db.tw
-pnpm etl:fresh      # то же без кэша
-pnpm analyze-fn     # отчёт о ложных срабатываниях
+# В локальной копии репозитория (после слияния файлов из архива):
+
+git add STATUS.md AGENT_NAVIGATION.md worklog.md \
+        scripts/etl/compute-optimizations.ts \
+        scripts/etl/iterative-optimizer.ts
+
+git commit -m "iter 72: dedup ETL utils, remove dead code, document KI-1 (? tokenizer mismatch)
+
+- Bug #10: remove duplicate normalizeTemplate from compute-optimizations.ts,
+  import from compute-regex-core.ts (canonical source)
+- Bug #11: remove duplicate extractTemplateSuffix from iterative-optimizer.ts,
+  import from compute-regex-core.ts (canonical source)
+- Bug #12: remove dead code longestCommonSubstring (32 lines + @ts-expect-error)
+  from compute-optimizations.ts
+- Document Bug #1 (? tokenizer mismatch) as Known Issue KI-1 in STATUS.md
+- AGENT_NAVIGATION.md: add Pitfall 30 (? tokenizer = Oracle FP risk)
+- worklog.md: iter 72 section, compress older iterations
+
+Verified: tsc -b clean, 1144/1144 tests green, no new lint errors."
+
+git push origin main
 ```
 
-> `pnpm` можно заменять на `npm run <script>` — drop-in замена.
+## Точка остановки для продолжения в новом чате
 
-## Структура
+**Сделано:**
+- 3 safe-фикса (дедупликация 2 ETL-утилит + удаление dead code)
+- Bug #1 задокументирован как Known Issue KI-1
+- Документация актуализирована и почищена (STATUS.md стал ~50 строк вместо ~80)
+- Все 1144 теста зелёные, tsc -b чистый
 
-```
-src/core/         regex-движок: AST, компилятор, оптимизатор, oracle, matcher
-src/shared/       типы, i18n, Zod-схемы, family-grouper, mod-classifier
-src/strategies/   русская локаль: ёфикация, ю/я варианты
-src/store/        Zustand: filter-store, profile-store, url-sync
-src/data/         runtime JSON-лоадер (Zod-валидация), vendor-properties
-src/ui/           React-компоненты, страницы, layout, hooks
-public/generated/ ETL-вывод (НЕ редактировать вручную — pnpm etl)
-scripts/          ETL pipeline + пререндер
-tests/            vitest: core / shared / etl / ui
-docs/             ARCHITECTURE, ETL_GUIDE, DATA_CONTRACTS, IN_GAME_TESTS, SEO_PLAN
-```
-
-## Ограничения PoE2 regex (verified in-game)
-
-| Синтаксис | Статус | Примечание |
-|-----------|--------|------------|
-| `\|` между одиночными словами в одной quoted-группе | ✅ | `"Бездн\|Делир"` |
-| `\|` + `.*` мосты (Path D) до 9 альтернатив | ✅ | `"prefix.*A\|prefix.*B\|..."` |
-| `\|` между двумя quoted-группами `"X"\|"Y"` | ❌ | zero matches |
-| Пробел = AND (cross-block) | ✅ | `"X" "Y"` |
-| `(?!…)` bidirectional через `^(?!…).*Z` | ✅ | forward-only `Z(?!…)` даёт FP |
-| `!` item-wide NOT | ✅ | `"!X\|Y"` внутри кавычек |
-| `^` start-of-block anchor | ✅ | |
-| Лимит ≈ 250 символов на regex | ✅ | runtime split при превышении |
-
-Полная таблица и стратегии — в `docs/IN_GAME_TESTS.md` и `docs/ARCHITECTURE.md`.
-
-## SEO
-
-Все мета-теги, Open Graph, Twitter Card, JSON-LD (WebApplication), sitemap.xml, robots.txt, shell- и Playwright-пререндер 9 маршрутов настроены. IndexNow пингует поисковики при деплое через GitHub Actions. Детали — в `docs/SEO_PLAN.md`.
-
-## Баг-репорты и предложения
-
-Нашли ошибку или есть идея? Пишите в **Discord**: **woonderdad**
-
-## Лицензия и дисклеймер
-
-Данные берутся с [poe2db.tw](https://poe2db.tw). Проект не связан с Grinding Gear Games. Path of Exile 2 — торговая марка GGG.
+**Открытая работа (для следующей итерации):**
+- **KI-1 `?` tokenizer mismatch** — нужен design decision:
+  - **(a)** Ломать существующие тесты в `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` и делать `?` (вне `(?!`) fatal-error в tokenizer
+  - **(b)** Добавить runtime-warning в `matchQuotedGroup`/`matchPoE2Regex` при обнаружении `?` вне `(?!` контекста, переработать тесты на `expect(warn).toHaveBeenCalled()` вместо `expect(matched).toBe(true)`
+  - Рекомендация: вариант (b) — менее инвазивный, сохраняет semantic тестов
+- Архитектурный долг (Bug #8, #13, #15-20) — не тронут, низкий приоритет
+- Pre-existing lint-ошибки в `iterative-optimizer.ts:111, 114, 193` — вне scope этой итерации

@@ -1,0 +1,38 @@
+iter 64 — Sidebar → TopNav
+==========================
+
+Этот архив содержит изменённые/новые файлы для слияния с локальной
+директорией репозитория poe2-regex-ru.
+
+Содержимое архива (сохранена структура папок):
+  src/ui/layout/TopNav.tsx       — НОВЫЙ (горизонтальная навигация)
+  src/ui/layout/Layout.tsx       — ИЗМЕНЁН (использует TopNav вместо Sidebar+Header+MobileNavTabs)
+  src/index.css                  — ИЗМЕНЁН (.topnav* правила; удалены .sidebar-atmosphere/.header-atmosphere/.mobile-nav-tab*)
+  src/shared/i18n.ts             — ИЗМЕНЁН (rename sidebar.feedback → nav.feedback)
+  STATUS.md                      — ИЗМЕНЁН
+  AGENT_NAVIGATION.md            — ИЗМЕНЁН
+  worklog.md                     — ИЗМЕНЁН
+
+ФАЙЛЫ К УДАЛЕНИЮ (устарели, заменены на TopNav.tsx):
+  src/ui/layout/Sidebar.tsx
+  src/ui/layout/MobileNavTabs.tsx
+  src/ui/layout/Header.tsx
+
+Команды для применения (из корня репо):
+  # 1. Распаковать архив поверх локальной директории:
+  unzip poe2-regex-ru-iter64.zip -d /path/to/poe2-regex-ru/
+
+  # 2. Удалить устаревшие файлы:
+  rm /path/to/poe2-regex-ru/src/ui/layout/Sidebar.tsx
+  rm /path/to/poe2-regex-ru/src/ui/layout/MobileNavTabs.tsx
+  rm /path/to/poe2-regex-ru/src/ui/layout/Header.tsx
+
+  # 3. Верификация:
+  npx tsc -b           # должно быть 0 ошибок
+  npx vitest run       # должно быть 1144/1144 passed
+  npx vite build       # должно быть OK
+
+Верификация проведена:
+  ✅ tsc -b clean
+  ✅ vitest: 1144/1144 passed (35 test files)
+  ✅ vite build: 154 modules, 502 KB JS / 43 KB CSS

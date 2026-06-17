@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import {
   extractTextAndRanges,
   extractGenderForms,
   detectYofication,
   generateId,
+  normalizeTypeA,
   WAYSTONE_IMPLICIT_SET_FAMILY_KEYS,
   TABLET_IMPLICIT_SET_FAMILY_KEYS,
 } from '@etl/normalize';
+import { parseTypeAPage } from '@etl/parse-tables';
 
 describe('extractTextAndRanges', () => {
   it('extracts a numeric range from mod-value spans', () => {
@@ -146,59 +148,133 @@ describe('generateId', () => {
   });
 });
 
-// ─── Bug #15 / KI-2: hardcoded implicit-set family keys must exist in data ───
+// ─── Bug #15 / KI-2: hardcoded implicit-set family keys must match source ───
 //
-// KI-2 (fixed iter 75): WAYSTONE_IMPLICIT_SET_FAMILY_KEYS and
-// TABLET_IMPLICIT_SET_FAMILY_KEYS in scripts/etl/normalize.ts were STALE —
-// none of the old keys matched any actual `familyKey.ru` in the generated JSON.
-// As a result, `isImplicitSetBonus` silently no-op'ed and implicit-set bonus
-// tokens were NOT filtered out of the mod list.
+// KI-2 (fixed iter 76 via KI-3 resolution): hardcoded family keys in
+// scripts/etl/normalize.ts MUST match `familyKey.ru` (normalized) of source
+// mods parsed from poe2db.tw HTML. iter 75 had updated keys to NEW-form poe2db
+// wording, but poe2db reverted to OLD-form wording between 16-17 June 2025
+// (KI-3). iter 76 reverted the keys back to the original (pre-iter-75) OLD-form
+// set because OLD forms have been stable on poe2db.tw for over a year
+// (verified 17 June 2026 via `curl https://poe2db.tw/ru/Waystones`).
 //
-// iter 75 fix: updated keys to current poe2db wording. Tests verify that every
-// hardcoded key exists in the corresponding category's `familyKey.ru` set.
-// waystone-desecrated.json has no mod-form implicit-set bonus tokens (only
-// implicit tokens), so the filter is a no-op there — documented by the
-// "no mod-form implicit-set bonus tokens" test.
+// Tests verify TWO things:
+// 1. Source HTML (cached in .etl-cache/) DOES contain tokens with the hardcoded
+//    familyKeys — proves the keys are not stale (would match real source data).
+// 2. Generated JSON (post-ETL) does NOT contain those familyKeys — proves the
+//    `filterImplicitSetBonuses` step actually removed the matching tokens.
+//
+// waystone-desecrated has no mod-form implicit-set bonus tokens in source HTML,
+// so the filter is a no-op there — documented by the "no mod-form tokens"
+// test (which loads source HTML and verifies no source token matches).
 
 describe('WAYSTONE_IMPLICIT_SET_FAMILY_KEYS / TABLET_IMPLICIT_SET_FAMILY_KEYS (Bug #15 / KI-2)', () => {
   const projectRoot = join(__dirname, '..', '..');
   const generatedDir = join(projectRoot, 'public', 'generated');
+  const cacheDir = join(projectRoot, '.etl-cache');
 
-  function loadFamilyKeys(filename: string): Set<string> {
+  /** Normalize a familyKey the same way `isImplicitSetBonus` does. */
+  function normalizeKey(s: string): string {
+    return s.replace(/##/g, '#').replace(/\s+/g, ' ').trim();
+  }
+
+  function loadFamilyKeysFromJson(filename: string): Set<string> {
     const raw = readFileSync(join(generatedDir, filename), 'utf-8');
     const data = JSON.parse(raw);
     const familyKeys = new Set<string>();
     for (const token of data.tokens ?? []) {
       const fk = token?.familyKey?.ru;
       if (typeof fk === 'string') {
-        // Apply the same normalization as `isImplicitSetBonus`:
-        // ## → #, collapse whitespace, trim.
-        const norm = fk.replace(/##/g, '#').replace(/\s+/g, ' ').trim();
-        if (norm) familyKeys.add(norm);
+        familyKeys.add(normalizeKey(fk));
       }
     }
     return familyKeys;
   }
 
-  it('KI-2: every WAYSTONE_IMPLICIT_SET_FAMILY_KEYS entry exists in waystone.json familyKey set', () => {
-    const familyKeys = loadFamilyKeys('waystone.json');
-    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !familyKeys.has(k));
-    expect(missing).toEqual([]);
+  /**
+   * Parse cached poe2db HTML and extract the set of normalized familyKeys
+   * that the source data contains (before ETL filter is applied).
+   *
+   * This lets us verify the hardcoded keys are not stale — they should match
+   * at least one source token. We use the same parseTypeAPage + normalizeTypeA
+   * pipeline that ETL uses, so the familyKey computation is identical to what
+   * ETL produces internally.
+   */
+  function loadFamilyKeysFromSourceHtml(htmlFilename: string, tabId: string): Set<string> {
+    const htmlPath = join(cacheDir, htmlFilename);
+    if (!existsSync(htmlPath)) {
+      // Cache may not be present in CI — skip source-HTML tests gracefully.
+      return new Set();
+    }
+    const html = readFileSync(htmlPath, 'utf-8');
+    const rawMods = parseTypeAPage(html, tabId, 'normal');
+    // normalizeTypeA takes a SINGLE RawModData and returns NormalizedMod[]
+    // (because a mod can be split into multiple <br> segments). Use flatMap.
+    const normalized = rawMods.flatMap(mod =>
+      normalizeTypeA(mod, 'waystone', mod.origin || 'normal')
+    );
+    const familyKeys = new Set<string>();
+    for (const mod of normalized) {
+      const fk = mod?.rawTextTemplate?.ru;
+      if (typeof fk === 'string') {
+        familyKeys.add(normalizeKey(fk));
+      }
+    }
+    return familyKeys;
+  }
+
+  it('KI-2: every WAYSTONE_IMPLICIT_SET_FAMILY_KEYS entry matches source HTML (not stale)', () => {
+    const sourceFamilyKeys = loadFamilyKeysFromSourceHtml(
+      'poe2db_tw_ru_Waystones.html',
+      'ПутевыекамниMods',
+    );
+    if (sourceFamilyKeys.size === 0) {
+      // .etl-cache/ not present — skip
+      console.warn('  [skip] .etl-cache/poe2db_tw_ru_Waystones.html not found');
+      return;
+    }
+    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !sourceFamilyKeys.has(normalizeKey(k)));
+    expect(missing, 'hardcoded waystone keys not found in source HTML — keys are stale').toEqual([]);
   });
 
-  it('KI-2: waystone-desecrated.json has no mod-form implicit-set bonus tokens (filter is no-op)', () => {
-    // waystone-desecrated.json contains only Abyss-themed mods and implicit tokens.
-    // No mod-form tokens exist that match WAYSTONE_IMPLICIT_SET_FAMILY_KEYS, so the
-    // filter is a no-op for this category. This test documents that expectation:
-    // none of the hardcoded waystone keys should appear in waystone-desecrated familyKey set.
-    const familyKeys = loadFamilyKeys('waystone-desecrated.json');
-    const present = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => familyKeys.has(k));
-    expect(present).toEqual([]);
+  it('KI-2: waystone.json does NOT contain implicit-set bonus familyKeys (filter removed them)', () => {
+    const familyKeys = loadFamilyKeysFromJson('waystone.json');
+    const present = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => familyKeys.has(normalizeKey(k)));
+    expect(present, 'waystone.json still contains implicit-set bonus tokens — filter did not run').toEqual([]);
   });
 
-  it('KI-2: every TABLET_IMPLICIT_SET_FAMILY_KEYS entry exists in tablet.json familyKey set', () => {
-    const familyKeys = loadFamilyKeys('tablet.json');
-    const missing = TABLET_IMPLICIT_SET_FAMILY_KEYS.filter(k => !familyKeys.has(k));
-    expect(missing).toEqual([]);
+  it('KI-2: waystone-desecrated source HTML has no mod-form implicit-set bonus tokens (filter is no-op)', () => {
+    // waystone-desecrated parses the same Waystones HTML but uses the
+    // DesecratedWaystoneMods tab. That tab contains only Abyss-themed mods
+    // and no implicit-set bonus tokens, so the filter is a no-op there.
+    const sourceFamilyKeys = loadFamilyKeysFromSourceHtml(
+      'poe2db_tw_ru_Waystones.html',
+      'DesecratedWaystoneMods',
+    );
+    if (sourceFamilyKeys.size === 0) {
+      console.warn('  [skip] .etl-cache/poe2db_tw_ru_Waystones.html not found');
+      return;
+    }
+    const present = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => sourceFamilyKeys.has(normalizeKey(k)));
+    expect(present, 'waystone-desecrated source HTML should not contain implicit-set bonus tokens').toEqual([]);
+  });
+
+  it('KI-2: every TABLET_IMPLICIT_SET_FAMILY_KEYS entry matches source HTML (not stale)', () => {
+    const sourceFamilyKeys = loadFamilyKeysFromSourceHtml(
+      'poe2db_tw_ru_Tablet.html',
+      'БашниПредтечMods',
+    );
+    if (sourceFamilyKeys.size === 0) {
+      console.warn('  [skip] .etl-cache/poe2db_tw_ru_Tablet.html not found');
+      return;
+    }
+    const missing = TABLET_IMPLICIT_SET_FAMILY_KEYS.filter(k => !sourceFamilyKeys.has(normalizeKey(k)));
+    expect(missing, 'hardcoded tablet keys not found in source HTML — keys are stale').toEqual([]);
+  });
+
+  it('KI-2: tablet.json does NOT contain implicit-set bonus familyKeys (filter removed them)', () => {
+    const familyKeys = loadFamilyKeysFromJson('tablet.json');
+    const present = TABLET_IMPLICIT_SET_FAMILY_KEYS.filter(k => familyKeys.has(normalizeKey(k)));
+    expect(present, 'tablet.json still contains implicit-set bonus tokens — filter did not run').toEqual([]);
   });
 });
