@@ -2,23 +2,25 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 60 — Fix Known Issue #7 (MobileRegexBar visible on desktop due to CSS specificity)
+> **Текущая итерация:** 61 — Phase 8 (polish): drop always-on `⚠ Диапазон` badge in CategoryControlPanel
 
 ---
 
-## iter 60 — Fix: MobileRegexBar visible on desktop (Known Issue #7)
+## iter 61 — Phase 8 (polish): remove range-warning noise
 
-**Симптом:** Sticky-bottom `MobileRegexBar` дублировал основной `RegexOutput` на десктопе (≥1024px), хотя должен был быть скрыт через `lg:hidden`.
+**Симптом:** При активации range-фильтра в `CategoryControlPanel` могли стакаться до 3 warning-бейджей: `⚠ ≥40` + `⚠ Округл.` + `⚠ Диапазон`. Третий (`⚠ Диапазон` — notation FP warning) показывался **всегда** при любом min/max — это константа, не actionable warning, чистый шум.
 
-**Причина:** CSS-специфичность. `.mobile-regex-bar { display: flex; ... }` (custom CSS в конце `index.css`) и `.lg\:hidden { display: none }` (Tailwind, в начале файла внутри `@media (width>=64rem)`) имеют одинаковую специфичность (0,1,0). При равной специфичности побеждает позднее правило в source-order — custom `.mobile-regex-bar` перекрывал `lg:hidden` на десктопе.
+**Фикс (principle «дорогая тишина»):**
+- **Удалён** always-on `⚠ Диапазон` visible badge.
+- FP-warning перенесён в `title` range-контейнера — ховер показывает предупреждение, info сохранён.
+- Видимыми остались **только конкретные/actionable** warnings: `⚠ ≥40` (PoE2 boundary at 40) и `⚠ Округл.` (round10 + AND fallback when range >50 values).
+- Когда ни одно из условий не выполняется — тишина, ни одного `⚠`.
 
-**Фикс:** Все правила `.mobile-regex-bar*` обёрнуты в `@media (max-width: 1023px)`. На десктопе они больше не применяются, `lg:hidden` спокойно прячет элемент. См. Pitfall 26 в `AGENT_NAVIGATION.md`.
-
-**Результат:** 1144 теста зелёные. `tsc -b` clean. Vite build OK (156 модулей, 9 prerendered HTML, CSS 42.87 KB / gzip 9.34 KB).
+**Результат:** 1144 теста зелёные. `tsc -b` clean. Vite build OK.
 
 ---
 
-## Известные проблемы (Known Issues)
+## Known Issues
 
 | # | Issue | Status |
 |---|-------|--------|
@@ -49,8 +51,8 @@
 
 | Фаза | Статус | Что |
 |------|--------|-----|
-| 0-7 | ✅ iter 51-59 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar |
-| 8 | ⏳ next | Полировка: снять шум, оставить «дорогую тишину» |
+| 0-7 | ✅ iter 51-60 | CSS-токены → CategoryLayout → RegexOutput Level 1 → nav как «режимы» → HomePage compaction → StatusPanel → MobileRegexBar → iter 60 specificity fix |
+| 8 | 🚧 in-progress | Полировка: снять шум, оставить «дорогую тишину». **iter 61:** убран always-on `⚠ Диапазон` badge в CategoryControlPanel. Pending: упростить Features-секцию на HomePage; пересмотреть плотность ModList. |
 | 9 | ⏳ | Финальная документация |
 
 ---

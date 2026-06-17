@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: iter 60 (fix Known Issue #7 — `MobileRegexBar` visible on desktop due to CSS specificity conflict).
+> **Entry document.** Read this first. Current state: iter 61 (Phase 8 polish — drop always-on `⚠ Диапазон` badge in `CategoryControlPanel`; FP warning moved to range-container tooltip).
 
 ---
 
@@ -142,6 +142,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **All 8 category pages** use this pattern: `<CategoryLayout>` wraps page; `<CategoryControlPanel>` (no special flags) in `controls` slot; `<RegexOutput>` + status + `<ProfilePanel>` in right-column slots; ModList in `children`.
     - **iter 54 cleanup removed:** legacy branch (sticky wrapper + embedded `<RegexOutput>`), `hideRegexOutput` prop, `regex`/`isOverflow`/`regexParts`/`filterStore` props (all unused in split mode). Dead CSS: `.control-panel-sticky`, `.sticky.top-0` mobile rules.
     - **Kept:** `activeTokenCount` (used for active-tokens counter in controls row), `extraControls` slot (waystone corrupted/delirious, jewel type filter, tablet type/rarity/uses), `clearButton` slot (Vendor).
+    - **Range warnings pattern (iter 61, Phase 8 «expensive silence»):** Visible warning badges are kept ONLY for specific/actionable conditions: `⚠ ≥40` (PoE2 boundary at min ≥ 40) and `⚠ Округл.` (round10 + AND fallback when range >50 values). The range notation FP warning was REMOVED as a visible badge (it was always-on whenever any min/max was set = pure noise) — instead it lives in the `title` attribute of the range-input container (hover to see). General rule for future polish: **never show a warning badge that fires on every normal use of a feature** — that's noise. Either make it conditional (specific threshold), or push it into a tooltip.
     - Page-specific notes: VendorPage has NO `<PageStateWrapper>` (sync data) and NO `<ProfilePanel>` (sidebar slot empty). All 8 pages use `<StatusPanel>` in `status` slot (iter 58). WaystonePage/TabletPage use `badges` prop; JewelPage/VendorPage use `alerts` prop.
 
 21. **Level 1 visual frames (iter 55):** Two families of Level 1 decorative frames exist in `index.css` — both use the same pattern (gradient bg + 1px subtle border + 3px colored border-left + corner accents via `::before`/`::after`):

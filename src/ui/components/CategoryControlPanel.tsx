@@ -168,10 +168,17 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           </span>
         )}
 
-        {/* Range filter */}
+        {/* Range filter — iter 61 (Phase 8 polish): removed always-on `⚠ Диапазон`
+            visible badge (was firing on every range use = pure noise). The FP
+            warning is now in the title of the range container — hover to see.
+            Visible badges kept ONLY for specific/actionable warnings: `⚠ ≥40`
+            (PoE2 boundary at 40) and `⚠ Округл.` (round10 + >50 range AND fallback). */}
         {hasRangedTokens && (
           <>
-            <div className="flex items-center gap-1 text-[13px]">
+            <div
+              className="flex items-center gap-1 text-[13px]"
+              title={(minValue !== null || maxValue !== null) ? t('range.notation_fp_warning') : undefined}
+            >
               <span className="text-dim">&ge;</span>
               <input
                 type="number"
@@ -211,25 +218,17 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 {t('suffixes.label')}: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
               </span>
             )}
-            {/* Number boundary warning for ≥40 — PoE2 regex limitation */}
+            {/* Number boundary warning for ≥40 — PoE2 regex limitation (specific, actionable) */}
             {minValue !== null && minValue >= 40 && (
               <span className="text-[12px] text-accent-amber-warn" title={t('range.boundary_warning')}>
                 ⚠ ≥40
               </span>
             )}
             {/* Round10 + AND fallback warning: range >50 values uses AND fallback,
-                where round10 expands each side independently */}
+                where round10 expands each side independently (specific, actionable) */}
             {round10Enabled && minValue !== null && maxValue !== null && (maxValue - minValue + 1) > MAX_ENUMERATE_RANGE && (
               <span className="text-[12px] text-accent-amber-warn" title={t('range.round10_and_warning')}>
                 ⚠ Округл.
-              </span>
-            )}
-            {/* Range notation FP warning: numbers in item range notation (e.g., 27 from «27-50»)
-                can match the enumeration pattern, causing false positives in-game.
-                Show when any range filter is active. */}
-            {(minValue !== null || maxValue !== null) && (
-              <span className="text-[12px] text-accent-amber-dimmer" title={t('range.notation_fp_warning')}>
-                ⚠ Диапазон
               </span>
             )}
           </>

@@ -297,7 +297,10 @@ Categories with priority: ring, amulet, belt, waystone, tablet. Others (jewel, r
 
 ### CategoryControlPanel
 - Controls-only: renders AND/OR toggle, range filter, round10, threshold, priority filter, `extraControls` slot, `clearButton` slot. No `<RegexOutput>`, no sticky wrapper (RegexOutput lives in `<CategoryLayout>`'s right column, sticky via `<aside>`).
-- Range warnings: ⚠ Округл. (round10 + >50 range) and ⚠ Диапазон (range notation FP risk)
+- Range warnings (iter 61, Phase 8 "expensive silence"):
+  - **Visible** badges (specific + actionable): `⚠ ≥40` (PoE2 boundary at 40), `⚠ Округл.` (round10 + AND fallback when range >50 values).
+  - **Tooltip only** (always-on but not actionable): range notation FP risk — shown in `title` attribute of the range-input container, fires on hover when any min/max is set.
+  - Rationale: dropping the always-on `⚠ Диапазон` badge eliminates the worst case of 3 stacked `⚠` glyphs when ≥40 + Округл. + Диапазон all fired. Info preserved via tooltip.
 
 ### VendorChip
 - Switch + numeric threshold input
