@@ -61,26 +61,65 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      {/* Hero section — iter 57: tightened (mb-10→mb-6, mb-3→mb-2, mb-4→mb-3, mb-6→mb-4, badges text-[13px]→[12px] + gap-3→gap-2) */}
-      <div className="mb-6 text-center">
-        <h1 className="mb-2 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
-          {t('home.title')}
-        </h1>
-        <p className="mb-3 text-lg" style={{ color: 'var(--poe-text)' }}>
-          {t('home.subtitle')}
-        </p>
-        <p className="mb-4 text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
-          {t('home.description_full')}
-        </p>
-        <div className="flex flex-wrap justify-center gap-2 text-[12px]" style={{ color: 'var(--poe-text)', opacity: 0.6 }}>
-          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
-            {loaded ? `${formatCount(totalMods)} ${t('home.mods')}` : '...'}
-          </span>
-          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
-            {t('home.category_count')}
-          </span>
-          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.limit_250')}</span>
-          <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.regex_optimization')}</span>
+      {/* Hero section — iter 57: tightened (mb-10→mb-6, mb-3→mb-2, mb-4→mb-3, mb-6→mb-4, badges text-[13px]→[12px] + gap-3→gap-2)
+          iter 69: 3 atmospheric decorations added on lg+/xl+ only — mobile (<lg)
+          stays identical to iter 57. Wrapper uses `isolate` so the backdrop's
+          `mix-blend-screen` blends only within this container (not with the body
+          bg), and `overflow-hidden` so the side ghosts never cause horizontal
+          scroll. All decorations are `aria-hidden` + `pointer-events-none`. */}
+      <div className="relative mb-6 isolate overflow-hidden text-center">
+        {/* Backdrop: gothic bas-relief (Gemini image). lg+ only, screen-blended
+            so light bas-relief tones "etch" onto the dark body bg without
+            covering the text. Max-width 640px to stay inside the max-w-4xl
+            content column. */}
+        <img
+          src={`${import.meta.env.BASE_URL}atmosphere/hero-bas-relief.webp`}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 hidden w-2/3 max-w-[640px] -translate-x-1/2 -translate-y-1/2 opacity-[0.18] mix-blend-screen lg:block"
+        />
+        {/* Side ghost: horned warrior (3-Photoroom). xl+ only (≥1280px) — below
+            that, the content column has no room for side decorations without
+            squeezing the text. Opacity 0.28 keeps it as a silhouette, not a
+            focal point. */}
+        <img
+          src={`${import.meta.env.BASE_URL}atmosphere/hero-horned-warrior.webp`}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-1/2 hidden w-44 -translate-y-1/2 opacity-[0.28] xl:block"
+        />
+        {/* Side ghost: red-eyed monster (1-Photoroom). xl+ only, mirrors the
+            left ghost. Symmetry is intentional — two flanking silhouettes
+            frame the centered hero text without competing for attention. */}
+        <img
+          src={`${import.meta.env.BASE_URL}atmosphere/hero-monster-red.webp`}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-1/2 hidden w-44 -translate-y-1/2 opacity-[0.28] xl:block"
+        />
+
+        {/* Original hero text content. `relative` lifts it above the absolutely
+            positioned decorations inside this isolated stacking context. */}
+        <div className="relative">
+          <h1 className="mb-2 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
+            {t('home.title')}
+          </h1>
+          <p className="mb-3 text-lg" style={{ color: 'var(--poe-text)' }}>
+            {t('home.subtitle')}
+          </p>
+          <p className="mb-4 text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: 'var(--poe-text)', opacity: 0.7 }}>
+            {t('home.description_full')}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 text-[12px]" style={{ color: 'var(--poe-text)', opacity: 0.6 }}>
+            <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+              {loaded ? `${formatCount(totalMods)} ${t('home.mods')}` : '...'}
+            </span>
+            <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>
+              {t('home.category_count')}
+            </span>
+            <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.limit_250')}</span>
+            <span className="px-1.5 py-0.5 rounded border" style={{ borderColor: 'var(--poe-border)' }}>{t('home.regex_optimization')}</span>
+          </div>
         </div>
       </div>
 
