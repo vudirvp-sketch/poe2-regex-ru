@@ -737,8 +737,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         )}
       </div>
 
-      {/* Stats */}
-      <div className="text-[13px] text-dim">
+      {/* Stats — iter 70: text-dim → text-muted for better contrast */}
+      <div className="text-[13px] text-muted">
         {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 

@@ -202,16 +202,17 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 className="w-16 px-1.5 py-1 bg-surface border border-edge rounded text-[13px] text-bright placeholder-ghost-alt focus:outline-none focus:border-accent-amber"
               />
             </div>
+            {/* iter 70: text-dim → text-muted for better contrast */}
             {minValue !== null && maxValue !== null && (
-              <span className="text-[12px] text-dim">
+              <span className="text-[12px] text-muted">
                 {minValue} &le; N &le; {maxValue}
               </span>
             )}
             {minValue !== null && maxValue === null && (
-              <span className="text-[12px] text-dim">N &ge; {minValue}</span>
+              <span className="text-[12px] text-muted">N &ge; {minValue}</span>
             )}
             {maxValue !== null && minValue === null && (
-              <span className="text-[12px] text-dim">N &le; {maxValue}</span>
+              <span className="text-[12px] text-muted">N &le; {maxValue}</span>
             )}
             {rangedSuffixes.length > 0 && (minValue !== null || maxValue !== null) && (
               <span className="text-[12px] text-faint">
@@ -266,7 +267,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {/* Priority tier filter */}
         {showPriorityFilter && (
           <div className="flex items-center gap-1">
-            <span className="text-[12px] text-dim">{t('priority.label')}</span>
+            {/* iter 70: text-dim → text-muted */}
+            <span className="text-[12px] text-muted">{t('priority.label')}</span>
             <div className="flex gap-0.5" role="radiogroup" aria-label={t('priority.label')}
               onKeyDown={(e) => handleRadioKeyDown(e, priorityOptions, priorityFilter)}
             >

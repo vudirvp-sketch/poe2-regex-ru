@@ -332,13 +332,14 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             2x
           </span>
         )}
+        {/* iter 70: text-dim → text-muted for better contrast on range & tier counts */}
         {tierCount > 1 && (
-          <span className="text-[12px] text-dim shrink-0" aria-hidden="true">
+          <span className="text-[12px] text-muted shrink-0" aria-hidden="true">
             &times;{tierCount}
           </span>
         )}
         {rangeText && !isSelected && !isExcluded && (
-          <span className="text-[12px] text-dim shrink-0" aria-hidden="true">
+          <span className="text-[12px] text-muted shrink-0" aria-hidden="true">
             ({rangeText})
           </span>
         )}

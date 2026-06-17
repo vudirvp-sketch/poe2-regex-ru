@@ -311,8 +311,8 @@ body {
      3) radial-gradient(vignette) — darker corners, draws the eye to center.
    iter 67: vignette alpha softened from 0.55 to 0.40 after VLM screenshot
    analysis confirmed it was too heavy at edges on desktop and mobile.
-   bg-forest.webp / bg-forest-mobile.webp are kept in /public for backward
-   compat with cached URLs, but no longer referenced. */
+   bg-forest.webp / bg-forest-mobile.webp deleted in iter 70
+   (no longer referenced, 1+ release cycle since iter 65). */
 [data-theme="dark"] body,
 :root body {
   background-color: #070503;
@@ -456,7 +456,8 @@ body {
    crimson radial glow on hover, and a brighter crimson pulse on success
    (just-copied). Replaces `bg-btn-primary` (#2563eb, cold blue) on Copy.
    Color tokens: --poe-bg-tertiary (#1F1812) base, --poe-gold (#C89A4A) rim,
-   --poe-red (#c44e4e) glow accent. */
+   --poe-red (#c44e4e) glow accent.
+   iter 70: hover glow alpha reduced 0.40→0.30 / 0.30→0.22 for OLED comfort. */
 .btn-cta {
   position: relative;
   background: linear-gradient(180deg, #2A1F18 0%, #1F1812 100%);
@@ -473,8 +474,8 @@ body {
   background: linear-gradient(180deg, #33261D 0%, #261D16 100%);
   box-shadow:
     inset 0 1px 0 0 rgba(200, 154, 74, 0.40),
-    0 0 14px rgba(196, 78, 78, 0.40),
-    0 0 4px rgba(196, 78, 78, 0.30);
+    0 0 14px rgba(196, 78, 78, 0.30),
+    0 0 4px rgba(196, 78, 78, 0.22);
 }
 .btn-cta:active:not(:disabled) {
   background: linear-gradient(180deg, #1F1812 0%, #2A1F18 100%);
