@@ -2,24 +2,21 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 71
-
----
-
-## UI Redesign — план
-
-| Фаза | Статус | Что |
-|------|--------|-----|
-| 0-13 | ✅ iter 51-68 | CSS-токены → CategoryLayout → nav «режимы» → TopNav → атмосферная стилизация → `.poe-panel-header--inline` на 8 страницах |
-| 14 | ✅ iter 69 | HomePage hero decorations: 3 atmospheric images (bas-relief backdrop + 2 side ghosts) |
-| 15 | ✅ iter 70 | Visual review lg+/xl+ — hero OK; filter contrast fix (text-dim→text-muted); `.btn-cta` OLED glow toned; `bg-forest.webp` deleted |
-| 16 | ✅ iter 71 | Интеграция 3 оставшихся atmospheric WebP: `hero-demon-blue` (SeoBlock), `early-access-banner` (новый `.poe-divider--banner`), `news-bg-center` (mobile hero backdrop) |
+> **Текущая итерация:** 72
 
 ---
 
 ## Known Issues
 
-**Открытых Known Issues нет.**
+### KI-1: `?` tokenizer mismatch (симулятор vs игра)
+
+**Симптом:** `src/core/poe2-regex-matcher.ts:111-113` парсит `?` как `optional` quantifier и успешно матчит его в симуляторе. PoE2 in-game **НЕ поддерживает** `?` (verified Phase 7). Любой regex с `?` (вне `(?!…)` lookahead) пройдёт Oracle-валидацию, но **не сработает в игре**.
+
+**Где проявляется:** Oracle (`regex-oracle.ts`) использует matcher для валидации — принимает `?`-regex как валидный. ETL `iterative-optimizer` опирается на Oracle → может пропустить дефектный regex.
+
+**Mitigation:** Generator (compiler/factorizer) `?` НЕ производит — паттерн `?` в generated JSON не появляется. Тесты в `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` явно залочивают tokenizer-поведение с комментарием "PoE2 does NOT support, but tokenizer should not break".
+
+**Фикс (отложен):** Добавить runtime-warning в `matchPoE2Regex`/`matchQuotedGroup` при обнаружении `?` вне `(?!` контекста. Не ломая существующие тесты (тесты переделать на `expect(warn).toHaveBeenCalled()` вместо `expect(matched).toBe(true)`).
 
 ---
 
@@ -34,6 +31,8 @@
 | `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` |
 | `!` item-wide | ✅ | для top-level AND |
 | `^` start-of-block anchor | ✅ | |
+| `\d`, `\d{N,}` | ✅ | |
+| `?` optional | ❌ | **не работает в игре** (см. KI-1) |
 | Regex char limit ≈ 250 chars | ✅ | runtime split на 2+ parts (iter 50) |
 
 ---
@@ -51,28 +50,9 @@
 
 ---
 
-## Atmospheric Assets (public/atmosphere/)
+## UI Redesign — итог
 
-Все WebP подключены (после iter 71). Чистых кандидатов на интеграцию больше нет.
-
-| Asset | Использование |
-|-------|---------------|
-| `bg.webp` | Body background (desktop + mobile, iter 65) |
-| `bg-2x.webp` | `.poe-divider--ornate` texture (iter 65) |
-| `title-bg-4x.webp` | Visual reference only — `.poe-panel-header` reinterpret (iter 65) |
-| `early-access-button-underlay.webp` | Visual reference only — `.btn-cta` reinterpret (iter 65) |
-| `early-access-banner.webp` | `.poe-divider--banner` — HomePage section divider Features↔SeoBlock (iter 71) |
-| `news-bg-center.webp` | Mobile-only (`<lg`) hero backdrop, замена невидимому bas-relief (iter 71) |
-| `hero-bas-relief.webp` | lg+ hero backdrop, `mix-blend-screen` opacity 0.18 (iter 69) |
-| `hero-horned-warrior.webp` | xl+ L side ghost, opacity 0.28 (iter 69) |
-| `hero-monster-red.webp` | xl+ R side ghost, opacity 0.28 (iter 69) |
-| `hero-demon-blue.webp` | SeoBlock right-edge decoration, visible only when `<details>` open, opacity 0.10, lg+ only (iter 71) |
-
----
-
-## SEO-статус
-
-✅ Полный набор реализован. См. `docs/SEO_PLAN.md`.
+Атмосферная стилизация PoE2 завершена (iter 51-71). Все WebP из `public/atmosphere/` подключены. 4 CSS-примитива: `.poe-panel-header` / `.poe-divider` / `.poe-divider--banner` / `.btn-cta`. Топовая навигация — единый `TopNav` (iter 64).
 
 ---
 Контакты: Discord **woonderdad**

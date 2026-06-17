@@ -25,7 +25,7 @@
  */
 import { matchQuotedGroup, matchPoE2RegexItem, getItemSearchBlocks } from '../../src/core/poe2-regex-matcher.js';
 import { batchDPFactorize, applyDialectOptimizations } from '../../src/core/dp-factorizer.js';
-import { containsPoE2Grouping } from './compute-regex-core.js';
+import { containsPoE2Grouping, extractTemplateSuffix } from './compute-regex-core.js';
 import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from './path-d-transform.js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -437,24 +437,6 @@ function tryAddContextForShortRegex(
   }
 
   return null;
-}
-
-/**
- * Extract the "text suffix" from a rawTextTemplate.
- * Same logic as compute-regex.ts.
- */
-function extractTemplateSuffix(template: string): string {
-  let lastHashIdx = template.lastIndexOf('##');
-  if (lastHashIdx !== -1) {
-    lastHashIdx += 1;
-  } else {
-    lastHashIdx = template.lastIndexOf('#');
-  }
-  if (lastHashIdx === -1) return '';
-
-  let suffix = template.substring(lastHashIdx + 1);
-  suffix = suffix.replace(/^[^a-zA-Zа-яА-ЯёЁ]*/, '');
-  return suffix.trim();
 }
 
 /**

@@ -3,53 +3,49 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 71
+Task ID: 72
 Agent: main
-Task: iter 71 — Интеграция 3 оставшихся atmospheric WebP (hero-demon-blue, early-access-banner, news-bg-center). Низкий приоритет, минимальные изменения.
+Task: iter 72 — Верификация анализа кодовой базы, дедупликация ETL-утилит, удаление dead code, документирование Bug #1 (? tokenizer mismatch) как Known Issue.
 
 Work Log:
-- 1: Клон репо, чтение STATUS.md + worklog.md + AGENT_NAVIGATION.md (Pitfall 29 + атмосферные примитивы).
-- 2: Чтение HomePage.tsx, SeoBlock.tsx, CategoryLayout.tsx, 404.html, index.css (атмосферная секция + .home-seo-*).
-- 3: Проверка `public/atmosphere/*.webp` — все 3 целевых ассета присутствуют (hero-demon-blue 60 KB 639×514, early-access-banner 47 KB 1919×177, news-bg-center 121 KB 1681×260).
-- 4: Реализация Change 1 — `hero-demon-blue.webp` в SeoBlock:
-  - `SeoBlock.tsx`: добавлен `<img className="home-seo-demon ...">` после `<summary>`, внутри `<details>`. `aria-hidden`, `pointer-events-none`, `lg:block hidden` (lg+ only), `mix-blend-screen`, `max-w-[280px]`, positioned absolute right/top.
-  - `index.css`: `.home-seo-details` → `position: relative; overflow: hidden`. Новый класс `.home-seo-demon` (opacity 0 → 0.10 при `[open]`, transition 0.25s). `.home-seo-content` → `position: relative; z-index: 1` (поднимает контент над декорацией).
-- 5: Реализация Change 2 — `early-access-banner.webp` как `.poe-divider--banner`:
-  - `index.css`: новый класс `.poe-divider--banner` (height 24px, `background: url('early-access-banner.webp') center / auto 100% no-repeat`, opacity 0.35, без `mask-image` — у WebP уже есть alpha).
-  - `HomePage.tsx`: добавлен `<hr className="poe-divider--banner my-4" aria-hidden="true" />` между Features `<details>` и SeoBlock `<details>`.
-- 6: Реализация Change 3 — `news-bg-center.webp` как mobile hero backdrop:
-  - `HomePage.tsx`: добавлен `<img>` внутри hero-контейнера (после `hero-bas-relief.webp`). `lg:hidden` (mobile only), `opacity-[0.14]`, `mix-blend-screen`, `max-w-[640px]`. На <lg заменяет скрытый bas-relief, на lg+ не показывается (избегаем двойной декорации).
-- 7: Верификация:
-  - `npm install` (node_modules отсутствовал, package-lock.json не коммитим — `.gitignore` явно исключает).
-  - `npm run build` — OK (311 ms, 9 prerendered HTML). Vite-лог показывает `early-access-banner.webp referenced ... will remain unchanged to be resolved at runtime` — ожидаемо (CSS-asset в `/poe2-regex-ru/` префиксе, рантайм-резолв).
-  - `npx tsc -b` — без ошибок.
-  - `npx eslint HomePage.tsx SeoBlock.tsx` — без ошибок.
-- 8: `git checkout package-lock.json` — откат side-effect от `npm install` (проект использует pnpm).
-- 9: Документация:
-  - `STATUS.md` — iter 71 added, секция Atmospheric Assets со всеми WebP-ассетами.
-  - `AGENT_NAVIGATION.md` — header updated to iter 71; Pitfall 29 expanded (4 primitives + .poe-divider--banner); iter 71 leftover integration paragraph.
-  - `worklog.md` — iter 71 section, старые итерации сжаты до 1-строчного списка.
+- 1: Клон репо, чтение STATUS.md / worklog.md / AGENT_NAVIGATION.md / package.json.
+- 2: pnpm install + `pnpm test` — baseline 1144 тестов зелёные.
+- 3: Верификация анализа из чата (чтение исходников):
+  - **Bug #1 (?)** — ПОДТВЕРЖДЁН. `poe2-regex-matcher.ts:111-113` парсит `?` как `optional`, matcher успешно матчит. Тесты в `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` явно залочивают поведение с комментарием "PoE2 does NOT support".
+  - **Bug #5 (limits.ts escape в [...])** — НЕ ПОДТВЕРЖДЁН. Код корректно обрабатывает escape внутри char class.
+  - **Bug #6 (path-d-transform.ts escape edge case)** — НЕ ПОДТВЕРЖДЁН. На практике regex не заканчивается на `\`, edge case не реален.
+  - **Bug #9 (`hasYofication/yoficationPositions` dead data flow)** — АНАЛИЗ ОШИБСЯ. Поля ИСПОЛЬЗУЮТСЯ в `useCategoryPage.ts:950, 976` в `applyRuntimeYofication`.
+  - **Bug #10 (`normalizeTemplate` дубликат)** — ПОДТВЕРЖДЁН. `compute-regex-core.ts:43-48` и `compute-optimizations.ts:30-35` — идентичны.
+  - **Bug #11 (`extractTemplateSuffix` дубликат)** — ПОДТВЕРЖДЁН. `compute-regex-core.ts:61-89` и `iterative-optimizer.ts:446-458` — идентичны.
+  - **Bug #12 (`longestCommonSubstring` dead code)** — ПОДТВЕРЖДЁН. 32 строки + `@ts-expect-error`.
+- 4: Фикс Bug #10 — удалил дубликат `normalizeTemplate` из `compute-optimizations.ts`, импортировал из `compute-regex-core.ts`.
+- 5: Фикс Bug #11 — удалил дубликат `extractTemplateSuffix` из `iterative-optimizer.ts`, импортировал из `compute-regex-core.ts`.
+- 6: Фикс Bug #12 — удалил dead code `longestCommonSubstring` (32 строки) из `compute-optimizations.ts`.
+- 7: Верификация: `npx tsc -b` — OK (0 ошибок). `pnpm test` — 1144/1144 зелёные. `npx eslint` на изменённых файлах — 3 ошибки в `iterative-optimizer.ts`, проверил через `git stash` — все 3 предсуществовали (POE2_REGEX_LIMIT, ESTIMATED_MOD_OVERHEAD, itemBlocks — unused vars), не связаны с моими правками.
+- 8: Документация:
+  - `STATUS.md` — полная переработка. Удалены устаревшие таблицы (UI Redesign phases, Atmospheric Assets table). Добавлен Known Issue KI-1 (`?` tokenizer mismatch) с описанием, mitigation, и планом фикса.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 72. Добавлен Pitfall 30 (`?` tokenizer mismatch = Oracle FP risk).
+  - `worklog.md` — iter 72 section, старые итерации сжаты до 1-строчного списка.
 
 Stage Summary:
-- **iter 71 COMPLETE.** Все 3 leftover atmospheric WebP интегрированы минимально-инвазивно (1 новый `<hr>`, 2 новых `<img>`, 3 новых CSS-правила, 1 расширение существующего правила). Сборка зелёная, lint чистый.
+- **iter 72 COMPLETE.** 3 safe-фикса: дедупликация 2 ETL-утилит + удаление dead code. Bug #1 задокументирован как Known Issue KI-1 (фикс отложен — требует решения: ломать тесты или добавлять warning в matcher).
 - **Изменённые файлы (6):**
-  - `src/ui/pages/home/HomePage.tsx` (+ news-bg-center mobile backdrop `<img>`; + `.poe-divider--banner` `<hr>`)
-  - `src/ui/pages/home/SeoBlock.tsx` (+ hero-demon-blue decoration `<img>`)
-  - `src/index.css` (+ `.poe-divider--banner`; + `.home-seo-demon` + `[open]` fade; `.home-seo-details` → `relative; overflow: hidden`; `.home-seo-content` → `relative; z-index: 1`)
-  - `STATUS.md` (iter 71, Atmospheric Assets table)
-  - `AGENT_NAVIGATION.md` (header + `public/atmosphere/` row + Pitfall 29)
-  - `worklog.md` (iter 71 section)
-- **Точка остановки:** iter 71 done. Открытых Known Issues нет. Чистых кандидатов на интеграцию атмосферных WebP больше нет. Следующая итерация — на усмотрение владельца (возможные направления: visual review новых декораций на live-странице, оптимизация bundle size (index.js 503 KB), либо функциональные задачи).
+  - `scripts/etl/compute-optimizations.ts` (−47 строк: -17 дубликат `normalizeTemplate`, -32 dead code `longestCommonSubstring`)
+  - `scripts/etl/iterative-optimizer.ts` (−16 строк: дубликат `extractTemplateSuffix` удалён, импорт из `compute-regex-core.ts`)
+  - `STATUS.md` (полная переработка, ~50 строк против ~80 ранее)
+  - `AGENT_NAVIGATION.md` (header iter 72 + Pitfall 30)
+  - `worklog.md` (iter 72 + сжатие)
+- **Точка остановки:** iter 72 done. Открыт Known Issue KI-1 (`?` tokenizer mismatch) — нужен дизайн-ф decision: (a) ломать тесты в `poe2-regex-matcher.test.ts` и делать `?` fatal-error, или (b) добавить runtime-warning в matcher + Oracle. Прочие архитектурные долги (Bug #8 `useCategoryPage` 1325 строк, Bug #13 skip ranged regexes) — не тронуты, низкий приоритет. Все 1144 теста зелёные, tsc -b чистый.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
-- **iter 70** (Phase 15): Visual review lg+/xl+; filter contrast fix (text-dim→text-muted); `.btn-cta` OLED glow toned; `bg-forest.webp` deleted.
-- **iter 69** (Phase 14): HomePage hero decorations — bas-relief backdrop + 2 side ghosts на lg+/xl+.
-- **iter 68** (Phase 13): `.poe-panel-header--inline` применён в JSX на 8 category pages; TopNav tab font 13px→14px.
-- **iter 67** (Phase 12): Vignette softened 0.55→0.40; gold dots hidden ≤380px; `.poe-panel-header--inline` CSS; new atmosphere assets.
-- **iter 65-66** (Phase 11 + cleanup): Атмосферная стилизация PoE2 — `.poe-panel-header`; `.poe-divider` / `.poe-divider--ornate`; `.btn-cta`; фон `bg.webp` + vignette. Cleanup unused i18n ключи.
+- **iter 71** (Phase 16): Интеграция 3 leftover atmospheric WebP (`hero-demon-blue`, `early-access-banner`, `news-bg-center`).
+- **iter 70** (Phase 15): Visual review lg+/xl+; filter contrast fix; `bg-forest.webp` deleted.
+- **iter 69** (Phase 14): HomePage hero decorations — bas-relief backdrop + 2 side ghosts.
+- **iter 68** (Phase 13): `.poe-panel-header--inline` в JSX на 8 category pages; TopNav tab font 14px.
+- **iter 65-67** (Phase 11-12): Атмосферная стилизация PoE2 — `.poe-panel-header`, `.poe-divider`, `.btn-cta`, фон `bg.webp` + vignette.
 - **iter 64** (Phase 10): Sidebar + Header + MobileNavTabs → TopNav.
 - **iter 62-63**: Features в `<details>`; palette consistency; README rewrite.
 - **iter ≤61**: MobileRegexBar; StatusPanel; HomePage compaction; nav «режимы»; CSS tokens + CategoryLayout + RegexOutput.

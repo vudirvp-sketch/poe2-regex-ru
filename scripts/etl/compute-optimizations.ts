@@ -19,20 +19,9 @@ import {
   applyDialectOptimizations,
 } from '../../src/core/dp-factorizer.js';
 import { generateTruncatedSuffixes, containsPoE2Grouping } from './compute-regex.js';
+import { normalizeTemplate } from './compute-regex-core.js';
 import { matchQuotedGroup } from '../../src/core/poe2-regex-matcher.js';
 import { pathDTransform, hasPathDGroup, findOverLimitEntries, POE2_REGEX_CHAR_LIMIT } from './path-d-transform.js';
-
-/**
- * Normalize a rawTextTemplate into a "family key".
- * Replaces ## with # so that templates differing only in ## vs #
- * are treated as the same family.
- */
-function normalizeTemplate(template: string): string {
-  return template
-    .replace(/##/g, '#')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 /**
  * Compute optimizations for all tokens in a category.
@@ -296,42 +285,4 @@ export function computeOptimizations(
   }
 
   return result;
-}
-
-/**
- * Find the longest common substring of two strings.
- * Utility for potential future use (currently unused but kept for reference).
- */
-// @ts-expect-error Kept for potential future use
-function longestCommonSubstring(s1: string, s2: string): string {
-  if (s1.length > s2.length) {
-    [s1, s2] = [s2, s1];
-  }
-
-  const n = s1.length;
-  const m = s2.length;
-
-  let maxLen = 0;
-  let maxEnd = 0;
-
-  let prev = new Uint16Array(n + 1);
-  let curr = new Uint16Array(n + 1);
-
-  for (let j = 1; j <= m; j++) {
-    for (let i = 1; i <= n; i++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        curr[i] = prev[i - 1] + 1;
-        if (curr[i] > maxLen) {
-          maxLen = curr[i];
-          maxEnd = i;
-        }
-      } else {
-        curr[i] = 0;
-      }
-    }
-    [prev, curr] = [curr, prev];
-    curr.fill(0);
-  }
-
-  return s1.slice(maxEnd - maxLen, maxEnd);
 }
