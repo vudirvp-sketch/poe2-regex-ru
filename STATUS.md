@@ -2,7 +2,7 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 77
+> **Текущая итерация:** 78
 
 ---
 
@@ -16,28 +16,23 @@
 
 | Приоритет | Что | Сложность | Риск |
 |-----------|-----|-----------|------|
-| 🔴 высокий | Bug #8 — `useCategoryPage.ts` 1325 строк → разбить на 4 hooks (`useCategoryData`/`useRegexBuilder`/`useUrlSync`/`useFilterActions`) | высокая | высокий (UI регрессия) |
-| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:488` skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle | низкая | низкий |
+| 🔴 высокий | Bug #8 (Phase 2) — split `useCategoryPage` hook на 4 hooks (`useCategoryData`/`useRegexBuilder`/`useUrlSync`/`useFilterActions`). Phase 1 (extract pure helpers) **done iter 78** — `useCategoryPage.ts` 1325 → 486 строк, pure helpers moved to `category-ast-utils.ts`. Phase 2 (split hook + 3 setState-in-effect в WaystonePage/JewelPage/TabletPage) требует API change affecting all 8 category pages. | высокая | высокий (UI регрессия) |
+| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:470` (was :488 in original bug report) skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle. **Analysis iter 78:** skip не 1-line fix — removing condition изменяет ETL output (public/generated/*.json). Требует careful analysis Oracle behavior с number patterns + ETL rerun. | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #16 — `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` magic number → `[0, 999]` или динамически | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #17 — `poe2-regex-matcher.ts:141` negated char class `from: -1, to: -1` хак → `negated: boolean` флаг | низкая | низкий (engine-internal) |
-| 🟢 низкий | Lint cleanup остаток — 7 проблем (4 `setState-in-effect` tied to Bug #8 + 2 library warnings + 1 `exhaustive-deps` tied to Bug #8) | средняя | низкий-средний |
+| 🟢 низкий | Lint cleanup остаток — 5 problems (3 `setState-in-effect` tied to Bug #8 Phase 2 + 2 library warnings unfixable) | средняя | низкий-средний |
 
 ---
 
 ## История закрытых KI
 
 ### KI-3 (resolved iter 76) — poe2db.tw reverted text forms
-
-Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов waystone/tablet к OLD-формам. iter 75 обнаружил это и заблокировал data-level фикс KI-2 (ETL rerun), потому что OLD-формы сломали бы тесты.
-
-**Решение iter 76 (17 июня 2026):** проверка `curl https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` подтвердила 107 matches (= OLD forms). OLD forms стабильны уже > 1 года. Решено: OLD forms правильные, ETL запущен с исходными (pre-iter-75) хардкод-ключами.
+Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов waystone/tablet к OLD-формам. iter 75 обнаружил это и заблокировал data-level фикс KI-2 (ETL rerun). **Решение iter 76:** OLD forms стабильны > 1 года, ETL запущен с исходными (pre-iter-75) хардкод-ключами.
 
 ### KI-2 (closed iter 76) — stale hardcoded implicit-set family keys
-
 `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` были stale. iter 76 reverted к original OLD-form set + ETL rerun: 160 waystone + 3 tablet implicit-set bonus токенов отфильтровано, 5+5 implicit tokens добавлено.
 
 ### KI-1 (closed iter 73) — `?` tokenizer mismatch
-
 `src/core/poe2-regex-matcher.ts` парсил `?` как optional quantifier; PoE2 in-game `?` НЕ поддерживается. Fix: `hasUnsupportedOptional()` detector + runtime warn (dedup Set) + `OracleResult.unsupportedSyntax` flag + ETL `iterative-optimizer` reject.
 
 ---
@@ -73,7 +68,6 @@
 ---
 
 ## UI Redesign — итог
-
 Атмосферная стилизация PoE2 завершена (iter 51-71). Все WebP из `public/atmosphere/` подключены. 4 CSS-примитива: `.poe-panel-header` / `.poe-divider` / `.poe-divider--banner` / `.btn-cta`. Топовая навигация — единый `TopNav` (iter 64).
 
 ---
