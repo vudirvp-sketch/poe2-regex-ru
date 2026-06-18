@@ -466,11 +466,12 @@ function runIteration(
       const rawText = token.rawText.ru;
       if (!regex || !rawText) continue;
 
-      // Skip regexes with number patterns (Oracle can't validate them alone)
-      if (regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')) {
-        totalRegexLen += regex.length;
-        continue;
-      }
+      // Bug #13 (closed iter 80): Removed skip for .* [0-9] [1-9] patterns.
+      // token.regex.ru is always a literal suffix (no number patterns, no .* bridges).
+      // Number patterns are generated at runtime by the compiler from RANGE AST nodes.
+      // If future ETL changes produce regexes with number patterns, Oracle validation
+      // must be enhanced (currently matchQuotedGroup validates flat text, which is
+      // correct for suffix-only regexes).
 
       const isFN = hasFN(regex, rawText);
       if (isFN) catFN++;
@@ -885,10 +886,7 @@ export function runIterativeOptimization(
       const rawText = token.rawText.ru;
       if (!regex || !rawText) continue;
 
-      if (regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')) {
-        catLen += regex.length;
-        continue;
-      }
+      // Bug #13 (closed iter 80): Removed skip for .* [0-9] [1-9] — see line 469 comment.
 
       if (hasFN(regex, rawText)) catFN++;
       catFP += countFP(regex, token.id, tokens);

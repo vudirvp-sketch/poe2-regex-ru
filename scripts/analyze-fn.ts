@@ -42,8 +42,8 @@ for (const file of jsonFiles) {
     const rawText = token.rawText?.ru || '';
     if (!regex || !rawText) continue;
 
-    // Skip regexes with number patterns (Oracle can't validate them alone)
-    if (regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')) continue;
+    // Bug #13 (closed iter 80): Removed skip for .* [0-9] [1-9] patterns.
+    // token.regex.ru is always a literal suffix — see iterative-optimizer.ts line 469.
 
     // Check FN
     if (!matchQuotedGroup(regex, rawText)) {

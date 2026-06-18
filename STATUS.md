@@ -2,7 +2,7 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 79
+> **Текущая итерация:** 80
 
 ---
 
@@ -16,7 +16,6 @@
 
 | Приоритет | Что | Сложность | Риск |
 |-----------|-----|-----------|------|
-| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:470` skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle. **Analysis iter 78:** skip не 1-line fix — removing condition изменяет ETL output (public/generated/*.json). Требует careful analysis Oracle behavior с number patterns + ETL rerun. | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #16 — `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` magic number → `[0, 999]` или динамически | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #17 — `poe2-regex-matcher.ts:141` negated char class `from: -1, to: -1` хак → `negated: boolean` флаг | низкая | низкий (engine-internal) |
 | 🟢 низкий | Lint cleanup остаток — 2 problems (2 library warnings unfixable: `useVirtualizer` returns non-memoizable functions). **iter 79 closed** все 3 setState-in-effect errors. | — | — |
@@ -24,6 +23,9 @@
 ---
 
 ## История закрытых KI
+
+### Bug #13 (closed iter 80) — iterative-optimizer skip `.*[0-9][1-9]`
+Skip условие `regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')` было dead code — 0 из 1697 token.regex.ru содержат эти паттерны (все regex — literal suffix, number patterns генерируются runtime compiler из RANGE AST). Skip удалён из 4 мест (iterative-optimizer.ts ×2, run-etl.ts, analyze-fn.ts). ETL rerun подтверждает: JSON output идентичен (отличается только version timestamp).
 
 ### KI-3 (resolved iter 76) — poe2db.tw reverted text forms
 Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов waystone/tablet к OLD-формам. iter 75 обнаружил это и заблокировал data-level фикс KI-2 (ETL rerun). **Решение iter 76:** OLD forms стабильны > 1 года, ETL запущен с исходными (pre-iter-75) хардкод-ключами.

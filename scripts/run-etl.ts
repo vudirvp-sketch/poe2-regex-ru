@@ -1363,10 +1363,9 @@ function validateGeneratedRegexes(): void {
       const rawText = token.rawText?.ru;
       if (!regex || !rawText) continue;
 
-      // Skip regexes that contain number patterns — these use prefix anchoring
-      // and the Oracle can't validate them against rawText alone (needs game text)
-      // We validate only LITERAL regexes (no .* or number patterns)
-      if (regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')) continue;
+      // Bug #13 (closed iter 80): Removed skip for .* [0-9] [1-9] patterns.
+      // token.regex.ru is always a literal suffix — number patterns are runtime-only.
+      // If future ETL produces regexes with number patterns, Oracle must be enhanced.
 
       const targetTexts = [rawText.toLowerCase()];
       const result = validateRegex(regex, targetTexts, [], allModTextsLower);
