@@ -62,7 +62,7 @@ function cssEscapeId(id: string): string {
  * Determine column layout from thead headers.
  * Returns a mapping of column indices to their semantic roles.
  */
-function detectColumnLayout($: cheerio.CheerioAPI, table: cheerio.Cheerio<any>): Map<string, number> {
+function detectColumnLayout($: cheerio.CheerioAPI, table: cheerio.Cheerio<unknown>): Map<string, number> {
   const layout = new Map<string, number>();
   const headers = $(table).find('thead th');
 
@@ -90,7 +90,7 @@ function detectColumnLayout($: cheerio.CheerioAPI, table: cheerio.Cheerio<any>):
  * - "Суффикс" -> 'suffix'
  * - "Осквернено" or link containing "Corrupted" -> 'corrupted'
  */
-function parseAffixType($: cheerio.CheerioAPI, cell: cheerio.Cheerio<any>): 'prefix' | 'suffix' {
+function parseAffixType($: cheerio.CheerioAPI, cell: cheerio.Cheerio<unknown>): 'prefix' | 'suffix' {
   const text = $(cell).text().trim().toLowerCase();
 
   // Check for corrupted link — treat as suffix for type purposes
@@ -109,7 +109,7 @@ function parseAffixType($: cheerio.CheerioAPI, cell: cheerio.Cheerio<any>): 'pre
 /**
  * Extract tags from data-tag attributes within a cell.
  */
-function extractTags($: cheerio.CheerioAPI, cell: cheerio.Cheerio<any>): string[] {
+function extractTags($: cheerio.CheerioAPI, cell: cheerio.Cheerio<unknown>): string[] {
   const tags: string[] = [];
   $(cell).find('[data-tag]').each((_, el) => {
     const tag = $(el).attr('data-tag');
@@ -124,7 +124,7 @@ function extractTags($: cheerio.CheerioAPI, cell: cheerio.Cheerio<any>): string[
  *   ?s=Data%5CMods%2FStrength1  ->  Strength1
  *   https://cdn.poe2db.tw/cache2/ru/Poe_Data_Mods_hover/<hash>
  */
-function extractModCode($: cheerio.CheerioAPI, row: cheerio.Cheerio<any>): string | undefined {
+function extractModCode($: cheerio.CheerioAPI, row: cheerio.Cheerio<unknown>): string | undefined {
   // Check for <i class="fas fa-info-circle" data-hover="..."> (relics and some pages)
   const infoIcon = $(row).find('i.fas.fa-info-circle[data-hover]');
   if (infoIcon.length > 0) {
@@ -234,8 +234,8 @@ export function parseAllTypeATabs(html: string): Record<string, RawModData[]> {
  */
 function extractRow(
   $: cheerio.CheerioAPI,
-  row: cheerio.Cheerio<any>,
-  table: cheerio.Cheerio<any>,
+  row: cheerio.Cheerio<unknown>,
+  table: cheerio.Cheerio<unknown>,
   defaultOrigin: ModOrigin
 ): RawModData | null {
   const cells = row.find('td');
@@ -250,11 +250,10 @@ function extractRow(
   let affix: 'prefix' | 'suffix' = 'suffix';
   let descriptionHtml = '';
   let secondaryText: string | undefined;
-  let modCode: string | undefined;
   let tags: string[] = [];
 
   // Helper: get cell by semantic role or fallback to index
-  const getCell = (role: string, fallbackIndex: number): any => {
+  const getCell = (role: string, fallbackIndex: number): cheerio.Cheerio<unknown> | null => {
     const idx = layout.get(role);
     if (idx !== undefined && idx < numCells) return cells[idx];
     if (fallbackIndex >= 0 && fallbackIndex < numCells) return cells[fallbackIndex];
@@ -337,7 +336,7 @@ function extractRow(
   if (descText.length === 0) return null;
 
   // Extract mod code
-  modCode = extractModCode($, row);
+  const modCode = extractModCode($, row);
 
   // Extract secondary text (internal stat identifiers)
   const secondary = row.find('span.secondary');

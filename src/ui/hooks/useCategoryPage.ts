@@ -790,7 +790,7 @@ export function buildAstFromSelections(
 
         const numberFollowedByPercent = group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
-          return template && /^[\+]?##%/.test(template);
+          return template && /^[+]?##%/.test(template);
         });
         const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
 

@@ -22,7 +22,7 @@ import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
 import { validateRegex, batchValidateItem } from '../src/core/regex-oracle.js';
 import type { GameItemText } from '../src/core/poe2-regex-matcher.js';
-import type { ModOrigin, JewelType } from '../src/shared/types.js';
+import type { ModOrigin, JewelType, CategoryData, GameToken, OptimizationEntry } from '../src/shared/types.js';
 import type { NormalizedMod } from './etl/normalize.js';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -218,7 +218,7 @@ function applyI18nOverrides() {
 
   for (const jsonFile of jsonFiles) {
     const filePath = path.join(OUTPUT_DIR, jsonFile);
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as CategoryData;
 
     // First pass: apply rawText/rawTextTemplate overrides to all tokens
     let patched = 0;
@@ -238,7 +238,7 @@ function applyI18nOverrides() {
     // Second pass: recompute regex.ru for ALL overridden tokens
     // using the same template-family algorithm as compute-regex.ts.
     // Build exclusion set from all tokens' rawText (including the already-patched ones).
-    const allTokenTexts = data.tokens.map((t: any) => t.rawText.ru.toLowerCase());
+    const allTokenTexts = data.tokens.map((t: GameToken) => t.rawText.ru.toLowerCase());
     const exclusionSubs = new Set<string>();
     for (const text of allTokenTexts) {
       for (let len = 1; len <= Math.min(text.length, 30); len++) {
@@ -392,7 +392,7 @@ function findShortestUniqueSubstring(target: string, exclusionSubs: Set<string>,
 function normalizeRawTextForMatching(text: string): string {
   return text
     // Replace numeric ranges like (5—10) or (5-10) with placeholder
-    .replace(/\([+-]?\d+(?:\.\d+)?\s*[—–\-]\s*[+-]?\d+(?:\.\d+)?\)/g, '##')
+    .replace(/\([+-]?\d+(?:\.\d+)?\s*[—–-]\s*[+-]?\d+(?:\.\d+)?\)/g, '##')
     // Replace standalone numbers (with optional + or -)
     .replace(/([+-]?\d+(?:\.\d+)?)/g, '#')
     // Normalize whitespace
@@ -855,20 +855,20 @@ function patchOptimizationEntries(): void {
 
   for (const jsonFile of jsonFiles) {
     const filePath = path.join(OUTPUT_DIR, jsonFile);
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as CategoryData;
     const tokens = data.tokens;
     const optTable = data.optimizationTable;
     if (!optTable || !tokens) continue;
 
     // Build token lookup
-    const tokenById = new Map<string, any>();
+    const tokenById = new Map<string, GameToken>();
     for (const token of tokens) {
       tokenById.set(token.id, token);
     }
 
     let filePatched = 0;
 
-    for (const [, entry] of Object.entries(optTable) as [string, any][]) {
+    for (const [, entry] of Object.entries(optTable) as [string, OptimizationEntry][]) {
       const entryIds: string[] = entry.ids || [];
 
       // Collect regexPrefixContext from all covered tokens
@@ -1346,12 +1346,12 @@ function validateGeneratedRegexes(): void {
 
   for (const jsonFile of jsonFiles) {
     const filePath = path.join(OUTPUT_DIR, jsonFile);
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as CategoryData;
     const tokens = data.tokens;
     if (!tokens || tokens.length === 0) continue;
 
     const category = data.category || jsonFile.replace('.json', '');
-    const allModTexts = tokens.map((t: any) => t.rawText?.ru ?? '').filter((t: string) => t.length > 0);
+    const allModTexts = tokens.map((t: GameToken) => t.rawText?.ru ?? '').filter((t: string) => t.length > 0);
     const allModTextsLower = allModTexts.map((t: string) => t.toLowerCase());
 
     let catFP = 0;
@@ -1427,14 +1427,14 @@ function validateGeneratedRegexesItem(): void {
 
   for (const jsonFile of jsonFiles) {
     const filePath = path.join(OUTPUT_DIR, jsonFile);
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as CategoryData;
     const tokens = data.tokens;
     if (!tokens || tokens.length === 0) continue;
 
     const category = data.category || jsonFile.replace('.json', '');
 
     // Build GameItemText items: each token = one item with its rawText as a single mod block
-    const allItems: { id: string; text: GameItemText }[] = tokens.map((t: any) => ({
+    const allItems: { id: string; text: GameItemText }[] = tokens.map((t: GameToken) => ({
       id: t.id,
       text: { mods: [t.rawText?.ru ?? ''] },
     }));
@@ -1452,8 +1452,8 @@ function validateGeneratedRegexesItem(): void {
     // Compile the regex the same way the UI would, including regexPrefixContext
     // and regexExclude, so the Oracle reports accurate FP counts.
     const regexes = tokens
-      .filter((t: any) => t.regex?.ru && t.rawText?.ru)
-      .map((t: any) => {
+      .filter((t: GameToken) => t.regex?.ru && t.rawText?.ru)
+      .map((t: GameToken) => {
         let regex = t.regex.ru;
         const excludes: string[] = t.regexExclude?.ru ?? [];
         const context: string = t.regexPrefixContext?.ru ?? '';

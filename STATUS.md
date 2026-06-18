@@ -2,13 +2,25 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 76
+> **Текущая итерация:** 77
 
 ---
 
 ## Known Issues
 
 На данный момент открытых KI нет. Все Known Issues (KI-1, KI-2, KI-3) закрыты.
+
+---
+
+## Открытые долги (отдельные итерации)
+
+| Приоритет | Что | Сложность | Риск |
+|-----------|-----|-----------|------|
+| 🔴 высокий | Bug #8 — `useCategoryPage.ts` 1325 строк → разбить на 4 hooks (`useCategoryData`/`useRegexBuilder`/`useUrlSync`/`useFilterActions`) | высокая | высокий (UI регрессия) |
+| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:488` skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle | низкая | низкий |
+| 🟢 низкий | Bug #16 — `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` magic number → `[0, 999]` или динамически | низкая | средний (ETL behavior) |
+| 🟢 низкий | Bug #17 — `poe2-regex-matcher.ts:141` negated char class `from: -1, to: -1` хак → `negated: boolean` флаг | низкая | низкий (engine-internal) |
+| 🟢 низкий | Lint cleanup остаток — 7 проблем (4 `setState-in-effect` tied to Bug #8 + 2 library warnings + 1 `exhaustive-deps` tied to Bug #8) | средняя | низкий-средний |
 
 ---
 
@@ -20,18 +32,9 @@
 
 **Решение iter 76 (17 июня 2026):** проверка `curl https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` подтвердила 107 matches (= OLD forms). OLD forms стабильны уже > 1 года. Решено: OLD forms правильные, ETL запущен с исходными (pre-iter-75) хардкод-ключами.
 
-**Что сделано iter 76:**
-- `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` reverted к original 4 ключам (pre-iter-75)
-- `TABLET_IMPLICIT_SET_FAMILY_KEYS` reverted к `% увеличение количества находимых на карте путевых камней` (с typo `%` — матч с source HTML verbatim)
-- ETL rerun: waystone 302 raw → 156 final (filtered 160 implicit-set bonus + added 5 implicit), tablet 86 raw → 84 final (filtered 3 + added 5)
-- Test threshold: waystone `150-200` → `140-200` (commented: OLD ~147, NEW ~156)
-- Tests restructured: проверяют что (a) хардкод-ключи присутствуют в source HTML и (b) post-ETL JSON НЕ содержит implicit-set bonus familyKeys (filter сработал)
-
 ### KI-2 (closed iter 76) — stale hardcoded implicit-set family keys
 
-`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` были stale (не матчили actual `familyKey.ru` в source HTML). Как результат, `isImplicitSetBonus` был no-op, и implicit-set bonus токены не фильтровались.
-
-**iter 76 fix (data-level):** ключи reverted к original OLD-form set. ETL rerun применил фильтр корректно — 160 waystone + 3 tablet implicit-set bonus токенов удалено, заменено 5 + 5 implicit tokens с reversed regex format. Tests в `tests/etl/normalize.test.ts` (5 тестов в KI-2 блоке) подтверждают и key correctness (vs source HTML) и filter execution (vs generated JSON).
+`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` были stale. iter 76 reverted к original OLD-form set + ETL rerun: 160 waystone + 3 tablet implicit-set bonus токенов отфильтровано, 5+5 implicit tokens добавлено.
 
 ### KI-1 (closed iter 73) — `?` tokenizer mismatch
 

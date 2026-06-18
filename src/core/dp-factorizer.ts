@@ -664,7 +664,6 @@ export function batchDPFactorize(
       const siblings = unique.filter(r => r !== regex && r.startsWith(prefix));
       if (siblings.length > 0) {
         groups.set(prefix, [regex]);
-        placed = true;
         break;
       }
     }

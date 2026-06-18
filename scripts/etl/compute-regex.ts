@@ -37,7 +37,6 @@ import {
   extractTemplateSuffix,
   extractExtendedSuffix,
   extractTemplatePrefix,
-  isSuffixUniqueInCategory,
   findShortestUniqueSuffix,
   containsPoE2Grouping,
   regexMatchesRawText,

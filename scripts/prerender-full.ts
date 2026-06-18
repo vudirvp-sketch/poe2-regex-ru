@@ -27,6 +27,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, symlinkSync, statSync } from 'fs';
 import { resolve, join, extname } from 'path';
 import { createServer, type Server } from 'http';
+import type { Browser, BrowserType } from 'playwright';
 
 const PORT = 8765;
 const APP_BASE = '/poe2-regex-ru';
@@ -102,7 +103,7 @@ function startServer(rootDir: string): Promise<Server> {
 
 async function main() {
   // Dynamic import of Playwright — graceful if not installed
-  let chromium: any;
+  let chromium: BrowserType;
   try {
     const pw = await import('playwright');
     chromium = pw.chromium;
@@ -133,13 +134,14 @@ async function main() {
   let server: Server;
   try {
     server = await startServer(serveDir);
-  } catch (err: any) {
-    console.error(`[prerender-full] Failed to start server: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[prerender-full] Failed to start server: ${message}`);
     rmSync(serveDir, { recursive: true, force: true });
     process.exit(1);
   }
 
-  let browser: any;
+  let browser: Browser | undefined;
   let injected = 0;
   let failed = 0;
 
@@ -153,8 +155,9 @@ async function main() {
 
       try {
         await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-      } catch (err: any) {
-        console.warn(`[prerender-full] Navigation timeout for ${routePath}: ${err.message}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(`[prerender-full] Navigation timeout for ${routePath}: ${message}`);
         failed++;
         continue;
       }
@@ -184,8 +187,9 @@ async function main() {
       let rootHtml: string;
       try {
         rootHtml = await page.$eval('#root', (el: HTMLElement) => el.innerHTML);
-      } catch (err: any) {
-        console.warn(`[prerender-full] Failed to extract #root HTML for ${routePath}: ${err.message}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(`[prerender-full] Failed to extract #root HTML for ${routePath}: ${message}`);
         failed++;
         continue;
       }
@@ -218,8 +222,9 @@ async function main() {
     }
 
     await browser.close();
-  } catch (err: any) {
-    console.error(`[prerender-full] Error: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[prerender-full] Error: ${message}`);
     if (browser) {
       try { await browser.close(); } catch { /* ignore */ }
     }

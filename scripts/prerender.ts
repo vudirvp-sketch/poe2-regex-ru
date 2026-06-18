@@ -15,7 +15,7 @@
  * (automatically called via `pnpm build`)
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve } from 'path';
 
 const BASE_URL = 'https://vudirvp-sketch.github.io/poe2-regex-ru';
 

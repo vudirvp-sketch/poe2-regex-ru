@@ -62,7 +62,6 @@ export interface RawModTier {
   modFamily: string[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface ModsViewData {
   gen: Record<string, string>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,7 +186,7 @@ function extractCodeFromHover(hover: string): string | undefined {
   // Try decoded form: ?s=Data\Mods\<Code>
   try {
     const decoded = decodeURIComponent(hover);
-    const decodedMatch = decoded.match(/Mods[\/\\]([^&"'\s]+)/);
+    const decodedMatch = decoded.match(/Mods[/\\]([^&"'\s]+)/);
     if (decodedMatch) return decodedMatch[1];
   } catch {
     // ignore

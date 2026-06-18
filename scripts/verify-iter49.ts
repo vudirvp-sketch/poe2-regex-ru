@@ -9,7 +9,7 @@
  * Run: npx tsx scripts/verify-iter49.ts
  */
 import { compile } from '../src/core/compiler.js';
-import { matchPoE2Regex, matchPoE2RegexItem } from '../src/core/poe2-regex-matcher.js';
+import { matchPoE2Regex } from '../src/core/poe2-regex-matcher.js';
 import { literal, and, or, exclude } from '../src/core/ast.js';
 
 // ─── Test 1: Multi-LITERAL + EXCLUDE inside OR — was nested quotes, now single quoted group ───

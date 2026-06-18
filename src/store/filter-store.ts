@@ -269,7 +269,7 @@ export function createFilterStore() {
         Array.isArray(data.e) ? data.e as string[] : []
       );
       // Deserialize perTokenRanges from compact array format
-      let perTokenRanges: Record<string, TokenRangeOverride> = {};
+      const perTokenRanges: Record<string, TokenRangeOverride> = {};
       if (Array.isArray(data.r)) {
         for (const entry of data.r as (string | number | null)[][]) {
           const tokenId = entry[0] as string;

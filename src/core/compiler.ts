@@ -139,7 +139,7 @@ function normalizeAst(node: ASTNode): ASTNode {
 
         // Collect exclude values
         const exNode = excludeChild.child;
-        let excludeValues: string[] = [];
+        let excludeValues: string[];
         if (exNode.type === 'LITERAL') {
           excludeValues = [exNode.value];
         } else if (exNode.type === 'OR') {

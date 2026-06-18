@@ -11,7 +11,6 @@ import type { RegexResult } from './compute-regex.js';
 import {
   normalizeTemplate,
   extractTemplatePrefix,
-  extractTemplateSuffix,
   isSuffixUniqueInCategory,
   containsPoE2Grouping,
   regexMatchesRawText,
@@ -383,7 +382,7 @@ function checkYoficationLegacy(
   const yoficationPositions: number[] = [];
 
   if (targetToken.hasYofication && targetToken.yoficationPositions.length > 0) {
-    let yoficatedCandidate = bestCandidate;
+    const yoficatedCandidate = bestCandidate;
     for (const pos of targetToken.yoficationPositions) {
       const candidatePos = bestCandidate.indexOf(primaryText[pos]);
       if (candidatePos !== -1 && !exclusionSubstrings.has(

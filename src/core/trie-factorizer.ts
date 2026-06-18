@@ -521,7 +521,6 @@ export function batchFactorize(
 
       if (groups.has(prefix)) {
         groups.get(prefix)!.push(regex);
-        placed = true;
         break;
       }
 
@@ -539,7 +538,6 @@ export function batchFactorize(
       const siblings = allRegexes.filter(r => r !== regex && r.startsWith(prefix));
       if (siblings.length > 0) {
         groups.set(prefix, [regex]);
-        placed = true;
         break;
       }
     }

@@ -3,65 +3,89 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 76
+Task ID: 77
 Agent: main
-Task: iter 76 — KI-3 resolution + KI-2 data-level fix. Verified poe2db.tw OLD forms stable >1 year, reverted hardcoded keys to original (pre-iter-75) OLD-form set, ran ETL, updated tests + thresholds, all 1157 tests green.
+Task: iter 77 — Lint cleanup (44→7 problems). Исправлено 37 lint issues (33 errors + 4 warnings) в 14 файлах. Все 1157 тестов зелёные. `tsc -b` чистый. Осталось 7 problems (4 setState-in-effect tied to Bug #8, 2 library warnings, 1 exhaustive-deps tied to Bug #8).
 
 Work Log:
-- 1: Клон репо `git clone https://github.com/vudirvp-sketch/poe2-regex-ru.git`. `npm install` (81 packages). Baseline: `tsc -b` чистый, `vitest run` — 1155 passed (1152 baseline + 3 KI-2 expected-fail converted to it). Совпадает с iter 75 worklog.
-- 2: KI-3 verification. `curl https://poe2db.tw/ru/Waystones` (200 OK, 363KB). Live HTML имеет 107 matches для "находимых в области" (OLD form), 0 matches для "увеличение количества путевых камней" (NEW form). Cached HTML (от yesterday's "pnpm etl:fresh" commit) идентичен по mod-text content (diff = script URLs + CSRF tokens + trailing whitespace). OLD forms подтверждены стабильные >1 года.
-- 3: Discovery — "эффективность монстров" stat не существует на live poe2db.tw (0 matches для "больше эффективности монстров" и 0 для "увеличение эффективности монстров"). Stat был REMOVED из waystone mods. Но в cached/source HTML ОН есть (1 instance of `эффективность монстров` в explicitMod тексте "свойствами, не дарующими эффективность монстров"). Это значит iter 75 worklog утверждение "монстр effectiveness REMOVED" было неточным — stat присутствует, но в другой форме. После ETL parsing normalized familyKey = `#% увеличение эффективности монстров` (OLD-OLD form).
-- 4: Backup `public/generated/*.json` → `/tmp/iter76-backup/`. Первый ETL run с iter 75 hardcoded keys (NEW-form): waystone 302 tokens, tablet 86 tokens. Filter was no-op (NEW keys не матчат OLD-form source). 3 теста fail: waystone threshold (150-200 vs 302), 2 KI-2 key match теста.
-- 5: Python analysis: какие familyKeys присутствуют в new waystone.json/tablet.json. Все 4 original waystone keys (pre-iter-75) присутствуют: `На #% больше находимых в области путевых камней` (95 tokens), `#% увеличение эффективности монстров` (4), `На #% больше редкости находимых в этой области предметов` (32), `На #% больше размера групп монстров` (29). Tablet original key `% увеличение количества находимых на карте путевых камней` (typo `%` без `#`) присутствует (3 tokens). iter 75 "fixed" keys (NEW-form) НЕ матчат — 0 tokens каждый.
-- 6: Updated `scripts/etl/normalize.ts:389-403`:
-  - WAYSTONE_IMPLICIT_SET_FAMILY_KEYS: reverted к 4 original OLD-form keys (pre-iter-75).
-  - TABLET_IMPLICIT_SET_FAMILY_KEYS: reverted к `% увеличение количества находимых на карте путевых камней` (typo `%` без `#` — source verbatim, NOT a fix).
-  - JSDoc-коммент обновлён: iter 76 reverted iter 75 changes, OLD forms confirmed stable, tablet typo must match source verbatim.
-- 7: Updated `scripts/run-etl.ts:699` — comment example: NEW form → OLD form (`На #% больше находимых в области путевых камней`).
-- 8: Updated `tests/etl/cross-validation.test.ts:66-73` — waystone threshold `150-200` → `140-200` (commented: OLD ~147, NEW ~156).
-- 9: Restructured `tests/etl/normalize.test.ts:149-274` — KI-2 test block (был 3 теста, стал 5 тестов):
-  - Added imports: `existsSync` from 'fs', `normalizeTypeA` from '@etl/normalize', `parseTypeAPage` from '@etl/parse-tables'.
-  - New helper `loadFamilyKeysFromSourceHtml(htmlFilename, tabId)`: parses cached HTML through parseTypeAPage + normalizeTypeA pipeline, returns Set of normalized familyKeys. Uses `existsSync` to skip gracefully if cache missing in CI.
-  - Renamed `loadFamilyKeys` → `loadFamilyKeysFromJson` (clearer).
-  - Renamed `normalizeKey` (was inline) — extracted as helper.
-  - 5 tests: (1) every waystone key matches source HTML (not stale), (2) waystone.json does NOT contain implicit-set bonus familyKeys (filter worked), (3) waystone-desecrated source HTML has no mod-form implicit-set bonus tokens (filter no-op), (4) every tablet key matches source HTML, (5) tablet.json does NOT contain implicit-set bonus familyKeys.
-  - Comment block updated: KI-2 fixed iter 76 via KI-3 resolution, tests verify TWO things (key correctness via source HTML + filter execution via post-ETL JSON).
-- 10: Re-run ETL с updated keys. waystone: 302 raw → filtered 160 implicit-set bonus tokens + added 5 implicit → 156 final. tablet: 86 raw → filtered 3 + added 5 implicit → 84 final. waystone-desecrated: 32 (filter no-op).
+- 1: Клон репо `git clone https://github.com/vudirvp-sketch/poe2-regex-ru.git`. `npm install` (артeфакт — `package-lock.json` будет revert в конце). Ручные symlinks для `node_modules/.bin/{tsc,vitest,eslint,tsx,vite}` (npm install не создал их автоматически в этом окружении). Baseline: `tsc -b` чистый, `vitest run` — 1157 passed, `eslint .` — 44 problems (40 errors + 4 warnings). Совпадает с iter 76 worklog.
+- 2: Анализ 44 problems по категориям риска:
+  - SAFE (zero behavior change): unused imports, `let`→`const`, unnecessary escapes, unused eslint-disable, `no-useless-assignment` dead code, `cheerio.Cheerio<unknown>`, Playwright proper types, `catch (err: unknown)` type guards, `CategoryData`/`GameToken`/`OptimizationEntry` casts в run-etl.
+  - RISKY (tied to Bug #8): `setState-in-effect` (4 errors in JewelPage/TabletPage/WaystonePage/useCategoryPage) — skip.
+  - UNFIXABLE (library): `react-hooks/incompatible-library` warnings (2 in VirtualizedModList.tsx) — skip.
+  - RISKY (tied to Bug #8): `react-hooks/exhaustive-deps` warning (1 in useCategoryPage.ts) — skip.
+- 3: Phase 1 — Unused imports (5 fixes):
+  - `scripts/etl/compute-regex-strategies.ts:14` — remove `extractTemplateSuffix` from import (used only in compute-regex.ts, not strategies).
+  - `scripts/etl/compute-regex.ts:40` — remove `isSuffixUniqueInCategory` from import (used only in strategies, not core).
+  - `scripts/prerender.ts:18` — remove `dirname` from `path` import (never used).
+  - `scripts/verify-iter49.ts:12` — remove `matchPoE2RegexItem` from import (only `matchPoE2Regex` used).
+- 4: Phase 2 — `let`→`const` (3 fixes):
+  - `scripts/etl/compute-regex-strategies.ts:386` — `yoficatedCandidate` never reassigned.
+  - `scripts/etl/parse-tables.ts:253+340` — `modCode` declared early, assigned at line 340. Moved declaration to point of assignment: `const modCode = extractModCode($, row);` at line 340 (after early-return guards).
+  - `src/store/filter-store.ts:272` — `perTokenRanges` mutated but never reassigned.
+- 5: Phase 3 — Unnecessary regex escapes (3 fixes):
+  - `scripts/etl/parse-modifiers-calc.ts:190` — `/Mods[\/\\]/` → `/Mods[/\\]/` (slash doesn't need escaping in char class).
+  - `scripts/run-etl.ts:395` — `/[—–\-]/` → `/[—–-]/` (hyphen at end of char class is literal).
+  - `src/ui/hooks/useCategoryPage.ts:793` — `/^[\+]?##%/` → `/^[+]?##%/` (plus doesn't need escaping in char class).
+- 6: Phase 4 — Unused eslint-disable (1 fix):
+  - `scripts/etl/parse-modifiers-calc.ts:65` — remove `// eslint-disable-next-line @typescript-eslint/no-explicit-any` before `interface ModsViewData {` (the next line is `gen: Record<...>` which doesn't trigger `any` rule — disable was a leftover).
+- 7: Phase 5 — `no-useless-assignment` в core (4 fixes):
+  - `src/core/compiler.ts:142` — `let excludeValues: string[] = []` → `let excludeValues: string[]` (initial `[]` never read; all branches reassign or return early; TS control flow handles definite-assignment).
+  - `src/core/dp-factorizer.ts:667` — remove dead `placed = true;` before `break;` (value never read after `break` exits inner loop; outer loop resets `placed = false` at top of iteration). The `placed = true` at line 657 IS still needed (read by `if (placed) break;` at line 661).
+  - `src/core/trie-factorizer.ts:524` — same pattern: `placed = true` before `break` (exits inner loop), value never read.
+  - `src/core/trie-factorizer.ts:542` — same pattern. The `placed = true` at line 532 IS still needed (read by `if (placed) break;` at line 536).
+- 8: Phase 6 — `any`→proper types в scripts/ (20 fixes):
+  - `scripts/etl/parse-tables.ts` (7 errors): `cheerio.Cheerio<any>` → `cheerio.Cheerio<unknown>` in 4 function signatures (`detectColumnLayout`, `parseAffixType`, `extractTags`, `extractModCode`, `extractRow` row+table params). `getCell` helper return type: `any` → `cheerio.Cheerio<unknown> | null`. No behavior change — `Cheerio<unknown>` works identically to `Cheerio<any>` for all cheerio API calls.
+  - `scripts/prerender-full.ts` (6 errors): Added `import type { Browser, BrowserType } from 'playwright'`. `let chromium: any` → `let chromium: BrowserType`. `let browser: any` → `let browser: Browser | undefined` (changed to `undefined` for the not-yet-launched case). 4 `catch (err: any)` → `catch (err: unknown)` with `const message = err instanceof Error ? err.message : String(err)` type guard.
+  - `scripts/run-etl.ts` (7 errors): Added `CategoryData, GameToken, OptimizationEntry` to existing `import type { ModOrigin, JewelType } from '../src/shared/types.js'`. 3 `JSON.parse(readFileSync(...))` → cast `as CategoryData` (data is ETL-generated and matches schema). `(t: any) => t.rawText.ru` → `(t: GameToken)` (3 places). `new Map<string, any>()` → `new Map<string, GameToken>()`. `Object.entries(optTable) as [string, any][]` → `as [string, OptimizationEntry][]`.
+- 9: Phase 7 — `_` unused in destructure (2 fixes in `src/store/filter-store.ts:118, 209`):
+  - Pattern: `const { [id]: _, ...rest } = state.perTokenRanges` — `_` is intentionally unused (destructure-to-remove-key idiom).
+  - Fix: Update `eslint.config.js` to add `@typescript-eslint/no-unused-vars` rule with `argsIgnorePattern: '^_'`, `varsIgnorePattern: '^_'`, `caughtErrorsIgnorePattern: '^_'`, `destructuredArrayIgnorePattern: '^_'`. Standard convention — many TS projects use this.
+- 10: Revert `package-lock.json` artifact (npm install updated it because project uses pnpm — but `playwright` was in devDeps without lock entry). `git checkout -- package-lock.json`.
 - 11: Verification:
   - `tsc -b` чистый.
-  - `vitest run` — 1157/1157 passed (1155 baseline + 2 новых source-HTML теста, +0 expected-fail conversions).
-  - `eslint .` — 44 problems (без изменений от iter 75 baseline — все 8 lint errors в modified files pre-existing в `scripts/run-etl.ts`, не в моём коде).
-  - waystone.json: 0 tokens matching OLD hardcoded keys (filter сработал), 5 implicit tokens present (Шанс выпадения путевого камня, Редкость предметов, Размер групп монстров, Эффективность монстров, Доступно возрождений).
-  - 1 suffix mod token `10% увеличение количества путевых камней, находимых в области` присутствует в JSON — это regular multi-segment suffix mod (не implicit-set bonus), корректно не отфильтрован.
+  - `vitest run` — 1157/1157 passed (без изменений от baseline).
+  - `eslint .` — **7 problems (4 errors + 3 warnings)**:
+    - 4 errors `react-hooks/set-state-in-effect` (WaystonePage:66, JewelPage:99, TabletPage:101, useCategoryPage:1100) — tied to Bug #8 (useCategoryPage refactor), deferred.
+    - 2 warnings `react-hooks/incompatible-library` (VirtualizedModList.tsx:307, 593) — `useVirtualizer()` returns non-memoizable functions; cannot fix without changing the library.
+    - 1 warning `react-hooks/exhaustive-deps` (useCategoryPage.ts:1022) — `useMemo` has unnecessary `categoryId` dependency; tied to Bug #8.
 - 12: Документация:
-  - `STATUS.md` — полностью переписан. KI-3 → resolved iter 76 (с подробностями fix). KI-2 → closed iter 76 (data-level). KI-1 → closed iter 73 (без изменений). Все Known Issues закрыты. Iter → 76.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 76, все KI отмечены как закрытые. Pitfall 31 → resolved iter 76 (4 waystone keys + 1 tablet typo key, ETL rerun, 163 токена отфильтровано). Pitfall 32 → resolved iter 76 (OLD forms стабильны >1 года, curl verification = 107).
-  - `worklog.md` — iter 76 запись (этот блок), iter 75 сжат до 1 строки.
+  - `STATUS.md` — обновлён: iter → 77, добавлен "Открытые долги" блок с Bug #8/#13/#16/#17 + Lint cleanup остаток.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 77, описан Lint cleanup (44→7, 37 fixes, 14 files), перечислены 7 remaining problems. iter 76 сжат до 1 строки в header.
+  - `worklog.md` — iter 77 запись (этот блок), iter 76 сжат до 1 строки.
 
 Stage Summary:
-- **iter 76 COMPLETE.** KI-3 resolved: poe2db.tw OLD forms confirmed stable >1 year (curl = 107 matches). KI-2 fully closed (data-level): ETL rerun with original OLD-form hardcoded keys filtered 160 waystone + 3 tablet implicit-set bonus tokens, added 5+5 implicit tokens.
+- **iter 77 COMPLETE.** Lint cleanup: 44 problems → 7 problems (37 fixed: 33 errors + 4 warnings). Zero behavior change — all 1157 tests green, `tsc -b` clean.
 - **Изменённые файлы (15):**
-  - `scripts/etl/normalize.ts` (WAYSTONE 4 keys reverted to original, TABLET reverted to typo `%` key, JSDoc)
-  - `scripts/run-etl.ts` (comment example NEW → OLD form)
-  - `tests/etl/cross-validation.test.ts` (waystone threshold 150-200 → 140-200)
-  - `tests/etl/normalize.test.ts` (5 tests restructured: source-HTML verification + post-ETL filter verification, +2 new tests)
-  - `public/generated/*.json` (10 files: waystone/tablet significantly changed via ETL; others have version/sourceHash bumps + minor optimization entry diffs from iterative optimizer re-run)
-  - `STATUS.md` (полностью переписан, все KI closed)
-  - `AGENT_NAVIGATION.md` (header → iter 76, Pitfall 31 + 32 → resolved iter 76)
-  - `worklog.md` (iter 76 запись, iter 75 сжат)
-- **Метрики:** 1157/1157 passed (1155 baseline + 2 новых). `tsc -b` чистый. Lint: 44 problems (без изменений — 0 новых lint errors в моём коде).
+  - `eslint.config.js` (added `no-unused-vars` ignore pattern `^_`)
+  - `scripts/etl/compute-regex-strategies.ts` (remove unused import, `let`→`const`)
+  - `scripts/etl/compute-regex.ts` (remove unused import)
+  - `scripts/etl/parse-modifiers-calc.ts` (remove unused eslint-disable, regex escape)
+  - `scripts/etl/parse-tables.ts` (`Cheerio<any>`→`Cheerio<unknown>` × 6, `let`→`const` move)
+  - `scripts/prerender-full.ts` (Playwright types + `catch (err: unknown)` × 4)
+  - `scripts/prerender.ts` (remove unused `dirname`)
+  - `scripts/run-etl.ts` (`any`→`CategoryData`/`GameToken`/`OptimizationEntry` × 7, regex escape)
+  - `scripts/verify-iter49.ts` (remove unused `matchPoE2RegexItem`)
+  - `src/core/compiler.ts` (`excludeValues` init removed)
+  - `src/core/dp-factorizer.ts` (dead `placed = true` removed)
+  - `src/core/trie-factorizer.ts` (dead `placed = true` removed × 2)
+  - `src/store/filter-store.ts` (`let`→`const` for `perTokenRanges`)
+  - `src/ui/hooks/useCategoryPage.ts` (regex escape)
+  - `STATUS.md` + `AGENT_NAVIGATION.md` + `worklog.md` (docs)
+- **Метрики:** 1157/1157 passed (без изменений). `tsc -b` чистый. Lint: 7 problems (4 errors + 3 warnings, down from 44).
 - **Не сделано (намеренно, отдельные итерации):**
-  - Bug #8 (useCategoryPage 1325 строк → split на 4 hooks) — высокая сложность, риск UI регрессии
-  - Bug #13 (iterative-optimizer.ts:488 skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle) — низкий приоритет
-  - Bug #16 (IMPLICIT_RANGE_UNRESTRICTED = [0, 350] magic number → [0, 999] или динамически) — низкий приоритет
-  - Bug #17 (poe2-regex-matcher.ts:141 negated char class from: -1, to: -1 хак → negated: boolean флаг) — низкий приоритет
-  - Lint cleanup — 28 в scripts/ + 12 в src/ (44 problems total)
-- **Точка остановки:** iter 76 done. Все Known Issues закрыты. Открытые долги: Bug #8 (high priority, UI refactor), Bug #13/#16/#17 (low priority, engine/ETL refinements), 44 lint problems (low priority cleanup).
+  - Bug #8 (useCategoryPage 1325 строк → split на 4 hooks) — следующая итерация, high priority
+  - Bug #13 (iterative-optimizer.ts skip `.*[0-9][1-9]`) — низкий приоритет
+  - Bug #16 (IMPLICIT_RANGE_UNRESTRICTED magic number) — низкий приоритет
+  - Bug #17 (negated char class from/to -1 хак) — низкий приоритет
+  - Lint cleanup остаток (7 problems): 4 setState-in-effect + 1 exhaustive-deps (tied to Bug #8), 2 library warnings (unfixable)
+- **Точка остановки:** iter 77 done. Lint cleanup Phase 1 complete (44→7). Все remaining problems либо tied to Bug #8 (для следующей итерации), либо unfixable (library compat).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 76**: KI-3 resolved (poe2db.tw OLD forms stable >1 year) + KI-2 data-level (ETL rerun с original OLD-form keys: waystone 302→156, tablet 86→84). 1157/1157 зелёных.
 - **iter 75**: KI-2 code-fixed (NEW-form hardcoded keys, 3 `it.fails` → `it`). KI-3 обнаружен (poe2db.tw OLD-form revert). ETL rerun заблокирован. 1155/1155 зелёных.
 - **iter 74**: Lint cleanup тестов (11 ошибок в 5 файлах) + Bug #15 → KI-2 документирован.
 - **iter 73**: Закрыт KI-1 (`?` tokenizer mismatch) через detector + warn + Oracle reject + ETL reject.
