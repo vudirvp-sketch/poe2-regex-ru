@@ -1,113 +1,151 @@
-# iter 72 — Patch Archive
+# PoE2 Regex RU — генератор регексов для Path of Exile 2 (русский клиент)
 
-**Дата:** 2026-06-18
-**Итерация:** 72
-**Базовый commit:** 23c6844 (iter 71)
+> Онлайн-сервис: **[vudirvp-sketch.github.io/poe2-regex-ru](https://vudirvp-sketch.github.io/poe2-regex-ru/)**
 
-## Содержание патча
+Бесплатный генератор поисковых строк (регулярных выражений) для фильтра предметов в Path of Exile 2. Заметили нужный аффикс — отметьте его в списке, получите готовую строку для вставки в поисковое окно игры. Поддерживаются все основные категории предметов русского клиента PoE2: путевые камни, башни предтеч, реликвии, самоцветы, торговец, пояса, кольца, амулеты.
 
-5 файлов, зеркало структуры репозитория — для слияния с локальной директорией:
+Сервис автоматически учитывает особенности игрового движка поиска: лимит 250 символов, ёфикацию (`[её]`), русские склонения, числовые диапазоны, отрицание и группировку. Никаких ручных правок — оптимизированная строка генерируется за миллисекунды и сразу готова к вставке в игру.
+
+---
+
+## Возможности
+
+- **8 категорий предметов** — путевые камни (включая осквернённые и очернённые), башни предтеч, реликвии, самоцветы (с осквернёнными и очернёнными вариантами), торговец, пояса, кольца, амулеты.
+- **1697 токенов** аффиксов и имплицитов, агрегированных с `poe2db.tw` и нормализованных под русский клиент.
+- **Оптимизатор regex** — дедупликация OR-групп, усечение суффиксов, факторизация общих префиксов (trie + DP), группировка однофамильных модов в семейства.
+- **Лимит 250 символов** — автоматический split длинных regex на несколько поисковых строк, которые игрок вставляет по очереди.
+- **Ёфикация** — автоматическое объединение `е` и `ё` в символьный класс `[её]`, чтобы регекс матчил оба написания.
+- **Числовые диапазоны** — генерация компактных числовых классов (`\d{2,}`, `[1-9]`, перечисления) под конкретный min/max аффикса.
+- **Логика И/ИЛИ** — выберите несколько аффиксов, чтобы найти предмет со всеми свойствами (И), или хотя бы с одним (ИЛИ).
+- **Исключение модов** — отметьте чип как «исключить», чтобы отфильтровать предметы с нежелательным аффиксом (генератор добавит `(?!...)` negative lookahead).
+- **Ссылки на конфигурацию** — состояние фильтров кодируется в URL hash (lz-string), можно поделиться настроенным запросом одной ссылкой.
+- **Пререндеринг** — 9 route-specific HTML с уникальными мета-тегами + Playwright-рендер React-контента для поисковых ботов.
+- **SEO-оптимизация** — JSON-LD `WebApplication` schema, Open Graph, Twitter Card, canonical URL, sitemap, robots.txt, IndexNow, верификация в Google Search Console / Яндекс Вебмастере / Bing Webmaster.
+
+---
+
+## Как это работает (высокоуровнево)
+
+ETL-пайплайн (`scripts/etl/`) раз в итерацию тянет свежие данные с `poe2db.tw`, парсит HTML через `cheerio`, нормализует формулировки модов, генерирует для каждого токена regex-стратегию и прогоняет её через итеративный оптимизатор. Результат сохраняется в `public/generated/*.json` — именно эти JSON загружаются в браузер пользователем.
+
+В рантайме (в браузере) React-приложение:
+
+1. Загружает JSON нужной категории.
+2. Рендерит список аффиксов с поиском и фильтрами (Zustand store).
+3. По выделенным чипам строит AST (`src/core/ast.ts`) — это абстракция над PoE2 regex-диалектом.
+4. Прогоняет AST через 4-фазный оптимизатор (`src/core/optimizer.ts`).
+5. Компилирует AST в финальную regex-строку (`src/core/compiler.ts`) с учётом лимита 250 символов.
+6. Показывает результат в `RegexOutput` с кнопкой «Копировать» (или разбивает на несколько частей при переполнении).
+
+Regex-движок (`src/core/`) написан на чистом TypeScript **без единой npm-зависимости** — это критично для тестирования in-game диалекта в условиях, отличных от стандартных JS regex.
+
+---
+
+## PoE2 regex-диалект (поддерживается / не поддерживается)
+
+| Синтаксис | Статус | Пример |
+|-----------|--------|--------|
+| Подстрока | ✅ | `"сопротивление"` |
+| `\|` (top-level в одной кавычке) | ✅ | `"Бездн\|Делир"` |
+| `\|` + `.*` мосты (Path D, до 9 альтернатив) | ✅ | `"префикс.*A\|префикс.*B"` |
+| `\|` между кавычками `"X"\|"Y"` | ❌ | zero matches в игре |
+| Пробел = AND (cross-block) | ✅ | `"X" "Y"` |
+| `.*` внутри одного блока | ✅ | не пересекает границы модов |
+| `^` anchor | ✅ | `"^+#% редкость"` |
+| `!` NOT (внутри кавычек) | ✅ | `"!A\|B"` |
+| `[]` символьный класс | ✅ | `"[её]"`, `"[5-9]"` |
+| `\d`, `\d{N,}` | ✅ | `"\d{2,}"` |
+| `(?!...)` negative lookahead | ✅ | `"^(?!.*X).*Z"` (bidirectional exclude) |
+| `?` optional | ❌ | не работает в игре |
+| `$` end-anchor | ❌ | ненадёжный |
+| Лимит ≈ 250 символов | ⚠️ | автоматический split при превышении |
+
+Полная спецификация диалекта — в [`AGENT_NAVIGATION.md`](./AGENT_NAVIGATION.md), секция 6 «PoE2 Regex Dialect».
+
+---
+
+## Технологии
+
+| Слой | Технологии |
+|------|-----------|
+| UI | React 19, TypeScript 6, Vite 8, Tailwind CSS 4, Zustand 5, React Router 7, TanStack Virtual |
+| Regex-движок | Чистый TypeScript (0 npm-зависимостей) — AST, компилятор, 4-фазный оптимизатор, trie/DP факторизатор, oracle-валидатор, in-game matcher |
+| Валидация | Zod 4 (схемы для `public/generated/*.json` + runtime-валидация в `src/data/loader.ts`) |
+| ETL | `tsx`, `cheerio` (HTML-парсинг poe2db.tw), итеративный оптимизатор, Oracle-валидатор (FN/FP анализ) |
+| Тестирование | Vitest 4 (1158 тестов), проверено в реальной игре (`docs/IN_GAME_TESTS.md`) |
+| Пререндеринг | Shell-level (string manipulation) + Playwright (полный React-рендер для поисковых ботов) |
+| Деплой | GitHub Pages + GitHub Actions (build:full + IndexNow) |
+
+---
+
+## Структура проекта
 
 ```
-STATUS.md
-AGENT_NAVIGATION.md
-worklog.md
-scripts/etl/compute-optimizations.ts
-scripts/etl/iterative-optimizer.ts
+src/
+├── core/          # Regex engine — AST, compiler, optimizer, oracle, matcher (0 deps)
+├── shared/        # Types, i18n, mod-classifier, family-grouper, constants, Zod schemas
+├── strategies/    # Locale strategy (Russian dialect: ёфикация, ю/я)
+├── store/         # Zustand stores (filter-store, profile-store, url-sync)
+├── data/          # Runtime JSON loader (Zod-validated) + vendor properties
+└── ui/            # React components — pages, layout, hooks
+scripts/
+├── etl/           # ETL pipeline (fetch poe2db → normalize → compute regex → optimize)
+├── prerender.ts   # Shell-level prerendering (9 HTML files with unique meta)
+└── prerender-full.ts  # Playwright prerendering
+public/
+├── generated/     # 10 JSON files (ETL output, git-tracked)
+└── atmosphere/    # PoE2-themed WebP assets
+tests/             # 35 test files (core/, shared/, etl/, ui/)
+docs/              # ARCHITECTURE, ETL_GUIDE, DATA_CONTRACTS, IN_GAME_TESTS, SEO_PLAN
 ```
 
-## Что сделано
+---
 
-### Реальные фиксы (3)
-
-1. **Bug #10 — Дедуплицирован `normalizeTemplate`**
-   - Удалён из `scripts/etl/compute-optimizations.ts:30-35` (17 строк)
-   - Импортирован из `scripts/etl/compute-regex-core.ts:43-48` (canonical source)
-
-2. **Bug #11 — Дедуплицирован `extractTemplateSuffix`**
-   - Удалён из `scripts/etl/iterative-optimizer.ts:446-458` (16 строк)
-   - Импортирован из `scripts/etl/compute-regex-core.ts:61-89` (canonical source)
-
-3. **Bug #12 — Удалён dead code `longestCommonSubstring`**
-   - Удалён из `scripts/etl/compute-optimizations.ts:301-337` (32 строки + `@ts-expect-error`)
-
-### Документация
-
-4. **`STATUS.md` — полная переработка**
-   - Удалены устаревшие таблицы (UI Redesign phases, Atmospheric Assets table)
-   - Добавлен Known Issue **KI-1** (`?` tokenizer mismatch) с описанием, mitigation, планом фикса
-   - Файл стал ~50 строк вместо ~80
-
-5. **`worklog.md` — iter 72 + сжатие**
-   - Добавлен Task ID 72 section (подробно)
-   - Старые итерации сжаты до 1-строчного списка
-
-6. **`AGENT_NAVIGATION.md` — header iter 72 + Pitfall 30**
-   - Header обновлён: убраны избыточные детали атмосферных ассетов (всё уже в Pitfall 29)
-   - Добавлен Pitfall 30 (`?` tokenizer mismatch — Oracle FP risk)
-
-## Верификация
-
-- `npx tsc -b` — **OK** (0 ошибок)
-- `pnpm test` — **1144/1144 тестов зелёные** (baseline сохранён)
-- `npx eslint` на изменённых файлах — 3 pre-existing ошибки в `iterative-optimizer.ts` (POE2_REGEX_LIMIT, ESTIMATED_MOD_OVERHEAD, itemBlocks — unused vars), **НЕ** вызваны моими правками (проверено через `git stash`)
-
-## Анализ кодовой базы — что верифицировано
-
-### Подтверждённые баги (исправлены в этой итерации)
-- Bug #10, Bug #11, Bug #12 — см. выше
-
-### Подтверждённые баги (документированы, фикс отложен)
-- **Bug #1 (`?` tokenizer mismatch)** — Known Issue KI-1. Фикс требует решения: ломать тесты или добавлять runtime warning в matcher.
-
-### Анализ ошибался (багов нет)
-- **Bug #5** (limits.ts escape в `[...]`): код корректно обрабатывает escape внутри char class
-- **Bug #6** (path-d-transform.ts escape edge case): на практике regex не заканчивается на `\`
-- **Bug #9** (`hasYofication/yoficationPositions` dead data flow): поля ИСПОЛЬЗУЮТСЯ в `useCategoryPage.ts:950, 976` в `applyRuntimeYofication`
-
-### Архитектурный долг (не тронут, низкий приоритет)
-- Bug #8 — `useCategoryPage.ts` 1325 строк (требует большого рефакторинга)
-- Bug #13 — `iterative-optimizer` skip ranged regexes
-- Bug #15-20 — мелкие упущения
-
-## Git-команды для обновления репозитория
+## Локальный запуск
 
 ```bash
-# В локальной копии репозитория (после слияния файлов из архива):
+# Установка (pnpm или npm)
+pnpm install           # или: npm install
 
-git add STATUS.md AGENT_NAVIGATION.md worklog.md \
-        scripts/etl/compute-optimizations.ts \
-        scripts/etl/iterative-optimizer.ts
+# Dev-сервер
+pnpm dev               # http://localhost:5173
 
-git commit -m "iter 72: dedup ETL utils, remove dead code, document KI-1 (? tokenizer mismatch)
+# Production-сборка (tsc + vite + shell prerender)
+pnpm build
 
-- Bug #10: remove duplicate normalizeTemplate from compute-optimizations.ts,
-  import from compute-regex-core.ts (canonical source)
-- Bug #11: remove duplicate extractTemplateSuffix from iterative-optimizer.ts,
-  import from compute-regex-core.ts (canonical source)
-- Bug #12: remove dead code longestCommonSubstring (32 lines + @ts-expect-error)
-  from compute-optimizations.ts
-- Document Bug #1 (? tokenizer mismatch) as Known Issue KI-1 in STATUS.md
-- AGENT_NAVIGATION.md: add Pitfall 30 (? tokenizer = Oracle FP risk)
-- worklog.md: iter 72 section, compress older iterations
+# Полная сборка с Playwright-пререндерингом
+pnpm build:full
 
-Verified: tsc -b clean, 1144/1144 tests green, no new lint errors."
+# Тесты
+pnpm test              # 1158/1158 должно пройти
 
-git push origin main
+# ETL (обновить public/generated/*.json из poe2db.tw)
+pnpm etl               # инкрементально (с кешем)
+pnpm etl:fresh         # с нуля (без кеша)
 ```
 
-## Точка остановки для продолжения в новом чате
+---
 
-**Сделано:**
-- 3 safe-фикса (дедупликация 2 ETL-утилит + удаление dead code)
-- Bug #1 задокументирован как Known Issue KI-1
-- Документация актуализирована и почищена (STATUS.md стал ~50 строк вместо ~80)
-- Все 1144 теста зелёные, tsc -b чистый
+## Документация
 
-**Открытая работа (для следующей итерации):**
-- **KI-1 `?` tokenizer mismatch** — нужен design decision:
-  - **(a)** Ломать существующие тесты в `tests/core/poe2-regex-matcher.test.ts:169-183, 932-940` и делать `?` (вне `(?!`) fatal-error в tokenizer
-  - **(b)** Добавить runtime-warning в `matchQuotedGroup`/`matchPoE2Regex` при обнаружении `?` вне `(?!` контекста, переработать тесты на `expect(warn).toHaveBeenCalled()` вместо `expect(matched).toBe(true)`
-  - Рекомендация: вариант (b) — менее инвазивный, сохраняет semantic тестов
-- Архитектурный долг (Bug #8, #13, #15-20) — не тронут, низкий приоритет
-- Pre-existing lint-ошибки в `iterative-optimizer.ts:111, 114, 193` — вне scope этой итерации
+| Файл | Назначение |
+|------|-----------|
+| [`AGENT_NAVIGATION.md`](./AGENT_NAVIGATION.md) | **Entry document для AI-агентов** — где что лежит, path aliases, dependency rules, 33 pitfall-паттерна |
+| [`STATUS.md`](./STATUS.md) | Текущий статус итерации, Known Issues, подтверждённые ограничения PoE2 |
+| [`worklog.md`](./worklog.md) | Лог последних итераций |
+| [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Архитектура regex-движка и ETL-пайплайна |
+| [`docs/ETL_GUIDE.md`](./docs/ETL_GUIDE.md) | Описание ETL: fetch → parse → normalize → compute → optimize → write |
+| [`docs/DATA_CONTRACTS.md`](./docs/DATA_CONTRACTS.md) | Контракты `public/generated/*.json` (Zod-схемы, форматы полей) |
+| [`docs/IN_GAME_TESTS.md`](./docs/IN_GAME_TESTS.md) | Логи тестов regex-диалекта в реальной игре |
+| [`docs/SEO_PLAN.md`](./docs/SEO_PLAN.md) | SEO-стратегия: sitemap, meta-теги, пререндеринг, верификация в поисковиках |
+
+---
+
+## Контакты
+
+- Баги, идеи, пожелания → Discord: **woonderdad**
+- Issues/PR: [github.com/vudirvp-sketch/poe2-regex-ru/issues](https://github.com/vudirvp-sketch/poe2-regex-ru/issues)
+
+## Лицензия
+
+Исходный код распространяется без явной лицензии — это личный fan-project для русскоязычного сообщества PoE2. Торговые марки Path of Exile 2 принадлежат Grinding Gear Games.

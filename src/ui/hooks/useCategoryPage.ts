@@ -514,11 +514,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
   //
-  // iter 79 note: this URL-sync effect stays inline in useCategoryPage because it's
-  // tightly coupled to the 6 useState values above (searchLogic, round10Enabled, minValue,
-  // maxValue, priorityFilter, thresholdEnabled). Extracting it to a separate useUrlSync
-  // hook would require passing all 6 values + 7 store-side values as args — awkward and
-  // the lint rule wouldn't be simpler. Future iter can extract if a use case emerges.
+  // iter 81 (Bug "useUrlSync extract" closed as won't-fix): this URL-sync effect
+  // stays inline in useCategoryPage. It's tightly coupled to the 6 useState values
+  // above (searchLogic, round10Enabled, minValue, maxValue, priorityFilter,
+  // thresholdEnabled) + 7 store-side values. Extracting to a separate `useUrlSync`
+  // hook would require passing all 13 values as args — awkward, the lint rule
+  // wouldn't be simpler, and the coupling wouldn't actually decrease. Decision
+  // documented in STATUS.md (debt list cleared iter 81).
   useEffect(() => {
     if (!syncReadyRef.current) {
       syncReadyRef.current = true;

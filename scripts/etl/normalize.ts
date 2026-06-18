@@ -435,9 +435,18 @@ export function filterImplicitSetBonuses(mods: NormalizedMod[]): NormalizedMod[]
 
 /**
  * Range config for implicit tokens.
- * Using unrestricted ranges (0-350) — in-game values can exceed 250 for high-tier waystones.
+ *
+ * iter 81 (Bug #16 closed): upper bound raised from 350 to 999. The previous
+ * `350` was an arbitrary magic number that could clip high-tier waystone implicits
+ * (top-tier waystones can roll implicit values well above 350 via implicit-set
+ * bonus stacking). `999` is a safe 3-digit ceiling — the in-game regex engine
+ * matches the displayed number, so any 1-3 digit value is correct. If a future
+ * expansion ever rolls implicits above 999, raise this constant again.
+ *
+ * The lower bound stays at 0 — PoE2 implicits cannot roll negative values
+ * (verified across all waystone/tablet implicit families).
  */
-const IMPLICIT_RANGE_UNRESTRICTED = [0, 350] as const;
+const IMPLICIT_RANGE_UNRESTRICTED = [0, 999] as const;
 
 /**
  * Generate implicit tokens for waystone categories.

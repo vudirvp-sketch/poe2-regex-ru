@@ -58,7 +58,7 @@ type Token =
   | { type: 'dotStar' }
   | { type: 'pipe' }
   | { type: 'bang' }
-  | { type: 'charClass'; ranges: CharRange[] }
+  | { type: 'charClass'; ranges: CharRange[]; negated: boolean }
   | { type: 'groupOpen' }
   | { type: 'groupClose' }
   | { type: 'lookaheadNegOpen' }
@@ -146,11 +146,7 @@ function tokenize(pattern: string): Token[] {
         }
       }
       if (i < pattern.length) i++; // skip ]
-      if (negated) {
-        tokens.push({ type: 'charClass', ranges: [{ from: -1, to: -1 }, ...ranges] });
-      } else {
-        tokens.push({ type: 'charClass', ranges });
-      }
+      tokens.push({ type: 'charClass', ranges, negated });
     } else if (ch === '{') {
       // {n,} quantifier — parse the minimum repeat count
       i++; // skip {
@@ -171,7 +167,7 @@ function tokenize(pattern: string): Token[] {
       if (i < pattern.length) {
         const escaped = pattern[i];
         if (escaped === 'd') {
-          tokens.push({ type: 'charClass', ranges: [{ from: 48, to: 57 }] });
+          tokens.push({ type: 'charClass', ranges: [{ from: 48, to: 57 }], negated: false });
         } else {
           tokens.push({ type: 'literal', value: escaped });
         }
@@ -224,7 +220,7 @@ type PoE2Regex =
   | { type: 'literal'; value: string }
   | { type: 'dot' }
   | { type: 'dotStar' }
-  | { type: 'charClass'; ranges: CharRange[] }
+  | { type: 'charClass'; ranges: CharRange[]; negated: boolean }
   | { type: 'optional'; inner: PoE2Regex }
   | { type: 'repeatMin'; inner: PoE2Regex; min: number }
   | { type: 'anchorStart' }
@@ -298,7 +294,7 @@ export function parsePoE2Regex(pattern: string): PoE2Regex {
         items.push({ type: 'dotStar' });
         pos++;
       } else if (token.type === 'charClass') {
-        items.push({ type: 'charClass', ranges: token.ranges });
+        items.push({ type: 'charClass', ranges: token.ranges, negated: token.negated });
         pos++;
       } else if (token.type === 'anchorStart') {
         items.push({ type: 'anchorStart' });
@@ -355,15 +351,11 @@ function matchAt(regex: PoE2Regex, text: string, startIndex: number): { matched:
     case 'charClass': {
       if (startIndex >= text.length) return { matched: false, endIndex: startIndex };
       const charCode = text.charCodeAt(startIndex);
-      const isNegated = regex.ranges.length > 0 && regex.ranges[0].from === -1;
-      if (isNegated) {
-        const actualRanges = regex.ranges.slice(1);
-        const inRange = actualRanges.some(r => charCode >= r.from && charCode <= r.to);
-        return { matched: !inRange, endIndex: startIndex + 1 };
-      } else {
-        const inRange = regex.ranges.some(r => charCode >= r.from && charCode <= r.to);
-        return { matched: inRange, endIndex: startIndex + 1 };
-      }
+      const inRange = regex.ranges.some(r => charCode >= r.from && charCode <= r.to);
+      // `negated` flips the match result for `[^...]` character classes.
+      // Previously (pre-iter 81) this was encoded via a `{from: -1, to: -1}`
+      // sentinel prepended to `ranges` — see Bug #17 in STATUS.md (closed iter 81).
+      return { matched: regex.negated ? !inRange : inRange, endIndex: startIndex + 1 };
     }
 
     case 'optional': {

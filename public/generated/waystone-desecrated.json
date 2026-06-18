@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T16:09:19.198Z",
+  "version": "2026-06-18T16:29:43.223Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "sourceHash": "2c0eaf3e1c37ddd0",
@@ -1156,7 +1156,7 @@
       "ranges": [
         [
           0,
-          350
+          999
         ]
       ],
       "values": [],
@@ -1195,7 +1195,7 @@
       "ranges": [
         [
           0,
-          350
+          999
         ]
       ],
       "values": [],
@@ -1233,7 +1233,7 @@
       "ranges": [
         [
           0,
-          350
+          999
         ]
       ],
       "values": [],
@@ -1271,7 +1271,7 @@
       "ranges": [
         [
           0,
-          350
+          999
         ]
       ],
       "values": [],

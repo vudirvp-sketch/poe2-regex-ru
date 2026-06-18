@@ -3,52 +3,53 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 80
+Task ID: 81
 Agent: main
-Task: Bug #13 — removed dead skip `.*[0-9][1-9]` из iterative-optimizer.ts (×2), run-etl.ts, analyze-fn.ts. Skip был no-op (0/1697 token.regex.ru содержат эти паттерны). ETL rerun подтверждает идентичный JSON output. Все 1157 тестов зелёные. `tsc -b` чистый.
+Task: Bug #16 + Bug #17 + useUrlSync-extract (последние низкоприоритетные долги). README переписан под SEO и презентацию проекта. Удалены устаревшие patch-archive файлы (ITER65_README.md, DELETED-FILES.txt).
 
 Work Log:
 - 1: Клон репо. `npm install`. Baseline: `tsc -b` чистый, `vitest run` — 1157 passed.
-- 2: Анализ Bug #13 — изучен skip condition в 4 местах. Проверено: 0/1697 token.regex.ru содержат `.*`, `[0-9]`, или `[1-9]`. Все regex — literal suffix (number patterns генерируются runtime compiler из RANGE AST нод).
-- 3: Removed skip из `scripts/etl/iterative-optimizer.ts:469-473` (runIteration loop) — заменён на комментарий с объяснением.
-- 4: Removed skip из `scripts/etl/iterative-optimizer.ts:888-891` (final summary loop) — заменён на комментарий со ссылкой на line 469.
-- 5: Removed skip из `scripts/run-etl.ts:1366-1369` (validation step) — заменён на комментарий.
-- 6: Removed skip из `scripts/analyze-fn.ts:45-46` (FN/FP analysis) — заменён на комментарий.
-- 7: `npx tsc -b --force` — чистый. `npx vitest run` — 1157/1157 passed.
-- 8: ETL rerun (`npm run etl`) — успешно, 1697 tokens, FN=0, FP=9463.
-- 9: Diff generated JSONs — **identical** (отличается только version timestamp). Подтверждено: удаление skip не изменило ETL output.
-- 10: Документация — STATUS.md (iter → 80, Bug #13 removed из долгов, добавлен в историю закрытых), AGENT_NAVIGATION.md (iter 80 entry), worklog.md (этот блок).
+- 2: **Bug #17 fix** — заменил `{from: -1, to: -1}` sentinel в `src/core/poe2-regex-matcher.ts` на явное поле `negated: boolean` в типах `Token` (line 61) и `PoE2Regex` (line 223). Tokenizer (line 149) теперь `tokens.push({ type: 'charClass', ranges, negated })` без ветвления. Parser (line 297) propagates флаг. Matcher (lines 351-359) упрощён до `regex.negated ? !inRange : inRange`.
+- 3: Добавлен тест `tests/core/poe2-regex-matcher.test.ts:175-182` — `[^0-9]`, `[^а-я]`, `Делири[^уф]` patterns. Тесты: 119/119 matcher tests passed (118 + 1 new). Полный набор: 1158/1158 passed (1157 + 1 new). `tsc -b --force` чистый.
+- 4: **Bug #16 fix** — `scripts/etl/normalize.ts:449`: `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` → `[0, 999]`. Обновлён комментарий с объяснением (top-tier waystones могут роллить implicits >350 через implicit-set bonus stacking; 999 — safe 3-digit ceiling).
+- 5: ETL rerun (`npm run etl`) — успешно, 1697 tokens, FN=0, FP=9463 (идентично baseline).
+- 6: Diff `public/generated/*.json` vs baseline (ignoring version): только waystone.json (4 changes `350` → `999`) и waystone-desecrated.json (4 changes `350` → `999`). Остальные 8 JSON идентичны.
+- 7: **useUrlSync-extract** — закрыт как won't fix. Обновлён комментарий в `src/ui/hooks/useCategoryPage.ts:517-523`: URL-sync effect tightly coupled к 13 значениям (6 useState + 7 store-side), extract не упростит lint и не уменьшит coupling.
+- 8: **README переписан** — преобразован из iter-72-patch-archive-описания в презентацию проекта для GitHub + SEO. Содержит: hero, возможности (10 пунктов), как работает (высокоуровнево), PoE2 regex-диалект (поддерживается/не поддерживается), технологии, структура проекта, локальный запуск, ссылки на документацию, контакты.
+- 9: **Удалены устаревшие файлы:** `ITER65_README.md` (stale iter 65 patch archive), `DELETED-FILES.txt` (stale iter 64 patch archive).
+- 10: **STATUS.md** — iter 80 → 81, секция "Открытые долги" теперь пустая ("iter 81 закрыл последние три низкоприоритетных бага"), добавлены 3 новых записи в "История закрытых багов" (Bug #16, Bug #17, useUrlSync-extract).
+- 11: **AGENT_NAVIGATION.md** — header iter 80 → 81, сжат (старое содержимое про iter 79/78 избыточно), добавлен Pitfall 34 (charClass negated field), обновлён Pitfall 31 (Bug #16 closed), обновлён Pitfall 33 (useUrlSync-extract closed).
+- 12: Финальная верификация: `tsc -b` чистый, `vitest run` — 1158/1158 passed.
 
 Stage Summary:
-- **iter 80 COMPLETE.** Bug #13 закрыт — skip `.*[0-9][1-9]` удалён из 4 мест. Skip был dead code (0/1697 token.regex.ru matching). ETL output идентичен.
-- **Изменённые файлы (7):**
-  - `scripts/etl/iterative-optimizer.ts` — skip removed из 2 мест + explanatory comments
-  - `scripts/run-etl.ts` — skip removed + explanatory comment
-  - `scripts/analyze-fn.ts` — skip removed + explanatory comment
-  - `public/generated/*.json` (10 files) — только version timestamp обновлён
-  - `STATUS.md` + `AGENT_NAVIGATION.md` + `worklog.md` (docs)
-- **Метрики:** 1157/1157 passed. `tsc -b` чистый. ETL: 1697 tokens, FN=0, FP=9463.
-- **Не сделано (намеренно):**
-  - Bug #16 (`IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` magic number) — низкий приоритет, требует ETL rerun
-  - Bug #17 (negated char class from/to -1 хак) — низкий приоритет, engine-internal
-  - `useUrlSync` extract — не оправдан (tightly coupled к 6 useState values)
-- **Точка остановки:** iter 80 done. Bug #13 closed. Следующая итерация: Bug #16 (требует ETL rerun) или Bug #17 (engine-internal, можно сделать вместе с #16).
+- **iter 81 COMPLETE.** Все три низкоприоритетных долга закрыты. README переписан под SEO/презентацию. Удалены 2 устаревших patch-archive файла.
+- **Изменённые файлы (10):**
+  - `src/core/poe2-regex-matcher.ts` — Bug #17 fix (charClass `negated: boolean` field)
+  - `tests/core/poe2-regex-matcher.test.ts` — добавлен тест на `[^...]` patterns
+  - `scripts/etl/normalize.ts` — Bug #16 fix (`IMPLICIT_RANGE_UNRESTRICTED = [0, 999]`)
+  - `public/generated/waystone.json` — ETL rerun (4 implicit ranges `350` → `999` + version)
+  - `public/generated/waystone-desecrated.json` — ETL rerun (4 implicit ranges `350` → `999` + version)
+  - `src/ui/hooks/useCategoryPage.ts` — комментарий useUrlSync-extract обновлён (won't fix)
+  - `README.md` — переписан под SEO и презентацию проекта
+  - `STATUS.md` — iter 81, все долги закрыты
+  - `AGENT_NAVIGATION.md` — header iter 81 + Pitfall 34 + Pitfall 31/33 updates
+  - `worklog.md` — iter 81 section + предыдущие сжаты
+- **Удалённые файлы (2):**
+  - `ITER65_README.md` (stale iter 65 patch archive)
+  - `DELETED-FILES.txt` (stale iter 64 patch archive)
+- **Метрики:** 1158/1158 passed. `tsc -b` чистый. ETL: 1697 tokens, FN=0, FP=9463 (идентично baseline).
+- **Точка остановки:** iter 81 done. Все известные долги закрыты. Следующая итерация: нет открытых задач — проект в maintenance mode. Возможные future work: Bug #8 (useCategoryPage.ts 638 строк — was 1325 в iter 78, was 486 в iter 79, теперь 638 — рефакторинг ещё возможен); lint cleanup (2 unfixable warnings от TanStack Virtual); SEO-верификация в GSC/Яндекс/Bing (ручная).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 80**: Bug #13 closed — removed dead skip `.*[0-9][1-9]` из iterative-optimizer.ts (×2), run-etl.ts, analyze-fn.ts. ETL output идентичен. 1157/1157.
 - **iter 79**: Bug #8 Phase 2 — split useCategoryPage на 3 sub-hooks (useFilterStore/useCategoryData/useRegexBuilder) + fix 3 setState-in-effect errors. Lint 5→2. 1157/1157.
 - **iter 78**: Bug #8 Phase 1 — pure AST helpers extracted в category-ast-utils.ts (890 строк); useCategoryPage.ts 1325→486. 1157/1157.
-- **iter 77**: Lint cleanup 44→7 problems (37 fixed in 14 files). useCategoryPage.ts:793 regex escape fix. Все 1157/1157 зелёных.
-- **iter 76**: KI-3 resolved (poe2db.tw OLD forms stable >1 year) + KI-2 data-level (ETL rerun с original OLD-form keys: waystone 302→156, tablet 86→84). 1157/1157 зелёных.
-- **iter 75**: KI-2 code-fixed (NEW-form hardcoded keys, 3 `it.fails` → `it`). KI-3 обнаружен. ETL rerun заблокирован.
-- **iter 74**: Lint cleanup тестов (11 ошибок в 5 файлах) + Bug #15 → KI-2 документирован.
-- **iter 73**: Закрыт KI-1 (`?` tokenizer mismatch) через detector + warn + Oracle reject + ETL reject.
+- **iter 77**: Lint cleanup 44→7 problems (37 fixed in 14 files). useCategoryPage.ts:793 regex escape fix.
+- **iter 76**: KI-3 resolved (poe2db.tw OLD forms stable >1 year) + KI-2 data-level (ETL rerun с original OLD-form keys).
+- **iter 73-75**: KI-1 закрыт (`?` tokenizer mismatch). KI-2 code-fixed. KI-3 обнаружен.
 - **iter 72**: Дедупликация ETL-утилит, удаление dead code.
-- **iter 71** (Phase 16): Интеграция 3 leftover atmospheric WebP.
-- **iter 70** (Phase 15): Visual review lg+/xl+; filter contrast fix; `bg-forest.webp` deleted.
-- **iter 65-69** (Phase 11-14): Атмосферная стилизация PoE2 + HomePage hero decorations.
-- **iter 64** (Phase 10): Sidebar + Header + MobileNavTabs → TopNav.
-- **iter ≤63**: MobileRegexBar; StatusPanel; HomePage compaction; CSS tokens + CategoryLayout + RegexOutput.
+- **iter 64-71**: UI redesign — TopNav, атмосферная стилизация PoE2, HomePage hero decorations, CSS-примитивы.
 - **iter 46-50**: `(?!…)` lookahead; `regexPrefixContext`; runtime split >250 chars.

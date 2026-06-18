@@ -166,6 +166,20 @@ describe('PoE2 Regex Dialect: Character class []', () => {
     expect(matchPoE2Regex('"гн[её]зд"', 'Гнезда')).toBe(true);
     expect(matchPoE2Regex('"гн[её]зд"', 'Гнизда')).toBe(false);
   });
+
+  // iter 81 (Bug #17 closed): negated character class `[^...]` uses an explicit
+  // `negated: boolean` flag on the `charClass` token/AST node instead of the
+  // pre-iter-81 `{from: -1, to: -1}` sentinel prepended to `ranges`. Engine-internal
+  // feature (the PoE2 regex generator never emits `[^...]`), but the matcher must
+  // still parse and evaluate it correctly for engine completeness.
+  it('negated char class [^...] matches chars NOT in the set (Bug #17)', () => {
+    expect(matchPoE2Regex('"[^0-9]"', 'a')).toBe(true);
+    expect(matchPoE2Regex('"[^0-9]"', '5')).toBe(false);
+    expect(matchPoE2Regex('"[^а-я]"', 'A')).toBe(true);
+    expect(matchPoE2Regex('"[^а-я]"', 'ж')).toBe(false);
+    expect(matchPoE2Regex('"Делири[^уф]"', 'Делирик')).toBe(true);
+    expect(matchPoE2Regex('"Делири[^уф]"', 'Делириу')).toBe(false);
+  });
 });
 
 describe('PoE2 Regex Dialect: Optional quantifier ? (NOT supported in-game — KI-1 closed iter 73)', () => {
