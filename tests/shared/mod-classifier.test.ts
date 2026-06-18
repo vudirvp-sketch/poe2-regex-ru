@@ -262,6 +262,90 @@ describe('classifyByTags', () => {
     });
     expect(classifyByTags(group)).toBe('offensive');
   });
+
+  // ─── Bug #4-5 fix (iter 84): aura + gem tags → offensive ───
+
+  it('classifies aura tag as offensive (Bug #4 fix)', () => {
+    // jewel: "##% увеличение силы умений аур"
+    const group = makeGroup('', { members: [makeToken(['aura'])] });
+    expect(classifyByTags(group)).toBe('offensive');
+  });
+
+  it('classifies gem tag as offensive (Bug #5 fix)', () => {
+    // amulet: "+# к уровню всех камней умений чар" — when gem is the only tag
+    const group = makeGroup('', { members: [makeToken(['gem'])] });
+    expect(classifyByTags(group)).toBe('offensive');
+  });
+
+  // ─── Bug #7 fix (iter 84): Breach Lord source tags skipped + text fallback ───
+
+  it('skips kurgal_mod tag and uses other tags (Bug #7 fix)', () => {
+    // kurgal_mod + damage → should classify as offensive (not neutral)
+    const group = makeGroup('', {
+      members: [makeToken(['kurgal_mod', 'damage'])],
+    });
+    expect(classifyByTags(group)).toBe('offensive');
+  });
+
+  it('skips amanamu_mod tag and uses other tags (Bug #7 fix)', () => {
+    // amanamu_mod + minion + damage → offensive
+    const group = makeGroup('', {
+      members: [makeToken(['amanamu_mod', 'damage', 'minion'])],
+    });
+    expect(classifyByTags(group)).toBe('offensive');
+  });
+
+  it('skips ulaman_mod tag and uses other tags (Bug #7 fix)', () => {
+    // ulaman_mod + resistance → defensive
+    const group = makeGroup('', {
+      members: [makeToken(['ulaman_mod', 'resistance'])],
+    });
+    expect(classifyByTags(group)).toBe('defensive');
+  });
+
+  it('falls back to text when only Breach Lord tags present — armour/eva/ES (Bug #7 fix)', () => {
+    // amanamu_mod only: "##% увеличение глобальной брони, уклонения и энергетического щита"
+    // → text matches /брон/ → defensive
+    const group = makeGroup('##% увеличение глобальной брони, уклонения и энергетического щита', {
+      members: [makeToken(['amanamu_mod'])],
+    });
+    expect(classifyByTags(group)).toBe('defensive');
+  });
+
+  it('falls back to text when only Breach Lord tags present — flask (Bug #7 fix)', () => {
+    // kurgal_mod only: "Флаконы маны получают зарядов в секунду: ##"
+    // → text matches /флакон/ (Bug #7 fix extended DEFENSIVE_KEYWORDS) → defensive
+    const group = makeGroup('Флаконы маны получают зарядов в секунду: ##', {
+      members: [makeToken(['kurgal_mod'])],
+    });
+    expect(classifyByTags(group)).toBe('defensive');
+  });
+
+  it('falls back to text when only Breach Lord tags present — attribute (Bug #7 fix)', () => {
+    // ulaman_mod only: "+# к силе и ловкости" → text matches /к силе/ → attribute
+    const group = makeGroup('+# к силе и ловкости', {
+      members: [makeToken(['ulaman_mod'])],
+    });
+    expect(classifyByTags(group)).toBe('attribute');
+  });
+
+  it('stays neutral when only Breach Lord tags + no text match (Bug #7 fix)', () => {
+    // amanamu_mod only: "##% усиление эффекта создаваемых вами сгустков" — Wisps buff
+    // → no text match → neutral (will be handled by future "Wisps" block in P0 proposal)
+    const group = makeGroup('##% усиление эффекта создаваемых вами сгустков', {
+      members: [makeToken(['amanamu_mod'])],
+    });
+    expect(classifyByTags(group)).toBe('neutral');
+  });
+
+  it('does NOT use text fallback when member has no tags at all', () => {
+    // No tags (empty) — should not trigger Breach Lord text-fallback path
+    // Even if text matches, classifyByTags returns neutral (preserves original behavior)
+    const group = makeGroup('+(5—10)% к сопротивлению огню', {
+      members: [makeToken([])],
+    });
+    expect(classifyByTags(group)).toBe('neutral');
+  });
 });
 
 // ─── classifyByText ───
@@ -304,6 +388,34 @@ describe('classifyWaystoneSentiment', () => {
   it('classifies unknown as neutral', () => {
     const group = makeGroup('Какой-то мод');
     expect(classifyWaystoneSentiment(group)).toBe('neutral');
+  });
+
+  // ─── Bug #2 fix (iter 84): waystone mis-classifications ───
+
+  it('classifies more magic+rarer monsters as positive (Bug #2 fix)', () => {
+    // Was neutral — should be positive (more rare monsters = more loot)
+    const group = makeGroup('На #% больше волшебных и редких монстров');
+    expect(classifyWaystoneSentiment(group)).toBe('positive');
+  });
+
+  it('classifies monster crit damage bonus as negative (Bug #2 fix)', () => {
+    // Was neutral — should be negative (monsters do more crit damage)
+    const group = makeGroup('+##% к бонусу критического урона монстров');
+    expect(classifyWaystoneSentiment(group)).toBe('negative');
+  });
+
+  it('classifies more rare monster properties as negative (Bug #2 fix)', () => {
+    // Was neutral — should be negative (rare monsters get more properties = harder)
+    const group = makeGroup('На #% больше шанса появления свойств у редких монстров');
+    expect(classifyWaystoneSentiment(group)).toBe('negative');
+  });
+
+  it('classifies more monster effectiveness as negative (Bug #2 fix)', () => {
+    // Was neutral — should be negative (monsters more effective = harder)
+    // Note: "увеличенной эффективности монстров" already in NEGATIVE — this tests
+    // the new "больше эффективности монстров" variant (different phrasing)
+    const group = makeGroup('На #% больше эффективности монстров');
+    expect(classifyWaystoneSentiment(group)).toBe('negative');
   });
 });
 

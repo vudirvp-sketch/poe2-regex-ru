@@ -65,11 +65,14 @@ export const ORIGIN_SECTION_LABELS: Record<ModOrigin, CategoryLabel> = {
 
 // ─── Tags-based classification (preferred) ───
 
-/** Tags that indicate an offensive mod */
+/** Tags that indicate an offensive mod.
+ *  Bug #4-5 fix (iter 84): added 'aura' (jewel: сила умений аур, область присутствия)
+ *  and 'gem' (amulet/belt/ring: +уровень камней умений чар/приспешников). */
 const OFFENSIVE_TAGS = new Set([
   'damage', 'attack', 'critical', 'speed', 'caster', 'minion',
   'physical', 'chaos', 'ailment', 'elemental', 'cold', 'fire',
   'lightning', 'curse',
+  'aura', 'gem',
 ]);
 
 /** Tags that indicate a defensive mod */
@@ -83,10 +86,25 @@ const ATTRIBUTE_TAGS = new Set([
   'attribute',
 ]);
 
+/** Bug #7 fix (iter 84): Breach Lord source tags — these indicate the mod's
+ *  source (Kurgal/Amanamu/Ulaman Breach Lord), NOT its function.
+ *  Must be skipped during classification so the mod is classified by its
+ *  other tags (life/damage/elemental/...) or by text fallback.
+ *  Affects 73 tokens across ring/amulet/belt. */
+const BREACH_LORD_TAGS = new Set([
+  'kurgal_mod', 'amanamu_mod', 'ulaman_mod',
+]);
+
 /**
  * Classify a FamilyGroup using tags[] from its member tokens.
  * Uses majority voting: if most members have a tag from a category, that's the group's category.
  * Returns 'neutral' if no tags match or tags are empty.
+ *
+ * Bug #7 fix (iter 84): Breach Lord source tags (kurgal_mod/amanamu_mod/ulaman_mod)
+ * are skipped — they indicate mod source, not function. If after skipping a member
+ * has no other tags (only Breach Lord tags), the group's displayText is used as
+ * text-fallback via classifyByText(). This reclassifies ~73 tokens from neutral
+ * into their proper category (attribute/defensive/offensive/etc.).
  */
 export function classifyByTags(group: FamilyGroup): SemanticCategory {
   const tagCounts: Record<SemanticCategory, number> = {
@@ -96,14 +114,25 @@ export function classifyByTags(group: FamilyGroup): SemanticCategory {
     neutral: 0,
   };
 
+  /** Count of members whose ONLY tags were Breach Lord source tags. */
+  let membersWithOnlyBreachLordTags = 0;
+
   for (const member of group.members) {
     let classified = false;
+    let hasNonBreachLordTag = false;
     for (const tag of member.tags) {
+      // Bug #7 fix: skip Breach Lord source tags
+      if (BREACH_LORD_TAGS.has(tag)) continue;
+      hasNonBreachLordTag = true;
       if (OFFENSIVE_TAGS.has(tag)) { tagCounts.offensive++; classified = true; break; }
       if (DEFENSIVE_TAGS.has(tag)) { tagCounts.defensive++; classified = true; break; }
       if (ATTRIBUTE_TAGS.has(tag)) { tagCounts.attribute++; classified = true; break; }
     }
     if (!classified) {
+      // Member had only Breach Lord tags → eligible for text fallback
+      if (!hasNonBreachLordTag && member.tags.length > 0) {
+        membersWithOnlyBreachLordTags++;
+      }
       tagCounts.neutral++;
     }
   }
@@ -118,6 +147,15 @@ export function classifyByTags(group: FamilyGroup): SemanticCategory {
     }
   }
 
+  // Bug #7 fix: if majority is neutral AND some members had only Breach Lord tags,
+  // try text classification as fallback before returning neutral.
+  if (maxCategory === 'neutral' && membersWithOnlyBreachLordTags > 0) {
+    const textCategory = classifyByText(group);
+    if (textCategory !== 'neutral') {
+      return textCategory;
+    }
+  }
+
   return maxCategory;
 }
 
@@ -126,8 +164,11 @@ export function classifyByTags(group: FamilyGroup): SemanticCategory {
 /** Keywords indicating an offensive/beneficial mod */
 const OFFENSIVE_KEYWORDS = /(?:урон|атак|крит|скорость атаки|сотворени|приспешник|снаряд|уровень.*умени|физическ|стихийн|огн.*чар|ледян.*чар|молни.*чар)/i;
 
-/** Keywords indicating a defensive mod */
-const DEFENSIVE_KEYWORDS = /(?:сопр|здоров|максимум.*ман|брон|уклонен|блок|дух|щит|порог оглуш|максимум.*здрав|энерг.*щит)/i;
+/** Keywords indicating a defensive mod.
+ *  Bug #7 fix (iter 84): added 'флакон' — flask mods are sustain/defensive.
+ *  Needed for Breach Lord text-fallback (kurgal/ulaman mods: "Флаконы маны/здоровья
+ *  получают зарядов в секунду: ##") which would otherwise stay in neutral. */
+const DEFENSIVE_KEYWORDS = /(?:сопр|здоров|максимум.*ман|брон|уклонен|блок|дух|щит|порог оглуш|максимум.*здрав|энерг.*щит|флакон)/i;
 
 /** Keywords indicating an attribute mod */
 const ATTRIBUTE_KEYWORDS = /(?:к силе|к ловк|к интелл|силе$|ловкост|интеллект)/i;
@@ -148,11 +189,20 @@ export function classifyByText(group: FamilyGroup): SemanticCategory {
 
 // ─── Waystone sentiment classification ───
 
-/** Keywords indicating a positive (beneficial) waystone mod — player benefits */
-const POSITIVE_KEYWORDS = /(?:повышен.*редкост|повышен.*количеств|увеличен.*редкост|увеличен.*количеств|повышен.*опыт|увеличен.*опыт|качество|дополнит.*сгустк|шанс.*сгустк|дополнит.*путев|дополнит.*сундук|больше.*опыт|больше.*золот|больше.*путев|больше.*предмет|дополнит.*дух|дополнит.*Бездн|дополнит.*бездн|дополнит.*ларец|дополнит.*Сущност|дополнит.*изгнан|приспешник.*дополнит|приспешник.*урон|Бездны ведут|дополнит.*ритуальн|дополнит.*алтар|Сложность монстров Бездны.*наград|дополнит.*Царевн|Бездн появляется.*редких)/i;
+/** Keywords indicating a positive (beneficial) waystone mod — player benefits.
+ *  Bug #2 fix (iter 84): added 'больше.*волшебн.*редк.*монстр' — "На #% больше
+ *  волшебных и редких монстров" was mis-classified as neutral; should be positive
+ *  (more rare monsters = more loot). Affects 2 family-groups (prefix + suffix). */
+const POSITIVE_KEYWORDS = /(?:повышен.*редкост|повышен.*количеств|увеличен.*редкост|увеличен.*количеств|повышен.*опыт|увеличен.*опыт|качество|дополнит.*сгустк|шанс.*сгустк|дополнит.*путев|дополнит.*сундук|больше.*опыт|больше.*золот|больше.*путев|больше.*предмет|дополнит.*дух|дополнит.*Бездн|дополнит.*бездн|дополнит.*ларец|дополнит.*Сущност|дополнит.*изгнан|приспешник.*дополнит|приспешник.*урон|Бездны ведут|дополнит.*ритуальн|дополнит.*алтар|Сложность монстров Бездны.*наград|дополнит.*Царевн|Бездн появляется.*редких|больше.*волшебн.*редк.*монстр)/i;
 
-/** Keywords indicating a negative (detrimental) waystone mod — makes the map harder */
-const NEGATIVE_KEYWORDS = /(?:увеличен.*урон.*монстр|повышен.*шанс.*крит.*монстр|скорост.*атак.*сотворени.*монстр|сопротивлен.*монстр|больше.*здоровь.*монстр|Дополнительных свойств у редких монстр|проклят|уменьшен.*заряд.*флакон|меньш.*скорост.*пер|обрекаются|максимум.*сопротивлен.*игрок|меньш.*скорост.*перезарядк|вытягивающ.*ман|замерзш.*земл|заряжен.*земл|монстр.*имел.*повышен|монстр.*имеют.*повышен|увеличен.*эффективн.*монстр|увеличен.*размер.*групп.*монстр|уменьшен.*размер.*групп|Монстры бронирован|Монстры уклончив|Монстры получают.*дополнительного|Монстры с.*шансом.*могут наложить|Монстры имеют.*увеличен.*порог|Монстры разрушают|Меткость монстров|Монстры имеют.*увеличен.*накоплен|усилен.*наложен.*состоян.*монстр|Монстры выпускают.*снаряд|Монстры имеют.*увеличен.*област|подожженн.*земл|Урон монстров пробивает|Монстры получают.*уменьшен.*дополнительн|накладывают.*лиан|Игроки получают уменьшен|восстановлен.*здоровь.*меньш|пожирают душ)/i;
+/** Keywords indicating a negative (detrimental) waystone mod — makes the map harder.
+ *  Bug #2 fix (iter 84): added 3 patterns for previously-neutral mods:
+ *  - 'бонус.*крит.*урон.*монстр' — "+##% к бонусу критического урона монстров" (1 group)
+ *  - 'шанса появления свойств.*редк.*монстр' — "На #% больше шанса появления свойств
+ *    у редких монстров" (2 groups: prefix + suffix)
+ *  - 'больше.*эффективн.*монстр' — "На #% больше эффективности монстров" (2 groups)
+ *  Total: 5 family-groups reclassified neutral → negative. */
+const NEGATIVE_KEYWORDS = /(?:увеличен.*урон.*монстр|повышен.*шанс.*крит.*монстр|скорост.*атак.*сотворени.*монстр|сопротивлен.*монстр|больше.*здоровь.*монстр|Дополнительных свойств у редких монстр|проклят|уменьшен.*заряд.*флакон|меньш.*скорост.*пер|обрекаются|максимум.*сопротивлен.*игрок|меньш.*скорост.*перезарядк|вытягивающ.*ман|замерзш.*земл|заряжен.*земл|монстр.*имел.*повышен|монстр.*имеют.*повышен|увеличен.*эффективн.*монстр|увеличен.*размер.*групп.*монстр|уменьшен.*размер.*групп|Монстры бронирован|Монстры уклончив|Монстры получают.*дополнительного|Монстры с.*шансом.*могут наложить|Монстры имеют.*увеличен.*порог|Монстры разрушают|Меткость монстров|Монстры имеют.*увеличен.*накоплен|усилен.*наложен.*состоян.*монстр|Монстры выпускают.*снаряд|Монстры имеют.*увеличен.*област|подожженн.*земл|Урон монстров пробивает|Монстры получают.*уменьшен.*дополнительн|накладывают.*лиан|Игроки получают уменьшен|восстановлен.*здоровь.*меньш|пожирают душ|бонус.*крит.*урон.*монстр|шанса появления свойств.*редк.*монстр|больше.*эффективн.*монстр)/i;
 
 /**
  * Classify a FamilyGroup into sentiment category (for waystones).

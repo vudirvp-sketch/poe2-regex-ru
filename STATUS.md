@@ -2,57 +2,72 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 83 (analysis + verification)
+> **Текущая итерация:** 84 (P0-fixes implementation)
 
 ---
 
-## Open Proposal (iter 82 → iter 83 verification)
+## iter 84 — P0-фиксы реализованы
 
-### OP-1: Перегруппировка аффиксов — функциональные блоки вместо 4 крупных корзин
+Реализованы 3 P0-фикса из анализа iter 83 (см. [`docs/AFFIXES_GROUPING_ANALYSIS.md`](docs/AFFIXES_GROUPING_ANALYSIS.md)).
 
-Полный анализ в [`docs/AFFIXES_GROUPING_ANALYSIS.md`](docs/AFFIXES_GROUPING_ANALYSIS.md).
+### Что сделано
 
-**Суть:** текущая 3-корзинная схема (`offensive/defensive/attribute/neutral`) для jewellery/jewel и 3-корзинная (`positive/negative/neutral`) для waystone отправляют **14-39% всех модов** в «Прочие»/«Общие» — включая S-tier моды (+skill levels, MF, рунический барьер). Tablet «generic» — 39%. Relic — 100% (по дизайну `affix-only`).
+**Bug #7 (Breach Lord-теги, 73 токена):**
+- Введён `BREACH_LORD_TAGS = {'kurgal_mod','amanamu_mod','ulaman_mod'}` в `mod-classifier.ts`.
+- `classifyByTags` теперь пропускает эти теги при переборе → классификация идёт по другим тегам (damage/life/resistance/...).
+- Если у member'а остались только Breach Lord теги → `classifyByTags` вызывает `classifyByText` как fallback.
+- В `DEFENSIVE_KEYWORDS` добавлено `флакон` (Breach Lord flask-моды: «Флаконы маны/здоровья получают зарядов в секунду»).
 
-**Найденные баги классификации (9, из них 3 — NEW в iter 83):**
+**Bug #2 (waystone 7 mis-классификаций, не 4):**
+- В `POSITIVE_KEYWORDS` добавлено `больше.*волшебн.*редк.*монстр` (2 группы: prefix+suffix «На #% больше волшебных и редких монстров»).
+- В `NEGATIVE_KEYWORDS` добавлено:
+  - `бонус.*крит.*урон.*монстр` (1 группа «+##% к бонусу критического урона монстров»)
+  - `шанса появления свойств.*редк.*монстр` (2 группы prefix+suffix)
+  - `больше.*эффективн.*монстр` (2 группы prefix+suffix)
+- Итог: waystone neutral 7 → 0.
 
-1. **S-tier в neutral**: `+# к уровню всех камней умений` (generic), MF, `+#% к качеству всех умений`, `+#% к максимальному качеству`, `+# к максимуму рунического барьера`. *(iter 83: исправление — `+# к духу` НЕ в neutral, он в defensive через `/дух/i` regex.)*
-2. **Waystone mis-классификации (4 из 7 neutral):** `+#% к бонусу критического урона монстров` (→ negative), `На #% больше волшебных и редких монстров` (→ positive), `На #% больше шанса появления свойств у редких монстров` (→ negative), `На #% больше эффективности монстров` (→ negative).
-3. **Tablet «generic» = 39%** всех модов, включая S-tier (кол-во/редкость/опыт/доп. сущности/изгнанники).
-4. **Тег `aura` не входит ни в одну категорию** → 2 токена jewel (сила умений аур) → neutral.
-5. **Тег `gem` не используется** → 17 токенов (1 ring + 14 amulet + 2 belt) → neutral.
-6. **`Знак повелителя Бездны`** — 6 family-groups (ring+amulet+belt × prefix+suffix), essence-origin, без тегов → neutral. *(iter 83: исправление — 6, не 2)*
-7. **NEW (iter 83): Breach Lord-теги `kurgal_mod`/`amanamu_mod`/`ulaman_mod` — 73 токена в neutral** (26+25+22). Теги не входят в OFFENSIVE/DEFENSIVE/ATTRIBUTE buckets. Моды имеют явную семантику (attribute/defensive/offensive/charm/flask), но теряются в neutral.
-8. **NEW (iter 83): Relic использует `affix-only` mode → 100% в одной корзине**. 25 family-groups без подгрупп. Не баг, а архитектурное решение — стоит пересмотреть.
-9. **NEW (iter 83): Мета-механики PoE2 размазаны**: Вестники/Знамёна/Кличи/Метки/Обереги/Запечатанные/Архонт/Мета-умения/Сгустки/Подношения/Рунический барьер — каждый отдельная «семантическая зона», но живут в offensive/defensive/neutral без подкатегорий.
+**Bug #4-5 (aura+gem теги):**
+- `aura` и `gem` добавлены в `OFFENSIVE_TAGS`.
+- Текущие `gem`-токены уже имели парные теги (`caster`/`minion`) → сразу классифицировались offensive. Добавление `gem` даёт робастность для будущих модов.
+- `aura`-токены (2 в jewel: «сила умений аур», «область действия присутствия») теперь offensive вместо neutral.
 
-**Точные counts neutral-корзины (iter 83, верифицировано):**
+### Тесты
 
-| Категория | Groups | Neutral | % |
-|---|---|---|---|
-| ring | 94 | 13 | 13.8% |
-| amulet | 105 | 20 | 19.0% |
-| belt | 85 | 18 | 21.2% |
-| jewel | 193 | 39 | 20.2% |
-| waystone | 50 | 7 (4 mis) | 14.0% |
-| tablet | 82 | 32 | 39.0% |
-| relic | 25 | 25 (по дизайну) | 100% |
+- 1158 базовых + 14 новых = **1172 теста, все зелёные**.
+- Новые тесты покрывают: aura/gem → offensive, kurgal/amanamu/ulaman skip + text-fallback (armour/flask/attribute), нейтральность при отсутствии тегов, waystone 4 reclassification.
+- `pnpm lint`: 0 ошибок, 2 pre-existing warnings (TanStack virtual memoization).
 
-**Предлагаемые изменения (см. полный анализ в docs/):**
+### Симуляция (verifies iter 84 impact)
 
-- **P0**: 24 функциональных блока для jewellery (вместо 4 корзин) — `Дух / Уровень умений / Атрибуты / Здоровье-Мана-ES / Рунический барьер (NEW) / Сопротивления / Защита / Скорость / Крит / Урон / Пробитие / Состояния / Область-Длительность / Сгустки-Wisps (NEW) / Ауры-Вестники-Метки-Знаки-Кличи-Знамёна-Обереги / Приспешники-Компаньоны-Подношения / Архонт-Запечатанные-Мета / Оружие-специфичные / Фласки / MF / Конверсия / Свирепость-Заряды / Бездна-Разлом / Прочее`.
-- **P0**: 6 weapon sub-blocks для jewel (24 family-key) — `Урон / Скорость атаки / Крит / Меткость / Шкала / Перезарядка` по типам оружия.
-- **P0**: Игнорировать Breach Lord-теги при classifyByTags + fallback на текст (73 токена).
-- **P0**: Расширить POSITIVE/NEGATIVE_KEYWORDS для waystone (4 mis-классификации).
-- **P0**: Добавить `aura`+`gem` в OFFENSIVE_TAGS (19 токенов).
-- **P1**: ETL-tagged `functionalCategory` (по образцу `jewelType`) для ~100% точности.
-- **P1**: Поле `sortKey` в `FamilyGroup` + пользовательский тумблер «режим группировки» (блоки/популярность/алфавит) с URL-персистентностью.
-- **P1**: Sub-blocks внутри waystone sentiment и tablet type.
-- **P2**: `relic-semantic` mode (5 блоков) или подтверждение `affix-only`.
-- **P2**: Tier-aware сортировка внутри блоков.
-- **P3**: Приоритет тегов вместо first-match; визуальная сепарация блоков.
+Скрипт: `scripts/simulate-classifiers.ts` (mirror классификаторов на реальных JSON).
 
-**Статус:** анализ выполнен и верифицирован, реализация не начата. Ждёт решения по приоритетам.
+| Категория | Groups | Neutral до | Neutral после | Δ |
+|---|---|---|---|---|
+| ring | 98 | 14 | 13 | -1 |
+| amulet | 105 | 22 | 18 | -4 |
+| belt | 85 | 21 | 17 | -4 |
+| jewel | 193 | 47 | 45 | -2 |
+| waystone | 50 | 7 | **0** | -7 |
+| waystone-desecrated | 29 | 6 | 6 | 0 |
+| **Итого** | 560 | 117 | **99** | **-18 (-15%)** |
+
+> **Заметка iter 84:** iter 83 считал «4 mis + 3 actual» для waystone. Реально все 7 были mis-классификации (тексты уникальны, но встречаются как prefix+suffix = 2 группы на текст). Все 7 теперь reclassified.
+
+### Файлы, изменённые в iter 84
+
+- `src/shared/mod-classifier.ts` — 3 P0-фикса (Breach Lord skip + text fallback + flask keyword + aura/gem tags + waystone keywords).
+- `tests/shared/mod-classifier.test.ts` — 14 новых тестов.
+- `STATUS.md` — актуализация под iter 84.
+- `docs/AFFIXES_GROUPING_ANALYSIS.md` — актуализация §5 приоритетов и §8 статус.
+- `scripts/simulate-classifiers.ts` — скрипт верификации (вне репозитория — для разработки).
+
+### Что НЕ сделано (намеренно, ждёт следующих итераций)
+
+- **P0 оставшиеся** (не реализованы):
+  - Внедрение 24 функциональных блоков для jewellery (вместо 4 корзин).
+  - Weapon sub-blocks для jewel (6 подблоков для 24 family-key).
+- **P1–P3** — не начаты.
+- **ETL-tagged functionalCategory** — не начат (P1).
 
 ---
 
@@ -62,7 +77,7 @@
 
 ## Открытые долги
 
-- **OP-1** (iter 82-83): перегруппировка аффиксов — см. выше.
+- **OP-1** (iter 82-84): перегруппировка аффиксов. P0-фиксы (Breach Lord/waystone/aura+gem) — выполнены iter 84. Оставшиеся P0 (24 функциональных блока + weapon sub-blocks) ждут следующей итерации.
 
 ---
 
