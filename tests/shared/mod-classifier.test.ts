@@ -9,6 +9,7 @@
  * iter 85: classifyFunctionalBlock tests for the 7 high-priority blocks
  * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
  * iter 87: classifyWeaponClass + weapon-specific functional block + jewel-functional mode.
+ * iter 88: ailments + area-duration functional blocks (17 active total).
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -626,9 +627,9 @@ describe('classifyPriorityTier', () => {
   });
 });
 
-// ─── classifyFunctionalBlock (iter 86: 14 high-priority blocks) ───
+// ─── classifyFunctionalBlock (iter 85-88: 17 high-priority blocks) ───
 
-describe('classifyFunctionalBlock (iter 86)', () => {
+describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── spirit ───
   describe('spirit block', () => {
     it('classifies "+# к духу" (amulet S-tier) as spirit', () => {
@@ -1184,6 +1185,157 @@ describe('classifyFunctionalBlock (iter 86)', () => {
     it('does NOT classify "##% повышение скорости перезарядки боевых кличей" as offence-speed (buff-skills deferred → other)', () => {
       const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
       expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+  });
+
+  // ─── iter 88: ailments block ───
+  describe('ailments block (iter 88)', () => {
+    it('classifies "#% усиление эффекта ослепления" as ailments (jewel prefix, no tag)', () => {
+      const group = makeGroup('(5—10)% усиление эффекта ослепления');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение шанса наложения состояний" as ailments (jewel suffix, ailment tag)', () => {
+      const group = makeGroup('(5—15)% увеличение шанса наложения состояний', {
+        members: [makeToken(['ailment'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение порога стихийных состояний" as ailments (jewel suffix, ailment tag)', () => {
+      const group = makeGroup('(10—20)% увеличение порога стихийных состояний', {
+        members: [makeToken(['ailment'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% шанс ослепить врагов при нанесении удара атаками" as ailments (jewel suffix, attack tag)', () => {
+      const group = makeGroup('(3—7)% шанс ослепить врагов при нанесении удара атаками', {
+        members: [makeToken(['attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% шанс наложения оцепенения при нанесении удара" as ailments (jewel suffix, no tag)', () => {
+      const group = makeGroup('(5—10)% шанс наложения оцепенения при нанесении удара');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% шанс отравить при нанесении удара" as ailments (jewel suffix, ailment tag)', () => {
+      const group = makeGroup('(5—10)% шанс отравить при нанесении удара', {
+        members: [makeToken(['ailment'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% повышение скорости накопления шкалы пригвождения" as ailments (jewel suffix, no tag)', () => {
+      const group = makeGroup('(10—20)% повышение скорости накопления шкалы пригвождения');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение длительности эффекта Парирован" as ailments (jewel suffix, no tag — AILMENTS wins over AREA_DURATION)', () => {
+      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение силы поджога, если недавно вы поглощали заряд выносливости" as ailments (ring prefix, no tag)', () => {
+      const group = makeGroup('(20—30)% увеличение силы поджога, если недавно вы поглощали заряд выносливости');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии" as ailments (ring prefix, no tag)', () => {
+      const group = makeGroup('(20—30)% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    it('classifies "#% увеличение силы шока, если недавно вы поглощали заряд ярости" as ailments (ring prefix, no tag)', () => {
+      const group = makeGroup('(20—30)% увеличение силы шока, если недавно вы поглощали заряд ярости');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
+    });
+
+    // ─── Negative tests — deliberate exclusions ───
+
+    it('does NOT classify "#% повышение глобальной меткости" as ailments (accuracy ≠ ailment; matched by offence-speed via tag attack → other if no tag)', () => {
+      const group = makeGroup('(5—10)% повышение глобальной меткости', {
+        members: [makeToken(['attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).not.toBe('ailments');
+    });
+
+    it('does NOT classify "#% усиление эффекта ваших умений меток" as ailments (mark skills → buff-skills deferred → other)', () => {
+      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+
+    it('does NOT classify "Отрицательные эффекты на вас заканчиваются на #% быстрее" as ailments (ailment removal on self → other)', () => {
+      const group = makeGroup('Отрицательные эффекты на вас заканчиваются на (5—10)% быстрее');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+
+    it('does NOT classify "#% ослабление влияния замедления от отрицательных эффектов на вас" as ailments (slow resistance → other)', () => {
+      const group = makeGroup('(5—10)% ослабление влияния замедления от отрицательных эффектов на вас');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+  });
+
+  // ─── iter 88: area-duration block ───
+  describe('area-duration block (iter 88)', () => {
+    it('classifies "#% увеличение области действия" as area-duration (jewel prefix, no tag)', () => {
+      const group = makeGroup('(4—6)% увеличение области действия');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение области действия проклятий" as area-duration (jewel prefix, caster+curse tags)', () => {
+      const group = makeGroup('(8—12)% увеличение области действия проклятий', {
+        members: [makeToken(['caster', 'curse'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение области действия умений знамён" as area-duration (jewel prefix, no tag)', () => {
+      const group = makeGroup('(6—16)% увеличение области действия умений знамён');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение области действия присутствия" as area-duration (jewel prefix, aura tag)', () => {
+      const group = makeGroup('(15—25)% увеличение области действия присутствия', {
+        members: [makeToken(['aura'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "Улучшает радиус до очень большого" as area-duration (jewel prefix, no tag — passive tree radius)', () => {
+      const group = makeGroup('Улучшает радиус до очень большого');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение длительности проклятий" as area-duration (jewel suffix, caster+curse tags)', () => {
+      const group = makeGroup('(15—25)% увеличение длительности проклятий', {
+        members: [makeToken(['caster', 'curse'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение длительности умений знамён" as area-duration (jewel suffix, no tag)', () => {
+      const group = makeGroup('(15—25)% увеличение длительности умений знамён');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('classifies "#% увеличение области действия умений чар" as area-duration (amulet/ring suffix, no tag)', () => {
+      const group = makeGroup('(6—8)% увеличение области действия умений чар');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    // ─── Negative tests — generic skill duration goes to skill-levels, not area-duration ───
+
+    it('does NOT classify "#% увеличение длительности эффекта умения" as area-duration (skill-levels wins via «длительн.*эффект.*умени»)', () => {
+      const group = makeGroup('(15—25)% увеличение длительности эффекта умения');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+
+    it('does NOT classify "#% увеличение длительности эффекта Парирован" as area-duration (AILMENTS wins — parry is an ailment)', () => {
+      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован');
+      expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
   });
 

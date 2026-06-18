@@ -978,6 +978,14 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  * shows other-bucket = 9.9% (target was <30%), so production pages are flipped
  * to `affix-functional` in iter 86.
  *
+ * iter 87: weapon-specific block (15th active) implemented for jewel-only —
+ * 24 weapon family-keys in jewel.json distributed across 6 weapon-class
+ * sub-blocks (melee / bow / crossbow / staff / spear / dagger). Production
+ * JewelPage flipped to `jewel-functional` mode. jewel.json other-bucket = 21.8%.
+ *
+ * iter 88: ailments + area-duration blocks (16th + 17th active) implemented.
+ * jewel.json other-bucket reduced from 21.8% → 14.0% (target <15% met).
+ *
  * Source: docs/AFFIXES_GROUPING_ANALYSIS.md §4.1 (24-block scheme).
  */
 export type FunctionalBlock =
@@ -992,9 +1000,9 @@ export type FunctionalBlock =
   | 'offence-speed'    // iter 86: Скорость атаки/сотворения/передвижения/снарядов (tag speed + text)
   | 'crit'             // iter 86: Шанс/Бонус/По типу урона (tag critical + text «крит»)
   | 'damage-type'      // iter 86: Физ/Огонь/Холод/Молния/Хаос/Стихийный (tags damage/physical/elemental/cold/fire/lightning/chaos + text «урон»)
-  | 'penetration'      // ⏳ iter 87+: Пробитие сопротивления
-  | 'ailments'         // ⏳ iter 87+: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрушение брони/Разрез
-  | 'area-duration'    // ⏳ iter 87+: Область действия/Длительность умения/Длительность состояний
+  | 'penetration'      // ⏳ iter 89+: Пробитие сопротивления (0 family-keys в jewel.json `other` — пропущен в iter 88)
+  | 'ailments'         // iter 88: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрез/Ослепление/Состояния (8 family-keys в jewel)
+  | 'area-duration'    // iter 88: Область действия / Длительность проклятий и знамён / Радиус пассивных умений (7 family-keys в jewel)
   | 'wisps'            // ⏳ iter 87+: Сгустки (Breach-механика)
   | 'buff-skills'      // ⏳ iter 87+: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
   | 'minions'          // iter 86: Приспешники/Подношения (tag minion + text «приспешник»/«подношен»)
@@ -1007,8 +1015,13 @@ export type FunctionalBlock =
   | 'other';           // Прочее — fallback (<5% target after all blocks implemented)
 
 /** Display config for each functional block.
- *  iter 86: 14 active blocks have distinct colors; the 10 unimplemented blocks
- *  share the muted "other" palette (they shouldn't appear in UI yet). */
+ *  iter 88: 17 active blocks have distinct colors (spirit / skill-levels /
+ *  attributes / resources / runes-barrier / resistances / magic-find /
+ *  defence-stats / offence-speed / crit / damage-type / ailments /
+ *  area-duration / weapon-specific / flasks / minions / breach).
+ *  The 7 unimplemented blocks (penetration / wisps / buff-skills /
+ *  meta-skills / conversion / rage-charges) still share the muted "other"
+ *  palette (they shouldn't appear in UI yet). */
 export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
   spirit:           { label: 'Дух',                colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
   'skill-levels':   { label: 'Уровень умений',     colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
@@ -1016,14 +1029,14 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
   resources:        { label: 'Здоровье / Мана / ES', colorClass: 'text-accent-blue', bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
   'runes-barrier':  { label: 'Рунический барьер',  colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
   resistances:      { label: 'Сопротивления',      colorClass: 'text-accent-blue',    bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
-  'magic-find':     { label: 'Магический поиск',   colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  'magic-find':     { label: 'Рарити',             colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
   'defence-stats':  { label: 'Защитные показатели', colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
   'offence-speed':  { label: 'Скорость',           colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
   crit:             { label: 'Крит',               colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
   'damage-type':    { label: 'Урон по типу',       colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
   penetration:      { label: 'Пробитие',           colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
   ailments:         { label: 'Состояния',          colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
-  'area-duration':  { label: 'Область / Длительность', colorClass: 'text-muted',      bgClass: 'bg-panel/15',        borderClass: 'border-edge/15',         borderLClass: '' },
+  'area-duration':  { label: 'Область / Длительность', colorClass: 'text-accent-violet', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
   wisps:            { label: 'Сгустки',            colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
   'buff-skills':    { label: 'Ауры / Вестники / ...', colorClass: 'text-accent-violet', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
   minions:          { label: 'Приспешники',        colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
@@ -1318,12 +1331,81 @@ const OFFENCE_SPEED_PATTERN = /скорост.*(атак|сотворени|пе
  */
 const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топорами|булавами|луками|самострелами|копьями|боевыми посохами|кистенями|без оружия)/i;
 
+// ─── iter 88: 2 new blocks (ailments + area-duration) ───
+
+/**
+ * Ailments mods (iter 88).
+ *
+ * Catches ailment-related mods that have no other functional bucket:
+ *  - "(5—15)% увеличение шанса наложения состояний" (jewel suffix, ailment tag)
+ *  - "(10—20)% увеличение порога стихийных состояний" (jewel suffix, ailment tag)
+ *  - "(5—10)% шанс наложения оцепенения при нанесении удара" (jewel suffix, no tag)
+ *  - "(5—10)% шанс отравить при нанесении удара" (jewel suffix, ailment tag)
+ *  - "(3—7)% шанс ослепить врагов при нанесении удара атаками" (jewel suffix, attack tag)
+ *  - "(5—10)% усиление эффекта ослепления" (jewel prefix, no tag)
+ *  - "(10—20)% повышение скорости накопления шкалы пригвождения" (jewel suffix, no tag)
+ *  - "(10—15)% увеличение длительности эффекта Парирован" (jewel suffix, no tag)
+ *  - "(20—30)% увеличение силы поджога, если недавно вы поглощали заряд выносливости" (ring prefix, no tag)
+ *  - "(20—30)% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии" (ring prefix, no tag)
+ *  - "(20—30)% увеличение силы шока, если недавно вы поглощали заряд ярости" (ring prefix, no tag)
+ *
+ * Patterns:
+ *  - `поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен` — ailment names/verbs
+ *  - `наложен.*состоян|стихийн.*состоян` — ailment application / elemental ailment threshold
+ *
+ * Deliberate exclusions (avoid false positives):
+ *  - NOT matching `мет[о]?к` (mark skills) — that's buff-skills (future iter)
+ *  - NOT matching `меткости` (accuracy) — accuracy is not an ailment
+ *  - NOT matching «Отрицательные эффекты на вас заканчиваются быстрее» — ailment
+ *    removal on self is closer to defence (left in `other`)
+ *  - NOT matching «ослабление влияния замедления» — slow resistance, defensive
+ *    (left in `other`)
+ *
+ * Position: AFTER offence-speed, BEFORE the fallback. This way, ailments mods
+ * that have attack/damage/critical tags but functionally describe ailment
+ * application are caught here only if they weren't caught by earlier blocks
+ * (i.e., they would otherwise fall into `other`). Verified safe by
+ * simulate-iter88-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ */
+const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|наложен.*состоян|стихийн.*состоян)/i;
+
+/**
+ * Area / Duration mods (iter 88).
+ *
+ * Catches area-of-effect + skill/curse/banner duration mods that have no other
+ * functional bucket:
+ *  - "(4—6)% увеличение области действия" (jewel prefix, no tag)
+ *  - "(8—12)% увеличение области действия проклятий" (jewel prefix, caster+curse tags)
+ *  - "(6—16)% увеличение области действия умений знамён" (jewel prefix, no tag)
+ *  - "(15—25)% увеличение области действия присутствия" (jewel prefix, aura tag)
+ *  - "Улучшает радиус до очень большого" (jewel prefix, no tag — passive tree radius)
+ *  - "(15—25)% увеличение длительности проклятий" (jewel suffix, caster+curse tags)
+ *  - "(15—25)% увеличение длительности умений знамён" (jewel suffix, no tag)
+ *  - "(6—8)% увеличение области действия умений чар" (amulet/ring suffix, no tag)
+ *
+ * Pattern deliberately limited:
+ *  - `област.*действ` — area of effect (covers «области действия», «область действия»)
+ *  - `длительн.*(?:проклят|знам[её]н)` — curse/banner duration specifically
+ *    (generic «длительность умения» already caught by SKILL_LEVELS_PATTERN via
+ *     `длительн.*эффект.*умени`, so we don't catch ALL «длительность» here — only
+ *     non-skill ones)
+ *  - `Улучшает радиус` — jewel radius upgrade (passive tree radius)
+ *
+ * Note: «длительность эффекта Парирован» matches BOTH AILMENTS (via «парир») AND
+ * AREA_DURATION (via «длительн»). Since AILMENTS is checked BEFORE AREA_DURATION
+ * in classifyFunctionalBlock, the parry-duration mod goes to AILMENTS (correct —
+ * it's a parry ailment duration, not a generic skill duration).
+ *
+ * Position: AFTER ailments, BEFORE the fallback.
+ */
+const AREA_DURATION_PATTERN = /(?:област.*действ|длительн.*(?:проклят|знам[её]н)|Улучшает радиус)/i;
+
 /**
  * Classify a FamilyGroup into a functional block.
  *
- * iter 87: 15 high-priority blocks are matched using BOTH tag-based detection
+ * iter 88: 17 high-priority blocks are matched using BOTH tag-based detection
  * (preferred — from member.tokens.tags[]) AND text patterns (fallback for
- * no-tag mods). 9 blocks still fall back to `other`.
+ * no-tag mods). 7 blocks still fall back to `other`.
  *
  * Match priority (most specific → most general):
  *  1. SPIRIT — text "+# к духу" (amulet only, no tag)
@@ -1341,7 +1423,9 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
  * 13. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
  * 14. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
  * 15. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
- * 16. OTHER — fallback
+ * 16. AILMENTS (iter 88) — text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/состояний/..." — only catches mods that would otherwise fall into `other`
+ * 17. AREA_DURATION (iter 88) — text "области действия / длительности проклятий и знамён / радиус пассивных умений" — only catches mods that would otherwise fall into `other`
+ * 18. OTHER — fallback (wisps / meta-skills / penetration / buff-skills / conversion / rage-charges — iter 89+)
  *
  * Tag priority logic:
  *  - Minion tag beats life/mana/critical/damage/speed/resistance (minion mods are functionally
@@ -1422,8 +1506,16 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   // 15. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
   if (allTags.has('speed') || OFFENCE_SPEED_PATTERN.test(text)) return 'offence-speed';
 
-  // 16. Fallback — wisps / meta-skills / penetration / ailments / area-duration /
-  //     buff-skills / conversion / rage-charges (iter 88+)
+  // 16. Ailments (iter 88) — text-based: поджог/шок/охлажден/отравлен/оцепенен/парир/...
+  //     Positioned AFTER offence-speed so it only catches mods that would otherwise
+  //     fall into `other`. Verified safe by simulate-iter88-impact.ts (0 false positives).
+  if (AILMENTS_PATTERN.test(text)) return 'ailments';
+
+  // 17. Area / Duration (iter 88) — text-based: области действия / длительности проклятий и знамён / радиус пассивных умений
+  //     Positioned AFTER ailments so «длительность эффекта Парирован» goes to AILMENTS (parry = ailment).
+  if (AREA_DURATION_PATTERN.test(text)) return 'area-duration';
+
+  // 18. Fallback — wisps / meta-skills / penetration / buff-skills / conversion / rage-charges (iter 89+)
   return 'other';
 }
 
@@ -1432,7 +1524,7 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
 /** Grouping mode determines how mods are sub-categorized within affix columns */
 export type ModGroupMode =
   | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (legacy, replaced by affix-functional for ring/amulet/belt)
-  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 86: 14 active + other) — ring/amulet/belt
+  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 88: 17 active + other) — ring/amulet/belt
   | 'jewel-functional'  // iter 87: same as affix-functional, BUT weapon-specific block is split into 6 weapon-class sub-blocks (melee/bow/crossbow/staff/spear/dagger) — jewel only
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
