@@ -958,11 +958,213 @@ function classifyBeltPriority(text: string): PriorityTier {
 /** Sort order for priority tiers (lower = higher priority) */
 export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2, C: 3 };
 
+// ─── Functional block classification (iter 85: P0 OP-1 Phase 2) ───
+
+/**
+ * Functional blocks — fine-grained grouping for jewellery (ring/amulet/belt).
+ *
+ * Replaces the coarse 4-bin `affix-semantic` mode (offensive/defensive/attribute/neutral)
+ * with 24 functional blocks that reflect how players actually think about mods
+ * when crafting: Spirit, skill levels, attributes, resistances, runes barrier,
+ * MF, defence stats, offence speed, crit, damage type, penetration, ailments,
+ * area/duration, wisps, buff skills, minions, meta-skills, weapon-specific,
+ * flasks, conversion, rage/charges, breach, other.
+ *
+ * iter 85: ONLY 7 high-priority blocks are implemented as classifiers
+ * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
+ * All other blocks fall back to `other` for now. Implementation of the
+ * remaining 16 blocks is deferred to iter 86+ (see STATUS.md).
+ *
+ * Source: docs/AFFIXES_GROUPING_ANALYSIS.md §4.1 (24-block scheme).
+ */
+export type FunctionalBlock =
+  | 'spirit'           // Дух — amulet-only (5 tokens, 1 family-key)
+  | 'skill-levels'     // +уровень камней умений, +качество умений, скорость перезарядки умений, длительность эффекта умения
+  | 'attributes'       // Сила/Ловкость/Интеллект/Все + dual-attr + снижение требований
+  | 'resources'        // ⏳ iter 86: Здоровье/Мана/ES — максимум, регенерация, похищение, восстановление
+  | 'runes-barrier'    // Рунический барьер (max, regen, restore)
+  | 'resistances'      // Огонь/Холод/Молния/Хаос/Все + добавленные свойства сопротивлений
+  | 'magic-find'       // Редкость/Количество найденных предметов
+  | 'defence-stats'    // ⏳ iter 86: Броня/Уклонение/ES/Блок/Порог оглушения
+  | 'offence-speed'    // ⏳ iter 86: Скорость атаки/сотворения/передвижения/перезарядки/снарядов
+  | 'crit'             // ⏳ iter 86: Шанс/Бонус/По типу урона
+  | 'damage-type'      // ⏳ iter 86: Физ/Огонь/Холод/Молния/Хаос/Стихийный/От чар/От атак
+  | 'penetration'      // ⏳ iter 86: Пробитие сопротивления
+  | 'ailments'         // ⏳ iter 86: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрушение брони/Разрез
+  | 'area-duration'    // ⏳ iter 86: Область действия/Длительность умения/Длительность состояний
+  | 'wisps'            // ⏳ iter 86: Сгустки (Breach-механика)
+  | 'buff-skills'      // ⏳ iter 86: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
+  | 'minions'          // ⏳ iter 86: Приспешники/Компаньоны/Подношения
+  | 'meta-skills'      // ⏳ iter 86: Архонт/Запечатанные/Мета-умения
+  | 'weapon-specific'  // ⏳ iter 86: 24 family-key в 6 sub-blocks (jewel only)
+  | 'flasks'           // ⏳ iter 86: belt primary, flask-моды
+  | 'conversion'       // ⏳ iter 86: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
+  | 'rage-charges'     // ⏳ iter 86: Свирепость/Endurance/Flask charges/Banner glory
+  | 'breach'           // Бездна/Разлом — Breach Lord's Mark (6 family-groups, essence-origin, no tags)
+  | 'other';           // Прочее — fallback (<5% target after all blocks implemented)
+
+/** Display config for each functional block.
+ *  iter 85: 7 active blocks have distinct colors; the 17 unimplemented blocks
+ *  share the muted "other" palette (they shouldn't appear in UI yet). */
+export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
+  spirit:           { label: 'Дух',                colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  'skill-levels':   { label: 'Уровень умений',     colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  attributes:       { label: 'Атрибуты',           colorClass: 'text-accent-teal',    bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  resources:        { label: 'Здоровье / Мана / ES', colorClass: 'text-accent-blue', bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
+  'runes-barrier':  { label: 'Рунический барьер',  colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  resistances:      { label: 'Сопротивления',      colorClass: 'text-accent-blue',    bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
+  'magic-find':     { label: 'Магический поиск',   colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  'defence-stats':  { label: 'Защитные показатели', colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
+  'offence-speed':  { label: 'Скорость',           colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  crit:             { label: 'Крит',               colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  'damage-type':    { label: 'Урон по типу',       colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  penetration:      { label: 'Пробитие',           colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  ailments:         { label: 'Состояния',          colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  'area-duration':  { label: 'Область / Длительность', colorClass: 'text-muted',      bgClass: 'bg-panel/15',        borderClass: 'border-edge/15',         borderLClass: '' },
+  wisps:            { label: 'Сгустки',            colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  'buff-skills':    { label: 'Ауры / Вестники / ...', colorClass: 'text-accent-violet', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
+  minions:          { label: 'Приспешники',        colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  'meta-skills':    { label: 'Мета-умения',        colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  'weapon-specific':{ label: 'Оружейные моды',     colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  flasks:           { label: 'Флаконы',            colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  conversion:       { label: 'Конверсия / Сустейн', colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
+  'rage-charges':   { label: 'Свирепость / Заряды', colorClass: 'text-accent-red',    bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  breach:           { label: 'Бездна',             colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  other:            { label: 'Прочее',             colorClass: 'text-muted',          bgClass: 'bg-panel/15',        borderClass: 'border-edge/15',         borderLClass: '' },
+};
+
+/** Render order — reflects the typical crafting scenario (iter 83 §4.7):
+ *  1. End-game goals: Spirit, skill levels, attributes.
+ *  2. Survivability: resources (life/mana/ES), runes barrier, resistances, defence stats.
+ *  3. Offence: speed, crit, damage type, penetration, ailments.
+ *  4. Mechanics: area/duration, wisps, buff skills, minions, meta, weapon.
+ *  5. Misc: flasks, MF, conversion, rage/charges, breach.
+ *  6. Fallback: other.
+ *
+ *  iter 85: only the 7 implemented blocks + `other` will actually appear. */
+const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
+  'spirit', 'skill-levels', 'attributes', 'resources',
+  'runes-barrier', 'resistances', 'defence-stats',
+  'offence-speed', 'crit', 'damage-type', 'penetration', 'ailments',
+  'area-duration', 'wisps', 'buff-skills', 'minions', 'meta-skills', 'weapon-specific',
+  'flasks', 'magic-find', 'conversion', 'rage-charges',
+  'breach',
+  'other',
+];
+
+// ─── Functional block text patterns (iter 85: 7 high-priority blocks) ───
+
+/** Spirit mods: "+# к духу" (amulet suffix, no tags → currently neutral).
+ *  Note: /дух/ is in DEFENSIVE_KEYWORDS but only used when text-fallback fires
+ *  (Breach Lord path). For non-Breach-Lord no-tag tokens, classifyByTags returns
+ *  neutral. This functional block catches it explicitly. */
+const SPIRIT_PATTERN = /к духу/i;
+
+/** Skill levels & quality mods:
+ *  - "+# к уровню всех камней умений" (amulet suffix, no tags → neutral)
+ *  - "+#% к максимальному качеству" (ring/amulet, no tags → neutral)
+ *  - "#% повышение скорости перезарядки умений" (ring/amulet/jewel, no tags → neutral)
+ *  - "#% увеличение длительности эффекта умения" (ring/amulet/jewel, no tags → neutral)
+ *  Note: NOT matching "скорость перезарядки боевых кличей" (that's buff-skills, iter 86).
+ *  Note: "максимальн" matches both "максимум" (noun) and "максимальному" (adjective dative). */
+const SKILL_LEVELS_PATTERN = /(?:уровен.*камн.*умени|уровн.*камн.*умени|качеств.*умени|качеств.*всех умени|максимальн.*качеств|скорост.*перезарядк.*умени(?!.*боев)|длительн.*эффект.*умени)/i;
+
+/** Attributes mods:
+ *  - "+# к силе", "+# к ловкости", "+# к интеллекту"
+ *  - "+# ко всем атрибутам" (amulet)
+ *  - "+# к силе и ловкости", "+# к силе и интеллекту", "+# к ловкости и интеллекту" (Breach Lord dual-attr)
+ *  - "#% уменьшение требований к характеристикам у снаряжения и камней умений" (amulet, kurgal_mod)
+ *  Note: attributes tags from jewellery tokens are still routed here — this
+ *  pattern catches no-tag dual-attr Breach Lord mods and the requirement-reduction mod. */
+const ATTRIBUTES_PATTERN = /(?:к силе|к ловк|к интелл|ко всем.*атрибут|ко всем.*характерист|силе.*ловкост|ловкост.*интеллект|силе.*интеллект|уменьшен.*требован.*характерист)/i;
+
+/** Resistances mods:
+ *  - "+#% к сопротивлению огню/холоду/молнии/хаосу"
+ *  - "+#% ко всем стихийным сопротивлениям"
+ *  - "#% повышение значений добавленных свойств сопротивлений" (ring/amulet/belt, no tags → neutral)
+ *  Note: most resist mods have `resistance` tag → already classified defensive via tags.
+ *  This pattern catches the "added resist properties" no-tag mod. */
+const RESISTANCES_PATTERN = /(?:сопротивлен|добавлен.*свойств.*сопротивлен)/i;
+
+/** Runes barrier mods (PoE2 new mechanic):
+ *  - "+# к максимуму рунического барьера" (ring/amulet, no tags → neutral)
+ *  - "#% увеличение максимума рунического барьера" (amulet, no tags → neutral)
+ *  - "#% повышение скорости регенерации рунического барьера" (belt, no tags → neutral)
+ *  - "Восстанавливает # рунического барьера при использовании оберега" (belt, no tags → neutral) */
+const RUNES_BARRIER_PATTERN = /руническ.*барьер/i;
+
+/** Magic Find (MF) mods:
+ *  - "#% повышение редкости найденных предметов" (ring/amulet, prefix+suffix, no tags → neutral)
+ *  - "#% повышение количества найденных предметов" (would be MF too, but doesn't exist in current data)
+ *  Note: NOT matching "качество умений" (that's skill-levels). */
+const MAGIC_FIND_PATTERN = /(?:редкост.*найден.*предмет|количеств.*найден.*предмет)/i;
+
+/** Breach / Breach Lord's Mark mods:
+ *  - "Знак повелителя Бездны" (6 family-groups: ring+amulet+belt × prefix+suffix, essence-origin, no tags → neutral)
+ *  Note: Breach Lord *tagged* mods (kurgal/amanamu/ulaman) are routed by tag/text
+ *  fallback to their proper functional category (attribute/defensive/offensive).
+ *  This pattern catches the no-tag "Знак повелителя Бездны" mod specifically. */
+const BREACH_PATTERN = /Знак.*повелител.*Бездн/i;
+
+/**
+ * Classify a FamilyGroup into a functional block.
+ *
+ * iter 85: 7 high-priority blocks are matched (spirit/skill-levels/attributes/
+ * resistances/runes-barrier/magic-find/breach). All other mods fall back to
+ * `other` for now. Subsequent iterations will add the remaining 16 blocks.
+ *
+ * Match priority:
+ * 1. SPIRIT — exact text match (1 token, very specific)
+ * 2. RUNES_BARRIER — exact text match (4 tokens, very specific)
+ * 3. BREACH — "Знак повелителя Бездны" (6 tokens, very specific)
+ * 4. MAGIC_FIND — MF patterns
+ * 5. SKILL_LEVELS — +skill level / +quality / +recharge / +duration
+ * 6. ATTRIBUTES — attribute patterns (incl. dual-attr Breach Lord)
+ * 7. RESISTANCES — resistance patterns (incl. added-properties)
+ * 8. OTHER — fallback
+ *
+ * Order matters: spirit/runes-barrier/breach are most specific (single semantic
+ * meaning) and must be checked before more general patterns. Within the general
+ * patterns, attributes before resistances (so dual-attr "силе и ловкости" wins
+ * over a hypothetical "сопротивление" substring match — none currently overlap).
+ *
+ * @param group - The FamilyGroup to classify
+ * @returns FunctionalBlock key
+ */
+export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
+  const text = group.displayText;
+
+  // 1. Spirit — must be checked before SKILL_LEVELS ("дух" doesn't overlap, but specific first)
+  if (SPIRIT_PATTERN.test(text)) return 'spirit';
+
+  // 2. Runes barrier — new PoE2 mechanic, very specific keyword
+  if (RUNES_BARRIER_PATTERN.test(text)) return 'runes-barrier';
+
+  // 3. Breach — "Знак повелителя Бездны" (no other "Знак повелителя" mods in jewellery)
+  if (BREACH_PATTERN.test(text)) return 'breach';
+
+  // 4. Magic Find — "редкость/количество найденных предметов"
+  if (MAGIC_FIND_PATTERN.test(text)) return 'magic-find';
+
+  // 5. Skill levels — must come AFTER MF (MF uses "качество" too in some games, but here MF = "редкость/количество")
+  if (SKILL_LEVELS_PATTERN.test(text)) return 'skill-levels';
+
+  // 6. Attributes — Сила/Ловкость/Интеллект/Все + dual-attr
+  if (ATTRIBUTES_PATTERN.test(text)) return 'attributes';
+
+  // 7. Resistances — last specific check
+  if (RESISTANCES_PATTERN.test(text)) return 'resistances';
+
+  // 8. Fallback — will be reduced in subsequent iterations as more blocks are implemented
+  return 'other';
+}
+
 // ─── Unified classification ───
 
 /** Grouping mode determines how mods are sub-categorized within affix columns */
 export type ModGroupMode =
-  | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (amulet, ring, belt)
+  | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (legacy, replaced by affix-functional for ring/amulet/belt)
+  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 85: 7 active + other) — ring/amulet/belt
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
   | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
@@ -1033,6 +1235,32 @@ export function classifyGroups(
         borderClass: SEMANTIC_LABELS[cat].borderClass,
         borderLClass: SEMANTIC_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
+      }));
+  }
+
+  if (mode === 'affix-functional') {
+    // iter 85: classify each group into a functional block (7 active + other).
+    // Groups are returned in FUNCTIONAL_BLOCK_ORDER so the UI shows them in
+    // the typical crafting scenario order (Spirit → Skill levels → Attributes → …).
+    const classified = new Map<FunctionalBlock, FamilyGroup[]>();
+
+    for (const group of groups) {
+      const block = classifyFunctionalBlock(group);
+      const list = classified.get(block) || [];
+      list.push(group);
+      classified.set(block, list);
+    }
+
+    return FUNCTIONAL_BLOCK_ORDER
+      .filter(block => classified.has(block) && classified.get(block)!.length > 0)
+      .map(block => ({
+        key: block,
+        label: FUNCTIONAL_BLOCK_LABELS[block].label,
+        colorClass: FUNCTIONAL_BLOCK_LABELS[block].colorClass,
+        bgClass: FUNCTIONAL_BLOCK_LABELS[block].bgClass,
+        borderClass: FUNCTIONAL_BLOCK_LABELS[block].borderClass,
+        borderLClass: FUNCTIONAL_BLOCK_LABELS[block].borderLClass,
+        groups: classified.get(block)!,
       }));
   }
 

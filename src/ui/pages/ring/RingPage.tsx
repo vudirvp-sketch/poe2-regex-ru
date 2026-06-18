@@ -6,8 +6,11 @@
  * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
  * RegexOutput in sticky bottom-bar via <MobileRegexBar>).
  *
- * Mod list uses VirtualizedModList with two-column prefix/suffix layout
- * and semantic sub-grouping (offensive/defensive/attribute/neutral).
+ * iter 85: `affix-functional` groupMode is implemented in mod-classifier.ts
+ * (7 active blocks: Spirit / Skill levels / Attributes / Resistances /
+ * Runes barrier / MF / Breach) but NOT yet enabled here. iter 86 will add
+ * more blocks (defence-stats, offence-speed, crit, damage-type, ...) and
+ * flip this page to the new mode. See STATUS.md → OP-1.
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';

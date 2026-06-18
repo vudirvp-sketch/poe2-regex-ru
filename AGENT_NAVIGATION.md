@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 84 (P0-fixes implemented)**. **Open Proposal OP-1** (iter 82 analysis → iter 83 verification → iter 84 P0-implementation): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`. iter 84: 3 P0-фикса реализованы (Breach Lord skip + text fallback / waystone keywords / aura+gem tags). Остались P0: 24 функциональных блока + weapon sub-blocks. Все старые Known Issues закрыты (KI-1, KI-2, KI-3). Regex-движок: чистый TS, 0 npm-зависимостей. 1172/1172 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
+> **Entry document.** Read this first. Current state: **iter 85 (functional blocks infrastructure)**. **Open Proposal OP-1** (iter 82 analysis → iter 83 verification → iter 84 P0-implementation → iter 85 infrastructure): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`. iter 84: 3 P0-фикса (Breach Lord / waystone / aura+gem). iter 85: FunctionalBlock type + 7 active patterns + `affix-functional` mode готов, но **production НЕ переключён** (other-bucket = 70% с 7 блоками, нужно ещё 5-7 блоков в iter 86). Все старые Known Issues закрыты (KI-1, KI-2, KI-3). Regex-движок: чистый TS, 0 npm-зависимостей. 1216/1216 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
 
 ---
 
@@ -59,7 +59,7 @@ pnpm dev                  # Vite dev server
 pnpm build                # tsc -b + vite build + shell prerender (no Playwright)
 pnpm build:full           # tsc -b + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
-pnpm test                 # Vitest (all tests) — current: 1144 passing
+pnpm test                 # Vitest (all tests) — current: 1216 passing
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # ETL without cache (regenerate all)
 pnpm etl:check-stale      # Check source HTML staleness

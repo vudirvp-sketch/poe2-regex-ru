@@ -1,10 +1,13 @@
 /**
  * Unit tests for mod-classifier.ts — jewel type heuristic, semantic classification,
- * waystone sentiment, and tablet type classification.
+ * waystone sentiment, tablet type classification, and functional blocks (iter 85).
  *
  * Focus: classifyJewelType heuristic accuracy against ETL ground truth.
  * The heuristic is only used as fallback when ETL jewelType is absent,
  * but must be accurate for future mods and corrupted/desecrated variants.
+ *
+ * iter 85: classifyFunctionalBlock tests for the 7 high-priority blocks
+ * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -14,8 +17,12 @@ import {
   classifyWaystoneSentiment,
   classifyTabletType,
   classifyPriorityTier,
+  classifyFunctionalBlock,
+  classifyGroups,
+  FUNCTIONAL_BLOCK_LABELS,
   TIER_SORT_ORDER,
   type JewelTypeCategory,
+  type FunctionalBlock,
 } from '@shared/mod-classifier';
 import type { FamilyGroup, GameToken } from '@shared/types';
 
@@ -612,5 +619,329 @@ describe('classifyPriorityTier', () => {
     it('B has lower order than C', () => {
       expect(TIER_SORT_ORDER.B).toBeLessThan(TIER_SORT_ORDER.C);
     });
+  });
+});
+
+// ─── classifyFunctionalBlock (iter 85: 7 high-priority blocks) ───
+
+describe('classifyFunctionalBlock (iter 85)', () => {
+  // ─── spirit ───
+  describe('spirit block', () => {
+    it('classifies "+# к духу" (amulet S-tier) as spirit', () => {
+      const group = makeGroup('+(1—2) к духу');
+      expect(classifyFunctionalBlock(group)).toBe('spirit');
+    });
+
+    it('classifies plain "Дух" mention as spirit', () => {
+      const group = makeGroup('+5 к духу');
+      expect(classifyFunctionalBlock(group)).toBe('spirit');
+    });
+  });
+
+  // ─── skill-levels ───
+  describe('skill-levels block', () => {
+    it('classifies "+# к уровню всех камней умений" as skill-levels', () => {
+      const group = makeGroup('+(1—2) к уровню всех камней умений');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+
+    it('classifies "+#% к максимальному качеству" as skill-levels', () => {
+      // Was in neutral — now classified into skill-levels (not MF!)
+      const group = makeGroup('+(5—10)% к максимальному качеству');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+
+    it('classifies "#% повышение скорости перезарядки умений" as skill-levels', () => {
+      const group = makeGroup('(10—20)% повышение скорости перезарядки умений');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+
+    it('classifies "#% увеличение длительности эффекта умения" as skill-levels', () => {
+      const group = makeGroup('(15—25)% увеличение длительности эффекта умения');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+
+    it('does NOT classify "скорость перезарядки боевых кличей" as skill-levels (deferred to buff-skills iter 86)', () => {
+      // This mod is warcry-related → should fall through to 'other' for now
+      const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+  });
+
+  // ─── attributes ───
+  describe('attributes block', () => {
+    it('classifies "+# к силе" as attributes', () => {
+      const group = makeGroup('+(5—7) к силе');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies "+# к ловкости" as attributes', () => {
+      const group = makeGroup('+(5—7) к ловкости');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies "+# к интеллекту" as attributes', () => {
+      const group = makeGroup('+(5—7) к интеллекту');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies "+# ко всем атрибутам" as attributes', () => {
+      const group = makeGroup('+(5—10) ко всем атрибутам');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies dual-attribute Breach Lord mod (ulaman: сила+ловкость) as attributes', () => {
+      const group = makeGroup('+# к силе и ловкости');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies dual-attribute Breach Lord mod (kurgal: ловкость+интеллект) as attributes', () => {
+      const group = makeGroup('+# к ловкости и интеллекту');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies dual-attribute Breach Lord mod (amanamu: сила+интеллект) as attributes', () => {
+      const group = makeGroup('+# к силе и интеллекту');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+
+    it('classifies requirement-reduction mod as attributes (kurgal amulet)', () => {
+      // "#% уменьшение требований к характеристикам у снаряжения и камней умений"
+      const group = makeGroup('(10—20)% уменьшение требований к характеристикам у снаряжения и камней умений');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+  });
+
+  // ─── resistances ───
+  describe('resistances block', () => {
+    it('classifies "+#% к сопротивлению огню" as resistances', () => {
+      const group = makeGroup('+(15—30)% к сопротивлению огню');
+      expect(classifyFunctionalBlock(group)).toBe('resistances');
+    });
+
+    it('classifies "+#% ко всем стихийным сопротивлениям" as resistances', () => {
+      const group = makeGroup('+(5—10)% ко всем стихийным сопротивлениям');
+      expect(classifyFunctionalBlock(group)).toBe('resistances');
+    });
+
+    it('classifies "+#% к сопротивлению хаосу" as resistances', () => {
+      const group = makeGroup('+(5—10)% к сопротивлению хаосу');
+      expect(classifyFunctionalBlock(group)).toBe('resistances');
+    });
+
+    it('classifies "#% повышение значений добавленных свойств сопротивлений" as resistances (no-tag neutral fix)', () => {
+      // Was in neutral — now correctly classified as resistances
+      const group = makeGroup('(10—20)% повышение значений добавленных свойств сопротивлений');
+      expect(classifyFunctionalBlock(group)).toBe('resistances');
+    });
+  });
+
+  // ─── runes-barrier ───
+  describe('runes-barrier block', () => {
+    it('classifies "+# к максимуму рунического барьера" as runes-barrier (ring)', () => {
+      const group = makeGroup('+(1—2) к максимуму рунического барьера');
+      expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
+    });
+
+    it('classifies "#% увеличение максимума рунического барьера" as runes-barrier (amulet)', () => {
+      const group = makeGroup('(10—20)% увеличение максимума рунического барьера');
+      expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
+    });
+
+    it('classifies "#% повышение скорости регенерации рунического барьера" as runes-barrier (belt)', () => {
+      const group = makeGroup('(15—25)% повышение скорости регенерации рунического барьера');
+      expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
+    });
+
+    it('classifies "Восстанавливает # рунического барьера при использовании оберега" as runes-barrier (belt)', () => {
+      const group = makeGroup('Восстанавливает # рунического барьера при использовании оберега');
+      expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
+    });
+  });
+
+  // ─── magic-find ───
+  describe('magic-find block', () => {
+    it('classifies "#% повышение редкости найденных предметов" as magic-find (prefix)', () => {
+      const group = makeGroup('(10—20)% повышение редкости найденных предметов');
+      expect(classifyFunctionalBlock(group)).toBe('magic-find');
+    });
+
+    it('classifies "#% повышение редкости найденных предметов" as magic-find (suffix)', () => {
+      const group = makeGroup('(10—20)% повышение редкости найденных предметов', { affix: 'suffix' });
+      expect(classifyFunctionalBlock(group)).toBe('magic-find');
+    });
+
+    it('does NOT classify "+#% к максимальному качеству" as magic-find (it is skill-levels, not MF)', () => {
+      const group = makeGroup('+(5—10)% к максимальному качеству');
+      expect(classifyFunctionalBlock(group)).not.toBe('magic-find');
+      expect(classifyFunctionalBlock(group)).toBe('skill-levels');
+    });
+  });
+
+  // ─── breach ───
+  describe('breach block', () => {
+    it('classifies "Знак повелителя Бездны" as breach (essence-origin, no tags → was neutral)', () => {
+      const group = makeGroup('Знак повелителя Бездны');
+      expect(classifyFunctionalBlock(group)).toBe('breach');
+    });
+
+    it('classifies "Знак повелителя Бездны" regardless of affix (prefix/suffix)', () => {
+      const prefixGroup = makeGroup('Знак повелителя Бездны', { affix: 'prefix' });
+      const suffixGroup = makeGroup('Знак повелителя Бездны', { affix: 'suffix' });
+      expect(classifyFunctionalBlock(prefixGroup)).toBe('breach');
+      expect(classifyFunctionalBlock(suffixGroup)).toBe('breach');
+    });
+  });
+
+  // ─── other (fallback) ───
+  describe('other block (fallback)', () => {
+    it('classifies "#% усиление эффекта создаваемых вами сгустков" as other (wisps — deferred to iter 86)', () => {
+      const group = makeGroup('(15—25)% усиление эффекта создаваемых вами сгустков');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+
+    it('classifies "#% усиление эффекта Подношений" as other (minions/offerings — deferred to iter 86)', () => {
+      const group = makeGroup('(15—25)% усиление эффекта Подношений');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+
+    it('classifies "#% увеличение максимума энергии вызываемых умений" as other (meta-skills — deferred to iter 86)', () => {
+      const group = makeGroup('(10—20)% увеличение максимума энергии вызываемых умений');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+
+    it('classifies "#% усиление положительных эффектов Архонта на вас" as other (meta-skills — deferred to iter 86)', () => {
+      const group = makeGroup('(15—25)% усиление положительных эффектов Архонта на вас');
+      expect(classifyFunctionalBlock(group)).toBe('other');
+    });
+  });
+
+  // ─── Match priority (ordering) ───
+  describe('match priority', () => {
+    it('spirit wins over skill-levels (дух vs умения — no overlap, but spirit is more specific)', () => {
+      // Single-token "Дух" should always go to spirit
+      const group = makeGroup('+1 к духу');
+      expect(classifyFunctionalBlock(group)).toBe('spirit');
+    });
+
+    it('runes-barrier wins over resistances (no overlap in practice, but specific first)', () => {
+      // "рунического барьера" doesn't contain "сопротивл"
+      const group = makeGroup('+1 к максимуму рунического барьера');
+      expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
+    });
+
+    it('breach wins over attributes (Знак повелителя Бездны has no attribute text)', () => {
+      const group = makeGroup('Знак повелителя Бездны');
+      expect(classifyFunctionalBlock(group)).toBe('breach');
+    });
+
+    it('attributes wins over resistances (dual-attr "силе и ловкости" has no resist substring)', () => {
+      const group = makeGroup('+# к силе и ловкости');
+      expect(classifyFunctionalBlock(group)).toBe('attributes');
+    });
+  });
+
+  // ─── FUNCTIONAL_BLOCK_LABELS ───
+  describe('FUNCTIONAL_BLOCK_LABELS', () => {
+    it('has 24 entries (one per FunctionalBlock)', () => {
+      expect(Object.keys(FUNCTIONAL_BLOCK_LABELS)).toHaveLength(24);
+    });
+
+    it('every block has non-empty label and colorClass', () => {
+      for (const [, config] of Object.entries(FUNCTIONAL_BLOCK_LABELS)) {
+        expect(config.label.length).toBeGreaterThan(0);
+        expect(config.colorClass.length).toBeGreaterThan(0);
+        expect(config.bgClass.length).toBeGreaterThan(0);
+        expect(config.borderClass.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('every FunctionalBlock key is in FUNCTIONAL_BLOCK_LABELS', () => {
+      const allBlocks: FunctionalBlock[] = [
+        'spirit', 'skill-levels', 'attributes', 'resources', 'resistances',
+        'runes-barrier', 'magic-find', 'defence-stats', 'offence-speed', 'crit',
+        'damage-type', 'penetration', 'ailments', 'area-duration', 'wisps',
+        'buff-skills', 'minions', 'meta-skills', 'weapon-specific', 'flasks',
+        'conversion', 'rage-charges', 'breach', 'other',
+      ];
+      for (const block of allBlocks) {
+        expect(FUNCTIONAL_BLOCK_LABELS[block]).toBeDefined();
+      }
+    });
+  });
+});
+
+// ─── classifyGroups with affix-functional mode (iter 85) ───
+
+describe('classifyGroups with affix-functional mode (iter 85)', () => {
+  it('returns empty array for empty input', () => {
+    expect(classifyGroups([], 'affix-functional')).toEqual([]);
+  });
+
+  it('classifies a mixed set into multiple functional blocks', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+(1—2) к духу'),                                // spirit
+      makeGroup('+(5—7) к силе'),                                // attributes
+      makeGroup('+(15—30)% к сопротивлению огню'),               // resistances
+      makeGroup('+(1—2) к максимуму рунического барьера'),       // runes-barrier
+      makeGroup('(10—20)% повышение редкости найденных предметов'), // magic-find
+      makeGroup('Знак повелителя Бездны'),                       // breach
+      makeGroup('#% усиление эффекта создаваемых вами сгустков'), // other (wisps deferred)
+    ];
+
+    const result = classifyGroups(groups, 'affix-functional');
+
+    // 7 distinct blocks should appear
+    expect(result).toHaveLength(7);
+
+    // Verify labels — and order matches FUNCTIONAL_BLOCK_ORDER
+    const labels = result.map(sg => sg.key);
+    expect(labels).toContain('spirit');
+    expect(labels).toContain('attributes');
+    expect(labels).toContain('resistances');
+    expect(labels).toContain('runes-barrier');
+    expect(labels).toContain('magic-find');
+    expect(labels).toContain('breach');
+    expect(labels).toContain('other');
+
+    // Verify spirit comes before attributes in the rendering order
+    const spiritIdx = labels.indexOf('spirit');
+    const attrIdx = labels.indexOf('attributes');
+    expect(spiritIdx).toBeLessThan(attrIdx);
+  });
+
+  it('each sub-group carries the correct label from FUNCTIONAL_BLOCK_LABELS', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+(1—2) к духу'),
+    ];
+
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result).toHaveLength(1);
+    expect(result[0].label).toBe(FUNCTIONAL_BLOCK_LABELS.spirit.label);
+  });
+
+  it('groups with same block are merged into one sub-group', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе'),
+      makeGroup('+(5—7) к ловкости'),
+      makeGroup('+(5—7) к интеллекту'),
+    ];
+
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('attributes');
+    expect(result[0].groups).toHaveLength(3);
+  });
+
+  it('preserves group references (does not mutate or clone)', () => {
+    const group1 = makeGroup('+(1—2) к духу');
+    const group2 = makeGroup('+(5—7) к силе');
+
+    const result = classifyGroups([group1, group2], 'affix-functional');
+
+    const spiritGroup = result.find(sg => sg.key === 'spirit');
+    const attrGroup = result.find(sg => sg.key === 'attributes');
+    expect(spiritGroup?.groups[0]).toBe(group1);
+    expect(attrGroup?.groups[0]).toBe(group2);
   });
 });
