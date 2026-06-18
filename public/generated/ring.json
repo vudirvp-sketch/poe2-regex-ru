@@ -1,8 +1,7 @@
 {
-  "version": "2026-06-18T16:29:46.920Z",
+  "version": "2026-06-18T20:29:09.732Z",
   "category": "ring",
   "source": "poe2db.tw",
-  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "ring.strength1",
@@ -48,7 +47,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_1",
@@ -94,7 +94,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.strength3",
@@ -140,7 +141,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_3",
@@ -186,7 +188,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.strength5",
@@ -232,7 +235,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_5",
@@ -278,7 +282,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.strength7",
@@ -324,7 +329,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_7",
@@ -370,7 +376,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity1",
@@ -413,7 +420,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_9",
@@ -456,7 +464,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity3",
@@ -499,7 +508,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_11",
@@ -542,7 +552,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity5",
@@ -585,7 +596,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_13",
@@ -628,7 +640,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity7",
@@ -671,7 +684,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity8",
@@ -714,7 +728,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence1",
@@ -755,7 +770,8 @@
         12,
         15
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence2",
@@ -796,7 +812,8 @@
         13,
         16
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence3",
@@ -837,7 +854,8 @@
         14,
         17
       ],
-      "level": 22
+      "level": 22,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence4",
@@ -878,7 +896,8 @@
         14,
         17
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence5",
@@ -919,7 +938,8 @@
         14,
         17
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_21",
@@ -960,7 +980,8 @@
         14,
         17
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence7",
@@ -1001,7 +1022,8 @@
         14,
         17
       ],
-      "level": 66
+      "level": 66,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_23",
@@ -1042,7 +1064,8 @@
         14,
         17
       ],
-      "level": 74
+      "level": 74,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.allattributes1",
@@ -1083,7 +1106,8 @@
         12,
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.allattributes2",
@@ -1124,7 +1148,8 @@
         12,
         21
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.allattributes3",
@@ -1165,7 +1190,8 @@
         13,
         22
       ],
-      "level": 22
+      "level": 22,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_27",
@@ -1206,7 +1232,8 @@
         14,
         23
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.normal_28",
@@ -1248,7 +1275,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_29",
@@ -1290,7 +1318,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist3",
@@ -1332,7 +1361,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist4",
@@ -1374,7 +1404,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist5",
@@ -1416,7 +1447,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_33",
@@ -1458,7 +1490,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist7",
@@ -1500,7 +1533,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_35",
@@ -1542,7 +1576,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_36",
@@ -1584,7 +1619,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist2",
@@ -1626,7 +1662,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 14
+      "level": 14,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist3",
@@ -1668,7 +1705,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist4",
@@ -1710,7 +1748,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist5",
@@ -1752,7 +1791,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 50
+      "level": 50,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_41",
@@ -1794,7 +1834,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_42",
@@ -1836,7 +1877,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_43",
@@ -1878,7 +1920,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_44",
@@ -1920,7 +1963,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist2",
@@ -1962,7 +2006,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist3",
@@ -2004,7 +2049,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist4",
@@ -2046,7 +2092,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 37
+      "level": 37,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist5",
@@ -2088,7 +2135,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 49
+      "level": 49,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_49",
@@ -2130,7 +2178,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist7",
@@ -2172,7 +2221,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist8",
@@ -2214,7 +2264,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.allresistances1",
@@ -2264,7 +2315,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.allresistances2",
@@ -2314,7 +2366,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.allresistances3",
@@ -2364,7 +2417,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.allresistances4",
@@ -2414,7 +2468,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.allresistances5",
@@ -2464,7 +2519,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_57",
@@ -2505,7 +2561,8 @@
       "yoficationPositions": [
         19
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.chaosresist2",
@@ -2546,7 +2603,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_59",
@@ -2587,7 +2645,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_60",
@@ -2628,7 +2687,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.chaosresist5",
@@ -2669,7 +2729,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 68
+      "level": 68,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_62",
@@ -2710,7 +2771,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.normal_63",
@@ -2755,7 +2817,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_64",
@@ -2800,7 +2863,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 6
+      "level": 6,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedlife3",
@@ -2845,7 +2909,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedlife4",
@@ -2890,7 +2955,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_67",
@@ -2935,7 +3001,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedlife6",
@@ -2980,7 +3047,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_69",
@@ -3025,7 +3093,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_70",
@@ -3070,7 +3139,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana1",
@@ -3115,7 +3185,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana2",
@@ -3160,7 +3231,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 6
+      "level": 6,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana3",
@@ -3205,7 +3277,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana4",
@@ -3250,7 +3323,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana5",
@@ -3295,7 +3369,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana6",
@@ -3340,7 +3415,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana7",
@@ -3385,7 +3461,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_78",
@@ -3430,7 +3507,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_79",
@@ -3475,7 +3553,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_80",
@@ -3520,7 +3599,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana11",
@@ -3565,7 +3645,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana12",
@@ -3610,7 +3691,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedevasionrating1",
@@ -3657,7 +3739,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating2",
@@ -3704,7 +3787,8 @@
       "yoficationPositions": [
         16
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.normal_85",
@@ -3751,7 +3835,8 @@
       "yoficationPositions": [
         16
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating4",
@@ -3798,7 +3883,8 @@
       "yoficationPositions": [
         16
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating5",
@@ -3845,7 +3931,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating6",
@@ -3892,7 +3979,8 @@
       "yoficationPositions": [
         18
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating7",
@@ -3939,7 +4027,8 @@
       "yoficationPositions": [
         18
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.increasedevasionrating8",
@@ -3986,7 +4075,8 @@
       "yoficationPositions": [
         18
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.normal_91",
@@ -4033,7 +4123,8 @@
       "yoficationPositions": [
         18
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "ring.normal_92",
@@ -4084,7 +4175,8 @@
       "yoficationPositions": [
         29
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_93",
@@ -4137,7 +4229,8 @@
       "yoficationPositions": [
         33
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_94",
@@ -4190,7 +4283,8 @@
       "yoficationPositions": [
         33
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedphysicaldamage4",
@@ -4243,7 +4337,8 @@
       "yoficationPositions": [
         34
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_96",
@@ -4296,7 +4391,8 @@
       "yoficationPositions": [
         34
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_97",
@@ -4349,7 +4445,8 @@
       "yoficationPositions": [
         36
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_98",
@@ -4402,7 +4499,8 @@
       "yoficationPositions": [
         36
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedphysicaldamage8",
@@ -4455,7 +4553,8 @@
       "yoficationPositions": [
         37
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_100",
@@ -4508,7 +4607,8 @@
       "yoficationPositions": [
         37
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage1",
@@ -4558,7 +4658,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage2",
@@ -4610,7 +4711,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage3",
@@ -4662,7 +4764,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage4",
@@ -4714,7 +4817,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage5",
@@ -4766,7 +4870,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage6",
@@ -4818,7 +4923,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedfiredamage7",
@@ -4870,7 +4976,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_108",
@@ -4922,7 +5029,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_109",
@@ -4974,7 +5082,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_110",
@@ -5024,7 +5133,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_111",
@@ -5076,7 +5186,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedcolddamage3",
@@ -5128,7 +5239,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedcolddamage4",
@@ -5180,7 +5292,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedcolddamage5",
@@ -5232,7 +5345,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedcolddamage6",
@@ -5284,7 +5398,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_116",
@@ -5336,7 +5451,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_117",
@@ -5388,7 +5504,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_118",
@@ -5440,7 +5557,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_119",
@@ -5490,7 +5608,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedlightningdamage2",
@@ -5540,7 +5659,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedlightningdamage3",
@@ -5590,7 +5710,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedlightningdamage4",
@@ -5640,7 +5761,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedlightningdamage5",
@@ -5690,7 +5812,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.addedlightningdamage6",
@@ -5742,7 +5865,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_125",
@@ -5794,7 +5918,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_126",
@@ -5846,7 +5971,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_127",
@@ -5898,7 +6024,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.liferegeneration1",
@@ -5941,7 +6068,8 @@
         5,
         30
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_129",
@@ -5984,7 +6112,8 @@
         5,
         32
       ],
-      "level": 5
+      "level": 5,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.liferegeneration3",
@@ -6027,7 +6156,8 @@
         5,
         32
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.liferegeneration4",
@@ -6070,7 +6200,8 @@
         5,
         32
       ],
-      "level": 17
+      "level": 17,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.liferegeneration5",
@@ -6113,7 +6244,8 @@
         5,
         32
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.liferegeneration6",
@@ -6156,7 +6288,8 @@
         5,
         33
       ],
-      "level": 35
+      "level": 35,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_134",
@@ -6199,7 +6332,8 @@
         5,
         34
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration1",
@@ -6242,7 +6376,8 @@
         31,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration2",
@@ -6285,7 +6420,8 @@
         31,
         33
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration3",
@@ -6328,7 +6464,8 @@
         31,
         33
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration4",
@@ -6371,7 +6508,8 @@
         31,
         33
       ],
-      "level": 42
+      "level": 42,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration5",
@@ -6414,7 +6552,8 @@
         31,
         33
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaregeneration6",
@@ -6457,7 +6596,8 @@
         31,
         33
       ],
-      "level": 79
+      "level": 79,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifeleech2",
@@ -6500,7 +6640,8 @@
         14,
         51
       ],
-      "level": 21
+      "level": 21,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifeleech3",
@@ -6543,7 +6684,8 @@
         14,
         51
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaleech2",
@@ -6586,7 +6728,8 @@
         14,
         51
       ],
-      "level": 21
+      "level": 21,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.manaleech3",
@@ -6629,7 +6772,8 @@
         14,
         51
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifegainedfromenemydeath1",
@@ -6667,7 +6811,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifegainedfromenemydeath2",
@@ -6705,7 +6850,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifegainedfromenemydeath3",
@@ -6743,7 +6889,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 22
+      "level": 22,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifegainedfromenemydeath4",
@@ -6781,7 +6928,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lifegainedfromenemydeath5",
@@ -6819,7 +6967,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_150",
@@ -6857,7 +7006,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath1",
@@ -6895,7 +7045,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath2",
@@ -6933,7 +7084,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath3",
@@ -6971,7 +7123,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 23
+      "level": 23,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath4",
@@ -7009,7 +7162,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 34
+      "level": 34,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath5",
@@ -7047,7 +7201,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.managainedfromenemydeath6",
@@ -7085,7 +7240,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.normal_157",
@@ -7132,7 +7288,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy2",
@@ -7179,7 +7336,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy3",
@@ -7226,7 +7384,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy4",
@@ -7273,7 +7432,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy5",
@@ -7320,7 +7480,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy6",
@@ -7367,7 +7528,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy7",
@@ -7414,7 +7576,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 58
+      "level": 58,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedaccuracy8",
@@ -7461,7 +7624,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 67
+      "level": 67,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.normal_165",
@@ -7503,7 +7667,8 @@
         39,
         42
       ],
-      "level": 3
+      "level": 3,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.normal_166",
@@ -7545,7 +7710,8 @@
         40,
         43
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.normal_167",
@@ -7587,7 +7753,8 @@
         40,
         43
       ],
-      "level": 40
+      "level": 40,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.itemfoundrarityincreaseprefix1",
@@ -7636,7 +7803,8 @@
         39,
         42
       ],
-      "level": 10
+      "level": 10,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.itemfoundrarityincreaseprefix2",
@@ -7685,7 +7853,8 @@
         40,
         43
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.itemfoundrarityincreaseprefix3",
@@ -7734,7 +7903,8 @@
         40,
         43
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.lightradiusandmanaregeneration1.tsr1nh",
@@ -7777,7 +7947,8 @@
         30,
         32
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lightradiusandmanaregeneration1.3cj0lv",
@@ -7814,7 +7985,8 @@
       "yoficationPositions": [
         9
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lightradiusandmanaregeneration2.k2eis8",
@@ -7857,7 +8029,8 @@
         31,
         33
       ],
-      "level": 15
+      "level": 15,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lightradiusandmanaregeneration2.hu16ll",
@@ -7894,7 +8067,8 @@
       "yoficationPositions": [
         10
       ],
-      "level": 15
+      "level": 15,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lightradiusandmanaregeneration3.jmqba5",
@@ -7937,7 +8111,8 @@
         31,
         33
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.lightradiusandmanaregeneration3.38a9a4",
@@ -7974,7 +8149,8 @@
       "yoficationPositions": [
         10
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.firedamagepercent1",
@@ -8023,7 +8199,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.firedamagepercent2",
@@ -8072,7 +8249,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.firedamagepercent3",
@@ -8121,7 +8299,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.firedamagepercent4",
@@ -8170,7 +8349,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.firedamagepercent5",
@@ -8219,7 +8399,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.firedamagepercent6",
@@ -8268,7 +8449,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.colddamagepercent1",
@@ -8317,7 +8499,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.colddamagepercent2",
@@ -8366,7 +8549,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.colddamagepercent3",
@@ -8415,7 +8599,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_183",
@@ -8464,7 +8649,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_184",
@@ -8513,7 +8699,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.colddamagepercent6",
@@ -8562,7 +8749,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.lightningdamagepercent1",
@@ -8611,7 +8799,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.lightningdamagepercent2",
@@ -8660,7 +8849,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.lightningdamagepercent3",
@@ -8709,7 +8899,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.lightningdamagepercent4",
@@ -8758,7 +8949,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_190",
@@ -8807,7 +8999,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.lightningdamagepercent6",
@@ -8856,7 +9049,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.chaosdamagepercent1",
@@ -8904,7 +9098,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.chaosdamagepercent2",
@@ -8952,7 +9147,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.chaosdamagepercent3",
@@ -9000,7 +9196,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_195",
@@ -9048,7 +9245,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.chaosdamagepercent5",
@@ -9096,7 +9294,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_197",
@@ -9144,7 +9343,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.normal_198",
@@ -9186,7 +9386,8 @@
         13,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.normal_199",
@@ -9228,7 +9429,8 @@
         14,
         34
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.castspeedjewellery3",
@@ -9270,7 +9472,8 @@
         14,
         34
       ],
-      "level": 35
+      "level": 35,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.castspeedjewellery4",
@@ -9312,7 +9515,8 @@
         14,
         34
       ],
-      "level": 51
+      "level": 51,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.normal_202",
@@ -9354,7 +9558,8 @@
         14,
         34
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.corruptionincreasedmana1_corrupted",
@@ -9392,7 +9597,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.corruptionchaosresistance1_corrupted",
@@ -9433,7 +9639,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.corruptionliferegenerationrate1_corrupted",
@@ -9476,7 +9683,8 @@
         31,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.corruptionmanaregeneration1_corrupted",
@@ -9519,7 +9727,8 @@
         31,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.corruptionallresistances1_corrupted",
@@ -9569,7 +9778,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.corruptionitemfoundrarityincrease1_corrupted",
@@ -9611,7 +9821,8 @@
         40,
         43
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "magic-find"
     },
     {
       "id": "ring.corruptionalldamage1_corrupted",
@@ -9658,7 +9869,8 @@
           "увеличение урона от",
           "хаосом"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.corruptionincreasedskillspeed1_corrupted",
@@ -9704,7 +9916,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.corruptioncriticalstrikemultiplier1_corrupted",
@@ -9752,7 +9965,8 @@
           "Приспеш",
           "чар"
         ]
-      }
+      },
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.corrupted_9_corrupted",
@@ -9798,7 +10012,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.corruptiondexterity1_corrupted",
@@ -9841,7 +10056,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.corruptionintelligence1_corrupted",
@@ -9882,7 +10098,8 @@
         14,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.desecrated_0_desecrated",
@@ -9929,7 +10146,8 @@
       "yoficationPositions": [
         12
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.desecrated_1_desecrated",
@@ -9978,7 +10196,8 @@
         15,
         40
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "ailments"
     },
     {
       "id": "ring.abyssmodringkurgalprefixfreezebuildupifconsumedpowercharge_desecrated",
@@ -10029,7 +10248,8 @@
         54,
         82
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "ailments"
     },
     {
       "id": "ring.abyssmodringulamanprefixshockmagnitudeifconsumedfrenzycharge_desecrated",
@@ -10078,7 +10298,8 @@
         15,
         37
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "ailments"
     },
     {
       "id": "ring.abyssmodringamuletamanamuprefixminiondamageifyou_27vehitrecently_desecrated",
@@ -10129,7 +10350,8 @@
         26,
         56
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.abyssmodringamuletkurgalprefixspelldamagewhileenergyshieldfull_desecrated",
@@ -10181,7 +10403,8 @@
         53,
         62
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.desecrated_5_desecrated",
@@ -10224,7 +10447,8 @@
         20,
         23
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.desecrated_16_desecrated",
@@ -10265,7 +10489,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.desecrated_6_desecrated",
@@ -10307,7 +10532,8 @@
         23,
         42
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "ring.abyssmodringamuletamanamusuffixremnantcollectionrange_desecrated",
@@ -10347,7 +10573,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.abyssmodringamanamusuffixlifeleechamount_desecrated",
@@ -10390,7 +10617,8 @@
         25,
         36
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.desecrated_9_desecrated",
@@ -10434,7 +10662,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.abyssmodarmourjewellerykurgalsuffixdexterityandintelligence_desecrated",
@@ -10476,7 +10705,8 @@
         24,
         27
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.desecrated_11_desecrated",
@@ -10520,7 +10750,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.abyssmodringamuletkurgalsuffixcooldownrecoveryrate_desecrated",
@@ -10563,7 +10794,8 @@
         30,
         41
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "ring.abyssmodringamuletkurgalsuffixexposureeffect_desecrated",
@@ -10607,7 +10839,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated",
@@ -10646,7 +10879,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.abyssmodringkurgalsuffixmanaleechamount_desecrated",
@@ -10689,7 +10923,8 @@
         25,
         36
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.desecrated_17_desecrated",
@@ -10733,7 +10968,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.abyssmodringamuletulamansuffixrecoverpercentmaxlifeonkill_desecrated",
@@ -10772,7 +11008,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.abyssmodringamuletulamansuffixskillspeed_desecrated",
@@ -10819,7 +11056,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.abyssmodringamuletulamanprefixattackdamagewhilelowlife_desecrated",
@@ -10867,7 +11105,8 @@
         15,
         49
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringmaximumelementalinfusion_breachborn",
@@ -10905,7 +11144,8 @@
         24,
         45
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringofferingeffect_breachborn",
@@ -10951,7 +11191,8 @@
         13,
         32
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringtemporaryminionlimit_breachborn",
@@ -10992,7 +11233,8 @@
         51,
         62
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringminionarmourbreak_breachborn",
@@ -11045,7 +11287,8 @@
         53,
         69
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringminionailmentmagnitude_breachborn",
@@ -11094,7 +11337,8 @@
         14,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringcommandskillspeed_breachborn",
@@ -11138,7 +11382,8 @@
         32,
         48
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringminioncooldownrecovery_breachborn",
@@ -11187,7 +11432,8 @@
         "ru": [
           "умений"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringminionpuppetmaster_breachborn",
@@ -11225,7 +11471,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.genesistreeringspelldamageasextralightning_breachborn",
@@ -11275,7 +11522,8 @@
         31,
         41
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringspelldamageasextrafire_breachborn",
@@ -11325,7 +11573,8 @@
         34,
         44
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringspelldamageasextracold_breachborn",
@@ -11375,7 +11624,8 @@
         34,
         44
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringspelldamageasextrachaos_breachborn",
@@ -11423,7 +11673,8 @@
         35,
         45
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringdamagetakenfrommanabeforelife_breachborn",
@@ -11473,7 +11724,8 @@
         32,
         55
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.genesistreeringexposureeffect_breachborn",
@@ -11516,7 +11768,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.genesistreeringmaximuminvocationenergy_breachborn",
@@ -11556,7 +11809,8 @@
         32,
         51
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "ring.genesistreeringspellimpaleeffect_breachborn",
@@ -11597,7 +11851,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.miniondamage1_breachborn",
@@ -11653,6 +11908,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -11711,6 +11967,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -11769,6 +12026,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -11827,6 +12085,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -11885,6 +12144,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -11943,6 +12203,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12001,6 +12262,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12059,6 +12321,7 @@
           "хаосом"
         ]
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12113,6 +12376,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12167,6 +12431,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12221,6 +12486,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12275,6 +12541,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12329,6 +12596,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12383,6 +12651,7 @@
       "regexExclude": {
         "ru": []
       },
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -12431,7 +12700,8 @@
         30,
         58
       ],
-      "level": 31
+      "level": 31,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionattackspeedandcastspeed2_breachborn",
@@ -12477,7 +12747,8 @@
         30,
         58
       ],
-      "level": 53
+      "level": 53,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionattackspeedandcastspeed3_breachborn",
@@ -12523,7 +12794,8 @@
         30,
         58
       ],
-      "level": 69
+      "level": 69,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionattackspeedandcastspeed4_breachborn",
@@ -12569,7 +12841,8 @@
         31,
         59
       ],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering1_breachborn",
@@ -12618,7 +12891,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering2_breachborn",
@@ -12667,7 +12941,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering3_breachborn",
@@ -12716,7 +12991,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering4_breachborn",
@@ -12765,7 +13041,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering5_breachborn",
@@ -12814,7 +13091,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikechancering6_breachborn",
@@ -12863,7 +13141,8 @@
         "ru": [
           "для"
         ]
-      }
+      },
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring1_breachborn",
@@ -12907,7 +13186,8 @@
         34,
         52
       ],
-      "level": 17
+      "level": 17,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring2_breachborn",
@@ -12951,7 +13231,8 @@
         35,
         53
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring3_breachborn",
@@ -12995,7 +13276,8 @@
         35,
         53
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring4_breachborn",
@@ -13039,7 +13321,8 @@
         35,
         53
       ],
-      "level": 57
+      "level": 57,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring5_breachborn",
@@ -13083,7 +13366,8 @@
         35,
         53
       ],
-      "level": 69
+      "level": 69,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minioncriticalstrikemultiplierring6_breachborn",
@@ -13127,7 +13411,8 @@
         35,
         53
       ],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering1_breachborn",
@@ -13177,7 +13462,8 @@
         14,
         32
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering2_breachborn",
@@ -13227,7 +13513,8 @@
         14,
         33
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering3_breachborn",
@@ -13277,7 +13564,8 @@
         14,
         33
       ],
-      "level": 41
+      "level": 41,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering4_breachborn",
@@ -13327,7 +13615,8 @@
         14,
         33
       ],
-      "level": 52
+      "level": 52,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering5_breachborn",
@@ -13377,7 +13666,8 @@
         14,
         33
       ],
-      "level": 67
+      "level": 67,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.minionlifering6_breachborn",
@@ -13427,7 +13717,8 @@
         14,
         33
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "minions"
     },
     {
       "id": "ring.spelldamagering1_breachborn",
@@ -13480,7 +13771,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering2_breachborn",
@@ -13533,7 +13825,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering3_breachborn",
@@ -13586,7 +13879,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering4_breachborn",
@@ -13639,7 +13933,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering5_breachborn",
@@ -13692,7 +13987,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering6_breachborn",
@@ -13745,7 +14041,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering7_breachborn",
@@ -13798,7 +14095,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spelldamagering8_breachborn",
@@ -13851,7 +14149,8 @@
         "ru": [
           "при"
         ]
-      }
+      },
+      "functionalCategory": "damage-type"
     },
     {
       "id": "ring.spellcostefficiency1_breachborn",
@@ -13899,7 +14198,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcostefficiency2_breachborn",
@@ -13947,7 +14247,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcostefficiency3_breachborn",
@@ -13995,7 +14296,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 42
+      "level": 42,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcostefficiency4_breachborn",
@@ -14043,7 +14345,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 53
+      "level": 53,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcostefficiency5_breachborn",
@@ -14091,7 +14394,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 64
+      "level": 64,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcostefficiency6_breachborn",
@@ -14139,7 +14443,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 77
+      "level": 77,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.arcanesurgeeffect1_breachborn",
@@ -14187,7 +14492,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.arcanesurgeeffect2_breachborn",
@@ -14235,7 +14541,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.arcanesurgeeffect3_breachborn",
@@ -14283,7 +14590,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 61
+      "level": 61,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.arcanesurgeeffect4_breachborn",
@@ -14331,7 +14639,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 79
+      "level": 79,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.spellcriticalstrikechancering1_breachborn",
@@ -14373,7 +14682,8 @@
         12,
         29
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikechancering2_breachborn",
@@ -14415,7 +14725,8 @@
         14,
         31
       ],
-      "level": 32
+      "level": 32,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikechancering3_breachborn",
@@ -14457,7 +14768,8 @@
         14,
         31
       ],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikechancering4_breachborn",
@@ -14499,7 +14811,8 @@
         14,
         31
       ],
-      "level": 58
+      "level": 58,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikechancering5_breachborn",
@@ -14541,7 +14854,8 @@
         14,
         31
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikechancering6_breachborn",
@@ -14583,7 +14897,8 @@
         14,
         31
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring1_breachborn",
@@ -14625,7 +14940,8 @@
         14,
         34
       ],
-      "level": 17
+      "level": 17,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring2_breachborn",
@@ -14667,7 +14983,8 @@
         15,
         35
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring3_breachborn",
@@ -14709,7 +15026,8 @@
         15,
         35
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring4_breachborn",
@@ -14751,7 +15069,8 @@
         15,
         35
       ],
-      "level": 57
+      "level": 57,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring5_breachborn",
@@ -14793,7 +15112,8 @@
         15,
         35
       ],
-      "level": 69
+      "level": 69,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.spellcriticalstrikemultiplierring6_breachborn",
@@ -14835,7 +15155,8 @@
         15,
         35
       ],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "crit"
     },
     {
       "id": "ring.curseeffectiveness1_breachborn",
@@ -14883,7 +15204,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 31
+      "level": 31,
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "ring.curseeffectiveness2_breachborn",
@@ -14931,7 +15253,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "ring.curseeffectiveness3_breachborn",
@@ -14979,7 +15302,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 61
+      "level": 61,
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "ring.curseeffectiveness4_breachborn",
@@ -15027,7 +15351,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 77
+      "level": 77,
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "ring.globalincreasespellskillgemlevel1_breachborn",
@@ -15067,7 +15392,8 @@
         21,
         26
       ],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "ring.spellareaofeffectpercent1_breachborn",
@@ -15109,7 +15435,8 @@
         27,
         37
       ],
-      "level": 23
+      "level": 23,
+      "functionalCategory": "area-duration"
     },
     {
       "id": "ring.spellareaofeffectpercent2_breachborn",
@@ -15151,7 +15478,8 @@
         28,
         38
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "area-duration"
     },
     {
       "id": "ring.spellareaofeffectpercent3_breachborn",
@@ -15193,7 +15521,8 @@
         29,
         39
       ],
-      "level": 69
+      "level": 69,
+      "functionalCategory": "area-duration"
     },
     {
       "id": "ring.remnantpickupradiusincrease1_breachborn",
@@ -15231,7 +15560,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.remnantpickupradiusincrease2_breachborn",
@@ -15269,7 +15599,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.remnantpickupradiusincrease3_breachborn",
@@ -15307,7 +15638,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 51
+      "level": 51,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.remnantpickupradiusincrease4_breachborn",
@@ -15345,7 +15677,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 64
+      "level": 64,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.remnantpickupradiusincrease5_breachborn",
@@ -15383,7 +15716,8 @@
       "yoficationPositions": [
         41
       ],
-      "level": 76
+      "level": 76,
+      "functionalCategory": "other"
     },
     {
       "id": "ring.increasedlife2_essence",
@@ -15421,7 +15755,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 6
+      "level": 6,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedlife6_essence",
@@ -15459,7 +15794,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana3_essence",
@@ -15497,7 +15833,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana7_essence",
@@ -15535,7 +15872,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.increasedmana8_essence",
@@ -15573,7 +15911,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.chaosresist1_essence",
@@ -15614,7 +15953,8 @@
       "yoficationPositions": [
         19
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.chaosresist2_essence",
@@ -15655,7 +15995,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.chaosresist4_essence",
@@ -15696,7 +16037,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.strength2_essence",
@@ -15738,7 +16080,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.strength4_essence",
@@ -15780,7 +16123,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.strength6_essence",
@@ -15822,7 +16166,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity2_essence",
@@ -15864,7 +16209,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity4_essence",
@@ -15906,7 +16252,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.dexterity6_essence",
@@ -15948,7 +16295,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence2_essence",
@@ -15990,7 +16338,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence4_essence",
@@ -16032,7 +16381,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.intelligence6_essence",
@@ -16074,7 +16424,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "ring.manaregeneration5_essence",
@@ -16117,7 +16468,8 @@
         31,
         33
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "resources"
     },
     {
       "id": "ring.essenceabyssprefix_essence",
@@ -16151,7 +16503,8 @@
         12,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "breach"
     },
     {
       "id": "ring.essenceabysssuffix_essence",
@@ -16185,7 +16538,8 @@
         12,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "breach"
     },
     {
       "id": "ring.essencebreach_essence",
@@ -16220,7 +16574,8 @@
       "yoficationPositions": [
         24
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "ring.fireresist2_essence",
@@ -16262,7 +16617,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist4_essence",
@@ -16304,7 +16660,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.fireresist6_essence",
@@ -16346,7 +16703,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist2_essence",
@@ -16388,7 +16746,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 14
+      "level": 14,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist4_essence",
@@ -16430,7 +16789,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.coldresist6_essence",
@@ -16472,7 +16832,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist2_essence",
@@ -16514,7 +16875,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist4_essence",
@@ -16556,7 +16918,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 37
+      "level": 37,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.lightningresist6_essence",
@@ -16598,7 +16961,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.alloymaximumrunicward1_essence",
@@ -16636,7 +17000,8 @@
       "yoficationPositions": [
         26
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "runes-barrier"
     },
     {
       "id": "ring.alloyattackspeedring1_essence",
@@ -16682,7 +17047,8 @@
         "ru": [
           "Приспеш"
         ]
-      }
+      },
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "ring.alloyeffectofresistancemods1_essence",
@@ -16723,7 +17089,8 @@
         34,
         57
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "ring.essenceincreasedmanapercent1_essence",
@@ -16763,7 +17130,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "resources"
     }
   ],
   "optimizationTable": {

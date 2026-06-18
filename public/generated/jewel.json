@@ -1,8 +1,7 @@
 {
-  "version": "2026-06-18T16:29:44.602Z",
+  "version": "2026-06-18T20:29:04.101Z",
   "category": "jewel",
   "source": "poe2db.tw",
-  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "jewel.mod_665j7w",
@@ -51,7 +50,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_l1y0fl",
@@ -100,7 +100,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_4mxucf",
@@ -155,7 +156,8 @@
           "присутствия"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_is2jx9",
@@ -203,7 +205,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_y5kxwn",
@@ -250,7 +253,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_4mokx7",
@@ -299,7 +303,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_764thg",
@@ -348,7 +353,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_r2zyq",
@@ -397,7 +403,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_d5haza",
@@ -449,7 +456,8 @@
         43
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_ec1qa7",
@@ -497,7 +505,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_s63yui",
@@ -543,7 +552,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_b6rfxs",
@@ -592,7 +602,8 @@
         40
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_mn6kp5",
@@ -641,7 +652,8 @@
         19
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_pk8bwh",
@@ -690,7 +702,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_r274re",
@@ -741,7 +754,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_5fpldd",
@@ -790,7 +804,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_sxudmh",
@@ -840,7 +855,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_5rcjkz",
@@ -890,7 +906,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_bgyeco",
@@ -939,7 +956,8 @@
         36
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_j05iep",
@@ -990,7 +1008,8 @@
         78
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_svvmjl",
@@ -1040,7 +1059,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_pnbnmw",
@@ -1090,7 +1110,8 @@
         28
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_kksrx",
@@ -1139,7 +1160,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_2f8r6l",
@@ -1188,7 +1210,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_9ve7qk",
@@ -1237,7 +1260,8 @@
         54
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_kzpdi6",
@@ -1289,7 +1313,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_semlex",
@@ -1339,7 +1364,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_fsam8f",
@@ -1389,7 +1415,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_sx2rlh",
@@ -1441,7 +1468,8 @@
         47
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_4gpaq4",
@@ -1493,7 +1521,8 @@
         49
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_ank8rj",
@@ -1542,7 +1571,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_d6tyom",
@@ -1592,7 +1622,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_hpfzjc",
@@ -1642,7 +1673,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_uij56f",
@@ -1692,7 +1724,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_fpwy7g",
@@ -1742,7 +1775,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_w3efj5",
@@ -1791,7 +1825,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_ofi3q4",
@@ -1842,7 +1877,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_q7sbar",
@@ -1892,7 +1928,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_ss8pp2",
@@ -1942,7 +1979,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_spdhko",
@@ -1991,7 +2029,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_8wpis3",
@@ -2039,7 +2078,8 @@
         38
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_ynqitf",
@@ -2085,7 +2125,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "rage-charges"
     },
     {
       "id": "jewel.mod_7jm1s2",
@@ -2140,7 +2181,8 @@
           " атак"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_ewgwh2",
@@ -2191,7 +2233,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_1pakh0",
@@ -2250,6 +2293,7 @@
         ]
       },
       "jewelType": "ruby",
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -2318,6 +2362,7 @@
         ]
       },
       "jewelType": "shared",
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -2377,7 +2422,8 @@
           "компаньонов"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_au7igs",
@@ -2427,7 +2473,8 @@
         45
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_gdne1e",
@@ -2477,7 +2524,8 @@
         36
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_x6zrt7",
@@ -2520,7 +2568,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_90o1h0",
@@ -2568,7 +2617,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_hof1hr",
@@ -2616,7 +2666,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_nh1y25",
@@ -2665,7 +2716,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_o9z2xh",
@@ -2713,7 +2765,8 @@
         44
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_6haa0h",
@@ -2762,7 +2815,8 @@
         48
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_bkjsej",
@@ -2812,7 +2866,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_7f2j1",
@@ -2854,7 +2909,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_ppjbmq",
@@ -2903,7 +2959,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_o3wt9e",
@@ -2956,7 +3013,8 @@
         52
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_kgc2ed",
@@ -3006,7 +3064,8 @@
         26
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_np71ok",
@@ -3054,7 +3113,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_v2r1wr",
@@ -3103,7 +3163,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_rldve4",
@@ -3152,7 +3213,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_1kqh44",
@@ -3201,7 +3263,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_fktkkd",
@@ -3250,7 +3313,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_85sj3k",
@@ -3300,7 +3364,8 @@
         34
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_wditcf",
@@ -3340,7 +3405,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_jhgqqc",
@@ -3388,7 +3454,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_5ac7q8",
@@ -3437,7 +3504,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_szkiml",
@@ -3490,7 +3558,8 @@
         93
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_su6el3",
@@ -3543,7 +3612,8 @@
         67
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_s7ardq",
@@ -3591,7 +3661,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_v23dqm",
@@ -3640,7 +3711,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_dstpng",
@@ -3689,7 +3761,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_k640km",
@@ -3738,7 +3811,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_wrtzb8",
@@ -3787,7 +3861,8 @@
         51
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_q0s6bs",
@@ -3835,7 +3910,8 @@
         38
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_n5pvk5",
@@ -3884,7 +3960,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_kqgvve",
@@ -3923,7 +4000,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_ip0so8",
@@ -3957,7 +4035,8 @@
         21
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_jebkzx",
@@ -3991,7 +4070,8 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_o0k8y4",
@@ -4041,7 +4121,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_9yf795",
@@ -4091,7 +4172,8 @@
         38
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_dx5767",
@@ -4133,7 +4215,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_61sb7w",
@@ -4174,7 +4257,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_xd7vhh",
@@ -4222,7 +4306,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_b0xymi",
@@ -4265,7 +4350,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_1si702",
@@ -4308,7 +4394,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_am4lla",
@@ -4364,7 +4451,8 @@
           "боевыми"
         ]
       },
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_rg0sep",
@@ -4406,7 +4494,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_xwpyem",
@@ -4452,7 +4541,8 @@
         40
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_zhr8fs",
@@ -4495,7 +4585,8 @@
         37
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_vnnpjy",
@@ -4537,7 +4628,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_7spjc9",
@@ -4585,7 +4677,8 @@
           "умения"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_9c1hm6",
@@ -4625,7 +4718,8 @@
         78
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_8j3prk",
@@ -4669,7 +4763,8 @@
         44
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_wqamd4",
@@ -4713,7 +4808,8 @@
         53
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_8zq7zq",
@@ -4758,7 +4854,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_kcvuf",
@@ -4800,7 +4897,8 @@
         40
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "jewel.mod_wkqo4a",
@@ -4850,7 +4948,8 @@
           "для"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_1jeatc",
@@ -4900,7 +4999,8 @@
           "копьями"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_xtgbaj",
@@ -4944,7 +5044,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_atixoo",
@@ -4989,7 +5090,8 @@
         47
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_tqnqww",
@@ -5032,7 +5134,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_r9cucj",
@@ -5074,7 +5177,8 @@
         16
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_1kuxym",
@@ -5117,7 +5221,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_jif6fk",
@@ -5160,7 +5265,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_e33dlw",
@@ -5202,7 +5308,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_k7v06p",
@@ -5246,7 +5353,8 @@
         54
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_ju5djn",
@@ -5288,7 +5396,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_bmigen",
@@ -5332,7 +5441,8 @@
         43
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_fmxska",
@@ -5379,6 +5489,7 @@
         ]
       },
       "jewelType": "shared",
+      "functionalCategory": "other",
       "regexPrefixContext": {
         "ru": "заканчиваются"
       }
@@ -5428,7 +5539,8 @@
         54
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_ha6tdi",
@@ -5471,7 +5583,8 @@
         56
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "jewel.mod_40sol4",
@@ -5520,6 +5633,7 @@
         ]
       },
       "jewelType": "shared",
+      "functionalCategory": "damage-type",
       "regexPrefixContext": {
         "ru": "урон"
       }
@@ -5566,7 +5680,8 @@
         48
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_yzxktz",
@@ -5612,7 +5727,8 @@
           "маны"
         ]
       },
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_hpjpwn",
@@ -5652,7 +5768,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_z81xg6",
@@ -5693,7 +5810,8 @@
         72
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_zel2yn",
@@ -5742,7 +5860,8 @@
           "боевыми"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_xxbuhi",
@@ -5785,7 +5904,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_2k4vf6",
@@ -5829,7 +5949,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_4yzy57",
@@ -5875,7 +5996,8 @@
           "меток"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "jewel.mod_1wnizu",
@@ -5914,7 +6036,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_caeit5",
@@ -5958,7 +6081,8 @@
         34
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_gzhni",
@@ -6000,7 +6124,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_gmcqke",
@@ -6040,7 +6165,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_k92tj8",
@@ -6083,7 +6209,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_molc7",
@@ -6122,7 +6249,8 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_uoia3f",
@@ -6164,7 +6292,8 @@
         43
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_s3muj3",
@@ -6208,7 +6337,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_4go2h8",
@@ -6258,7 +6388,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_p21wj2",
@@ -6300,7 +6431,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_lnx8ju",
@@ -6340,7 +6472,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "flasks"
     },
     {
       "id": "jewel.mod_bi3isu",
@@ -6383,7 +6516,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_a9u5n7",
@@ -6422,7 +6556,8 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_q6nji8",
@@ -6466,7 +6601,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_b618b2",
@@ -6515,6 +6651,7 @@
         "ru": []
       },
       "jewelType": "emerald",
+      "functionalCategory": "offence-speed",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -6565,6 +6702,7 @@
         "ru": []
       },
       "jewelType": "emerald",
+      "functionalCategory": "skill-levels",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -6607,7 +6745,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_28ty77",
@@ -6647,7 +6786,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_of3hi9",
@@ -6687,7 +6827,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_ba414f",
@@ -6734,7 +6875,8 @@
         58
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_5ai0gr",
@@ -6784,7 +6926,8 @@
           "умения"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_7dzvh0",
@@ -6837,6 +6980,7 @@
         ]
       },
       "jewelType": "sapphire",
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "имеют"
       }
@@ -6884,7 +7028,8 @@
         53
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_dl3kn2",
@@ -6931,7 +7076,8 @@
         70
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_7ncmu6",
@@ -6980,7 +7126,8 @@
         45
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_ix7usn",
@@ -7029,6 +7176,7 @@
         ]
       },
       "jewelType": "shared",
+      "functionalCategory": "minions",
       "regexPrefixContext": {
         "ru": "воскрешаются"
       }
@@ -7075,7 +7223,8 @@
         34
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_euckz9",
@@ -7119,7 +7268,8 @@
         46
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel.mod_aj1xk2",
@@ -7156,7 +7306,8 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_nxoa7u",
@@ -7197,7 +7348,8 @@
         53
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_7a59h",
@@ -7239,7 +7391,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_krgc82",
@@ -7282,7 +7435,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_nuzdb5",
@@ -7326,7 +7480,8 @@
         34
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_z274du",
@@ -7368,7 +7523,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_a0y567",
@@ -7409,7 +7565,8 @@
         47
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "rage-charges"
     },
     {
       "id": "jewel.mod_i5jucj",
@@ -7449,7 +7606,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "rage-charges"
     },
     {
       "id": "jewel.mod_cs89lw",
@@ -7493,7 +7651,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_w1hboq",
@@ -7537,7 +7696,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_mkialb",
@@ -7579,7 +7739,8 @@
         48
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_26n6rw",
@@ -7621,7 +7782,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_du0lie",
@@ -7664,7 +7826,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_64qqpn",
@@ -7707,7 +7870,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "crit"
     },
     {
       "id": "jewel.mod_sioc8h",
@@ -7753,7 +7917,8 @@
           "булавами"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_aqkyv5",
@@ -7799,7 +7964,8 @@
           "при"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_unop1x",
@@ -7848,7 +8014,8 @@
           "состояний"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_cgpq5s",
@@ -7898,7 +8065,8 @@
           "оглушения"
         ]
       },
-      "jewelType": "sapphire"
+      "jewelType": "sapphire",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel.mod_arw8sd",
@@ -7941,7 +8109,8 @@
         66
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_y9k2x2",
@@ -7984,7 +8153,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_q0cayh",
@@ -8026,7 +8196,8 @@
         41
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_4gzg6c",
@@ -8067,7 +8238,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_vr3sas",
@@ -8109,7 +8281,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_w5oqnz",
@@ -8153,7 +8326,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_e0ea8n",
@@ -8196,7 +8370,8 @@
         30
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "jewel.mod_oto1bz",
@@ -8239,7 +8414,8 @@
         33
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "weapon-specific"
     },
     {
       "id": "jewel.mod_6guazq",
@@ -8279,7 +8455,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_knitv6",
@@ -8319,7 +8496,8 @@
         32
       ],
       "level": 1,
-      "jewelType": "emerald"
+      "jewelType": "emerald",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel.mod_zfr4zr",
@@ -8358,7 +8536,8 @@
         22
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_2ri0wv",
@@ -8400,7 +8579,8 @@
         60
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "rage-charges"
     },
     {
       "id": "jewel.mod_gwvpjc",
@@ -8441,7 +8621,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel.mod_h7jszs",
@@ -8481,7 +8662,8 @@
         36
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_s6f4m2",
@@ -8526,7 +8708,8 @@
         67
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_kcoue9",
@@ -8571,7 +8754,8 @@
         67
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_e6wevs",
@@ -8616,7 +8800,8 @@
         67
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_uxgq8o",
@@ -8665,7 +8850,8 @@
           "Приспеш"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_d5o3e6",
@@ -8704,7 +8890,8 @@
         29
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_mx8nvj",
@@ -8740,7 +8927,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_gag3b",
@@ -8777,7 +8965,8 @@
         54
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_drjokh",
@@ -8815,7 +9004,8 @@
         55
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel.mod_239rj9",
@@ -8854,7 +9044,8 @@
         76
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_91dj9d",
@@ -8898,7 +9089,8 @@
         47
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "offence-speed"
     }
   ],
   "optimizationTable": {

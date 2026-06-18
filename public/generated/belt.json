@@ -1,8 +1,7 @@
 {
-  "version": "2026-06-18T16:29:46.056Z",
+  "version": "2026-06-18T20:29:07.330Z",
   "category": "belt",
   "source": "poe2db.tw",
-  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "belt.strength1",
@@ -48,7 +47,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.normal_1",
@@ -94,7 +94,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength3",
@@ -140,7 +141,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.normal_3",
@@ -186,7 +188,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength5",
@@ -232,7 +235,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.normal_5",
@@ -278,7 +282,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength7",
@@ -324,7 +329,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.normal_7",
@@ -370,7 +376,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength9",
@@ -416,7 +423,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.normal_9",
@@ -458,7 +466,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_10",
@@ -500,7 +509,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist3",
@@ -542,7 +552,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist4",
@@ -584,7 +595,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist5",
@@ -626,7 +638,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_14",
@@ -668,7 +681,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist7",
@@ -710,7 +724,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_16",
@@ -752,7 +767,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_17",
@@ -794,7 +810,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist2",
@@ -836,7 +853,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 14
+      "level": 14,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist3",
@@ -878,7 +896,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist4",
@@ -920,7 +939,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist5",
@@ -962,7 +982,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 50
+      "level": 50,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_22",
@@ -1004,7 +1025,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_23",
@@ -1046,7 +1068,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_24",
@@ -1088,7 +1111,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_25",
@@ -1130,7 +1154,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist2",
@@ -1172,7 +1197,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist3",
@@ -1214,7 +1240,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist4",
@@ -1256,7 +1283,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 37
+      "level": 37,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist5",
@@ -1298,7 +1326,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 49
+      "level": 49,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_30",
@@ -1340,7 +1369,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist7",
@@ -1382,7 +1412,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 71
+      "level": 71,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist8",
@@ -1424,7 +1455,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 82
+      "level": 82,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_33",
@@ -1465,7 +1497,8 @@
       "yoficationPositions": [
         19
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.chaosresist2",
@@ -1506,7 +1539,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_35",
@@ -1547,7 +1581,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_36",
@@ -1588,7 +1623,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.chaosresist5",
@@ -1629,7 +1665,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 68
+      "level": 68,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_38",
@@ -1670,7 +1707,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.normal_39",
@@ -1715,7 +1753,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_40",
@@ -1760,7 +1799,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 6
+      "level": 6,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife3",
@@ -1805,7 +1845,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife4",
@@ -1850,7 +1891,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_43",
@@ -1895,7 +1937,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife6",
@@ -1940,7 +1983,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_45",
@@ -1985,7 +2029,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_46",
@@ -2030,7 +2075,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_47",
@@ -2075,7 +2121,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife10",
@@ -2120,7 +2167,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana1",
@@ -2165,7 +2213,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana2",
@@ -2210,7 +2259,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 6
+      "level": 6,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana3",
@@ -2255,7 +2305,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana4",
@@ -2300,7 +2351,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana5",
@@ -2345,7 +2397,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana6",
@@ -2390,7 +2443,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana7",
@@ -2435,7 +2489,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_56",
@@ -2480,7 +2535,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_57",
@@ -2525,7 +2581,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating1",
@@ -2572,7 +2629,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating2",
@@ -2619,7 +2677,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating3",
@@ -2666,7 +2725,8 @@
       "yoficationPositions": [
         15
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating4",
@@ -2713,7 +2773,8 @@
       "yoficationPositions": [
         16
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating5",
@@ -2760,7 +2821,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating6",
@@ -2807,7 +2869,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating7",
@@ -2854,7 +2917,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating8",
@@ -2901,7 +2965,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating9",
@@ -2948,7 +3013,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.increasedphysicaldamagereductionrating10",
@@ -2995,7 +3061,8 @@
       "yoficationPositions": [
         17
       ],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold1",
@@ -3033,7 +3100,8 @@
       "yoficationPositions": [
         22
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold2",
@@ -3071,7 +3139,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold3",
@@ -3109,7 +3178,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 15
+      "level": 15,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold4",
@@ -3147,7 +3217,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 22
+      "level": 22,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold5",
@@ -3185,7 +3256,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold6",
@@ -3223,7 +3295,8 @@
       "yoficationPositions": [
         24
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold7",
@@ -3261,7 +3334,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold8",
@@ -3299,7 +3373,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.stunthreshold9",
@@ -3337,7 +3412,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 63
+      "level": 63,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.normal_77",
@@ -3375,7 +3451,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.attackertakesdamage1",
@@ -3427,7 +3504,8 @@
       "yoficationPositions": [
         23
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage2",
@@ -3479,7 +3557,8 @@
       "yoficationPositions": [
         24
       ],
-      "level": 10
+      "level": 10,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage3",
@@ -3531,7 +3610,8 @@
       "yoficationPositions": [
         27
       ],
-      "level": 19
+      "level": 19,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage4",
@@ -3583,7 +3663,8 @@
       "yoficationPositions": [
         27
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage5",
@@ -3635,7 +3716,8 @@
       "yoficationPositions": [
         27
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage6",
@@ -3687,7 +3769,8 @@
       "yoficationPositions": [
         28
       ],
-      "level": 63
+      "level": 63,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.attackertakesdamage7",
@@ -3739,7 +3822,8 @@
       "yoficationPositions": [
         31
       ],
-      "level": 74
+      "level": 74,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.liferegeneration1",
@@ -3782,7 +3866,8 @@
         5,
         30
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_86",
@@ -3825,7 +3910,8 @@
         5,
         32
       ],
-      "level": 5
+      "level": 5,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration3",
@@ -3868,7 +3954,8 @@
         5,
         32
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration4",
@@ -3911,7 +3998,8 @@
         5,
         32
       ],
-      "level": 17
+      "level": 17,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration5",
@@ -3954,7 +4042,8 @@
         5,
         32
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration6",
@@ -3997,7 +4086,8 @@
         5,
         33
       ],
-      "level": 35
+      "level": 35,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.normal_91",
@@ -4040,7 +4130,8 @@
         5,
         34
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration8",
@@ -4083,7 +4174,8 @@
         5,
         34
       ],
-      "level": 58
+      "level": 58,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.liferegeneration9",
@@ -4126,7 +4218,8 @@
         5,
         34
       ],
-      "level": 68
+      "level": 68,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.beltflaskliferecoveryrate1",
@@ -4174,7 +4267,8 @@
         13,
         37
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskliferecoveryrate2",
@@ -4222,7 +4316,8 @@
         14,
         38
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskliferecoveryrate3",
@@ -4270,7 +4365,8 @@
         14,
         38
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskliferecoveryrate4",
@@ -4318,7 +4414,8 @@
         14,
         38
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.normal_98",
@@ -4366,7 +4463,8 @@
         14,
         38
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskliferecoveryrate6",
@@ -4414,7 +4512,8 @@
         14,
         38
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate1",
@@ -4462,7 +4561,8 @@
         13,
         37
       ],
-      "level": 5
+      "level": 5,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate2",
@@ -4510,7 +4610,8 @@
         14,
         38
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate3",
@@ -4558,7 +4659,8 @@
         14,
         38
       ],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate4",
@@ -4606,7 +4708,8 @@
         14,
         38
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate5",
@@ -4654,7 +4757,8 @@
         14,
         38
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltflaskmanarecoveryrate6",
@@ -4702,7 +4806,8 @@
         14,
         38
       ],
-      "level": 63
+      "level": 63,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedcharmduration1",
@@ -4752,7 +4857,8 @@
         41,
         43
       ],
-      "level": 8
+      "level": 8,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmduration2",
@@ -4802,7 +4908,8 @@
         43,
         45
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmduration3",
@@ -4852,7 +4959,8 @@
         43,
         45
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmduration4",
@@ -4902,7 +5010,8 @@
         43,
         45
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmduration5",
@@ -4952,7 +5061,8 @@
         43,
         45
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained1",
@@ -4991,7 +5101,8 @@
         14,
         24
       ],
-      "level": 2
+      "level": 2,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained2",
@@ -5030,7 +5141,8 @@
         15,
         25
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained3",
@@ -5069,7 +5181,8 @@
         15,
         25
       ],
-      "level": 32
+      "level": 32,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained4",
@@ -5108,7 +5221,8 @@
         15,
         25
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained5",
@@ -5147,7 +5261,8 @@
         15,
         25
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedflaskchargesgained6",
@@ -5186,7 +5301,8 @@
         15,
         25
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused1",
@@ -5226,7 +5342,8 @@
         14,
         38
       ],
-      "level": 3
+      "level": 3,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused2",
@@ -5266,7 +5383,8 @@
         15,
         39
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused3",
@@ -5306,7 +5424,8 @@
         15,
         39
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused4",
@@ -5346,7 +5465,8 @@
         15,
         39
       ],
-      "level": 50
+      "level": 50,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused5",
@@ -5386,7 +5506,8 @@
         15,
         39
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltreducedflaskchargesused6",
@@ -5426,7 +5547,8 @@
         15,
         39
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained1",
@@ -5469,7 +5591,8 @@
         51,
         53
       ],
-      "level": 2
+      "level": 2,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained2",
@@ -5512,7 +5635,8 @@
         52,
         54
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained3",
@@ -5555,7 +5679,8 @@
         52,
         54
       ],
-      "level": 32
+      "level": 32,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained4",
@@ -5598,7 +5723,8 @@
         52,
         54
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained5",
@@ -5641,7 +5767,8 @@
         52,
         54
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltincreasedcharmchargesgained6",
@@ -5684,7 +5811,8 @@
         52,
         54
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused1",
@@ -5728,7 +5856,8 @@
         53,
         55
       ],
-      "level": 3
+      "level": 3,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused2",
@@ -5772,7 +5901,8 @@
         54,
         56
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused3",
@@ -5816,7 +5946,8 @@
         54,
         56
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused4",
@@ -5860,7 +5991,8 @@
         54,
         56
       ],
-      "level": 50
+      "level": 50,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused5",
@@ -5904,7 +6036,8 @@
         54,
         56
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.beltreducedcharmchargesused6",
@@ -5948,7 +6081,8 @@
         54,
         56
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.corruptionincreasedlife1_corrupted",
@@ -5986,7 +6120,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.corruptionincreasedphysicaldamagereductionratingpercent1_corrupted",
@@ -6026,7 +6161,8 @@
       "yoficationPositions": [
         14
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.corruptionincreasedevasionratingpercent1_corrupted",
@@ -6067,7 +6203,8 @@
         15,
         25
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.corruptionincreasedenergyshieldpercent1_corrupted",
@@ -6109,7 +6246,8 @@
         32,
         39
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.corruptionfireresistance1_corrupted",
@@ -6151,7 +6289,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.corruptioncoldresistance1_corrupted",
@@ -6193,7 +6332,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.corruptionlightningresistance1_corrupted",
@@ -6235,7 +6375,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.corruptionmaximumfireresistance1_corrupted",
@@ -6277,7 +6418,8 @@
       "yoficationPositions": [
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.corruptionmaximumendurancecharges1_corrupted",
@@ -6310,7 +6452,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.corrupted_9_corrupted",
@@ -6356,7 +6499,8 @@
           "к силе и",
           "ловкости"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.corruptiondexterity1_corrupted",
@@ -6399,7 +6543,8 @@
         "ru": [
           " интел"
         ]
-      }
+      },
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.corruptionintelligence1_corrupted",
@@ -6440,7 +6585,8 @@
         14,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.abyssmodbeltamanamuprefixchancetonotconsumecharmcharges_desecrated",
@@ -6490,7 +6636,8 @@
         22,
         51
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.abyssmodbeltamanamuprefixcharmsgainchargespersecond_desecrated",
@@ -6540,7 +6687,8 @@
         4,
         28
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.abyssmodbeltkurgalprefixmanaflasksgainchargespersecond_desecrated",
@@ -6587,7 +6735,8 @@
       "yoficationPositions": [
         33
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.abyssmodbeltulamanprefixlifeflasksgainchargespersecond_desecrated",
@@ -6634,7 +6783,8 @@
       "yoficationPositions": [
         37
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.abyssmodbeltamanamuprefixgainfirethornsper100maximumlife_desecrated",
@@ -6679,7 +6829,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.abyssmodbeltamanamusuffixthornsbasecriticalstrikechance_desecrated",
@@ -6721,7 +6872,8 @@
       "yoficationPositions": [
         22
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "crit"
     },
     {
       "id": "belt.abyssmodbeltkurgalprefixgainarmourpercentofmana_desecrated",
@@ -6770,7 +6922,8 @@
       "yoficationPositions": [
         35
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.abyssmodbeltkurgalprefixchancetonotconsumeflaskconsumecharges_desecrated",
@@ -6815,7 +6968,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.abyssmodbeltulamanprefixchancetonotconsumeflaskconsumecharges_desecrated",
@@ -6860,7 +7014,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.desecrated_6_desecrated",
@@ -6903,7 +7058,8 @@
         20,
         23
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.desecrated_14_desecrated",
@@ -6944,7 +7100,8 @@
       "yoficationPositions": [
         13
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.abyssmodbootsandbeltamanamusuffixreducedigniteduration_desecrated",
@@ -6989,7 +7146,8 @@
         15,
         24
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.desecrated_9_desecrated",
@@ -7033,7 +7191,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.abyssmodarmourjewellerykurgalsuffixdexterityandintelligence_desecrated",
@@ -7075,7 +7234,8 @@
         24,
         27
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.desecrated_11_desecrated",
@@ -7119,7 +7279,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.abyssmodbeltkurgalsuffixmanaregenerationrate_desecrated",
@@ -7163,7 +7324,8 @@
         31,
         33
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.abyssmodbootsandbeltkurgalsuffixreducedbleeddurationself_desecrated",
@@ -7209,7 +7371,8 @@
         39,
         41
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.abyssmodbootsandbeltulamansuffixreducedpoisondurationself_desecrated",
@@ -7254,7 +7417,8 @@
         24,
         39
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.desecrated_15_desecrated",
@@ -7298,7 +7462,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.abyssmodbeltulamansuffixreducedslowpotencyselfifcharmedrecently_desecrated",
@@ -7346,7 +7511,8 @@
         100,
         102
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.abyssmodbeltulamanprefixliferegenrateduringlifeflaskeffect_desecrated",
@@ -7398,7 +7564,8 @@
         46,
         51
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.genesistreebeltminionadditionalprojectilechance_breachborn",
@@ -7442,7 +7609,8 @@
         42,
         70
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltsealgainfrequency_breachborn",
@@ -7478,7 +7646,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.breach_tree_2_breachborn",
@@ -7524,7 +7693,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.genesistreebeltlightningdamageiflightninginfusioncollectedlast8seconds_breachborn",
@@ -7570,7 +7740,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.genesistreebeltcolddamageifcoldinfusioncollectedlast8seconds_breachborn",
@@ -7616,7 +7787,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.genesistreebeltarchoneffect_breachborn",
@@ -7662,7 +7834,8 @@
         13,
         25
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "belt.genesistreebeltchancetonotconsumeinfusioniflostarchonpast6seconds_breachborn",
@@ -7712,7 +7885,8 @@
         154,
         163
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.genesistreebeltspellelementalailmentmagnitude_breachborn",
@@ -7754,7 +7928,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.genesistreebeltarchonduration_breachborn",
@@ -7793,7 +7968,8 @@
         15,
         24
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "belt.genesistreebeltarchonundeathonofferinguse_breachborn",
@@ -7831,7 +8007,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltminiondamageperdifferentcommandskillusedlast15seconds_breachborn",
@@ -7877,7 +8054,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltminionsgiganticrevivedrecently_breachborn",
@@ -7920,7 +8098,8 @@
         10,
         51
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltdamageremovedfromspectres_breachborn",
@@ -7967,7 +8146,8 @@
         60,
         68
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltminionreservationefficiency_breachborn",
@@ -8009,7 +8189,8 @@
         54,
         66
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltminionmeleesplash_breachborn",
@@ -8043,7 +8224,8 @@
         4,
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.genesistreebeltminionduration_breachborn",
@@ -8087,7 +8269,8 @@
         31,
         47
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionmovementspeed1_breachborn",
@@ -8133,7 +8316,8 @@
         47,
         52
       ],
-      "level": 27
+      "level": 27,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionmovementspeed2_breachborn",
@@ -8179,7 +8363,8 @@
         48,
         53
       ],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionmovementspeed3_breachborn",
@@ -8225,7 +8410,8 @@
         49,
         54
       ],
-      "level": 68
+      "level": 68,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionmovementspeed4_breachborn",
@@ -8271,7 +8457,8 @@
         49,
         54
       ],
-      "level": 77
+      "level": 77,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering1_breachborn",
@@ -8321,7 +8508,8 @@
         14,
         32
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering2_breachborn",
@@ -8371,7 +8559,8 @@
         14,
         33
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering3_breachborn",
@@ -8421,7 +8610,8 @@
         14,
         33
       ],
-      "level": 41
+      "level": 41,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering4_breachborn",
@@ -8471,7 +8661,8 @@
         14,
         33
       ],
-      "level": 52
+      "level": 52,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering5_breachborn",
@@ -8521,7 +8712,8 @@
         14,
         33
       ],
-      "level": 67
+      "level": 67,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionlifering6_breachborn",
@@ -8571,7 +8763,8 @@
         14,
         33
       ],
-      "level": 75
+      "level": 75,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionrevivespeed1_breachborn",
@@ -8620,7 +8813,8 @@
         17,
         40
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionrevivespeed2_breachborn",
@@ -8669,7 +8863,8 @@
         17,
         40
       ],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionrevivespeed3_breachborn",
@@ -8718,7 +8913,8 @@
         17,
         40
       ],
-      "level": 63
+      "level": 63,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionrevivespeed4_breachborn",
@@ -8767,7 +8963,8 @@
         17,
         42
       ],
-      "level": 76
+      "level": 76,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage1_breachborn",
@@ -8817,7 +9014,8 @@
         26,
         51
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage2_breachborn",
@@ -8867,7 +9065,8 @@
         26,
         51
       ],
-      "level": 35
+      "level": 35,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage3_breachborn",
@@ -8917,7 +9116,8 @@
         26,
         51
       ],
-      "level": 44
+      "level": 44,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage4_breachborn",
@@ -8967,7 +9167,8 @@
         26,
         51
       ],
-      "level": 52
+      "level": 52,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage5_breachborn",
@@ -9017,7 +9218,8 @@
         26,
         51
       ],
-      "level": 63
+      "level": 63,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minioncommandskilldamage6_breachborn",
@@ -9067,7 +9269,8 @@
         26,
         51
       ],
-      "level": 81
+      "level": 81,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.miniongemlevelbelt1_breachborn",
@@ -9108,7 +9311,8 @@
         26,
         36
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "belt.miniongemlevelbelt2_breachborn",
@@ -9149,7 +9353,8 @@
         26,
         36
       ],
-      "level": 64
+      "level": 64,
+      "functionalCategory": "skill-levels"
     },
     {
       "id": "belt.minionimmobilisationbuildup1_breachborn",
@@ -9187,7 +9392,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionimmobilisationbuildup2_breachborn",
@@ -9225,7 +9431,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 34
+      "level": 34,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionimmobilisationbuildup3_breachborn",
@@ -9263,7 +9470,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 48
+      "level": 48,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionimmobilisationbuildup4_breachborn",
@@ -9301,7 +9509,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionimmobilisationbuildup5_breachborn",
@@ -9339,7 +9548,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionimmobilisationbuildup6_breachborn",
@@ -9377,7 +9587,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 74
+      "level": 74,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.offeringduration1_breachborn",
@@ -9420,7 +9631,8 @@
         34,
         45
       ],
-      "level": 15
+      "level": 15,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.offeringduration2_breachborn",
@@ -9463,7 +9675,8 @@
         35,
         46
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.offeringduration3_breachborn",
@@ -9506,7 +9719,8 @@
         35,
         46
       ],
-      "level": 47
+      "level": 47,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.offeringduration4_breachborn",
@@ -9549,7 +9763,8 @@
         35,
         46
       ],
-      "level": 68
+      "level": 68,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.offeringduration5_breachborn",
@@ -9592,7 +9807,8 @@
         35,
         46
       ],
-      "level": 79
+      "level": 79,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionareaofeffect1_breachborn",
@@ -9635,7 +9851,8 @@
         31,
         45
       ],
-      "level": 23
+      "level": 23,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionareaofeffect2_breachborn",
@@ -9678,7 +9895,8 @@
         32,
         46
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionareaofeffect3_breachborn",
@@ -9721,7 +9939,8 @@
         33,
         47
       ],
-      "level": 49
+      "level": 49,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionareaofeffect4_breachborn",
@@ -9764,7 +9983,8 @@
         33,
         47
       ],
-      "level": 61
+      "level": 61,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.minionareaofeffect5_breachborn",
@@ -9807,7 +10027,8 @@
         33,
         47
       ],
-      "level": 73
+      "level": 73,
+      "functionalCategory": "minions"
     },
     {
       "id": "belt.increasedenergyshield1_breachborn",
@@ -9855,7 +10076,8 @@
         22,
         29
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield2_breachborn",
@@ -9903,7 +10125,8 @@
         23,
         30
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield3_breachborn",
@@ -9951,7 +10174,8 @@
         23,
         30
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield4_breachborn",
@@ -9999,7 +10223,8 @@
         23,
         30
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield5_breachborn",
@@ -10047,7 +10272,8 @@
         23,
         30
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield6_breachborn",
@@ -10095,7 +10321,8 @@
         23,
         30
       ],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield7_breachborn",
@@ -10143,7 +10370,8 @@
         23,
         30
       ],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield8_breachborn",
@@ -10191,7 +10419,8 @@
         23,
         30
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.breach_caster_8_breachborn",
@@ -10239,7 +10468,8 @@
         23,
         30
       ],
-      "level": 70
+      "level": 70,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedenergyshield10_breachborn",
@@ -10287,7 +10517,8 @@
         23,
         30
       ],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration1_breachborn",
@@ -10330,7 +10561,8 @@
         31,
         33
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration2_breachborn",
@@ -10373,7 +10605,8 @@
         31,
         33
       ],
-      "level": 18
+      "level": 18,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration3_breachborn",
@@ -10416,7 +10649,8 @@
         31,
         33
       ],
-      "level": 29
+      "level": 29,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration4_breachborn",
@@ -10459,7 +10693,8 @@
         31,
         33
       ],
-      "level": 42
+      "level": 42,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration5_breachborn",
@@ -10502,7 +10737,8 @@
         31,
         33
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.manaregeneration6_breachborn",
@@ -10545,7 +10781,8 @@
         31,
         33
       ],
-      "level": 79
+      "level": 79,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect1_breachborn",
@@ -10591,7 +10828,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect2_breachborn",
@@ -10637,7 +10875,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 26
+      "level": 26,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect3_breachborn",
@@ -10683,7 +10922,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 39
+      "level": 39,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect4_breachborn",
@@ -10729,7 +10969,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 53
+      "level": 53,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect5_breachborn",
@@ -10775,7 +11016,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 67
+      "level": 67,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect6_breachborn",
@@ -10821,7 +11063,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 80
+      "level": 80,
+      "functionalCategory": "damage-type"
     },
     {
       "id": "belt.damageremovedfrommanabeforelife1_breachborn",
@@ -10871,7 +11114,8 @@
         31,
         54
       ],
-      "level": 23
+      "level": 23,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.damageremovedfrommanabeforelife2_breachborn",
@@ -10921,7 +11165,8 @@
         31,
         54
       ],
-      "level": 39
+      "level": 39,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.damageremovedfrommanabeforelife3_breachborn",
@@ -10971,7 +11216,8 @@
         33,
         56
       ],
-      "level": 52
+      "level": 52,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.damageremovedfrommanabeforelife4_breachborn",
@@ -11021,7 +11267,8 @@
         33,
         56
       ],
-      "level": 77
+      "level": 77,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.remnantgranteffecttwicechance1_breachborn",
@@ -11060,7 +11307,8 @@
         22,
         63
       ],
-      "level": 24
+      "level": 24,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.remnantgranteffecttwicechance2_breachborn",
@@ -11099,7 +11347,8 @@
         22,
         63
       ],
-      "level": 37
+      "level": 37,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.remnantgranteffecttwicechance3_breachborn",
@@ -11138,7 +11387,8 @@
         24,
         65
       ],
-      "level": 49
+      "level": 49,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.remnantgranteffecttwicechance4_breachborn",
@@ -11177,7 +11427,8 @@
         24,
         65
       ],
-      "level": 61
+      "level": 61,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.remnantgranteffecttwicechance5_breachborn",
@@ -11216,7 +11467,8 @@
         24,
         65
       ],
-      "level": 73
+      "level": 73,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect1_breachborn",
@@ -11255,7 +11507,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 22
+      "level": 22,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect2_breachborn",
@@ -11294,7 +11547,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 41
+      "level": 41,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect3_breachborn",
@@ -11333,7 +11587,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 59
+      "level": 59,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect4_breachborn",
@@ -11372,7 +11627,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 76
+      "level": 76,
+      "functionalCategory": "offence-speed"
     },
     {
       "id": "belt.spellcooldownrecovery1_breachborn",
@@ -11421,7 +11677,8 @@
         27,
         29
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.spellcooldownrecovery2_breachborn",
@@ -11470,7 +11727,8 @@
         28,
         30
       ],
-      "level": 28
+      "level": 28,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.spellcooldownrecovery3_breachborn",
@@ -11519,7 +11777,8 @@
         29,
         31
       ],
-      "level": 41
+      "level": 41,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.spellcooldownrecovery4_breachborn",
@@ -11568,7 +11827,8 @@
         29,
         31
       ],
-      "level": 59
+      "level": 59,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.spellcooldownrecovery5_breachborn",
@@ -11617,7 +11877,8 @@
         29,
         31
       ],
-      "level": 74
+      "level": 74,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.increasedlife3_essence",
@@ -11655,7 +11916,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife7_essence",
@@ -11693,7 +11955,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedlife8_essence",
@@ -11731,7 +11994,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 54
+      "level": 54,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana3_essence",
@@ -11769,7 +12033,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana6_essence",
@@ -11807,7 +12072,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.increasedmana7_essence",
@@ -11845,7 +12111,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 46
+      "level": 46,
+      "functionalCategory": "resources"
     },
     {
       "id": "belt.chaosresist1_essence",
@@ -11886,7 +12153,8 @@
       "yoficationPositions": [
         19
       ],
-      "level": 16
+      "level": 16,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.chaosresist2_essence",
@@ -11927,7 +12195,8 @@
       "yoficationPositions": [
         20
       ],
-      "level": 30
+      "level": 30,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.chaosresist4_essence",
@@ -11968,7 +12237,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 56
+      "level": 56,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.strength2_essence",
@@ -12010,7 +12280,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength4_essence",
@@ -12052,7 +12323,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.strength6_essence",
@@ -12094,7 +12366,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.dexterity2_essence",
@@ -12136,7 +12409,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.dexterity4_essence",
@@ -12178,7 +12452,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.dexterity6_essence",
@@ -12220,7 +12495,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.intelligence2_essence",
@@ -12262,7 +12538,8 @@
         32,
         35
       ],
-      "level": 11
+      "level": 11,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.intelligence4_essence",
@@ -12304,7 +12581,8 @@
         33,
         36
       ],
-      "level": 33
+      "level": 33,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.intelligence6_essence",
@@ -12346,7 +12624,8 @@
         33,
         36
       ],
-      "level": 55
+      "level": 55,
+      "functionalCategory": "attributes"
     },
     {
       "id": "belt.stunthreshold10_essence",
@@ -12384,7 +12663,8 @@
       "yoficationPositions": [
         25
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "belt.essencecorruptfortwoenchantments1_essence",
@@ -12419,7 +12699,8 @@
         18,
         21
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "other"
     },
     {
       "id": "belt.essenceabyssprefix_essence",
@@ -12453,7 +12734,8 @@
         12,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "breach"
     },
     {
       "id": "belt.essenceabysssuffix_essence",
@@ -12487,7 +12769,8 @@
         12,
         17
       ],
-      "level": 1
+      "level": 1,
+      "functionalCategory": "breach"
     },
     {
       "id": "belt.fireresist2_essence",
@@ -12529,7 +12812,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 12
+      "level": 12,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist4_essence",
@@ -12571,7 +12855,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 36
+      "level": 36,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.fireresist6_essence",
@@ -12613,7 +12898,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist2_essence",
@@ -12655,7 +12941,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 14
+      "level": 14,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist4_essence",
@@ -12697,7 +12984,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 38
+      "level": 38,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.coldresist6_essence",
@@ -12739,7 +13027,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist2_essence",
@@ -12781,7 +13070,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist4_essence",
@@ -12823,7 +13113,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 37
+      "level": 37,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.lightningresist6_essence",
@@ -12865,7 +13156,8 @@
       "yoficationPositions": [
         21
       ],
-      "level": 60
+      "level": 60,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.alloyrunicwardrechargerate1_essence",
@@ -12907,7 +13199,8 @@
         33,
         45
       ],
-      "level": 13
+      "level": 13,
+      "functionalCategory": "runes-barrier"
     },
     {
       "id": "belt.alloyrecoverrunicwardoncharmuse1_essence",
@@ -12947,7 +13240,8 @@
         64,
         66
       ],
-      "level": 25
+      "level": 25,
+      "functionalCategory": "runes-barrier"
     },
     {
       "id": "belt.alloyflaskchargespersecond1_essence",
@@ -12985,7 +13279,8 @@
       "yoficationPositions": [
         28
       ],
-      "level": 45
+      "level": 45,
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.alloyeffectofresistancemods1_essence",
@@ -13026,7 +13321,8 @@
         34,
         57
       ],
-      "level": 65
+      "level": 65,
+      "functionalCategory": "resistances"
     },
     {
       "id": "belt.essencefirerecouplife1_essence",
@@ -13069,7 +13365,8 @@
         14,
         53
       ],
-      "level": 72
+      "level": 72,
+      "functionalCategory": "resources"
     }
   ],
   "optimizationTable": {

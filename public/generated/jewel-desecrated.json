@@ -1,8 +1,7 @@
 {
-  "version": "2026-06-18T16:29:44.651Z",
+  "version": "2026-06-18T20:29:04.157Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
-  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "jewel-desecrated.mod_bqqkkx.2el5wf",
@@ -52,7 +51,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_bqqkkx.65nirt",
@@ -102,7 +102,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_eyjflj.eqh213",
@@ -151,7 +152,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_eyjflj.271ywk",
@@ -199,7 +201,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.94gfrd",
@@ -249,7 +252,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.83ripe",
@@ -299,7 +303,8 @@
         27
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.l39mc1",
@@ -350,7 +355,8 @@
         38
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.83ripe",
@@ -400,7 +406,8 @@
         27
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_bqqkkx.83ripe",
@@ -450,7 +457,8 @@
         27
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.hm26ic",
@@ -499,7 +507,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.hm26ic",
@@ -548,7 +557,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_bqqkkx.hm26ic",
@@ -597,7 +607,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_1hoszq.mppmwm",
@@ -647,7 +658,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_1hoszq.94gfrd",
@@ -698,7 +710,8 @@
         24
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_1hoszq.l39mc1",
@@ -750,7 +763,8 @@
         38
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resources"
     },
     {
       "id": "jewel-desecrated.mod_1hoszq.2el5wf",
@@ -800,7 +814,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_t1xcyw.xx9z60",
@@ -846,7 +861,8 @@
         10
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_t1xcyw.fz1xv",
@@ -896,7 +912,8 @@
         50
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.gfd0if",
@@ -957,7 +974,8 @@
           "хаосом"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.gfd0if",
@@ -1018,7 +1036,8 @@
           "хаосом"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_bqqkkx.gfd0if",
@@ -1079,7 +1098,8 @@
           "хаосом"
         ]
       },
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_xur8rl.qz3oep",
@@ -1129,7 +1149,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_xur8rl.2qgsp2",
@@ -1179,7 +1200,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_3yl2ru",
@@ -1224,6 +1246,7 @@
       "yoficationPositions": [],
       "level": 1,
       "jewelType": "shared",
+      "functionalCategory": "ailments",
       "regexPrefixContext": {
         "ru": "(10—20)%"
       }
@@ -1276,7 +1299,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.65nirt",
@@ -1326,7 +1350,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_9pzo51.kaidc5",
@@ -1375,7 +1400,8 @@
         28
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel-desecrated.mod_9pzo51.2x69rp",
@@ -1424,7 +1450,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "area-duration"
     },
     {
       "id": "jewel-desecrated.mod_izhaok.pzbcmc",
@@ -1474,7 +1501,8 @@
         39
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_izhaok.kf75fq",
@@ -1526,7 +1554,8 @@
         52
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_38l65n.j5lorp",
@@ -1575,7 +1604,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_38l65n.5qhcxi",
@@ -1625,7 +1655,8 @@
         28
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_jhgxor.v8ialh",
@@ -1675,7 +1706,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_jhgxor.6zvewd",
@@ -1725,7 +1757,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_jwh6ae.hgvpmu",
@@ -1775,7 +1808,8 @@
         25
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_jwh6ae.q21upq",
@@ -1825,7 +1859,8 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_o8n5zg.teh7q4",
@@ -1878,7 +1913,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_o8n5zg.4tmt3n",
@@ -1931,7 +1967,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_2oddfi",
@@ -1982,7 +2019,8 @@
         11
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_o3en7o.65w5sk",
@@ -2032,7 +2070,8 @@
         13
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_o3en7o.gp88l4",
@@ -2082,7 +2121,8 @@
         31
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-desecrated.mod_vbabcw.x1al00",
@@ -2133,7 +2173,8 @@
         35
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_vbabcw.i87whb",
@@ -2184,7 +2225,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "defence-stats"
     },
     {
       "id": "jewel-desecrated.mod_7owzgr",
@@ -2240,7 +2282,8 @@
           "компаньонов"
         ]
       },
-      "jewelType": "ruby"
+      "jewelType": "ruby",
+      "functionalCategory": "minions"
     },
     {
       "id": "jewel-desecrated.mod_vurd3w",
@@ -2281,7 +2324,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     },
     {
       "id": "jewel-desecrated.mod_4swy0t",
@@ -2324,7 +2368,8 @@
         23
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     },
     {
       "id": "jewel-desecrated.mod_y69s0v",
@@ -2365,7 +2410,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     }
   ],
   "optimizationTable": {

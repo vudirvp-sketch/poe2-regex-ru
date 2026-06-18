@@ -1,8 +1,7 @@
 {
-  "version": "2026-06-18T16:29:44.668Z",
+  "version": "2026-06-18T20:29:04.179Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
-  "sourceHash": "2c0eaf3e1c37ddd0",
   "tokens": [
     {
       "id": "jewel-corrupted.mod_2n1idl",
@@ -43,7 +42,8 @@
         12
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     },
     {
       "id": "jewel-corrupted.mod_hbgahi",
@@ -82,7 +82,8 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     },
     {
       "id": "jewel-corrupted.mod_tzz8ec",
@@ -124,7 +125,8 @@
         15
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "attributes"
     },
     {
       "id": "jewel-corrupted.mod_m7831k",
@@ -167,7 +169,8 @@
         20
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-corrupted.mod_d5gez1",
@@ -210,7 +213,8 @@
         20
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-corrupted.mod_38y3za",
@@ -253,7 +257,8 @@
         20
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-corrupted.mod_9yfwgf",
@@ -295,7 +300,8 @@
         19
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-corrupted.mod_ba3cxh",
@@ -329,7 +335,8 @@
         7
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     },
     {
       "id": "jewel-corrupted.mod_ac18xa",
@@ -367,7 +374,8 @@
         37
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-corrupted.mod_2hn06i",
@@ -403,7 +411,8 @@
         17
       ],
       "level": 1,
-      "jewelType": "shared"
+      "jewelType": "shared",
+      "functionalCategory": "other"
     }
   ],
   "optimizationTable": {

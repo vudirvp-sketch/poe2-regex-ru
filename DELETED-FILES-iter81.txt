@@ -1,0 +1,7 @@
+iter 81 patch — DELETED FILES (rm these from local repo):
+  ITER65_README.md
+  DELETED-FILES.txt
+
+These were stale patch-archive files from iter 64/65. Safe to remove — content was migration instructions for patches that landed 15+ iters ago.
+
+See README.md — it was rewritten in iter 81 as a project presentation / SEO doc (was: iter-72 patch archive description).
