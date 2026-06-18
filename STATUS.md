@@ -2,7 +2,7 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 78
+> **Текущая итерация:** 79
 
 ---
 
@@ -16,11 +16,10 @@
 
 | Приоритет | Что | Сложность | Риск |
 |-----------|-----|-----------|------|
-| 🔴 высокий | Bug #8 (Phase 2) — split `useCategoryPage` hook на 4 hooks (`useCategoryData`/`useRegexBuilder`/`useUrlSync`/`useFilterActions`). Phase 1 (extract pure helpers) **done iter 78** — `useCategoryPage.ts` 1325 → 486 строк, pure helpers moved to `category-ast-utils.ts`. Phase 2 (split hook + 3 setState-in-effect в WaystonePage/JewelPage/TabletPage) требует API change affecting all 8 category pages. | высокая | высокий (UI регрессия) |
-| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:470` (was :488 in original bug report) skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle. **Analysis iter 78:** skip не 1-line fix — removing condition изменяет ETL output (public/generated/*.json). Требует careful analysis Oracle behavior с number patterns + ETL rerun. | низкая | средний (ETL behavior) |
+| 🟢 низкий | Bug #13 — `iterative-optimizer.ts:470` skip `.*[0-9][1-9]` — ranged-regexes не валидируются Oracle. **Analysis iter 78:** skip не 1-line fix — removing condition изменяет ETL output (public/generated/*.json). Требует careful analysis Oracle behavior с number patterns + ETL rerun. | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #16 — `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` magic number → `[0, 999]` или динамически | низкая | средний (ETL behavior) |
 | 🟢 низкий | Bug #17 — `poe2-regex-matcher.ts:141` negated char class `from: -1, to: -1` хак → `negated: boolean` флаг | низкая | низкий (engine-internal) |
-| 🟢 низкий | Lint cleanup остаток — 5 problems (3 `setState-in-effect` tied to Bug #8 Phase 2 + 2 library warnings unfixable) | средняя | низкий-средний |
+| 🟢 низкий | Lint cleanup остаток — 2 problems (2 library warnings unfixable: `useVirtualizer` returns non-memoizable functions). **iter 79 closed** все 3 setState-in-effect errors. | — | — |
 
 ---
 

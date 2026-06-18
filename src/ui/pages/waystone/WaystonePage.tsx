@@ -16,7 +16,7 @@
  * - Delirious → literal("делир")
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useCategoryPage } from '@ui/hooks/useCategoryPage';
+import { useCategoryPage, useFilterStore } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -30,9 +30,24 @@ import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
 export function WaystonePage() {
-  const [corrupted, setCorrupted] = useState(false);
-  const [uncorrupted, setUncorrupted] = useState(false);
-  const [delirious, setDelirious] = useState(false);
+  // iter 79 (Bug #8 Phase 2): call useFilterStore BEFORE local useState so we
+  // can lazy-init corrupted/uncorrupted/delirious from the URL-restored extraState.
+  // This eliminates the previous `react-hooks/set-state-in-effect` lint error
+  // caused by reading filterStore inside a useEffect.
+  const useStore = useFilterStore('waystone');
+
+  const [corrupted, setCorrupted] = useState<boolean>(() => {
+    const v = useStore.getState().getExtraState('corrupted');
+    return typeof v === 'boolean' ? v : false;
+  });
+  const [uncorrupted, setUncorrupted] = useState<boolean>(() => {
+    const v = useStore.getState().getExtraState('uncorrupted');
+    return typeof v === 'boolean' ? v : false;
+  });
+  const [delirious, setDelirious] = useState<boolean>(() => {
+    const v = useStore.getState().getExtraState('delirious');
+    return typeof v === 'boolean' ? v : false;
+  });
 
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
@@ -57,27 +72,28 @@ export function WaystonePage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
-  } = useCategoryPage({ categoryId: 'waystone', extraAstNodes, mergeCategories: ['waystone-desecrated'] });
+  } = useCategoryPage({
+    categoryId: 'waystone',
+    extraAstNodes,
+    mergeCategories: ['waystone-desecrated'],
+    filterStore: useStore,
+  });
 
+  // One-way write-back: local state → filterStore extraState (for URL sync + profile persistence).
+  // No setState here — just Zustand `set()` calls — so no `set-state-in-effect` lint error.
+  // syncReadyRef skips the first render to avoid overwriting URL-restored extraState
+  // (matches the existing pattern in useCategoryPage's own URL-sync effect).
   const syncReadyRef = useRef(false);
 
   useEffect(() => {
-    const extra = filterStore.getExtraState('corrupted');
-    if (typeof extra === 'boolean') setCorrupted(extra);
-    const extraU = filterStore.getExtraState('uncorrupted');
-    if (typeof extraU === 'boolean') setUncorrupted(extraU);
-    const extraD = filterStore.getExtraState('delirious');
-    if (typeof extraD === 'boolean') setDelirious(extraD);
-    syncReadyRef.current = true;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!syncReadyRef.current) return;
-    filterStore.setExtraState('corrupted', corrupted);
-    filterStore.setExtraState('uncorrupted', uncorrupted);
-    filterStore.setExtraState('delirious', delirious);
-  }, [corrupted, uncorrupted, delirious, filterStore]);
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    useStore.getState().setExtraState('corrupted', corrupted);
+    useStore.getState().setExtraState('uncorrupted', uncorrupted);
+    useStore.getState().setExtraState('delirious', delirious);
+  }, [corrupted, uncorrupted, delirious, useStore]);
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>

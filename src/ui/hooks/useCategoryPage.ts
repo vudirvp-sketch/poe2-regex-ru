@@ -14,6 +14,13 @@
  * Pure AST helpers (getEffectiveRange, buildAstFromSelections, pushLiteralsWithFamilyLogic,
  * applyRuntimeYofication, etc.) extracted to ./category-ast-utils.ts.
  * Re-exported here for backward compatibility with existing tests.
+ *
+ * ─── iter 79 (Bug #8 Phase 2) ───
+ * Split into 3 composable sub-hooks: `useFilterStore`, `useCategoryData`, `useRegexBuilder`.
+ * `useCategoryPage` now composes them + keeps URL sync inline (tightly coupled to 6 useState
+ * values). `useCategoryPage` accepts an optional `config.filterStore` so pages that need
+ * to lazy-init local state from extraState (Waystone/Jewel/Tablet) can call `useFilterStore`
+ * BEFORE their local `useState` — eliminates `react-hooks/set-state-in-effect` lint errors.
  */
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
@@ -35,6 +42,14 @@ export {
 
 // Import for internal use.
 import { buildAstFromSelections, applyRuntimeYofication } from './category-ast-utils';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The Zustand hook returned by `createFilterStore`. Callable as a hook
+ *  (`useStore(selector)`) and has `.getState()` / `.subscribe()` methods. */
+export type FilterStoreHook = ReturnType<typeof createFilterStore>;
 
 /** Configuration for a category page */
 export interface CategoryPageConfig {
@@ -58,6 +73,17 @@ export interface CategoryPageConfig {
    * When provided, the loading state is immediately `false` and `data` is set.
    */
   customData?: CategoryData;
+  /**
+   * Pre-created filter store hook (from `useFilterStore`). When provided,
+   * `useCategoryPage` uses it instead of its internal one. Used by pages that
+   * need to read extraState BEFORE calling `useCategoryPage` (e.g., WaystonePage's
+   * corrupted/uncorrupted/delirious toggles — lazy-init from filterStore eliminates
+   * `react-hooks/set-state-in-effect` lint errors).
+   *
+   * iter 79 (Bug #8 Phase 2): added to break the circular dependency between
+   * `extraAstNodes` (depends on local state) and `useCategoryPage` (creates filterStore).
+   */
+  filterStore?: FilterStoreHook;
 }
 
 /** Filter store API exposed by useCategoryPage.
@@ -159,108 +185,75 @@ export interface CategoryPageState {
   collapsedTokenIds: Set<string>;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-hook 1: useFilterStore — create Zustand store + URL restore.
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
- * useCategoryPage — Main hook for category pages.
+ * useFilterStore — create a Zustand filter store for a category page, and
+ * restore its state from the URL hash once on first render.
  *
- * Subscribes to filter store state using Zustand's subscribe/reselect pattern.
- * Supports extraAstNodes for category-specific AST additions (e.g., waystone tier/state).
+ * Pages that need to lazy-init local state from `extraState` (e.g., Waystone's
+ * corrupted/uncorrupted/delirious toggles) should call this hook BEFORE their
+ * local `useState`, then pass the returned `useStore` to `useCategoryPage`
+ * via `config.filterStore`. This breaks the circular dependency described in
+ * AGENT_NAVIGATION.md Pitfall 33.
+ *
+ * `categoryId` is intentionally in the dep array so each category page gets its
+ * OWN filter store (selections/state must not leak across categories when the
+ * user navigates between them via client-side routing). The factory closure
+ * does not reference categoryId directly, so eslint's exhaustive-deps rule
+ * considers it "unnecessary" — but the cache invalidation is the whole point.
  */
-export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
-  const { categoryId, locale = 'ru', round10: defaultRound10 = true, extraAstNodes = [], mergeCategories, customData: providedData } = config;
-
-  const [data, setData] = useState<CategoryData | null>(providedData ?? null);
-  const [loading, setLoading] = useState(!providedData);
-  const [error, setError] = useState<string | null>(null);
-
-  // Use Zustand store with inline subscription.
-  //
-  // categoryId is intentionally in the dep array so each category page gets its
-  // OWN filter store (selections/state must not leak across categories when the
-  // user navigates between them via client-side routing). The factory closure
-  // does not reference categoryId directly, so eslint's exhaustive-deps rule
-  // considers it "unnecessary" — but the cache invalidation is the whole point.
+export function useFilterStore(categoryId: string): FilterStoreHook {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const useStore = useMemo(() => createFilterStore(), [categoryId]);
 
   // Restore from URL on first render (synchronous, before any effects).
   // syncFromUrl populates the filter store with data from the URL hash,
-  // so all useState initializers below can read the correct values.
-  const [urlRestored] = useState(() => syncFromUrl(useStore.getState()));
-
-  // Initialize React state from the filter store (which may have URL data).
-  // These are generic state values shared by ALL category pages.
-  // They are synced to extraState for inclusion in share URLs.
-  const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('searchLogic');
-      if (val === 'and' || val === 'or') return val;
-    }
-    return 'and';
-  });
-  const [round10Enabled, setRound10Enabled] = useState(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('round10Enabled');
-      if (typeof val === 'boolean') return val;
-    }
-    return defaultRound10;
-  });
-  const [minValue, setMinValue] = useState<number | null>(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('minValue');
-      if (typeof val === 'number') return val;
-    }
-    return null;
-  });
-  const [maxValue, setMaxValue] = useState<number | null>(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('maxValue');
-      if (typeof val === 'number') return val;
-    }
-    return null;
-  });
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('priorityFilter');
-      if (val === 'all' || val === 'S+A' || val === 'S') return val;
-    }
-    return 'all';
-  });
-  const [thresholdEnabled, setThresholdEnabled] = useState(() => {
-    if (urlRestored) {
-      const val = useStore.getState().getExtraState('thresholdEnabled');
-      if (typeof val === 'boolean') return val;
-    }
-    return false;
+  // so all useState initializers (both here in useCategoryPage and in the
+  // page component for local state) can read the correct values.
+  useState(() => {
+    syncFromUrl(useStore.getState());
+    return true;
   });
 
-  // Ref to skip the first sync-to-store render cycle, preventing
-  // overwrite of URL-restored extraState values before page-level
-  // restore effects have a chance to read them.
-  const syncReadyRef = useRef(false);
+  return useStore;
+}
 
-  const selectedIds = useStore(state => state.selectedIds);
-  const excludedIds = useStore(state => state.excludedIds);
-  const searchText = useStore(state => state.searchText);
-  const affixFilter = useStore(state => state.affixFilter);
-  const originFilter = useStore(state => state.originFilter);
-  const toggleToken = useStore(state => state.toggleToken);
-  const toggleTokens = useStore(state => state.toggleTokens);
-  const toggleExclude = useStore(state => state.toggleExclude);
-  const setSearchText = useStore(state => state.setSearchText);
-  const setAffixFilter = useStore(state => state.setAffixFilter);
-  const setOriginFilter = useStore(state => state.setOriginFilter);
-  const clearSelections = useStore(state => state.clearSelections);
-  const perTokenRanges = useStore(state => state.perTokenRanges);
-  const setTokenRange = useStore(state => state.setTokenRange);
-  const clearTokenRange = useStore(state => state.clearTokenRange);
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-hook 2: useCategoryData — async data loading.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // Load category data on mount.
-  //
-  // For the customData case (e.g., VendorPage with hardcoded data), useState
-  // initializers above already set `data` and `loading` correctly, so this
-  // effect early-returns without calling setState — avoids the
-  // react-hooks/set-state-in-effect lint error that would otherwise fire on
-  // the providedData branch.
+/** Arguments for useCategoryData */
+export interface UseCategoryDataArgs {
+  categoryId: string;
+  mergeCategories?: string[];
+  /** Pre-loaded CategoryData — skip async loading. */
+  customData?: CategoryData;
+}
+
+/** Return type for useCategoryData */
+export interface UseCategoryDataResult {
+  data: CategoryData | null;
+  loading: boolean;
+  error: string | null;
+}
+
+/**
+ * useCategoryData — load CategoryData from JSON (or use provided customData).
+ *
+ * For the `customData` case (e.g., VendorPage with hardcoded data), `useState`
+ * initializers set `data` and `loading` correctly, so the effect early-returns
+ * without calling setState — avoids `react-hooks/set-state-in-effect`.
+ */
+export function useCategoryData(args: UseCategoryDataArgs): UseCategoryDataResult {
+  const { categoryId, mergeCategories, customData: providedData } = args;
+
+  const [data, setData] = useState<CategoryData | null>(providedData ?? null);
+  const [loading, setLoading] = useState(!providedData);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (providedData) return;
 
@@ -297,25 +290,46 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     };
   }, [categoryId, mergeCategories, providedData]);
 
-  // Sync searchLogic/minValue/round10Enabled to filter store's extraState
-  // AND auto-sync filter state to URL hash.
-  // Skips the first render to avoid overwriting URL-restored values.
-  useEffect(() => {
-    if (!syncReadyRef.current) {
-      syncReadyRef.current = true;
-      return;
-    }
-    // 1. Sync React state → store extraState (so they're included in serialization)
-    useStore.getState().setExtraState('searchLogic', searchLogic);
-    useStore.getState().setExtraState('round10Enabled', round10Enabled);
-    useStore.getState().setExtraState('minValue', minValue);
-    useStore.getState().setExtraState('maxValue', maxValue);
-    useStore.getState().setExtraState('priorityFilter', priorityFilter);
-    useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
-    // 2. Auto-sync store state to URL hash
-    syncToUrl(useStore.getState());
-  }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, useStore]);
+  return { data, loading, error };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-hook 3: useRegexBuilder — AST + optimize + compile.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Arguments for useRegexBuilder */
+export interface UseRegexBuilderArgs {
+  data: CategoryData | null;
+  selectedIds: Set<string>;
+  excludedIds: Set<string>;
+  extraAstNodes: ASTNode[];
+  searchLogic: SearchLogic;
+  minValue: number | null;
+  maxValue: number | null;
+  round10Enabled: boolean;
+  locale: Locale;
+  perTokenRanges: Record<string, TokenRangeOverride>;
+  thresholdEnabled: boolean;
+}
+
+/** Return type for useRegexBuilder */
+export interface UseRegexBuilderResult {
+  regex: string;
+  isRegexOverflow: boolean;
+  regexParts: string[] | undefined;
+  collapsedTokenIds: Set<string>;
+}
+
+/**
+ * useRegexBuilder — build AST from selections + extraAstNodes, optimize,
+ * compile, apply yofication, split over-limit. Pure computation, no side effects.
+ */
+export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResult {
+  const {
+    data, selectedIds, excludedIds, extraAstNodes,
+    searchLogic, minValue, maxValue, round10Enabled,
+    locale, perTokenRanges, thresholdEnabled,
+  } = args;
 
   // Build selected tokens list (includes both want + exclude tokens)
   const selectedTokens = useMemo(() => {
@@ -324,13 +338,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   }, [data, selectedIds, excludedIds]);
 
   // Build AST, optimize, compile
-  const { regex, isRegexOverflow, regexParts, collapsedIds: collapsedTokenIds } = useMemo(() => {
+  return useMemo(() => {
     // If no mod selections AND no extra nodes → empty regex
     const hasModSelections = data && selectedTokens.length > 0;
     const hasExtraNodes = extraAstNodes.length > 0;
 
     if (!hasModSelections && !hasExtraNodes) {
-      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedIds: new Set<string>() };
+      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedTokenIds: new Set<string>() };
     }
 
     const andChildren: ASTNode[] = [];
@@ -359,7 +373,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
 
     if (andChildren.length === 0) {
-      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedIds: new Set<string>() };
+      return { regex: '', isRegexOverflow: false, regexParts: undefined, collapsedTokenIds: new Set<string>() };
     }
 
     // Combine all children with AND
@@ -395,9 +409,147 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       regex: compiledRegex,
       isRegexOverflow: overflow,
       regexParts,
-      collapsedIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
+      collapsedTokenIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
   }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges, thresholdEnabled]);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main hook: useCategoryPage — composes the 3 sub-hooks + URL sync.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * useCategoryPage — Main hook for category pages.
+ *
+ * Subscribes to filter store state using Zustand's subscribe/reselect pattern.
+ * Supports extraAstNodes for category-specific AST additions (e.g., waystone tier/state).
+ *
+ * iter 79 (Bug #8 Phase 2): now composes `useFilterStore` + `useCategoryData`
+ * + `useRegexBuilder`. Accepts optional `config.filterStore` so pages with
+ * extraAstNodes-from-local-state (Waystone/Jewel/Tablet) can break the circular
+ * dependency by calling `useFilterStore` BEFORE their local `useState`.
+ */
+export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
+  const {
+    categoryId,
+    locale = 'ru',
+    round10: defaultRound10 = true,
+    extraAstNodes = [],
+    mergeCategories,
+    customData: providedData,
+  } = config;
+
+  // Filter store: use provided one, or create internally.
+  // useFilterStore always runs (Rules of Hooks). When config.filterStore is provided,
+  // internalStore is created but unused — its syncFromUrl call is a no-op on a discarded
+  // store. The cost is one extra createFilterStore() per mount, negligible.
+  const internalStore = useFilterStore(categoryId);
+  const useStore = config.filterStore ?? internalStore;
+
+  // Data loading (extracted to useCategoryData in iter 79).
+  const { data, loading, error } = useCategoryData({
+    categoryId,
+    mergeCategories,
+    customData: providedData,
+  });
+
+  // Initialize React state from the filter store.
+  // After iter 79, useFilterStore always does URL restore before this point,
+  // so we can unconditionally read from extraState. When the URL had no data,
+  // extraState is empty and we fall back to defaults — equivalent to the previous
+  // `if (urlRestored) { ... } return default;` pattern.
+  const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
+    const val = useStore.getState().getExtraState('searchLogic');
+    if (val === 'and' || val === 'or') return val;
+    return 'and';
+  });
+  const [round10Enabled, setRound10Enabled] = useState(() => {
+    const val = useStore.getState().getExtraState('round10Enabled');
+    if (typeof val === 'boolean') return val;
+    return defaultRound10;
+  });
+  const [minValue, setMinValue] = useState<number | null>(() => {
+    const val = useStore.getState().getExtraState('minValue');
+    if (typeof val === 'number') return val;
+    return null;
+  });
+  const [maxValue, setMaxValue] = useState<number | null>(() => {
+    const val = useStore.getState().getExtraState('maxValue');
+    if (typeof val === 'number') return val;
+    return null;
+  });
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>(() => {
+    const val = useStore.getState().getExtraState('priorityFilter');
+    if (val === 'all' || val === 'S+A' || val === 'S') return val;
+    return 'all';
+  });
+  const [thresholdEnabled, setThresholdEnabled] = useState(() => {
+    const val = useStore.getState().getExtraState('thresholdEnabled');
+    if (typeof val === 'boolean') return val;
+    return false;
+  });
+
+  // Ref to skip the first sync-to-store render cycle, preventing
+  // overwrite of URL-restored extraState values before page-level
+  // restore effects have a chance to read them.
+  const syncReadyRef = useRef(false);
+
+  const selectedIds = useStore(state => state.selectedIds);
+  const excludedIds = useStore(state => state.excludedIds);
+  const searchText = useStore(state => state.searchText);
+  const affixFilter = useStore(state => state.affixFilter);
+  const originFilter = useStore(state => state.originFilter);
+  const toggleToken = useStore(state => state.toggleToken);
+  const toggleTokens = useStore(state => state.toggleTokens);
+  const toggleExclude = useStore(state => state.toggleExclude);
+  const setSearchText = useStore(state => state.setSearchText);
+  const setAffixFilter = useStore(state => state.setAffixFilter);
+  const setOriginFilter = useStore(state => state.setOriginFilter);
+  const clearSelections = useStore(state => state.clearSelections);
+  const perTokenRanges = useStore(state => state.perTokenRanges);
+  const setTokenRange = useStore(state => state.setTokenRange);
+  const clearTokenRange = useStore(state => state.clearTokenRange);
+
+  // Sync searchLogic/minValue/round10Enabled to filter store's extraState
+  // AND auto-sync filter state to URL hash.
+  // Skips the first render to avoid overwriting URL-restored values.
+  //
+  // iter 79 note: this URL-sync effect stays inline in useCategoryPage because it's
+  // tightly coupled to the 6 useState values above (searchLogic, round10Enabled, minValue,
+  // maxValue, priorityFilter, thresholdEnabled). Extracting it to a separate useUrlSync
+  // hook would require passing all 6 values + 7 store-side values as args — awkward and
+  // the lint rule wouldn't be simpler. Future iter can extract if a use case emerges.
+  useEffect(() => {
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    // 1. Sync React state → store extraState (so they're included in serialization)
+    useStore.getState().setExtraState('searchLogic', searchLogic);
+    useStore.getState().setExtraState('round10Enabled', round10Enabled);
+    useStore.getState().setExtraState('minValue', minValue);
+    useStore.getState().setExtraState('maxValue', maxValue);
+    useStore.getState().setExtraState('priorityFilter', priorityFilter);
+    useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
+    // 2. Auto-sync store state to URL hash
+    syncToUrl(useStore.getState());
+  }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
+      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, useStore]);
+
+  // Regex building (extracted to useRegexBuilder in iter 79).
+  const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
+    data,
+    selectedIds,
+    excludedIds,
+    extraAstNodes,
+    searchLogic,
+    minValue,
+    maxValue,
+    round10Enabled,
+    locale,
+    perTokenRanges,
+    thresholdEnabled,
+  });
 
   /** Restore filter state from a serialized object (used by ProfilePanel) */
   const restoreFilterState = (data: Record<string, unknown>) => {

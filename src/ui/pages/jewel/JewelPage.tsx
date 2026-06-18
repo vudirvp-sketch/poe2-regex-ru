@@ -21,7 +21,7 @@
  * appears in StatusPanel (desktop) and inside MobileRegexBar (mobile).
  */
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useCategoryPage } from '@ui/hooks/useCategoryPage';
+import { useCategoryPage, useFilterStore } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -70,7 +70,16 @@ function filterTokensByJewelType(tokens: GameToken[], jewelType: JewelTypeCatego
 }
 
 export function JewelPage() {
-  const [jewelTypeFilter, setJewelTypeFilter] = useState<JewelTypeCategory | 'all'>('all');
+  // iter 79 (Bug #8 Phase 2): call useFilterStore BEFORE local useState so we
+  // can lazy-init jewelTypeFilter from the URL-restored extraState. Eliminates
+  // the previous `react-hooks/set-state-in-effect` lint error.
+  const useStore = useFilterStore('jewel');
+
+  const [jewelTypeFilter, setJewelTypeFilter] = useState<JewelTypeCategory | 'all'>(() => {
+    const v = useStore.getState().getExtraState('jewelTypeFilter');
+    if (typeof v === 'string' && v) return v as JewelTypeCategory | 'all';
+    return 'all';
+  });
 
   const {
     data, loading, error,
@@ -90,21 +99,20 @@ export function JewelPage() {
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
+    filterStore: useStore,
   });
 
+  // One-way write-back: local state → filterStore extraState (for URL sync + profile persistence).
+  // No setState here — just Zustand `set()` calls — so no `set-state-in-effect` lint error.
   const syncReadyRef = useRef(false);
 
   useEffect(() => {
-    const extra = filterStore.getExtraState('jewelTypeFilter');
-    if (extra && typeof extra === 'string') setJewelTypeFilter(extra as JewelTypeCategory | 'all');
-    syncReadyRef.current = true;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!syncReadyRef.current) return;
-    filterStore.setExtraState('jewelTypeFilter', jewelTypeFilter);
-  }, [jewelTypeFilter, filterStore]);
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    useStore.getState().setExtraState('jewelTypeFilter', jewelTypeFilter);
+  }, [jewelTypeFilter, useStore]);
 
   // Filter tokens by jewel type before passing to ModList
   const filteredTokens = useMemo(() => {

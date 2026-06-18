@@ -16,7 +16,7 @@
  * prefix/suffix column, using text-based heuristics.
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useCategoryPage } from '@ui/hooks/useCategoryPage';
+import { useCategoryPage, useFilterStore } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
 import { RegexOutput } from '@ui/components/RegexOutput';
@@ -47,9 +47,23 @@ const RARITY_OPTIONS = [
 ] as const;
 
 export function TabletPage() {
-  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
-  const [selectedRarities, setSelectedRarities] = useState<Set<string>>(new Set());
-  const [usesMin, setUsesMin] = useState<number | null>(null);
+  // iter 79 (Bug #8 Phase 2): call useFilterStore BEFORE local useState so we
+  // can lazy-init selectedTypes/selectedRarities/usesMin from the URL-restored
+  // extraState. Eliminates the previous `react-hooks/set-state-in-effect` lint error.
+  const useStore = useFilterStore('tablet');
+
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(() => {
+    const v = useStore.getState().getExtraState('selectedTypes');
+    return Array.isArray(v) ? new Set(v as string[]) : new Set();
+  });
+  const [selectedRarities, setSelectedRarities] = useState<Set<string>>(() => {
+    const v = useStore.getState().getExtraState('selectedRarities');
+    return Array.isArray(v) ? new Set(v as string[]) : new Set();
+  });
+  const [usesMin, setUsesMin] = useState<number | null>(() => {
+    const v = useStore.getState().getExtraState('usesMin');
+    return typeof v === 'number' ? v : null;
+  });
 
   const extraAstNodes = useMemo<ASTNode[]>(() => {
     const nodes: ASTNode[] = [];
@@ -92,27 +106,25 @@ export function TabletPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
-  } = useCategoryPage({ categoryId: 'tablet', extraAstNodes });
+  } = useCategoryPage({
+    categoryId: 'tablet',
+    extraAstNodes,
+    filterStore: useStore,
+  });
 
+  // One-way write-back: local state → filterStore extraState (for URL sync + profile persistence).
+  // No setState here — just Zustand `set()` calls — so no `set-state-in-effect` lint error.
   const syncReadyRef = useRef(false);
 
   useEffect(() => {
-    const extraTypes = filterStore.getExtraState('selectedTypes');
-    if (Array.isArray(extraTypes)) setSelectedTypes(new Set(extraTypes as string[]));
-    const extraRarities = filterStore.getExtraState('selectedRarities');
-    if (Array.isArray(extraRarities)) setSelectedRarities(new Set(extraRarities as string[]));
-    const extraUses = filterStore.getExtraState('usesMin');
-    if (typeof extraUses === 'number') setUsesMin(extraUses);
-    syncReadyRef.current = true;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!syncReadyRef.current) return;
-    filterStore.setExtraState('selectedTypes', [...selectedTypes]);
-    filterStore.setExtraState('selectedRarities', [...selectedRarities]);
-    filterStore.setExtraState('usesMin', usesMin);
-  }, [selectedTypes, selectedRarities, usesMin, filterStore]);
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    useStore.getState().setExtraState('selectedTypes', [...selectedTypes]);
+    useStore.getState().setExtraState('selectedRarities', [...selectedRarities]);
+    useStore.getState().setExtraState('usesMin', usesMin);
+  }, [selectedTypes, selectedRarities, usesMin, useStore]);
 
   const toggleType = (typeId: string) => {
     setSelectedTypes(prev => {
