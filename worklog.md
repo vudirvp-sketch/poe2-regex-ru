@@ -4,63 +4,69 @@
 
 ---
 
-Task ID: 86
+Task ID: 87
 Agent: main
-Task: Реализовать 5-7 новых функциональных блоков через tags + text patterns (defence-stats, offence-speed, crit, damage-type, flasks, resources, minions) поверх 7 блоков iter 85. После этого — переключить RingPage/AmuletPage/BeltPage на `affix-functional` (цель: other-bucket < 30%).
+Task: Реализовать weapon sub-blocks для jewel (6 подблоков: melee / bow / crossbow / staff / spear / dagger) для 24 weapon-specific family-keys. Требует подуровня внутри offensive bucket.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Прочитаны: `STATUS.md` (iter 85), `worklog.md` (iter 85), `src/shared/mod-classifier.ts` (1373 строки), `tests/shared/mod-classifier.test.ts` (947 строк), `src/ui/pages/{ring,amulet,belt}/*.tsx`.
-- 2: Установлены зависимости через `npx pnpm@11.5.2 install`. Базовый прогон: **1216/1216 тестов зелёные, lint 0 errors (2 pre-existing warnings), tsc 0 errors**.
-- 3: Инспектированы `public/generated/{ring,amulet,belt}.json` — собраны все family-groups с тегами. 284 family-groups (94 ring + 105 amulet + 85 belt). Видны приоритеты тегов: minion бьёт life/mana/critical/damage/speed/resistance; resistance бьёт fire/cold/lightning/chaos/elemental; critical бьёт damage.
-- 4: Написан `/home/z/my-project/work/poe2-regex-ru/scripts/simulate-iter86-impact.ts` — mirror `classifyFunctionalBlock()` на реальных jewellery JSON. Базовый прогон (с 7 блоками iter 85): other-bucket = 70.4% (200/284). Прогон с 14 блоками (iter 86 план): **other-bucket = 9.9% (28/284)** — подтверждена достижимость цели <30%.
-- 5: Спроектирован match priority с tags + text:
-  1. spirit (text) → 2. runes-barrier (text) → 3. breach (text) → 4. magic-find (text) → 5. skill-levels (text) → 6. flasks (text «флакон») → 7. minions (tag minion + text «приспешник»/«подношен») → 8. attributes (text + tag attribute) → 9. resistances (tag resistance + text «сопротивлен») → 10. resources (tags life/mana + text ES max/leech/regen) → 11. defence-stats (tags armour/evasion/energy_shield/charm + text «брон»/«уклонен»/«блок»/«порог оглушен») → 12. crit (tag critical + text «крит») → 13. damage-type (tags damage/physical/elemental/cold/fire/lightning/chaos + text «урон») → 14. offence-speed (tag speed + text «скорость атаки/сотворения/передвижения/снарядов») → 15. other.
-- 6: В `src/shared/mod-classifier.ts` реализовано:
-  - 7 новых паттернов: FLASKS_PATTERN, MINIONS_PATTERN, RESOURCES_PATTERN, DEFENCE_STATS_PATTERN, CRIT_PATTERN, DAMAGE_TYPE_PATTERN, OFFENCE_SPEED_PATTERN (каждый с подробным JSDoc с примерами и приоритетами).
-  - `classifyFunctionalBlock(group)` переписана: добавлен сбор тегов из `group.members` (с пропуском Breach Lord source tags), 15-шаговый match priority с tags + text.
-  - Обновлены комментарии: FunctionalBlock type (⏳ iter 86 → iter 86 / ⏳ iter 87+), FUNCTIONAL_BLOCK_LABELS (7→14 active), FUNCTIONAL_BLOCK_ORDER (7→14 implemented), ModGroupMode (7→14 active), classifyGroups (7→14 active).
-- 7: В `tests/shared/mod-classifier.test.ts` добавлено **52 новых теста**:
-  - flasks: 7 тестов (text «флакон», flask-conditional mods с priority over damage/speed/resources, обереги → defence-stats NOT flasks).
-  - minions: 9 тестов (minion+resist/critical/life/damage — minion wins; text «подношен»; +level minion mods → skill-levels; minion+speed — minion wins).
-  - resources: 9 тестов (life/mana tags; ES max text BEFORE defence-stats; MoM; leech; regen; on-kill).
-  - defence-stats: 9 тестов (armour/evasion/energy_shield/charm tags; обереги via charm; порог оглушения text; ES recharge → defence-stats NOT resources).
-  - crit: 5 тестов (critical tag; critical+damage — crit wins; caster+critical+elemental+fire — crit wins).
-  - damage-type: 8 тестов (damage tag; fire/cold/lightning/chaos/physical; resist NOT damage-type; crit NOT damage-type).
-  - offence-speed: 5 тестов (speed tag; skill-levels wins for "перезарядка умений"; minions wins for minion-speed; buff-skills deferred).
-  - Обновлён 1 тест: "Подношений" → minions (был other в iter 85).
-  - Обновлены 4 теста: "deferred to iter 86" → "deferred to iter 87+".
-- 8: Запущены тесты — **1216 базовых + 52 новых = 1268 passing**. `npx tsc -b`: 0 errors. `npx eslint .`: 0 errors (2 pre-existing warnings).
-- 9: Запущена симуляция — **other-bucket = 9.9% (28/284)**: ring 9/94=9.6%, amulet 12/105=11.4%, belt 7/85=8.2%. Цель <30% достигнута.
-- 10: Переключены 3 production-страницы на `affix-functional`:
-  - `src/ui/pages/ring/RingPage.tsx`: `groupMode="affix-semantic"` → `groupMode="affix-functional"`, header docstring обновлён.
-  - `src/ui/pages/amulet/AmuletPage.tsx`: то же.
-  - `src/ui/pages/belt/BeltPage.tsx`: то же.
-- 11: Повторный прогон тестов после переключения — **1268/1268 passing**. `tsc -b`: 0 errors. `eslint`: 0 errors.
-- 12: Обновлены документы:
-  - `STATUS.md` — переписан под iter 86 (14 блоков, production ENABLED, other-bucket 9.9%, план iter 87).
-  - `worklog.md` — iter 86 section, iter 85 сжат до одной строки.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Прочитаны: `STATUS.md` (iter 86), `worklog.md` (iter 86), `src/shared/mod-classifier.ts` (1516 строк), `tests/shared/mod-classifier.test.ts` (1339 строк), `src/ui/pages/jewel/JewelPage.tsx`, `docs/AFFIXES_GROUPING_ANALYSIS.md` (§4.2 — weapon sub-blocks spec).
+- 2: Установлены зависимости через `npx pnpm@11.5.2 install`. Базовый прогон: **1268/1268 тестов зелёные, lint 0 errors (2 pre-existing warnings), tsc 0 errors**.
+- 3: Инспектирован `public/generated/jewel.json` — найдены все 24 weapon-specific family-keys (10 weapon name variants: мечами/кинжалами/топорами/булавами/луками/самострелами/копьями/боевыми посохами/кистенями/без оружия). Распределение по weapon classes: melee=10, bow=3, crossbow=2, staff=3, spear=3, dagger=3.
+- 4: Спроектирована архитектура iter 87:
+  - Аддитивный подход: новый `ModGroupMode = 'jewel-functional'` (не ломает существующие modes).
+  - Production ring/amulet/belt НЕ трогаются (остаются на `affix-functional`).
+  - Weapon mods ловит новый `WEAPON_SPECIFIC_PATTERN` ДО crit/damage-type/offence-speed.
+  - В `classifyGroups(mode='jewel-functional')` блок `weapon-specific` раскрывается в 6 sub-blocks (weapon-melee/bow/crossbow/staff/spear/dagger) + defensive `weapon-other` fallback.
+- 5: В `src/shared/mod-classifier.ts` реализовано:
+  - `WeaponClass` type (`melee | bow | crossbow | staff | spear | dagger`).
+  - `WEAPON_CLASS_LABELS` (display config, 6 entries — каждая со своим цветом).
+  - `WEAPON_CLASS_ORDER` (порядок рендера).
+  - `WEAPON_NAME_TO_CLASS` lookup table (10 weapon name patterns → 6 weapon classes; «без оружия» и «боевыми посохами» strategically placed first в melee/staff для longest-match-first).
+  - `classifyWeaponClass(group): WeaponClass | null` — first-match-wins по weapon name patterns.
+  - `WEAPON_SPECIFIC_PATTERN` — single OR-pattern для всех 10 weapon names.
+  - В `classifyFunctionalBlock()` добавлен шаг 12 (weapon-specific) ДО crit/damage-type/offence-speed. JSDoc обновлён с 15 до 16 шагов priority.
+  - `FUNCTIONAL_BLOCK_LABELS['weapon-specific']` — изменён цвет с red на amber (более подходящий для weapon-themed блока).
+  - `'jewel-functional'` добавлен в `ModGroupMode` type.
+  - `classifyGroups(mode='jewel-functional')` — split logic: для каждого functional block'а если это `weapon-specific`, то группы распределяются по `classifyWeaponClass()` в 6 sub-blocks; остальные блоки рендерятся как в `affix-functional`.
+- 6: В `tests/shared/mod-classifier.test.ts` добавлено **47 новых тестов**:
+  - `classifyWeaponClass` для всех 6 weapon classes (8+3+2+3+3+3 = 22 теста на positive cases + 4 теста на non-weapon mods → null).
+  - `WEAPON_CLASS_LABELS` — 3 теста (6 entries, non-empty fields, all WeaponClass keys present).
+  - `classifyFunctionalBlock — weapon-specific block` — 8 positive тестов (weapon mods → weapon-specific NOT crit/damage-type/offence-speed) + 2 negative теста (non-weapon mods → NOT weapon-specific).
+  - `classifyGroups with jewel-functional mode` — 8 тестов: empty input, 6-weapon-class split, same-class grouping, FUNCTIONAL_BLOCK_ORDER rendering, WEAPON_CLASS_ORDER for weapon sub-blocks, omission when no weapon mods, preserve references, identity with affix-functional for non-weapon groups.
+  - Обновлён header docstring (iter 87 упоминание).
+- 7: В `src/ui/pages/jewel/JewelPage.tsx`: `groupMode="affix-semantic"` → `groupMode="jewel-functional"` + header docstring обновлён (Grouping mode (iter 87) paragraph).
+- 8: Запущены тесты — **1268 базовых + 47 новых = 1315 passing**. `npx tsc -b`: 0 errors. `npx eslint .`: 0 errors (2 pre-existing warnings).
+- 9: Написан `/home/z/my-project/poe2-regex-ru/scripts/simulate-iter87-impact.ts` — mirror `classifyFunctionalBlock()` + `classifyWeaponClass()` на реальных jewel JSON (jewel + jewel-desecrated + jewel-corrupted). Результат:
+  - ✅ Check 1: 24 weapon family-keys (≥24 expected).
+  - ✅ Check 2: all 6 weapon classes have at least 1 family-key.
+  - ✅ Check 3: no weapon mods fell into `weapon-other` fallback bucket.
+  - ✅ Check 4: jewel.json other-bucket = 21.8% (< 30% target met).
+  - Распределение по weapon classes: melee=10, bow=3, crossbow=2, staff=3, spear=3, dagger=3 (total=24).
+- 10: Обновлены документы:
+  - `STATUS.md` — переписан под iter 87 (weapon sub-blocks, production switch, plan iter 88).
+  - `worklog.md` — iter 87 section, iter 86 сжат до одной строки.
   - `docs/AFFIXES_GROUPING_ANALYSIS.md` — §5/§7/§8 обновлены.
 
 Stage Summary:
-- **iter 86 COMPLETE (production switch).** Реализованы 7 новых функциональных блоков через tags + text patterns (defence-stats / offence-speed / crit / damage-type / flasks / resources / minions). Production-страницы RingPage/AmuletPage/BeltPage переключены на `affix-functional`.
-- **Изменённые файлы (8):**
-  - `src/shared/mod-classifier.ts` — +200 строк (7 новых паттернов + tag-based классификация в `classifyFunctionalBlock()`, обновлены комментарии).
-  - `tests/shared/mod-classifier.test.ts` — +400 строк (+52 теста: 7 блоков + edge cases + match priority).
-  - `src/ui/pages/ring/RingPage.tsx` — `groupMode="affix-functional"` + header docstring.
-  - `src/ui/pages/amulet/AmuletPage.tsx` — то же.
-  - `src/ui/pages/belt/BeltPage.tsx` — то же.
-  - `scripts/simulate-iter86-impact.ts` — новый скрипт (mirror классификатора на реальных JSON).
-  - `STATUS.md` — переписан под iter 86.
+- **iter 87 COMPLETE (production switch for jewel).** Реализованы 6 weapon-class sub-blocks для 24 weapon-specific family-keys в jewel.json. JewelPage переключён на новый `jewel-functional` mode.
+- **Изменённые файлы (7):**
+  - `src/shared/mod-classifier.ts` — +120 строк (WeaponClass type + WEAPON_CLASS_LABELS + WEAPON_NAME_TO_CLASS + classifyWeaponClass + WEAPON_SPECIFIC_PATTERN + шаг 12 в classifyFunctionalBlock + 'jewel-functional' mode в classifyGroups).
+  - `tests/shared/mod-classifier.test.ts` — +386 строк (+47 тестов: classifyWeaponClass для всех 6 классов, WEAPON_CLASS_LABELS, weapon-specific match priority, jewel-functional mode).
+  - `src/ui/pages/jewel/JewelPage.tsx` — `groupMode="jewel-functional"` + header docstring.
+  - `scripts/simulate-iter87-impact.ts` — новый скрипт (mirror классификаторов на реальных jewel JSON).
+  - `STATUS.md` — переписан под iter 87.
   - `docs/AFFIXES_GROUPING_ANALYSIS.md` — §5/§7/§8 обновлены.
-- **Тесты:** 1268/1268 passing (1216 базовых + 52 новых). Lint: 0 errors. TSC: 0 errors.
-- **Симуляция:** other-bucket = 9.9% (28/284) — цель <30% достигнута с запасом.
-- **Production switch:** 3 страницы (ring/amulet/belt) теперь используют `affix-functional` mode. UI показывает 14 функциональных блоков вместо 4 корзин offensive/defensive/attribute/neutral.
-- **Точка остановки:** iter 86 done. В iter 87: (1) weapon sub-blocks для jewel (6 подблоков для 24 family-key — отдельная задача, требует подуровня внутри offensive bucket); (2) опционально — добавить ещё 2-3 блока (penetration/ailments/area-duration) для снижения other-bucket ниже 5%.
+  - `worklog.md` — iter 87 section, iter 86 сжат.
+- **Тесты:** 1315/1315 passing (1268 базовых + 47 новых). Lint: 0 errors. TSC: 0 errors.
+- **Симуляция:** 24/24 weapon family-keys корректно распределены по 6 weapon classes. jewel.json other-bucket = 21.8% (< 30% target met).
+- **Production switch:** JewelPage теперь использует `jewel-functional` mode. UI показывает 14 функциональных блоков + 6 weapon-class sub-blocks (вместо 4 корзин offensive/defensive/attribute/neutral).
+- **Точка остановки:** iter 87 done. В iter 88: (1) снизить other-bucket jewel.json ниже 15% через добавление 2-3 блоков (ailments / penetration / area-duration); (2) опционально — P1 task: ETL-tagged functionalCategory для jewel.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 86**: +7 функциональных блоков (14 активны: defence-stats/offence-speed/crit/damage-type/flasks/resources/minions). Production switch для ring/amulet/belt. Other-bucket 9.9%. 1268/1268 tests.
 - **iter 85**: Инфраструктура 24 функциональных блоков (7 активны: spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach). Production НЕ переключён (other-bucket 70.4%). 1216/1216 tests.
 - **iter 84**: 3 P0-фикса (Breach Lord skip + text fallback / waystone keywords / aura+gem tags). 1172/1172 tests. -18 neutral groups.
 - **iter 83**: Верификация iter 82 на реальных JSON. 3 новых бага (Breach Lord 73 токена, relic 100% neutral, мета-механики PoE2 размазаны). 4 неточности iter 82 исправлены. Схема расширена 22→24 блока. 1158/1158 tests.

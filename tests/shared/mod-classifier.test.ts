@@ -8,6 +8,7 @@
  *
  * iter 85: classifyFunctionalBlock tests for the 7 high-priority blocks
  * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
+ * iter 87: classifyWeaponClass + weapon-specific functional block + jewel-functional mode.
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -19,10 +20,13 @@ import {
   classifyPriorityTier,
   classifyFunctionalBlock,
   classifyGroups,
+  classifyWeaponClass,
   FUNCTIONAL_BLOCK_LABELS,
+  WEAPON_CLASS_LABELS,
   TIER_SORT_ORDER,
   type JewelTypeCategory,
   type FunctionalBlock,
+  type WeaponClass,
 } from '@shared/mod-classifier';
 import type { FamilyGroup, GameToken } from '@shared/types';
 
@@ -1334,5 +1338,391 @@ describe('classifyGroups with affix-functional mode (iter 86)', () => {
     const attrGroup = result.find(sg => sg.key === 'attributes');
     expect(spiritGroup?.groups[0]).toBe(group1);
     expect(attrGroup?.groups[0]).toBe(group2);
+  });
+});
+
+// ─── classifyWeaponClass (iter 87) — weapon name → weapon class ───
+
+describe('classifyWeaponClass (iter 87) — weapon name → weapon class', () => {
+  // ─── melee (мечи / топоры / булавы / кистени / без оружия) ───
+  describe('melee class', () => {
+    it('classifies "увеличение урона мечами" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона мечами'))).toBe('melee');
+    });
+    it('classifies "увеличение урона топорами" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона топорами'))).toBe('melee');
+    });
+    it('classifies "увеличение урона булавами" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона булавами'))).toBe('melee');
+    });
+    it('classifies "увеличение урона кистенями" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона кистенями'))).toBe('melee');
+    });
+    it('classifies "увеличение урона атаками без оружия" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона атаками без оружия'))).toBe('melee');
+    });
+    it('classifies "скорость атаки мечами" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки мечами'))).toBe('melee');
+    });
+    it('classifies "скорость накопления шкалы оглушения булавами" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(15—25)% повышение скорости накопления шкалы оглушения булавами'))).toBe('melee');
+    });
+    it('classifies "скорость атаки без оружия" as melee', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки без оружия'))).toBe('melee');
+    });
+  });
+
+  // ─── bow ───
+  describe('bow class', () => {
+    it('classifies "увеличение урона луками" as bow', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона луками'))).toBe('bow');
+    });
+    it('classifies "повышение меткости луками" as bow', () => {
+      expect(classifyWeaponClass(makeGroup('(5—15)% повышение меткости луками'))).toBe('bow');
+    });
+    it('classifies "скорость атаки луками" as bow', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки луками'))).toBe('bow');
+    });
+  });
+
+  // ─── crossbow ───
+  describe('crossbow class', () => {
+    it('classifies "увеличение урона самострелами" as crossbow', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона самострелами'))).toBe('crossbow');
+    });
+    it('classifies "скорость атаки самострелами" as crossbow', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки самострелами'))).toBe('crossbow');
+    });
+  });
+
+  // ─── staff ───
+  describe('staff class', () => {
+    it('classifies "увеличение урона боевыми посохами" as staff', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона боевыми посохами'))).toBe('staff');
+    });
+    it('classifies "скорость атаки боевыми посохами" as staff', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки боевыми посохами'))).toBe('staff');
+    });
+    it('classifies "скорость накопления шкалы заморозки боевыми посохами" as staff', () => {
+      expect(classifyWeaponClass(makeGroup('(10—20)% повышение скорости накопления шкалы заморозки боевыми посохами'))).toBe('staff');
+    });
+  });
+
+  // ─── spear ───
+  describe('spear class', () => {
+    it('classifies "увеличение урона копьями" as spear', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона копьями'))).toBe('spear');
+    });
+    it('classifies "скорость атаки копьями" as spear', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки копьями'))).toBe('spear');
+    });
+    it('classifies "увеличение бонуса к критическому урону копьями" as spear', () => {
+      expect(classifyWeaponClass(makeGroup('(10—20)% увеличение бонуса к критическому урону копьями'))).toBe('spear');
+    });
+  });
+
+  // ─── dagger ───
+  describe('dagger class', () => {
+    it('classifies "увеличение урона кинжалами" as dagger', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% увеличение урона кинжалами'))).toBe('dagger');
+    });
+    it('classifies "скорость атаки кинжалами" as dagger', () => {
+      expect(classifyWeaponClass(makeGroup('(2—4)% повышение скорости атаки кинжалами'))).toBe('dagger');
+    });
+    it('classifies "шанс критического удара кинжалами" as dagger', () => {
+      expect(classifyWeaponClass(makeGroup('(6—16)% повышение шанса критического удара кинжалами'))).toBe('dagger');
+    });
+  });
+
+  // ─── Non-weapon mods return null ───
+  describe('non-weapon mods return null', () => {
+    it('returns null for generic damage mod (no weapon name)', () => {
+      expect(classifyWeaponClass(makeGroup('(20—30)% увеличение урона'))).toBeNull();
+    });
+    it('returns null for spirit mod', () => {
+      expect(classifyWeaponClass(makeGroup('+1 к духу'))).toBeNull();
+    });
+    it('returns null for attribute mod', () => {
+      expect(classifyWeaponClass(makeGroup('+(5—7) к силе'))).toBeNull();
+    });
+    it('returns null for resistance mod', () => {
+      expect(classifyWeaponClass(makeGroup('+(15—30)% к сопротивлению огню'))).toBeNull();
+    });
+  });
+});
+
+// ─── WEAPON_CLASS_LABELS ───
+
+describe('WEAPON_CLASS_LABELS (iter 87)', () => {
+  it('has 6 entries (one per WeaponClass)', () => {
+    expect(Object.keys(WEAPON_CLASS_LABELS)).toHaveLength(6);
+  });
+
+  it('every weapon class has non-empty label and colorClass', () => {
+    const allClasses: WeaponClass[] = ['melee', 'bow', 'crossbow', 'staff', 'spear', 'dagger'];
+    for (const wc of allClasses) {
+      expect(WEAPON_CLASS_LABELS[wc]).toBeDefined();
+      expect(WEAPON_CLASS_LABELS[wc].label.length).toBeGreaterThan(0);
+      expect(WEAPON_CLASS_LABELS[wc].colorClass.length).toBeGreaterThan(0);
+      expect(WEAPON_CLASS_LABELS[wc].bgClass.length).toBeGreaterThan(0);
+      expect(WEAPON_CLASS_LABELS[wc].borderClass.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every WeaponClass key is in WEAPON_CLASS_LABELS', () => {
+    const allClasses: WeaponClass[] = ['melee', 'bow', 'crossbow', 'staff', 'spear', 'dagger'];
+    for (const wc of allClasses) {
+      expect(WEAPON_CLASS_LABELS[wc]).toBeDefined();
+    }
+  });
+});
+
+// ─── classifyFunctionalBlock — weapon-specific block (iter 87) ───
+
+describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
+  // ─── Weapon mods → weapon-specific (BEFORE crit/damage-type/offence-speed) ───
+  describe('weapon mods catch by weapon-specific (priority over damage-type)', () => {
+    it('classifies "увеличение урона топорами" as weapon-specific (not damage-type)', () => {
+      // Has tags ['damage','attack'] → would otherwise go to damage-type.
+      // WEAPON_SPECIFIC_PATTERN catches it first via "топорами".
+      const group = makeGroup('(5—15)% увеличение урона топорами', {
+        members: [makeToken(['damage', 'attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "увеличение урона луками" as weapon-specific (not damage-type)', () => {
+      const group = makeGroup('(6—16)% увеличение урона луками', {
+        members: [makeToken(['damage', 'attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "повышение меткости луками" as weapon-specific (not other)', () => {
+      // Has only ['attack'] tag → would otherwise fall through to other.
+      const group = makeGroup('(5—15)% повышение меткости луками', {
+        members: [makeToken(['attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "скорость атаки кинжалами" as weapon-specific (not offence-speed)', () => {
+      // Has tags ['attack','speed'] → would otherwise go to offence-speed.
+      const group = makeGroup('(2—4)% повышение скорости атаки кинжалами', {
+        members: [makeToken(['attack', 'speed'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "шанс критического удара кинжалами" as weapon-specific (not crit)', () => {
+      // Has tags ['attack','critical'] → would otherwise go to crit.
+      const group = makeGroup('(6—16)% повышение шанса критического удара кинжалами', {
+        members: [makeToken(['attack', 'critical'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "скорость накопления шкалы оглушения булавами" as weapon-specific', () => {
+      // Has tags ['attack'] only → would otherwise fall through to other.
+      const group = makeGroup('(15—25)% повышение скорости накопления шкалы оглушения булавами', {
+        members: [makeToken(['attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "скорость накопления шкалы заморозки боевыми посохами" as weapon-specific', () => {
+      // Has tags ['elemental','cold','ailment'] → would otherwise go to other (no functional block matches).
+      const group = makeGroup('(10—20)% повышение скорости накопления шкалы заморозки боевыми посохами', {
+        members: [makeToken(['elemental', 'cold', 'ailment'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+
+    it('classifies "увеличение урона атаками без оружия" as weapon-specific', () => {
+      // Has tags ['damage','attack'] → would otherwise go to damage-type.
+      const group = makeGroup('(6—16)% увеличение урона атаками без оружия', {
+        members: [makeToken(['damage', 'attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
+    });
+  });
+
+  // ─── Non-weapon mods with similar text → NOT weapon-specific ───
+  describe('non-weapon mods do NOT match weapon-specific', () => {
+    it('classifies "увеличение урона" (generic) as damage-type, NOT weapon-specific', () => {
+      const group = makeGroup('(20—30)% увеличение урона', {
+        members: [makeToken(['damage'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('damage-type');
+    });
+
+    it('classifies "скорость атаки" (generic, ring mod) as offence-speed, NOT weapon-specific', () => {
+      const group = makeGroup('(7—9)% повышение скорости атаки', {
+        members: [makeToken(['attack', 'speed'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('offence-speed');
+    });
+  });
+});
+
+// ─── classifyGroups with jewel-functional mode (iter 87) ───
+
+describe('classifyGroups with jewel-functional mode (iter 87)', () => {
+  it('returns empty array for empty input', () => {
+    expect(classifyGroups([], 'jewel-functional')).toEqual([]);
+  });
+
+  it('splits weapon-specific block into 6 weapon-class sub-blocks', () => {
+    // Pick one representative family-key per weapon class (6 total).
+    const groups: FamilyGroup[] = [
+      makeGroup('(6—16)% увеличение урона мечами'),                       // weapon-melee
+      makeGroup('(5—15)% повышение меткости луками'),                     // weapon-bow
+      makeGroup('(6—16)% увеличение урона самострелами'),                 // weapon-crossbow
+      makeGroup('(6—16)% увеличение урона боевыми посохами'),             // weapon-staff
+      makeGroup('(6—16)% увеличение урона копьями'),                      // weapon-spear
+      makeGroup('(6—16)% увеличение урона кинжалами'),                    // weapon-dagger
+    ];
+
+    const result = classifyGroups(groups, 'jewel-functional');
+
+    // Expect 6 weapon sub-blocks (each with 1 group), in WEAPON_CLASS_ORDER.
+    expect(result).toHaveLength(6);
+    const keys = result.map(sg => sg.key);
+    expect(keys).toEqual(['weapon-melee', 'weapon-bow', 'weapon-crossbow', 'weapon-staff', 'weapon-spear', 'weapon-dagger']);
+
+    // Each sub-block carries the correct label from WEAPON_CLASS_LABELS.
+    expect(result[0].label).toBe(WEAPON_CLASS_LABELS.melee.label);
+    expect(result[1].label).toBe(WEAPON_CLASS_LABELS.bow.label);
+    expect(result[2].label).toBe(WEAPON_CLASS_LABELS.crossbow.label);
+    expect(result[3].label).toBe(WEAPON_CLASS_LABELS.staff.label);
+    expect(result[4].label).toBe(WEAPON_CLASS_LABELS.spear.label);
+    expect(result[5].label).toBe(WEAPON_CLASS_LABELS.dagger.label);
+
+    // Each sub-block has its own color from WEAPON_CLASS_LABELS.
+    expect(result[0].colorClass).toBe(WEAPON_CLASS_LABELS.melee.colorClass);
+    expect(result[1].colorClass).toBe(WEAPON_CLASS_LABELS.bow.colorClass);
+    expect(result[2].colorClass).toBe(WEAPON_CLASS_LABELS.crossbow.colorClass);
+    expect(result[3].colorClass).toBe(WEAPON_CLASS_LABELS.staff.colorClass);
+    expect(result[4].colorClass).toBe(WEAPON_CLASS_LABELS.spear.colorClass);
+    expect(result[5].colorClass).toBe(WEAPON_CLASS_LABELS.dagger.colorClass);
+  });
+
+  it('groups multiple weapon mods of the same class into one sub-block', () => {
+    // 3 melee mods (мечи/топоры/булавы) + 1 bow mod (луки).
+    const groups: FamilyGroup[] = [
+      makeGroup('(6—16)% увеличение урона мечами'),
+      makeGroup('(5—15)% увеличение урона топорами'),
+      makeGroup('(6—16)% увеличение урона булавами'),
+      makeGroup('(6—16)% увеличение урона луками'),
+    ];
+
+    const result = classifyGroups(groups, 'jewel-functional');
+
+    expect(result).toHaveLength(2);
+    expect(result[0].key).toBe('weapon-melee');
+    expect(result[0].groups).toHaveLength(3);
+    expect(result[1].key).toBe('weapon-bow');
+    expect(result[1].groups).toHaveLength(1);
+  });
+
+  it('renders non-weapon blocks in FUNCTIONAL_BLOCK_ORDER alongside weapon sub-blocks', () => {
+    // Spirit (1) + weapon-melee (1) + resistances (1).
+    const groups: FamilyGroup[] = [
+      makeGroup('+1 к духу'),                                  // spirit
+      makeGroup('(6—16)% увеличение урона мечами'),            // weapon-melee
+      makeGroup('+(15—30)% к сопротивлению огню'),             // resistances
+    ];
+
+    const result = classifyGroups(groups, 'jewel-functional');
+
+    expect(result).toHaveLength(3);
+    const keys = result.map(sg => sg.key);
+    // FUNCTIONAL_BLOCK_ORDER: spirit comes before resistances; weapon-specific is
+    // between defence-stats (after resources) and crit. So order is:
+    // spirit → weapon-melee → resistances? No — resistances is BEFORE weapon-specific.
+    //
+    // FUNCTIONAL_BLOCK_ORDER (excerpt):
+    //   spirit, skill-levels, attributes, resources, runes-barrier, resistances, defence-stats,
+    //   offence-speed, crit, damage-type, penetration, ailments, area-duration, wisps,
+    //   buff-skills, minions, meta-skills, weapon-specific, flasks, magic-find, ...
+    //
+    // So actual order: spirit → resistances → weapon-melee.
+    expect(keys).toEqual(['spirit', 'resistances', 'weapon-melee']);
+  });
+
+  it('renders weapon sub-blocks in WEAPON_CLASS_ORDER when multiple weapon classes appear', () => {
+    // Insert weapon mods in scrambled order — result must follow WEAPON_CLASS_ORDER.
+    const groups: FamilyGroup[] = [
+      makeGroup('(6—16)% увеличение урона кинжалами'),                    // dagger
+      makeGroup('(6—16)% увеличение урона копьями'),                      // spear
+      makeGroup('(6—16)% увеличение урона мечами'),                       // melee
+      makeGroup('(6—16)% увеличение урона луками'),                       // bow
+      makeGroup('(6—16)% увеличение урона самострелами'),                 // crossbow
+      makeGroup('(6—16)% увеличение урона боевыми посохами'),             // staff
+    ];
+
+    const result = classifyGroups(groups, 'jewel-functional');
+
+    expect(result).toHaveLength(6);
+    const keys = result.map(sg => sg.key);
+    expect(keys).toEqual(['weapon-melee', 'weapon-bow', 'weapon-crossbow', 'weapon-staff', 'weapon-spear', 'weapon-dagger']);
+  });
+
+  it('omits weapon sub-blocks when no weapon mods are present', () => {
+    // Pure non-weapon mods.
+    const groups: FamilyGroup[] = [
+      makeGroup('+1 к духу'),                                  // spirit
+      makeGroup('+(15—30)% к сопротивлению огню'),             // resistances
+      makeGroup('(20—30)% увеличение урона'),                  // damage-type
+    ];
+
+    const result = classifyGroups(groups, 'jewel-functional');
+
+    // No weapon-* keys should appear.
+    const keys = result.map(sg => sg.key);
+    expect(keys.every(k => !k.startsWith('weapon-'))).toBe(true);
+    expect(keys).toEqual(['spirit', 'resistances', 'damage-type']);
+  });
+
+  it('preserves group references (does not mutate or clone)', () => {
+    const spiritGroup = makeGroup('+1 к духу');
+    const weaponGroup = makeGroup('(6—16)% увеличение урона мечами');
+
+    const result = classifyGroups([spiritGroup, weaponGroup], 'jewel-functional');
+
+    const spiritSg = result.find(sg => sg.key === 'spirit');
+    const weaponSg = result.find(sg => sg.key === 'weapon-melee');
+    expect(spiritSg?.groups[0]).toBe(spiritGroup);
+    expect(weaponSg?.groups[0]).toBe(weaponGroup);
+  });
+
+  it('identical to affix-functional for non-weapon groups', () => {
+    // Verify that for groups without weapon mods, jewel-functional and
+    // affix-functional produce equivalent results (same keys, labels, colors,
+    // group count, and same FamilyGroup object references inside).
+    const groups: FamilyGroup[] = [
+      makeGroup('+1 к духу'),
+      makeGroup('+(5—7) к силе'),
+      makeGroup('+(15—30)% к сопротивлению огню'),
+      makeGroup('Знак повелителя Бездны'),
+    ];
+
+    const fnResult = classifyGroups(groups, 'affix-functional');
+    const jfResult = classifyGroups(groups, 'jewel-functional');
+
+    expect(jfResult.length).toBe(fnResult.length);
+    for (let i = 0; i < jfResult.length; i++) {
+      expect(jfResult[i].key).toBe(fnResult[i].key);
+      expect(jfResult[i].label).toBe(fnResult[i].label);
+      expect(jfResult[i].colorClass).toBe(fnResult[i].colorClass);
+      expect(jfResult[i].bgClass).toBe(fnResult[i].bgClass);
+      expect(jfResult[i].borderClass).toBe(fnResult[i].borderClass);
+      // Array references will differ (separate Map per invocation), but
+      // contents (length + same FamilyGroup object refs) must match.
+      expect(jfResult[i].groups.length).toBe(fnResult[i].groups.length);
+      for (let j = 0; j < jfResult[i].groups.length; j++) {
+        expect(jfResult[i].groups[j]).toBe(fnResult[i].groups[j]);
+      }
+    }
   });
 });

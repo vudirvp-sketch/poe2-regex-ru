@@ -11,6 +11,13 @@
  * - jewel-desecrated.json (47 desecrated tokens, including multi-line splits)
  * - jewel-corrupted.json (10 corrupted tokens)
  *
+ * Grouping mode (iter 87): `jewel-functional` — same 24-block functional
+ * scheme as ring/amulet/belt (`affix-functional`), but the `weapon-specific`
+ * block is split into 6 weapon-class sub-blocks (melee / bow / crossbow /
+ * staff / spear / dagger). The 24 weapon-specific family-keys in jewel.json
+ * are distributed across these 6 sub-blocks based on weapon name. See
+ * `classifyWeaponClass()` in `src/shared/mod-classifier.ts` for the mapping.
+ *
  * Jewel type filter: Ruby/Emerald/Sapphire/All buttons filter tokens by
  * jewel-type heuristics (weighted scoring classification via classifyJewelType).
  * "All" shows the complete list; specific types show only mods that match
@@ -291,7 +298,7 @@ export function JewelPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-semantic"
+              groupMode="jewel-functional"
               showOriginSubSections
               category="jewel"
               priorityFilter={priorityFilter}

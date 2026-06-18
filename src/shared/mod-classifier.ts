@@ -999,7 +999,7 @@ export type FunctionalBlock =
   | 'buff-skills'      // ⏳ iter 87+: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
   | 'minions'          // iter 86: Приспешники/Подношения (tag minion + text «приспешник»/«подношен»)
   | 'meta-skills'      // ⏳ iter 87+: Архонт/Запечатанные/Мета-умения
-  | 'weapon-specific'  // ⏳ iter 87: 24 family-key в 6 sub-blocks (jewel only)
+  | 'weapon-specific'  // iter 87: 24 family-key в 6 sub-blocks (jewel only — melee/bow/crossbow/staff/spear/dagger)
   | 'flasks'           // iter 86: belt primary, flask-моды (text «флакон»)
   | 'conversion'       // ⏳ iter 87+: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
   | 'rage-charges'     // ⏳ iter 87+: Свирепость/Endurance/Flask charges/Banner glory
@@ -1028,7 +1028,7 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
   'buff-skills':    { label: 'Ауры / Вестники / ...', colorClass: 'text-accent-violet', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
   minions:          { label: 'Приспешники',        colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
   'meta-skills':    { label: 'Мета-умения',        colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
-  'weapon-specific':{ label: 'Оружейные моды',     colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  'weapon-specific':{ label: 'Оружейные моды',     colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
   flasks:           { label: 'Флаконы',            colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
   conversion:       { label: 'Конверсия / Сустейн', colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
   'rage-charges':   { label: 'Свирепость / Заряды', colorClass: 'text-accent-red',    bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
@@ -1054,6 +1054,99 @@ const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'breach',
   'other',
 ];
+
+// ─── Weapon class classification (iter 87: jewel weapon sub-blocks) ───
+
+/**
+ * Weapon class categories for jewel weapon-specific mods.
+ *
+ * 24 weapon-specific family-keys (10 unique weapons in jewel.json) are grouped
+ * into 6 functional weapon-class sub-blocks that reflect PoE2 build archetypes:
+ *  - `melee`: мечи / топоры / булавы / кистени / без оружия (basic 1H+2H melee + unarmed)
+ *  - `bow`: луки (ranged Dex weapons)
+ *  - `crossbow`: самострелы (ranged reload weapons)
+ *  - `staff`: боевые посохи (2H caster/melee hybrids)
+ *  - `spear`: копья (1H+shield melee with crit flavour)
+ *  - `dagger`: кинжалы (1H crit/spell weapons)
+ *
+ * Source: docs/AFFIXES_GROUPING_ANALYSIS.md §3 + §4.2.
+ */
+export type WeaponClass = 'melee' | 'bow' | 'crossbow' | 'staff' | 'spear' | 'dagger';
+
+/** Display config for each weapon class (iter 87). */
+export const WEAPON_CLASS_LABELS: Record<WeaponClass, CategoryLabel> = {
+  melee:     { label: 'Ближний бой',   colorClass: 'text-accent-red',    bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  bow:       { label: 'Луки',          colorClass: 'text-accent-teal',   bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  crossbow:  { label: 'Самострелы',    colorClass: 'text-accent-teal',   bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  staff:     { label: 'Боевые посохи', colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',    borderClass: 'border-cborder-blue',    borderLClass: '' },
+  spear:     { label: 'Копья',         colorClass: 'text-accent-amber',  bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  dagger:    { label: 'Кинжалы',       colorClass: 'text-accent-violet', bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+};
+
+/** Render order — matches the order in WEAPON_CLASS_LABELS declaration. */
+const WEAPON_CLASS_ORDER: WeaponClass[] = [
+  'melee', 'bow', 'crossbow', 'staff', 'spear', 'dagger',
+];
+
+/**
+ * Weapon name → weapon class mapping.
+ *
+ * Built from the 10 weapon name variants in `jewel.json` (verified by simulation
+ * in iter 87). Each weapon name is matched as a whole word using a non-capturing
+ * group with word boundaries `\b` to prevent false positives on substrings
+ * (e.g., «посохами» should NOT match «боевыми посохами» rules individually).
+ *
+ * Notes:
+ *  - `без оружия` is included in `melee` (unarmed = implicit melee archetype).
+ *  - `боевыми посохами` is matched BEFORE `посохами` (longest match first),
+ *    but only «боевые посохи» appear in jewel.json — there are no plain «посохи»
+ *    mods. So matching order is defensive, not functional.
+ *  - `кистенями` (flails) are in `melee` — they're 1H melee weapons.
+ */
+const WEAPON_NAME_TO_CLASS: { pattern: RegExp; weaponClass: WeaponClass }[] = [
+  // ─── melee (мечи / топоры / булавы / кистени / без оружия) ───
+  // Place "без оружия" before "оружия" patterns and longer weapon names first.
+  { pattern: /без оружия/i, weaponClass: 'melee' },
+  { pattern: /мечами/i, weaponClass: 'melee' },
+  { pattern: /топорами/i, weaponClass: 'melee' },
+  { pattern: /булавами/i, weaponClass: 'melee' },
+  { pattern: /кистенями/i, weaponClass: 'melee' },
+  // ─── bow ───
+  { pattern: /луками/i, weaponClass: 'bow' },
+  // ─── crossbow ───
+  { pattern: /самострелами/i, weaponClass: 'crossbow' },
+  // ─── staff (боевые посохи — note: longer match first, before any plain «посохами») ───
+  { pattern: /боевыми посохами/i, weaponClass: 'staff' },
+  // ─── spear ───
+  { pattern: /копьями/i, weaponClass: 'spear' },
+  // ─── dagger ───
+  { pattern: /кинжалами/i, weaponClass: 'dagger' },
+];
+
+/**
+ * Classify a FamilyGroup into a weapon class.
+ *
+ * Returns `null` if the group's text does NOT contain any of the 10 weapon name
+ * variants. Used by `classifyGroups(mode='jewel-functional')` to split the
+ * `weapon-specific` functional block into 6 weapon-class sub-blocks for the
+ * JewelPage rendering.
+ *
+ * Match strategy: first-match-wins on the WEAPON_NAME_TO_CLASS array. Order is
+ * carefully arranged so that:
+ *  - «без оружия» matches before any other "оружия" substring (defensive).
+ *  - «боевыми посохами» matches before any plain «посохами» (defensive — no
+ *    such mods exist in current jewel.json, but pattern is future-proof).
+ *
+ * @param group - The FamilyGroup to classify (typically already in `weapon-specific` block)
+ * @returns WeaponClass key, or `null` if not a weapon mod
+ */
+export function classifyWeaponClass(group: FamilyGroup): WeaponClass | null {
+  const text = group.displayText;
+  for (const { pattern, weaponClass } of WEAPON_NAME_TO_CLASS) {
+    if (pattern.test(text)) return weaponClass;
+  }
+  return null;
+}
 
 // ─── Functional block text patterns (iter 86: 14 high-priority blocks) ───
 
@@ -1199,11 +1292,38 @@ const DAMAGE_TYPE_PATTERN = /урон/i;
 const OFFENCE_SPEED_PATTERN = /скорост.*(атак|сотворени|передвижен|снаряд)/i;
 
 /**
+ * Weapon-specific mods (iter 87 — jewel only, 24 family-keys).
+ *
+ * 24 weapon-specific family-keys in jewel.json contain one of 10 weapon name
+ * variants: мечами / кинжалами / топорами / булавами / луками / самострелами /
+ * копьями / боевыми посохами / кистенями / без оружия.
+ *
+ * Weapon mods have tags `attack`+`damage` / `attack`+`speed` / `attack`+`critical`,
+ * so they'd otherwise be caught by `damage-type` / `offence-speed` / `crit`. We
+ * catch them FIRST (before those generic blocks) so they go into `weapon-specific`
+ * and get sub-grouped by `classifyWeaponClass()` for the JewelPage.
+ *
+ * Match strategy: same weapon-name patterns as `WEAPON_NAME_TO_CLASS` (in
+ * classifyWeaponClass), wrapped in a single OR-pattern. This keeps the pattern
+ * and the weapon-class lookup table in sync.
+ *
+ * Examples caught:
+ *  - "(6—16)% увеличение урона топорами"
+ *  - "(5—15)% повышение меткости луками"
+ *  - "(2—4)% повышение скорости атаки кинжалами"
+ *  - "(6—16)% повышение шанса критического удара кинжалами"
+ *  - "(15—25)% повышение скорости накопления шкалы оглушения булавами"
+ *  - "(10—20)% повышение скорости накопления шкалы заморозки боевыми посохами"
+ *  - "(6—16)% увеличение урона атаками без оружия"
+ */
+const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топорами|булавами|луками|самострелами|копьями|боевыми посохами|кистенями|без оружия)/i;
+
+/**
  * Classify a FamilyGroup into a functional block.
  *
- * iter 86: 14 high-priority blocks are matched using BOTH tag-based detection
+ * iter 87: 15 high-priority blocks are matched using BOTH tag-based detection
  * (preferred — from member.tokens.tags[]) AND text patterns (fallback for
- * no-tag mods). 10 blocks still fall back to `other`.
+ * no-tag mods). 9 blocks still fall back to `other`.
  *
  * Match priority (most specific → most general):
  *  1. SPIRIT — text "+# к духу" (amulet only, no tag)
@@ -1217,10 +1337,11 @@ const OFFENCE_SPEED_PATTERN = /скорост.*(атак|сотворени|пе
  *  9. RESISTANCES — tag `resistance` OR text "сопротивлен" — BEFORE damage-type
  * 10. RESOURCES — tags `life`/`mana` OR text "максимум.*энерг.*щит/похищен/регенерац/восстанавливает" — BEFORE defence-stats (for ES max)
  * 11. DEFENCE_STATS — tags `armour`/`evasion`/`energy_shield`/`charm` OR text "брон/уклонен/блок/порог оглушен"
- * 12. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
- * 13. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
- * 14. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
- * 15. OTHER — fallback
+ * 12. WEAPON_SPECIFIC — text "{weapon name}" (iter 87: jewel-only, 24 family-keys) — BEFORE crit/damage-type/offence-speed
+ * 13. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
+ * 14. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
+ * 15. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
+ * 16. OTHER — fallback
  *
  * Tag priority logic:
  *  - Minion tag beats life/mana/critical/damage/speed/resistance (minion mods are functionally
@@ -1286,18 +1407,23 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   // 11. Defence-stats — tags `armour`/`evasion`/`energy_shield`/`charm` OR text «брон/уклонен/блок/порог оглушен»
   if (allTags.has('armour') || allTags.has('evasion') || allTags.has('energy_shield') || allTags.has('charm') || DEFENCE_STATS_PATTERN.test(text)) return 'defence-stats';
 
-  // 12. Crit — tag `critical` OR text «крит»
+  // 12. Weapon-specific (iter 87) — text "{weapon name}" (10 variants, 24 family-keys in jewel)
+  //     Must be BEFORE crit / damage-type / offence-speed — weapon mods have attack+damage /
+  //     attack+speed / attack+critical tags, but functionally they're weapon-conditional passives.
+  if (WEAPON_SPECIFIC_PATTERN.test(text)) return 'weapon-specific';
+
+  // 13. Crit — tag `critical` OR text «крит»
   //     Must be BEFORE damage-type (crit mods often have damage tag too).
   if (allTags.has('critical') || CRIT_PATTERN.test(text)) return 'crit';
 
-  // 13. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
+  // 14. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
   if (allTags.has('damage') || allTags.has('physical') || allTags.has('elemental') || allTags.has('cold') || allTags.has('fire') || allTags.has('lightning') || allTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(text)) return 'damage-type';
 
-  // 14. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
+  // 15. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
   if (allTags.has('speed') || OFFENCE_SPEED_PATTERN.test(text)) return 'offence-speed';
 
-  // 15. Fallback — wisps / meta-skills / penetration / ailments / area-duration /
-  //     buff-skills / conversion / rage-charges / weapon-specific (iter 87+)
+  // 16. Fallback — wisps / meta-skills / penetration / ailments / area-duration /
+  //     buff-skills / conversion / rage-charges (iter 88+)
   return 'other';
 }
 
@@ -1307,6 +1433,7 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
 export type ModGroupMode =
   | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (legacy, replaced by affix-functional for ring/amulet/belt)
   | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 86: 14 active + other) — ring/amulet/belt
+  | 'jewel-functional'  // iter 87: same as affix-functional, BUT weapon-specific block is split into 6 weapon-class sub-blocks (melee/bow/crossbow/staff/spear/dagger) — jewel only
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
   | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
@@ -1404,6 +1531,101 @@ export function classifyGroups(
         borderLClass: FUNCTIONAL_BLOCK_LABELS[block].borderLClass,
         groups: classified.get(block)!,
       }));
+  }
+
+  if (mode === 'jewel-functional') {
+    // iter 87: variant of `affix-functional` for JewelPage. Identical to
+    // `affix-functional` EXCEPT the `weapon-specific` block is split into
+    // 6 weapon-class sub-blocks (melee/bow/crossbow/staff/spear/dagger).
+    //
+    // Architecture: this is a "render-time split" — we first classify all
+    // groups by `classifyFunctionalBlock()` (which puts the 24 weapon family-keys
+    // into `weapon-specific`), then within that bucket we re-classify each
+    // group by `classifyWeaponClass()` to produce 6 sub-blocks. Each sub-block
+    // gets its own `key` (`weapon-melee`, `weapon-bow`, …) and distinct
+    // colour from WEAPON_CLASS_LABELS.
+    //
+    // The 6 weapon sub-blocks are rendered in place of the original
+    // `weapon-specific` block in FUNCTIONAL_BLOCK_ORDER. All other functional
+    // blocks (spirit/skill-levels/attributes/…/other) are returned unchanged.
+    const classified = new Map<FunctionalBlock, FamilyGroup[]>();
+
+    for (const group of groups) {
+      const block = classifyFunctionalBlock(group);
+      const list = classified.get(block) || [];
+      list.push(group);
+      classified.set(block, list);
+    }
+
+    const result: ModSubGroup[] = [];
+
+    for (const block of FUNCTIONAL_BLOCK_ORDER) {
+      const blockGroups = classified.get(block);
+      if (!blockGroups || blockGroups.length === 0) continue;
+
+      if (block !== 'weapon-specific') {
+        // Default rendering — same as affix-functional mode.
+        result.push({
+          key: block,
+          label: FUNCTIONAL_BLOCK_LABELS[block].label,
+          colorClass: FUNCTIONAL_BLOCK_LABELS[block].colorClass,
+          bgClass: FUNCTIONAL_BLOCK_LABELS[block].bgClass,
+          borderClass: FUNCTIONAL_BLOCK_LABELS[block].borderClass,
+          borderLClass: FUNCTIONAL_BLOCK_LABELS[block].borderLClass,
+          groups: blockGroups,
+        });
+        continue;
+      }
+
+      // ─── weapon-specific: split into 6 weapon-class sub-blocks ───
+      // Each weapon mod gets classified via classifyWeaponClass(). If a group
+      // somehow returns null (defensive — shouldn't happen for current jewel
+      // data), it falls into a `weapon-other` fallback bucket so it's never
+      // silently dropped.
+      const byWeaponClass = new Map<WeaponClass | 'other', FamilyGroup[]>();
+      for (const group of blockGroups) {
+        const wc = classifyWeaponClass(group);
+        const key: WeaponClass | 'other' = wc ?? 'other';
+        const list = byWeaponClass.get(key) || [];
+        list.push(group);
+        byWeaponClass.set(key, list);
+      }
+
+      // Emit 6 weapon sub-blocks in WEAPON_CLASS_ORDER, then the `weapon-other`
+      // fallback (only if non-empty — defensive).
+      for (const wc of WEAPON_CLASS_ORDER) {
+        const wcGroups = byWeaponClass.get(wc);
+        if (!wcGroups || wcGroups.length === 0) continue;
+        const labelCfg = WEAPON_CLASS_LABELS[wc];
+        result.push({
+          key: `weapon-${wc}`,
+          label: labelCfg.label,
+          colorClass: labelCfg.colorClass,
+          bgClass: labelCfg.bgClass,
+          borderClass: labelCfg.borderClass,
+          borderLClass: labelCfg.borderLClass,
+          groups: wcGroups,
+        });
+      }
+      const otherWeaponGroups = byWeaponClass.get('other');
+      if (otherWeaponGroups && otherWeaponGroups.length > 0) {
+        // Defensive fallback: weapon mods that don't match any known weapon
+        // name. Should never trigger on current jewel.json (verified by
+        // simulate-iter87-impact.ts). Kept here to avoid silent data loss
+        // if new weapon mods are added in future PoE2 patches.
+        result.push({
+          key: 'weapon-other',
+          label: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].label,
+          colorClass: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].colorClass,
+          bgClass: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].bgClass,
+          borderClass: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].borderClass,
+          borderLClass: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].borderLClass,
+          groups: otherWeaponGroups,
+        });
+      }
+    }
+
+    return result;
   }
 
   if (mode === 'affix-sentiment') {
