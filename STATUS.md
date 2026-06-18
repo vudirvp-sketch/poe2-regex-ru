@@ -2,7 +2,36 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 81
+> **Текущая итерация:** 82 (analysis-only)
+
+---
+
+## Open Proposal (iter 82)
+
+### OP-1: Перегруппировка аффиксов — функциональные блоки вместо 4 крупных корзин
+
+Полный анализ в [`docs/AFFIXES_GROUPING_ANALYSIS.md`](docs/AFFIXES_GROUPING_ANALYSIS.md).
+
+**Суть:** текущая 3-корзинная схема (`offensive/defensive/attribute/neutral`) для jewellery/jewel и 3-корзинная (`positive/negative/neutral`) для waystone отправляют **15-38% всех модов** в «Прочие»/«Общие» — включая S-tier моды (Spirit, +skill levels, MF).
+
+**Найденные баги классификации (6):**
+
+1. **S-tier в neutral**: `+# к духу`, `+#% к уровню всех камней умений`, `#% повышение редкости найденных предметов`, `+#% к качеству всех умений` — все без тегов → neutral, несмотря на S/A/B tier.
+2. **Waystone mis-классификации (4 из 7 neutral):** `+#% к бонусу критического урона монстров` (neutral → negative), `На #% больше волшебных и редких монстров` (neutral → positive), `На #% больше шанса появления свойств у редких монстров` (neutral → negative), `На #% больше эффективности монстров` (neutral → negative).
+3. **Tablet «generic» = 38%** всех модов, включая S-tier (кол-во/редкость/опыт/доп. сущности/изгнанники).
+4. **Тег `aura` не входит ни в OFFENSIVE/DEFENSIVE/ATTRIBUTE** → 2 токена jewel (сила умений аур) → neutral.
+5. **Тег `gem` не используется** → 17 токенов (1 ring + 14 amulet + 2 belt) → neutral.
+6. **Breach-themed `Знак повелителя Бездны`** (essence-origin, ring) — без тегов → neutral.
+
+**Предлагаемые изменения (см. полный анализ в docs/):**
+
+- P0: 22 функциональных блока для jewellery (вместо 4 корзин) — `Дух / Уровень умений / Атрибуты / Здоровье-Мана-ES / Сопротивления / Защита / Скорость / Крит / Урон / Пробитие / Состояния / Область-Длительность / Ауры-Вестники-Метки / Приспешники / Оружие-специфичные / Фласки / MF / Конверсия / Свирепость-Заряды / Бездна / Мета / Прочее`.
+- P0: 6 weapon sub-blocks для jewel (23 family-key) — `Урон / Скорость атаки / Крит / Меткость / Шкала / Перезарядка` по типам оружия.
+- P1: ETL-tagged `functionalCategory` (по образцу `jewelType`) для ~100% точности.
+- P1: Поле `sortKey` в `FamilyGroup` + пользовательский тумблер «режим группировки» (блоки/популярность/алфавит) с URL-персистентностью.
+- P1: Sub-blocks внутри waystone sentiment (positive/negative × 4-5 sub-blocks) и tablet type (5 типов × 3 sub-blocks + generic с 5 sub-blocks).
+
+**Статус:** анализ выполнен, реализация не начата. Ждёт решения по приоритетам.
 
 ---
 
@@ -12,32 +41,7 @@
 
 ## Открытые долги
 
-Нет активных долгов. iter 81 закрыл последние три низкоприоритетных бага (#16, #17, useUrlSync-extract).
-
----
-
-## История закрытых багов (последние)
-
-### Bug #17 (closed iter 81) — negated char class sentinel hack
-`src/core/poe2-regex-matcher.ts` кодировал negated char class `[^...]` через sentinel `{from: -1, to: -1}`, prepended к `ranges` — это работало, но было хрупким хаком. iter 81 заменил sentinel на явное поле `negated: boolean` в типах `Token` и `PoE2Regex` для `charClass`. Добавлен тест `tests/core/poe2-regex-matcher.test.ts:175-182` на `[^0-9]` и `[^а-я]` паттерны. Engine-internal feature — PoE2 regex generator никогда не эмитит `[^...]`, но matcher должен корректно парсить и матчить для engine completeness.
-
-### Bug #16 (closed iter 81) — IMPLICIT_RANGE_UNRESTRICTED magic number
-`scripts/etl/normalize.ts:440` имел `IMPLICIT_RANGE_UNRESTRICTED = [0, 350] as const` — 350 было произвольным magic number, которое могло клиппать высокоуровневые waystone-имплициты (top-tier waystones могут роллить implicits >350 через implicit-set bonus stacking). iter 81 поднял upper bound до 999 (safe 3-digit ceiling). ETL rerun подтверждает: только 4 implicit-range значения в waystone.json и 4 в waystone-desecrated.json изменились (`350` → `999`), остальной JSON идентичен.
-
-### Bug useUrlSync extract (closed iter 81 — won't fix)
-Анализ iter 79 показал, что extract URL-sync effect в отдельный `useUrlSync` хук не оправдан: effect tightly coupled к 13 значениям (6 useState + 7 store-side values), extract не упростит lint rule и не уменьшит coupling. iter 81 формально закрыл этот долг как "won't fix" с обновлённым комментарием в `src/ui/hooks/useCategoryPage.ts:517-523`.
-
-### Bug #13 (closed iter 80) — iterative-optimizer skip `.*[0-9][1-9]`
-Skip условие `regex.includes('.*') || regex.includes('[0-9]') || regex.includes('[1-9]')` было dead code — 0 из 1697 token.regex.ru содержат эти паттерны (все regex — literal suffix, number patterns генерируются runtime compiler из RANGE AST). Skip удалён из 4 мест (iterative-optimizer.ts ×2, run-etl.ts, analyze-fn.ts). ETL rerun подтверждает: JSON output идентичен (отличается только version timestamp).
-
-### KI-3 (resolved iter 76) — poe2db.tw reverted text forms
-Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов waystone/tablet к OLD-формам. iter 76 подтвердил, что OLD-формы стабильны >1 года, и завершил фикс ETL rerun с исходными (pre-iter-75) хардкод-ключами.
-
-### KI-2 (closed iter 76) — stale hardcoded implicit-set family keys
-`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` и `TABLET_IMPLICIT_SET_FAMILY_KEYS` в `scripts/etl/normalize.ts` были stale. iter 76 reverted к original OLD-form set + ETL rerun: 160 waystone + 3 tablet implicit-set bonus токенов отфильтровано, 5+5 implicit tokens добавлено.
-
-### KI-1 (closed iter 73) — `?` tokenizer mismatch
-`src/core/poe2-regex-matcher.ts` парсил `?` как optional quantifier; PoE2 in-game `?` НЕ поддерживается. Fix: `hasUnsupportedOptional()` detector + runtime warn (dedup Set) + `OracleResult.unsupportedSyntax` flag + ETL `iterative-optimizer` reject.
+- **OP-1** (iter 82): перегруппировка аффиксов — см. выше.
 
 ---
 

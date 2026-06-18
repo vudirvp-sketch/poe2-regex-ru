@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 81**. **Все Known Issues закрыты** (KI-1, KI-2, KI-3). **Все долги закрыты** — Bug #13 (iter 80), Bug #16 + Bug #17 + useUrlSync-extract (iter 81). Regex-движок: чистый TS, 0 npm-зависимостей. 1158/1158 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. **Pitfall 30 (resolved iter 73):** `?` tokenizer детектится через `hasUnsupportedOptional()`, Oracle форсит `valid=false`. **Pitfall 31+32 (resolved iter 76):** implicit-set family keys корректны, poe2db.tw OLD forms стабильны. **Pitfall 33 (resolved iter 79):** useCategoryPage split — circular dependency broken через `config.filterStore` injection. **Pitfall 34 (iter 81):** `charClass` token/AST node имеет явное поле `negated: boolean` (Bug #17 closed — `[^...]` больше не кодируется через `{from: -1, to: -1}` sentinel). Pitfall 22 + 28 + 29 актуальны.
+> **Entry document.** Read this first. Current state: **iter 82 (analysis-only)**. **Open Proposal OP-1** (iter 82): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`, реализация не начата. Все старые Known Issues закрыты (KI-1, KI-2, KI-3) и все старые долги закрыты. Regex-движок: чистый TS, 0 npm-зависимостей. 1158/1158 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
 
 ---
 
@@ -212,43 +212,15 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
     - **Body background swap (iter 65):** `bg-forest.webp` → `atmosphere/bg.webp` + `linear-gradient(rgba(13,11,9,0.78)→rgba(7,5,3,0.92))` warm dim + `radial-gradient(vignette)` darker corners. `bg-forest.webp` / `bg-forest-mobile.webp` deleted in iter 70 (1+ release cycle since iter 65, no longer referenced).
     - **iter 71 leftover WebP интеграция:** `hero-demon-blue.webp` (SeoBlock, `<details>[open]` triggered, opacity 0.10, lg+ only), `news-bg-center.webp` (HomePage hero `<lg` backdrop, opacity 0.14, `mix-blend-screen`, mirrors lg+ bas-relief), `early-access-banner.webp` (`.poe-divider--banner`). Все atmosphere assets теперь подключены — «чистых» кандидатов на интеграцию больше нет.
 
-30. **`?` tokenizer mismatch — RESOLVED iter 73 (was KI-1, now closed).** `src/core/poe2-regex-matcher.ts` парсит `?` (вне `(?!`) как `optional` quantifier для engine-completeness; PoE2 in-game `?` **НЕ поддерживает** (verified Phase 7). iter 73 fix (defensive guard against generator regressions):
-    - **`hasUnsupportedOptional(pattern)` exported detector** — pure function, сканирует tokens на наличие `optional` (без `(?!…)` context).
-    - **`matchQuotedGroup` runtime `console.warn`** — одноразово per pattern (dedup через `Set`), не спамит в ETL логах. Тесты используют `vi.spyOn(console, 'warn')` + `_clearWarnedUnsupportedOptionalPatternsForTests()` (test-only export) для сброса dedup Set.
-    - **`OracleResult.unsupportedSyntax: string[]`** — новое опциональное поле. При `hasUnsupportedOptional(regex) === true` Oracle форсит `valid = false` + `unsupportedSyntax = ['? optional']`.
-    - **`iterative-optimizer.oracleValidateChange`** — early reject на `hasUnsupportedOptional(newRegex)` (аналогично существующему `containsPoE2Grouping` check).
-    - **Generator (compiler/factorizer) `?` НЕ производит** — это defensive guard против будущих регрессий. При модификации generator-логики НЕ добавлять `?`-паттерны.
-    - Тесты: `tests/core/poe2-regex-matcher.test.ts` блок "Optional quantifier ? (NOT supported in-game — KI-1 closed iter 73)" — 5 тестов на detector + warn. `tests/core/regex-oracle.test.ts` Section 11 — 5 тестов на Oracle behavior.
+30. **`?` optional — NOT supported in PoE2 in-game.** `src/core/poe2-regex-matcher.ts` парсит `?` (вне `(?!`) для engine-completeness, но PoE2 regex engine его НЕ поддерживает. Defensive guard: `hasUnsupportedOptional(pattern)` detector + `OracleResult.unsupportedSyntax` + `iterative-optimizer.oracleValidateChange` early reject. **Generator (compiler/factorizer) `?` НЕ производит** — при модификации generator-логики НЕ добавлять `?`-паттерны.
 
-31. **Stale hardcoded implicit-set family keys — KI-2 (resolved iter 76).** `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` (4 ключа) и `TABLET_IMPLICIT_SET_FAMILY_KEYS` (1 ключ) в `scripts/etl/normalize.ts` теперь используют original OLD-form set (тот же, что и pre-iter-75):
-    - **Waystone keys (4):** `На #% больше находимых в области путевых камней`, `#% увеличение эффективности монстров`, `На #% больше редкости находимых в этой области предметов`, `На #% больше размера групп монстров`. Все 4 матчат source HTML (107+4+32+29 = 172 raw mod-токенов, фильтр удаляет 160 после dedup).
-    - **Tablet key (1, source-verbatim typo):** `% увеличение количества находимых на карте путевых камней` (с `%` без `#` — poe2db source HTML имеет именно так). iter 75 "исправил" typo на `#%`, но это сломало матчинг — ключ должен равняться normalized `familyKey.ru` сгенерированных токенов, а source имеет typo.
-    - **iter 76 ETL rerun результат:** waystone 302 raw → 156 final (filtered 160 implicit-set bonus + added 5 implicit), tablet 86 raw → 84 final (filtered 3 + added 5 implicit), waystone-desecrated 32 (filter no-op — only Abyss-themed mods).
-    - **Тесты (5 в `tests/etl/normalize.test.ts` KI-2 блоке):** (1) every waystone key matches source HTML, (2) waystone.json does NOT contain implicit-set bonus familyKeys (filter worked), (3) waystone-desecrated source HTML has no mod-form implicit-set bonus tokens (filter no-op), (4) every tablet key matches source HTML, (5) tablet.json does NOT contain implicit-set bonus familyKeys.
-    - **Не путать:** `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` — это FAMILY KEY для implicit-set бонусов waystone (отдельная концепция от `IMPLICIT_RANGE_UNRESTRICTED` в `scripts/etl/normalize.ts` — Bug #16 закрыт iter 81, upper bound поднят с 350 до 999).
+31. **Hardcoded implicit-set family keys в `scripts/etl/normalize.ts`** — 4 waystone + 1 tablet. Ключи должны РАВНЯТЬСЯ `familyKey.ru` сгенерированных токенов (т.е. source-verbatim, включая опечатки poe2db — например `%` без `#` для tablet). **Перед ETL rerun ВСЕГДА проверяй:** `curl -s https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` — если >0, poe2db имеет OLD-формы; если 0, NEW-формы. Соответственно обнови хардкод-ключи перед ETL.
 
-32. **poe2db.tw text form revert — KI-3 (resolved iter 76).** Между 16 и 17 июня 2025 poe2db.tw откатил формулировки текстов модов к OLD-формам. iter 75 обнаружил это и заблокировал ETL rerun (data-level фикс KI-2). iter 76 (17 июня 2026) подтвердил, что OLD-формы стабильны уже >1 года, и завершил фикс:
-    - **Verification:** `curl -s https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` = 107 (OLD form `На % больше находимых в области путевых камней`).
-    - **Decision:** OLD-формы правильные (NEW-формы были intermediate состоянием poe2db в течение ~1 дня, 16-17 июня 2025).
-    - **Fix:** reverted hardcoded keys к original OLD-form set (см. Pitfall 31), запустил ETL, обновил test threshold waystone `150-200` → `140-200`.
-    - **Перед ETL rerun ВСЕГДА проверяй:** `curl -s https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` — если >0, poe2db имеет OLD-формы; если 0, NEW-формы. Соответственно обнови хардкод-ключи перед ETL.
+32. **`useCategoryPage` hook architecture** — compose-хук из 3 sub-hooks: `useFilterStore(categoryId)` (Zustand store + URL restore), `useCategoryData(...)` (async data loading), `useRegexBuilder(...)` (AST + optimize + compile). Для pages с extraAstNodes-from-local-state (Waystone/Jewel/Tablet): `const useStore = useFilterStore(categoryId);` → `useState(() => useStore.getState().getExtraState(...))` → `useCategoryPage({ filterStore: useStore, ... })` → write-back `useEffect` без `setState`. URL-sync effect tightly coupled к 13 значениям — не вынести в отдельный хук без потери читаемости.
 
-33. **Bug #8 — `useCategoryPage` hook architecture (iter 78 Phase 1 + iter 79 Phase 2 — RESOLVED).** Хук имел 1325 строк в одном файле. iter 78 Phase 1 extracted pure AST helpers в `src/ui/hooks/category-ast-utils.ts` (890 строк). iter 79 Phase 2 split React-часть на 3 sub-hooks + fixed 3 setState-in-effect errors:
-    - **3 new exported sub-hooks в `useCategoryPage.ts`:** (1) `useFilterStore(categoryId): FilterStoreHook` — creates Zustand store + URL restore via `useState(() => syncFromUrl(...))`. (2) `useCategoryData({ categoryId, mergeCategories, customData }): { data, loading, error }` — async data loading. (3) `useRegexBuilder({ data, selectedIds, excludedIds, extraAstNodes, ... }): { regex, isRegexOverflow, regexParts, collapsedTokenIds }` — AST + optimize + compile.
-    - **`useCategoryPage(config)` теперь compose-хук:** internally calls `useFilterStore(categoryId)` (always — Rules of Hooks), `useCategoryData(...)`, `useRegexBuilder(...)`, keeps URL sync inline. iter 81 закрыл долг "useUrlSync extract" как won't-fix: URL-sync effect tightly coupled к 13 значениям (6 useState + 7 store-side), extract не упростит lint и не уменьшит coupling. См. `src/ui/hooks/useCategoryPage.ts:517-523`. Accepts optional `config.filterStore: FilterStoreHook` — when provided, uses it instead of internal store.
-    - **Circular dependency broken:** pages с extraAstNodes-from-local-state (Waystone/Jewel/Tablet) вызывают `useFilterStore(categoryId)` BEFORE local `useState`, lazy-init local state из `useStore.getState().getExtraState(...)`, потом передают `filterStore: useStore` в `useCategoryPage`. Это ломает circular dependency: `extraAstNodes` depends on local state, local state needs lazy init from filterStore, filterStore created by `useCategoryPage` which needs `extraAstNodes` → fix = move filterStore creation OUT of `useCategoryPage` (into `useFilterStore`) so page can call it FIRST.
-    - **5 unaffected pages (Belt/Ring/Amulet/Relic/Vendor)** НЕ менялись — `useCategoryPage({ categoryId: 'belt' })` still works (backward compat).
-    - **3 setState-in-effect errors fixed:** WaystonePage:66 (`setCorrupted`), JewelPage:99 (`setJewelTypeFilter`), TabletPage:101 (`setSelectedTypes`). Все три были `useEffect(() => { setX(filterStore.getExtraState(...)) }, [])` — теперь lazy `useState(() => useStore.getState().getExtraState(...))`. Behavior preserved: URL-restored values теперь применяются на FIRST render (раньше: на втором render после useEffect — был flash of default state).
-    - **Migration impact для future pages:** если новая category page имеет local state, который нужно sync с filterStore extraState — используй паттерн Waystone/Jewel/Tablet: `const useStore = useFilterStore(categoryId);` → `useState(() => useStore.getState().getExtraState(...))` → `useCategoryPage({ filterStore: useStore, ... })` → write-back `useEffect` без `setState` (только `useStore.getState().setExtraState(...)`).
-    - **Lint state после iter 79:** 2 problems (оба — `react-hooks/incompatible-library` warnings в `VirtualizedModList.tsx` от TanStack Virtual `useVirtualizer`, не fixable без смены библиотеки).
+33. **`charClass` token/AST node имеет явное поле `negated: boolean`** (iter 81). Не использовать sentinel `{from: -1, to: -1}` в `ranges` массиве для negated char class — это удалено. PoE2 regex generator НЕ эмитит `[^...]` паттерны — это defensive parsing только для engine completeness.
 
-34. **`charClass` token/AST node — explicit `negated: boolean` field (iter 81, Bug #17 closed).** Pre-iter 81 negated char class `[^...]` кодировался через sentinel `{from: -1, to: -1}`, prepended к `ranges` массиву в `Token` и `PoE2Regex` для `charClass`. Это работало, но было хрупким хаком (отрицательные charCodes в массиве ranges — неявный контракт, который легко сломать). iter 81 заменил sentinel на явное поле `negated: boolean`:
-    - **Типы обновлены:** `Token` и `PoE2Regex` для `charClass` теперь `{ type: 'charClass'; ranges: CharRange[]; negated: boolean }`.
-    - **Tokenizer** (`src/core/poe2-regex-matcher.ts:149`): `tokens.push({ type: 'charClass', ranges, negated })` — без ветвления и без sentinel.
-    - **Parser** (`src/core/poe2-regex-matcher.ts:297`): `items.push({ type: 'charClass', ranges: token.ranges, negated: token.negated })`.
-    - **Matcher** (`src/core/poe2-regex-matcher.ts:351-359`): упрощён до `regex.negated ? !inRange : inRange` — без slice(1) и без проверки `ranges[0].from === -1`.
-    - **Engine-internal feature:** PoE2 regex generator (compiler/factorizer) НЕ эмитит `[^...]` паттерны — это defensive parsing для engine completeness (например, если кто-то добавит `[^...]` в test fixtures). На in-game behavior не влияет.
-    - **Тест:** `tests/core/poe2-regex-matcher.test.ts:175-182` — `[^0-9]`, `[^а-я]`, `Делири[^уф]` patterns проверены.
+34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (jewellery/jewel), `affix-sentiment` (waystone), `tablet-type` (tablet), `affix-only` (relic), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного описания проблем и предложений OP-1.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -305,10 +277,44 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 | File | When to Update |
 |------|----------------|
 | `AGENT_NAVIGATION.md` | Every iteration (this file) |
-| `STATUS.md` | On status changes (current iter + Known Issues) |
+| `STATUS.md` | On status changes (current iter + Known Issues + Open Proposals) |
 | `docs/ARCHITECTURE.md` | On structural changes |
 | `docs/ETL_GUIDE.md` | On ETL pipeline changes |
 | `docs/DATA_CONTRACTS.md` | On type changes |
 | `docs/IN_GAME_TESTS.md` | On new in-game test results |
 | `docs/SEO_PLAN.md` | On SEO workflow changes |
+| `docs/AFFIXES_GROUPING_ANALYSIS.md` | iter 82 — анализ группировки аффиксов (OP-1). Update только если анализ пересматривается. |
 | `worklog.md` | Every iteration — append new Task ID section |
+
+---
+
+## 14. Open Proposals
+
+### OP-1 (iter 82) — Перегруппировка аффиксов
+
+Полный анализ: `docs/AFFIXES_GROUPING_ANALYSIS.md`.
+
+**Суть проблемы:** текущая 3-корзинная схема классификации (`offensive/defensive/attribute/neutral` для jewellery/jewel, `positive/negative/neutral` для waystone, `ritual/breach/delirium/vaal/expedition/generic` для tablet) отправляет **15-38% всех модов** в «Прочие»/«Общие» — включая S-tier моды (Spirit, +skill levels, MF).
+
+**Найденные баги классификации (6):**
+
+1. **S-tier моды в neutral**: `+# к духу`, `+#% к уровню всех камней умений`, `#% повышение редкости найденных предметов`, `+#% к качеству всех умений` — без тегов → neutral, несмотря на S/A/B tier.
+2. **Waystone mis-классификации (4 из 7 neutral)**: `+#% к бонусу критического урона монстров` (→ negative), `На #% больше волшебных и редких монстров` (→ positive), `На #% больше шанса появления свойств у редких монстров` (→ negative), `На #% больше эффективности монстров` (→ negative).
+3. **Tablet «generic» = 38%** всех модов, включая S-tier (кол-во/редкость/опыт/доп. сущности/изгнанники).
+4. **Тег `aura` не входит ни в одну категорию** → 2 токена jewel (сила умений аур) → neutral.
+5. **Тег `gem` не используется** → 17 токенов (1 ring + 14 amulet + 2 belt) → neutral.
+6. **Breach-themed `Знак повелителя Бездны`** (essence-origin, ring) — без тегов → neutral.
+
+**Архитектурное предложение:** заменить 3-корзинную схему на 22 функциональных блока для jewellery (Дух / Уровень умений / Атрибуты / Здоровье-Мана-ES / Сопротивления / Защита / Скорость / Крит / Урон / Пробитие / Состояния / Область-Длительность / Ауры-Вестники-Метки / Приспешники / Оружие-специфичные / Фласки / MF / Конверсия / Свирепость-Заряды / Бездна / Мета / Прочее) + 6 weapon sub-blocks для jewel + sub-blocks внутри waystone sentiment и tablet type.
+
+**Реализация:** не начата. Ждёт решения по приоритетам (см. P0-P3 в `docs/AFFIXES_GROUPING_ANALYSIS.md` §5).
+
+**Ключевые файлы, которые будут затронуты при реализации:**
+- `src/shared/mod-classifier.ts` (1095 строк) — классификаторы.
+- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` + `sortKey`.
+- `src/shared/types.ts` — `FamilyGroup` (добавить `sortKey`), `ModGroupMode` (новые режимы).
+- `src/ui/components/ModList.tsx` (662 строки) — рендер sub-blocks.
+- `src/ui/components/CategoryControlPanel.tsx` — тумблер «режим группировки».
+- `src/store/url-sync.ts` — URL-персистентность для `groupingMode`.
+- `src/shared/i18n.ts` — новые метки блоков.
+- `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — для ETL-tagged `functionalCategory` (P1).

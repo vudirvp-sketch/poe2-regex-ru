@@ -3,48 +3,40 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
-Task ID: 81
+Task ID: 82
 Agent: main
-Task: Bug #16 + Bug #17 + useUrlSync-extract (последние низкоприоритетные долги). README переписан под SEO и презентацию проекта. Удалены устаревшие patch-archive файлы (ITER65_README.md, DELETED-FILES.txt).
+Task: Анализ группировки/сортировки/вывода аффиксов в poe2-regex-ru. Без реализации — только анализ, документирование, Open Proposal OP-1.
 
 Work Log:
-- 1: Клон репо. `npm install`. Baseline: `tsc -b` чистый, `vitest run` — 1157 passed.
-- 2: **Bug #17 fix** — заменил `{from: -1, to: -1}` sentinel в `src/core/poe2-regex-matcher.ts` на явное поле `negated: boolean` в типах `Token` (line 61) и `PoE2Regex` (line 223). Tokenizer (line 149) теперь `tokens.push({ type: 'charClass', ranges, negated })` без ветвления. Parser (line 297) propagates флаг. Matcher (lines 351-359) упрощён до `regex.negated ? !inRange : inRange`.
-- 3: Добавлен тест `tests/core/poe2-regex-matcher.test.ts:175-182` — `[^0-9]`, `[^а-я]`, `Делири[^уф]` patterns. Тесты: 119/119 matcher tests passed (118 + 1 new). Полный набор: 1158/1158 passed (1157 + 1 new). `tsc -b --force` чистый.
-- 4: **Bug #16 fix** — `scripts/etl/normalize.ts:449`: `IMPLICIT_RANGE_UNRESTRICTED = [0, 350]` → `[0, 999]`. Обновлён комментарий с объяснением (top-tier waystones могут роллить implicits >350 через implicit-set bonus stacking; 999 — safe 3-digit ceiling).
-- 5: ETL rerun (`npm run etl`) — успешно, 1697 tokens, FN=0, FP=9463 (идентично baseline).
-- 6: Diff `public/generated/*.json` vs baseline (ignoring version): только waystone.json (4 changes `350` → `999`) и waystone-desecrated.json (4 changes `350` → `999`). Остальные 8 JSON идентичны.
-- 7: **useUrlSync-extract** — закрыт как won't fix. Обновлён комментарий в `src/ui/hooks/useCategoryPage.ts:517-523`: URL-sync effect tightly coupled к 13 значениям (6 useState + 7 store-side), extract не упростит lint и не уменьшит coupling.
-- 8: **README переписан** — преобразован из iter-72-patch-archive-описания в презентацию проекта для GitHub + SEO. Содержит: hero, возможности (10 пунктов), как работает (высокоуровнево), PoE2 regex-диалект (поддерживается/не поддерживается), технологии, структура проекта, локальный запуск, ссылки на документацию, контакты.
-- 9: **Удалены устаревшие файлы:** `ITER65_README.md` (stale iter 65 patch archive), `DELETED-FILES.txt` (stale iter 64 patch archive).
-- 10: **STATUS.md** — iter 80 → 81, секция "Открытые долги" теперь пустая ("iter 81 закрыл последние три низкоприоритетных бага"), добавлены 3 новых записи в "История закрытых багов" (Bug #16, Bug #17, useUrlSync-extract).
-- 11: **AGENT_NAVIGATION.md** — header iter 80 → 81, сжат (старое содержимое про iter 79/78 избыточно), добавлен Pitfall 34 (charClass negated field), обновлён Pitfall 31 (Bug #16 closed), обновлён Pitfall 33 (useUrlSync-extract closed).
-- 12: Финальная верификация: `tsc -b` чистый, `vitest run` — 1158/1158 passed.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`.
+- 2: Полностью прочитаны ключевые файлы: `src/shared/family-grouper.ts` (316 строк), `src/shared/mod-classifier.ts` (1095 строк), `src/ui/components/ModList.tsx` (662 строки), `src/ui/layout/nav-items.ts`, `scripts/etl/generate-dictionary.ts` (102 строки), `tests/shared/mod-classifier.test.ts` (504 строки), `tests/shared/family-grouper.test.ts` (398 строк).
+- 3: Прочитана документация: `STATUS.md` (73 строки), `AGENT_NAVIGATION.md` (314 строк).
+- 4: Просимулированы все 4 классификатора (`classifyByTags`, `classifyByText`, `classifyWaystoneSentiment`, `classifyTabletType`) на реальных JSON-данных (1697 токенов, 10 файлов). Получены точные размеры «нейтральных» корзин: ring 15%, amulet 21%, belt 25%, jewel 24%, waystone 14% (4 из 7 mis-классификации), tablet generic 38%.
+- 5: Идентифицированы 6 НОВЫХ багов классификации: (1) S-tier моды (`+# к духу`, `+#% к уровню всех камней умений`, MF, качество) в neutral; (2) 4 waystone mis-классификации; (3) tablet generic 38% включая S-tier; (4) тег `aura` не учтён; (5) тег `gem` не учтён; (6) `Знак повелителя Бездны` без тегов.
+- 6: Уточнены 3 пункта первого ответа: (1) L2 Origin — НЕ опциональный, а дефолтный для 5 категорий через `showOriginSubSections={true}`; (2) `classifyByTags` — «first matching tag per member, then majority voting», не pure «first match wins»; (3) «Прочие» корзина — 15-25%, не <5%.
+- 7: Проверены все 23 weapon-specific family-key в `jewel.json` — все имеют корректные теги (`['damage','attack']` или `['attack','speed']` или `['attack','critical']`), правильно классифицируются как offensive, но размазаны по блоку. Оружие: мечами, кинжалами, топорами, булавами, луками, самострелами, копьями, боевыми посохами, кистенями.
+- 8: Сформулированы 4 НОВЫХ предложения: (1) ETL-tagged `functionalCategory` по образцу `jewelType`; (2) tier-aware сортировка внутри блоков; (3) hideLabel для блоков с 1 чипом (расширение iter 62); (4) URL-персистентность для `groupingMode` toggle.
+- 9: Сформулирована полная схема 22 функциональных блоков для jewellery + 6 weapon sub-blocks для jewel + sub-blocks внутри waystone sentiment и tablet type.
+- 10: **Создан `docs/AFFIXES_GROUPING_ANALYSIS.md`** (301 строка) — полный анализ с §1-§6.
+- 11: **STATUS.md переписан** — добавлен Open Proposal OP-1, удалена устаревшая история закрытых багов (Bug #13/16/17, KI-1/2/3, useUrlSync-extract — всё в git).
+- 12: **AGENT_NAVIGATION.md почищен** — header iter 81 → iter 82 (analysis-only), Pitfalls 30-34 сжаты с 8717 до ~2500 chars (сохранены только actionable правила, удалена long history закрытых KI/багов). Добавлена секция 14 "Open Proposals" с OP-1. Добавлен Pitfall 34 (L4 architecture для affixes). Сохранено 6344 chars.
+- 13: Никаких изменений в `public/generated/*.json`, ETL, исходном коде.
 
 Stage Summary:
-- **iter 81 COMPLETE.** Все три низкоприоритетных долга закрыты. README переписан под SEO/презентацию. Удалены 2 устаревших patch-archive файла.
-- **Изменённые файлы (10):**
-  - `src/core/poe2-regex-matcher.ts` — Bug #17 fix (charClass `negated: boolean` field)
-  - `tests/core/poe2-regex-matcher.test.ts` — добавлен тест на `[^...]` patterns
-  - `scripts/etl/normalize.ts` — Bug #16 fix (`IMPLICIT_RANGE_UNRESTRICTED = [0, 999]`)
-  - `public/generated/waystone.json` — ETL rerun (4 implicit ranges `350` → `999` + version)
-  - `public/generated/waystone-desecrated.json` — ETL rerun (4 implicit ranges `350` → `999` + version)
-  - `src/ui/hooks/useCategoryPage.ts` — комментарий useUrlSync-extract обновлён (won't fix)
-  - `README.md` — переписан под SEO и презентацию проекта
-  - `STATUS.md` — iter 81, все долги закрыты
-  - `AGENT_NAVIGATION.md` — header iter 81 + Pitfall 34 + Pitfall 31/33 updates
-  - `worklog.md` — iter 81 section + предыдущие сжаты
-- **Удалённые файлы (2):**
-  - `ITER65_README.md` (stale iter 65 patch archive)
-  - `DELETED-FILES.txt` (stale iter 64 patch archive)
-- **Метрики:** 1158/1158 passed. `tsc -b` чистый. ETL: 1697 tokens, FN=0, FP=9463 (идентично baseline).
-- **Точка остановки:** iter 81 done. Все известные долги закрыты. Следующая итерация: нет открытых задач — проект в maintenance mode. Возможные future work: Bug #8 (useCategoryPage.ts 638 строк — was 1325 в iter 78, was 486 в iter 79, теперь 638 — рефакторинг ещё возможен); lint cleanup (2 unfixable warnings от TanStack Virtual); SEO-верификация в GSC/Яндекс/Bing (ручная).
+- **iter 82 COMPLETE (analysis-only).** Анализ группировки аффиксов выполнен, 6 новых багов классификации задокументированы, OP-1 открыт, документация почищена.
+- **Изменённые файлы (3, только документация):**
+  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — новый файл, полный анализ (301 строка)
+  - `STATUS.md` — переписан: добавлен OP-1, удалена устаревшая история (73 → 77 строк)
+  - `AGENT_NAVIGATION.md` — почищен: Pitfalls 30-34 сжаты, добавлена секция 14 (314 → 320 строк, -6344 chars)
+  - `worklog.md` — iter 82 section
+- **Точка остановки:** iter 82 (analysis) done. Реализация OP-1 не начата — ждёт решения по приоритетам (P0-P3 в `docs/AFFIXES_GROUPING_ANALYSIS.md` §5). В следующей итерации: (1) выбрать приоритет P0-P3; (2) составить детальный план реализации; (3) реализовать итеративно с сохранением качества.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
-- **iter 80**: Bug #13 closed — removed dead skip `.*[0-9][1-9]` из iterative-optimizer.ts (×2), run-etl.ts, analyze-fn.ts. ETL output идентичен. 1157/1157.
+- **iter 81**: Bug #16/17 + useUrlSync-extract (won't fix). README переписан под SEO. Удалены устаревшие patch-archive файлы.
+- **iter 80**: Bug #13 closed — removed dead skip `.*[0-9][1-9]` из iterative-optimizer.ts ×2, run-etl.ts, analyze-fn.ts. ETL output идентичен. 1157/1157.
 - **iter 79**: Bug #8 Phase 2 — split useCategoryPage на 3 sub-hooks (useFilterStore/useCategoryData/useRegexBuilder) + fix 3 setState-in-effect errors. Lint 5→2. 1157/1157.
 - **iter 78**: Bug #8 Phase 1 — pure AST helpers extracted в category-ast-utils.ts (890 строк); useCategoryPage.ts 1325→486. 1157/1157.
 - **iter 77**: Lint cleanup 44→7 problems (37 fixed in 14 files). useCategoryPage.ts:793 regex escape fix.
