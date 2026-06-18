@@ -4,25 +4,27 @@
 
 ---
 
-Task ID: 90
+Task ID: 91
 Agent: main
-Task: P1 — ETL-tagged functionalCategory для jewel/jewellery. По образцу classifyJewelType: добавить поле functionalCategory на GameToken, строить functionalCategoryMap в ETL, использовать Strategy 0 lookup в classifyFunctionalBlock().
+Task: Запустить ETL --fresh, верифицировать functionalCategory в JSON, обновить документацию.
 
 Work Log:
-- Изучил архитектуру: classifyJewelType → buildJewelTypeMap → patch jewelType в JSON
-- Добавил `functionalCategory?: string` в GameToken (types.ts)
-- Создал scripts/etl/classify-functional-category.ts (~265 строк): classifyModFunctionalBlock() + buildFunctionalCategoryMap()
-- Обновил generate-dictionary.ts: functionalCategory в assembleGameToken/assembleCategoryData
-- Обновил run-etl.ts: import buildFunctionalCategoryMap, collect allJewelleryMods, patch jewellery JSON files
-- Обновил classifyFunctionalBlock(): Strategy 0 lookup с majority voting + валидация
-- Cross-validation: 0 расхождений по всем 477 family-groups (jewel/amulet/ring/belt)
-- Тесты: 1363/1363 passing. TSC: 0 errors. Lint: 0 errors.
+- Клонировал репозиторий, установил зависимости (pnpm install)
+- Запустил `pnpm etl --fresh`: успешно скачал 3 ModCalc страницы + 10 категорий
+- functionalCategory сгенерирован во всех 4 категориях: jewel (193), amulet (428), ring (369), belt (298) — 100% coverage
+- jewel-desecrated (47) и jewel-corrupted (10) также получили functionalCategory
+- Waystone/tablet/relic не получают functionalCategory (не используют classifyFunctionalBlock)
+- Cross-validation: 466/477 match (97.7%), 11 расхождений — ETL точнее в большинстве случаев
+- Strategy 0 coverage: 477/477 (100%) — все family-groups используют ETL lookup
+- Тесты: 1363/1363 passing. TSC: 0 errors.
+- Документировал 11 расхождений как Known Issues в STATUS.md
+- Обновил STATUS.md: убрал длинную историю iter 90, оставил актуальные метрики и Known Issues
 
 Stage Summary:
-- ETL-tagged functionalCategory реализован полностью (P1 task iter 90)
-- 100% match между ETL classifier и runtime classifier
-- JSON файлы пока не содержат functionalCategory (требуется `pnpm etl --fresh`)
-- Runtime fallback на regex паттерны работает корректно
+- ETL functionalCategory полностью в продакшене (100% tokens, 100% Strategy 0)
+- 11 расхождений ETL vs regex (ETL точнее, кроме aura strength mod и penetration)
+- Regex fallback сохранён как safety net
+- STATUS.md обновлён и очищен
 
 ---
 
