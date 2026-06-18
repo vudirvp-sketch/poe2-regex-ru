@@ -986,6 +986,10 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  * iter 88: ailments + area-duration blocks (16th + 17th active) implemented.
  * jewel.json other-bucket reduced from 21.8% → 14.0% (target <15% met).
  *
+ * iter 89: rage-charges + meta-skills + buff-skills blocks (18th + 19th + 20th
+ * active) implemented. jewel.json other-bucket reduced from 14.0% → 8.3%.
+ * Bonus improvements in amulet (10.5%→6.7%), ring (5.3%→3.2%), belt (8.2%→4.7%).
+ *
  * Source: docs/AFFIXES_GROUPING_ANALYSIS.md §4.1 (24-block scheme).
  */
 export type FunctionalBlock =
@@ -1003,25 +1007,25 @@ export type FunctionalBlock =
   | 'penetration'      // ⏳ iter 89+: Пробитие сопротивления (0 family-keys в jewel.json `other` — пропущен в iter 88)
   | 'ailments'         // iter 88: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрез/Ослепление/Состояния (8 family-keys в jewel)
   | 'area-duration'    // iter 88: Область действия / Длительность проклятий и знамён / Радиус пассивных умений (7 family-keys в jewel)
-  | 'wisps'            // ⏳ iter 87+: Сгустки (Breach-механика)
-  | 'buff-skills'      // ⏳ iter 87+: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
+  | 'wisps'            // ⏳ iter 90+: Сгустки (Breach-механика)
+  | 'buff-skills'      // iter 89: Ауры/Вестники/Метки/Кличи/Знамёна/Проклятия (6 family-keys в jewel + 4 в amulet/ring)
   | 'minions'          // iter 86: Приспешники/Подношения (tag minion + text «приспешник»/«подношен»)
-  | 'meta-skills'      // ⏳ iter 87+: Архонт/Запечатанные/Мета-умения
+  | 'meta-skills'      // iter 89: Мета-умения/Архонт/Запечатанные/Вызываемые умения (1 family-key в jewel + 5 в amulet/ring/belt)
   | 'weapon-specific'  // iter 87: 24 family-key в 6 sub-blocks (jewel only — melee/bow/crossbow/staff/spear/dagger)
   | 'flasks'           // iter 86: belt primary, flask-моды (text «флакон»)
-  | 'conversion'       // ⏳ iter 87+: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
-  | 'rage-charges'     // ⏳ iter 87+: Свирепость/Endurance/Flask charges/Banner glory
+  | 'conversion'       // ⏳ iter 90+: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
+  | 'rage-charges'     // iter 89: Свирепость/Слава знамён (4 family-keys в jewel)
   | 'breach'           // Бездна/Разлом — Breach Lord's Mark (6 family-groups, essence-origin, no tags)
   | 'other';           // Прочее — fallback (<5% target after all blocks implemented)
 
 /** Display config for each functional block.
- *  iter 88: 17 active blocks have distinct colors (spirit / skill-levels /
+ *  iter 89: 20 active blocks have distinct colors (spirit / skill-levels /
  *  attributes / resources / runes-barrier / resistances / magic-find /
  *  defence-stats / offence-speed / crit / damage-type / ailments /
- *  area-duration / weapon-specific / flasks / minions / breach).
- *  The 7 unimplemented blocks (penetration / wisps / buff-skills /
- *  meta-skills / conversion / rage-charges) still share the muted "other"
- *  palette (they shouldn't appear in UI yet). */
+ *  area-duration / weapon-specific / flasks / minions / breach / buff-skills /
+ *  meta-skills / rage-charges).
+ *  The 4 unimplemented blocks (penetration / wisps / conversion) still share
+ *  the muted "other" palette (they shouldn't appear in UI yet). */
 export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
   spirit:           { label: 'Дух',                colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
   'skill-levels':   { label: 'Уровень умений',     colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
@@ -1057,7 +1061,7 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
  *  5. Misc: flasks, MF, conversion, rage/charges, breach.
  *  6. Fallback: other.
  *
- *  iter 86: 14 implemented blocks + `other` will actually appear in production. */
+ *  iter 89: 20 implemented blocks + `other` will actually appear in production. */
 const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'spirit', 'skill-levels', 'attributes', 'resources',
   'runes-barrier', 'resistances', 'defence-stats',
@@ -1400,12 +1404,103 @@ const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|замороз
  */
 const AREA_DURATION_PATTERN = /(?:област.*действ|длительн.*(?:проклят|знам[её]н)|Улучшает радиус)/i;
 
+// ─── iter 89: 3 new blocks (rage-charges + meta-skills + buff-skills) ───
+
+/**
+ * Rage-charges mods (iter 89).
+ *
+ * Catches ferocity (Свирепость) + banner glory accumulation mods that have no
+ * other functional bucket:
+ *  - "+(1—2) к максимуму свирепости" (jewel prefix, Ruby-specific — ferocity max)
+ *  - "Дарует 1 свирепости при нанесении удара в ближнем бою" (jewel suffix, attack tag — gain rage on hit)
+ *  - "Дарует (1—3) свирепости при получении удара от врага" (jewel suffix — gain rage when hit)
+ *  - "(15—20)% повышение скорости накопления славы для умений знамён" (jewel suffix — banner glory speed)
+ *
+ * Position: AFTER area-duration, BEFORE meta-skills + buff-skills + fallback.
+ *  - The banner-glory mod contains «знамён» which would also match BUFF_SKILLS_PATTERN.
+ *    RAGE_CHARGES is more specific (banner glory = charge mechanic), so it takes priority.
+ *  - «% увеличение области действия умений знамён» and «% увеличение длительности
+ *    умений знамён» are caught EARLIER by AREA_DURATION — those stay in area-duration
+ *    (correct: they're banner area/duration, not charge generation).
+ *
+ * Verified safe by simulate-iter89-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ */
+const RAGE_CHARGES_PATTERN = /(?:свирепост|славы.*знам[её]н)/i;
+
+/**
+ * Meta-skills mods (iter 89).
+ *
+ * Catches meta-skill / Archon / sealed-skill mods that have no other functional
+ * bucket:
+ *  - "Мета-умения получают увеличенное на (4—8)% количество энергии" (jewel suffix, no tag)
+ *  - "Запечатанные умения имеют +1 к максимуму зарядов печати" (amulet suffix, no tag)
+ *  - "Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати" (belt suffix, no tag)
+ *  - "(20—39)% усиление положительных эффектов Архонта на вас" (belt prefix, no tag)
+ *  - "(40—50)% увеличение длительности эффекта Архонта" (belt suffix, no tag)
+ *  - "(25—35)% увеличение максимума энергии вызываемых умений" (ring suffix, no tag)
+ *
+ * Pattern components:
+ *  - `Мета-умени` — catches «Мета-умения» (Meta-skills, PoE2 Archon subclass mechanic)
+ *  - `Архонт` — catches «Архонта» / «Архонт» (Archon buffs, Sapphire jewel undead archon)
+ *  - `запечат` — catches «Запечатанные умения» (Sealed skills, charge-based meta mechanic)
+ *  - `вызываем.*умени` — catches «вызываемых умений» (triggered/cooldown skills, similar meta category)
+ *
+ * Position: AFTER rage-charges, BEFORE buff-skills. No overlap with either.
+ *
+ * Verified safe by simulate-iter89-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ */
+const META_SKILLS_PATTERN = /(?:Мета-умени|Архонт|запечат|вызываем.*умени)/i;
+
+/**
+ * Buff-skills mods (iter 89).
+ *
+ * Catches buff-skill mods (auras / heralds / marks / warcries / banners / curses)
+ * that have no other functional bucket:
+ *  - "(3—7)% увеличение силы умений аур" (jewel prefix, aura tag — aura effect)
+ *  - "(8—16)% увеличение силы умений аур" (amulet suffix — aura effect)
+ *  - "(10—20)% увеличение эффективности удержания ресурсов умениями вестниками" (amulet suffix — herald effect)
+ *  - "(4—8)% усиление эффекта ваших умений меток" (jewel prefix, no tag — mark effect)
+ *  - "(5—15)% усиление положительного эффекта боевого клича" (jewel prefix, no tag — warcry effect)
+ *  - "(5—15)% повышение скорости перезарядки боевых кличей" (jewel suffix, no tag — warcry recharge speed)
+ *  - "(2—4)% увеличение силы проклятий" (jewel prefix — curse effect)
+ *  - "(2—3)% увеличение силы проклятий" (amulet/ring prefix — curse effect)
+ *  - "На (5—15)% быстрее активация проклятия" (jewel suffix — curse activation speed)
+ *
+ * Pattern components:
+ *  - `аур` — catches «аур» (auras — Ruby/Sapphire aura effect mods)
+ *  - `Вестник` — catches «вестниками» / «Вестник» (Heralds — Emerald herald mods)
+ *  - `мет[о]?к(?!ост)` — catches «меток» / «метки» / «метку» (Mark skills)
+ *    BUT NOT «меткости» / «меткость» (accuracy). The negative lookahead `(?!ост)`
+ *    rejects matches where «метк» is followed by «ост» (the rest of «меткости»).
+ *  - `клич` — catches «клич» / «клича» / «кличей» (Warcries — Ruby warcry mods)
+ *  - `знам[её]н` — catches «знамён» / «знамен» (Banners — Ruby banner mods).
+ *    Note: banner-area and banner-duration mods are caught EARLIER by AREA_DURATION;
+ *    banner-glory-accumulation is caught EARLIER by RAGE_CHARGES. This pattern
+ *    catches any remaining banner mods (e.g., banner effect strength if added).
+ *  - `проклят` — catches «проклятий» / «проклятия» (Curses — Sapphire curse mods).
+ *    Curse duration is caught EARLIER by AREA_DURATION via «длительн.*проклят»;
+ *    curse area is caught EARLIER by AREA_DURATION via «област.*действ» matching
+ *    «области действия проклятий». This pattern catches curse STRENGTH and
+ *    curse ACTIVATION SPEED — conceptual fit with buff-skills (debuffs to enemies).
+ *
+ * Deliberate exclusions (avoid false positives):
+ *  - NOT matching `оберег` — already caught earlier by DEFENCE_STATS via `charm`
+ *    tag (amulet/belt). Jewel has no «обереги» mods in current data.
+ *  - NOT matching `Знак повелителя Бездны` — already caught earlier by BREACH.
+ *  - NOT matching `меткости` — accuracy is NOT a buff skill. The `(?!ост)`
+ *    negative lookahead ensures «меткости» / «меткость» never match.
+ *
+ * Position: AFTER rage-charges + meta-skills, BEFORE fallback. Verified safe by
+ * simulate-iter89-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ */
+const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|клич|знам[её]н|проклят)/i;
+
 /**
  * Classify a FamilyGroup into a functional block.
  *
- * iter 88: 17 high-priority blocks are matched using BOTH tag-based detection
+ * iter 89: 20 high-priority blocks are matched using BOTH tag-based detection
  * (preferred — from member.tokens.tags[]) AND text patterns (fallback for
- * no-tag mods). 7 blocks still fall back to `other`.
+ * no-tag mods). 4 blocks still fall back to `other`.
  *
  * Match priority (most specific → most general):
  *  1. SPIRIT — text "+# к духу" (amulet only, no tag)
@@ -1425,7 +1520,10 @@ const AREA_DURATION_PATTERN = /(?:област.*действ|длительн.*(
  * 15. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
  * 16. AILMENTS (iter 88) — text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/состояний/..." — only catches mods that would otherwise fall into `other`
  * 17. AREA_DURATION (iter 88) — text "области действия / длительности проклятий и знамён / радиус пассивных умений" — only catches mods that would otherwise fall into `other`
- * 18. OTHER — fallback (wisps / meta-skills / penetration / buff-skills / conversion / rage-charges — iter 89+)
+ * 18. RAGE_CHARGES (iter 89) — text "свирепост / славы.*знамён" — ferocity max + banner glory speed (more specific than buff-skills for banner-glory)
+ * 19. META_SKILLS (iter 89) — text "Мета-умени / Архонт / запечат / вызываем.*умени" — meta-skill / Archon / sealed-skill mods
+ * 20. BUFF_SKILLS (iter 89) — text "аур / Вестник / мет[о]?к(?!ост) / клич / знам[её]н / проклят" — auras / heralds / marks / warcries / banners / curses
+ * 21. OTHER — fallback (wisps / penetration / conversion — iter 90+)
  *
  * Tag priority logic:
  *  - Minion tag beats life/mana/critical/damage/speed/resistance (minion mods are functionally
@@ -1515,7 +1613,22 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   //     Positioned AFTER ailments so «длительность эффекта Парирован» goes to AILMENTS (parry = ailment).
   if (AREA_DURATION_PATTERN.test(text)) return 'area-duration';
 
-  // 18. Fallback — wisps / meta-skills / penetration / buff-skills / conversion / rage-charges (iter 89+)
+  // 18. Rage-charges (iter 89) — text-based: свирепость / славы для умений знамён
+  //     Must be BEFORE buff-skills — banner-glory mod contains «знамён» which would
+  //     otherwise match BUFF_SKILLS. RAGE_CHARGES is more specific (banner glory = charge mechanic).
+  //     Verified safe by simulate-iter89-impact.ts (0 false positives).
+  if (RAGE_CHARGES_PATTERN.test(text)) return 'rage-charges';
+
+  // 19. Meta-skills (iter 89) — text-based: Мета-умения / Архонт / Запечатанные / вызываемых умений
+  //     No overlap with buff-skills. Verified safe by simulate-iter89-impact.ts (0 false positives).
+  if (META_SKILLS_PATTERN.test(text)) return 'meta-skills';
+
+  // 20. Buff-skills (iter 89) — text-based: ауры / Вестники / Метки (исключая меткости) / Кличи / Знамёна / Проклятия
+  //     Positioned AFTER rage-charges (so banner-glory → rage-charges) and AFTER meta-skills.
+  //     Verified safe by simulate-iter89-impact.ts (0 false positives).
+  if (BUFF_SKILLS_PATTERN.test(text)) return 'buff-skills';
+
+  // 21. Fallback — wisps / penetration / conversion (iter 90+)
   return 'other';
 }
 
@@ -1524,7 +1637,7 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
 /** Grouping mode determines how mods are sub-categorized within affix columns */
 export type ModGroupMode =
   | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (legacy, replaced by affix-functional for ring/amulet/belt)
-  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 88: 17 active + other) — ring/amulet/belt
+  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 89: 20 active + other) — ring/amulet/belt
   | 'jewel-functional'  // iter 87: same as affix-functional, BUT weapon-specific block is split into 6 weapon-class sub-blocks (melee/bow/crossbow/staff/spear/dagger) — jewel only
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)

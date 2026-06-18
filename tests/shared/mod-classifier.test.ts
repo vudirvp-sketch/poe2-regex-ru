@@ -10,6 +10,7 @@
  * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
  * iter 87: classifyWeaponClass + weapon-specific functional block + jewel-functional mode.
  * iter 88: ailments + area-duration functional blocks (17 active total).
+ * iter 89: rage-charges + meta-skills + buff-skills functional blocks (20 active total).
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -666,10 +667,12 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
-    it('does NOT classify "скорость перезарядки боевых кличей" as skill-levels (deferred to buff-skills iter 87+)', () => {
-      // This mod is warcry-related → should fall through to 'other' for now
+    it('does NOT classify "скорость перезарядки боевых кличей" as skill-levels (caught by buff-skills iter 89)', () => {
+      // SKILL_LEVELS_PATTERN excludes warcry-recharge via `(?!.*боев)` negative lookahead.
+      // iter 89: this mod is now caught by BUFF_SKILLS_PATTERN via «клич» keyword.
       const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
-      expect(classifyFunctionalBlock(group)).toBe('other');
+      expect(classifyFunctionalBlock(group)).not.toBe('skill-levels');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
   });
 
@@ -1182,9 +1185,13 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
 
-    it('does NOT classify "##% повышение скорости перезарядки боевых кличей" as offence-speed (buff-skills deferred → other)', () => {
+    it('does NOT classify "##% повышение скорости перезарядки боевых кличей" as offence-speed (caught by buff-skills iter 89)', () => {
+      // OFFENCE_SPEED_PATTERN only matches «скорост.*(атак|сотворени|передвижен|снаряд)» —
+      // warcry recharge doesn't match (no weapon/spell/projectile keyword).
+      // iter 89: this mod is now caught by BUFF_SKILLS_PATTERN via «клич» keyword.
       const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
-      expect(classifyFunctionalBlock(group)).toBe('other');
+      expect(classifyFunctionalBlock(group)).not.toBe('offence-speed');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
   });
 
@@ -1262,9 +1269,11 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       expect(classifyFunctionalBlock(group)).not.toBe('ailments');
     });
 
-    it('does NOT classify "#% усиление эффекта ваших умений меток" as ailments (mark skills → buff-skills deferred → other)', () => {
+    it('does NOT classify "#% усиление эффекта ваших умений меток" as ailments (mark skills → buff-skills in iter 89)', () => {
       const group = makeGroup('(4—8)% усиление эффекта ваших умений меток');
-      expect(classifyFunctionalBlock(group)).toBe('other');
+      expect(classifyFunctionalBlock(group)).not.toBe('ailments');
+      // iter 89: now classified as buff-skills (was `other` before iter 89)
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     it('does NOT classify "Отрицательные эффекты на вас заканчиваются на #% быстрее" as ailments (ailment removal on self → other)', () => {
@@ -1339,9 +1348,167 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     });
   });
 
+  // ─── iter 89: rage-charges block ───
+  describe('rage-charges block (iter 89)', () => {
+    it('classifies "+# к максимуму свирепости" as rage-charges (jewel prefix, no tag — ferocity max)', () => {
+      const group = makeGroup('+(1—2) к максимуму свирепости');
+      expect(classifyFunctionalBlock(group)).toBe('rage-charges');
+    });
+
+    it('classifies "Дарует # свирепости при нанесении удара в ближнем бою" as rage-charges (jewel suffix, attack tag — gain rage on hit)', () => {
+      const group = makeGroup('Дарует 1 свирепости при нанесении удара в ближнем бою', {
+        members: [makeToken(['attack'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('rage-charges');
+    });
+
+    it('classifies "Дарует # свирепости при получении удара от врага" as rage-charges (jewel suffix, no tag — gain rage when hit)', () => {
+      const group = makeGroup('Дарует (1—3) свирепости при получении удара от врага');
+      expect(classifyFunctionalBlock(group)).toBe('rage-charges');
+    });
+
+    it('classifies "#% повышение скорости накопления славы для умений знамён" as rage-charges (jewel suffix, no tag — banner glory speed)', () => {
+      const group = makeGroup('(15—20)% повышение скорости накопления славы для умений знамён');
+      expect(classifyFunctionalBlock(group)).toBe('rage-charges');
+    });
+
+    // ─── Negative tests — banner area/duration go to area-duration, not rage-charges ───
+
+    it('does NOT classify "#% увеличение области действия умений знамён" as rage-charges (AREA_DURATION wins via «област.*действ»)', () => {
+      const group = makeGroup('(6—16)% увеличение области действия умений знамён');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('does NOT classify "#% увеличение длительности умений знамён" as rage-charges (AREA_DURATION wins via «длительн.*знам[её]н»)', () => {
+      const group = makeGroup('(15—25)% увеличение длительности умений знамён');
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+  });
+
+  // ─── iter 89: meta-skills block ───
+  describe('meta-skills block (iter 89)', () => {
+    it('classifies "Мета-умения получают увеличенное на #% количество энергии" as meta-skills (jewel suffix, no tag)', () => {
+      const group = makeGroup('Мета-умения получают увеличенное на (4—8)% количество энергии');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+
+    it('classifies "Запечатанные умения имеют +1 к максимуму зарядов печати" as meta-skills (amulet suffix, no tag)', () => {
+      const group = makeGroup('Запечатанные умения имеют +1 к максимуму зарядов печати');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+
+    it('classifies "Запечатанные умения имеют #% увеличение частоты получения зарядов печати" as meta-skills (belt suffix, no tag)', () => {
+      const group = makeGroup('Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+
+    it('classifies "#% усиление положительных эффектов Архонта на вас" as meta-skills (belt prefix, no tag)', () => {
+      const group = makeGroup('(20—39)% усиление положительных эффектов Архонта на вас');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+
+    it('classifies "#% увеличение длительности эффекта Архонта" as meta-skills (belt suffix, no tag)', () => {
+      const group = makeGroup('(40—50)% увеличение длительности эффекта Архонта');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+
+    it('classifies "#% увеличение максимума энергии вызываемых умений" as meta-skills (ring suffix, no tag)', () => {
+      const group = makeGroup('(25—35)% увеличение максимума энергии вызываемых умений');
+      expect(classifyFunctionalBlock(group)).toBe('meta-skills');
+    });
+  });
+
+  // ─── iter 89: buff-skills block ───
+  describe('buff-skills block (iter 89)', () => {
+    // ─── Aura mods ───
+    it('classifies "#% увеличение силы умений аур" as buff-skills (jewel prefix, aura tag — aura effect)', () => {
+      const group = makeGroup('(3—7)% увеличение силы умений аур', {
+        members: [makeToken(['aura'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    it('classifies "#% увеличение силы умений аур" as buff-skills (amulet suffix, no tag — aura effect)', () => {
+      const group = makeGroup('(8—16)% увеличение силы умений аур');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    // ─── Herald mods ───
+    it('classifies "#% увеличение эффективности удержания ресурсов умениями вестниками" as buff-skills (amulet suffix — herald effect)', () => {
+      const group = makeGroup('(10—20)% увеличение эффективности удержания ресурсов умениями вестниками');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    // ─── Mark mods ───
+    it('classifies "#% усиление эффекта ваших умений меток" as buff-skills (jewel prefix, no tag — mark effect)', () => {
+      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    // ─── Warcry mods ───
+    it('classifies "#% усиление положительного эффекта боевого клича" as buff-skills (jewel prefix, no tag — warcry effect)', () => {
+      const group = makeGroup('(5—15)% усиление положительного эффекта боевого клича');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    it('classifies "#% повышение скорости перезарядки боевых кличей" as buff-skills (jewel suffix, no tag — warcry recharge speed)', () => {
+      const group = makeGroup('(5—15)% повышение скорости перезарядки боевых кличей');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    // ─── Curse mods ───
+    it('classifies "#% увеличение силы проклятий" as buff-skills (jewel prefix — curse effect)', () => {
+      const group = makeGroup('(2—4)% увеличение силы проклятий');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    it('classifies "На #% быстрее активация проклятия" as buff-skills (jewel suffix — curse activation speed)', () => {
+      const group = makeGroup('На (5—15)% быстрее активация проклятия');
+      expect(classifyFunctionalBlock(group)).toBe('buff-skills');
+    });
+
+    // ─── Negative tests — accuracy MUST NOT match buff-skills (excluded via `(?!ост)`) ───
+
+    it('does NOT classify "#% повышение глобальной меткости" as buff-skills (accuracy excluded via `(?!ост)` negative lookahead)', () => {
+      const group = makeGroup('(5—10)% повышение глобальной меткости', {
+        members: [makeToken(['attack'])],
+      });
+      // attack tag → offence-speed wins; even without tag, «меткости» must NOT match buff-skills
+      expect(classifyFunctionalBlock(group)).not.toBe('buff-skills');
+    });
+
+    it('does NOT classify "меткость" as buff-skills (bare accuracy noun also excluded)', () => {
+      const group = makeGroup('+5% глобальная меткость');
+      expect(classifyFunctionalBlock(group)).not.toBe('buff-skills');
+    });
+
+    // ─── Negative tests — curse area/duration go to area-duration, not buff-skills ───
+
+    it('does NOT classify "#% увеличение области действия проклятий" as buff-skills (AREA_DURATION wins via «област.*действ»)', () => {
+      const group = makeGroup('(8—12)% увеличение области действия проклятий', {
+        members: [makeToken(['caster', 'curse'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    it('does NOT classify "#% увеличение длительности проклятий" as buff-skills (AREA_DURATION wins via «длительн.*проклят»)', () => {
+      const group = makeGroup('(15—25)% увеличение длительности проклятий', {
+        members: [makeToken(['caster', 'curse'])],
+      });
+      expect(classifyFunctionalBlock(group)).toBe('area-duration');
+    });
+
+    // ─── Negative tests — Breach Lord's Mark stays in breach, not buff-skills ───
+
+    it('does NOT classify "Знак повелителя Бездны" as buff-skills (BREACH wins — more specific)', () => {
+      const group = makeGroup('Знак повелителя Бездны');
+      expect(classifyFunctionalBlock(group)).toBe('breach');
+    });
+  });
+
   // ─── other (fallback) ───
   describe('other block (fallback)', () => {
-    it('classifies "#% усиление эффекта создаваемых вами сгустков" as other (wisps — deferred to iter 87+)', () => {
+    it('classifies "#% усиление эффекта создаваемых вами сгустков" as other (wisps — deferred to iter 90+)', () => {
       const group = makeGroup('(15—25)% усиление эффекта создаваемых вами сгустков');
       expect(classifyFunctionalBlock(group)).toBe('other');
     });
@@ -1350,16 +1517,6 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // Was 'other' in iter 85 (deferred) — now caught by MINIONS_PATTERN in iter 86.
       const group = makeGroup('(15—25)% усиление эффекта Подношений');
       expect(classifyFunctionalBlock(group)).toBe('minions');
-    });
-
-    it('classifies "#% увеличение максимума энергии вызываемых умений" as other (meta-skills — deferred to iter 87+)', () => {
-      const group = makeGroup('(10—20)% увеличение максимума энергии вызываемых умений');
-      expect(classifyFunctionalBlock(group)).toBe('other');
-    });
-
-    it('classifies "#% усиление положительных эффектов Архонта на вас" as other (meta-skills — deferred to iter 87+)', () => {
-      const group = makeGroup('(15—25)% усиление положительных эффектов Архонта на вас');
-      expect(classifyFunctionalBlock(group)).toBe('other');
     });
   });
 
