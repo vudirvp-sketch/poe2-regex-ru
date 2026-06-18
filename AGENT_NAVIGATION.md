@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 85 (functional blocks infrastructure)**. **Open Proposal OP-1** (iter 82 analysis → iter 83 verification → iter 84 P0-implementation → iter 85 infrastructure): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`. iter 84: 3 P0-фикса (Breach Lord / waystone / aura+gem). iter 85: FunctionalBlock type + 7 active patterns + `affix-functional` mode готов, но **production НЕ переключён** (other-bucket = 70% с 7 блоками, нужно ещё 5-7 блоков в iter 86). Все старые Known Issues закрыты (KI-1, KI-2, KI-3). Regex-движок: чистый TS, 0 npm-зависимостей. 1216/1216 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
+> **Entry document.** Read this first. Current state: **iter 92** (ETL-tagged functionalCategory fully in production, 11/11 cross-validation discrepancies resolved). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Все старые Known Issues закрыты. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 

@@ -20,7 +20,7 @@ import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
-import { buildFunctionalCategoryMap } from './etl/classify-functional-category.js';
+import { buildFunctionalCategoryMap, classifyModFunctionalBlock } from './etl/classify-functional-category.js';
 import { validateRegex, batchValidateItem } from '../src/core/regex-oracle.js';
 import type { GameItemText } from '../src/core/poe2-regex-matcher.js';
 import type { ModOrigin, JewelType, CategoryData, GameToken, OptimizationEntry } from '../src/shared/types.js';
@@ -231,6 +231,18 @@ function applyI18nOverrides() {
       if (override.rawTextTemplate) {
         token.rawTextTemplate.ru = override.rawTextTemplate;
       }
+
+      // iter 92 fix: re-classify functionalCategory using the new (Russian) text.
+      // The original functionalCategory was computed from the pre-override text
+      // (often English, since poe2db.tw breachborn/essence tiers sometimes lack
+      // Russian translations). Russian text matches Russian classification patterns,
+      // so re-classification gives the correct semantic category.
+      // Only reclassify jewel/jewellery tokens (waystone/tablet/relic don't use
+      // functionalCategory).
+      if (token.functionalCategory !== undefined) {
+        token.functionalCategory = classifyModFunctionalBlock(token.tags, override.rawText);
+      }
+
       patched++;
     }
 

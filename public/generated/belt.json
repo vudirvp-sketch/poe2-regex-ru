@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T20:33:44.806Z",
+  "version": "2026-06-18T21:24:01.558Z",
   "category": "belt",
   "source": "poe2db.tw",
   "tokens": [
@@ -7647,7 +7647,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "functionalCategory": "other"
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "belt.breach_tree_2_breachborn",
@@ -10829,7 +10829,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 12,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect2_breachborn",
@@ -10876,7 +10876,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 26,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect3_breachborn",
@@ -10923,7 +10923,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 39,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect4_breachborn",
@@ -10970,7 +10970,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 53,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect5_breachborn",
@@ -11017,7 +11017,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 67,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spelldamageduringmanaflaskeffect6_breachborn",
@@ -11064,7 +11064,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 80,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.damageremovedfrommanabeforelife1_breachborn",
@@ -11508,7 +11508,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 22,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect2_breachborn",
@@ -11548,7 +11548,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 41,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect3_breachborn",
@@ -11588,7 +11588,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 59,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.castspeedduringmanaflaskeffect4_breachborn",
@@ -11628,7 +11628,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 76,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "belt.spellcooldownrecovery1_breachborn",

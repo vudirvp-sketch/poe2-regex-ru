@@ -1,0 +1,4 @@
+# Files deleted in iter 92 (cleanup of stale iter-specific artifacts):
+DELETED-FILES-iter81.txt
+ITER77_README.md
+iter84.patch

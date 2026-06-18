@@ -173,6 +173,21 @@ export async function buildFunctionalCategoryMap(
   const modCodeToCategory = new Map<string, string>();
   const normalizedTextToCategory = new Map<string, string>();
 
+  // Two-pass approach (iter 92):
+  // Pass 1: collect all tiers from all pages, split into single-segment and multi-segment.
+  // Pass 2: process single-segment tiers first (with tier.tags, which are domain-specific
+  //         for single-segment mods), then multi-segment tiers (text-only per segment).
+  //         The `has()` check ensures single-segment entries (more authoritative because
+  //         tier.tags is domain-specific) take precedence over multi-segment entries
+  //         (where tier.tags is the union of all segments' tags, less reliable per-segment).
+  interface TierContext {
+    page: string;
+    group: { origin: string; tags: string[] };
+    tier: { modCode: string; descriptionHtml: string; tags: string[] };
+  }
+  const singleSegmentTiers: TierContext[] = [];
+  const multiSegmentTiers: TierContext[] = [];
+
   for (const page of modCalcPages) {
     try {
       const html = await fetchPage(page.url);
@@ -180,31 +195,78 @@ export async function buildFunctionalCategoryMap(
 
       for (const group of groups) {
         for (const tier of group.tiers) {
-          if (tier.modCode) {
-            // Classify using ModCalc tags + description text
-            const segments = extractTextAndRanges(tier.descriptionHtml);
-            const rawText = segments.length > 0 ? segments[0].rawText : '';
-            const category = classifyModFunctionalBlock(tier.tags, rawText);
+          if (!tier.modCode) continue;
+          const segments = extractTextAndRanges(tier.descriptionHtml);
+          if (segments.length === 0) continue;
 
-            // Only store if the category is not 'other' (other is the default anyway)
-            modCodeToCategory.set(tier.modCode, category);
+          const ctx: TierContext = {
+            page: page.type,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            group: { origin: (group as any).origin, tags: group.tags },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            tier: tier as any,
+          };
 
-            // Also map normalizedText→category for text-based matching
-            for (const seg of segments) {
-              const normalizedKey = normalizeRawTextForMatching(seg.rawTextTemplate);
-              if (normalizedKey && !normalizedTextToCategory.has(normalizedKey)) {
-                normalizedTextToCategory.set(normalizedKey, category);
-              }
-            }
+          if (segments.length === 1) {
+            singleSegmentTiers.push(ctx);
+          } else {
+            multiSegmentTiers.push(ctx);
           }
         }
       }
-
-      console.log(`  ${page.type} ModCalc: ${modCodeToCategory.size} modCode mappings, ${normalizedTextToCategory.size} text mappings`);
     } catch (err) {
       console.warn(`  WARNING: Failed to fetch ${page.url}:`, (err as Error).message);
     }
   }
+
+  // Pass 2a: process single-segment tiers first
+  for (const ctx of singleSegmentTiers) {
+    const tier = ctx.tier;
+    const segments = extractTextAndRanges(tier.descriptionHtml);
+    if (segments.length !== 1) continue;
+
+    // Single-segment tier: tier.tags is domain-specific, safe to use
+    const category = classifyModFunctionalBlock(tier.tags, segments[0].rawText);
+    modCodeToCategory.set(tier.modCode, category);
+
+    const normalizedKey = normalizeRawTextForMatching(segments[0].rawTextTemplate);
+    if (normalizedKey && !normalizedTextToCategory.has(normalizedKey)) {
+      normalizedTextToCategory.set(normalizedKey, category);
+    }
+  }
+
+  // Pass 2b: process multi-segment tiers (text-only per segment, don't overwrite single-segment entries)
+  for (const ctx of multiSegmentTiers) {
+    const tier = ctx.tier;
+    const segments = extractTextAndRanges(tier.descriptionHtml);
+
+    // Multi-segment tier (iter 92 fix): classify EACH segment separately
+    // using text-only classification (skip tier.tags).
+    //
+    // Rationale: tier.tags is the union of tags from ALL segments
+    // (e.g., SpellDamageEvasion tier has tags=[evasion,damage,caster]
+    // but segment 1 is about spell damage, segment 2 is about evasion).
+    // Using tier.tags for any single segment causes false positives
+    // on tag-based checks (e.g., DEFENCE_STATS for spell-damage segment).
+    //
+    // Text-only classification is more accurate per-segment.
+    //
+    // Skip modCodeToCategory for multi-segment tiers: the same modCode
+    // would map to different categories for different segments, so
+    // text-based lookup is the only correct path.
+    //
+    // Don't overwrite normalizedTextToCategory entries set by single-segment
+    // tiers (those are more authoritative because their tier.tags is domain-specific).
+    for (const seg of segments) {
+      const segCategory = classifyModFunctionalBlock([], seg.rawText);
+      const normalizedKey = normalizeRawTextForMatching(seg.rawTextTemplate);
+      if (normalizedKey && !normalizedTextToCategory.has(normalizedKey)) {
+        normalizedTextToCategory.set(normalizedKey, segCategory);
+      }
+    }
+  }
+
+  console.log(`  ModCalc totals: ${modCodeToCategory.size} modCode mappings, ${normalizedTextToCategory.size} text mappings`);
 
   // Map jewel token IDs to functional categories
   let matchedByCode = 0;

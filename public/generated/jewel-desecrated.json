@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T20:33:43.034Z",
+  "version": "2026-06-18T21:24:00.171Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -153,7 +153,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel-desecrated.mod_eyjflj.271ywk",
@@ -659,7 +659,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "defence-stats"
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel-desecrated.mod_1hoszq.94gfrd",
@@ -862,7 +862,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_t1xcyw.fz1xv",
@@ -1201,7 +1201,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-desecrated.mod_3yl2ru",
@@ -1451,7 +1451,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "area-duration"
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel-desecrated.mod_izhaok.pzbcmc",
@@ -1502,7 +1502,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_izhaok.kf75fq",
@@ -1758,7 +1758,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel-desecrated.mod_jwh6ae.hgvpmu",

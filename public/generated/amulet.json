@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T20:33:47.599Z",
+  "version": "2026-06-18T21:24:03.852Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -11724,7 +11724,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "functionalCategory": "other"
+      "functionalCategory": "meta-skills"
     },
     {
       "id": "amulet.miniondamage1_breachborn",
@@ -16606,7 +16606,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 12,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.spelldamageduringmanaflaskeffect2_breachborn",
@@ -16653,7 +16653,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 26,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.spelldamageduringmanaflaskeffect3_breachborn",
@@ -16700,7 +16700,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 39,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.spelldamageduringmanaflaskeffect4_breachborn",
@@ -16747,7 +16747,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 53,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.spelldamageduringmanaflaskeffect5_breachborn",
@@ -16794,7 +16794,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 67,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.spelldamageduringmanaflaskeffect6_breachborn",
@@ -16841,7 +16841,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 80,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.damageremovedfrommanabeforelife1_breachborn",
@@ -17285,7 +17285,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 22,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.castspeedduringmanaflaskeffect2_breachborn",
@@ -17325,7 +17325,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 41,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.castspeedduringmanaflaskeffect3_breachborn",
@@ -17365,7 +17365,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 59,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.castspeedduringmanaflaskeffect4_breachborn",
@@ -17405,7 +17405,7 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 76,
-      "functionalCategory": "offence-speed"
+      "functionalCategory": "flasks"
     },
     {
       "id": "amulet.curseeffectiveness1_breachborn",

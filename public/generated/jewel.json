@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T20:33:42.988Z",
+  "version": "2026-06-18T21:24:00.129Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -354,7 +354,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "area-duration"
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_r2zyq",
@@ -907,7 +907,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_bgyeco",
@@ -1980,7 +1980,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "resistances"
     },
     {
       "id": "jewel.mod_spdhko",
@@ -2960,7 +2960,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "defence-stats"
+      "functionalCategory": "damage-type"
     },
     {
       "id": "jewel.mod_o3wt9e",
@@ -3406,7 +3406,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "buff-skills"
     },
     {
       "id": "jewel.mod_jhgqqc",

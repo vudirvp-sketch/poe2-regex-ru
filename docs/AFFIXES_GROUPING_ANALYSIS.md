@@ -1,7 +1,7 @@
 # Анализ: группировка / сортировка / вывод аффиксов
 
-> **Статус:** Open Proposal OP-1 — iter 82 анализ → iter 83 верификация → iter 84 P0-фиксы → iter 85 infrastructure (7/24 блоков) → iter 86 +7 блоков (14/24) + production switch для ring/amulet/belt → iter 87 weapon sub-blocks для jewel (6 weapon-class sub-blocks) + production switch для jewel → iter 88 +2 блока (17/24 активны: ailments + area-duration) + UX-фикс «Магический поиск»→«Рарити» → iter 89 +3 блока (20/24 активны: rage-charges + meta-skills + buff-skills).
-> **iter 89:** RAGE_CHARGES_PATTERN + META_SKILLS_PATTERN + BUFF_SKILLS_PATTERN (шаги 18/19/20 в classifyFunctionalBlock, после area-duration, до other). jewel.json other-bucket 14.0% → **8.3%** (цель ~7-8% достигнута). Бонусные улучшения: amulet 10.5% → 6.7%, ring 5.3% → 3.2%, belt 8.2% → 4.7%. 1363/1363 tests.
+> **Статус:** Open Proposal OP-1 — iter 82 анализ → iter 83 верификация → iter 84 P0-фиксы → iter 85 infrastructure (7/24 блоков) → iter 86 +7 блоков (14/24) + production switch для ring/amulet/belt → iter 87 weapon sub-blocks для jewel (6 weapon-class sub-blocks) + production switch для jewel → iter 88 +2 блока (17/24 активны: ailments + area-duration) → iter 89 +3 блока (20/24 активны: rage-charges + meta-skills + buff-skills) → iter 90-91 ETL-tagged functionalCategory 100% в продакшене → **iter 92 fix multi-segment + i18n-override: 0 расхождений ETL vs regex (было 11)**.
+> **iter 92:** Two-pass ETL classification (single-segment tiers first with tags, multi-segment text-only per segment) + re-classify functionalCategory in applyI18nOverrides. jewel other-bucket 8.3% (unchanged), amulet 6.7% (было 7.6%), ring 3.2% (unchanged), belt 4.7% (было 5.9%). 1363/1363 tests.
 > **Цель:** ёмкое описание текущей архитектуры, найденные проблемы, обоснованные предложения с учётом специфики PoE2.
 
 ---
