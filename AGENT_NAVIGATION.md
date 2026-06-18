@@ -323,4 +323,5 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `src/ui/components/CategoryControlPanel.tsx` — тумблер «режим группировки».
 - `src/store/url-sync.ts` — URL-персистентность для `groupingMode`.
 - `src/shared/i18n.ts` — новые метки 24 блоков.
-- `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — для ETL-tagged `functionalCategory` (P1).
+- `scripts/etl/classify-functional-category.ts` — ETL-tagged functionalCategory (iter 90). `buildFunctionalCategoryMap()` + `classifyModFunctionalBlock()`.
+- `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — ETL pipeline (functionalCategory patching через generate-dictionary).

@@ -4,6 +4,28 @@
 
 ---
 
+Task ID: 90
+Agent: main
+Task: P1 — ETL-tagged functionalCategory для jewel/jewellery. По образцу classifyJewelType: добавить поле functionalCategory на GameToken, строить functionalCategoryMap в ETL, использовать Strategy 0 lookup в classifyFunctionalBlock().
+
+Work Log:
+- Изучил архитектуру: classifyJewelType → buildJewelTypeMap → patch jewelType в JSON
+- Добавил `functionalCategory?: string` в GameToken (types.ts)
+- Создал scripts/etl/classify-functional-category.ts (~265 строк): classifyModFunctionalBlock() + buildFunctionalCategoryMap()
+- Обновил generate-dictionary.ts: functionalCategory в assembleGameToken/assembleCategoryData
+- Обновил run-etl.ts: import buildFunctionalCategoryMap, collect allJewelleryMods, patch jewellery JSON files
+- Обновил classifyFunctionalBlock(): Strategy 0 lookup с majority voting + валидация
+- Cross-validation: 0 расхождений по всем 477 family-groups (jewel/amulet/ring/belt)
+- Тесты: 1363/1363 passing. TSC: 0 errors. Lint: 0 errors.
+
+Stage Summary:
+- ETL-tagged functionalCategory реализован полностью (P1 task iter 90)
+- 100% match между ETL classifier и runtime classifier
+- JSON файлы пока не содержат functionalCategory (требуется `pnpm etl --fresh`)
+- Runtime fallback на regex паттерны работает корректно
+
+---
+
 Task ID: 89
 Agent: main
 Task: Снизить jewel.json other-bucket ниже 10% через добавление 2-3 новых функциональных блоков (buff-skills + meta-skills + rage-charges) по образцу iter 88. Поддержать «лучше недоделать, чем сломать» — никаких false positives в существующих bucket'ах.

@@ -54,6 +54,11 @@ export interface GameToken {
   /** Jewel type classification (only for jewel category). Populated by ETL from
    *  poe2db ModCalc pages. 'shared' if mod appears on multiple jewel types or unknown. */
   jewelType?: JewelType;
+  /** Functional category (only for jewel/jewellery categories). Populated by ETL from
+   *  poe2db ModCalc pages using tag-based classification. When present, classifyFunctionalBlock()
+   *  uses this directly instead of regex-based heuristics — ~100% accuracy, no fragile patterns.
+   *  Undefined for categories without ETL-tagged data (waystone/tablet/relic). */
+  functionalCategory?: string;
   genderForms: Record<Locale, GenderForms>;
   affix: AffixType;
   tags: string[];

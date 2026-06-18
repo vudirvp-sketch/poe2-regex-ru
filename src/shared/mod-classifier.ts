@@ -1541,6 +1541,34 @@ const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|к
  * @returns FunctionalBlock key
  */
 export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
+  // Strategy 0: Lookup from ETL data (~100% accurate)
+  // If all members have functionalCategory populated from poe2db ModCalc pages,
+  // use that directly — no fragile regex needed.
+  if (group.members.length > 0 && group.members[0].functionalCategory) {
+    // Use majority voting across all members
+    const catCounts: Record<string, number> = {};
+    for (const member of group.members) {
+      if (member.functionalCategory) {
+        catCounts[member.functionalCategory] = (catCounts[member.functionalCategory] || 0) + 1;
+      }
+    }
+    // Find the most common category
+    let bestCat = '';
+    let bestCount = 0;
+    for (const [cat, count] of Object.entries(catCounts)) {
+      if (count > bestCount) {
+        bestCount = count;
+        bestCat = cat;
+      }
+    }
+    // Validate against FunctionalBlock type
+    const validBlocks = new Set<string>(FUNCTIONAL_BLOCK_ORDER);
+    if (bestCat && validBlocks.has(bestCat)) {
+      return bestCat as FunctionalBlock;
+    }
+    // Fallback to regex if ETL category is invalid
+  }
+
   const text = group.displayText;
 
   // Collect all non-Breach-Lord tags from group members (mirror of classifyByTags logic)

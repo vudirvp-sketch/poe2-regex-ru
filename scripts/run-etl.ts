@@ -20,6 +20,7 @@ import { computeAllRegexes } from './etl/compute-regex.js';
 import { computeOptimizations } from './etl/compute-optimizations.js';
 import { applyDialectOptimizations } from '../src/core/dp-factorizer.js';
 import { assembleCategoryData, writeCategoryJson } from './etl/generate-dictionary.js';
+import { buildFunctionalCategoryMap } from './etl/classify-functional-category.js';
 import { validateRegex, batchValidateItem } from '../src/core/regex-oracle.js';
 import type { GameItemText } from '../src/core/poe2-regex-matcher.js';
 import type { ModOrigin, JewelType, CategoryData, GameToken, OptimizationEntry } from '../src/shared/types.js';
@@ -613,7 +614,10 @@ async function runEtl() {
 
   // Collect all jewel mods across all jewel categories for building jewelTypeMap
   const allJewelMods: NormalizedMod[] = [];
+  // Collect all jewellery mods (amulet/ring/belt) for building functionalCategoryMap
+  const allJewelleryMods: NormalizedMod[] = [];
   let jewelTypeMap: Record<string, JewelType> | undefined;
+  let functionalCategoryMap: Record<string, string> | undefined;
 
   for (const cat of categories) {
     console.log(`\n=== Processing ${cat.name} ===`);
@@ -721,6 +725,11 @@ async function runEtl() {
         allJewelMods.push(...normalized);
       }
 
+      // Collect jewellery mods for functional category mapping
+      if (cat.name === 'amulet' || cat.name === 'ring' || cat.name === 'belt') {
+        allJewelleryMods.push(...normalized);
+      }
+
       // Step 3: Compute regex
       console.log('  Step 3: Computing regex substrings...');
       const regexResults = computeAllRegexes(normalized, 'ru');
@@ -762,28 +771,56 @@ async function runEtl() {
     }
   }
 
-  // Step 6: Build jewel type map and patch jewel JSON files
+  // Step 6: Build jewel type map and functional category map, patch JSON files
   if (allJewelMods.length > 0) {
     jewelTypeMap = await buildJewelTypeMap(allJewelMods);
+    functionalCategoryMap = await buildFunctionalCategoryMap(allJewelMods, allJewelleryMods);
 
-    // Patch jewel JSON files with jewelType
+    // Patch jewel JSON files with jewelType + functionalCategory
     const jewelFiles = ['jewel.json', 'jewel-desecrated.json', 'jewel-corrupted.json'];
     for (const jsonFile of jewelFiles) {
       const filePath = path.join(OUTPUT_DIR, jsonFile);
       if (!fs.existsSync(filePath)) continue;
 
       const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      let patched = 0;
+      let patchedJewelType = 0;
+      let patchedFuncCat = 0;
       for (const token of data.tokens) {
         const jType = jewelTypeMap[token.id];
         if (jType) {
           token.jewelType = jType;
-          patched++;
+          patchedJewelType++;
+        }
+        const fCat = functionalCategoryMap[token.id];
+        if (fCat) {
+          token.functionalCategory = fCat;
+          patchedFuncCat++;
         }
       }
-      if (patched > 0) {
+      if (patchedJewelType > 0 || patchedFuncCat > 0) {
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-        console.log(`  Patched ${jsonFile}: ${patched} tokens with jewelType`);
+        console.log(`  Patched ${jsonFile}: ${patchedJewelType} tokens with jewelType, ${patchedFuncCat} with functionalCategory`);
+      }
+    }
+
+    // Patch jewellery JSON files with functionalCategory
+    const jewelleryFiles = ['amulet.json', 'ring.json', 'belt.json'];
+    for (const jsonFile of jewelleryFiles) {
+      const filePath = path.join(OUTPUT_DIR, jsonFile);
+      if (!fs.existsSync(filePath)) continue;
+
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      let patchedFuncCat = 0;
+      for (const token of data.tokens) {
+        const fCat = functionalCategoryMap[token.id];
+        if (fCat) {
+          token.functionalCategory = fCat;
+          patchedFuncCat++;
+        }
+      }
+      if (patchedFuncCat > 0) {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+        console.log(`  Patched ${jsonFile}: ${patchedFuncCat} tokens with functionalCategory`);
       }
     }
   }

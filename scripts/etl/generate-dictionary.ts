@@ -15,7 +15,8 @@ export function assembleGameToken(
   mod: NormalizedMod,
   regexResult: RegexResult,
   locale: Locale = 'ru',
-  jewelType?: JewelType
+  jewelType?: JewelType,
+  functionalCategory?: string
 ): GameToken {
   const token: GameToken = {
     id: mod.id,
@@ -28,6 +29,7 @@ export function assembleGameToken(
     regexPrefix: { [locale]: regexResult.regexPrefix },
     hasMultiPlaceholder: regexResult.hasMultiPlaceholder,
     jewelType,
+    functionalCategory,
     genderForms: mod.genderForms,
     affix: mod.affix,
     tags: mod.tags,
@@ -58,6 +60,7 @@ export function assembleCategoryData(
   optimizations: Record<string, OptimizationEntry>,
   locale: Locale = 'ru',
   jewelTypeMap?: Record<string, JewelType>,
+  functionalCategoryMap?: Record<string, string>,
   sourceHash?: string
 ): CategoryData {
   const tokens: GameToken[] = mods.map(mod => {
@@ -74,7 +77,8 @@ export function assembleCategoryData(
       regexPrefixContext: '',
     };
     const jType = jewelTypeMap?.[mod.id];
-    return assembleGameToken(mod, result, locale, jType);
+    const fCat = functionalCategoryMap?.[mod.id];
+    return assembleGameToken(mod, result, locale, jType, fCat);
   });
 
   return {
