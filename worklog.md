@@ -3,6 +3,45 @@
 > Только последние 1–2 итерации подробно. Старые — одной строкой. Полная история — в git.
 
 ---
+Task ID: 83
+Agent: main
+Task: Верификация iter 82 анализа (OP-1) на реальных JSON-данных. Найти и задокументировать новые баги, исправить неточности. Без реализации.
+
+Work Log:
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`.
+- 2: Прочитаны iter 82 доки: `docs/AFFIXES_GROUPING_ANALYSIS.md`, `STATUS.md`, `AGENT_NAVIGATION.md` (314 строк), `worklog.md`. Прочитаны ключевые файлы: `src/shared/mod-classifier.ts` (1096 строк), `src/shared/family-grouper.ts` (316 строк), `src/ui/components/ModList.tsx` (662 строки, первые 200 строк).
+- 3: Написан `/home/z/my-project/scripts/verify-analysis.ts` — симуляция всех 4 классификаторов (`classifyByTags`, `classifyByText`, `classifyWaystoneSentiment`, `classifyTabletType`) на реальных JSON-данных (1608 токенов, 634 family-groups, 7 категорий).
+- 4: Получены точные counts neutral-корзины: ring 13/94=13.8%, amulet 20/105=19.0%, belt 18/85=21.2%, jewel 39/193=20.2%, waystone 7/50=14% (4 mis), tablet 32/82=39%, relic 25/25=100%.
+- 5: Написан `/home/z/my-project/scripts/verify-extras.ts` — проверка Spirit classification, Breach Lord-тегов, `Знак повелителя Бездны` count, relic tags, новых PoE2 механик (Archon/Sealed/Wisps/Offerings/Runic Barrier/Charms/Meta/Heralds/Banners/Warcries/Marks).
+- 6: Запущены тесты — 1158/1158 passing.
+- 7: **Исправления к iter 82 (4):**
+  - `+# к духу` НЕ в neutral — он в defensive через `/дух/i` regex. Actual S-tier в neutral: `+# к уровню всех камней умений` (generic), MF, `+#% к качеству всех умений`, `+#% к максимальному качеству`, `+# к максимуму рунического барьера`.
+  - `Знак повелителя Бездны` — 6 family-groups (ring+amulet+belt × prefix+suffix), не 2.
+  - Weapon-specific family-keys в jewel — 24, не 23 (добавился `#% повышение скорости атаки без оружия`).
+  - Точные counts neutral: ring 13.8% (не 15%), amulet 19.0% (не 21%), belt 21.2% (не 25%), jewel 20.2% (не 24%), tablet 39.0% (не 38%).
+- 8: **Найдены 3 НОВЫХ бага:**
+  - Bug #7: Breach Lord-теги `kurgal_mod`/`amanamu_mod`/`ulaman_mod` — **73 токена** (26+25+22) в neutral. Теги не входят ни в OFFENSIVE/DEFENSIVE/ATTRIBUTE buckets. Моды имеют явную семантику (attribute/defensive/offensive/charm/flask), но теряются в neutral.
+  - Bug #8: Relic использует `affix-only` mode → 100% в одной корзине (25 groups, 0 тегов). Не баг, а архитектурное решение — стоит пересмотреть через `relic-semantic` mode.
+  - Bug #9: Мета-механики PoE2 (Вестники/Знамёна/Кличи/Метки/Обереги/Запечатанные/Архонт/Мета-умения/Сгустки/Подношения/Рунический барьер) размазаны по offensive/defensive/neutral без подкатегорий. У каждой отдельная «семантическая зона».
+- 9: **Расширена схема функциональных блоков с 22 до 24** (добавлены `РУНИЧЕСКИЙ БАРЬЕР` и `СГРУСТКИ (Wisps)`). Уточнены подблоки: `Ауры-Вестники-Метки-Знаки-Кличи-Знамёна-Обереги` (вместо узкого `Ауры-Вестники-Метки`), `Приспешники-Компаньоны-Подношения` (Offerings теперь здесь), `Архонт-Запечатанные-Мета` (новый блок).
+- 10: **Обновлены документы (4 файла):**
+  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — переписан: исправлены counts, исправлен bug #1 (Spirit), добавлены bug #7-9, расширена схема с 22 до 24 блоков, добавлен §7 "Что нового в iter 83", обновлён §5 priorities.
+  - `STATUS.md` — переписан: iter 82→83, bug count 6→9, точные counts, обновлён P0 (добавлен пункт про Breach Lord-теги 73 токена).
+  - `AGENT_NAVIGATION.md` — header iter 82→83 (analysis + verification), Pitfall 34 обновлён, §14 OP-1 синхронизирован с STATUS.md.
+  - `worklog.md` — добавлен Task ID 83 section.
+- 11: Никаких изменений в `public/generated/*.json`, ETL, исходном коде. Тесты 1158/1158.
+
+Stage Summary:
+- **iter 83 COMPLETE (analysis verification).** Верификация iter 82 анализа выполнена. 3 новых бага найдено (Breach Lord-теги 73 токена, relic 100% neutral, мета-механики PoE2 размазаны). 4 неточности iter 82 исправлены. Схема расширена с 22 до 24 функциональных блоков.
+- **Изменённые файлы (4, только документация):**
+  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — переписан (увеличен с 302 до ~390 строк)
+  - `STATUS.md` — переписан (iter 83, 9 багов вместо 6)
+  - `AGENT_NAVIGATION.md` — header iter 83, Pitfall 34 + §14 обновлены
+  - `worklog.md` — добавлен Task ID 83
+- **Точка остановки:** iter 83 (verification) done. Реализация OP-1 не начата — ждёт решения по приоритетам (P0-P3 в `docs/AFFIXES_GROUPING_ANALYSIS.md` §5). В следующей итерации: (1) выбрать приоритет P0-P3; (2) составить детальный план реализации; (3) реализовать итеративно с сохранением качества.
+
+---
+
 Task ID: 82
 Agent: main
 Task: Анализ группировки/сортировки/вывода аффиксов в poe2-regex-ru. Без реализации — только анализ, документирование, Open Proposal OP-1.

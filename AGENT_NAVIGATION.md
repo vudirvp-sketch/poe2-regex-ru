@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 82 (analysis-only)**. **Open Proposal OP-1** (iter 82): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`, реализация не начата. Все старые Known Issues закрыты (KI-1, KI-2, KI-3) и все старые долги закрыты. Regex-движок: чистый TS, 0 npm-зависимостей. 1158/1158 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
+> **Entry document.** Read this first. Current state: **iter 83 (analysis + verification)**. **Open Proposal OP-1** (iter 82 analysis → iter 83 verification): перегруппировка аффиксов — анализ в `docs/AFFIXES_GROUPING_ANALYSIS.md`, реализация не начата. 9 багов классификации (3 NEW в iter 83). Все старые Known Issues закрыты (KI-1, KI-2, KI-3). Regex-движок: чистый TS, 0 npm-зависимостей. 1158/1158 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Pitfall 22 + 28 + 29 актуальны.
 
 ---
 
@@ -220,7 +220,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 33. **`charClass` token/AST node имеет явное поле `negated: boolean`** (iter 81). Не использовать sentinel `{from: -1, to: -1}` в `ranges` массиве для negated char class — это удалено. PoE2 regex generator НЕ эмитит `[^...]` паттерны — это defensive parsing только для engine completeness.
 
-34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (jewellery/jewel), `affix-sentiment` (waystone), `tablet-type` (tablet), `affix-only` (relic), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного описания проблем и предложений OP-1.
+34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (jewellery/jewel), `affix-sentiment` (waystone), `tablet-type` (tablet), `affix-only` (relic — без подгрупп, 25 groups в одной корзине), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. iter 83 верификация: 9 багов классификации (3 NEW: Breach Lord-теги 73 токена, relic 100% neutral, мета-механики PoE2 размазаны), 24 функциональных блока предложены. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного описания проблем и предложений OP-1.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -283,38 +283,41 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 | `docs/DATA_CONTRACTS.md` | On type changes |
 | `docs/IN_GAME_TESTS.md` | On new in-game test results |
 | `docs/SEO_PLAN.md` | On SEO workflow changes |
-| `docs/AFFIXES_GROUPING_ANALYSIS.md` | iter 82 — анализ группировки аффиксов (OP-1). Update только если анализ пересматривается. |
+| `docs/AFFIXES_GROUPING_ANALYSIS.md` | iter 82-83 — анализ группировки аффиксов (OP-1): 9 багов, 24 функциональных блока. Update только если анализ пересматривается. |
 | `worklog.md` | Every iteration — append new Task ID section |
 
 ---
 
 ## 14. Open Proposals
 
-### OP-1 (iter 82) — Перегруппировка аффиксов
+### OP-1 (iter 82-83) — Перегруппировка аффиксов
 
 Полный анализ: `docs/AFFIXES_GROUPING_ANALYSIS.md`.
 
-**Суть проблемы:** текущая 3-корзинная схема классификации (`offensive/defensive/attribute/neutral` для jewellery/jewel, `positive/negative/neutral` для waystone, `ritual/breach/delirium/vaal/expedition/generic` для tablet) отправляет **15-38% всех модов** в «Прочие»/«Общие» — включая S-tier моды (Spirit, +skill levels, MF).
+**Суть проблемы:** текущая 3-корзинная схема классификации (`offensive/defensive/attribute/neutral` для jewellery/jewel, `positive/negative/neutral` для waystone, `ritual/breach/delirium/vaal/expedition/generic` для tablet) отправляет **14-39% всех модов** в «Прочие»/«Общие» — включая S-tier моды (+skill levels, MF, рунический барьер). Tablet generic = 39%. Relic = 100% (по дизайну `affix-only`).
 
-**Найденные баги классификации (6):**
+**Найденные баги классификации (9, из них 3 NEW в iter 83):**
 
-1. **S-tier моды в neutral**: `+# к духу`, `+#% к уровню всех камней умений`, `#% повышение редкости найденных предметов`, `+#% к качеству всех умений` — без тегов → neutral, несмотря на S/A/B tier.
+1. **S-tier моды в neutral**: `+# к уровню всех камней умений` (generic), MF, `+#% к качеству всех умений`, `+#% к максимальному качеству`, `+# к максимуму рунического барьера`. *(iter 83: `+# к духу` НЕ в neutral — он в defensive через `/дух/i`.)*
 2. **Waystone mis-классификации (4 из 7 neutral)**: `+#% к бонусу критического урона монстров` (→ negative), `На #% больше волшебных и редких монстров` (→ positive), `На #% больше шанса появления свойств у редких монстров` (→ negative), `На #% больше эффективности монстров` (→ negative).
-3. **Tablet «generic» = 38%** всех модов, включая S-tier (кол-во/редкость/опыт/доп. сущности/изгнанники).
-4. **Тег `aura` не входит ни в одну категорию** → 2 токена jewel (сила умений аур) → neutral.
-5. **Тег `gem` не используется** → 17 токенов (1 ring + 14 amulet + 2 belt) → neutral.
-6. **Breach-themed `Знак повелителя Бездны`** (essence-origin, ring) — без тегов → neutral.
+3. **Tablet «generic» = 39%** всех модов, включая S-tier.
+4. **Тег `aura`** (2 токена jewel) → neutral.
+5. **Тег `gem`** (17 токенов: 1 ring + 14 amulet + 2 belt) → neutral.
+6. **`Знак повелителя Бездны`** — 6 family-groups (ring+amulet+belt × prefix+suffix), essence-origin, без тегов → neutral. *(iter 83: 6, не 2)*
+7. **NEW (iter 83): Breach Lord-теги `kurgal_mod`/`amanamu_mod`/`ulaman_mod`** — 73 токена (26+25+22) в neutral. Теги не входят в OFFENSIVE/DEFENSIVE/ATTRIBUTE buckets. Моды имеют явную семантику, но теряются.
+8. **NEW (iter 83): Relic `affix-only` mode** → 100% в одной корзине (25 groups). Не баг, а архитектурное решение — стоит пересмотреть.
+9. **NEW (iter 83): Мета-механики PoE2 размазаны**: Вестники/Знамёна/Кличи/Метки/Обереги/Запечатанные/Архонт/Мета-умения/Сгустки/Подношения/Рунический барьер — каждый отдельная «семантическая зона», но живут в offensive/defensive/neutral без подкатегорий.
 
-**Архитектурное предложение:** заменить 3-корзинную схему на 22 функциональных блока для jewellery (Дух / Уровень умений / Атрибуты / Здоровье-Мана-ES / Сопротивления / Защита / Скорость / Крит / Урон / Пробитие / Состояния / Область-Длительность / Ауры-Вестники-Метки / Приспешники / Оружие-специфичные / Фласки / MF / Конверсия / Свирепость-Заряды / Бездна / Мета / Прочее) + 6 weapon sub-blocks для jewel + sub-blocks внутри waystone sentiment и tablet type.
+**Архитектурное предложение:** заменить 3-корзинную схему на 24 функциональных блока для jewellery (Дух / Уровень умений / Атрибуты / Здоровье-Мана-ES / **Рунический барьер (NEW)** / Сопротивления / Защита / Скорость / Крит / Урон / Пробитие / Состояния / Область-Длительность / **Сгустки-Wisps (NEW)** / Ауры-Вестники-Метки-Знаки-Кличи-Знамёна-Обереги / Приспешники-Компаньоны-Подношения / **Архонт-Запечатанные-Мета (NEW)** / Оружие-специфичные / Фласки / MF / Конверсия / Свирепость-Заряды / Бездна-Разлом / Прочее) + 6 weapon sub-blocks для jewel + sub-blocks внутри waystone sentiment и tablet type.
 
 **Реализация:** не начата. Ждёт решения по приоритетам (см. P0-P3 в `docs/AFFIXES_GROUPING_ANALYSIS.md` §5).
 
 **Ключевые файлы, которые будут затронуты при реализации:**
-- `src/shared/mod-classifier.ts` (1095 строк) — классификаторы.
+- `src/shared/mod-classifier.ts` (1096 строк) — классификаторы.
 - `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` + `sortKey`.
 - `src/shared/types.ts` — `FamilyGroup` (добавить `sortKey`), `ModGroupMode` (новые режимы).
 - `src/ui/components/ModList.tsx` (662 строки) — рендер sub-blocks.
 - `src/ui/components/CategoryControlPanel.tsx` — тумблер «режим группировки».
 - `src/store/url-sync.ts` — URL-персистентность для `groupingMode`.
-- `src/shared/i18n.ts` — новые метки блоков.
+- `src/shared/i18n.ts` — новые метки 24 блоков.
 - `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — для ETL-tagged `functionalCategory` (P1).
