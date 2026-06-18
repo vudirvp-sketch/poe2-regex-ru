@@ -6,9 +6,9 @@
  * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
  * RegexOutput in sticky bottom-bar via <MobileRegexBar>).
  *
- * iter 85: `affix-functional` groupMode is implemented in mod-classifier.ts
- * (7 active blocks) but NOT yet enabled here. iter 86 will add more blocks
- * and flip this page. See STATUS.md → OP-1.
+ * iter 86: `affix-functional` groupMode is now enabled — 14 active functional
+ * blocks. Simulation shows other-bucket = 11.4% for amulets (target <30%).
+ * See STATUS.md → OP-1.
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';
@@ -132,7 +132,7 @@ export function AmuletPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-semantic"
+              groupMode="affix-functional"
               showOriginSubSections
               category="amulet"
               priorityFilter={priorityFilter}

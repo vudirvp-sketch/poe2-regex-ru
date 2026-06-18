@@ -970,10 +970,13 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  * area/duration, wisps, buff skills, minions, meta-skills, weapon-specific,
  * flasks, conversion, rage/charges, breach, other.
  *
- * iter 85: ONLY 7 high-priority blocks are implemented as classifiers
- * (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach).
- * All other blocks fall back to `other` for now. Implementation of the
- * remaining 16 blocks is deferred to iter 86+ (see STATUS.md).
+ * iter 86: 14 high-priority blocks are implemented as classifiers
+ * (spirit / skill-levels / attributes / resources / runes-barrier / resistances /
+ *  magic-find / defence-stats / offence-speed / crit / damage-type / flasks /
+ *  minions / breach). 10 blocks still fall back to `other` — implementation
+ * deferred to iter 87+ (see STATUS.md). Simulation on real jewellery JSON
+ * shows other-bucket = 9.9% (target was <30%), so production pages are flipped
+ * to `affix-functional` in iter 86.
  *
  * Source: docs/AFFIXES_GROUPING_ANALYSIS.md §4.1 (24-block scheme).
  */
@@ -981,30 +984,30 @@ export type FunctionalBlock =
   | 'spirit'           // Дух — amulet-only (5 tokens, 1 family-key)
   | 'skill-levels'     // +уровень камней умений, +качество умений, скорость перезарядки умений, длительность эффекта умения
   | 'attributes'       // Сила/Ловкость/Интеллект/Все + dual-attr + снижение требований
-  | 'resources'        // ⏳ iter 86: Здоровье/Мана/ES — максимум, регенерация, похищение, восстановление
+  | 'resources'        // iter 86: Здоровье/Мана/ES-максимум/регенерация/похищение (tags life/mana + ES-max text)
   | 'runes-barrier'    // Рунический барьер (max, regen, restore)
   | 'resistances'      // Огонь/Холод/Молния/Хаос/Все + добавленные свойства сопротивлений
   | 'magic-find'       // Редкость/Количество найденных предметов
-  | 'defence-stats'    // ⏳ iter 86: Броня/Уклонение/ES/Блок/Порог оглушения
-  | 'offence-speed'    // ⏳ iter 86: Скорость атаки/сотворения/передвижения/перезарядки/снарядов
-  | 'crit'             // ⏳ iter 86: Шанс/Бонус/По типу урона
-  | 'damage-type'      // ⏳ iter 86: Физ/Огонь/Холод/Молния/Хаос/Стихийный/От чар/От атак
-  | 'penetration'      // ⏳ iter 86: Пробитие сопротивления
-  | 'ailments'         // ⏳ iter 86: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрушение брони/Разрез
-  | 'area-duration'    // ⏳ iter 86: Область действия/Длительность умения/Длительность состояний
-  | 'wisps'            // ⏳ iter 86: Сгустки (Breach-механика)
-  | 'buff-skills'      // ⏳ iter 86: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
-  | 'minions'          // ⏳ iter 86: Приспешники/Компаньоны/Подношения
-  | 'meta-skills'      // ⏳ iter 86: Архонт/Запечатанные/Мета-умения
-  | 'weapon-specific'  // ⏳ iter 86: 24 family-key в 6 sub-blocks (jewel only)
-  | 'flasks'           // ⏳ iter 86: belt primary, flask-моды
-  | 'conversion'       // ⏳ iter 86: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
-  | 'rage-charges'     // ⏳ iter 86: Свирепость/Endurance/Flask charges/Banner glory
+  | 'defence-stats'    // iter 86: Броня/Уклонение/ES-recharge/Charm/Блок/Порог оглушения
+  | 'offence-speed'    // iter 86: Скорость атаки/сотворения/передвижения/снарядов (tag speed + text)
+  | 'crit'             // iter 86: Шанс/Бонус/По типу урона (tag critical + text «крит»)
+  | 'damage-type'      // iter 86: Физ/Огонь/Холод/Молния/Хаос/Стихийный (tags damage/physical/elemental/cold/fire/lightning/chaos + text «урон»)
+  | 'penetration'      // ⏳ iter 87+: Пробитие сопротивления
+  | 'ailments'         // ⏳ iter 87+: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрушение брони/Разрез
+  | 'area-duration'    // ⏳ iter 87+: Область действия/Длительность умения/Длительность состояний
+  | 'wisps'            // ⏳ iter 87+: Сгустки (Breach-механика)
+  | 'buff-skills'      // ⏳ iter 87+: Ауры/Вестники/Метки/Знаки/Кличи/Знамёна/Обереги
+  | 'minions'          // iter 86: Приспешники/Подношения (tag minion + text «приспешник»/«подношен»)
+  | 'meta-skills'      // ⏳ iter 87+: Архонт/Запечатанные/Мета-умения
+  | 'weapon-specific'  // ⏳ iter 87: 24 family-key в 6 sub-blocks (jewel only)
+  | 'flasks'           // iter 86: belt primary, flask-моды (text «флакон»)
+  | 'conversion'       // ⏳ iter 87+: MoM/Урон→Здоровье/Урон→Мана/Восстановление при убийстве
+  | 'rage-charges'     // ⏳ iter 87+: Свирепость/Endurance/Flask charges/Banner glory
   | 'breach'           // Бездна/Разлом — Breach Lord's Mark (6 family-groups, essence-origin, no tags)
   | 'other';           // Прочее — fallback (<5% target after all blocks implemented)
 
 /** Display config for each functional block.
- *  iter 85: 7 active blocks have distinct colors; the 17 unimplemented blocks
+ *  iter 86: 14 active blocks have distinct colors; the 10 unimplemented blocks
  *  share the muted "other" palette (they shouldn't appear in UI yet). */
 export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
   spirit:           { label: 'Дух',                colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
@@ -1041,7 +1044,7 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
  *  5. Misc: flasks, MF, conversion, rage/charges, breach.
  *  6. Fallback: other.
  *
- *  iter 85: only the 7 implemented blocks + `other` will actually appear. */
+ *  iter 86: 14 implemented blocks + `other` will actually appear in production. */
 const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'spirit', 'skill-levels', 'attributes', 'resources',
   'runes-barrier', 'resistances', 'defence-stats',
@@ -1052,7 +1055,7 @@ const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'other',
 ];
 
-// ─── Functional block text patterns (iter 85: 7 high-priority blocks) ───
+// ─── Functional block text patterns (iter 86: 14 high-priority blocks) ───
 
 /** Spirit mods: "+# к духу" (amulet suffix, no tags → currently neutral).
  *  Note: /дух/ is in DEFENSIVE_KEYWORDS but only used when text-fallback fires
@@ -1106,27 +1109,130 @@ const MAGIC_FIND_PATTERN = /(?:редкост.*найден.*предмет|ко
  *  This pattern catches the no-tag "Знак повелителя Бездны" mod specifically. */
 const BREACH_PATTERN = /Знак.*повелител.*Бездн/i;
 
+// ─── iter 86: 7 new high-priority blocks ───
+
+/** Flasks mods (belt primary, also amulet charm-tagged):
+ *  - "Флаконы здоровья получают зарядов в секунду: ##" (amulet, charm tag)
+ *  - "Флаконы маны получают зарядов в секунду: ##" (amulet, charm tag)
+ *  - "Флаконы получают зарядов в секунду: ##" (belt, no tag)
+ *  - "##% уменьшение используемого количества зарядов флакона" (belt, no tag)
+ *  - "##% шанс сохранить заряды флаконов при их использовании" (belt, no tag)
+ *  - "##% увеличение скорости сотворения чар во время действия любого флакона" (belt, conditional flask)
+ *  - "##% повышение скорости восстановления здоровья от флакона" (belt, life tag — caught here BEFORE resources)
+ *  Note: «обереги» mods are NOT caught here — they go to defence-stats via `charm` tag. */
+const FLASKS_PATTERN = /флакон/i;
+
+/** Minions mods (tag minion + text):
+ *  - "Приспешники имеют +#% к сопротивлению всем стихиям" (minion+resist tags — minion wins by priority)
+ *  - "Приспешники имеют ##% повышение шанса критического удара" (minion+critical tags — minion wins)
+ *  - "Приспешники имеют ##% увеличение максимума здоровья" (minion+life tags — minion wins)
+ *  - "##% усиление эффекта Подношений" (minion tag, text «подношен»)
+ *  - "##% шанс получить Архонта Нежити при создании подношения" (minion tag)
+ *  Note: «+1 к уровню всех камней умений приспешников» is caught earlier by SKILL_LEVELS_PATTERN
+ *  (skill-levels takes priority over minions — it's a +level mod, not a minion-function mod). */
+const MINIONS_PATTERN = /(?:приспешник|подношен)/i;
+
+/** Resources mods (tags life/mana + text for ES maximum, leech, regen, on-kill):
+ *  - "+# к максимуму здоровья" (life tag)
+ *  - "+# к максимуму маны" (mana tag)
+ *  - "+# к максимуму энергетического щита" (energy_shield tag — caught HERE via text, BEFORE defence-stats)
+ *  - "##% увеличение максимума энергетического щита" (energy_shield tag — caught HERE via text)
+ *  - "##% полученного урона восполняется в виде здоровья" (life tag)
+ *  - "##% полученного урона восполняется в виде маны" (life+mana tags)
+ *  - "##% от получаемого урона берется сначала из маны вместо здоровья" (life+mana tags — MoM)
+ *  - "##% увеличение количества похищенного здоровья" (life tag, Breach Lord)
+ *  - "##% повышение скорости регенерации маны" (mana tag)
+ *  - "Регенерация # здоровья в секунду" (life tag)
+ *  - "Восстанавливает ##% здоровья при убийстве" (life tag)
+ *  - "Дарует # здоровья за каждого убитого врага" (life tag)
+ *  Note: ES recharge / ES recharge speed / ES focus mods do NOT match this pattern
+ *  (no "максимум" in their text) → they fall through to defence-stats via energy_shield tag. */
+const RESOURCES_PATTERN = /(?:максимум.*энергетическ.*щит|похищен.*виде.*здоров|похищен.*виде.*ман|скорост.*регенерац.*здоров|скорост.*регенерац.*ман|восстанавливает.*здоровь|восстанавливает.*ман|получен.*урон.*восполня|от получаемого урона.*берется.*из ман|Регенерац.*здоров|Дарует.*здоровь.*убит|Дарует.*ман.*убит)/i;
+
+/** Defence-stats mods (tags armour/evasion/energy_shield/charm + text):
+ *  - "+# к броне" (armour tag, belt)
+ *  - "##% повышение брони" (armour tag, amulet)
+ *  - "##% увеличение уклонения" (evasion tag, amulet/belt)
+ *  - "+# к уклонению" (evasion tag, ring)
+ *  - "##% увеличение максимума энергетического щита" (energy_shield tag — caught by RESOURCES_PATTERN first via "максимум")
+ *  - "##% ускорение начала перезарядки энергетического щита" (energy_shield tag — falls through HERE, no "максимум")
+ *  - "##% увеличение длительности эффекта оберега" (charm tag, belt)
+ *  - "##% увеличение количества получаемых зарядов оберегов" (charm tag, belt)
+ *  - "Обереги получают зарядов в секунду: ##" (charm tag, amulet)
+ *  - "+# к порогу оглушения" (no tag, text)
+ *  - "##% увеличение отклонения ударов" (evasion tag, amulet)
+ *  Note: «Флаконы здоровья/маны получают зарядов» has charm tag AND «флакон» text —
+ *  caught earlier by FLASKS_PATTERN (flasks wins over defence-stats by priority). */
+const DEFENCE_STATS_PATTERN = /(?:брон|уклонен|блок|порог.*оглушен|отклонен.*удар)/i;
+
+/** Crit mods (tag critical + text «крит»):
+ *  - "##% повышение шанса критического удара" (critical tag)
+ *  - "##% увеличение бонуса к критическому урону" (critical+damage tags — crit wins by priority)
+ *  - "##% повышение шанса критического удара для чар" (critical+caster tags)
+ *  - "##% увеличение бонуса к критическому урону от чар" (critical+caster tags)
+ *  - "##% увеличение бонуса к критическому урону приспешников" (critical+damage+minion tags — minion wins by priority)
+ *  - "+#% к шансу критического удара чар огня" (critical+caster+elemental+fire tags — crit wins)
+ *  - "+#% к шансу критического удара шипами" (critical+damage tags — crit wins) */
+const CRIT_PATTERN = /крит/i;
+
+/** Damage-type mods (tags damage/physical/elemental/cold/fire/lightning/chaos + text «урон»):
+ *  - "##% увеличение урона" (damage tag)
+ *  - "##% увеличение урона от огня/холода/молнии" (damage+elemental+fire/cold/lightning tags)
+ *  - "##% увеличение урона от чар" (caster+damage tags)
+ *  - "##% увеличение урона хаосом" (chaos+damage tags)
+ *  - "Добавляет от # до # физического урона к атакам" (attack+damage+physical tags)
+ *  - "Добавляет от # до # урона от огня к атакам" (attack+damage+elemental+fire tags)
+ *  - "##% увеличение урона от молнии, если вы подобрали Молниевое насыщение" (elemental+lightning tags, no resistance tag)
+ *  - "Чары наносят ##% от урона в виде дополнительного урона хаосом" (damage tag)
+ *  Note: resisted by resistances — "+#% к сопротивлению огню" has resistance tag → resistances wins.
+ *  Note: resisted by crit — "##% увеличение бонуса к критическому урону" has critical tag → crit wins. */
+const DAMAGE_TYPE_PATTERN = /урон/i;
+
+/** Offence-speed mods (tag speed + text):
+ *  - "##% повышение скорости сотворения чар" (caster+speed tags)
+ *  - "##% повышение скорости атаки" (attack+speed tags, ring)
+ *  - "##% повышение скорости передвижения приспешников" (minion+speed tags — caught by minions first)
+ *  - "##% повышение скорости умений приказов" (minion+speed tags — caught by minions first)
+ *  - "##% увеличение скорости сотворения чар во время действия любого флакона" (caster+speed tags — caught by flasks first via «флакон» text)
+ *  Note: "##% повышение скорости перезарядки умений" is caught earlier by SKILL_LEVELS_PATTERN.
+ *  Note: "##% повышение скорости перезарядки боевых кличей" is NOT caught here (buff-skills deferred). */
+const OFFENCE_SPEED_PATTERN = /скорост.*(атак|сотворени|передвижен|снаряд)/i;
+
 /**
  * Classify a FamilyGroup into a functional block.
  *
- * iter 85: 7 high-priority blocks are matched (spirit/skill-levels/attributes/
- * resistances/runes-barrier/magic-find/breach). All other mods fall back to
- * `other` for now. Subsequent iterations will add the remaining 16 blocks.
+ * iter 86: 14 high-priority blocks are matched using BOTH tag-based detection
+ * (preferred — from member.tokens.tags[]) AND text patterns (fallback for
+ * no-tag mods). 10 blocks still fall back to `other`.
  *
- * Match priority:
- * 1. SPIRIT — exact text match (1 token, very specific)
- * 2. RUNES_BARRIER — exact text match (4 tokens, very specific)
- * 3. BREACH — "Знак повелителя Бездны" (6 tokens, very specific)
- * 4. MAGIC_FIND — MF patterns
- * 5. SKILL_LEVELS — +skill level / +quality / +recharge / +duration
- * 6. ATTRIBUTES — attribute patterns (incl. dual-attr Breach Lord)
- * 7. RESISTANCES — resistance patterns (incl. added-properties)
- * 8. OTHER — fallback
+ * Match priority (most specific → most general):
+ *  1. SPIRIT — text "+# к духу" (amulet only, no tag)
+ *  2. RUNES_BARRIER — text "рунический барьер" (no tag)
+ *  3. BREACH — text "Знак повелителя Бездны" (no tag, essence-origin)
+ *  4. MAGIC_FIND — text "редкость/количество найденных предметов"
+ *  5. SKILL_LEVELS — text "+level/quality/recharge/duration of skills"
+ *  6. FLASKS — text "флакон" (belt primary, charm-tag amulet flasks)
+ *  7. MINIONS — tag `minion` OR text "приспешник/подношен" — before resources (minion-life)
+ *  8. ATTRIBUTES — text "силе/ловк/интелл" OR tag `attribute` (incl. dual-attr Breach Lord)
+ *  9. RESISTANCES — tag `resistance` OR text "сопротивлен" — BEFORE damage-type
+ * 10. RESOURCES — tags `life`/`mana` OR text "максимум.*энерг.*щит/похищен/регенерац/восстанавливает" — BEFORE defence-stats (for ES max)
+ * 11. DEFENCE_STATS — tags `armour`/`evasion`/`energy_shield`/`charm` OR text "брон/уклонен/блок/порог оглушен"
+ * 12. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
+ * 13. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
+ * 14. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
+ * 15. OTHER — fallback
  *
- * Order matters: spirit/runes-barrier/breach are most specific (single semantic
- * meaning) and must be checked before more general patterns. Within the general
- * patterns, attributes before resistances (so dual-attr "силе и ловкости" wins
- * over a hypothetical "сопротивление" substring match — none currently overlap).
+ * Tag priority logic:
+ *  - Minion tag beats life/mana/critical/damage/speed/resistance (minion mods are functionally
+ *    about minions, not the underlying stat type).
+ *  - Resistance tag beats fire/cold/lightning/chaos/elemental (resist mods have those tags
+ *    too, but functionally they're resistances).
+ *  - Life/mana tags beat energy_shield tag via text pattern for ES max (ES max mods have
+ *    energy_shield tag AND "максимум" text — resources catches first).
+ *  - Critical tag beats damage tag (crit mods have both).
+ *
+ * Breach Lord source tags (kurgal_mod/amanamu_mod/ulaman_mod) are skipped during
+ * tag collection — they indicate mod source, not function (Bug #7 fix, iter 84).
  *
  * @param group - The FamilyGroup to classify
  * @returns FunctionalBlock key
@@ -1134,28 +1240,64 @@ const BREACH_PATTERN = /Знак.*повелител.*Бездн/i;
 export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   const text = group.displayText;
 
-  // 1. Spirit — must be checked before SKILL_LEVELS ("дух" doesn't overlap, but specific first)
+  // Collect all non-Breach-Lord tags from group members (mirror of classifyByTags logic)
+  const allTags = new Set<string>();
+  for (const member of group.members) {
+    for (const tag of member.tags) {
+      if (BREACH_LORD_TAGS.has(tag)) continue; // skip source tags
+      allTags.add(tag);
+    }
+  }
+
+  // 1. Spirit — amulet-only "+# к духу"
   if (SPIRIT_PATTERN.test(text)) return 'spirit';
 
   // 2. Runes barrier — new PoE2 mechanic, very specific keyword
   if (RUNES_BARRIER_PATTERN.test(text)) return 'runes-barrier';
 
-  // 3. Breach — "Знак повелителя Бездны" (no other "Знак повелителя" mods in jewellery)
+  // 3. Breach — "Знак повелителя Бездны" (essence-origin, no tags)
   if (BREACH_PATTERN.test(text)) return 'breach';
 
   // 4. Magic Find — "редкость/количество найденных предметов"
   if (MAGIC_FIND_PATTERN.test(text)) return 'magic-find';
 
-  // 5. Skill levels — must come AFTER MF (MF uses "качество" too in some games, but here MF = "редкость/количество")
+  // 5. Skill levels — +skill level / +quality / +recharge / +duration
   if (SKILL_LEVELS_PATTERN.test(text)) return 'skill-levels';
 
-  // 6. Attributes — Сила/Ловкость/Интеллект/Все + dual-attr
-  if (ATTRIBUTES_PATTERN.test(text)) return 'attributes';
+  // 6. Flasks — text «флакон» (belt primary + amulet charm-tagged flask mods)
+  if (FLASKS_PATTERN.test(text)) return 'flasks';
 
-  // 7. Resistances — last specific check
-  if (RESISTANCES_PATTERN.test(text)) return 'resistances';
+  // 7. Minions — tag `minion` OR text «приспешник»/«подношен»
+  //    Must be BEFORE resources (minion-life), crit (minion-crit), damage (minion-damage),
+  //    resistances (minion-resist), offence-speed (minion-speed).
+  if (allTags.has('minion') || MINIONS_PATTERN.test(text)) return 'minions';
 
-  // 8. Fallback — will be reduced in subsequent iterations as more blocks are implemented
+  // 8. Attributes — Сила/Ловкость/Интеллект/Все + dual-attr + tag `attribute`
+  if (ATTRIBUTES_PATTERN.test(text) || allTags.has('attribute')) return 'attributes';
+
+  // 9. Resistances — tag `resistance` OR text «сопротивлен»
+  //    Must be BEFORE damage-type (resist mods also have fire/cold/lightning/chaos tags).
+  if (allTags.has('resistance') || RESISTANCES_PATTERN.test(text)) return 'resistances';
+
+  // 10. Resources — tags `life`/`mana` OR text (ES maximum, leech, regen, on-kill, MoM)
+  //     Must be BEFORE defence-stats (ES max mods have energy_shield tag AND "максимум" text).
+  if (allTags.has('life') || allTags.has('mana') || RESOURCES_PATTERN.test(text)) return 'resources';
+
+  // 11. Defence-stats — tags `armour`/`evasion`/`energy_shield`/`charm` OR text «брон/уклонен/блок/порог оглушен»
+  if (allTags.has('armour') || allTags.has('evasion') || allTags.has('energy_shield') || allTags.has('charm') || DEFENCE_STATS_PATTERN.test(text)) return 'defence-stats';
+
+  // 12. Crit — tag `critical` OR text «крит»
+  //     Must be BEFORE damage-type (crit mods often have damage tag too).
+  if (allTags.has('critical') || CRIT_PATTERN.test(text)) return 'crit';
+
+  // 13. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
+  if (allTags.has('damage') || allTags.has('physical') || allTags.has('elemental') || allTags.has('cold') || allTags.has('fire') || allTags.has('lightning') || allTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(text)) return 'damage-type';
+
+  // 14. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
+  if (allTags.has('speed') || OFFENCE_SPEED_PATTERN.test(text)) return 'offence-speed';
+
+  // 15. Fallback — wisps / meta-skills / penetration / ailments / area-duration /
+  //     buff-skills / conversion / rage-charges / weapon-specific (iter 87+)
   return 'other';
 }
 
@@ -1164,7 +1306,7 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
 /** Grouping mode determines how mods are sub-categorized within affix columns */
 export type ModGroupMode =
   | 'affix-semantic'    // prefix/suffix → offensive/defensive/attribute/neutral (legacy, replaced by affix-functional for ring/amulet/belt)
-  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 85: 7 active + other) — ring/amulet/belt
+  | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 86: 14 active + other) — ring/amulet/belt
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
   | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
   | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
@@ -1239,7 +1381,7 @@ export function classifyGroups(
   }
 
   if (mode === 'affix-functional') {
-    // iter 85: classify each group into a functional block (7 active + other).
+    // iter 86: classify each group into a functional block (14 active + other).
     // Groups are returned in FUNCTIONAL_BLOCK_ORDER so the UI shows them in
     // the typical crafting scenario order (Spirit → Skill levels → Attributes → …).
     const classified = new Map<FunctionalBlock, FamilyGroup[]>();

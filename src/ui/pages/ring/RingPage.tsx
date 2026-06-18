@@ -6,11 +6,11 @@
  * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
  * RegexOutput in sticky bottom-bar via <MobileRegexBar>).
  *
- * iter 85: `affix-functional` groupMode is implemented in mod-classifier.ts
- * (7 active blocks: Spirit / Skill levels / Attributes / Resistances /
- * Runes barrier / MF / Breach) but NOT yet enabled here. iter 86 will add
- * more blocks (defence-stats, offence-speed, crit, damage-type, ...) and
- * flip this page to the new mode. See STATUS.md → OP-1.
+ * iter 86: `affix-functional` groupMode is now enabled — 14 active functional
+ * blocks (Spirit / Skill levels / Attributes / Resources / Runes barrier /
+ * Resistances / Defence stats / Offence speed / Crit / Damage type / Minions /
+ * Flasks / MF / Breach). Simulation shows other-bucket = 9.6% for rings
+ * (target <30%). See STATUS.md → OP-1.
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { VirtualizedModList } from '@ui/components/VirtualizedModList';
@@ -134,7 +134,7 @@ export function RingPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-semantic"
+              groupMode="affix-functional"
               showOriginSubSections
               category="ring"
               priorityFilter={priorityFilter}

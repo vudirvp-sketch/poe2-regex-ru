@@ -2,81 +2,74 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 85 (OP-1 Phase 2 — functional blocks infrastructure)
+> **Текущая итерация:** 86 (OP-1 Phase 2 — 14 functional blocks ENABLED in production)
 
 ---
 
-## iter 85 — Functional blocks infrastructure (7 of 24)
+## iter 86 — 14 functional blocks enabled in production
 
-Реализована инфраструктура для 24-блочной системы группировки аффиксов (замена 4 крупных корзин offensive/defensive/attribute/neutral). Классификатор готов, но **НЕ включён в production** — переключение произойдёт в iter 86 после добавления ещё 5-7 блоков.
+Реализованы 7 новых функциональных блоков через **tags + text patterns** (поверх 7 блоков iter 85). Production-страницы RingPage / AmuletPage / BeltPage **переключены на `affix-functional`** — simulation подтвердила other-bucket = 9.9% (цель <30%).
 
 ### Что сделано
 
-**Архитектура (src/shared/mod-classifier.ts):**
-- Новый тип `FunctionalBlock` (24 значения: spirit, skill-levels, attributes, resources, runes-barrier, resistances, magic-find, defence-stats, offence-speed, crit, damage-type, penetration, ailments, area-duration, wisps, buff-skills, minions, meta-skills, weapon-specific, flasks, conversion, rage-charges, breach, other).
-- `FUNCTIONAL_BLOCK_LABELS` — display-конфиг (label + colorClass + bgClass + borderClass) для всех 24 блоков.
-- `FUNCTIONAL_BLOCK_ORDER` — порядок рендера (игрок-сценарий: Spirit → Skill levels → Attributes → Resources → Runes barrier → Resistances → ... → Other).
-- `classifyFunctionalBlock(group): FunctionalBlock` — классификатор с 7 активными паттернами (spirit/skill-levels/attributes/resistances/runes-barrier/magic-find/breach) + fallback в `other`.
-- Новый режим `ModGroupMode = 'affix-functional'` добавлен в `classifyGroups()` — возвращает sub-groups по функциональному блоку, упорядоченные по `FUNCTIONAL_BLOCK_ORDER`.
-
-**Активные паттерны (7 блоков):**
-| Блок | Паттерн | Что ловит (примеры) |
+**7 новых блоков (tags + text):**
+| Блок | Ловит через | Примеры |
 |---|---|---|
-| `spirit` | `/к духу/i` | `+# к духу` (amulet S-tier) |
-| `skill-levels` | `уровень.*камн.*умений` + 6 вариантов | `+# к уровню всех камней умений`, `+#% к максимальному качеству`, `#% повышение скорости перезарядки умений`, `#% увеличение длительности эффекта умения` |
-| `attributes` | `к силе\|к ловк\|к интелл` + 7 вариантов | `+# к силе`, `+# ко всем атрибутам`, `+# к силе и ловкости` (Breach Lord dual-attr), `#% уменьшение требований к характеристикам` |
-| `resistances` | `сопротивлен\|добавлен.*свойств.*сопротивлен` | `+#% к сопротивлению огню`, `+#% ко всем стихийным сопротивлениям`, `#% повышение значений добавленных свойств сопротивлений` |
-| `runes-barrier` | `руническ.*барьер` | `+# к максимуму рунического барьера`, `#% увеличение максимума рунического барьера`, `#% повышение скорости регенерации рунического барьера`, `Восстанавливает # рунического барьера при использовании оберега` |
-| `magic-find` | `редкост.*найден.*предмет\|количеств.*найден.*предмет` | `#% повышение редкости найденных предметов` (prefix + suffix) |
-| `breach` | `Знак.*повелител.*Бездн` | `Знак повелителя Бездны` (6 family-groups: ring+amulet+belt × prefix+suffix) |
+| `defence-stats` | tags `armour`/`evasion`/`energy_shield`/`charm` + text «брон/уклонен/блок/порог оглушен/отклонен ударов» | `+# к броне`, `##% увеличение уклонения`, `Обереги получают зарядов в секунду`, `+# к порогу оглушения` |
+| `offence-speed` | tag `speed` + text «скорость атаки/сотворения/передвижения/снарядов» | `##% повышение скорости сотворения чар`, `##% повышение скорости атаки` |
+| `crit` | tag `critical` + text «крит» | `##% повышение шанса критического удара`, `##% увеличение бонуса к критическому урону` |
+| `damage-type` | tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` + text «урон» | `##% увеличение урона от огня`, `Добавляет от # до # физического урона к атакам` |
+| `flasks` | text «флакон» (belt primary + amulet charm-tagged) | `Флаконы получают зарядов в секунду`, `##% шанс сохранить заряды флаконов` |
+| `resources` | tags `life`/`mana` + text «максимум.*энерг.*щит/похищен/регенерац/восстанавливает» | `+# к максимуму здоровья`, `+# к максимуму энергетического щита`, `##% полученного урона восполняется в виде здоровья`, MoM |
+| `minions` | tag `minion` + text «приспешник/подношен» | `Приспешники имеют ##% увеличение урона`, `##% усиление эффекта Подношений` |
 
-**Приоритет матчинга (важен):** spirit → runes-barrier → breach → magic-find → skill-levels → attributes → resistances → other. Специфичные паттерны проверяются раньше общих.
+**Match priority (важен — специфичные блоки раньше общих):**
+1. spirit → 2. runes-barrier → 3. breach → 4. magic-find → 5. skill-levels → 6. flasks → 7. minions → 8. attributes → 9. resistances → 10. resources → 11. defence-stats → 12. crit → 13. damage-type → 14. offence-speed → 15. other
 
-**Тесты (tests/shared/mod-classifier.test.ts):**
-- 44 новых теста (1172 базовых + 44 = **1216 passing**).
-- Покрытие: 7 блоков с 1-4 тестами каждый + edge cases (без тегов, dual-attr Breach Lord, MF vs skill-levels disambiguation) + match priority + FUNCTIONAL_BLOCK_LABELS contract + classifyGroups integration.
+**Ключевые приоритеты тегов:**
+- `minion` бьёт `life`/`mana`/`critical`/`damage`/`speed`/`resistance` (миньон-моды — про миньонов, не про стат)
+- `resistance` бьёт `fire`/`cold`/`lightning`/`chaos`/`elemental` (резист-моды имеют те же теги)
+- `life`/`mana` бьёт `energy_shield` через text «максимум.*энерг.*щит» (ES-максимум → resources, ES-recharge → defence-stats)
+- `critical` бьёт `damage` (крит-моды имеют оба тега)
 
-**Симуляция (mirror классификатора на реальных JSON, scripts/simulate-iter85-impact.ts):**
+**Simulation (scripts/simulate-iter86-impact.ts):**
 
-| Категория | Total groups | 7 блоков поймали | Other bucket |
-|---|---|---|---|
-| ring | 94 | 27 (28.7%) | 67 (71.3%) |
-| amulet | 105 | 36 (34.3%) | 69 (65.7%) |
-| belt | 85 | 19 (22.4%) | 66 (77.6%) |
-| **Итого** | 284 | 82 (28.9%) | 200 (70.4%) |
+| Категория | Total | Other bucket |
+|---|---|---|
+| ring | 94 | 9 (9.6%) |
+| amulet | 105 | 12 (11.4%) |
+| belt | 85 | 7 (8.2%) |
+| **Итого** | 284 | **28 (9.9%)** |
 
-**Вывод симуляции:** с 7 блоками other-bucket = 70.4% — это ХУЖЕ текущего neutral (17.7%). Поэтому production-страницы **ОСТАВЛЕНЫ на `affix-semantic`**. iter 86 добавит 5-7 блоков (defence-stats, offence-speed, crit, damage-type, flasks, ...) — после этого other-bucket опустится достаточно, чтобы переключить страницы на `affix-functional`.
+**Production switch:**
+- `src/ui/pages/ring/RingPage.tsx` — `groupMode="affix-functional"`
+- `src/ui/pages/amulet/AmuletPage.tsx` — `groupMode="affix-functional"`
+- `src/ui/pages/belt/BeltPage.tsx` — `groupMode="affix-functional"`
 
-### Файлы, изменённые в iter 85
+**Тесты:** 1268/1268 passing (1216 базовых + 52 новых). Lint: 0 errors. TSC: 0 errors.
 
-- `src/shared/mod-classifier.ts` — добавлен `FunctionalBlock` type, `FUNCTIONAL_BLOCK_LABELS`, `FUNCTIONAL_BLOCK_ORDER`, 7 паттернов (SPIRIT/SKILL_LEVELS/ATTRIBUTES/RESISTANCES/RUNES_BARRIER/MAGIC_FIND/BREACH), функция `classifyFunctionalBlock()`, режим `affix-functional` в `classifyGroups()`. ModGroupMode расширен новым значением.
-- `tests/shared/mod-classifier.test.ts` — +44 теста (7 блоков + match priority + FUNCTIONAL_BLOCK_LABELS contract + classifyGroups integration).
-- `src/ui/pages/ring/RingPage.tsx` — комментарий в header docstring про iter 85 (groupMode остался `affix-semantic`).
+### Файлы, изменённые в iter 86
+
+- `src/shared/mod-classifier.ts` — +200 строк (7 новых паттернов + tag-based классификация в `classifyFunctionalBlock()`, обновлены комментарии).
+- `tests/shared/mod-classifier.test.ts` — +400 строк (+52 теста: 7 блоков с 4-9 тестами каждый + edge cases + match priority).
+- `src/ui/pages/ring/RingPage.tsx` — `groupMode="affix-functional"` + header docstring обновлён.
 - `src/ui/pages/amulet/AmuletPage.tsx` — то же.
 - `src/ui/pages/belt/BeltPage.tsx` — то же.
-- `STATUS.md` — актуализация под iter 85.
-- `docs/AFFIXES_GROUPING_ANALYSIS.md` — §5 приоритезация обновлена, §7 iter 85 добавлен.
-- `worklog.md` — iter 85 section.
+- `scripts/simulate-iter86-impact.ts` — новый скрипт: mirror `classifyFunctionalBlock()` на реальных jewellery JSON.
+- `STATUS.md` — актуализация под iter 86.
+- `docs/AFFIXES_GROUPING_ANALYSIS.md` — §5/§7/§8 обновлены.
+- `worklog.md` — iter 86 section, iter 85 сжат до одной строки.
 
-### Что НЕ сделано (намеренно, ждёт следующих итераций)
+### Что НЕ сделано (намеренно, ждёт iter 87+)
 
-- **Включение `affix-functional` в production** — блокировано до тех пор, пока other-bucket не опустится ниже 30% (нужно ещё 5-7 блоков).
-- **Остальные 17 блоков** (defence-stats, offence-speed, crit, damage-type, penetration, ailments, area-duration, wisps, buff-skills, minions, meta-skills, weapon-specific, flasks, conversion, rage-charges, resources, attributes-tagged) — паттерны не написаны.
-- **Weapon sub-blocks для jewel** (6 подблоков для 24 family-key) — не начато. Сложная задача: требует подуровня внутри offensive bucket.
+- **10 оставшихся блоков** (penetration, ailments, area-duration, wisps, buff-skills, meta-skills, weapon-specific, conversion, rage-charges, attributes-tagged) — паттерны не написаны. Currently все попадают в `other` (9.9% — приемлемо для production, но можно улучшить).
+- **Weapon sub-blocks для jewel** (6 подблоков для 24 family-key) — не начато. Сложная задача: требует подуровня внутри offensive bucket. Это **iter 87**.
 - **P1–P3** (ETL-tagged functionalCategory, sortKey + groupingMode toggle, waystone/tablet sub-blocks, relic-semantic mode, tier-aware сортировка, hideLabel auto-suppression, приоритет тегов, визуальная сепарация) — не начаты.
 
-### План iter 86
+### План iter 87
 
-1. Реализовать еще 5-7 блоков высшего приоритета для снижения other-bucket с 70% до <30%:
-   - `defence-stats` (Броня/Уклонение/ES/Блок/Порог оглушения) — через теги `armour`/`evasion`/`energy_shield`/`charm` + текстовые паттерны.
-   - `offence-speed` (Скорость атаки/сотворения/передвижения/перезарядки/снарядов) — через тег `speed` + текст.
-   - `crit` (Шанс/Бонус/По типу урона) — через тег `critical` + текст.
-   - `damage-type` (Физ/Огонь/Холод/Молния/Хаос/Стихийный/От чар/От атак) — через теги `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` + текст.
-   - `flasks` (belt primary, flask-моды) — через текст «флакон».
-   - `resources` (Здоровье/Мана/ES — максимум, регенерация, похищение) — через теги `life`/`mana` + текст.
-   - `minions` (Приспешники/Компаньоны/Подношения) — через тег `minion` + текст «приспешник»/«подношен».
-2. После этого — переключить RingPage/AmuletPage/BeltPage на `affix-functional`.
-3. Параллельно — план weapon sub-blocks для jewel (iter 87).
+1. **Weapon sub-blocks для jewel** (главная задача): 6 подблоков (melee/bow/crossbow/staff/spear/dagger) для 24 family-key. Требует подуровня внутри offensive bucket.
+2. Если останется время — добавить ещё 2-3 блока из списка выше (penetration / ailments / area-duration) для дальнейшего снижения other-bucket ниже 5%.
 
 ---
 
@@ -86,7 +79,7 @@
 
 ## Открытые долги
 
-- **OP-1** (iter 82-85): перегруппировка аффиксов. iter 82 — анализ. iter 83 — верификация. iter 84 — 3 P0-фикса. iter 85 — инфраструктура 24 функциональных блоков (7 активны). iter 86 — следующие 5-7 блоков + включение в production.
+- **OP-1** (iter 82-86): перегруппировка аффиксов. iter 82 — анализ. iter 83 — верификация. iter 84 — 3 P0-фикса. iter 85 — инфраструктура 24 функциональных блоков (7 активны). iter 86 — +7 блоков (14 активны) + production switch (other-bucket 9.9%). iter 87 — weapon sub-blocks для jewel + возможно ещё 2-3 блока.
 
 ---
 
