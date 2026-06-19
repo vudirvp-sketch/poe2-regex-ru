@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 99** (alphabetical within-block sort: `classifyGroups()` теперь сортирует группы внутри каждого sub-group по `familyKey` (Russian locale) с `priorityTier` как tiebreaker — `sortGroupsAlphabetically()` helper + `withAlphabeticalGroups()` wrapper, применён ко всем 9 режимам; 1411/1411 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 100** (cleanup устаревших iter*-скриптов: удалено 17 файлов — 16 audit/simulate/analyze-iter* + DELETED-FILES-iter92.txt; ESLint 17 problems → 2 problems (0 errors); 1411/1411 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -24,7 +24,7 @@
 | `src/ui/layout/Layout.tsx` | Root application shell. Structure: `<TopNav>` + `<main>` (scrollable). Sets `data-theme="dark"` on `<html>` once on mount (dark-only theme). | Was 3-piece (Sidebar + Header + MobileNavTabs) before iter 64. |
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner | Served as-is by GitHub Pages |
 | `public/atmosphere/` | PoE2-themed texture + hero decoration assets. **iter 65**: `bg.webp` (body bg texture), `bg-2x.webp` (`.poe-divider--ornate` border texture), `title-bg-4x.webp` + `early-access-button-underlay.webp` (visual reference only — `.poe-panel-header` / `.btn-cta` are pure CSS reinterpretations). **iter 67**: added `early-access-banner.webp` + `news-bg-center.webp`. **iter 69**: 4 hero decoration WebPs (PNG → WebP q85 via `scripts/optimize_hero_images.py`): `hero-bas-relief.webp` (backdrop, lg+, `mix-blend-screen` opacity 0.18), `hero-horned-warrior.webp` (L side ghost, xl+, opacity 0.28), `hero-monster-red.webp` (R side ghost, xl+, opacity 0.28), `hero-demon-blue.webp` (deferred → integrated iter 71). **iter 70**: `bg-forest.webp` + `bg-forest-mobile.webp` deleted (no longer referenced). **iter 71**: 3 leftover WebP интегрированы — `hero-demon-blue.webp` (SeoBlock right-edge decoration, visible only when `<details>` open, opacity 0.10, lg+ only), `early-access-banner.webp` (new `.poe-divider--banner` class on HomePage between Features and SeoBlock), `news-bg-center.webp` (mobile-only `<lg` hero backdrop via `<img>`, opacity 0.14, `mix-blend-screen`, mirrors lg+ bas-relief). All atmosphere assets now referenced from JSX or CSS. |
-| `scripts/` | ETL pipeline + analysis utilities + prerender scripts | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
+| `scripts/` | ETL pipeline (`scripts/etl/`) + prerender (`prerender.ts`/`prerender-full.ts`) + analysis (`analyze-regexes.ts`/`analyze-fn.ts`/`restructure-implicits.ts`) + current-iter audit (`verify-iter99-alpha-sort.ts`). iter 100 удалил 16 исторических verify/simulate/analyze-iter* скриптов (iter 49–95, все покрыты unit-тестами). | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts`. **Не добавлять новые verify-iter*-*.ts** — покрыть через `tests/` (vitest) или inline sanity в `worklog.md`. |
 | `tests/` | Vitest — core/, shared/, etl/, ui/ | `pnpm test` |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan | Update on structural changes |
 | `регис/` | User-provided in-game test data (Russian source mod lists + test items) | Reference only — do not modify |
@@ -316,7 +316,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `tests/shared/mod-classifier.test.ts` — +14 новых тестов.
 
 **Ключевые файлы для будущих итераций (P2-P4, не начаты):**
-- `src/shared/mod-classifier.ts` (~1786 строк, +75 после iter 99) — будущие waystone/tablet sub-blocks, опциональный UI-toggle «режим сортировки».
+- `src/shared/mod-classifier.ts` (~1786 строк) — будущие waystone/tablet sub-blocks, опциональный UI-toggle «режим сортировки».
 - `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` (существующий sort affix → tier → alpha). iter 99 не трогал — `classifyGroups()` переписывает within-block order поверх.
 - `src/shared/types.ts` — `FamilyGroup` (опционально добавить `sortKey?: number` для future-compat), `ModGroupMode` (новые режимы).
 - `src/ui/components/ModList.tsx` (662 строки) — рендер sub-blocks.
@@ -324,6 +324,12 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `src/store/url-sync.ts` — URL-персистентность для `groupingMode` / `sortMode`.
 - `src/shared/i18n.ts` — новые метки.
 
-**iter 99 done:** `classifyGroups()` применяет alphabetical within-block sort во всех 9 режимах через `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper. Tier остаётся визуальным бейджем. Осталось P2 (waystone/tablet sub-blocks), P4 (tier-aware сортировка toggle), опционально sortKey.
+**Roadmap:**
+- **iter 99 done:** alphabetical within-block sort во всех 9 режимах `classifyGroups()` через `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper. Tier — визуальный бейдж.
+- **iter 100 done:** cleanup 17 устаревших iter*-скриптов. ESLint 0 errors. Констатация: «удаления группировки» в iter 96/97 не было — была замена pure-alpha → tier-first в Session 70, исправленная в iter 99 (см. STATUS.md «История sort-логики»).
+- **P2 (next):** waystone/tablet sub-blocks — sub-группировка внутри sentiment по gameplay mechanic (waystone: loot/danger/splinters; tablet: второй уровень внутри type).
+- **P4:** tier-aware sort toggle (UI-тумблер alpha vs tier-first в `CategoryControlPanel`).
+- **Опционально:** `sortKey?: number` в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
+- **Опционально:** подавить 2 TanStack warnings в `VirtualizedModList.tsx` через `// eslint-disable-next-line react-hooks/incompatible-library`.
 - `scripts/etl/classify-functional-category.ts` — ETL-tagged functionalCategory (iter 90). `buildFunctionalCategoryMap()` + `classifyModFunctionalBlock()`.
 - `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — ETL pipeline (functionalCategory patching через generate-dictionary).

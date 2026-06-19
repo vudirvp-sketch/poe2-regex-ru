@@ -4,66 +4,64 @@
 
 ---
 
-Task ID: 99
+Task ID: 100
 Agent: main
-Task: Реализовать UX-задачу iter 99 — alphabetical within-block sort. Цель пользователя: «однотипные модификаторы должны быть в одном месте и идти один за другим как бы по алфавиту». Не менять `public/generated/*.json`, не сломать существующие тесты.
+Task: Cleanup устаревших iter*-скриптов (продолжение iter 97). Цель: убрать мёртвый код (verify/simulate/analyze-iter* audit-скрипты для итераций 49–95, давно покрытые unit-тестами и стабильные в продакшене), устранить 15 ESLint errors в `scripts/verify-iter90-*.ts`, привести документацию в соответствие с реальным состоянием. Дополнительно: расследовать вопрос пользователя про «удалённую группировку/сортировку» в коммитах c54a3da / 4067def.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через corepack shim. Baseline: 1392/1392 tests passing, TSC 0 errors (state после iter 98).
-- 2: Изучение контекста: прочитаны STATUS.md, worklog.md, AGENT_NAVIGATION.md, src/shared/mod-classifier.ts (1710 строк — целиком), src/shared/family-grouper.ts (316 строк), src/shared/types.ts, tests/shared/family-grouper.test.ts, tests/shared/mod-classifier.test.ts (2392 строк), src/ui/components/ModList.tsx + VirtualizedModList.tsx + CategoryControlPanel.tsx (по grep). Выявлена корневая проблема: `groupTokensByFamily()` сортирует по affix → **tier (S→A→B→C)** → alpha. После `classifyGroups()` этот within-block order сохраняется (Map сохраняет insertion order), фрагментируя алфавитный поток внутри функционального блока.
-- 3: Анализ UX-решений:
-  - Опция A: изменить sort в `groupTokensByFamily` на affix → alpha (drop tier). Минус: ломает тест "sorts by priority tier within same affix" (line 373) и меняет поведение ВСЕХ потребителей.
-  - Опция B (выбрана): добавить `sortGroupsAlphabetically()` helper + применять в `classifyGroups()` ко всем режимам. Минус: на первый взгляд дублирует sort. Плюсы: (1) не ломает `groupTokensByFamily`-тесты, (2) explicitly применяет alphabetical flow в точке partitioning, (3) работает для origin-split групп (strip `::origin` suffix), (4) все 9 режимов получают единообразное поведение.
-- 4: Анализ sort key: `familyKey` vs `displayText`. `displayText` содержит substituted ranges (напр. "+(5—7) к силе") — сортировка по нему interleaves families по numeric range, не по имени. `familyKey` — template ("+# к силе"), даёт чистый alphabetical. Решение: sort by `familyKey` (с strip `::origin`), Russian locale, `priorityTier` как tiebreaker (defensive — два одинаковых familyKey в одном sub-group не должно быть, но если есть, S перед A).
-- 5: Реализация в `src/shared/mod-classifier.ts` (новый код: ~75 строк, после `TIER_SORT_ORDER`):
-  - `sortGroupsAlphabetically(groups: FamilyGroup[]): FamilyGroup[]` — экспортируемая. Если `groups.length <= 1` — shallow copy без вызова comparator. Иначе `[...groups].sort(...)` с компаратором: strip `::origin`, `localeCompare('ru')`, tiebreaker `TIER_SORT_ORDER diff`. Возвращает NEW array (не мутирует input), сохраняет FamilyGroup references (тест "preserves group references" полагается на это).
-  - `withAlphabeticalGroups<T extends ModSubGroup>(result: T[]): T[]` — приватная wrapper. Мутирует `sg.groups` каждого sub-group, указывая на новый sorted array. Применяется ко всем 10 return-точкам `classifyGroups()` (9 режимов + fallback).
-- 6: MultiEdit на 10 return-точек в `classifyGroups()`: каждый `return X` → `return withAlphabeticalGroups(X)`. Включая `affix-only`, `relic-semantic`, `affix-semantic`, `affix-functional`, `jewel-functional` (через локальную `result` переменную), `affix-sentiment`, `tablet-type`, `origin`, `jewel-type`, fallback.
-- 7: Tests в `tests/shared/mod-classifier.test.ts` (новые ~265 строк, +19 unit-тестов в 2 describe-блоках):
-  - `describe('sortGroupsAlphabetically (iter 99)')` — 10 тестов: new array / preserve refs / empty input / single element / Russian alpha (и<л<с) / familyKey vs displayText (numeric ranges не фрагментируют) / tier как tiebreaker не primary / ::origin strip / mixed Cyrillic+Latin scripts.
-  - `describe('classifyGroups applies alphabetical within-block sort (iter 99)')` — 9 тестов: affix-functional alpha + tier не фрагментирует + render order preserved + preserve refs; relic-semantic (honor) alpha; tablet-type (ritual) alpha; affix-sentiment (positive) alpha; affix-only alpha; jewel-functional weapon sub-block alpha.
-- 8: Bug-fix iteration во время тестирования:
-  - Bug: Опечатка в строке 2603 — `expect(result[0].key).toBe('ritual';` (missing closing paren). TSC поймал. Fixed → `expect(result[0].key).toBe('ritual');`.
-- 9: Sanity-check на production данных (`scripts/verify-iter99-alpha-sort.ts`, ~50 строк): печатает within-block order для amulet/ring/belt, prefix+suffix. Подтверждает: в «Атрибутах» amulet suffix 10 groups идут alphabetically — `+# к интеллекту` → `+# к ловкости` → `+# к ловкости и интеллекту` → `+# к силе` → `+# к силе и интеллекту` → `+# к силе и ловкости` → `+# к силе, ловкости или интеллекту` → `+# ко всем характеристикам` (S-tier «всем» в КОНЦЕ, не в начале). В «Сопротивлениях» B-tier хаос-моды interleaved с C-tier по алфавиту, не фрагментируя поток.
-- 10: Верификация:
-  - `pnpm exec tsc -b` → 0 errors.
-  - `pnpm test` → 1411/1411 passing (35 test files). +19 tests vs iter 98 (1392 → 1411).
-  - `pnpm exec eslint src/shared/mod-classifier.ts tests/shared/mod-classifier.test.ts` → 0 errors.
-  - `pnpm lint` → 17 problems (15 errors + 2 warnings) — все предсуществующие (verify-iter90-* unused imports + VirtualizedModList TanStack warnings). 0 новых.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через `npm install -g pnpm --prefix=$HOME/.local`. Baseline после iter 99: 1411/1411 tests passing, TSC 0 errors, ESLint 17 problems (15 errors + 2 warnings), ETL 11 fresh.
+- 2: Расследование вопроса пользователя про «удалённую группировку/сортировку» в c54a3da (iter 96) и 4067def (iter 97):
+  - `git show c54a3da -- src/shared/mod-classifier.ts` → iter 96 удалил 22-шаговый **regex fallback classifier** (SPIRIT_PATTERN, ATTRIBUTES_PATTERN и т.д.) из `classifyFunctionalBlock()`. Grouping-логика (`FUNCTIONAL_BLOCK_LABELS`, `FUNCTIONAL_BLOCK_ORDER`, `classifyGroups()`) НЕ затронута. Runtime классификация теперь использует ETL `functionalCategory` (100% coverage с iter 91) вместо regex patterns.
+  - `git show 4067def --stat` → iter 97 удалил 16 исторических audit-скриптов (simulate/verify/analyze-iter*). Grouping/sort-логика НЕ затронута.
+  - Реальный источник «удалённой alpha-сортировки» — **Session 70** (commit `06cea49`): `groupTokensByFamily()` был изменён с `affix → familyKey.localeCompare('ru')` на `affix → tier (S→A→B→C) → alpha`. Tier-first sort фрагментировал алфавитный поток внутри функциональных блоков.
+  - iter 99 восстановил alphabetical flow **внутри блоков** через `sortGroupsAlphabetically()` wrapper, не трогая `groupTokensByFamily()` (обратная совместимость). Tier-first sort в `groupTokensByFamily()` сохранён, но `classifyGroups()` переписывает within-block order поверх него.
+  - **Вывод:** «удаления группировки» не было. Была замена pure-alpha → tier-first в Session 70 (UX-регрессия), которую iter 99 исправил. iter 96/97 удаляли мёртвый код, не grouping-логику.
+- 3: Анализ stale-скриптов в `scripts/`:
+  - 8 verify-iter* (iter 49/89/90×2/91×2/92/94/95): одноразовые post-iter verification скрипты. Все итерации стабильно в продакшене, логика покрыта unit-тестами в `tests/shared/mod-classifier.test.ts` и `tests/etl/cross-validation.test.ts`.
+  - 5 simulate-iter*-impact (iter 86/87/88/89/94): mirror regex patterns, которые iter 96 удалил из runtime. Скрипты mirror'ят удалённый код → теперь нерелевантны.
+  - 2 analyze-iter*-other-bucket (iter 88/89): one-time snapshot dumps `other`-bucket family-keys на конкретных итерациях. Snapshot устарел (other-bucket сжался с 70% до 8.3%).
+  - 1 stale tracker: `DELETED-FILES-iter92.txt` — iter 97 commit message упоминал удаление, но файл остался на диске (commit-message bug).
+  - Keep: `scripts/verify-iter99-alpha-sort.ts` (текущий iter's audit), all `scripts/etl/*.ts` (production ETL), all non-iter-specific scripts.
+- 4: Проверка зависимостей через `rg "verify-iter|simulate-iter|analyze-iter"` — все ссылки self-contained (внутри самих скриптов в JSDoc). Никаких imports из `src/`, `tests/`, `package.json`, конфигов.
+- 5: `git rm` 17 файлов: 8 verify-iter* + 5 simulate-iter*-impact + 2 analyze-iter*-other-bucket + DELETED-FILES-iter92.txt + iter90-cross-validation. Список удалений в STATUS.md.
+- 6: Верификация:
+  - `pnpm exec tsc -b` → 0 errors (без изменений).
+  - `pnpm test` → 1411/1411 passing (без изменений vs iter 99).
+  - `pnpm lint` → **2 problems (0 errors, 2 warnings)** vs baseline 17 problems (15 errors, 2 warnings). 15 ESLint errors устранены. Остались 2 warnings в `VirtualizedModList.tsx` (TanStack `useVirtualizer()` library-level).
   - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
-- 11: Документация актуализирована:
-  - `STATUS.md` — iter 99 как текущая; добавлен пример amulet suffix «Атрибуты» (10 groups, alphabetical); P1 alphabetical отмечен как ✅ DONE, sortKey/UI-toggle оставлены как ⏳ future-compat.
-  - `worklog.md` — iter 98 сжат до одной строки, iter 99 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 99; добавлено упоминание `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` в секции классификаторов.
+- 7: Документация актуализирована:
+  - `STATUS.md` — iter 100 как текущая; добавлена секция «История sort-логики» с расследованием вопроса пользователя; Known Issue #3 (VirtualizedModList warnings) вынесен из пасcива в явный список; Открытые долги сжаты до 4 пунктов (P2/P4/sortKey/Wisps).
+  - `worklog.md` — iter 99 сжат до одной строки в «Предыдущие итерации», iter 100 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — `scripts/` секция обновлена: removed reference к iter-specific скриптам, оставлен только canonical список (ETL + prerender + verify-iter99 + analyze-regexes/analyze-fn).
 
 Stage Summary:
-- **iter 99 COMPLETE.** Alphabetical within-block sort добавлен. Во всех 9 режимах `classifyGroups()` (affix-only / affix-semantic / affix-functional / jewel-functional / affix-sentiment / tablet-type / relic-semantic / origin / jewel-type) группы внутри sub-group теперь отсортированы по `familyKey` (Russian locale), с `priorityTier` как tiebreaker. Tier остаётся цветным бейджем, но больше не фрагментирует алфавитный поток.
-- **Изменённые файлы (5):**
-  - `src/shared/mod-classifier.ts` — +75 строк (sortGroupsAlphabetically + withAlphabeticalGroups + 10 return-точек обёрнуты).
-  - `tests/shared/mod-classifier.test.ts` — +19 unit-тестов (+265 строк).
-  - `scripts/verify-iter99-alpha-sort.ts` — новый audit-скрипт (~50 строк).
-  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
-- **Тесты:** 1411/1411 passing (35 test files). TSC: 0 errors. ESLint: 0 новых errors. ETL: 11 fresh, 0 stale.
-- **Точка остановки:** iter 99 done. В iter 100+ можно:
-  1. P2 — waystone/tablet sub-blocks: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
-  2. P4 — tier-aware сортировка (toggle): S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует). iter 99 сделал tier вторичным, но UI-тумблер «режим сортировки» (alpha vs tier-first) не добавлен.
-  3. Опционально: `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research — для более сложных схем сортировки (не только alpha/tier). iter 99 решил UX-задачу без sortKey, но он остаётся как future-compat.
+- **iter 100 COMPLETE.** Cleanup устаревших iter*-скриптов. Удалено 17 файлов (16 .ts + 1 .txt). ESLint 15 errors → 0 errors (осталось 2 library-level warnings). Тесты/TSC/ETL без изменений. Никаких изменений в `public/generated/*.json` или runtime-коде.
+- **Изменённые файлы (20):**
+  - 17 deletions: `DELETED-FILES-iter92.txt`, 8× `scripts/verify-iter*-*.ts`, 5× `scripts/simulate-iter-*-impact.ts`, 2× `scripts/analyze-iter-*-other-bucket.ts`.
+  - 3 doc updates: `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`.
+- **Тесты:** 1411/1411 passing. TSC: 0 errors. ESLint: 2 warnings (library-level). ETL: 11 fresh, 0 stale.
+- **Точка остановки:** iter 100 done. В iter 101+ можно:
+  1. **P2 — waystone/tablet sub-blocks**: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
+  2. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
+  3. **Опционально: sortKey?**: добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research — для более сложных схем сортировки.
+  4. **Опционально: подавить VirtualizedModList warnings** через `// eslint-disable-next-line react-hooks/incompatible-library` (2 warnings) или дождаться апстрим-фикса TanStack Virtual.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 99**: alphabetical within-block sort. `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper для всех 9 режимов `classifyGroups()`. +19 unit-тестов. 1411/1411 tests.
 - **iter 98**: relic-semantic mode (7 Sanctum-категорий для 25 family-keys). 1392/1392 tests.
-- **iter 97**: Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено (2774 строки). `sanitizeJsObjectLiteral()` теперь экспортирована. 1363/1363 tests.
-- **iter 96**: Удалены 22-шаговый regex fallback + 21 pattern constants из `classifyFunctionalBlock()` (теперь тонкая Strategy 0 обёртка). 280 unit-тестов отрефакторены на `functionalCategory`. 1363/1363 tests.
-- **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). 1363/1363 tests.
-- **iter 94**: AILMENTS tag-priority refactor — AILMENTS_PATTERN перемещён ПЕРЕД DAMAGE_TYPE + добавлен `ailment` tag check. 26 модов реклассифицированы damage-type → ailments. 1363/1363 tests.
-- **iter 93**: penetration block activated (3 family-keys moved resistances → penetration). AILMENTS/MINIONS patterns expanded defensively. 1363/1363 tests.
-- **iter 92**: 2 ETL root-cause fixes (multi-segment per-segment + i18n-override reclassify). 11 iter 91 discrepancies resolved (466 → 477 match). 1363/1363 tests.
-- **iter 91**: ETL --fresh run, functionalCategory 100% в продакшене, 11 расхождений ETL vs regex документированы. 1363/1363 tests.
-- **iter 89**: ailments + area-duration blocks (16th + 17th active). jewel other-bucket 21.8% → 14.0%. UX-фикс «Магический поиск» → «Рарити». 1340/1340 tests.
-- **iter 87**: Weapon sub-blocks для jewel (6 weapon-class sub-blocks для 24 family-key) + production switch для jewel (`jewel-functional` mode). Other-bucket 21.8%. 1315/1315 tests.
-- **iter 86**: +7 функциональных блоков (14 активны). Production switch для ring/amulet/belt. Other-bucket 9.9%. 1268/1268 tests.
+- **iter 97**: Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено. 1363/1363 tests.
+- **iter 96**: Удалены 22-шаговый regex fallback + 21 pattern constants из `classifyFunctionalBlock()`. 1363/1363 tests.
+- **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов. 1363/1363 tests.
+- **iter 94**: AILMENTS tag-priority refactor. 26 модов реклассифицированы damage-type → ailments. 1363/1363 tests.
+- **iter 93**: penetration block activated (3 family-keys moved resistances → penetration). 1363/1363 tests.
+- **iter 92**: 2 ETL root-cause fixes. 11 iter 91 discrepancies resolved. 1363/1363 tests.
+- **iter 91**: ETL --fresh run, functionalCategory 100% в продакшене. 1363/1363 tests.
+- **iter 89**: ailments + area-duration blocks. jewel other-bucket 21.8% → 14.0%. 1340/1340 tests.
+- **iter 87**: Weapon sub-blocks для jewel. Other-bucket 21.8%. 1315/1315 tests.
+- **iter 86**: +7 функциональных блоков (14 активны). Other-bucket 9.9%. 1268/1268 tests.
 - **iter 85**: Инфраструктура 24 функциональных блоков (7 активны). 1216/1216 tests.
 - **iter 84**: 3 P0-фикса (Breach Lord skip + text fallback / waystone keywords / aura+gem tags). 1172/1172 tests.
 - **iter 46-50**: `(?!…)` lookahead; `regexPrefixContext`; runtime split >250 chars.
