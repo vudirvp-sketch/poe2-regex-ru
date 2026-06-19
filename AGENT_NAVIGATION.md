@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 96** (regex-паттерны удалены из runtime `classifyFunctionalBlock()` — функция теперь тонкая Strategy 0 обёртка; 280 unit-тестов отрефакторены на `functionalCategory`; 21 неиспользуемых pattern constants удалены; 22-шаговый regex-классификатор сохранён в ETL `scripts/etl/classify-functional-category.ts` для audit/documentation; 1363/1363 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 97** (аудиторская чистка тестов и исторических скриптов: удалено 16 `simulate-iter*`/`verify-iter*`/`analyze-iter*` файлов (2774 строки), `sanitizeJsObjectLiteral()` теперь экспортирована и тестируется напрямую; 1363/1363 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 

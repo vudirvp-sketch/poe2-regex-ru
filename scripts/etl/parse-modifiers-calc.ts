@@ -119,7 +119,7 @@ const MOD_CATEGORIES = [
  * could execute arbitrary JavaScript.  The sanitizer only performs string
  * transformations and then delegates to `JSON.parse()`.
  */
-function sanitizeJsObjectLiteral(input: string): string {
+export function sanitizeJsObjectLiteral(input: string): string {
   let s = input;
 
   // 1. Remove trailing commas before } or ]

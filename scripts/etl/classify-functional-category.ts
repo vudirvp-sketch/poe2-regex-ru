@@ -119,7 +119,7 @@ export function classifyModFunctionalBlock(
   //    Rationale: mods with `ailment` tag (or matching AILMENTS_PATTERN text) are
   //    functionally about ailments — they should bucket as `ailments`, not `damage-type`.
   //    CRIT (step 14) still wins for crit-ailment mods (e.g., j05iep crit-ailment stays crit).
-  //    Verified safe by simulate-iter94-impact.ts: 26 reclassifications, all damage-type → ailments, 0 FPs.
+  //    Verified safe at iter 94: 26 reclassifications, all damage-type → ailments, 0 FPs.
   if (functionalTags.has('ailment') || AILMENTS_PATTERN.test(rawText)) return 'ailments';
   // 16. Damage-type (was step 15)
   if (functionalTags.has('damage') || functionalTags.has('physical') || functionalTags.has('elemental') || functionalTags.has('cold') || functionalTags.has('fire') || functionalTags.has('lightning') || functionalTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(rawText)) return 'damage-type';

@@ -4,65 +4,69 @@
 
 ---
 
-Task ID: 96
+Task ID: 97
 Agent: main
-Task: Убрать regex-паттерны из `classifyFunctionalBlock()` runtime. Предварительно отрефакторить 280 unit-тестов в `tests/shared/mod-classifier.test.ts` на `functionalCategory` (Strategy 0 path). Устаревшая задача hideLabel auto-suppression — убрать из списка (уже done в iter 62).
+Task: Аудиторская чистка тестов и исторических скриптов. Проанализировать все тесты на актуальность и полезность. Удалить устаревшие `simulate-iter*`/`verify-iter*`/`analyze-iter*` скрипты (они mirror-копии regex path, удалённого из runtime в iter 96). Исправить `tests/etl/sanitize-js-object-literal.test.ts` (дублировал реализацию функции вместо импорта). Актуализировать документацию.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git` (shallow). Установлены зависимости через `pnpm install` (corepack wrapper в `/home/z/my-project/bin/pnpm.sh`). Baseline: 1363/1363 tests passing, TSC 0 errors.
-- 2: Анализ проблемы — 280 unit-тестов используют `makeGroup()` без `functionalCategory`, что триггерит regex path. Для удаления regex нужно:
-  (a) обновить хелперы `makeGroup`/`makeToken` чтобы принимать `functionalCategory`;
-  (b) в каждом тесте с ожидаемым non-`'other'` результатом — добавить `functionalCategory` override;
-  (c) тесты с ожидаемым `'other'` — оставить без `functionalCategory` (fallback возвращает `'other'` напрямую);
-  (d) удалить 22-шаговый regex path из `classifyFunctionalBlock()` + неиспользуемые pattern constants.
-- 3: Реализация — `tests/shared/mod-classifier.test.ts`:
-  - `makeGroup()` обновлён: принимает `functionalCategory` в overrides. Когда установлен — инжектится во все члены (или создаёт synthetic member если `members: []`).
-  - `makeToken()` обновлён: 3-й опциональный параметр `functionalCategory`.
-  - Написан Python-скрипт `/home/z/my-project/scripts/refactor_tests_iter96.py` для автоматического обновления тестов:
-    - Парсит каждое `it(...)` тело, находит ожидаемый блок из `expect(classifyFunctionalBlock(...)).toBe('X')`.
-    - Пропускает тесты с `classifyJewelType`/`classifyByTags`/etc (X не FunctionalBlock).
-    - Добавляет `functionalCategory: 'X'` в `makeGroup()` вызовы (обрабатывает single-arg, single-line multi-arg, multi-line multi-arg).
-    - 140 тестов модифицированы скриптом.
-  - 10 `classifyGroups` тестов обновлены вручную (скрипт не покрывал их, т.к. assertions на `classifyGroups`, не на `classifyFunctionalBlock`).
-  - Все 280 тестов зелёные.
-- 4: Реализация — `src/shared/mod-classifier.ts`:
-  - Удален 22-шаговый regex fallback (steps 1-21) + `allTags` collection + DEPRECATION NOTICE из `classifyFunctionalBlock()`.
-  - Функция стала тонкой Strategy 0 обёрткой: majority voting по `functionalCategory` с членов → fallback `return 'other';`.
-  - Удалены 21 неиспользуемых pattern constants (SPIRIT_PATTERN, ..., BUFF_SKILLS_PATTERN) — TSC нашёл unused-var errors после удаления regex path. Pattern constants НЕ экспортировались и НЕ импортировались внешними скриптами (scripts имеют собственные mirror-копии).
-  - JSDoc `classifyFunctionalBlock()` обновлён — отражает iter 96 архитектуру.
-  - BREACH_LORD_TAGS constant оставлен — используется в `classifyByTags()`.
-  - FUNCTIONAL_BLOCK_LABELS + FUNCTIONAL_BLOCK_ORDER сохранены — используются Strategy 0.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Установлены зависимости через corepack wrapper `pnpm` v11.8.0. Baseline: 1363/1363 tests passing, TSC 0 errors.
+- 2: Анализ всех 35 тестовых файлов (15713 строк) — выводы:
+  - Все 35 файлов содержат осмысленные тесты; нет `it.skip`/`it.todo`/`xit`; нет `TODO`/`FIXME`/`HACK` в коде тестов.
+  - `tests/core/*` (22 файла): matcher, compiler, optimizer, oracle, factorizers, limits, number-regex, phase-9b/9c anchor tests, in-game iterations (15, 36-gems), hypothesis-patterns, tablet-patterns, waystone-anchor-tests, colon-anchor-verification, tablet-non-percent-fp, tablet-in-game, vendor-patterns — все актуальны. Тесты на real game data с in-game verification comments — критичны для dialect-fidelity.
+  - `tests/shared/*` (2 файла): mod-classifier (2136 строк, 280+ тестов на Strategy 0 path после iter 96), family-grouper — оба актуальны.
+  - `tests/ui/*` (5 файлов): RegexOutput, FilterChip, PageStateWrapper, vendor-regex-equivalence, buildAstFromSelections — все актуальны.
+  - `tests/etl/*` (8 файлов): parse-type-b-page, etl-schemas, compute-optimizations, sanitize-js-object-literal, compute-regex, normalize, path-d-transform, cross-validation — `sanitize-js-object-literal` был проблемным (дублировал реализацию функции вместо импорта), остальные актуальны.
+- 3: Анализ исторических `scripts/simulate-iter*`/`verify-iter*`/`analyze-iter*` (16 файлов, 2774 строки):
+  - `simulate-iter86/87/88/89/94-impact.ts` (5 файлов, 1358 строк) — mirror-копии regex-паттернов для симуляции impact прошлых итераций. Паттерны удалены из runtime в iter 96, симуляции неактуальны.
+  - `analyze-iter88/89-other-bucket.ts` (2 файла, 323 строки) — snapshot-дампы `other` bucket на момент iter 88/89. Давно устарели.
+  - `verify-iter49.ts` (148 строк) — верификация Pitfall 11 fix (multi-LITERAL AND+EXCLUDE inside OR). Логика уже покрыта в `tests/core/compiler.test.ts` и `tests/ui/buildAstFromSelections.test.ts`.
+  - `verify-iter89-deployment.ts`, `verify-iter90-cross-validation.ts`, `verify-iter90-etl-functional-category.ts`, `verify-iter91-discrepancies.ts`, `verify-iter91-strategy0.ts`, `verify-iter92-fixes.ts`, `verify-iter94-fixes.ts`, `verify-iter95-stability.ts` (8 файлов, 945 строк) — cross-validation снапшоты прошлых итераций. Дублируют друг друга и `tests/etl/cross-validation.test.ts`. Audit-trail сохранён в git.
+  - Все 16 скриптов запущены — все ещё работают, но дают историческую информацию без новой ценности.
+- 4: Реализация:
+  - `tests/etl/sanitize-js-object-literal.test.ts`: удалена inline-копия функции, добавлен `import { sanitizeJsObjectLiteral } from '@etl/parse-modifiers-calc';`.
+  - `scripts/etl/parse-modifiers-calc.ts`: `sanitizeJsObjectLiteral()` теперь `export function`.
+  - `src/shared/mod-classifier.ts`: обновлён комментарий к weapon fallback — удалена ссылка на удалённый `simulate-iter87-impact.ts`.
+  - `scripts/etl/classify-functional-category.ts`: обновлён комментарий к AILMENTS_PATTERN — удалена ссылка на удалённый `simulate-iter94-impact.ts`.
+  - Удалены 16 файлов: `scripts/simulate-iter86-impact.ts`, `scripts/simulate-iter87-impact.ts`, `scripts/simulate-iter88-impact.ts`, `scripts/simulate-iter89-impact.ts`, `scripts/simulate-iter94-impact.ts`, `scripts/analyze-iter88-other-bucket.ts`, `scripts/analyze-iter89-other-bucket.ts`, `scripts/verify-iter49.ts`, `scripts/verify-iter89-deployment.ts`, `scripts/verify-iter90-cross-validation.ts`, `scripts/verify-iter90-etl-functional-category.ts`, `scripts/verify-iter91-discrepancies.ts`, `scripts/verify-iter91-strategy0.ts`, `scripts/verify-iter92-fixes.ts`, `scripts/verify-iter94-fixes.ts`, `scripts/verify-iter95-stability.ts`.
+  - Удалён `DELETED-FILES-iter92.txt` — stale tracker от iter 92 (содержал только имена 3 файлов, удалённых в iter 92; git уже хранит их историю).
 - 5: Верификация:
   - `npx tsc -b` → 0 errors.
-  - `pnpm test` → 1363/1363 passing.
-  - `npx tsx scripts/verify-iter95-stability.ts` → cross-validation 477/477 match, Strategy 0 coverage 477/477, other-bucket metrics match iter 94.
-  - `pnpm etl` → JSON-файлы не имеют content-изменений (только timestamp в `version` поле — восстановлены через `git checkout public/generated/`).
+  - `pnpm test` → 1363/1363 passing (35 test files).
+  - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing.
+  - `npx eslint src/shared/mod-classifier.ts scripts/etl/parse-modifiers-calc.ts scripts/etl/classify-functional-category.ts tests/etl/sanitize-js-object-literal.test.ts` → 0 errors.
+  - Никаких изменений в `public/generated/*.json` (ETL не запускался, JSON не пересоздавались).
 - 6: Документация актуализирована:
-  - `STATUS.md` — iter 96 как текущая итерация, обновлены Architectура и changelog секции. Открытые долги: regex removal убран (done), hideLabel убран (done iter 62), оставлены P1-P3 (sortKey / waystone-tablet sub-blocks / relic-semantic / tier-aware).
-  - `worklog.md` — iter 95 сжат до одной строки в "Предыдущие итерации", iter 96 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 96, актуализированы ссылки на классификатор.
-  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — `hideLabel auto-suppression` помечен как **done iter 62** (был "не начато"); `Приоритет тегов вместо first-match` помечен как устаревший (iter 96: теги больше не используются runtime).
+  - `STATUS.md` — iter 97 как текущая итерация; removed упоминания удалённых скриптов.
+  - `worklog.md` — iter 96 сжат до одной строки, iter 97 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 97; removed упоминания удалённых скриптов из секции 1 ("Where Things Are").
+  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — removed упоминания удалённых скриптов; сжаты устаревшие секции про iter 88/89/94 simulation reports.
 
 Stage Summary:
-- **iter 96 COMPLETE.** Regex-паттерны удалены из runtime `classifyFunctionalBlock()`. Функция теперь тонкая Strategy 0 обёртка. 280 тестов отрефакторены на `functionalCategory`. Все 1363 тестов зелёные, cross-validation 477/477 match, ETL-метрики без изменений.
+- **iter 97 COMPLETE.** Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено (2774 строки). `sanitizeJsObjectLiteral()` теперь экспортирована и тестируется напрямую. 1363/1363 тестов зелёные, TSC 0 errors, ETL stable.
 - **Изменённые файлы:**
-  - `src/shared/mod-classifier.ts` — удалён 22-шаговый regex fallback + 21 pattern constants + DEPRECATION NOTICE. JSDoc обновлён.
-  - `tests/shared/mod-classifier.test.ts` — `makeGroup`/`makeToken` хелперы обновлены; 140+ тестов обновлены скриптом; 10 `classifyGroups` тестов обновлены вручную.
-  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы для iter 96.
-  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — hideLabel отмечен как done iter 62; tag-priority помечен устаревшим.
+  - `tests/etl/sanitize-js-object-literal.test.ts` — import реальной функции вместо дублирования.
+  - `scripts/etl/parse-modifiers-calc.ts` — `sanitizeJsObjectLiteral()` теперь `export`.
+  - `src/shared/mod-classifier.ts` — обновлён комментарий (removed stale script reference).
+  - `scripts/etl/classify-functional-category.ts` — обновлён комментарий (removed stale script reference).
+  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`, `docs/AFFIXES_GROUPING_ANALYSIS.md` — актуализированы.
+- **Удалённые файлы (16):**
+  - 5× `scripts/simulate-iter*-impact.ts` (1358 строк)
+  - 2× `scripts/analyze-iter*-other-bucket.ts` (323 строки)
+  - 9× `scripts/verify-iter*.ts` (1093 строки)
 - **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors.
-- **Точка остановки:** iter 96 done. В iter 97+ можно:
+- **Точка остановки:** iter 97 done. В iter 98+ можно:
   1. P1-P3 задачи (sortKey / waystone-tablet sub-blocks / relic-semantic / tier-aware).
-  2. Дополнительная чистка documentation/code (если всплывёт).
+  2. Дальнейшая чистка documentation/code (если всплывёт).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
-- **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). Никаких функциональных изменений. 1363/1363 tests.
+- **iter 96**: Удалены 22-шаговый regex fallback + 21 pattern constants из `classifyFunctionalBlock()` (теперь тонкая Strategy 0 обёртка). 280 unit-тестов отрефакторены на `functionalCategory`. 1363/1363 tests.
+- **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). 1363/1363 tests.
 - **iter 94**: AILMENTS tag-priority refactor — AILMENTS_PATTERN перемещён ПЕРЕД DAMAGE_TYPE + добавлен `ailment` tag check. 26 модов реклассифицированы damage-type → ailments. 1363/1363 tests.
 - **iter 93**: penetration block activated (3 family-keys moved resistances → penetration). AILMENTS/MINIONS patterns expanded defensively. 1363/1363 tests.
-- **iter 92**: 2 ETL root-cause fixes (multi-segment per-segment + i18n-override reclassify). 11 iter 91 discrepancies resolved (466 → 477 match). Other-bucket: amulet 7.6%→6.7%, belt 5.9%→4.7%. 1363/1363 tests.
+- **iter 92**: 2 ETL root-cause fixes (multi-segment per-segment + i18n-override reclassify). 11 iter 91 discrepancies resolved (466 → 477 match). 1363/1363 tests.
 - **iter 91**: ETL --fresh run, functionalCategory 100% в продакшене, 11 расхождений ETL vs regex документированы. 1363/1363 tests.
 - **iter 89**: ailments + area-duration blocks (16th + 17th active). jewel other-bucket 21.8% → 14.0%. UX-фикс «Магический поиск» → «Рарити». 1340/1340 tests.
 - **iter 87**: Weapon sub-blocks для jewel (6 weapon-class sub-blocks для 24 family-key) + production switch для jewel (`jewel-functional` mode). Other-bucket 21.8%. 1315/1315 tests.

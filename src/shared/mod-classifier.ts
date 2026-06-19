@@ -1417,9 +1417,9 @@ export function classifyGroups(
       const otherWeaponGroups = byWeaponClass.get('other');
       if (otherWeaponGroups && otherWeaponGroups.length > 0) {
         // Defensive fallback: weapon mods that don't match any known weapon
-        // name. Should never trigger on current jewel.json (verified by
-        // simulate-iter87-impact.ts). Kept here to avoid silent data loss
-        // if new weapon mods are added in future PoE2 patches.
+        // name. Should never trigger on current jewel.json. Kept here to
+        // avoid silent data loss if new weapon mods are added in future
+        // PoE2 patches.
         result.push({
           key: 'weapon-other',
           label: FUNCTIONAL_BLOCK_LABELS['weapon-specific'].label,

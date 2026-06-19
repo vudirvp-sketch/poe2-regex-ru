@@ -8,20 +8,13 @@
  *   3. Replace single-quoted strings with double-quoted
  *
  * After sanitization, the result must be parseable by JSON.parse().
+ *
+ * iter 97: the function is now exported from parse-modifiers-calc.ts and
+ * imported here directly. Earlier the test recreated the function inline,
+ * which meant the test was not actually exercising production code.
  */
 import { describe, it, expect } from 'vitest';
-
-// We need to import the function — it's not exported from parse-modifiers-calc.ts
-// So we'll extract it to a shared module, or test it via extractModsViewJson.
-// For now, let's recreate the function for direct testing (same implementation).
-
-function sanitizeJsObjectLiteral(input: string): string {
-  let s = input;
-  s = s.replace(/,\s*([}\]])/g, '$1');
-  s = s.replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g, '$1"$2":');
-  s = s.replace(/'([^']*)'/g, '"$1"');
-  return s;
-}
+import { sanitizeJsObjectLiteral } from '@etl/parse-modifiers-calc';
 
 describe('sanitizeJsObjectLiteral', () => {
   // ─── Trailing commas ───

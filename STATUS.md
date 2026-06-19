@@ -2,15 +2,15 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 96
+> **Текущая итерация:** 97
 
 ---
 
 ## Текущее состояние
 
-**iter 96: regex-паттерны удалены из `classifyFunctionalBlock()`.** Функция теперь — тонкая Strategy 0 обёртка: если у членов группы есть ETL-тег `functionalCategory`, возвращается большинство; иначе — `'other'`. Все 280 unit-тестов в `tests/shared/mod-classifier.test.ts` отрефакторены: каждый тест вызывает `makeGroup()` с `functionalCategory` override, чтобы execise Strategy 0 (как в продакшене). Тесты с ожидаемым `'other'` оставляют `functionalCategory` пустым — fallback срабатывает напрямую. 22-шаговый regex-классификатор сохранён в ETL (`scripts/etl/classify-functional-category.ts`) — он используется при ETL-сборке для заполнения `functionalCategory`, runtime его больше не вызывает.
+**iter 97: аудиторская чистка тестов и исторических скриптов.** Удалены 16 исторических `simulate-iter*`/`verify-iter*`/`analyze-iter*` скриптов (2774 строки) — они содержали mirror-копии regex-паттернов, удалённых из runtime в iter 96, и не могли дать новой информации. Тест на `sanitizeJsObjectLiteral()` исправлен: функция теперь экспортирована из `scripts/etl/parse-modifiers-calc.ts` и импортируется в тест напрямую (раньше тест дублировал реализацию и не проверял production-код). Все 1363 теста зелёные, TSC 0 errors, ESLint 0 errors в изменённых файлах.
 
-### Метрики (без изменений vs iter 94/95)
+### Метрики (без изменений vs iter 94/95/96)
 
 | Категория | Токенов | Family-groups | functionalCategory | other-bucket | ailments | damage-type |
 |-----------|---------|---------------|--------------------|--------------|----------|-------------|
@@ -21,44 +21,36 @@
 
 - **Strategy 0 coverage:** 477/477 (100%)
 - **Cross-validation:** 477/477 match (0 расхождений)
-- **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors в изменённых файлах.
+- **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors.
 
-### Архитектура functionalCategory (iter 96)
+### Архитектура functionalCategory (без изменений vs iter 96)
 
 1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`):
    - `classifyModFunctionalBlock(tags, rawText)` — standalone 22-шаговый классификатор (используется при ETL-сборке).
    - `buildFunctionalCategoryMap()` — строит modId→category из ModCalc страниц.
-   - iter 92: двухпроходная обработка (single-segment tiers перед multi-segment).
-   - iter 93: `PENETRATION_PATTERN` перед resistances.
-   - iter 94: AILMENTS (tag `ailment` + AILMENTS_PATTERN) перед DAMAGE_TYPE; CRIT (шаг 14) выигрывает у AILMENTS (шаг 15).
    - Jewellery (amulet/ring/belt): прямая классификация по tags+rawText.
 
 2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`):
-   - iter 92: re-classify functionalCategory после патча rawText на русский.
+   - re-classify functionalCategory после патча rawText на русский.
 
 3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`):
-   - **Strategy 0 (единственный путь, iter 96):** majority voting по `functionalCategory` с токенов (ETL данные).
+   - **Strategy 0 (единственный путь):** majority voting по `functionalCategory` с токенов (ETL данные).
    - **Fallback:** `return 'other';` для групп без ETL-тега (waystone/tablet/relic не используют эту функцию; в продакшене все 477 family-groups имеют ETL-тег).
-   - iter 96: regex fallback (steps 1-21) и pattern constants удалены из runtime. Pattern logic сохранена в ETL classifier.
    - Waystone/tablet/relic не используют `classifyFunctionalBlock()`.
 
-### iter 96: что изменилось
+### iter 97: что изменилось
 
-- `src/shared/mod-classifier.ts`:
-  - Удалены 22-шаговый regex fallback (steps 1-21) + `allTags` коллекция + DEPRECATION NOTICE.
-  - Удалены 21 неиспользуемых pattern constants (SPIRIT_PATTERN, SKILL_LEVELS_PATTERN, ATTRIBUTES_PATTERN, RESISTANCES_PATTERN, PENETRATION_PATTERN, RUNES_BARRIER_PATTERN, MAGIC_FIND_PATTERN, BREACH_PATTERN, FLASKS_PATTERN, MINIONS_PATTERN, RESOURCES_PATTERN, DEFENCE_STATS_PATTERN, CRIT_PATTERN, DAMAGE_TYPE_PATTERN, OFFENCE_SPEED_PATTERN, WEAPON_SPECIFIC_PATTERN, AILMENTS_PATTERN, AREA_DURATION_PATTERN, RAGE_CHARGES_PATTERN, META_SKILLS_PATTERN, BUFF_SKILLS_PATTERN).
-  - Функция стала тонкой обёрткой над Strategy 0.
-  - JSDoc обновлён — отражает iter 96 архитектуру.
-- `tests/shared/mod-classifier.test.ts`:
-  - `makeGroup()` helper принимает `functionalCategory` override — инжектится во все члены (или создаёт synthetic member).
-  - `makeToken()` helper принимает optional `functionalCategory` 3-м параметром.
-  - 140+ тестов обновлены: каждый `classifyFunctionalBlock` тест с ожидаемым non-`'other'` результатом теперь устанавливает `functionalCategory`. Тесты с ожидаемым `'other'` оставлены без `functionalCategory`.
-  - Все 10 `classifyGroups` тестов обновлены вручную (скрипт не покрывал их, т.к. assertions на `classifyGroups`, не на `classifyFunctionalBlock`).
-  - Все 280 тестов зелёные.
-- `docs/AFFIXES_GROUPING_ANALYSIS.md`:
-  - `hideLabel auto-suppression` помечен как **done iter 62** (устаревшая запись в списке задач).
-  - `Приоритет тегов вместо first-match` помечен как устаревший (iter 96: теги больше не используются runtime).
-- `STATUS.md` + `worklog.md` + `AGENT_NAVIGATION.md` — актуализированы для iter 96.
+- **Удалено 16 исторических скриптов** (2774 строки):
+  - `simulate-iter86/87/88/89/94-impact.ts` (5 файлов) — mirror-копии regex-паттернов для симуляции impact прошлых итераций. Паттерны удалены из runtime в iter 96, симуляции стали неактуальны.
+  - `analyze-iter88/89-other-bucket.ts` (2 файла) — snapshot-дампы `other` bucket на момент iter 88/89. Уже устарели.
+  - `verify-iter49.ts` — верификация Pitfall 11 fix (multi-LITERAL AND+EXCLUDE inside OR). Логика уже покрыта в `tests/core/compiler.test.ts` и `tests/ui/buildAstFromSelections.test.ts`.
+  - `verify-iter89-deployment.ts`, `verify-iter90-cross-validation.ts`, `verify-iter90-etl-functional-category.ts`, `verify-iter91-discrepancies.ts`, `verify-iter91-strategy0.ts`, `verify-iter92-fixes.ts`, `verify-iter94-fixes.ts`, `verify-iter95-stability.ts` (8 файлов) — cross-validation снапшоты прошлых итераций. Дублируют друг друга и `tests/etl/cross-validation.test.ts`. Audit-trail сохранён в git.
+- **`tests/etl/sanitize-js-object-literal.test.ts`** — теперь импортирует `sanitizeJsObjectLiteral` напрямую из `@etl/parse-modifiers-calc` (раньше дублировал реализацию внутри теста, что означало, что тест не проверял production-код).
+- **`scripts/etl/parse-modifiers-calc.ts`** — `sanitizeJsObjectLiteral()` теперь `export function` (раньше была module-private).
+- **`src/shared/mod-classifier.ts`** — обновлён комментарий к weapon fallback: удалена ссылка на удалённый `simulate-iter87-impact.ts`.
+- **`scripts/etl/classify-functional-category.ts`** — обновлён комментарий к AILMENTS_PATTERN: удалена ссылка на удалённый `simulate-iter94-impact.ts`.
+- **Документация актуализирована:** `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`, `docs/AFFIXES_GROUPING_ANALYSIS.md` — удалены упоминания удалённых скриптов.
+- **Удалён `DELETED-FILES-iter92.txt`** — stale tracker от iter 92 (содержал только имена 3 файлов, удалённых в iter 92; git уже хранит их историю).
 
 ---
 
