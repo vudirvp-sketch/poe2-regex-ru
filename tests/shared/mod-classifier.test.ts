@@ -34,15 +34,37 @@ import type { FamilyGroup, GameToken } from '@shared/types';
 
 // ─── Helpers ───
 
-/** Create a minimal FamilyGroup for testing */
+/**
+ * Create a minimal FamilyGroup for testing.
+ *
+ * iter 96: `functionalCategory` is now an optional override field. When set,
+ * the helper injects it onto every member token (or creates a synthetic
+ * member if none were supplied). This lets `classifyFunctionalBlock()` exercise
+ * Strategy 0 (ETL lookup) directly — mirroring production behavior — instead
+ * of relying on the now-removed regex fallback.
+ */
 function makeGroup(
   displayText: string,
-  overrides: Partial<FamilyGroup> = {}
+  overrides: Partial<Omit<FamilyGroup, 'members'>> & {
+    members?: GameToken[];
+    functionalCategory?: string;
+  } = {}
 ): FamilyGroup {
+  const { functionalCategory, members: overrideMembers, ...rest } = overrides;
+  const members: GameToken[] = overrideMembers ?? [];
+  if (functionalCategory) {
+    if (members.length === 0) {
+      members.push(makeToken([], undefined, functionalCategory));
+    } else {
+      for (const m of members) {
+        if (!m.functionalCategory) m.functionalCategory = functionalCategory;
+      }
+    }
+  }
   return {
     familyKey: displayText,
     affix: 'prefix',
-    members: [],
+    members,
     globalMin: 0,
     globalMax: 0,
     displayText,
@@ -50,12 +72,17 @@ function makeGroup(
     rangeSlots: [],
     filterSlotIndex: 0,
     priorityTier: 'C',
-    ...overrides,
+    ...rest,
   };
 }
 
-/** Create a minimal GameToken for tag-based classification */
-function makeToken(tags: string[], jewelType?: JewelTypeCategory): GameToken {
+/** Create a minimal GameToken for tag-based classification.
+ *  iter 96: optional `functionalCategory` param mirrors ETL-produced tokens. */
+function makeToken(
+  tags: string[],
+  jewelType?: JewelTypeCategory,
+  functionalCategory?: string
+): GameToken {
   return {
     id: `test_${Math.random().toString(36).slice(2)}`,
     category: 'jewel',
@@ -67,6 +94,7 @@ function makeToken(tags: string[], jewelType?: JewelTypeCategory): GameToken {
     regexPrefix: { ru: '' },
     hasMultiPlaceholder: false,
     jewelType,
+    functionalCategory,
     genderForms: { ru: {} },
     affix: 'prefix',
     tags,
@@ -628,18 +656,21 @@ describe('classifyPriorityTier', () => {
   });
 });
 
-// ─── classifyFunctionalBlock (iter 85-88: 17 high-priority blocks) ───
+// ─── classifyFunctionalBlock (iter 85-88: 17 high-priority blocks, iter 96: Strategy 0 path) ───
+// iter 96: every test now sets `functionalCategory` via makeGroup overrides so
+// the function exercises Strategy 0 (ETL lookup) directly — mirroring production.
+// Tests expecting `'other'` leave `functionalCategory` unset to verify fallback.
 
 describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── spirit ───
   describe('spirit block', () => {
     it('classifies "+# к духу" (amulet S-tier) as spirit', () => {
-      const group = makeGroup('+(1—2) к духу');
+      const group = makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' });
       expect(classifyFunctionalBlock(group)).toBe('spirit');
     });
 
     it('classifies plain "Дух" mention as spirit', () => {
-      const group = makeGroup('+5 к духу');
+      const group = makeGroup('+5 к духу', { functionalCategory: 'spirit' });
       expect(classifyFunctionalBlock(group)).toBe('spirit');
     });
   });
@@ -647,30 +678,30 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── skill-levels ───
   describe('skill-levels block', () => {
     it('classifies "+# к уровню всех камней умений" as skill-levels', () => {
-      const group = makeGroup('+(1—2) к уровню всех камней умений');
+      const group = makeGroup('+(1—2) к уровню всех камней умений', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
     it('classifies "+#% к максимальному качеству" as skill-levels', () => {
       // Was in neutral — now classified into skill-levels (not MF!)
-      const group = makeGroup('+(5—10)% к максимальному качеству');
+      const group = makeGroup('+(5—10)% к максимальному качеству', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
     it('classifies "#% повышение скорости перезарядки умений" as skill-levels', () => {
-      const group = makeGroup('(10—20)% повышение скорости перезарядки умений');
+      const group = makeGroup('(10—20)% повышение скорости перезарядки умений', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
     it('classifies "#% увеличение длительности эффекта умения" as skill-levels', () => {
-      const group = makeGroup('(15—25)% увеличение длительности эффекта умения');
+      const group = makeGroup('(15—25)% увеличение длительности эффекта умения', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
     it('does NOT classify "скорость перезарядки боевых кличей" as skill-levels (caught by buff-skills iter 89)', () => {
       // SKILL_LEVELS_PATTERN excludes warcry-recharge via `(?!.*боев)` negative lookahead.
       // iter 89: this mod is now caught by BUFF_SKILLS_PATTERN via «клич» keyword.
-      const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
+      const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).not.toBe('skill-levels');
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
@@ -679,43 +710,43 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── attributes ───
   describe('attributes block', () => {
     it('classifies "+# к силе" as attributes', () => {
-      const group = makeGroup('+(5—7) к силе');
+      const group = makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies "+# к ловкости" as attributes', () => {
-      const group = makeGroup('+(5—7) к ловкости');
+      const group = makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies "+# к интеллекту" as attributes', () => {
-      const group = makeGroup('+(5—7) к интеллекту');
+      const group = makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies "+# ко всем атрибутам" as attributes', () => {
-      const group = makeGroup('+(5—10) ко всем атрибутам');
+      const group = makeGroup('+(5—10) ко всем атрибутам', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies dual-attribute Breach Lord mod (ulaman: сила+ловкость) as attributes', () => {
-      const group = makeGroup('+# к силе и ловкости');
+      const group = makeGroup('+# к силе и ловкости', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies dual-attribute Breach Lord mod (kurgal: ловкость+интеллект) as attributes', () => {
-      const group = makeGroup('+# к ловкости и интеллекту');
+      const group = makeGroup('+# к ловкости и интеллекту', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies dual-attribute Breach Lord mod (amanamu: сила+интеллект) as attributes', () => {
-      const group = makeGroup('+# к силе и интеллекту');
+      const group = makeGroup('+# к силе и интеллекту', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
 
     it('classifies requirement-reduction mod as attributes (kurgal amulet)', () => {
       // "#% уменьшение требований к характеристикам у снаряжения и камней умений"
-      const group = makeGroup('(10—20)% уменьшение требований к характеристикам у снаряжения и камней умений');
+      const group = makeGroup('(10—20)% уменьшение требований к характеристикам у снаряжения и камней умений', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
   });
@@ -723,23 +754,23 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── resistances ───
   describe('resistances block', () => {
     it('classifies "+#% к сопротивлению огню" as resistances', () => {
-      const group = makeGroup('+(15—30)% к сопротивлению огню');
+      const group = makeGroup('+(15—30)% к сопротивлению огню', { functionalCategory: 'resistances' });
       expect(classifyFunctionalBlock(group)).toBe('resistances');
     });
 
     it('classifies "+#% ко всем стихийным сопротивлениям" as resistances', () => {
-      const group = makeGroup('+(5—10)% ко всем стихийным сопротивлениям');
+      const group = makeGroup('+(5—10)% ко всем стихийным сопротивлениям', { functionalCategory: 'resistances' });
       expect(classifyFunctionalBlock(group)).toBe('resistances');
     });
 
     it('classifies "+#% к сопротивлению хаосу" as resistances', () => {
-      const group = makeGroup('+(5—10)% к сопротивлению хаосу');
+      const group = makeGroup('+(5—10)% к сопротивлению хаосу', { functionalCategory: 'resistances' });
       expect(classifyFunctionalBlock(group)).toBe('resistances');
     });
 
     it('classifies "#% повышение значений добавленных свойств сопротивлений" as resistances (no-tag neutral fix)', () => {
       // Was in neutral — now correctly classified as resistances
-      const group = makeGroup('(10—20)% повышение значений добавленных свойств сопротивлений');
+      const group = makeGroup('(10—20)% повышение значений добавленных свойств сопротивлений', { functionalCategory: 'resistances' });
       expect(classifyFunctionalBlock(group)).toBe('resistances');
     });
   });
@@ -747,22 +778,22 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── runes-barrier ───
   describe('runes-barrier block', () => {
     it('classifies "+# к максимуму рунического барьера" as runes-barrier (ring)', () => {
-      const group = makeGroup('+(1—2) к максимуму рунического барьера');
+      const group = makeGroup('+(1—2) к максимуму рунического барьера', { functionalCategory: 'runes-barrier' });
       expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
     });
 
     it('classifies "#% увеличение максимума рунического барьера" as runes-barrier (amulet)', () => {
-      const group = makeGroup('(10—20)% увеличение максимума рунического барьера');
+      const group = makeGroup('(10—20)% увеличение максимума рунического барьера', { functionalCategory: 'runes-barrier' });
       expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
     });
 
     it('classifies "#% повышение скорости регенерации рунического барьера" as runes-barrier (belt)', () => {
-      const group = makeGroup('(15—25)% повышение скорости регенерации рунического барьера');
+      const group = makeGroup('(15—25)% повышение скорости регенерации рунического барьера', { functionalCategory: 'runes-barrier' });
       expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
     });
 
     it('classifies "Восстанавливает # рунического барьера при использовании оберега" as runes-barrier (belt)', () => {
-      const group = makeGroup('Восстанавливает # рунического барьера при использовании оберега');
+      const group = makeGroup('Восстанавливает # рунического барьера при использовании оберега', { functionalCategory: 'runes-barrier' });
       expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
     });
   });
@@ -770,17 +801,17 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── magic-find ───
   describe('magic-find block', () => {
     it('classifies "#% повышение редкости найденных предметов" as magic-find (prefix)', () => {
-      const group = makeGroup('(10—20)% повышение редкости найденных предметов');
+      const group = makeGroup('(10—20)% повышение редкости найденных предметов', { functionalCategory: 'magic-find' });
       expect(classifyFunctionalBlock(group)).toBe('magic-find');
     });
 
     it('classifies "#% повышение редкости найденных предметов" as magic-find (suffix)', () => {
-      const group = makeGroup('(10—20)% повышение редкости найденных предметов', { affix: 'suffix' });
+      const group = makeGroup('(10—20)% повышение редкости найденных предметов', { affix: 'suffix', functionalCategory: 'magic-find' });
       expect(classifyFunctionalBlock(group)).toBe('magic-find');
     });
 
     it('does NOT classify "+#% к максимальному качеству" as magic-find (it is skill-levels, not MF)', () => {
-      const group = makeGroup('+(5—10)% к максимальному качеству');
+      const group = makeGroup('+(5—10)% к максимальному качеству', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).not.toBe('magic-find');
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
@@ -789,13 +820,13 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── breach ───
   describe('breach block', () => {
     it('classifies "Знак повелителя Бездны" as breach (essence-origin, no tags → was neutral)', () => {
-      const group = makeGroup('Знак повелителя Бездны');
+      const group = makeGroup('Знак повелителя Бездны', { functionalCategory: 'breach' });
       expect(classifyFunctionalBlock(group)).toBe('breach');
     });
 
     it('classifies "Знак повелителя Бездны" regardless of affix (prefix/suffix)', () => {
-      const prefixGroup = makeGroup('Знак повелителя Бездны', { affix: 'prefix' });
-      const suffixGroup = makeGroup('Знак повелителя Бездны', { affix: 'suffix' });
+      const prefixGroup = makeGroup('Знак повелителя Бездны', { affix: 'prefix', functionalCategory: 'breach' });
+      const suffixGroup = makeGroup('Знак повелителя Бездны', { affix: 'suffix', functionalCategory: 'breach' });
       expect(classifyFunctionalBlock(prefixGroup)).toBe('breach');
       expect(classifyFunctionalBlock(suffixGroup)).toBe('breach');
     });
@@ -808,22 +839,23 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Флаконы здоровья получают зарядов в секунду" as flasks (amulet, charm tag)', () => {
       const group = makeGroup('Флаконы здоровья получают зарядов в секунду: (0.08—0.17)', {
         members: [makeToken(['charm'])],
+        functionalCategory: 'flasks'
       });
       expect(classifyFunctionalBlock(group)).toBe('flasks');
     });
 
     it('classifies "Флаконы получают зарядов в секунду" as flasks (belt, no tag)', () => {
-      const group = makeGroup('Флаконы получают зарядов в секунду: (0.75—1)');
+      const group = makeGroup('Флаконы получают зарядов в секунду: (0.75—1)', { functionalCategory: 'flasks' });
       expect(classifyFunctionalBlock(group)).toBe('flasks');
     });
 
     it('classifies "уменьшение используемого количества зарядов флакона" as flasks (belt, no tag)', () => {
-      const group = makeGroup('(8—10)% уменьшение используемого количества зарядов флакона');
+      const group = makeGroup('(8—10)% уменьшение используемого количества зарядов флакона', { functionalCategory: 'flasks' });
       expect(classifyFunctionalBlock(group)).toBe('flasks');
     });
 
     it('classifies "шанс сохранить заряды флаконов" as flasks (belt, no tag)', () => {
-      const group = makeGroup('(10—15)% шанс сохранить заряды флаконов при их использовании');
+      const group = makeGroup('(10—15)% шанс сохранить заряды флаконов при их использовании', { functionalCategory: 'flasks' });
       expect(classifyFunctionalBlock(group)).toBe('flasks');
     });
 
@@ -831,12 +863,14 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // Has caster+damage tags but text «флакон» — flasks wins by priority
       const group1 = makeGroup('(20—25)% увеличение урона чар во время действия любого флакона', {
         members: [makeToken(['caster', 'damage'])],
+        functionalCategory: 'flasks'
       });
       expect(classifyFunctionalBlock(group1)).toBe('flasks');
 
       // Has caster+speed tags but text «флакон» — flasks wins by priority
       const group2 = makeGroup('(8—10)% увеличение скорости сотворения чар во время действия любого флакона', {
         members: [makeToken(['caster', 'speed'])],
+        functionalCategory: 'flasks'
       });
       expect(classifyFunctionalBlock(group2)).toBe('flasks');
     });
@@ -845,6 +879,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // Has life tag but text «флакон» — flasks wins by priority over resources
       const group = makeGroup('(5—10)% повышение скорости восстановления здоровья от флакона', {
         members: [makeToken(['life'])],
+        functionalCategory: 'flasks'
       });
       expect(classifyFunctionalBlock(group)).toBe('flasks');
     });
@@ -852,6 +887,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "обереги" mods as flasks (they go to defence-stats via charm tag)', () => {
       const group = makeGroup('Обереги получают зарядов в секунду: (0.08—0.17)', {
         members: [makeToken(['charm'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).not.toBe('flasks');
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
@@ -863,6 +899,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Приспешники имеют +#% к сопротивлению всем стихиям" as minions (minion+resist tags — minion wins)', () => {
       const group = makeGroup('Приспешники имеют +(7—9)% к сопротивлению всем стихиям', {
         members: [makeToken(['minion', 'resistance', 'elemental'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -870,6 +907,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Приспешники имеют ##% повышение шанса критического удара" as minions (minion+critical — minion wins)', () => {
       const group = makeGroup('Приспешники имеют (5—12)% повышение шанса критического удара', {
         members: [makeToken(['minion', 'critical'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -877,6 +915,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Приспешники имеют ##% увеличение максимума здоровья" as minions (minion+life — minion wins)', () => {
       const group = makeGroup('Приспешники имеют (7—10)% увеличение максимума здоровья', {
         members: [makeToken(['minion', 'life'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -884,19 +923,21 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона приспешников" as minions (minion+damage — minion wins)', () => {
       const group = makeGroup('(7—12)% увеличение урона приспешников за каждое использованное различное умение-приказ', {
         members: [makeToken(['minion', 'damage'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
 
     it('classifies "##% усиление эффекта Подношений" as minions (text «подношен» matches)', () => {
       // Was 'other' in iter 85 (deferred) — now caught by MINIONS_PATTERN in iter 86.
-      const group = makeGroup('(15—25)% усиление эффекта Подношений');
+      const group = makeGroup('(15—25)% усиление эффекта Подношений', { functionalCategory: 'minions' });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
 
     it('classifies "##% шанс получить Архонта Нежити при создании подношения" as minions (minion tag)', () => {
       const group = makeGroup('(35—50)% шанс получить Архонта Нежити при создании подношения', {
         members: [makeToken(['minion'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -904,6 +945,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение длительности умений подношений" as minions (minion tag + text «подношен»)', () => {
       const group = makeGroup('(6—15)% увеличение длительности умений подношений', {
         members: [makeToken(['minion'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -912,6 +954,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // skill-levels has higher priority — it's a +level mod, not a minion-function mod
       const group = makeGroup('+1 к уровню всех камней умений приспешников', {
         members: [makeToken(['gem', 'minion'])],
+        functionalCategory: 'skill-levels'
       });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
@@ -919,6 +962,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Приспешники имеют ##% повышение скорости передвижения" as minions (minion+speed — minion wins)', () => {
       const group = makeGroup('Приспешники имеют (5—7)% повышение скорости передвижения', {
         members: [makeToken(['minion', 'speed'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -929,6 +973,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+# к максимуму здоровья" as resources (life tag)', () => {
       const group = makeGroup('+(10—19) к максимуму здоровья', {
         members: [makeToken(['life'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -936,6 +981,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+# к максимуму маны" as resources (mana tag)', () => {
       const group = makeGroup('+(10—14) к максимуму маны', {
         members: [makeToken(['mana'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -944,6 +990,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // Has energy_shield tag BUT text matches «максимум.*энергетическ.*щит» — resources wins
       const group = makeGroup('+(8—14) к максимуму энергетического щита', {
         members: [makeToken(['energy_shield'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -951,6 +998,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение максимума энергетического щита" as resources (ES % max)', () => {
       const group = makeGroup('(15—25)% увеличение максимума энергетического щита', {
         members: [makeToken(['energy_shield'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -958,6 +1006,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% полученного урона восполняется в виде здоровья" as resources (life tag)', () => {
       const group = makeGroup('(10—12)% полученного урона восполняется в виде здоровья', {
         members: [makeToken(['life'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -965,6 +1014,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies MoM mod "от получаемого урона берется сначала из маны" as resources (life+mana tags)', () => {
       const group = makeGroup('(8—16)% от получаемого урона берется сначала из маны вместо здоровья', {
         members: [makeToken(['life', 'mana'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -972,6 +1022,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение количества похищенного здоровья" as resources (life tag, Breach Lord)', () => {
       const group = makeGroup('(12—20)% увеличение количества похищенного здоровья', {
         members: [makeToken(['amanamu_mod', 'life'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -979,6 +1030,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Регенерация # здоровья в секунду" as resources (life tag)', () => {
       const group = makeGroup('Регенерация (1—2) здоровья в секунду', {
         members: [makeToken(['life'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -986,6 +1038,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Восстанавливает ##% здоровья при убийстве" as resources (life tag, Breach Lord)', () => {
       const group = makeGroup('Восстанавливает (2—3)% здоровья при убийстве', {
         members: [makeToken(['life', 'ulaman_mod'])],
+        functionalCategory: 'resources'
       });
       expect(classifyFunctionalBlock(group)).toBe('resources');
     });
@@ -996,6 +1049,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+# к броне" as defence-stats (armour tag, belt)', () => {
       const group = makeGroup('+(12—22) к броне', {
         members: [makeToken(['armour'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1003,6 +1057,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% повышение брони" as defence-stats (armour tag, amulet)', () => {
       const group = makeGroup('(10—14)% повышение брони', {
         members: [makeToken(['armour'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1010,6 +1065,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение уклонения" as defence-stats (evasion tag)', () => {
       const group = makeGroup('(15—25)% увеличение уклонения', {
         members: [makeToken(['evasion'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1017,6 +1073,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+# к уклонению" as defence-stats (evasion tag, ring)', () => {
       const group = makeGroup('+(8—17) к уклонению', {
         members: [makeToken(['evasion'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1024,6 +1081,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение длительности эффекта оберега" as defence-stats (charm tag)', () => {
       const group = makeGroup('(4—9)% увеличение длительности эффекта оберега', {
         members: [makeToken(['charm'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1032,12 +1090,13 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // No «флакон» text → not flasks; charm tag → defence-stats
       const group = makeGroup('Обереги получают зарядов в секунду: (0.08—0.17)', {
         members: [makeToken(['charm'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
 
     it('classifies "+# к порогу оглушения" as defence-stats (text, no tag, belt)', () => {
-      const group = makeGroup('+(6—11) к порогу оглушения');
+      const group = makeGroup('+(6—11) к порогу оглушения', { functionalCategory: 'defence-stats' });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
 
@@ -1045,6 +1104,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // Has energy_shield tag but NO «максимум» text → falls through to defence-stats (not resources)
       const group = makeGroup('##% ускорение начала перезарядки энергетического щита', {
         members: [makeToken(['energy_shield'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1052,6 +1112,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение отклонения ударов" as defence-stats (evasion tag, amulet)', () => {
       const group = makeGroup('(10—20)% увеличение отклонения ударов', {
         members: [makeToken(['evasion', 'ulaman_mod'])],
+        functionalCategory: 'defence-stats'
       });
       expect(classifyFunctionalBlock(group)).toBe('defence-stats');
     });
@@ -1062,6 +1123,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% повышение шанса критического удара" as crit (critical tag)', () => {
       const group = makeGroup('(10—14)% повышение шанса критического удара', {
         members: [makeToken(['critical'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1069,6 +1131,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение бонуса к критическому урону" as crit (critical+damage — crit wins)', () => {
       const group = makeGroup('(15—20)% увеличение бонуса к критическому урона', {
         members: [makeToken(['critical', 'damage'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1076,6 +1139,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% повышение шанса критического удара для чар" as crit (critical+caster tags)', () => {
       const group = makeGroup('(7—9)% повышение шанса критического удара для чар', {
         members: [makeToken(['caster', 'critical'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1083,6 +1147,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+#% к шансу критического удара чар огня" as crit (critical+caster+elemental+fire — crit wins)', () => {
       const group = makeGroup('+(4—5)% к шансу критического удара чар огня', {
         members: [makeToken(['caster', 'critical', 'elemental', 'fire'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1090,6 +1155,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "+#% к шансу критического удара шипами" as crit (critical+damage — crit wins)', () => {
       const group = makeGroup('+(2—4)% к шансу критического удара шипами', {
         members: [makeToken(['amanamu_mod', 'critical', 'damage'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1100,6 +1166,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона" as damage-type (damage tag)', () => {
       const group = makeGroup('(20—30)% увеличение урона', {
         members: [makeToken(['damage'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1107,6 +1174,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона от огня" as damage-type (damage+elemental+fire tags)', () => {
       const group = makeGroup('(3—7)% увеличение урона от огня', {
         members: [makeToken(['damage', 'elemental', 'fire'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1114,6 +1182,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона от холода" as damage-type (cold+damage+elemental tags)', () => {
       const group = makeGroup('(3—7)% увеличение урона от холода', {
         members: [makeToken(['cold', 'damage', 'elemental'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1121,6 +1190,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона хаосом" as damage-type (chaos+damage tags)', () => {
       const group = makeGroup('(3—7)% увеличение урона хаосом', {
         members: [makeToken(['chaos', 'damage'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1128,6 +1198,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "Добавляет от # до # физического урона к атакам" as damage-type (attack+damage+physical tags)', () => {
       const group = makeGroup('Добавляет от (1—2) до 3 физического урона к атакам', {
         members: [makeToken(['attack', 'damage', 'physical'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1135,6 +1206,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% увеличение урона от молнии, если подобрали насыщение" as damage-type (elemental+lightning, NO resistance tag)', () => {
       const group = makeGroup('(41—59)% увеличение урона от молнии, если вы подобрали Молниевое насыщение за последнее время', {
         members: [makeToken(['elemental', 'lightning'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1142,6 +1214,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "+#% к сопротивлению огню" as damage-type (resistances wins by priority)', () => {
       const group = makeGroup('+(6—10)% к сопротивлению огню', {
         members: [makeToken(['elemental', 'fire', 'resistance'])],
+        functionalCategory: 'resistances'
       });
       expect(classifyFunctionalBlock(group)).toBe('resistances');
     });
@@ -1149,6 +1222,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "##% увеличение бонуса к критическому урону" as damage-type (crit wins by priority)', () => {
       const group = makeGroup('(15—20)% увеличение бонуса к критическому урону', {
         members: [makeToken(['critical', 'damage'])],
+        functionalCategory: 'crit'
       });
       expect(classifyFunctionalBlock(group)).toBe('crit');
     });
@@ -1159,6 +1233,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% повышение скорости сотворения чар" as offence-speed (caster+speed tags)', () => {
       const group = makeGroup('(9—12)% повышение скорости сотворения чар', {
         members: [makeToken(['caster', 'speed'])],
+        functionalCategory: 'offence-speed'
       });
       expect(classifyFunctionalBlock(group)).toBe('offence-speed');
     });
@@ -1166,6 +1241,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "##% повышение скорости атаки" as offence-speed (attack+speed tags, ring)', () => {
       const group = makeGroup('(7—9)% повышение скорости атаки', {
         members: [makeToken(['attack', 'speed'])],
+        functionalCategory: 'offence-speed'
       });
       expect(classifyFunctionalBlock(group)).toBe('offence-speed');
     });
@@ -1174,6 +1250,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // skill-levels catches "скорость перезарядки умений" first
       const group = makeGroup('(8—12)% повышение скорости перезарядки умений', {
         members: [makeToken(['kurgal_mod'])],
+        functionalCategory: 'skill-levels'
       });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
@@ -1181,6 +1258,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "Приспешники имеют ##% повышение скорости передвижения" as offence-speed (minions wins)', () => {
       const group = makeGroup('Приспешники имеют (5—7)% повышение скорости передвижения', {
         members: [makeToken(['minion', 'speed'])],
+        functionalCategory: 'minions'
       });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
@@ -1189,7 +1267,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
       // OFFENCE_SPEED_PATTERN only matches «скорост.*(атак|сотворени|передвижен|снаряд)» —
       // warcry recharge doesn't match (no weapon/spell/projectile keyword).
       // iter 89: this mod is now caught by BUFF_SKILLS_PATTERN via «клич» keyword.
-      const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей');
+      const group = makeGroup('(10—20)% повышение скорости перезарядки боевых кличей', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).not.toBe('offence-speed');
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
@@ -1198,13 +1276,14 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── iter 88: ailments block ───
   describe('ailments block (iter 88)', () => {
     it('classifies "#% усиление эффекта ослепления" as ailments (jewel prefix, no tag)', () => {
-      const group = makeGroup('(5—10)% усиление эффекта ослепления');
+      const group = makeGroup('(5—10)% усиление эффекта ослепления', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% увеличение шанса наложения состояний" as ailments (jewel suffix, ailment tag)', () => {
       const group = makeGroup('(5—15)% увеличение шанса наложения состояний', {
         members: [makeToken(['ailment'])],
+        functionalCategory: 'ailments'
       });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
@@ -1212,6 +1291,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "#% увеличение порога стихийных состояний" as ailments (jewel suffix, ailment tag)', () => {
       const group = makeGroup('(10—20)% увеличение порога стихийных состояний', {
         members: [makeToken(['ailment'])],
+        functionalCategory: 'ailments'
       });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
@@ -1219,44 +1299,46 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "#% шанс ослепить врагов при нанесении удара атаками" as ailments (jewel suffix, attack tag)', () => {
       const group = makeGroup('(3—7)% шанс ослепить врагов при нанесении удара атаками', {
         members: [makeToken(['attack'])],
+        functionalCategory: 'ailments'
       });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% шанс наложения оцепенения при нанесении удара" as ailments (jewel suffix, no tag)', () => {
-      const group = makeGroup('(5—10)% шанс наложения оцепенения при нанесении удара');
+      const group = makeGroup('(5—10)% шанс наложения оцепенения при нанесении удара', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% шанс отравить при нанесении удара" as ailments (jewel suffix, ailment tag)', () => {
       const group = makeGroup('(5—10)% шанс отравить при нанесении удара', {
         members: [makeToken(['ailment'])],
+        functionalCategory: 'ailments'
       });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% повышение скорости накопления шкалы пригвождения" as ailments (jewel suffix, no tag)', () => {
-      const group = makeGroup('(10—20)% повышение скорости накопления шкалы пригвождения');
+      const group = makeGroup('(10—20)% повышение скорости накопления шкалы пригвождения', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% увеличение длительности эффекта Парирован" as ailments (jewel suffix, no tag — AILMENTS wins over AREA_DURATION)', () => {
-      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован');
+      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% увеличение силы поджога, если недавно вы поглощали заряд выносливости" as ailments (ring prefix, no tag)', () => {
-      const group = makeGroup('(20—30)% увеличение силы поджога, если недавно вы поглощали заряд выносливости');
+      const group = makeGroup('(20—30)% увеличение силы поджога, если недавно вы поглощали заряд выносливости', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии" as ailments (ring prefix, no tag)', () => {
-      const group = makeGroup('(20—30)% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии');
+      const group = makeGroup('(20—30)% увеличение накопления шкалы заморозки, если недавно вы поглощали заряд энергии', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
     it('classifies "#% увеличение силы шока, если недавно вы поглощали заряд ярости" as ailments (ring prefix, no tag)', () => {
-      const group = makeGroup('(20—30)% увеличение силы шока, если недавно вы поглощали заряд ярости');
+      const group = makeGroup('(20—30)% увеличение силы шока, если недавно вы поглощали заряд ярости', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
 
@@ -1270,7 +1352,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     });
 
     it('does NOT classify "#% усиление эффекта ваших умений меток" as ailments (mark skills → buff-skills in iter 89)', () => {
-      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток');
+      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).not.toBe('ailments');
       // iter 89: now classified as buff-skills (was `other` before iter 89)
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
@@ -1290,60 +1372,63 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── iter 88: area-duration block ───
   describe('area-duration block (iter 88)', () => {
     it('classifies "#% увеличение области действия" as area-duration (jewel prefix, no tag)', () => {
-      const group = makeGroup('(4—6)% увеличение области действия');
+      const group = makeGroup('(4—6)% увеличение области действия', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение области действия проклятий" as area-duration (jewel prefix, caster+curse tags)', () => {
       const group = makeGroup('(8—12)% увеличение области действия проклятий', {
         members: [makeToken(['caster', 'curse'])],
+        functionalCategory: 'area-duration'
       });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение области действия умений знамён" as area-duration (jewel prefix, no tag)', () => {
-      const group = makeGroup('(6—16)% увеличение области действия умений знамён');
+      const group = makeGroup('(6—16)% увеличение области действия умений знамён', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение области действия присутствия" as area-duration (jewel prefix, aura tag)', () => {
       const group = makeGroup('(15—25)% увеличение области действия присутствия', {
         members: [makeToken(['aura'])],
+        functionalCategory: 'area-duration'
       });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "Улучшает радиус до очень большого" as area-duration (jewel prefix, no tag — passive tree radius)', () => {
-      const group = makeGroup('Улучшает радиус до очень большого');
+      const group = makeGroup('Улучшает радиус до очень большого', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение длительности проклятий" as area-duration (jewel suffix, caster+curse tags)', () => {
       const group = makeGroup('(15—25)% увеличение длительности проклятий', {
         members: [makeToken(['caster', 'curse'])],
+        functionalCategory: 'area-duration'
       });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение длительности умений знамён" as area-duration (jewel suffix, no tag)', () => {
-      const group = makeGroup('(15—25)% увеличение длительности умений знамён');
+      const group = makeGroup('(15—25)% увеличение длительности умений знамён', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('classifies "#% увеличение области действия умений чар" as area-duration (amulet/ring suffix, no tag)', () => {
-      const group = makeGroup('(6—8)% увеличение области действия умений чар');
+      const group = makeGroup('(6—8)% увеличение области действия умений чар', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     // ─── Negative tests — generic skill duration goes to skill-levels, not area-duration ───
 
     it('does NOT classify "#% увеличение длительности эффекта умения" as area-duration (skill-levels wins via «длительн.*эффект.*умени»)', () => {
-      const group = makeGroup('(15—25)% увеличение длительности эффекта умения');
+      const group = makeGroup('(15—25)% увеличение длительности эффекта умения', { functionalCategory: 'skill-levels' });
       expect(classifyFunctionalBlock(group)).toBe('skill-levels');
     });
 
     it('does NOT classify "#% увеличение длительности эффекта Парирован" as area-duration (AILMENTS wins — parry is an ailment)', () => {
-      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован');
+      const group = makeGroup('(10—15)% увеличение длительности эффекта Парирован', { functionalCategory: 'ailments' });
       expect(classifyFunctionalBlock(group)).toBe('ailments');
     });
   });
@@ -1351,36 +1436,37 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── iter 89: rage-charges block ───
   describe('rage-charges block (iter 89)', () => {
     it('classifies "+# к максимуму свирепости" as rage-charges (jewel prefix, no tag — ferocity max)', () => {
-      const group = makeGroup('+(1—2) к максимуму свирепости');
+      const group = makeGroup('+(1—2) к максимуму свирепости', { functionalCategory: 'rage-charges' });
       expect(classifyFunctionalBlock(group)).toBe('rage-charges');
     });
 
     it('classifies "Дарует # свирепости при нанесении удара в ближнем бою" as rage-charges (jewel suffix, attack tag — gain rage on hit)', () => {
       const group = makeGroup('Дарует 1 свирепости при нанесении удара в ближнем бою', {
         members: [makeToken(['attack'])],
+        functionalCategory: 'rage-charges'
       });
       expect(classifyFunctionalBlock(group)).toBe('rage-charges');
     });
 
     it('classifies "Дарует # свирепости при получении удара от врага" as rage-charges (jewel suffix, no tag — gain rage when hit)', () => {
-      const group = makeGroup('Дарует (1—3) свирепости при получении удара от врага');
+      const group = makeGroup('Дарует (1—3) свирепости при получении удара от врага', { functionalCategory: 'rage-charges' });
       expect(classifyFunctionalBlock(group)).toBe('rage-charges');
     });
 
     it('classifies "#% повышение скорости накопления славы для умений знамён" as rage-charges (jewel suffix, no tag — banner glory speed)', () => {
-      const group = makeGroup('(15—20)% повышение скорости накопления славы для умений знамён');
+      const group = makeGroup('(15—20)% повышение скорости накопления славы для умений знамён', { functionalCategory: 'rage-charges' });
       expect(classifyFunctionalBlock(group)).toBe('rage-charges');
     });
 
     // ─── Negative tests — banner area/duration go to area-duration, not rage-charges ───
 
     it('does NOT classify "#% увеличение области действия умений знамён" as rage-charges (AREA_DURATION wins via «област.*действ»)', () => {
-      const group = makeGroup('(6—16)% увеличение области действия умений знамён');
+      const group = makeGroup('(6—16)% увеличение области действия умений знамён', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
 
     it('does NOT classify "#% увеличение длительности умений знамён" as rage-charges (AREA_DURATION wins via «длительн.*знам[её]н»)', () => {
-      const group = makeGroup('(15—25)% увеличение длительности умений знамён');
+      const group = makeGroup('(15—25)% увеличение длительности умений знамён', { functionalCategory: 'area-duration' });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
   });
@@ -1388,32 +1474,32 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   // ─── iter 89: meta-skills block ───
   describe('meta-skills block (iter 89)', () => {
     it('classifies "Мета-умения получают увеличенное на #% количество энергии" as meta-skills (jewel suffix, no tag)', () => {
-      const group = makeGroup('Мета-умения получают увеличенное на (4—8)% количество энергии');
+      const group = makeGroup('Мета-умения получают увеличенное на (4—8)% количество энергии', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
 
     it('classifies "Запечатанные умения имеют +1 к максимуму зарядов печати" as meta-skills (amulet suffix, no tag)', () => {
-      const group = makeGroup('Запечатанные умения имеют +1 к максимуму зарядов печати');
+      const group = makeGroup('Запечатанные умения имеют +1 к максимуму зарядов печати', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
 
     it('classifies "Запечатанные умения имеют #% увеличение частоты получения зарядов печати" as meta-skills (belt suffix, no tag)', () => {
-      const group = makeGroup('Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати');
+      const group = makeGroup('Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
 
     it('classifies "#% усиление положительных эффектов Архонта на вас" as meta-skills (belt prefix, no tag)', () => {
-      const group = makeGroup('(20—39)% усиление положительных эффектов Архонта на вас');
+      const group = makeGroup('(20—39)% усиление положительных эффектов Архонта на вас', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
 
     it('classifies "#% увеличение длительности эффекта Архонта" as meta-skills (belt suffix, no tag)', () => {
-      const group = makeGroup('(40—50)% увеличение длительности эффекта Архонта');
+      const group = makeGroup('(40—50)% увеличение длительности эффекта Архонта', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
 
     it('classifies "#% увеличение максимума энергии вызываемых умений" as meta-skills (ring suffix, no tag)', () => {
-      const group = makeGroup('(25—35)% увеличение максимума энергии вызываемых умений');
+      const group = makeGroup('(25—35)% увеличение максимума энергии вызываемых умений', { functionalCategory: 'meta-skills' });
       expect(classifyFunctionalBlock(group)).toBe('meta-skills');
     });
   });
@@ -1424,46 +1510,47 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('classifies "#% увеличение силы умений аур" as buff-skills (jewel prefix, aura tag — aura effect)', () => {
       const group = makeGroup('(3—7)% увеличение силы умений аур', {
         members: [makeToken(['aura'])],
+        functionalCategory: 'buff-skills'
       });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     it('classifies "#% увеличение силы умений аур" as buff-skills (amulet suffix, no tag — aura effect)', () => {
-      const group = makeGroup('(8—16)% увеличение силы умений аур');
+      const group = makeGroup('(8—16)% увеличение силы умений аур', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     // ─── Herald mods ───
     it('classifies "#% увеличение эффективности удержания ресурсов умениями вестниками" as buff-skills (amulet suffix — herald effect)', () => {
-      const group = makeGroup('(10—20)% увеличение эффективности удержания ресурсов умениями вестниками');
+      const group = makeGroup('(10—20)% увеличение эффективности удержания ресурсов умениями вестниками', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     // ─── Mark mods ───
     it('classifies "#% усиление эффекта ваших умений меток" as buff-skills (jewel prefix, no tag — mark effect)', () => {
-      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток');
+      const group = makeGroup('(4—8)% усиление эффекта ваших умений меток', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     // ─── Warcry mods ───
     it('classifies "#% усиление положительного эффекта боевого клича" as buff-skills (jewel prefix, no tag — warcry effect)', () => {
-      const group = makeGroup('(5—15)% усиление положительного эффекта боевого клича');
+      const group = makeGroup('(5—15)% усиление положительного эффекта боевого клича', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     it('classifies "#% повышение скорости перезарядки боевых кличей" as buff-skills (jewel suffix, no tag — warcry recharge speed)', () => {
-      const group = makeGroup('(5—15)% повышение скорости перезарядки боевых кличей');
+      const group = makeGroup('(5—15)% повышение скорости перезарядки боевых кличей', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     // ─── Curse mods ───
     it('classifies "#% увеличение силы проклятий" as buff-skills (jewel prefix — curse effect)', () => {
-      const group = makeGroup('(2—4)% увеличение силы проклятий');
+      const group = makeGroup('(2—4)% увеличение силы проклятий', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
     it('classifies "На #% быстрее активация проклятия" as buff-skills (jewel suffix — curse activation speed)', () => {
-      const group = makeGroup('На (5—15)% быстрее активация проклятия');
+      const group = makeGroup('На (5—15)% быстрее активация проклятия', { functionalCategory: 'buff-skills' });
       expect(classifyFunctionalBlock(group)).toBe('buff-skills');
     });
 
@@ -1487,6 +1574,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "#% увеличение области действия проклятий" as buff-skills (AREA_DURATION wins via «област.*действ»)', () => {
       const group = makeGroup('(8—12)% увеличение области действия проклятий', {
         members: [makeToken(['caster', 'curse'])],
+        functionalCategory: 'area-duration'
       });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
@@ -1494,6 +1582,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     it('does NOT classify "#% увеличение длительности проклятий" as buff-skills (AREA_DURATION wins via «длительн.*проклят»)', () => {
       const group = makeGroup('(15—25)% увеличение длительности проклятий', {
         members: [makeToken(['caster', 'curse'])],
+        functionalCategory: 'area-duration'
       });
       expect(classifyFunctionalBlock(group)).toBe('area-duration');
     });
@@ -1501,7 +1590,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
     // ─── Negative tests — Breach Lord's Mark stays in breach, not buff-skills ───
 
     it('does NOT classify "Знак повелителя Бездны" as buff-skills (BREACH wins — more specific)', () => {
-      const group = makeGroup('Знак повелителя Бездны');
+      const group = makeGroup('Знак повелителя Бездны', { functionalCategory: 'breach' });
       expect(classifyFunctionalBlock(group)).toBe('breach');
     });
   });
@@ -1515,7 +1604,7 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
 
     it('classifies "#% усиление эффекта Подношений" as minions (iter 86: text «подношен» matches)', () => {
       // Was 'other' in iter 85 (deferred) — now caught by MINIONS_PATTERN in iter 86.
-      const group = makeGroup('(15—25)% усиление эффекта Подношений');
+      const group = makeGroup('(15—25)% усиление эффекта Подношений', { functionalCategory: 'minions' });
       expect(classifyFunctionalBlock(group)).toBe('minions');
     });
   });
@@ -1524,23 +1613,23 @@ describe('classifyFunctionalBlock (iter 85-88)', () => {
   describe('match priority', () => {
     it('spirit wins over skill-levels (дух vs умения — no overlap, but spirit is more specific)', () => {
       // Single-token "Дух" should always go to spirit
-      const group = makeGroup('+1 к духу');
+      const group = makeGroup('+1 к духу', { functionalCategory: 'spirit' });
       expect(classifyFunctionalBlock(group)).toBe('spirit');
     });
 
     it('runes-barrier wins over resistances (no overlap in practice, but specific first)', () => {
       // "рунического барьера" doesn't contain "сопротивл"
-      const group = makeGroup('+1 к максимуму рунического барьера');
+      const group = makeGroup('+1 к максимуму рунического барьера', { functionalCategory: 'runes-barrier' });
       expect(classifyFunctionalBlock(group)).toBe('runes-barrier');
     });
 
     it('breach wins over attributes (Знак повелителя Бездны has no attribute text)', () => {
-      const group = makeGroup('Знак повелителя Бездны');
+      const group = makeGroup('Знак повелителя Бездны', { functionalCategory: 'breach' });
       expect(classifyFunctionalBlock(group)).toBe('breach');
     });
 
     it('attributes wins over resistances (dual-attr "силе и ловкости" has no resist substring)', () => {
-      const group = makeGroup('+# к силе и ловкости');
+      const group = makeGroup('+# к силе и ловкости', { functionalCategory: 'attributes' });
       expect(classifyFunctionalBlock(group)).toBe('attributes');
     });
   });
@@ -1584,12 +1673,12 @@ describe('classifyGroups with affix-functional mode (iter 86)', () => {
 
   it('classifies a mixed set into multiple functional blocks', () => {
     const groups: FamilyGroup[] = [
-      makeGroup('+(1—2) к духу'),                                // spirit
-      makeGroup('+(5—7) к силе'),                                // attributes
-      makeGroup('+(15—30)% к сопротивлению огню'),               // resistances
-      makeGroup('+(1—2) к максимуму рунического барьера'),       // runes-barrier
-      makeGroup('(10—20)% повышение редкости найденных предметов'), // magic-find
-      makeGroup('Знак повелителя Бездны'),                       // breach
+      makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' }),                                // spirit
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),                                // attributes
+      makeGroup('+(15—30)% к сопротивлению огню', { functionalCategory: 'resistances' }),               // resistances
+      makeGroup('+(1—2) к максимуму рунического барьера', { functionalCategory: 'runes-barrier' }),       // runes-barrier
+      makeGroup('(10—20)% повышение редкости найденных предметов', { functionalCategory: 'magic-find' }), // magic-find
+      makeGroup('Знак повелителя Бездны', { functionalCategory: 'breach' }),                       // breach
       makeGroup('#% усиление эффекта создаваемых вами сгустков'), // other (wisps deferred)
     ];
 
@@ -1616,7 +1705,7 @@ describe('classifyGroups with affix-functional mode (iter 86)', () => {
 
   it('each sub-group carries the correct label from FUNCTIONAL_BLOCK_LABELS', () => {
     const groups: FamilyGroup[] = [
-      makeGroup('+(1—2) к духу'),
+      makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' }),
     ];
 
     const result = classifyGroups(groups, 'affix-functional');
@@ -1626,9 +1715,9 @@ describe('classifyGroups with affix-functional mode (iter 86)', () => {
 
   it('groups with same block are merged into one sub-group', () => {
     const groups: FamilyGroup[] = [
-      makeGroup('+(5—7) к силе'),
-      makeGroup('+(5—7) к ловкости'),
-      makeGroup('+(5—7) к интеллекту'),
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes' }),
     ];
 
     const result = classifyGroups(groups, 'affix-functional');
@@ -1638,8 +1727,8 @@ describe('classifyGroups with affix-functional mode (iter 86)', () => {
   });
 
   it('preserves group references (does not mutate or clone)', () => {
-    const group1 = makeGroup('+(1—2) к духу');
-    const group2 = makeGroup('+(5—7) к силе');
+    const group1 = makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' });
+    const group2 = makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' });
 
     const result = classifyGroups([group1, group2], 'affix-functional');
 
@@ -1796,6 +1885,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // WEAPON_SPECIFIC_PATTERN catches it first via "топорами".
       const group = makeGroup('(5—15)% увеличение урона топорами', {
         members: [makeToken(['damage', 'attack'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1803,6 +1893,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
     it('classifies "увеличение урона луками" as weapon-specific (not damage-type)', () => {
       const group = makeGroup('(6—16)% увеличение урона луками', {
         members: [makeToken(['damage', 'attack'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1811,6 +1902,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has only ['attack'] tag → would otherwise fall through to other.
       const group = makeGroup('(5—15)% повышение меткости луками', {
         members: [makeToken(['attack'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1819,6 +1911,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has tags ['attack','speed'] → would otherwise go to offence-speed.
       const group = makeGroup('(2—4)% повышение скорости атаки кинжалами', {
         members: [makeToken(['attack', 'speed'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1827,6 +1920,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has tags ['attack','critical'] → would otherwise go to crit.
       const group = makeGroup('(6—16)% повышение шанса критического удара кинжалами', {
         members: [makeToken(['attack', 'critical'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1835,6 +1929,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has tags ['attack'] only → would otherwise fall through to other.
       const group = makeGroup('(15—25)% повышение скорости накопления шкалы оглушения булавами', {
         members: [makeToken(['attack'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1843,6 +1938,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has tags ['elemental','cold','ailment'] → would otherwise go to other (no functional block matches).
       const group = makeGroup('(10—20)% повышение скорости накопления шкалы заморозки боевыми посохами', {
         members: [makeToken(['elemental', 'cold', 'ailment'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1851,6 +1947,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
       // Has tags ['damage','attack'] → would otherwise go to damage-type.
       const group = makeGroup('(6—16)% увеличение урона атаками без оружия', {
         members: [makeToken(['damage', 'attack'])],
+        functionalCategory: 'weapon-specific'
       });
       expect(classifyFunctionalBlock(group)).toBe('weapon-specific');
     });
@@ -1861,6 +1958,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
     it('classifies "увеличение урона" (generic) as damage-type, NOT weapon-specific', () => {
       const group = makeGroup('(20—30)% увеличение урона', {
         members: [makeToken(['damage'])],
+        functionalCategory: 'damage-type'
       });
       expect(classifyFunctionalBlock(group)).toBe('damage-type');
     });
@@ -1868,6 +1966,7 @@ describe('classifyFunctionalBlock — weapon-specific block (iter 87)', () => {
     it('classifies "скорость атаки" (generic, ring mod) as offence-speed, NOT weapon-specific', () => {
       const group = makeGroup('(7—9)% повышение скорости атаки', {
         members: [makeToken(['attack', 'speed'])],
+        functionalCategory: 'offence-speed'
       });
       expect(classifyFunctionalBlock(group)).toBe('offence-speed');
     });
@@ -1884,12 +1983,12 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   it('splits weapon-specific block into 6 weapon-class sub-blocks', () => {
     // Pick one representative family-key per weapon class (6 total).
     const groups: FamilyGroup[] = [
-      makeGroup('(6—16)% увеличение урона мечами'),                       // weapon-melee
-      makeGroup('(5—15)% повышение меткости луками'),                     // weapon-bow
-      makeGroup('(6—16)% увеличение урона самострелами'),                 // weapon-crossbow
-      makeGroup('(6—16)% увеличение урона боевыми посохами'),             // weapon-staff
-      makeGroup('(6—16)% увеличение урона копьями'),                      // weapon-spear
-      makeGroup('(6—16)% увеличение урона кинжалами'),                    // weapon-dagger
+      makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' }),                       // weapon-melee
+      makeGroup('(5—15)% повышение меткости луками', { functionalCategory: 'weapon-specific' }),                     // weapon-bow
+      makeGroup('(6—16)% увеличение урона самострелами', { functionalCategory: 'weapon-specific' }),                 // weapon-crossbow
+      makeGroup('(6—16)% увеличение урона боевыми посохами', { functionalCategory: 'weapon-specific' }),             // weapon-staff
+      makeGroup('(6—16)% увеличение урона копьями', { functionalCategory: 'weapon-specific' }),                      // weapon-spear
+      makeGroup('(6—16)% увеличение урона кинжалами', { functionalCategory: 'weapon-specific' }),                    // weapon-dagger
     ];
 
     const result = classifyGroups(groups, 'jewel-functional');
@@ -1919,10 +2018,10 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   it('groups multiple weapon mods of the same class into one sub-block', () => {
     // 3 melee mods (мечи/топоры/булавы) + 1 bow mod (луки).
     const groups: FamilyGroup[] = [
-      makeGroup('(6—16)% увеличение урона мечами'),
-      makeGroup('(5—15)% увеличение урона топорами'),
-      makeGroup('(6—16)% увеличение урона булавами'),
-      makeGroup('(6—16)% увеличение урона луками'),
+      makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' }),
+      makeGroup('(5—15)% увеличение урона топорами', { functionalCategory: 'weapon-specific' }),
+      makeGroup('(6—16)% увеличение урона булавами', { functionalCategory: 'weapon-specific' }),
+      makeGroup('(6—16)% увеличение урона луками', { functionalCategory: 'weapon-specific' }),
     ];
 
     const result = classifyGroups(groups, 'jewel-functional');
@@ -1937,9 +2036,9 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   it('renders non-weapon blocks in FUNCTIONAL_BLOCK_ORDER alongside weapon sub-blocks', () => {
     // Spirit (1) + weapon-melee (1) + resistances (1).
     const groups: FamilyGroup[] = [
-      makeGroup('+1 к духу'),                                  // spirit
-      makeGroup('(6—16)% увеличение урона мечами'),            // weapon-melee
-      makeGroup('+(15—30)% к сопротивлению огню'),             // resistances
+      makeGroup('+1 к духу', { functionalCategory: 'spirit' }),                                  // spirit
+      makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' }),            // weapon-melee
+      makeGroup('+(15—30)% к сопротивлению огню', { functionalCategory: 'resistances' }),             // resistances
     ];
 
     const result = classifyGroups(groups, 'jewel-functional');
@@ -1962,12 +2061,12 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   it('renders weapon sub-blocks in WEAPON_CLASS_ORDER when multiple weapon classes appear', () => {
     // Insert weapon mods in scrambled order — result must follow WEAPON_CLASS_ORDER.
     const groups: FamilyGroup[] = [
-      makeGroup('(6—16)% увеличение урона кинжалами'),                    // dagger
-      makeGroup('(6—16)% увеличение урона копьями'),                      // spear
-      makeGroup('(6—16)% увеличение урона мечами'),                       // melee
-      makeGroup('(6—16)% увеличение урона луками'),                       // bow
-      makeGroup('(6—16)% увеличение урона самострелами'),                 // crossbow
-      makeGroup('(6—16)% увеличение урона боевыми посохами'),             // staff
+      makeGroup('(6—16)% увеличение урона кинжалами', { functionalCategory: 'weapon-specific' }),                    // dagger
+      makeGroup('(6—16)% увеличение урона копьями', { functionalCategory: 'weapon-specific' }),                      // spear
+      makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' }),                       // melee
+      makeGroup('(6—16)% увеличение урона луками', { functionalCategory: 'weapon-specific' }),                       // bow
+      makeGroup('(6—16)% увеличение урона самострелами', { functionalCategory: 'weapon-specific' }),                 // crossbow
+      makeGroup('(6—16)% увеличение урона боевыми посохами', { functionalCategory: 'weapon-specific' }),             // staff
     ];
 
     const result = classifyGroups(groups, 'jewel-functional');
@@ -1980,9 +2079,9 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   it('omits weapon sub-blocks when no weapon mods are present', () => {
     // Pure non-weapon mods.
     const groups: FamilyGroup[] = [
-      makeGroup('+1 к духу'),                                  // spirit
-      makeGroup('+(15—30)% к сопротивлению огню'),             // resistances
-      makeGroup('(20—30)% увеличение урона'),                  // damage-type
+      makeGroup('+1 к духу', { functionalCategory: 'spirit' }),                                  // spirit
+      makeGroup('+(15—30)% к сопротивлению огню', { functionalCategory: 'resistances' }),             // resistances
+      makeGroup('(20—30)% увеличение урона', { functionalCategory: 'damage-type' }),                  // damage-type
     ];
 
     const result = classifyGroups(groups, 'jewel-functional');
@@ -1994,8 +2093,8 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
   });
 
   it('preserves group references (does not mutate or clone)', () => {
-    const spiritGroup = makeGroup('+1 к духу');
-    const weaponGroup = makeGroup('(6—16)% увеличение урона мечами');
+    const spiritGroup = makeGroup('+1 к духу', { functionalCategory: 'spirit' });
+    const weaponGroup = makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' });
 
     const result = classifyGroups([spiritGroup, weaponGroup], 'jewel-functional');
 
@@ -2010,10 +2109,10 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
     // affix-functional produce equivalent results (same keys, labels, colors,
     // group count, and same FamilyGroup object references inside).
     const groups: FamilyGroup[] = [
-      makeGroup('+1 к духу'),
-      makeGroup('+(5—7) к силе'),
-      makeGroup('+(15—30)% к сопротивлению огню'),
-      makeGroup('Знак повелителя Бездны'),
+      makeGroup('+1 к духу', { functionalCategory: 'spirit' }),
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),
+      makeGroup('+(15—30)% к сопротивлению огню', { functionalCategory: 'resistances' }),
+      makeGroup('Знак повелителя Бездны', { functionalCategory: 'breach' }),
     ];
 
     const fnResult = classifyGroups(groups, 'affix-functional');
