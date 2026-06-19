@@ -4,52 +4,69 @@
 
 ---
 
-Task ID: 100
+Task ID: 101
 Agent: main
-Task: Cleanup устаревших iter*-скриптов (продолжение iter 97). Цель: убрать мёртвый код (verify/simulate/analyze-iter* audit-скрипты для итераций 49–95, давно покрытые unit-тестами и стабильные в продакшене), устранить 15 ESLint errors в `scripts/verify-iter90-*.ts`, привести документацию в соответствие с реальным состоянием. Дополнительно: расследовать вопрос пользователя про «удалённую группировку/сортировку» в коммитах c54a3da / 4067def.
+Task: P0-фикс Critical Bug, обнаруженного пользователем на production: на страницах jewel / amulet / ring / belt ВСЕ аффиксы отображаются в одной functional-категории «Прочее» (пользователь конкретно указал «Прочее (18)» — это ring или amulet страница). Требование: «лучше недоделать, чем сломать» → минимальный,_backward-compatible фикс.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через `npm install -g pnpm --prefix=$HOME/.local`. Baseline после iter 99: 1411/1411 tests passing, TSC 0 errors, ESLint 17 problems (15 errors + 2 warnings), ETL 11 fresh.
-- 2: Расследование вопроса пользователя про «удалённую группировку/сортировку» в c54a3da (iter 96) и 4067def (iter 97):
-  - `git show c54a3da -- src/shared/mod-classifier.ts` → iter 96 удалил 22-шаговый **regex fallback classifier** (SPIRIT_PATTERN, ATTRIBUTES_PATTERN и т.д.) из `classifyFunctionalBlock()`. Grouping-логика (`FUNCTIONAL_BLOCK_LABELS`, `FUNCTIONAL_BLOCK_ORDER`, `classifyGroups()`) НЕ затронута. Runtime классификация теперь использует ETL `functionalCategory` (100% coverage с iter 91) вместо regex patterns.
-  - `git show 4067def --stat` → iter 97 удалил 16 исторических audit-скриптов (simulate/verify/analyze-iter*). Grouping/sort-логика НЕ затронута.
-  - Реальный источник «удалённой alpha-сортировки» — **Session 70** (commit `06cea49`): `groupTokensByFamily()` был изменён с `affix → familyKey.localeCompare('ru')` на `affix → tier (S→A→B→C) → alpha`. Tier-first sort фрагментировал алфавитный поток внутри функциональных блоков.
-  - iter 99 восстановил alphabetical flow **внутри блоков** через `sortGroupsAlphabetically()` wrapper, не трогая `groupTokensByFamily()` (обратная совместимость). Tier-first sort в `groupTokensByFamily()` сохранён, но `classifyGroups()` переписывает within-block order поверх него.
-  - **Вывод:** «удаления группировки» не было. Была замена pure-alpha → tier-first в Session 70 (UX-регрессия), которую iter 99 исправил. iter 96/97 удаляли мёртвый код, не grouping-логику.
-- 3: Анализ stale-скриптов в `scripts/`:
-  - 8 verify-iter* (iter 49/89/90×2/91×2/92/94/95): одноразовые post-iter verification скрипты. Все итерации стабильно в продакшене, логика покрыта unit-тестами в `tests/shared/mod-classifier.test.ts` и `tests/etl/cross-validation.test.ts`.
-  - 5 simulate-iter*-impact (iter 86/87/88/89/94): mirror regex patterns, которые iter 96 удалил из runtime. Скрипты mirror'ят удалённый код → теперь нерелевантны.
-  - 2 analyze-iter*-other-bucket (iter 88/89): one-time snapshot dumps `other`-bucket family-keys на конкретных итерациях. Snapshot устарел (other-bucket сжался с 70% до 8.3%).
-  - 1 stale tracker: `DELETED-FILES-iter92.txt` — iter 97 commit message упоминал удаление, но файл остался на диске (commit-message bug).
-  - Keep: `scripts/verify-iter99-alpha-sort.ts` (текущий iter's audit), all `scripts/etl/*.ts` (production ETL), all non-iter-specific scripts.
-- 4: Проверка зависимостей через `rg "verify-iter|simulate-iter|analyze-iter"` — все ссылки self-contained (внутри самих скриптов в JSDoc). Никаких imports из `src/`, `tests/`, `package.json`, конфигов.
-- 5: `git rm` 17 файлов: 8 verify-iter* + 5 simulate-iter*-impact + 2 analyze-iter*-other-bucket + DELETED-FILES-iter92.txt + iter90-cross-validation. Список удалений в STATUS.md.
-- 6: Верификация:
-  - `pnpm exec tsc -b` → 0 errors (без изменений).
-  - `pnpm test` → 1411/1411 passing (без изменений vs iter 99).
-  - `pnpm lint` → **2 problems (0 errors, 2 warnings)** vs baseline 17 problems (15 errors, 2 warnings). 15 ESLint errors устранены. Остались 2 warnings в `VirtualizedModList.tsx` (TanStack `useVirtualizer()` library-level).
-  - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
-- 7: Документация актуализирована:
-  - `STATUS.md` — iter 100 как текущая; добавлена секция «История sort-логики» с расследованием вопроса пользователя; Known Issue #3 (VirtualizedModList warnings) вынесен из пасcива в явный список; Открытые долги сжаты до 4 пунктов (P2/P4/sortKey/Wisps).
-  - `worklog.md` — iter 99 сжат до одной строки в «Предыдущие итерации», iter 100 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — `scripts/` секция обновлена: removed reference к iter-specific скриптам, оставлен только canonical список (ETL + prerender + verify-iter99 + analyze-regexes/analyze-fn).
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Чтение STATUS.md (iter 100 — cleanup устаревших iter*-скриптов), worklog.md (iter 100 подробно), AGENT_NAVIGATION.md (структура + Roadmap).
+- 2: Анализ бага. Пользователь сообщил про «Прочее (18)» — предположительно ring или amulet. Curl `https://vudirvp-sketch.github.io/poe2-regex-ru/{jewel,belt,ring,amulet}/` → grep `Прочее \(\d+\)`:
+  - jewel: `Прочее (10/110/3/33/83)` — ВСЕ affixes в `other`.
+  - belt: `Прочее (6/7/8/10/11/12/14/17)` — ВСЕ affixes в `other`.
+  - ring: `Прочее (7/8/12/13/14/15/17/18)` — ВСЕ affixes в `other`.
+  - amulet: `Прочее (7/8/11/12/14/18/19/21)` — ВСЕ affixes в `other`.
+  - Вывод: баг подтверждён, runtime классификация полностью сломана — все токены падают в `other`.
+- 3: Python-анализ `public/generated/{jewel,amulet,ring,belt}.json` — `functionalCategory` поле присутствует на всех токенах (ETL работает корректно). Метрики ETL: jewel 16/193 other, amulet 7/105, ring 3/94, belt 4/85 — соответствует STATUS.md. Значит баг НЕ в ETL, а в runtime.
+- 4: Чтение `src/shared/mod-classifier.ts:1268-1309` — `classifyFunctionalBlock()`:
+  - Strategy 0: `if (group.members[0].functionalCategory)` → majority voting. Если поле отсутствует → fallback `return 'other';`.
+  - Гипотеза: `functionalCategory` отсутствует на runtime-токенах, хотя присутствует в JSON.
+- 5: Чтение `src/data/loader.ts:24` — `const data = CategoryDataSchema.parse(raw) as CategoryData;`. Zod по умолчанию **strips** неизвестные поля.
+- 6: Чтение `src/shared/schemas.ts:55-77` — `GameTokenSchema` НЕ содержит `functionalCategory`. Сравнение с `src/shared/types.ts:21-71` (`GameToken` interface) — `functionalCategory?: string` есть в типе (line 61), но отсутствует в схеме.
+- 7: Git history: `git log -S "functionalCategory" -- src/shared/types.ts` → iter 90 (commit `009b00d`) добавил поле в тип. `git log -S "functionalCategory" -- src/shared/schemas.ts` → пусто. Поле НИКОГДА не было в схеме. Баг существует с iter 90 (3+ итераций «улучшений классификации», не замеченных из-за того что unit-тесты и cross-validation тесты обходят Zod-парсинг).
+- 8: Создание `scripts/verify-bug-functionalCategory.ts` для подтверждения гипотезы — `npx tsx` run: «Stripped tokens: 298/298» (100% tokens потеряли functionalCategory). Баг подтверждён.
+- 9: Документирование бага в `STATUS.md` как Known Issue #4 (правило пользователя: «Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись»). Параллельно — реструктуризация STATUS.md: iter 101 как текущая итерация, iter 100 перенесён в архив одной строкой (был избыточен), удалена секция «История sort-логики» (iter 100 расследование, не актуально после фикса).
+- 10: **Фикс** `src/shared/schemas.ts`: добавлено `functionalCategory: z.string().optional()` в `GameTokenSchema` (1 строка + 4 строки комментария с ссылками на Known Issue #4). Backward-compatible: опциональное поле, старый JSON без поля тоже валиден.
+- 11: Регрессионные тесты `tests/etl/etl-schemas.test.ts` — добавлен `describe('CategoryDataSchema — functionalCategory preservation (iter 101 regression)')` с 3 тестами:
+  - `preserves functionalCategory field from real belt.json` — load actual JSON через `CategoryDataSchema.parse()`, verify `functionalCategory` сохраняется на ≥1 токене, parsedCount === rawCount.
+  - `preserves functionalCategory across all jewellery categories` — то же для jewel/amulet/ring/belt.
+  - `rejects invalid functionalCategory type (non-string)` — `functionalCategory: 42` → safeParse fails (z.string() type safety).
+- 12: Sanity check `scripts/_sanity-iter101-fix.ts` (временный, удалён после): load JSON через schema → `groupTokensByFamily` → `classifyGroups(_, 'affix-functional')` → проверить, что non-`other` блоки присутствуют. Результат:
+  - jewel: 17 blocks (16 non-`other` + 1 `other` с 16 family-groups) — было 1 блок `other` со всеми 193 family-groups.
+  - amulet: 19 blocks (18 + 1 other с 7) — было 1 other со 105.
+  - ring: 17 blocks (16 + 1 other с 3) — было 1 other с 94.
+  - belt: 14 blocks (13 + 1 other с 4) — было 1 other с 85.
+  - Размеры `other` блоков (16/7/3/4) СОВПАДАЮТ с ETL-метриками в STATUS.md → runtime классификация теперь соответствует ETL классификации.
+- 13: Удаление временных скриптов `scripts/verify-bug-functionalCategory.ts` и `scripts/_sanity-iter101-fix.ts` (правило AGENT_NAVIGATION: «Не добавлять новые verify-iter*-*.ts — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md»).
+- 14: Верификация:
+  - `npx vitest run` → 1414/1414 passing (1411 baseline + 3 новых регрессионных).
+  - `npx tsc -b` → 0 errors.
+  - `npx eslint .` → 2 problems (0 errors, 2 warnings — TanStack library-level, без изменений vs iter 100).
+- 15: Документация:
+  - `STATUS.md` — iter 101 как текущая; iter 100 перенесён в архив; добавлен Known Issue #4 с пометкой ✅ FIXED iter 101; удалена секция «История sort-логики» (расследование iter 100, не актуально после фикса).
+  - `worklog.md` — iter 100 сжат до одной строки, iter 101 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — `scripts/` секция без изменений (новых iter*-скриптов не добавлено); Pitfall #34 обновлён: добавлена заметка «iter 101: functionalCategory теперь реально доходит до runtime (Zod-схема пропускает поле)»; Roadmap updated: iter 101 done.
 
 Stage Summary:
-- **iter 100 COMPLETE.** Cleanup устаревших iter*-скриптов. Удалено 17 файлов (16 .ts + 1 .txt). ESLint 15 errors → 0 errors (осталось 2 library-level warnings). Тесты/TSC/ETL без изменений. Никаких изменений в `public/generated/*.json` или runtime-коде.
-- **Изменённые файлы (20):**
-  - 17 deletions: `DELETED-FILES-iter92.txt`, 8× `scripts/verify-iter*-*.ts`, 5× `scripts/simulate-iter-*-impact.ts`, 2× `scripts/analyze-iter-*-other-bucket.ts`.
-  - 3 doc updates: `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`.
-- **Тесты:** 1411/1411 passing. TSC: 0 errors. ESLint: 2 warnings (library-level). ETL: 11 fresh, 0 stale.
-- **Точка остановки:** iter 100 done. В iter 101+ можно:
+- **iter 101 COMPLETE.** Critical Bug fixed: `GameTokenSchema` в `src/shared/schemas.ts` не содержал `functionalCategory` → Zod удалял это поле при парсинге → `classifyFunctionalBlock()` падал в `other` fallback → ВСЕ affixes отображались как «Прочее» в production (с iter 90). Фикс: 1 строка + 4 комментария. +3 регрессионных теста в `tests/etl/etl-schemas.test.ts`.
+- **Изменённые файлы (4):**
+  - `src/shared/schemas.ts` — добавлено `functionalCategory: z.string().optional()` в `GameTokenSchema`.
+  - `tests/etl/etl-schemas.test.ts` — +3 регрессионных теста (preserves functionalCategory / across all jewellery / rejects invalid type).
+  - `STATUS.md` — iter 101 как текущая, iter 100 архив, Known Issue #4 добавлен и помечен FIXED.
+  - `worklog.md` — iter 101 подробно, iter 100 одной строкой.
+  - `AGENT_NAVIGATION.md` — Pitfall #34 + Roadmap iter 101.
+- **Тесты:** 1414/1414 passing (+3 vs iter 100). TSC: 0 errors. ESLint: 0 errors, 2 warnings (library-level, без изменений). ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`.
+- **Production-эффект после деплоя:** на страницах jewel/amulet/ring/belt вместо одного «Прочее (N)» появятся 14-19 функциональных блоков (Дух / Атрибуты / Сопротивления / Урон / Крит / Состояния / ...). Размер `other` блока совпадёт с ETL-метриками (jewel 16, amulet 7, ring 3, belt 4 family-groups).
+- **Точка остановки:** iter 101 done. В iter 102+ можно:
   1. **P2 — waystone/tablet sub-blocks**: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
   2. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
-  3. **Опционально: sortKey?**: добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research — для более сложных схем сортировки.
-  4. **Опционально: подавить VirtualizedModList warnings** через `// eslint-disable-next-line react-hooks/incompatible-library` (2 warnings) или дождаться апстрим-фикса TanStack Virtual.
+  3. **Опционально: подавить 2 TanStack warnings** в `VirtualizedModList.tsx` через `// eslint-disable-next-line react-hooks/incompatible-library` (довести ESLint до 0 problems).
+  4. **Опционально: расширить e2e-тестирование**: добавить `tests/integration/` с тестами «load JSON → classify → verify не-`other` блоки» для всех 4 категорий (покрыть production path полностью, чтобы подобный regression не повторился).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 100**: cleanup 17 устаревших iter*-скриптов. ESLint 0 errors (15 → 0). Констатация: «удаления группировки» в iter 96/97 не было — была замена pure-alpha → tier-first в Session 70, исправленная в iter 99. 1411/1411 tests.
 - **iter 99**: alphabetical within-block sort. `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper для всех 9 режимов `classifyGroups()`. +19 unit-тестов. 1411/1411 tests.
 - **iter 98**: relic-semantic mode (7 Sanctum-категорий для 25 family-keys). 1392/1392 tests.
 - **iter 97**: Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено. 1363/1363 tests.

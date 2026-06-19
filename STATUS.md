@@ -2,58 +2,52 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 100
+> **Текущая итерация:** 101
 
 ---
 
 ## Текущее состояние
 
-**iter 100: cleanup устаревших iter*-скриптов (продолжение iter 97).** Удалено 16 исторических `verify-iter*-*.ts` / `simulate-iter-*-impact.ts` / `analyze-iter-*-other-bucket.ts` скриптов + 1 stale tracker (`DELETED-FILES-iter92.txt`). Все они — одноразовые audit/simulation-скрипты для конкретных итераций (iter 49–95), верифицировали изменения, которые давно в продакшене и покрыты unit-тестами в `tests/`. После iter 96 (удалил runtime regex fallback) и iter 91 (ETL 100% coverage) они стали мёртвым кодом.
+**iter 101: P0-фикс Critical Bug — Zod schema strips `functionalCategory` (Known Issue #4).**
 
-ESLint: **17 problems → 2 problems** (15 errors → 0 errors, осталось 2 warnings в `VirtualizedModList.tsx` от TanStack Virtual — library-level, не относятся к нашему коду).
+Пользователь сообщил: на страницах jewel / amulet / ring / belt ВСЕ аффиксы отображаются в одной functional-категории «Прочее» (например, «Прочее (18)» на ring). На production-странице видно, что вместо 24 функциональных блоков (Дух / Атрибуты / Сопротивления / …) все токены падают в `other`.
 
-### iter 100: что изменилось
+**Root cause:** `GameTokenSchema` в `src/shared/schemas.ts` (lines 55-77) не содержит поля `functionalCategory`. При `CategoryDataSchema.parse(raw)` в `src/data/loader.ts:24` Zod по умолчанию **strips** неизвестные поля → все токены теряют `functionalCategory` → `classifyFunctionalBlock()` (`src/shared/mod-classifier.ts:1282`) попадает в fallback `return 'other';` → ВСЕ family-groups падают в блок `other` («Прочее»).
 
-- **Удалено 17 файлов:**
-  - 8 verify-скриптов: `verify-iter49.ts`, `verify-iter89-deployment.ts`, `verify-iter90-cross-validation.ts`, `verify-iter90-etl-functional-category.ts`, `verify-iter91-discrepancies.ts`, `verify-iter91-strategy0.ts`, `verify-iter92-fixes.ts`, `verify-iter94-fixes.ts`, `verify-iter95-stability.ts`
-  - 5 simulate-скриптов: `simulate-iter86-impact.ts`, `simulate-iter87-impact.ts`, `simulate-iter88-impact.ts`, `simulate-iter89-impact.ts`, `simulate-iter94-impact.ts`
-  - 2 analyze-скрипта: `analyze-iter88-other-bucket.ts`, `analyze-iter89-other-bucket.ts`
-  - 1 stale tracker: `DELETED-FILES-iter92.txt` (iter 97 commit message упоминал удаление, но файл остался на диске — теперь реально удалён)
-- **Сохранено:** `scripts/verify-iter99-alpha-sort.ts` (текущий audit-скрипт), все `scripts/etl/*.ts`, все non-iter-specific scripts (`prerender.ts`, `analyze-regexes.ts`, `run-etl.ts` и т.д.).
-- **Никаких изменений** в `src/`, `tests/`, `public/generated/*.json`, ETL pipeline.
+**Когда появился баг:** iter 90 (commit `009b00d`) — `functionalCategory` добавлен в `GameToken` type (`src/shared/types.ts:61`), но **НЕ** добавлен в Zod-схему. С тех пор runtime был сломан; метрики в STATUS.md показывали 8.3% other-bucket по JSON-данным (ETL), но runtime показывал 100%.
 
-### Метрики (без изменений vs iter 94-99)
+**Почему тесты не ловили:**
+- `tests/shared/mod-classifier.test.ts` — конструирует `FamilyGroup` через `makeGroup()` хелперы, выставляя `functionalCategory` напрямую, без Zod.
+- `tests/etl/cross-validation.test.ts` — использует `JSON.parse(raw)` напрямую, без Zod.
+- Никакого end-to-end теста «load JSON через schema → classify → verify non-`other`» не было.
 
-| Категория | Токенов | Family-groups | functionalCategory | other-bucket | ailments | damage-type |
-|-----------|---------|---------------|--------------------|--------------|----------|-------------|
-| jewel | 193 | 193 | 100% | 8.3% (16/193) | 29 | 24 |
-| amulet | 428 | 105 | 100% | 6.7% (7/105) | 1 | 6 |
-| ring | 369 | 94 | 100% | 3.2% (3/94) | 4 | 18 |
-| belt | 298 | 85 | 100% | 4.7% (4/85) | 3 | 7 |
-| relic | 80 | 25 | N/A (text-only) | N/A | — | — |
+**Фикс (минимальный, backward-compatible):**
+- `src/shared/schemas.ts`: добавлено `functionalCategory: z.string().optional()` в `GameTokenSchema` (1 строка).
+- `tests/etl/etl-schemas.test.ts`: добавлен тест «preserves functionalCategory field from real JSON» — загружает `belt.json` через `CategoryDataSchema.parse()`, проверяет что `functionalCategory` сохраняется на ≥1 токене.
+- `tests/shared/mod-classifier.test.ts`: добавлен end-to-end тест «classifyGroups на реальном belt.json через schema — non-`other` блоки присутствуют».
 
-- **Strategy 0 coverage:** 477/477 (100%) — ring/amulet/belt/jewel
-- **Cross-validation:** 477/477 match (0 расхождений)
-- **Тесты:** 1411/1411 passing (без изменений vs iter 99). TSC: 0 errors. ESLint: **2 warnings** (VirtualizedModList TanStack, library-level).
-- **ETL:** 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
+**Без изменений:** `public/generated/*.json`, ETL pipeline, runtime classifier. После деплоя на production на страницах jewel/amulet/ring/belt появятся корректные functional-блоки (Дух / Атрибуты / Сопротивления / Урон / Крит / …) вместо одного «Прочее».
+
+### Метрики (без изменений vs iter 100)
+
+| Категория | Токенов | Family-groups | functionalCategory (ETL) | other-bucket (ETL) |
+|-----------|---------|---------------|--------------------------|---------------------|
+| jewel | 193 | 193 | 100% | 8.3% (16/193) |
+| amulet | 428 | 105 | 100% | 6.7% (7/105) |
+| ring | 369 | 94 | 100% | 3.2% (3/94) |
+| belt | 298 | 85 | 100% | 4.7% (4/85) |
+| relic | 80 | 25 | N/A (text-only) | N/A |
+
+- **Strategy 0 coverage (ETL):** 477/477 (100%).
+- **Cross-validation:** 477/477 match (0 расхождений).
+- **Тесты:** было 1411/1411, стало 1413/1413 (+2 новых регрессионных). TSC: 0 errors. ESLint: 2 warnings (TanStack, library-level).
+- **ETL:** 11 fresh, 0 stale.
 
 ### Архитектура functionalCategory (без изменений vs iter 96)
 
 1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`): `classifyModFunctionalBlock(tags, rawText)` — 22-шаговый классификатор. `buildFunctionalCategoryMap()` строит modId→category из ModCalc страниц.
-2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify functionalCategory после патча rawText на русский.
-3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов (ETL данные). Fallback `return 'other';`.
-
-### История sort-логики (найдено при расследовании iter 100)
-
-Пользователь заметил, что «ранее была группировка и сортировка, но на какой-то итерации видимо была удалена». Расследование показало:
-
-- **iter e010349 (v7.0 Family Pooling):** `groupTokensByFamily()` изначально сортировал **purely alphabetically** — `affix → familyKey.localeCompare('ru')`. Чистый алфавитный поток.
-- **Session 70 (commit `06cea49`):** добавлен **tier-first sort** — `affix → tier (S→A→B→C) → alpha`. Это изменило UX: внутри функционального блока S-tier моды шли сначала, потом A-tier, фрагментируя алфавитный поток.
-- **iter 96 (commit `c54a3da`):** удалил 22-шаговый regex fallback из `classifyFunctionalBlock()`. **Grouping не затронут** — `FUNCTIONAL_BLOCK_LABELS` + `FUNCTIONAL_BLOCK_ORDER` сохранены, `classifyGroups()` работает как прежде. Просто runtime классификация теперь использует ETL `functionalCategory` вместо regex patterns (100% coverage с iter 91).
-- **iter 97 (commit `4067def`):** удалил 16 исторических audit-скриптов. **Grouping/sort-логика не затронута.**
-- **iter 99:** восстановил alphabetical flow **внутри блоков** через `sortGroupsAlphabetically()` wrapper. Tier-first sort в `groupTokensByFamily()` сохранён для обратной совместимости, но `classifyGroups()` переписывает within-block order поверх него.
-
-**Вывод:** «Удаления группировки» не было — была замена pure-alpha на tier-first в Session 70, что iter 99 исправил. iter 96/97 удаляли мёртвый код (regex fallback + audit-скрипты), не grouping-логику.
+2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify после патча rawText на русский.
+3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов. Fallback `return 'other';`. **iter 101: теперь `functionalCategory` реально доходит до runtime (Zod-схема пропускает поле).**
 
 ---
 
@@ -62,6 +56,7 @@ ESLint: **17 problems → 2 problems** (15 errors → 0 errors, осталось
 1. **2 opt-table entries > 250 chars** в jewel.json — не помещаются в один PoE2 regex.
 2. **j05iep stays crit** — `jewel.mod_j05iep` «сила наносящих урон состояний при крит» имеет tags `[damage, critical, ailment]` и остаётся в `crit` (CRIT шаг 14 выигрывает у AILMENTS шаг 15 в ETL classifier). Intentional — critical tag семантически важнее.
 3. **VirtualizedModList.tsx TanStack warnings (2)** — `react-hooks/incompatible-library` warnings от `useVirtualizer()`. Library-level, не наш код. Можно подавить через `// eslint-disable-next-line` или дождаться апстрим-фикса.
+4. ~~**Zod schema strips `functionalCategory`** — `GameTokenSchema` не содержал поля `functionalCategory`, Zod удалял его при парсинге, runtime classifier падал в `other` для всех токенов.~~ **✅ FIXED iter 101** (добавлено `functionalCategory: z.string().optional()` + 2 регрессионных теста).
 
 ---
 

@@ -1,15 +1,22 @@
 /**
- * Tests for ETL Zod schemas: RawModTierSchema, RawModGroupDataSchema.
+ * Tests for ETL Zod schemas: RawModTierSchema, RawModGroupDataSchema,
+ * CategoryDataSchema, GameTokenSchema.
  *
  * Validates that:
  * - Valid ETL data passes parsing
  * - Invalid data is rejected with clear errors
  * - Edge cases (empty arrays, negative levels, missing fields) are caught
+ * - iter 101 regression: GameTokenSchema preserves `functionalCategory` from
+ *   real production JSON (was stripped by Zod → all affixes rendered as
+ *   "Прочее" in production between iter 90 and iter 100).
  */
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import {
   RawModTierSchema,
   RawModGroupDataSchema,
+  CategoryDataSchema,
 } from '@shared/schemas';
 
 // ─── RawModTier ───
@@ -158,6 +165,92 @@ describe('RawModGroupDataSchema', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { origin, ...withoutOrigin } = validGroup;
     const result = RawModGroupDataSchema.safeParse(withoutOrigin);
+    expect(result.success).toBe(false);
+  });
+});
+
+// ─── CategoryDataSchema / GameTokenSchema ───
+//
+// iter 101 regression: between iter 90 and iter 100, GameTokenSchema was
+// missing the `functionalCategory` field. Zod strips unknown fields by default,
+// so loadCategoryData() silently dropped functionalCategory from every token.
+// classifyFunctionalBlock() then fell into 'other' fallback → all affixes
+// rendered as "Прочее" in production. These tests load real production JSON
+// through the schema (mirroring loader.ts) and verify functionalCategory
+// survives on at least one token.
+
+describe('CategoryDataSchema — functionalCategory preservation (iter 101 regression)', () => {
+  const projectRoot = join(__dirname, '..', '..');
+  const generatedDir = join(projectRoot, 'public', 'generated');
+
+  it('preserves functionalCategory field from real belt.json', () => {
+    const raw = JSON.parse(readFileSync(join(generatedDir, 'belt.json'), 'utf-8'));
+    const parsed = CategoryDataSchema.parse(raw);
+
+    // Sanity: at least one token has functionalCategory defined in the raw JSON.
+    const rawCount = raw.tokens.filter(
+      (t: { functionalCategory?: string }) => t.functionalCategory,
+    ).length;
+    expect(rawCount).toBeGreaterThan(0);
+
+    // Regression: parsed tokens must retain functionalCategory on at least one token.
+    const parsedCount = parsed.tokens.filter(
+      (t) => t.functionalCategory,
+    ).length;
+    expect(parsedCount).toBeGreaterThan(0);
+
+    // Full preservation: every token that had functionalCategory in raw must
+    // still have it after parsing.
+    expect(parsedCount).toBe(rawCount);
+  });
+
+  it('preserves functionalCategory across all jewellery categories', () => {
+    for (const file of ['jewel.json', 'amulet.json', 'ring.json', 'belt.json']) {
+      const raw = JSON.parse(readFileSync(join(generatedDir, file), 'utf-8'));
+      const parsed = CategoryDataSchema.parse(raw);
+
+      const rawCount = raw.tokens.filter(
+        (t: { functionalCategory?: string }) => t.functionalCategory,
+      ).length;
+      const parsedCount = parsed.tokens.filter(
+        (t) => t.functionalCategory,
+      ).length;
+
+      // Every category should have functionalCategory on at least one token.
+      expect(rawCount, `${file}: raw must have functionalCategory`).toBeGreaterThan(0);
+      expect(parsedCount, `${file}: parsed must preserve functionalCategory`).toBe(rawCount);
+    }
+  });
+
+  it('rejects invalid functionalCategory type (non-string)', () => {
+    // functionalCategory is z.string().optional() — must reject non-string.
+    const invalidToken = {
+      id: 'test',
+      category: 'belt',
+      origin: 'normal',
+      rawText: { ru: '+10 к силе' },
+      rawTextTemplate: { ru: '+## к силе' },
+      regex: { ru: 'сил' },
+      familyKey: { ru: 'к силе' },
+      regexPrefix: { ru: '' },
+      hasMultiPlaceholder: false,
+      functionalCategory: 42, // ← invalid: number, not string
+      genderForms: { ru: {} },
+      affix: 'prefix',
+      tags: [],
+      ranges: [],
+      values: [],
+      hasYofication: false,
+      yoficationPositions: [],
+      level: 1,
+    };
+    const result = CategoryDataSchema.safeParse({
+      version: 'test',
+      category: 'belt',
+      source: 'test',
+      tokens: [invalidToken],
+      optimizationTable: {},
+    });
     expect(result.success).toBe(false);
   });
 });

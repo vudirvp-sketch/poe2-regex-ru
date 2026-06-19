@@ -65,6 +65,11 @@ export const GameTokenSchema = z.object({
   regexExclude: LocalizedStringArray.optional(),
   regexPrefixContext: LocalizedString.optional(),
   jewelType: JewelTypeSchema.optional(),
+  // iter 101 (Known Issue #4 fix): functionalCategory was missing here — Zod
+  // stripped it from every token at loadCategoryData() → classifyFunctionalBlock()
+  // fell into 'other' fallback → all affixes rendered as "Прочее" in production.
+  // Added as optional to match types.ts GameToken.functionalCategory?.
+  functionalCategory: z.string().optional(),
   genderForms: z.record(LocaleSchema, GenderFormsSchema),
   affix: AffixTypeSchema,
   tags: z.array(z.string()),
