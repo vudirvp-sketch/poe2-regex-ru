@@ -4,60 +4,64 @@
 
 ---
 
-Task ID: 104
+Task ID: 105
 Agent: main
-Task: P2 first half — waystone sub-blocks (gameplay mechanic sub-grouping within sentiment) + фикс Known Issue #5 (`приспешник.*урон` false-positive в `POSITIVE_KEYWORDS`). Минимальный риск: новый режим `affix-sentiment-subblocks` + 9 sub-blocks + 41 новых тестов. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме.
+Task: P2 second half — tablet sub-blocks (gameplay mechanic sub-grouping within type). Минимальный риск: новый режим `tablet-type-subblocks` + 19 sub-blocks + 28 новых тестов. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
 
 Work Log:
-- 1: Клон репо. Чтение STATUS.md (iter 103 — lint-cleanup, ESLint 0/0), worklog.md (iter 103 подробно), AGENT_NAVIGATION.md (entry iter 103 + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1431/1431; `npx tsc -b` → 0 errors; `npx eslint .` → 0 problems. Выбор scope: только waystone sub-blocks (P2 first half), tablet sub-blocks (P2 second half) — отложен в iter 105 (отдельный анализ needed для second-level внутри type).
-- 2: Анализ waystone sentiment на реальных данных. Запуск sanity script (`scripts/sanity/sim-waystone-sentiment.ts`, временный — удалён после фикса) на мёрдже `waystone.json` + `waystone-desecrated.json` (73 family-groups): positive 25, negative 42, neutral 6. При анализе обнаружен баг: «Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд» классифицирован как positive (через `приспешник.*урон` в `POSITIVE_KEYWORDS`) — это явный negative (player can't damage 30% of time). Документирован как Known Issue #5 в STATUS.md.
-- 3: Fix Known Issue #5 (1 строка в `POSITIVE_KEYWORDS` + 1 альтернатива в `NEGATIVE_KEYWORDS`). Удалён `приспешник.*урон` из POSITIVE (ловил оба: intended positive minion-extra-damage mods AND false-positive «Игроки и их приспешники не наносят урона»). Added `Игроки.*не наносят урон` в NEGATIVE. Intended positive minion mods (`приспешники наносят... дополнительного урона от X`) всё ещё ловятся через `приспешник.*дополнит` (требует «дополнит» между «приспешник» и «урон»). +2 regression tests в `classifyWaystoneSentiment` suite. После fix: positive 25 → 24, negative 42 → 43, neutral 6 → 6.
-- 4: Design sub-block scheme для waystone (9 sub-blocks). POSITIVE: `positive-loot` (items/currency/waystones/gold/chests/exiles/essences), `positive-mechanics` (extra in-map encounters: Breaches, altars, ritual circles, Princess, Breach-minion damage buffs), `positive-buffs` (XP/Spirit/wisps/quality/respawns/implicit meta-stats). NEGATIVE: `negative-monster-power` (damage/crit/effectiveness/accuracy/projectiles/status-application/AoE), `negative-monster-defense` (armor/evasion/ES/HP/res/status-threshold/crit-damage-reduction/curse-resist), `negative-monster-modifiers` (rare-monster extra properties), `negative-player-penalty` (flask/move-speed/cast-recharge/max-res/recovery/forced-death/no-damage), `negative-environment` (curses/ground-effects/soul-eating). NEUTRAL: `neutral-generic`. Архитектурно — flat `ModSubGroup[]` с composite-ключами (color коммуницирует sentiment, label коммуницирует mechanic) — existing ModList rendering не тронут.
-- 5: Implementation в `src/shared/mod-classifier.ts`:
-  - `WaystoneSubBlock` type (9 variants: 3 positive + 5 negative + 1 neutral).
-  - `WAYSTONE_SUBBLOCK_LABELS` — display config (color/bg/border per sub-block; color matches sentiment).
-  - `WAYSTONE_SUBBLOCK_ORDER` — canonical render order (positive → negative → neutral).
-  - 7 sub-block pattern regexes (POSITIVE_LOOT/MECHANICS/BUFFS + NEGATIVE_MONSTER_POWER/DEFENSE/MODIFIERS/PLAYER_PENALTY/ENVIRONMENT).
-  - `classifyWaystoneSubBlock(group)` function — two-phase: 1) `classifyWaystoneSentiment()` determines sentiment, 2) sub-block patterns within sentiment. Each sentiment has fallback sub-block (positive → buffs, negative → environment, neutral → neutral-generic).
-  - `'affix-sentiment-subblocks'` mode added to `ModGroupMode` union type.
-  - Implementation в `classifyGroups()` для нового режима — mirror архитектуры `affix-sentiment` (Map → order filter → map to ModSubGroup), just with finer-grained keys.
-- 6: Switch WaystonePage на новый режим: `src/ui/pages/waystone/WaystonePage.tsx` — `groupMode="affix-sentiment"` → `groupMode="affix-sentiment-subblocks"`. Старый режим `affix-sentiment` сохранён как legacy (как `affix-semantic` сохранён после `affix-functional`) — backward compat с тестами / external callers.
-- 7: Sanity-run `classifyWaystoneSubBlock` на real data. Обнаружены 2 issues с patterns:
-  - (a) `энергетическ.*щит` в NEGATIVE_MONSTER_DEFENSE_PATTERNS был слишком broad — ловил player-ES дебафф «Скорость восстановления здоровья и энергетического щита игроков ... меньше» (должен идти в player-penalty). Fix: `монстр.*энергетическ.*щит` (требует «монстр» перед «энергетическ»).
-  - (b) `порог.*состоян.*монстр` в NEGATIVE_MONSTER_DEFENSE_PATTERNS требовал «монстр» ПОСЛЕ «порог» — но текст «Монстры имеют N увеличение порога состояний» имеет «монстр» ДО «порог». Fix: `порог.*состоян|порог.*оглушен` (order-agnostic, работает в negative context где все such mods — monster-related).
-  - (c) `дополнит.*ларец` был в POSITIVE_KEYWORDS, но отсутствовал в POSITIVE_LOOT_PATTERNS — «дополнительный ларец» (chest) падал бы в positive-buffs fallback вместо loot. Fix: добавлен `дополнит.*ларец` в POSITIVE_LOOT_PATTERNS.
-- 8: После pattern fixes — финальная distribution на real data (73 family-groups, все классифицированы, ни один не потерян): positive-loot 8, positive-mechanics 13, positive-buffs 3, negative-monster-power 16, negative-monster-defense 9, negative-monster-modifiers 3, negative-player-penalty 7, negative-environment 8, neutral-generic 6.
-- 9: Tests в `tests/shared/mod-classifier.test.ts` (+41 новых, total 369 в файле):
-  - `classifyWaystoneSentiment` suite: +2 Known Issue #5 regression tests (verify «players deal no damage» теперь negative; verify intended minion-extra-damage mods всё ещё positive).
-  - `classifyWaystoneSubBlock` suite (новый, 28 tests): coverage для всех 9 sub-blocks + fallback test + label-coverage sanity check.
-  - `classifyGroups` suite: +5 tests для `affix-sentiment-subblocks` mode (composite-key sub-blocks, empty-skip, alphabetical within sub-block, canonical order, FamilyGroup reference preservation).
-- 10: Cleanup. Удалены временные sanity scripts в `scripts/sanity/` (per iter 100 rule: «Не добавляй новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ или inline sanity в worklog.md»). Distribution вынесена в STATUS.md как inline sanity table.
-- 11: Верификация: `npx vitest run` → **1472/1472** (было 1431, +41). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. ETL не запускался — `public/generated/*.json` не тронуты (verified via `git status`).
-- 12: Документация:
-  - `STATUS.md` — iter 104 как текущая; «Что сделано» + «Метрики» (1472/1472); Known Issue #5 помечен ✅ FIXED iter 104 с описанием фикса; «Открытые долги» обновлены — P2 waystone closed, P2 tablet остаётся; added inline sanity table (sub-block distribution на real data); runtime-метрики таблица обновлена (waystone row: 73 groups / 9 sub-blocks).
-  - `worklog.md` — iter 103 сжат до одной строки, iter 104 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 104 (waystone sub-blocks + Known Issue #5 closed); Roadmap iter 104 done + обновлён optional-список (P2 waystone closed, P2 tablet next).
+- 1: Клон репо. Чтение STATUS.md (iter 104 — waystone sub-blocks + Known Issue #5 fix, 1472/1472), worklog.md (iter 104 подробно), AGENT_NAVIGATION.md (entry iter 104 + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1472/1472; `npx tsc -b` → 0 errors; `npx eslint .` → 0 problems. Выбор scope: только tablet sub-blocks (P2 second half). P4 (tier-aware sort toggle) — отложен в iter 106+ (отдельный UI-work в CategoryControlPanel).
+- 2: Анализ tablet type distribution на реальных данных. Запуск sanity script (`scripts/sanity/analyze-tablet-type.ts`, временный) на `tablet.json` (82 family-groups): ritual 14, breach 11, delirium 9, vaal 8, expedition 8, generic 32. Дизайн second-level scheme: 3 sub-blocks per type (4 для generic, т.к. 32 groups слишком много для 3). Total: 19 sub-blocks. Схема:
+  - RITUAL (14 → 3 sub-blocks): rewards (6 — награды/дань/предзнаменования), monsters (3 — возрожденные/принесенные в жертву), content (5 — алтари и круги)
+  - BREACH (11 → 3): monsters (5 — эффективность/порождение/сложность монстров Бездны), rewards (2 — очерняющая валюта/награды провалов), content (4 — количество Бездн + Глубины Бездны)
+  - DELIRIUM (9 → 3): mist (4 — Туман/Плотность/таймер), rewards (4 — осколки/Симулякр/боссы/зеркала), monsters (1 — размер групп монстров Делириума)
+  - VAAL (8 → 3): monsters (5 — спавны/группы/уникальные монстры Маяков), rewards (2 — сундуки/кристаллы), content (1 — Маяки implicit)
+  - EXPEDITION (8 → 3): rewards (4 — реликт/артефакт/журнал/+реликт), explosives (2 — радиус взрывчатки), monsters (2 — рунические метки/редкие монстры Экспедиции)
+  - GENERIC (32 → 4): loot (6 — золото/путевые камни/редкость/предметы), monsters (9 — эффективность/редкость/количество/плотность/размер групп/доп. свойства), encounters (15 — доп. Сущности/изгнанники/дух/сундуки/Заражение/свойство/Разломы/заряды), player (2 — опыт)
+- 3: Implementation в `src/shared/mod-classifier.ts`:
+  - `TabletSubBlock` type (19 variants: 3+3+3+3+3+4).
+  - `TABLET_SUBBLOCK_LABELS` — display config (color/bg/border per sub-block; color matches parent type — red/violet/blue/amber/emerald/muted).
+  - `TABLET_SUBBLOCK_ORDER` — canonical render order (ritual → breach → delirium → vaal → expedition → generic; within each type by gameplay significance).
+  - 16 sub-block pattern regexes (по 2 на type, кроме generic где 3 — остальные sub-blocks через fallback).
+  - `classifyTabletSubBlock(group)` function — two-phase: 1) `classifyTabletType()` determines type, 2) sub-block patterns within type. Each type has fallback sub-block (ritual→content, breach→content, delirium→monsters, vaal→content, expedition→monsters, generic→monsters).
+  - `'tablet-type-subblocks'` mode added to `ModGroupMode` union type.
+  - Implementation в `classifyGroups()` для нового режима — mirror архитектуры `affix-sentiment-subblocks` (iter 104) и `tablet-type` (Map → order filter → map to ModSubGroup), just with finer-grained keys.
+- 4: Switch TabletPage на новый режим: `src/ui/pages/tablet/TabletPage.tsx` — `groupMode="tablet-type"` → `groupMode="tablet-type-subblocks"`. Старый режим `tablet-type` сохранён как legacy (как `affix-sentiment` сохранён после `affix-sentiment-subblocks`) — backward compat с тестами / external callers.
+- 5: Sanity-run `classifyTabletSubBlock` на real data. Расширенный sanity script (`scripts/sanity/analyze-tablet-subblocks.ts`) верифицирует actual-vs-expected distribution для всех 19 sub-blocks. Результат: **0 mismatches**, все 82 family-groups классифицированы. Distribution полностью совпала с дизайном.
+- 6: Pattern design notes (валидированы sanity-прогоном):
+  - (a) RITUAL — monsters BEFORE rewards. Regression: «Монстры, принесенные в жертву...даруют увеличенное...количество дани» имеет ОБА «жертв» (monsters) и «дан» (rewards). Семантически это monster-механика (subject = принесенные монстры), не reward-механика. Pattern priority: `RITUAL_MONSTERS_PATTERNS` (`возрожден|принесен.*жертв`) → `RITUAL_REWARDS_PATTERNS` (`дан|наград|предзнаменов`) → fallback `ritual-content`. +1 regression test.
+  - (b) DELIRIUM — rewards BEFORE mist. Regression: «Туман Делириума порождает...осколков зеркал» имеет ОБА «Туман» (mist) и «осколков» (rewards). Семантически это reward-модификатор (mist производит больше осколков), не mist-механика. Pattern priority: `DELIRIUM_REWARDS_PATTERNS` (`осколк|хрупк.*зеркал|Симулякр|боссов`) → `DELIRIUM_MIST_PATTERNS` (`Туман|Плотность|таймер`) → fallback `delirium-monsters`. +1 regression test.
+  - (c) GENERIC — encounters BEFORE monsters. Regression: «Нестабильные Разломы...порождают дополнительного редкого монстра» имеет «монстр» (monsters), но семантически это encounter-спавн (extra content), не monster-stat. Pattern priority: `GENERIC_LOOT_PATTERNS` (`золот|путев|предмет`) → `GENERIC_PLAYER_PATTERNS` (`опыт`) → `GENERIC_ENCOUNTERS_PATTERNS` (specific phrases: `На карте можно встретить|шансом можно встретить|Добавляет Заражение|Нестабильные Разломы|случайным свойством|Осталось зарядов`) → fallback `generic-monsters`. Encounters pattern намеренно использует specific phrases (не bare «на карте» или «Разломах»), чтобы не false-match на monster density mods.
+- 7: Tests в `tests/shared/mod-classifier.test.ts` (+28 новых, total 397 в файле):
+  - `classifyTabletSubBlock` suite (новый, 23 tests): coverage для всех 19 sub-blocks + 2 regression tests для pattern priority (ritual-monsters перед ritual-rewards, delirium-rewards перед delirium-mist) + 1 label-coverage sanity check.
+  - `classifyGroups` suite: +5 tests для `tablet-type-subblocks` mode (composite-key sub-blocks, empty-skip, alphabetical within sub-block, canonical order, FamilyGroup reference preservation).
+- 8: Cleanup. Удалены временные sanity scripts в `scripts/sanity/` (per iter 100 rule: «Не добавляй новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ или inline sanity в worklog.md»). Distribution вынесена в STATUS.md как inline sanity table.
+- 9: Верификация: `npx vitest run` → **1500/1500** (было 1472, +28). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. ETL не запускался — `public/generated/*.json` не тронуты (verified via `git status`).
+- 10: Документация:
+  - `STATUS.md` — iter 105 как текущая; «Что сделано» + «Метрики» (1500/1500); Known Issues без изменений (только #1 и #2 остаются, оба intentional); «Открытые долги» обновлены — P2 tablet closed, P4 + sortKey + waystone neutral-generic остаются; added «Tablet Разломы vs Бездна» как новый low-priority долг (2 mods используют «Разлом» вместо «Бездна» — классифицируются как generic, но sub-block classification корректна); added inline sanity table (sub-block distribution на real data); runtime-метрики таблица обновлена (tablet row: 82 groups / 19 sub-blocks).
+  - `worklog.md` — iter 104 сжат до одной строки, iter 105 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 105 (tablet sub-blocks); Roadmap iter 105 done + обновлён optional-список (P2 полностью closed, P4 next).
 
 Stage Summary:
-- **iter 104 COMPLETE.** Waystone sub-blocks (P2 first half) реализованы: новый режим `affix-sentiment-subblocks` с 9 sub-blocks (3 positive + 5 negative + 1 neutral), WaystonePage переключён на новый режим. Known Issue #5 закрыт (`приспешник.*урон` false-positive).
+- **iter 105 COMPLETE.** Tablet sub-blocks (P2 second half) реализованы: новый режим `tablet-type-subblocks` с 19 sub-blocks (3+3+3+3+3+4), TabletPage переключён на новый режим. P2 (sub-blocks для waystone и tablet) полностью закрыта.
 - **Изменённые файлы (4):**
-  - `src/shared/mod-classifier.ts` — +160 строк (WaystoneSubBlock type + WAYSTONE_SUBBLOCK_LABELS + WAYSTONE_SUBBLOCK_ORDER + 7 sub-block patterns + classifyWaystoneSubBlock function + affix-sentiment-subblocks mode в classifyGroups + Known Issue #5 fix в POSITIVE/NEGATIVE_KEYWORDS + sub-block pattern fixes: `монстр.*энергетическ.*щит`, order-agnostic `порог.*состоян|порог.*оглушен`, `дополнит.*ларец` в POSITIVE_LOOT_PATTERNS).
-  - `src/ui/pages/waystone/WaystonePage.tsx` — 1 строка (groupMode change).
-  - `tests/shared/mod-classifier.test.ts` — +41 новых тестов (2 Known Issue #5 regression + 28 classifyWaystoneSubBlock unit + 5 affix-sentiment-subblocks mode + 6 прочих).
+  - `src/shared/mod-classifier.ts` — +225 строк (TabletSubBlock type + TABLET_SUBBLOCK_LABELS + TABLET_SUBBLOCK_ORDER + 16 sub-block patterns + classifyTabletSubBlock function + tablet-type-subblocks mode в classifyGroups + tablet-type-subblocks в ModGroupMode union).
+  - `src/ui/pages/tablet/TabletPage.tsx` — 1 строка (groupMode change).
+  - `tests/shared/mod-classifier.test.ts` — +28 новых тестов (23 classifyTabletSubBlock unit + 5 tablet-type-subblocks mode). Включает 2 regression tests для pattern priority + 1 label-coverage sanity check.
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — документация актуализирована.
-- **Тесты:** 1472/1472 (+41 vs iter 103). TSC: 0 errors. ESLint: **0 errors + 0 warnings**. ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме.
-- **Real-data distribution (inline sanity):** 73/73 waystone family-groups классифицированы: positive-loot 8, positive-mechanics 13, positive-buffs 3, negative-monster-power 16, negative-monster-defense 9, negative-monster-modifiers 3, negative-player-penalty 7, negative-environment 8, neutral-generic 6.
-- **Точка остановки:** iter 104 done. В iter 105+ можно:
-  1. **P2 — tablet sub-blocks (second half)**: sub-группировка внутри type (ritual/breach/delirium/vaal/expedition/generic) по second-level gameplay mechanic. iter 104 закрыл только waystone half. Нужен анализ, какой second-level имеет смысл (например, rewards/difficulty/quantity внутри ritual; monster-density/loot/bosses внутри breach).
-  2. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
-  3. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
-  4. **Опционально: waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods можно расширить POSITIVE_KEYWORDS, чтобы их поймать (большинство семантически positive — extra Breach content / player soul-steal benefit). Low-priority.
-- **Подсказка следующему агенту:** iter 104 = waystone sub-blocks + Known Issue #5 fix, runtime functional-classifier / ETL / JSON / схема / tablet page не тронуты. Baseline: 1472/1472 tests, TSC 0, ESLint **0 problems**. Перед стартом iter 105 прочитай STATUS.md (актуальный статус + Known Issues — теперь только #1 и #2 остаются, оба intentional), worklog.md (iter 104 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (entry paragraph iter 104, Roadmap iter 104 done). Не создавай новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md (правило iter 100).
+- **Тесты:** 1500/1500 (+28 vs iter 104). TSC: 0 errors. ESLint: **0 errors + 0 warnings**. ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
+- **Real-data distribution (inline sanity):** 82/82 tablet family-groups классифицированы — ritual-rewards 6, ritual-monsters 3, ritual-content 5, breach-monsters 5, breach-rewards 2, breach-content 4, delirium-mist 4, delirium-rewards 4, delirium-monsters 1, vaal-monsters 5, vaal-rewards 2, vaal-content 1, expedition-rewards 4, expedition-explosives 2, expedition-monsters 2, generic-loot 6, generic-monsters 9, generic-encounters 15, generic-player 2.
+- **Точка остановки:** iter 105 done. P2 (sub-blocks) полностью закрыта. В iter 106+ можно:
+  1. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
+  2. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
+  3. **Опционально: waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods можно расширить POSITIVE_KEYWORDS, чтобы их поймать. Low-priority.
+  4. **Опционально: Tablet Разломы vs Бездна**: 2 mods используют «Разлом» вместо «Бездна» и классифицируются как generic. Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution. Low-priority — текущая sub-block classification корректна.
+- **Подсказка следующему агенту:** iter 105 = tablet sub-blocks (P2 second half), runtime functional-classifier / ETL / JSON / схема / WaystonePage не тронуты. Baseline: 1500/1500 tests, TSC 0, ESLint **0 problems**. Перед стартом iter 106 прочитай STATUS.md (актуальный статус + Known Issues — только #1 и #2 остаются, оба intentional), worklog.md (iter 105 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (entry paragraph iter 105, Roadmap iter 105 done). Не создавай новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md (правило iter 100).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 104**: P2 first half — waystone sub-blocks + Known Issue #5 fix. Новый режим `affix-sentiment-subblocks` с 9 sub-blocks. 1472/1472 tests.
 - **iter 103**: подавление 2 TanStack library-level ESLint warnings — Known Issue #3 закрыт. 1431/1431 tests.
 - **iter 102**: e2e-регрессионные тесты для runtime-classification pipeline — 17 тестов в `tests/integration/runtime-classification.test.ts`. 1431/1431 tests.
 - **iter 101**: P0-фикс Critical Bug — `GameTokenSchema` без `functionalCategory` → Zod strips → runtime classifier падал в `other`. +3 регрессионных теста. 1414/1414 tests.

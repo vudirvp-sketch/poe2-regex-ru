@@ -290,7 +290,7 @@ export function TabletPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="tablet-type"
+              groupMode="tablet-type-subblocks"
               category="tablet"
               priorityFilter={priorityFilter}
             />

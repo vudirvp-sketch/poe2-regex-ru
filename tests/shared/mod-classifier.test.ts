@@ -20,6 +20,7 @@ import {
   classifyWaystoneSentiment,
   classifyWaystoneSubBlock,
   classifyTabletType,
+  classifyTabletSubBlock,
   classifyPriorityTier,
   classifyFunctionalBlock,
   classifyGroups,
@@ -30,11 +31,13 @@ import {
   WEAPON_CLASS_LABELS,
   RELIC_LABELS,
   WAYSTONE_SUBBLOCK_LABELS,
+  TABLET_SUBBLOCK_LABELS,
   TIER_SORT_ORDER,
   type JewelTypeCategory,
   type FunctionalBlock,
   type WeaponClass,
   type WaystoneSubBlock,
+  type TabletSubBlock,
 } from '@shared/mod-classifier';
 import type { FamilyGroup, GameToken } from '@shared/types';
 
@@ -703,6 +706,191 @@ describe('classifyTabletType', () => {
   it('classifies unknown as generic', () => {
     const group = makeGroup('(5—15)% увеличение области действия');
     expect(classifyTabletType(group)).toBe('generic');
+  });
+});
+
+// ─── classifyTabletSubBlock (iter 105) ───
+
+describe('classifyTabletSubBlock', () => {
+  // ─── RITUAL sub-blocks ───
+
+  it('ritual-rewards: tribute cost reduction mods', () => {
+    expect(classifyTabletSubBlock(makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'))).toBe('ritual-rewards');
+    expect(classifyTabletSubBlock(makeGroup('(20—30)% уменьшение стоимости в дани для обновления наград в алтарях Ритуала на карте'))).toBe('ritual-rewards');
+  });
+
+  it('ritual-rewards: reward refresh / omens / delayed rewards', () => {
+    expect(classifyTabletSubBlock(makeGroup('Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз'))).toBe('ritual-rewards');
+    expect(classifyTabletSubBlock(makeGroup('Награды Ритуала на карте с увеличенным на (35—70)% шансом могут оказаться предзнаменованиями'))).toBe('ritual-rewards');
+    expect(classifyTabletSubBlock(makeGroup('Обновленные награды в алтарях Ритуала на карте с (3—6)% шансом могут не стоить дани'))).toBe('ritual-rewards');
+    expect(classifyTabletSubBlock(makeGroup('Отложенные награды в алтарях Ритуала на карте появляются снова на (25—40)% быстрее'))).toBe('ritual-rewards');
+  });
+
+  it('ritual-monsters: revived monsters at altars', () => {
+    expect(classifyTabletSubBlock(makeGroup('Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на (35—70)% шансом могут стать волшебными'))).toBe('ritual-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на (25—40)% шансом могут стать редкими'))).toBe('ritual-monsters');
+  });
+
+  it('ritual-monsters: sacrificed monsters (not rewards, despite mentioning "дани")', () => {
+    // Regression: "Монстры, принесенные в жертву...даруют увеличенное...количество дани"
+    // mentions BOTH "жертву" and "дани" — must classify as ritual-monsters
+    // (subject is monsters), NOT ritual-rewards (which would match "дан").
+    expect(classifyTabletSubBlock(makeGroup('Монстры, принесенные в жертву на алтарях Ритуала на карте, даруют увеличенное на (18—30)% количество дани'))).toBe('ritual-monsters');
+  });
+
+  it('ritual-content: altar/circle count (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('Добавляет алтари Ритуала на карту', { affix: 'implicit' }))).toBe('ritual-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительный алтарь'))).toBe('ritual-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительный ритуальный круг'))).toBe('ritual-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте с увеличенным на (70—100)% шансом можно встретить алтари'))).toBe('ritual-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте с увеличенным на (70—100)% шансом можно встретить ритуальный круг'))).toBe('ritual-content');
+  });
+
+  // ─── BREACH sub-blocks ───
+
+  it('breach-monsters: monster power/count/properties', () => {
+    expect(classifyTabletSubBlock(makeGroup('(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%'))).toBe('breach-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Бездны на карте порождают увеличенное на (20—30)% количество монстров'))).toBe('breach-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Из Бездн на карте появляется дополнительных редких монстров: (1—2)'))).toBe('breach-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Монстры Бездны на ваших картах с увеличенным на (20—30)% шансом могут обладать свойствами Бездны'))).toBe('breach-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Сложность монстров Бездны на карте и награды с них увеличиваются за каждый закрытый провал'))).toBe('breach-monsters');
+  });
+
+  it('breach-rewards: occult currency / breach rewards', () => {
+    expect(classifyTabletSubBlock(makeGroup('(20—30)% увеличение шанса получения очерняющей валюты из Бездн на карте'))).toBe('breach-rewards');
+    expect(classifyTabletSubBlock(makeGroup('В два раза выше шанс получения наград в провалах Бездны на карте'))).toBe('breach-rewards');
+  });
+
+  it('breach-content: breach count / depths (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('Добавляет Бездны на карту', { affix: 'implicit' }))).toBe('breach-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительную Бездну'))).toBe('breach-content');
+    expect(classifyTabletSubBlock(makeGroup('На карте с (20—40)% шансом можно встретить четыре дополнительные Бездны'))).toBe('breach-content');
+    expect(classifyTabletSubBlock(makeGroup('Бездны на карте с увеличенным на (10—20)% шансом могут привести к Глубинам Бездны'))).toBe('breach-content');
+  });
+
+  // ─── DELIRIUM sub-blocks ───
+
+  it('delirium-rewards: shards / mirrors / simulacra / bosses (checked BEFORE mist)', () => {
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение размера находимых на карте стопок осколков Симулякра'))).toBe('delirium-rewards');
+    expect(classifyTabletSubBlock(makeGroup('События Делириума на карте с на (15—30)% большим шансом могут породить уникальных боссов'))).toBe('delirium-rewards');
+  });
+
+  it('delirium-rewards: mist-produced shards (Туман + осколк — must be rewards, not mist)', () => {
+    // Regression: "Туман Делириума порождает...осколков зеркал" mentions BOTH "Туман"
+    // (mist) and "осколков" (rewards) — must classify as delirium-rewards
+    // (subject is reward modifier), NOT delirium-mist.
+    expect(classifyTabletSubBlock(makeGroup('Туман Делириума на карте порождает на (12—26)% больше осколков зеркал'))).toBe('delirium-rewards');
+    expect(classifyTabletSubBlock(makeGroup('Туман Делириума на карте порождает увеличенное на (15—30)% количество хрупких зеркал'))).toBe('delirium-rewards');
+  });
+
+  it('delirium-mist: duration / dispersion / density / mirror timer', () => {
+    expect(classifyTabletSubBlock(makeGroup('Плотность Делириума на карте увеличивается на (15—30)% быстрее в зависимости от расстояния до Зеркала'))).toBe('delirium-mist');
+    expect(classifyTabletSubBlock(makeGroup('Туман Делириума на карте длится (6—12) дополнительных секунд(-ы) перед рассеиванием'))).toBe('delirium-mist');
+    expect(classifyTabletSubBlock(makeGroup('Туман Делириума на карте рассеивается на (20—30)% медленнее'))).toBe('delirium-mist');
+    expect(classifyTabletSubBlock(makeGroup('Убийство редких монстров на карте останавливает таймер Зеркала Делириума на (3—5) секунд(-ы)'))).toBe('delirium-mist');
+  });
+
+  it('delirium-monsters: monster group size (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение размера групп монстров Делириума на карте'))).toBe('delirium-monsters');
+  });
+
+  // ─── VAAL sub-blocks ───
+
+  it('vaal-monsters: monster spawns / group size / unique monsters', () => {
+    expect(classifyTabletSubBlock(makeGroup('(10—25)% шанс добавить на карту уникального монстра Маяка Ваал'))).toBe('vaal-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(10—30)% увеличение размера групп монстров вокруг Маяков Ваал на карте'))).toBe('vaal-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(25—50)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте'))).toBe('vaal-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(30—60)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте'))).toBe('vaal-monsters');
+    expect(classifyTabletSubBlock(makeGroup('1 дополнительная группа монстров вокруг Маяков Ваал на карте'))).toBe('vaal-monsters');
+  });
+
+  it('vaal-rewards: beacon chests / crystals', () => {
+    expect(classifyTabletSubBlock(makeGroup('(30—60)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими'))).toBe('vaal-rewards');
+    expect(classifyTabletSubBlock(makeGroup('(5—10)% шанс получить дополнительный кристалл с Маяков Ваал на карте'))).toBe('vaal-rewards');
+  });
+
+  it('vaal-content: beacon count (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('Добавляет маяки ваал на карту', { affix: 'implicit' }))).toBe('vaal-content');
+  });
+
+  // ─── EXPEDITION sub-blocks ───
+
+  it('expedition-rewards: relicts / artifacts / logs', () => {
+    expect(classifyTabletSubBlock(makeGroup('(12—18)% усиление эффекта реликтов Экспедиции на карте'))).toBe('expedition-rewards');
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение количества выпадающих из монстров на карте артефактов Экспедиции'))).toBe('expedition-rewards');
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение количества журналов Экспедиции, выпадающих из рунических монстров на карте'))).toBe('expedition-rewards');
+    expect(classifyTabletSubBlock(makeGroup('+(1—2) реликт в Экспедициях на карте'))).toBe('expedition-rewards');
+  });
+
+  it('expedition-explosives: explosive radius', () => {
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение радиуса действия взрывчатки в событии Экспедиции на карте'))).toBe('expedition-explosives');
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение радиуса размещения взрывчатки в событии Экспедиции на карте'))).toBe('expedition-explosives');
+  });
+
+  it('expedition-monsters: runic markers / rare monsters (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('(15—30)% увеличение количества меток с руническими монстрами на карте'))).toBe('expedition-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(25—40)% увеличение количества редких монстров Экспедиции на карте'))).toBe('expedition-monsters');
+  });
+
+  // ─── GENERIC sub-blocks ───
+
+  it('generic-loot: gold / waystones / item rarity / boss drops', () => {
+    expect(classifyTabletSubBlock(makeGroup('(25—35)% увеличение количества находимого на карте золота'))).toBe('generic-loot');
+    expect(classifyTabletSubBlock(makeGroup('(30—40)% увеличение количества находимых на карте путевых камней'))).toBe('generic-loot');
+    expect(classifyTabletSubBlock(makeGroup('(18—30)% увеличение количества выпадающих из боссов карты путевых камней'))).toBe('generic-loot');
+    expect(classifyTabletSubBlock(makeGroup('(13—20)% увеличение количества предметов, выпадающих из боссов карт'))).toBe('generic-loot');
+    expect(classifyTabletSubBlock(makeGroup('(35—60)% увеличение редкости предметов, выпадающих из боссов карт'))).toBe('generic-loot');
+    expect(classifyTabletSubBlock(makeGroup('(8—12)% увеличение редкости находимых на карте предметов'))).toBe('generic-loot');
+  });
+
+  it('generic-player: XP gain', () => {
+    expect(classifyTabletSubBlock(makeGroup('(12—18)% увеличение количества получаемого опыта на карте'))).toBe('generic-player');
+    expect(classifyTabletSubBlock(makeGroup('Боссы карт даруют на (40—80)% больше опыта'))).toBe('generic-player');
+  });
+
+  it('generic-encounters: extra Сущности / exiles / chests / spirits / properties / Заражение / Разломы / charges', () => {
+    expect(classifyTabletSubBlock(makeGroup('Добавляет Заражение на карту', { affix: 'implicit' }))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('Карта обладает (1—2) дополнительным случайным свойством'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительного духа азмири'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительную Сущность'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительный ларец'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте можно встретить дополнительных бродячих изгнанников: 1'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте с увеличенным на (70—100)% шансом можно встретить бродячих изгнанников'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('На карте с увеличенным на (70—100)% шансом можно встретить ларцы'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации'))).toBe('generic-encounters');
+    expect(classifyTabletSubBlock(makeGroup('Осталось зарядов - #', { affix: 'implicit' }))).toBe('generic-encounters');
+  });
+
+  it('generic-monsters: monster stats / rarity / group size (fallback)', () => {
+    expect(classifyTabletSubBlock(makeGroup('(10—15)% увеличение эффективности монстров'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(15—20)% увеличение редкости монстров на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(25—35)% увеличение количества редких монстров на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(30—40)% увеличение количества волшебных монстров на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(5—15)% увеличение плотности монстров в Разломах на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('(5—7)% увеличение размера групп монстров на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('% уменьшение размера групп монстров на карте'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Редкие монстры на карте имеют (50—80)% к превосходящему шансу обладать дополнительным свойством'))).toBe('generic-monsters');
+    expect(classifyTabletSubBlock(makeGroup('Уникальные монстры имеют дополнительных свойств: 1'))).toBe('generic-monsters');
+  });
+
+  // ─── Label coverage sanity check ───
+
+  it('TABLET_SUBBLOCK_LABELS: all 19 sub-blocks have non-empty labels', () => {
+    const subBlocks: TabletSubBlock[] = [
+      'ritual-rewards', 'ritual-monsters', 'ritual-content',
+      'breach-monsters', 'breach-rewards', 'breach-content',
+      'delirium-mist', 'delirium-rewards', 'delirium-monsters',
+      'vaal-monsters', 'vaal-rewards', 'vaal-content',
+      'expedition-rewards', 'expedition-explosives', 'expedition-monsters',
+      'generic-loot', 'generic-monsters', 'generic-encounters', 'generic-player',
+    ];
+    for (const sb of subBlocks) {
+      const cfg = TABLET_SUBBLOCK_LABELS[sb];
+      expect(cfg.label.length).toBeGreaterThan(0);
+      expect(cfg.colorClass.length).toBeGreaterThan(0);
+      expect(cfg.bgClass.length).toBeGreaterThan(0);
+      expect(cfg.borderClass.length).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -2950,6 +3138,84 @@ describe('classifyGroups applies alphabetical within-block sort (iter 99)', () =
     const powerSg = result.find(sg => sg.key === 'negative-monster-power');
     expect(lootSg?.groups[0]).toBe(g1);
     expect(powerSg?.groups[0]).toBe(g2);
+  });
+
+  // ─── iter 105: tablet-type-subblocks mode ───
+
+  it('tablet-type-subblocks: produces composite-key sub-blocks (iter 105)', () => {
+    // Mix of ritual-rewards + breach-monsters — verify both sub-blocks appear
+    // with composite keys, in canonical order (ritual before breach).
+    const groups: FamilyGroup[] = [
+      makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'), // ritual-rewards
+      makeGroup('(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%'),         // breach-monsters
+    ];
+    const result = classifyGroups(groups, 'tablet-type-subblocks');
+    expect(result.map(sg => sg.key)).toEqual(['ritual-rewards', 'breach-monsters']);
+    expect(result[0].label).toBe('Награды Ритуала');
+    expect(result[1].label).toBe('Монстры Бездны');
+  });
+
+  it('tablet-type-subblocks: empty sub-blocks are skipped (iter 105)', () => {
+    // Only ritual-rewards mods — only that sub-block should appear (others skipped).
+    const groups: FamilyGroup[] = [
+      makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'),
+      makeGroup('(20—30)% уменьшение стоимости в дани для обновления наград в алтарях Ритуала на карте'),
+    ];
+    const result = classifyGroups(groups, 'tablet-type-subblocks');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('ritual-rewards');
+  });
+
+  it('tablet-type-subblocks: within sub-block, groups are alphabetically sorted (iter 105)', () => {
+    // 2 ritual-rewards mods in reverse alpha — verify iter 99 alphabetical sort applies.
+    const groups: FamilyGroup[] = [
+      makeGroup('(20—30)% уменьшение стоимости в дани для обновления наград в алтарях Ритуала на карте'),
+      makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'),
+    ];
+    const result = classifyGroups(groups, 'tablet-type-subblocks');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('ritual-rewards');
+    const familyKeys = result[0].groups.map(g => g.familyKey);
+    const reSorted = [...familyKeys].sort((a, b) => a.localeCompare(b, 'ru'));
+    expect(familyKeys).toEqual(reSorted);
+  });
+
+  it('tablet-type-subblocks: sub-blocks render in canonical order (iter 105)', () => {
+    // One mod per sub-block across multiple types — verify result is in
+    // TABLET_SUBBLOCK_ORDER (ritual-rewards → ritual-monsters → ritual-content →
+    // breach-monsters → ... → generic-player).
+    const groups: FamilyGroup[] = [
+      makeGroup('(12—18)% увеличение количества получаемого опыта на карте'), // generic-player
+      makeGroup('(25—35)% увеличение количества находимого на карте золота'), // generic-loot
+      makeGroup('Добавляет маяки ваал на карту', { affix: 'implicit' }),     // vaal-content
+      makeGroup('Добавляет Бездны на карту', { affix: 'implicit' }),         // breach-content
+      makeGroup('На карте можно встретить дополнительный алтарь'),           // ritual-content
+      makeGroup('Монстры, возрожденные у алтарей Ритуала на карте, с увеличенным на (35—70)% шансом могут стать волшебными'), // ritual-monsters
+      makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'),       // ritual-rewards
+    ];
+    const result = classifyGroups(groups, 'tablet-type-subblocks');
+    expect(result.map(sg => sg.key)).toEqual([
+      'ritual-rewards',
+      'ritual-monsters',
+      'ritual-content',
+      'breach-content',
+      'vaal-content',
+      'generic-loot',
+      'generic-player',
+    ]);
+  });
+
+  it('tablet-type-subblocks: preserves FamilyGroup references (no clone, iter 105)', () => {
+    // Same invariant as tablet-type and affix-sentiment-subblocks: FamilyGroup
+    // object references must be preserved (not cloned) so downstream React
+    // memoization works.
+    const g1 = makeGroup('(20—30)% уменьшение количества дани, требуемой для откладывания наград в алтарях Ритуала на карте'); // ritual-rewards
+    const g2 = makeGroup('(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%');         // breach-monsters
+    const result = classifyGroups([g1, g2], 'tablet-type-subblocks');
+    const rewardsSg = result.find(sg => sg.key === 'ritual-rewards');
+    const monstersSg = result.find(sg => sg.key === 'breach-monsters');
+    expect(rewardsSg?.groups[0]).toBe(g1);
+    expect(monstersSg?.groups[0]).toBe(g2);
   });
 });
 

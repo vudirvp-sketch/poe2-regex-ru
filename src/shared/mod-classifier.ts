@@ -449,6 +449,233 @@ export function classifyTabletType(group: FamilyGroup): TabletTypeCategory {
   return 'generic';
 }
 
+// ─── Tablet sub-block classification (iter 105) ───
+//
+// P2 second half — finer-grained sub-classification WITHIN each tablet type.
+// Mirrors the waystone sub-blocks architecture (iter 104): flat ModSubGroup[]
+// with composite keys ('ritual-rewards', 'breach-monsters', etc.). The label
+// communicates the gameplay mechanic; the color matches the parent type so
+// the user still sees the top-level type at a glance.
+//
+// Sub-block scheme (19 sub-blocks total):
+//   RITUAL (3):    rewards / monsters / content
+//   BREACH (3):    monsters / rewards / content
+//   DELIRIUM (3):  mist / rewards / monsters
+//   VAAL (3):      monsters / rewards / content
+//   EXPEDITION (3): rewards / explosives / monsters
+//   GENERIC (4):   loot / monsters / encounters / player
+//
+// Two-phase: classifyTabletType() → type, then sub-block patterns within type.
+// Each type has a fallback sub-block (typically `-content` or `-monsters`) so
+// no group is ever silently dropped.
+
+/** Tablet sub-block: composite key `<type>-<mechanic>`. */
+export type TabletSubBlock =
+  // RITUAL
+  | 'ritual-rewards'
+  | 'ritual-monsters'
+  | 'ritual-content'
+  // BREACH
+  | 'breach-monsters'
+  | 'breach-rewards'
+  | 'breach-content'
+  // DELIRIUM
+  | 'delirium-mist'
+  | 'delirium-rewards'
+  | 'delirium-monsters'
+  // VAAL
+  | 'vaal-monsters'
+  | 'vaal-rewards'
+  | 'vaal-content'
+  // EXPEDITION
+  | 'expedition-rewards'
+  | 'expedition-explosives'
+  | 'expedition-monsters'
+  // GENERIC
+  | 'generic-loot'
+  | 'generic-monsters'
+  | 'generic-encounters'
+  | 'generic-player';
+
+/** Display config for each tablet sub-block.
+ *  Color matches parent type (ritual=red, breach=violet, delirium=blue,
+ *  vaal=amber, expedition=emerald, generic=muted) so the color still
+ *  communicates the top-level type while the label communicates the
+ *  gameplay mechanic. */
+export const TABLET_SUBBLOCK_LABELS: Record<TabletSubBlock, CategoryLabel> = {
+  // RITUAL — red (matches TABLET_TYPE_LABELS.ritual)
+  'ritual-rewards':    { label: 'Награды Ритуала',       colorClass: 'text-accent-red',    bgClass: 'bg-section-red',    borderClass: 'border-sborder-red',    borderLClass: '' },
+  'ritual-monsters':   { label: 'Монстры Ритуала',       colorClass: 'text-accent-red',    bgClass: 'bg-section-red',    borderClass: 'border-sborder-red',    borderLClass: '' },
+  'ritual-content':    { label: 'Алтари и круги',        colorClass: 'text-accent-red',    bgClass: 'bg-section-red',    borderClass: 'border-sborder-red',    borderLClass: '' },
+  // BREACH — violet (matches TABLET_TYPE_LABELS.breach)
+  'breach-monsters':   { label: 'Монстры Бездны',        colorClass: 'text-accent-purple', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
+  'breach-rewards':    { label: 'Награды Бездны',        colorClass: 'text-accent-purple', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
+  'breach-content':    { label: 'Количество Бездн',      colorClass: 'text-accent-purple', bgClass: 'bg-section-violet', borderClass: 'border-sborder-violet', borderLClass: '' },
+  // DELIRIUM — blue (matches TABLET_TYPE_LABELS.delirium)
+  'delirium-mist':     { label: 'Туман',                 colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',   borderClass: 'border-cborder-blue',   borderLClass: '' },
+  'delirium-rewards':  { label: 'Награды Делириума',     colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',   borderClass: 'border-cborder-blue',   borderLClass: '' },
+  'delirium-monsters': { label: 'Монстры Делириума',     colorClass: 'text-accent-blue',   bgClass: 'bg-section-blue',   borderClass: 'border-cborder-blue',   borderLClass: '' },
+  // VAAL — amber (matches TABLET_TYPE_LABELS.vaal)
+  'vaal-monsters':     { label: 'Монстры Маяков',        colorClass: 'text-accent-orange', bgClass: 'bg-section-amber',  borderClass: 'border-sborder-amber',  borderLClass: '' },
+  'vaal-rewards':      { label: 'Сундуки и кристаллы',   colorClass: 'text-accent-orange', bgClass: 'bg-section-amber',  borderClass: 'border-sborder-amber',  borderLClass: '' },
+  'vaal-content':      { label: 'Маяки Ваал',            colorClass: 'text-accent-orange', bgClass: 'bg-section-amber',  borderClass: 'border-sborder-amber',  borderLClass: '' },
+  // EXPEDITION — emerald (matches TABLET_TYPE_LABELS.expedition)
+  'expedition-rewards':    { label: 'Реликты и артефакты', colorClass: 'text-accent-teal', bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  'expedition-explosives': { label: 'Взрывчатка',          colorClass: 'text-accent-teal', bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  'expedition-monsters':   { label: 'Рунические монстры',  colorClass: 'text-accent-teal', bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  // GENERIC — muted (matches TABLET_TYPE_LABELS.generic)
+  'generic-loot':     { label: 'Добыча',           colorClass: 'text-muted',  bgClass: 'bg-panel/15',  borderClass: 'border-edge/15',  borderLClass: '' },
+  'generic-monsters': { label: 'Монстры',          colorClass: 'text-muted',  bgClass: 'bg-panel/15',  borderClass: 'border-edge/15',  borderLClass: '' },
+  'generic-encounters': { label: 'Доп. контент',   colorClass: 'text-muted',  bgClass: 'bg-panel/15',  borderClass: 'border-edge/15',  borderLClass: '' },
+  'generic-player':   { label: 'Бонусы игроку',    colorClass: 'text-muted',  bgClass: 'bg-panel/15',  borderClass: 'border-edge/15',  borderLClass: '' },
+};
+
+/** Canonical render order for tablet sub-blocks. Parent type order matches
+ *  TABLET_TYPE_LABELS (ritual → breach → delirium → vaal → expedition → generic),
+ *  with sub-blocks in gameplay-significance order within each type. */
+const TABLET_SUBBLOCK_ORDER: TabletSubBlock[] = [
+  // RITUAL — rewards first (player-facing), then monsters, then content count
+  'ritual-rewards',
+  'ritual-monsters',
+  'ritual-content',
+  // BREACH — monsters first (primary Breach challenge), then rewards, then count
+  'breach-monsters',
+  'breach-rewards',
+  'breach-content',
+  // DELIRIUM — mist first (primary Delirium mechanic), then rewards, then monsters
+  'delirium-mist',
+  'delirium-rewards',
+  'delirium-monsters',
+  // VAAL — monsters first, then rewards, then beacon count
+  'vaal-monsters',
+  'vaal-rewards',
+  'vaal-content',
+  // EXPEDITION — rewards first, then explosives, then runic monsters
+  'expedition-rewards',
+  'expedition-explosives',
+  'expedition-monsters',
+  // GENERIC — loot first, then monsters, then extra encounters, then player buffs
+  'generic-loot',
+  'generic-monsters',
+  'generic-encounters',
+  'generic-player',
+];
+
+// ─── RITUAL sub-block patterns ───
+// Check order: monsters → rewards → fallback content.
+// Monsters BEFORE rewards because "Монстры, принесенные в жертву...даруют увеличенное
+// количество дани" mentions both "жертву" and "дани" — semantically it's a monster
+// mechanic (sacrificed monsters → more tribute), not a pure reward mod.
+/** RITUAL — monsters: revived/sacrificed monsters at altars. */
+const RITUAL_MONSTERS_PATTERNS = /(?:возрожден|принесен.*жертв)/i;
+/** RITUAL — rewards: tribute cost, reward refresh, omens. */
+const RITUAL_REWARDS_PATTERNS = /(?:дан|наград|предзнаменов)/i;
+
+// ─── BREACH sub-block patterns ───
+// Check order: monsters → rewards → fallback content.
+/** BREACH — monsters: Breach monster power/count/properties/difficulty. */
+const BREACH_MONSTERS_PATTERNS = /(?:монстр.*Бездн|Бездн.*монстр)/i;
+/** BREACH — rewards: occult currency, breach rewards. */
+const BREACH_REWARDS_PATTERNS = /(?:очерняющ|наград.*провал|провал.*наград)/i;
+
+// ─── DELIRIUM sub-block patterns ───
+// Check order: rewards → mist → fallback monsters.
+// Rewards BEFORE mist because "Туман Делириума порождает...осколков зеркал" mentions
+// both "Туман" (mist) and "осколков" (rewards) — semantically it's a reward modifier
+// (mist produces more shards), not a pure mist mechanic.
+/** DELIRIUM — rewards: shards, mirrors, simulacra, bosses. */
+const DELIRIUM_REWARDS_PATTERNS = /(?:осколк|хрупк.*зеркал|Симулякр|боссов)/i;
+/** DELIRIUM — mist: mist duration, dispersion, density, mirror timer. */
+const DELIRIUM_MIST_PATTERNS = /(?:Туман|Плотность|таймер)/i;
+
+// ─── VAAL sub-block patterns ───
+// Check order: monsters → rewards → fallback content (beacon count).
+/** VAAL — monsters: Vaal beacon monster spawns, group size, unique monsters. */
+const VAAL_MONSTERS_PATTERNS = /(?:монстр)/i;
+/** VAAL — rewards: beacon chests, crystals. */
+const VAAL_REWARDS_PATTERNS = /(?:сундук|кристалл)/i;
+
+// ─── EXPEDITION sub-block patterns ───
+// Check order: rewards → explosives → fallback monsters.
+/** EXPEDITION — rewards: relicts, artifacts, logs. */
+const EXPEDITION_REWARDS_PATTERNS = /(?:реликт|артефакт|журнал)/i;
+/** EXPEDITION — explosives: explosive radius (placement/effect). */
+const EXPEDITION_EXPLOSIVES_PATTERNS = /(?:взрывчат)/i;
+
+// ─── GENERIC sub-block patterns ───
+// Check order: loot → player → encounters → fallback monsters.
+// Encounters BEFORE monsters so "Нестабильные Разломы...порождают дополнительного
+// редкого монстра" (an encounter-spawn mod) classifies as encounters, not monsters.
+// The encounters pattern is intentionally specific (full phrases like "На карте можно
+// встретить") so it doesn't false-match monster density mods that happen to mention
+// "на карте" or "Разломах".
+/** GENERIC — loot: gold, waystones, item rarity/quantity, boss drops. */
+const GENERIC_LOOT_PATTERNS = /(?:золот|путев|предмет)/i;
+/** GENERIC — player: XP gain mods. */
+const GENERIC_PLAYER_PATTERNS = /(?:опыт)/i;
+/** GENERIC — encounters: extra in-map content (Essences, exiles, chests, spirits,
+ *  Разломы, properties, Заражение, charges). Specific phrases to avoid false-match
+ *  on monster density mods. */
+const GENERIC_ENCOUNTERS_PATTERNS = /(?:На карте можно встретить|шансом можно встретить|Добавляет Заражение|Нестабильные Разломы|случайным свойством|Осталось зарядов)/i;
+
+/**
+ * Classify a FamilyGroup into a tablet sub-block (within type).
+ *
+ * Two-phase: first calls `classifyTabletType()` to determine the top-level
+ * type, then applies sub-block patterns within that type. Each type has its
+ * own fallback sub-block if no specific pattern matches:
+ *  - ritual      → ritual-content (altars/circles count)
+ *  - breach      → breach-content (Breach count)
+ *  - delirium    → delirium-monsters (monster group size)
+ *  - vaal        → vaal-content (beacons count)
+ *  - expedition  → expedition-monsters (runic monsters)
+ *  - generic     → generic-monsters (monster stats)
+ *
+ * The fallback is intentionally broad — it's better to put an unfamiliar mod
+ * in a "default" sub-block than to silently drop it. The user still sees the
+ * mod under the correct type color, just without a specific sub-label.
+ */
+export function classifyTabletSubBlock(group: FamilyGroup): TabletSubBlock {
+  const type = classifyTabletType(group);
+  const text = group.displayText;
+
+  if (type === 'ritual') {
+    if (RITUAL_MONSTERS_PATTERNS.test(text)) return 'ritual-monsters';
+    if (RITUAL_REWARDS_PATTERNS.test(text)) return 'ritual-rewards';
+    return 'ritual-content';
+  }
+
+  if (type === 'breach') {
+    if (BREACH_MONSTERS_PATTERNS.test(text)) return 'breach-monsters';
+    if (BREACH_REWARDS_PATTERNS.test(text)) return 'breach-rewards';
+    return 'breach-content';
+  }
+
+  if (type === 'delirium') {
+    if (DELIRIUM_REWARDS_PATTERNS.test(text)) return 'delirium-rewards';
+    if (DELIRIUM_MIST_PATTERNS.test(text)) return 'delirium-mist';
+    return 'delirium-monsters';
+  }
+
+  if (type === 'vaal') {
+    if (VAAL_MONSTERS_PATTERNS.test(text)) return 'vaal-monsters';
+    if (VAAL_REWARDS_PATTERNS.test(text)) return 'vaal-rewards';
+    return 'vaal-content';
+  }
+
+  if (type === 'expedition') {
+    if (EXPEDITION_REWARDS_PATTERNS.test(text)) return 'expedition-rewards';
+    if (EXPEDITION_EXPLOSIVES_PATTERNS.test(text)) return 'expedition-explosives';
+    return 'expedition-monsters';
+  }
+
+  // type === 'generic'
+  if (GENERIC_LOOT_PATTERNS.test(text)) return 'generic-loot';
+  if (GENERIC_PLAYER_PATTERNS.test(text)) return 'generic-player';
+  if (GENERIC_ENCOUNTERS_PATTERNS.test(text)) return 'generic-encounters';
+  return 'generic-monsters';
+}
+
 // ─── Jewel type classification ───
 
 /** Jewel type categories based on which jewel type the mod is associated with.
@@ -1626,7 +1853,8 @@ export type ModGroupMode =
   | 'affix-sentiment-subblocks'  // iter 104: prefix/suffix → 9 waystone sub-blocks (positive-loot/mechanics/buffs, negative-monster-power/defense/modifiers/player-penalty/environment, neutral-generic) — waystone
   | 'affix-only'        // just prefix/suffix, no sub-groups (legacy — superseded by relic-semantic for relic page, kept for backward compat)
   | 'relic-semantic'    // iter 98: prefix/suffix → 7 relic gameplay categories (honor/sanctum-water/trials/keys/merchant/monsters/curse/other) — relic only
-  | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
+  | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet) — legacy, superseded by tablet-type-subblocks (iter 105) but kept for backward compat
+  | 'tablet-type-subblocks'  // iter 105: prefix/suffix → 19 tablet sub-blocks (3 per type + 4 for generic) — tablet
   | 'origin'            // by origin: normal/desecrated/corrupted (jewel)
   | 'jewel-type';       // by jewel type: ruby/emerald/sapphire/shared (within jewel origin sections)
 
@@ -1930,6 +2158,41 @@ export function classifyGroups(
         borderClass: TABLET_TYPE_LABELS[cat].borderClass,
         borderLClass: TABLET_TYPE_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
+      })));
+  }
+
+  if (mode === 'tablet-type-subblocks') {
+    // iter 105: P2 second half — within each tablet type, sub-classify family-groups
+    // by gameplay mechanic. Produces a flat ModSubGroup[] with composite keys
+    // ('ritual-rewards', 'breach-monsters', etc.). The label communicates the
+    // gameplay mechanic; the color matches the parent type (red for ritual,
+    // violet for breach, blue for delirium, amber for vaal, emerald for expedition,
+    // muted for generic). Architecture mirrors `affix-sentiment-subblocks` (iter 104)
+    // and `tablet-type` (Map + order filter + map to ModSubGroup) — just with
+    // finer-grained keys.
+    //
+    // Backward compat: `tablet-type` (legacy 6-bin mode) is still tested and kept
+    // for backward compat with any external callers. TabletPage switches to this
+    // new mode in iter 105.
+    const classified = new Map<TabletSubBlock, FamilyGroup[]>();
+
+    for (const group of groups) {
+      const subBlock = classifyTabletSubBlock(group);
+      const list = classified.get(subBlock) || [];
+      list.push(group);
+      classified.set(subBlock, list);
+    }
+
+    return withAlphabeticalGroups(TABLET_SUBBLOCK_ORDER
+      .filter(sb => classified.has(sb) && classified.get(sb)!.length > 0)
+      .map(sb => ({
+        key: sb,
+        label: TABLET_SUBBLOCK_LABELS[sb].label,
+        colorClass: TABLET_SUBBLOCK_LABELS[sb].colorClass,
+        bgClass: TABLET_SUBBLOCK_LABELS[sb].bgClass,
+        borderClass: TABLET_SUBBLOCK_LABELS[sb].borderClass,
+        borderLClass: TABLET_SUBBLOCK_LABELS[sb].borderLClass,
+        groups: classified.get(sb)!,
       })));
   }
 

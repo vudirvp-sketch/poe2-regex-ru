@@ -2,50 +2,63 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 104
+> **Текущая итерация:** 105
 
 ---
 
 ## Текущее состояние
 
-**iter 104: P2 first half — waystone sub-blocks (gameplay mechanic sub-grouping within sentiment) + Known Issue #5 fix.**
+**iter 105: P2 second half — tablet sub-blocks (gameplay mechanic sub-grouping within type).**
 
-В рамках итерации добавлен новый режим `affix-sentiment-subblocks` для WaystonePage: внутри каждого sentiment (positive/negative/neutral) семейные группы дополнительно подклассифицируются по gameplay mechanic. Production WaystonePage переключён со старого `affix-sentiment` (3 корзины) на новый режим (9 sub-blocks). Параллельно закрыт Known Issue #5 — false-positive в `POSITIVE_KEYWORDS` (`приспешник.*урон` ловил негативный мод «Игроки и их приспешники не наносят урона»).
+В рамках итерации добавлен новый режим `tablet-type-subblocks` для TabletPage: внутри каждого типа (ritual/breach/delirium/vaal/expedition/generic) семейные группы дополнительно подклассифицируются по gameplay mechanic. Production TabletPage переключён со старого `tablet-type` (6 корзин) на новый режим (19 sub-blocks). Архитектурно — mirror iter 104 (waystone sub-blocks): flat `ModSubGroup[]` с composite-ключами, существующий рендеринг ModList не тронут.
 
-**9 waystone sub-blocks:**
-- POSITIVE: `positive-loot` (Добыча), `positive-mechanics` (Механики), `positive-buffs` (Усиления)
-- NEGATIVE: `negative-monster-power` (Сила монстров), `negative-monster-defense` (Защита монстров), `negative-monster-modifiers` (Свойства монстров), `negative-player-penalty` (Штрафы игроку), `negative-environment` (Опасности)
-- NEUTRAL: `neutral-generic` (Прочие)
+**19 tablet sub-blocks:**
+- RITUAL (3): `ritual-rewards` (Награды Ритуала), `ritual-monsters` (Монстры Ритуала), `ritual-content` (Алтари и круги)
+- BREACH (3): `breach-monsters` (Монстры Бездны), `breach-rewards` (Награды Бездны), `breach-content` (Количество Бездн)
+- DELIRIUM (3): `delirium-mist` (Туман), `delirium-rewards` (Награды Делириума), `delirium-monsters` (Монстры Делириума)
+- VAAL (3): `vaal-monsters` (Монстры Маяков), `vaal-rewards` (Сундуки и кристаллы), `vaal-content` (Маяки Ваал)
+- EXPEDITION (3): `expedition-rewards` (Реликты и артефакты), `expedition-explosives` (Взрывчатка), `expedition-monsters` (Рунические монстры)
+- GENERIC (4): `generic-loot` (Добыча), `generic-monsters` (Монстры), `generic-encounters` (Доп. контент), `generic-player` (Бонусы игроку)
 
-Цвет бейджа продолжает коммуницировать sentiment (teal для positive, red для negative, muted для neutral), лейбл коммуницирует gameplay mechanic. Архитектурно — flat `ModSubGroup[]` с composite-ключами (`positive-loot`, `negative-monster-power`, …), без nested-структур — существующий рендеринг ModList не тронут.
+Цвет бейджа продолжает коммуницировать родительский тип (red для ritual, violet для breach, blue для delirium, amber для vaal, emerald для expedition, muted для generic), лейбл коммуницирует gameplay mechanic. Архитектурно — flat `ModSubGroup[]` с composite-ключами (`ritual-rewards`, `breach-monsters`, …), без nested-структур — существующий рендеринг ModList не тронут.
 
 **Что сделано:**
-- `src/shared/mod-classifier.ts` — `WaystoneSubBlock` type (9 variants) + `WAYSTONE_SUBBLOCK_LABELS` + `WAYSTONE_SUBBLOCK_ORDER` + 7 sub-block pattern regexes + `classifyWaystoneSubBlock()` function. Новый режим `affix-sentiment-subblocks` в `ModGroupMode` + реализация в `classifyGroups()` (Mirror архитектуры `affix-sentiment`: Map → order filter → map to ModSubGroup). Старый режим `affix-sentiment` сохранён как legacy для backward compat.
-- Known Issue #5 fix: удалён `приспешник.*урон` из `POSITIVE_KEYWORDS` (ловил «Игроки и их приспешники не наносят урона...» как positive — это negative). Добавлен `Игроки.*не наносят урон` в `NEGATIVE_KEYWORDS`. Intended positive minion mods (`приспешники наносят... дополнительного урона от X`) всё ещё ловятся через `приспешник.*дополнит`. 1 family-group переехал positive → negative.
-- Sub-block pattern fixes during testing: `монстр.*энергетическ.*щит` (требует «монстр» перед «энергетическ» — чтобы player-ES дебаффы не падали в monster-defense), `порог.*состоян|порог.*оглушен` (order-agnostic — текст «Монстры имеют N увеличение порога состояний» имеет «монстр» ДО «порог»), `дополнит.*ларец` добавлен в `POSITIVE_LOOT_PATTERNS` (был в POSITIVE_KEYWORDS, но отсутствовал в sub-block pattern).
-- `src/ui/pages/waystone/WaystonePage.tsx` — `groupMode="affix-sentiment"` → `groupMode="affix-sentiment-subblocks"`.
-- `tests/shared/mod-classifier.test.ts` — +41 новых тестов: 2 Known Issue #5 regression tests + 28 classifyWaystoneSubBlock unit tests + 5 affix-sentiment-subblocks mode tests + 6 прочих.
+- `src/shared/mod-classifier.ts` — `TabletSubBlock` type (19 variants) + `TABLET_SUBBLOCK_LABELS` + `TABLET_SUBBLOCK_ORDER` + 16 sub-block pattern regexes (по 2 на type, кроме generic где 3) + `classifyTabletSubBlock()` function. Новый режим `tablet-type-subblocks` в `ModGroupMode` + реализация в `classifyGroups()` (Mirror архитектуры `affix-sentiment-subblocks` из iter 104 и `tablet-type`: Map → order filter → map to ModSubGroup). Старый режим `tablet-type` сохранён как legacy для backward compat.
+- Two-phase architecture: `classifyTabletType()` → type, затем sub-block patterns within type. Каждый type имеет fallback sub-block (`ritual-content` / `breach-content` / `delirium-monsters` / `vaal-content` / `expedition-monsters` / `generic-monsters`) — ни один family-group не «потерян».
+- Pattern design notes: (a) RITUAL — monsters BEFORE rewards (жертвенные монстры, дарующие дань, имеют оба ключевых слова — семантически это monster-механика); (b) DELIRIUM — rewards BEFORE mist (Туман + осколки = rewards, т.к. награда — primary subject); (c) GENERIC — encounters BEFORE monsters (Нестабильные Разломы порождают редкого монстра = encounter-спавн, не monster-stat), encounters pattern использует specific phrases (`На карте можно встретить`, `шансом можно встретить`, `Добавляет Заражение`, `Нестабильные Разломы`, `случайным свойством`, `Осталось зарядов`) чтобы не false-match на monster density mods с `на карте` или `Разломах`.
+- `src/ui/pages/tablet/TabletPage.tsx` — `groupMode="tablet-type"` → `groupMode="tablet-type-subblocks"`.
+- `tests/shared/mod-classifier.test.ts` — +28 новых тестов (23 classifyTabletSubBlock unit tests + 5 tablet-type-subblocks mode tests). Включает 2 regression-теста для pattern priority (ritual-monsters перед ritual-rewards, delirium-rewards перед delirium-mist) + 1 label-coverage sanity check.
 
-**Метрики:** 1472/1472 tests (было 1431, +41). TSC 0 errors. ESLint 0 problems. ETL 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме.
+**Метрики:** 1500/1500 tests (было 1472, +28). TSC 0 errors. ESLint 0 problems. ETL 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
 
-### Inline sanity (iter 104 waystone sub-block distribution on real data)
+### Inline sanity (iter 105 tablet sub-block distribution on real data)
 
-Запуск `classifyWaystoneSubBlock` на мёрдже `waystone.json` + `waystone-desecrated.json` (73 family-groups):
+Запуск `classifyTabletSubBlock` на `tablet.json` (82 family-groups):
 
 | Sub-block | Label | Count |
 |-----------|-------|-------|
-| positive-loot | Добыча | 8 |
-| positive-mechanics | Механики | 13 |
-| positive-buffs | Усиления | 3 |
-| negative-monster-power | Сила монстров | 16 |
-| negative-monster-defense | Защита монстров | 9 |
-| negative-monster-modifiers | Свойства монстров | 3 |
-| negative-player-penalty | Штрафы игроку | 7 |
-| negative-environment | Опасности | 8 |
-| neutral-generic | Прочие | 6 |
-| **Total** | | **73** |
+| ritual-rewards | Награды Ритуала | 6 |
+| ritual-monsters | Монстры Ритуала | 3 |
+| ritual-content | Алтари и круги | 5 |
+| breach-monsters | Монстры Бездны | 5 |
+| breach-rewards | Награды Бездны | 2 |
+| breach-content | Количество Бездн | 4 |
+| delirium-mist | Туман | 4 |
+| delirium-rewards | Награды Делириума | 4 |
+| delirium-monsters | Монстры Делириума | 1 |
+| vaal-monsters | Монстры Маяков | 5 |
+| vaal-rewards | Сундуки и кристаллы | 2 |
+| vaal-content | Маяки Ваал | 1 |
+| expedition-rewards | Реликты и артефакты | 4 |
+| expedition-explosives | Взрывчатка | 2 |
+| expedition-monsters | Рунические монстры | 2 |
+| generic-loot | Добыча | 6 |
+| generic-monsters | Монстры | 9 |
+| generic-encounters | Доп. контент | 15 |
+| generic-player | Бонусы игроку | 2 |
+| **Total** | | **82** |
 
-Sentiment distribution (после Known Issue #5 fix): positive 24 (было 25), negative 43 (было 42), neutral 6 (без изменений). Все 73 family-groups классифицированы — ни один не «потерян».
+Type distribution (без изменений vs iter 104): ritual 14, breach 11, delirium 9, vaal 8, expedition 8, generic 32. Все 82 family-groups классифицированы — ни один не «потерян».
 
 ### Архитектура functionalCategory (без изменений vs iter 102)
 
@@ -63,10 +76,11 @@ Sentiment distribution (после Known Issue #5 fix): positive 24 (было 25
 | belt | affix-functional | 85 | 23 | 21 | 81 | 4 |
 | relic | relic-semantic | 25 | N/A | N/A | N/A | N/A |
 | waystone (merged, 2 files) | affix-sentiment-subblocks (iter 104) | 73 | 9 sub-blocks | N/A | N/A | N/A |
+| tablet | tablet-type-subblocks (iter 105) | 82 | 19 sub-blocks | N/A | N/A | N/A |
 
 - **Strategy 0 coverage (ETL):** 477/477 (100%).
 - **Cross-validation:** 477/477 match (0 расхождений).
-- **Тесты:** 1472/1472. TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
+- **Тесты:** 1500/1500. TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
 - **ETL:** 11 fresh, 0 stale.
 
 ---
@@ -75,19 +89,19 @@ Sentiment distribution (после Known Issue #5 fix): positive 24 (было 25
 
 1. **2 opt-table entries > 250 chars** в jewel.json — не помещаются в один PoE2 regex.
 2. **j05iep stays crit** — `jewel.mod_j05iep` «сила наносящих урон состояний при крит» имеет tags `[damage, critical, ailment]` и остаётся в `crit` (CRIT шаг 14 выигрывает у AILMENTS шаг 15 в ETL classifier). Intentional — critical tag семантически важнее.
-3. ~~**VirtualizedModList.tsx TanStack warnings (2)** — `react-hooks/incompatible-library` warnings от `useVirtualizer()`.~~ **✅ FIXED iter 103**.
+3. ~~**VirtualizedModList.tsx TanStack warnings (2)**~~ **✅ FIXED iter 103**.
 4. ~~**Zod schema strips `functionalCategory`**~~ **✅ FIXED iter 101** + **iter 102: +17 e2e-регрессионных тестов**.
-5. ~~**`приспешник.*урон` false-positive в POSITIVE_KEYWORDS** — паттерн ловил BOTH intended positive minion-extra-damage mods AND negative «Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд» (потому что в тексте есть и «приспешник», и «урон»). 1 family-group mis-classified positive → should be negative.~~ **✅ FIXED iter 104** — `приспешник.*урон` удалён из POSITIVE_KEYWORDS, `Игроки.*не наносят урон` добавлен в NEGATIVE_KEYWORDS. Intended positive minion mods всё ещё ловятся через `приспешник.*дополнит` (требует «дополнит» между «приспешник» и «урон»). +2 regression tests.
+5. ~~**`приспешник.*урон` false-positive в POSITIVE_KEYWORDS**~~ **✅ FIXED iter 104**.
 
 ---
 
 ## Открытые долги
 
 - **Wisps/Conversion блоки**: 0 family-keys в текущих данных. Зарезервированы для future-compat.
-- **P2 — tablet sub-blocks (second half)**: sub-группировка внутри type (ritual/breach/delirium/vaal/expedition/generic) по second-level gameplay mechanic. iter 104 закрыл только waystone half. Tablet уже имеет 6 type-категорий — нужен анализ, какой second-level имеет смысл (например, rewards/difficulty/quantity внутри ritual; monster-density/loot/bosses внутри breach).
 - **P4 — tier-aware сортировка (UI-toggle)**: S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует). iter 99 сделал tier вторичным, но UI-тумблер «режим сортировки» (alpha vs tier-first) не добавлен.
 - **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research.
 - **Waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods («Провалы Бездны... могут породить волшебных монстров», «Область захвачена монстрами Бездны», «Игроки крадут поглощаемые души...», etc.) + 1 multi-line continuation («после убийства редкого или уникального монстра»). Можно расширить POSITIVE_KEYWORDS, чтобы их поймать (большинство семантически positive — extra Breach content / player soul-steal benefit). Low-priority — не блокирует UX.
+- **Tablet Разломы vs Бездна**: 2 mods («(5-15)% увеличение плотности монстров в Разломах» и «Нестабильные Разломы...порождают дополнительного редкого монстра») используют «Разлом» вместо «Бездна» и классифицируются как generic (BREACH_KEYWORDS не включает «Разлом»). Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution и потребовало бы регенерации. Отложено — текущая sub-block classification в generic (encounters/monsters) корректна.
 
 ---
 
