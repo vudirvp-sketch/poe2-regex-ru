@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T21:24:00.171Z",
+  "version": "2026-06-19T05:03:02.936Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -1201,7 +1201,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel-desecrated.mod_3yl2ru",
@@ -1758,7 +1758,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel-desecrated.mod_jwh6ae.hgvpmu",
@@ -2122,7 +2122,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel-desecrated.mod_vbabcw.x1al00",

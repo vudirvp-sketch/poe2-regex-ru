@@ -38,14 +38,17 @@ function buildFamilyGroups(tokens: GameToken[]): FamilyGroup[] {
 }
 
 // Specific tokens that were broken in iter 91 and should be fixed in iter 92.
+// iter 93 update: 3 penetration tokens moved from `resistances` to `penetration` block
+// (iter 93 supersedes iter 92's "consistency as resistances" goal for those tokens).
 const EXPECTED_TOKEN_CATEGORIES: { file: string; id: string; expected: string; description: string }[] = [
   // Multi-segment tier fix (jewel):
   { file: 'jewel.json', id: 'jewel.mod_764thg', expected: 'buff-skills', description: 'aura strength (second segment of multi-segment tier)' },
   { file: 'jewel.json', id: 'jewel.mod_ppjbmq', expected: 'damage-type', description: 'spell damage (first segment of multi-segment tier)' },
   { file: 'jewel.json', id: 'jewel.mod_wditcf', expected: 'buff-skills', description: 'warcry buff effect (first segment of multi-segment tier)' },
-  { file: 'jewel.json', id: 'jewel.mod_5rcjkz', expected: 'resistances', description: 'cold penetration (consistency)' },
-  { file: 'jewel.json', id: 'jewel.mod_hpfzjc', expected: 'resistances', description: 'fire penetration (consistency)' },
-  { file: 'jewel.json', id: 'jewel.mod_ss8pp2', expected: 'resistances', description: 'lightning penetration (consistency)' },
+  // iter 93: penetration tokens moved to dedicated `penetration` block
+  { file: 'jewel.json', id: 'jewel.mod_5rcjkz', expected: 'penetration', description: 'cold penetration (iter 93: moved to penetration block)' },
+  { file: 'jewel.json', id: 'jewel.mod_hpfzjc', expected: 'penetration', description: 'fire penetration (iter 93: moved to penetration block)' },
+  { file: 'jewel.json', id: 'jewel.mod_ss8pp2', expected: 'penetration', description: 'lightning penetration (iter 93: moved to penetration block)' },
   { file: 'jewel.json', id: 'jewel.mod_v23dqm', expected: 'minions', description: 'companion damage (single-segment tier.tags wins)' },
   // i18n-override reclassification fix (amulet/belt):
   { file: 'amulet.json', id: 'amulet.genesistreeadditionalmaximumseals_breachborn', expected: 'meta-skills', description: 'Запечатанные умения (English→Russian text override)' },
@@ -54,7 +57,9 @@ const EXPECTED_TOKEN_CATEGORIES: { file: string; id: string; expected: string; d
 ];
 
 function main() {
-  console.log('=== iter 92 verification: 11 discrepancies resolved ===\n');
+  console.log('=== iter 92 + iter 93 verification ===\n');
+  console.log('  iter 92: 11 discrepancies resolved (multi-segment per-segment + i18n-override)');
+  console.log('  iter 93: penetration block activated (3 mods moved resistances → penetration)\n');
 
   // Check 1: specific tokens
   let tokenChecksPass = true;
@@ -107,9 +112,9 @@ function main() {
   console.log(`Cross-validation: ${discrepancies === 0 ? '✅ PASS (0 discrepancies)' : `❌ FAIL (${discrepancies} discrepancies)`}`);
 
   if (tokenChecksPass && discrepancies === 0) {
-    console.log('\n✅ iter 92 fixes verified: all 11 iter 91 discrepancies resolved.');
+    console.log('\n✅ iter 92 + iter 93 fixes verified: all checks pass, 0 cross-validation discrepancies.');
   } else {
-    console.log('\n❌ Some iter 92 checks failed.');
+    console.log('\n❌ Some checks failed.');
     process.exit(1);
   }
 }

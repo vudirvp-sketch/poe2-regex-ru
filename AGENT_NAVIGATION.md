@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 92** (ETL-tagged functionalCategory fully in production, 11/11 cross-validation discrepancies resolved). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Все старые Known Issues закрыты. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 93** (penetration block activated — 3 family-keys moved from `resistances` to dedicated `penetration` block; AILMENTS/MINIONS patterns expanded defensively). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 

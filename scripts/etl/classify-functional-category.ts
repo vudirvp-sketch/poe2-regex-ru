@@ -40,8 +40,12 @@ const BREACH_PATTERN = /Знак.*повелител.*Бездн/i;
 const MAGIC_FIND_PATTERN = /(?:редкост.*найден.*предмет|количеств.*найден.*предмет)/i;
 const SKILL_LEVELS_PATTERN = /(?:уровен.*камн.*умени|уровн.*камн.*умени|качеств.*умени|качеств.*всех умени|максимальн.*качеств|скорост.*перезарядк.*умени(?!.*боев)|длительн.*эффект.*умени)/i;
 const FLASKS_PATTERN = /флакон/i;
-const MINIONS_PATTERN = /(?:приспешник|подношен)/i;
+const MINIONS_PATTERN = /(?:приспешник|подношен|компаньон)/i;
 const ATTRIBUTES_PATTERN = /(?:к силе|к ловк|к интелл|ко всем.*атрибут|ко всем.*характерист|силе.*ловкост|ловкост.*интеллект|силе.*интеллект|уменьшен.*требован.*характерист)/i;
+// Penetration mods (iter 93): "Урон пробивает #% сопротивления <element>".
+// Must be checked BEFORE RESISTANCES_PATTERN — penetration mods contain «сопротивления»
+// but functionally they're offensive penetration, not defensive resistance.
+const PENETRATION_PATTERN = /пробива.*сопротивлен/i;
 const RESISTANCES_PATTERN = /(?:сопротивлен|добавлен.*свойств.*сопротивлен)/i;
 const RESOURCES_PATTERN = /(?:максимум.*энергетическ.*щит|похищен.*виде.*здоров|похищен.*виде.*ман|скорост.*регенерац.*здоров|скорост.*регенерац.*ман|восстанавливает.*здоровь|восстанавливает.*ман|получен.*урон.*восполня|от получаемого урона.*берется.*из ман|Регенерац.*здоров|Дарует.*здоровь.*убит|Дарует.*ман.*убит)/i;
 const DEFENCE_STATS_PATTERN = /(?:брон|уклонен|блок|порог.*оглушен|отклонен.*удар)/i;
@@ -49,7 +53,7 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
 const CRIT_PATTERN = /крит/i;
 const DAMAGE_TYPE_PATTERN = /урон/i;
 const OFFENCE_SPEED_PATTERN = /скорост.*(атак|сотворени|передвижен|снаряд)/i;
-const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|наложен.*состоян|стихийн.*состоян)/i;
+const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|накладыва.*состоян|наложен.*состоян|стихийн.*состоян)/i;
 const AREA_DURATION_PATTERN = /(?:област.*действ|длительн.*(?:проклят|знам[eё]н)|Улучшает радиус)/i;
 const RAGE_CHARGES_PATTERN = /(?:свирепост|славы.*знам[её]н)/i;
 const META_SKILLS_PATTERN = /(?:Мета-умени|Архонт|запечат|вызываем.*умени)/i;
@@ -97,31 +101,35 @@ export function classifyModFunctionalBlock(
   if (functionalTags.has('minion') || MINIONS_PATTERN.test(rawText)) return 'minions';
   // 8. Attributes
   if (ATTRIBUTES_PATTERN.test(rawText) || functionalTags.has('attribute')) return 'attributes';
-  // 9. Resistances
+  // 9. Penetration (iter 93) — "Урон пробивает #% сопротивления <element>"
+  //    Must be BEFORE resistances — penetration mods contain «сопротивления» but
+  //    are functionally offensive penetration, not defensive resistance.
+  if (PENETRATION_PATTERN.test(rawText)) return 'penetration';
+  // 10. Resistances
   if (functionalTags.has('resistance') || RESISTANCES_PATTERN.test(rawText)) return 'resistances';
-  // 10. Resources
+  // 11. Resources
   if (functionalTags.has('life') || functionalTags.has('mana') || RESOURCES_PATTERN.test(rawText)) return 'resources';
-  // 11. Defence-stats
+  // 12. Defence-stats
   if (functionalTags.has('armour') || functionalTags.has('evasion') || functionalTags.has('energy_shield') || functionalTags.has('charm') || DEFENCE_STATS_PATTERN.test(rawText)) return 'defence-stats';
-  // 12. Weapon-specific
+  // 13. Weapon-specific
   if (WEAPON_SPECIFIC_PATTERN.test(rawText)) return 'weapon-specific';
-  // 13. Crit
+  // 14. Crit
   if (functionalTags.has('critical') || CRIT_PATTERN.test(rawText)) return 'crit';
-  // 14. Damage-type
+  // 15. Damage-type
   if (functionalTags.has('damage') || functionalTags.has('physical') || functionalTags.has('elemental') || functionalTags.has('cold') || functionalTags.has('fire') || functionalTags.has('lightning') || functionalTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(rawText)) return 'damage-type';
-  // 15. Offence-speed
+  // 16. Offence-speed
   if (functionalTags.has('speed') || OFFENCE_SPEED_PATTERN.test(rawText)) return 'offence-speed';
-  // 16. Ailments
+  // 17. Ailments
   if (AILMENTS_PATTERN.test(rawText)) return 'ailments';
-  // 17. Area / Duration
+  // 18. Area / Duration
   if (AREA_DURATION_PATTERN.test(rawText)) return 'area-duration';
-  // 18. Rage-charges
+  // 19. Rage-charges
   if (RAGE_CHARGES_PATTERN.test(rawText)) return 'rage-charges';
-  // 19. Meta-skills
+  // 20. Meta-skills
   if (META_SKILLS_PATTERN.test(rawText)) return 'meta-skills';
-  // 20. Buff-skills
+  // 21. Buff-skills
   if (BUFF_SKILLS_PATTERN.test(rawText)) return 'buff-skills';
-  // 21. Fallback
+  // 22. Fallback
   return 'other';
 }
 

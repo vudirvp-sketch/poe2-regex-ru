@@ -1004,7 +1004,7 @@ export type FunctionalBlock =
   | 'offence-speed'    // iter 86: Скорость атаки/сотворения/передвижения/снарядов (tag speed + text)
   | 'crit'             // iter 86: Шанс/Бонус/По типу урона (tag critical + text «крит»)
   | 'damage-type'      // iter 86: Физ/Огонь/Холод/Молния/Хаос/Стихийный (tags damage/physical/elemental/cold/fire/lightning/chaos + text «урон»)
-  | 'penetration'      // ⏳ iter 89+: Пробитие сопротивления (0 family-keys в jewel.json `other` — пропущен в iter 88)
+  | 'penetration'      // iter 93: Пробитие сопротивления (3 family-keys в jewel — cold/fire/lightning penetration)
   | 'ailments'         // iter 88: Поджог/Шок/Охлаждение/Отравление/Кровотечение/Оцепенение/Парирование/Пригвождение/Разрез/Ослепление/Состояния (8 family-keys в jewel)
   | 'area-duration'    // iter 88: Область действия / Длительность проклятий и знамён / Радиус пассивных умений (7 family-keys в jewel)
   | 'wisps'            // ⏳ iter 90+: Сгустки (Breach-механика)
@@ -1061,7 +1061,8 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
  *  5. Misc: flasks, MF, conversion, rage/charges, breach.
  *  6. Fallback: other.
  *
- *  iter 89: 20 implemented blocks + `other` will actually appear in production. */
+ *  iter 89: 20 implemented blocks + `other` will actually appear in production.
+ *  iter 93: `penetration` block activated (3 family-keys moved from resistances). */
 const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'spirit', 'skill-levels', 'attributes', 'resources',
   'runes-barrier', 'resistances', 'defence-stats',
@@ -1196,8 +1197,24 @@ const ATTRIBUTES_PATTERN = /(?:к силе|к ловк|к интелл|ко вс
  *  - "+#% ко всем стихийным сопротивлениям"
  *  - "#% повышение значений добавленных свойств сопротивлений" (ring/amulet/belt, no tags → neutral)
  *  Note: most resist mods have `resistance` tag → already classified defensive via tags.
- *  This pattern catches the "added resist properties" no-tag mod. */
+ *  This pattern catches the "added resist properties" no-tag mod.
+ *  Note: penetration mods ("Урон пробивает #% сопротивления ...") are caught EARLIER
+ *  by PENETRATION_PATTERN (iter 93) — they contain «сопротивления» too but functionally
+ *  they're offensive penetration, not defensive resistance. */
 const RESISTANCES_PATTERN = /(?:сопротивлен|добавлен.*свойств.*сопротивлен)/i;
+
+/** Penetration mods (iter 93):
+ *  - "Урон пробивает (5—10)% сопротивления холоду" (jewel prefix, cold tag)
+ *  - "Урон пробивает (5—10)% сопротивления огню" (jewel prefix, fire tag)
+ *  - "Урон пробивает (5—10)% сопротивления молнии" (jewel prefix, lightning tag)
+ *
+ * Must be checked BEFORE RESISTANCES_PATTERN — penetration mods contain «сопротивления»
+ * but functionally they're offensive penetration (ignore portion of enemy resistance),
+ * not defensive resistance (gain resistance yourself).
+ *
+ * Pattern `пробива.*сопротивлен` specifically catches "пробивает ... сопротивления"
+ * and does NOT match regular "к сопротивлению X" mods (no «пробива» keyword). */
+const PENETRATION_PATTERN = /пробива.*сопротивлен/i;
 
 /** Runes barrier mods (PoE2 new mechanic):
  *  - "+# к максимуму рунического барьера" (ring/amulet, no tags → neutral)
@@ -1238,9 +1255,13 @@ const FLASKS_PATTERN = /флакон/i;
  *  - "Приспешники имеют ##% увеличение максимума здоровья" (minion+life tags — minion wins)
  *  - "##% усиление эффекта Подношений" (minion tag, text «подношен»)
  *  - "##% шанс получить Архонта Нежити при создании подношения" (minion tag)
+ *  - "Компаньоны наносят увеличенный на ##% урон" (minion tag, text «компаньон» — iter 93)
+ *  - "##% увеличение максимума здоровья компаньонов" (minion+life tags, text «компаньон» — iter 93)
  *  Note: «+1 к уровню всех камней умений приспешников» is caught earlier by SKILL_LEVELS_PATTERN
- *  (skill-levels takes priority over minions — it's a +level mod, not a minion-function mod). */
-const MINIONS_PATTERN = /(?:приспешник|подношен)/i;
+ *  (skill-levels takes priority over minions — it's a +level mod, not a minion-function mod).
+ *  iter 93: added «компаньон» (defensive — current companion mods already classified via
+ *  `minion` tag, but pattern expansion future-proofs against no-tag companion mods). */
+const MINIONS_PATTERN = /(?:приспешник|подношен|компаньон)/i;
 
 /** Resources mods (tags life/mana + text for ES maximum, leech, regen, on-kill):
  *  - "+# к максимуму здоровья" (life tag)
@@ -1338,7 +1359,7 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
 // ─── iter 88: 2 new blocks (ailments + area-duration) ───
 
 /**
- * Ailments mods (iter 88).
+ * Ailments mods (iter 88, expanded iter 93).
  *
  * Catches ailment-related mods that have no other functional bucket:
  *  - "(5—15)% увеличение шанса наложения состояний" (jewel suffix, ailment tag)
@@ -1355,7 +1376,10 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
  *
  * Patterns:
  *  - `поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен` — ailment names/verbs
- *  - `наложен.*состоян|стихийн.*состоян` — ailment application / elemental ailment threshold
+ *  - `накладыва.*состоян` — iter 93: catches «накладываемых вами состояний»
+ *    (the «накладыва» prefix matches «накладываемых» but NOT «наложения» — separate form)
+ *  - `наложен.*состоян` — catches «наложения состояний» (application of states)
+ *  - `стихийн.*состоян` — catches «стихийных состояний» (elemental ailment threshold)
  *
  * Deliberate exclusions (avoid false positives):
  *  - NOT matching `мет[о]?к` (mark skills) — that's buff-skills (future iter)
@@ -1370,8 +1394,13 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
  * application are caught here only if they weren't caught by earlier blocks
  * (i.e., they would otherwise fall into `other`). Verified safe by
  * simulate-iter88-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ *
+ * iter 93 note: «(5—15)% увеличение силы накладываемых вами состояний» has tags
+ * [damage, ailment] and is currently caught by DAMAGE_TYPE (tag damage wins
+ * before ailments). The expanded pattern is defensive — if a future mod has
+ * the same text WITHOUT damage tag, it will correctly go to ailments.
  */
-const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|наложен.*состоян|стихийн.*состоян)/i;
+const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|накладыва.*состоян|наложен.*состоян|стихийн.*состоян)/i;
 
 /**
  * Area / Duration mods (iter 88).
@@ -1509,21 +1538,22 @@ const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|к
  *  4. MAGIC_FIND — text "редкость/количество найденных предметов"
  *  5. SKILL_LEVELS — text "+level/quality/recharge/duration of skills"
  *  6. FLASKS — text "флакон" (belt primary, charm-tag amulet flasks)
- *  7. MINIONS — tag `minion` OR text "приспешник/подношен" — before resources (minion-life)
+ *  7. MINIONS — tag `minion` OR text "приспешник/подношен/компаньон" — before resources (minion-life)
  *  8. ATTRIBUTES — text "силе/ловк/интелл" OR tag `attribute` (incl. dual-attr Breach Lord)
- *  9. RESISTANCES — tag `resistance` OR text "сопротивлен" — BEFORE damage-type
- * 10. RESOURCES — tags `life`/`mana` OR text "максимум.*энерг.*щит/похищен/регенерац/восстанавливает" — BEFORE defence-stats (for ES max)
- * 11. DEFENCE_STATS — tags `armour`/`evasion`/`energy_shield`/`charm` OR text "брон/уклонен/блок/порог оглушен"
- * 12. WEAPON_SPECIFIC — text "{weapon name}" (iter 87: jewel-only, 24 family-keys) — BEFORE crit/damage-type/offence-speed
- * 13. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
- * 14. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
- * 15. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
- * 16. AILMENTS (iter 88) — text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/состояний/..." — only catches mods that would otherwise fall into `other`
- * 17. AREA_DURATION (iter 88) — text "области действия / длительности проклятий и знамён / радиус пассивных умений" — only catches mods that would otherwise fall into `other`
- * 18. RAGE_CHARGES (iter 89) — text "свирепост / славы.*знамён" — ferocity max + banner glory speed (more specific than buff-skills for banner-glory)
- * 19. META_SKILLS (iter 89) — text "Мета-умени / Архонт / запечат / вызываем.*умени" — meta-skill / Archon / sealed-skill mods
- * 20. BUFF_SKILLS (iter 89) — text "аур / Вестник / мет[о]?к(?!ост) / клич / знам[её]н / проклят" — auras / heralds / marks / warcries / banners / curses
- * 21. OTHER — fallback (wisps / penetration / conversion — iter 90+)
+ *  9. PENETRATION (iter 93) — text "пробивает ... сопротивления" — BEFORE resistances (pen mods contain «сопротивления» too)
+ * 10. RESISTANCES — tag `resistance` OR text "сопротивлен" — BEFORE damage-type
+ * 11. RESOURCES — tags `life`/`mana` OR text "максимум.*энерг.*щит/похищен/регенерац/восстанавливает" — BEFORE defence-stats (for ES max)
+ * 12. DEFENCE_STATS — tags `armour`/`evasion`/`energy_shield`/`charm` OR text "брон/уклонен/блок/порог оглушен"
+ * 13. WEAPON_SPECIFIC — text "{weapon name}" (iter 87: jewel-only, 24 family-keys) — BEFORE crit/damage-type/offence-speed
+ * 14. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
+ * 15. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
+ * 16. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
+ * 17. AILMENTS (iter 88, expanded iter 93) — text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/накладыва.*состоян/состояний/..." — only catches mods that would otherwise fall into `other`
+ * 18. AREA_DURATION (iter 88) — text "области действия / длительности проклятий и знамён / радиус пассивных умений" — only catches mods that would otherwise fall into `other`
+ * 19. RAGE_CHARGES (iter 89) — text "свирепост / славы.*знамён" — ferocity max + banner glory speed (more specific than buff-skills for banner-glory)
+ * 20. META_SKILLS (iter 89) — text "Мета-умени / Архонт / запечат / вызываем.*умени" — meta-skill / Archon / sealed-skill mods
+ * 21. BUFF_SKILLS (iter 89) — text "аур / Вестник / мет[о]?к(?!ост) / клич / знам[её]н / проклят" — auras / heralds / marks / warcries / banners / curses
+ * 22. OTHER — fallback (wisps / conversion — iter 90+; penetration now active iter 93)
  *
  * Tag priority logic:
  *  - Minion tag beats life/mana/critical/damage/speed/resistance (minion mods are functionally
@@ -1606,57 +1636,63 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   // 8. Attributes — Сила/Ловкость/Интеллект/Все + dual-attr + tag `attribute`
   if (ATTRIBUTES_PATTERN.test(text) || allTags.has('attribute')) return 'attributes';
 
-  // 9. Resistances — tag `resistance` OR text «сопротивлен»
-  //    Must be BEFORE damage-type (resist mods also have fire/cold/lightning/chaos tags).
+  // 9. Penetration (iter 93) — text «пробивает ... сопротивления»
+  //    Must be BEFORE resistances — penetration mods contain «сопротивления» but
+  //    are functionally offensive penetration (ignore enemy resist), not defensive
+  //    resistance (gain self resist). 3 family-keys in jewel.
+  if (PENETRATION_PATTERN.test(text)) return 'penetration';
+
+  // 10. Resistances — tag `resistance` OR text «сопротивлен»
+  //     Must be BEFORE damage-type (resist mods also have fire/cold/lightning/chaos tags).
   if (allTags.has('resistance') || RESISTANCES_PATTERN.test(text)) return 'resistances';
 
-  // 10. Resources — tags `life`/`mana` OR text (ES maximum, leech, regen, on-kill, MoM)
+  // 11. Resources — tags `life`/`mana` OR text (ES maximum, leech, regen, on-kill, MoM)
   //     Must be BEFORE defence-stats (ES max mods have energy_shield tag AND "максимум" text).
   if (allTags.has('life') || allTags.has('mana') || RESOURCES_PATTERN.test(text)) return 'resources';
 
-  // 11. Defence-stats — tags `armour`/`evasion`/`energy_shield`/`charm` OR text «брон/уклонен/блок/порог оглушен»
+  // 12. Defence-stats — tags `armour`/`evasion`/`energy_shield`/`charm` OR text «брон/уклонен/блок/порог оглушен»
   if (allTags.has('armour') || allTags.has('evasion') || allTags.has('energy_shield') || allTags.has('charm') || DEFENCE_STATS_PATTERN.test(text)) return 'defence-stats';
 
-  // 12. Weapon-specific (iter 87) — text "{weapon name}" (10 variants, 24 family-keys in jewel)
+  // 13. Weapon-specific (iter 87) — text "{weapon name}" (10 variants, 24 family-keys in jewel)
   //     Must be BEFORE crit / damage-type / offence-speed — weapon mods have attack+damage /
   //     attack+speed / attack+critical tags, but functionally they're weapon-conditional passives.
   if (WEAPON_SPECIFIC_PATTERN.test(text)) return 'weapon-specific';
 
-  // 13. Crit — tag `critical` OR text «крит»
+  // 14. Crit — tag `critical` OR text «крит»
   //     Must be BEFORE damage-type (crit mods often have damage tag too).
   if (allTags.has('critical') || CRIT_PATTERN.test(text)) return 'crit';
 
-  // 14. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
+  // 15. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
   if (allTags.has('damage') || allTags.has('physical') || allTags.has('elemental') || allTags.has('cold') || allTags.has('fire') || allTags.has('lightning') || allTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(text)) return 'damage-type';
 
-  // 15. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
+  // 16. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
   if (allTags.has('speed') || OFFENCE_SPEED_PATTERN.test(text)) return 'offence-speed';
 
-  // 16. Ailments (iter 88) — text-based: поджог/шок/охлажден/отравлен/оцепенен/парир/...
+  // 17. Ailments (iter 88, expanded iter 93) — text-based: поджог/шок/охлажден/отравлен/оцепенен/парир/...
   //     Positioned AFTER offence-speed so it only catches mods that would otherwise
   //     fall into `other`. Verified safe by simulate-iter88-impact.ts (0 false positives).
   if (AILMENTS_PATTERN.test(text)) return 'ailments';
 
-  // 17. Area / Duration (iter 88) — text-based: области действия / длительности проклятий и знамён / радиус пассивных умений
+  // 18. Area / Duration (iter 88) — text-based: области действия / длительности проклятий и знамён / радиус пассивных умений
   //     Positioned AFTER ailments so «длительность эффекта Парирован» goes to AILMENTS (parry = ailment).
   if (AREA_DURATION_PATTERN.test(text)) return 'area-duration';
 
-  // 18. Rage-charges (iter 89) — text-based: свирепость / славы для умений знамён
+  // 19. Rage-charges (iter 89) — text-based: свирепость / славы для умений знамён
   //     Must be BEFORE buff-skills — banner-glory mod contains «знамён» which would
   //     otherwise match BUFF_SKILLS. RAGE_CHARGES is more specific (banner glory = charge mechanic).
   //     Verified safe by simulate-iter89-impact.ts (0 false positives).
   if (RAGE_CHARGES_PATTERN.test(text)) return 'rage-charges';
 
-  // 19. Meta-skills (iter 89) — text-based: Мета-умения / Архонт / Запечатанные / вызываемых умений
+  // 20. Meta-skills (iter 89) — text-based: Мета-умения / Архонт / Запечатанные / вызываемых умений
   //     No overlap with buff-skills. Verified safe by simulate-iter89-impact.ts (0 false positives).
   if (META_SKILLS_PATTERN.test(text)) return 'meta-skills';
 
-  // 20. Buff-skills (iter 89) — text-based: ауры / Вестники / Метки (исключая меткости) / Кличи / Знамёна / Проклятия
+  // 21. Buff-skills (iter 89) — text-based: ауры / Вестники / Метки (исключая меткости) / Кличи / Знамёна / Проклятия
   //     Positioned AFTER rage-charges (so banner-glory → rage-charges) and AFTER meta-skills.
   //     Verified safe by simulate-iter89-impact.ts (0 false positives).
   if (BUFF_SKILLS_PATTERN.test(text)) return 'buff-skills';
 
-  // 21. Fallback — wisps / penetration / conversion (iter 90+)
+  // 22. Fallback — wisps / conversion (iter 90+)
   return 'other';
 }
 

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-18T21:24:00.129Z",
+  "version": "2026-06-19T05:03:02.879Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -907,7 +907,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel.mod_bgyeco",
@@ -1674,7 +1674,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel.mod_uij56f",
@@ -1980,7 +1980,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "resistances"
+      "functionalCategory": "penetration"
     },
     {
       "id": "jewel.mod_spdhko",
