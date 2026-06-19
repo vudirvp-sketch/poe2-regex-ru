@@ -18,6 +18,7 @@ import {
   classifyByTags,
   classifyByText,
   classifyWaystoneSentiment,
+  classifyWaystoneSubBlock,
   classifyTabletType,
   classifyPriorityTier,
   classifyFunctionalBlock,
@@ -28,10 +29,12 @@ import {
   FUNCTIONAL_BLOCK_LABELS,
   WEAPON_CLASS_LABELS,
   RELIC_LABELS,
+  WAYSTONE_SUBBLOCK_LABELS,
   TIER_SORT_ORDER,
   type JewelTypeCategory,
   type FunctionalBlock,
   type WeaponClass,
+  type WaystoneSubBlock,
 } from '@shared/mod-classifier';
 import type { FamilyGroup, GameToken } from '@shared/types';
 
@@ -460,6 +463,222 @@ describe('classifyWaystoneSentiment', () => {
     // the new "больше эффективности монстров" variant (different phrasing)
     const group = makeGroup('На #% больше эффективности монстров');
     expect(classifyWaystoneSentiment(group)).toBe('negative');
+  });
+
+  // ─── Known Issue #5 fix (iter 104): приспешник.*урон false-positive ───
+
+  it('classifies "players and minions deal no damage" as negative (Known Issue #5 fix)', () => {
+    // Was positive — 'приспешник.*урон' in POSITIVE_KEYWORDS matched this mod
+    // (because "приспешники" + "урон" both appear in the text), even though
+    // semantically it's clearly negative (player can't deal damage 30% of time).
+    // iter 104 fix: removed 'приспешник.*урон' from POSITIVE, added
+    // 'Игроки.*не наносят урон' to NEGATIVE. The intended positive minion mods
+    // ("приспешники наносят... дополнительного урона от X") are still caught by
+    // 'приспешник.*дополнит' in POSITIVE.
+    const group = makeGroup('Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд');
+    expect(classifyWaystoneSentiment(group)).toBe('negative');
+  });
+
+  it('still classifies minion extra-damage as positive (Known Issue #5 fix — no regression)', () => {
+    // The intended positive minion mod must still be positive after the fix.
+    // 'приспешник.*дополнит' (which requires "дополнит" between "приспешник"
+    // and "урон") is the surviving positive pattern that catches this mod.
+    const group = makeGroup('приспешники наносят (5—9)% от их урона в виде дополнительного урона от огня');
+    expect(classifyWaystoneSentiment(group)).toBe('positive');
+  });
+});
+
+// ─── classifyWaystoneSubBlock (iter 104) ───
+
+describe('classifyWaystoneSubBlock', () => {
+  // ─── POSITIVE sub-blocks ───
+
+  it('classifies rarity/quantity/items as positive-loot', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('#% повышение редкости найденных предметов'))).toBe('positive-loot');
+    expect(classifyWaystoneSubBlock(makeGroup('#% повышение количества найденных предметов'))).toBe('positive-loot');
+  });
+
+  it('classifies waystone-drop-chance as positive-loot', () => {
+    // Implicit mod (Шанс выпадения путевого камня) — implicit rule forces positive.
+    // Within positive, "путев" pattern routes to loot.
+    expect(classifyWaystoneSubBlock(makeGroup('Шанс выпадения путевого камня: +#%', { affix: 'implicit' }))).toBe('positive-loot');
+  });
+
+  it('classifies more magic+rarer monsters as positive-loot', () => {
+    // More rare monsters = more loot. Bug #2 fix put this in positive; iter 104
+    // sub-block routes it to loot (not mechanics or buffs).
+    expect(classifyWaystoneSubBlock(makeGroup('На #% больше волшебных и редких монстров'))).toBe('positive-loot');
+  });
+
+  it('classifies extra Breaches as positive-mechanics', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('В области можно встретить дополнительных Бездн: (2—3)'))).toBe('positive-mechanics');
+  });
+
+  it('classifies extra altars/ritual circles as positive-mechanics', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('В области можно встретить дополнительный ритуальный круг'))).toBe('positive-mechanics');
+    expect(classifyWaystoneSubBlock(makeGroup('В области можно встретить дополнительный алтарь'))).toBe('positive-mechanics');
+  });
+
+  it('classifies minion extra elemental damage as positive-mechanics', () => {
+    // Minion "extra damage as element" is a Breach-related buff (Breach minions
+    // gain extra damage). Goes to mechanics, not buffs (which is for XP/Spirit/etc).
+    expect(classifyWaystoneSubBlock(makeGroup('приспешники наносят (5—9)% от их урона в виде дополнительного урона от огня'))).toBe('positive-mechanics');
+  });
+
+  it('classifies Princess spawn as positive-mechanics', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('В области можно встретить дополнительную Царевну инкубатора'))).toBe('positive-mechanics');
+  });
+
+  it('classifies respawns implicit as positive-buffs', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Доступно возрождений: #', { affix: 'implicit' }))).toBe('positive-buffs');
+  });
+
+  it('classifies implicit monster-group-size as positive-buffs (meta-stat)', () => {
+    // Implicit → positive by rule. Within positive, "Размер групп монстров"
+    // is a meta-stat (doesn't fit loot or mechanics) → falls to buffs.
+    expect(classifyWaystoneSubBlock(makeGroup('Размер групп монстров: +#%', { affix: 'implicit' }))).toBe('positive-buffs');
+  });
+
+  it('classifies implicit monster-effectiveness as positive-buffs (meta-stat)', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Эффективность монстров: +#%', { affix: 'implicit' }))).toBe('positive-buffs');
+  });
+
+  it('positive fallback: unfamiliar implicit mod goes to positive-buffs', () => {
+    // Implicit mods are forced to positive by `classifyWaystoneSentiment`.
+    // If the text doesn't match any loot/mechanics sub-pattern, it falls to
+    // buffs (the broad default for positive — better than dropping the mod).
+    // "Какой-то неизвестный мод" doesn't match any keyword, but implicit rule
+    // makes it positive — so it lands in positive-buffs via fallback.
+    expect(classifyWaystoneSubBlock(makeGroup('Какой-то неизвестный мод', { affix: 'implicit' }))).toBe('positive-buffs');
+  });
+
+  // ─── NEGATIVE sub-blocks ───
+
+  it('classifies monster damage increase as negative-monster-power', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('(5—24)% увеличение урона монстров'))).toBe('negative-monster-power');
+  });
+
+  it('classifies monster crit bonus as negative-monster-power', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('+(11—30)% к бонусу критического урона монстров'))).toBe('negative-monster-power');
+  });
+
+  it('classifies monster accuracy as negative-monster-power', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Меткость монстров повышена на (10—50)%'))).toBe('negative-monster-power');
+  });
+
+  it('classifies monster extra projectiles as negative-monster-power', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры выпускают дополнительных снарядов: (2—3)'))).toBe('negative-monster-power');
+  });
+
+  it('classifies monster AoE increase as negative-monster-power', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры имеют #% увеличение области действия'))).toBe('negative-monster-power');
+  });
+
+  it('classifies monster armor as negative-monster-defense', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры бронированы'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster evasion as negative-monster-defense', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры уклончивы'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster resistance as negative-monster-defense', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('+(20—40)% к сопротивлению монстров стихиям'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster HP increase as negative-monster-defense (broader survivability)', () => {
+    // More HP = monster survives longer = broadly defensive (not pure offense).
+    expect(classifyWaystoneSubBlock(makeGroup('На (10—30)% больше здоровья монстров'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster ES as negative-monster-defense (requires monster context)', () => {
+    // iter 104 fix: `монстр.*энергетическ.*щит` requires "монстр" before "энергетическ"
+    // so player-ES debuffs don't false-match into monster-defense.
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры получают (12—25)% от максимума здоровья в виде дополнительного энергетического щита'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster status threshold as negative-monster-defense', () => {
+    // iter 104 fix: `порог.*состоян` is order-agnostic — works for
+    // "Монстры имеют N увеличение порога состояний" (монстр → порог).
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры имеют (30—79)% увеличение порога состояний'))).toBe('negative-monster-defense');
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры имеют (30—79)% увеличение порога оглушения'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies monster crit-damage-reduction as negative-monster-defense', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Монстры получают (15—30)% уменьшение дополнительного урона от критических ударов'))).toBe('negative-monster-defense');
+  });
+
+  it('classifies rare-monster extra properties as negative-monster-modifiers', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Дополнительных свойств у редких монстров: #'))).toBe('negative-monster-modifiers');
+    expect(classifyWaystoneSubBlock(makeGroup('На #% больше шанса появления свойств у редких монстров'))).toBe('negative-monster-modifiers');
+  });
+
+  it('classifies player max-res penalty as negative-player-penalty', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('(-10—-3)% максимум сопротивлений игроков'))).toBe('negative-player-penalty');
+  });
+
+  it('classifies player flask-charge penalty as negative-player-penalty', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Игроки получают уменьшение зарядов флакона на (20—35)%'))).toBe('negative-player-penalty');
+  });
+
+  it('classifies player move-speed penalty as negative-player-penalty', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Игроки имеют на #% меньше скорости передвижения и скорости умений за каждое недавнее использование ими умений'))).toBe('negative-player-penalty');
+  });
+
+  it('classifies player no-damage-window as negative-player-penalty (Known Issue #5 fix)', () => {
+    // After Known Issue #5 fix, this mod is correctly classified as negative
+    // (was positive before). Within negative, it goes to player-penalty
+    // (direct player debuff — can't deal damage 30% of the time).
+    expect(classifyWaystoneSubBlock(makeGroup('Игроки и их приспешники не наносят урона в течение 3 из каждых 10 секунд'))).toBe('negative-player-penalty');
+  });
+
+  it('classifies player recovery penalty as negative-player-penalty (not monster-defense)', () => {
+    // iter 104 fix: `монстр.*энергетическ.*щит` in monster-defense requires
+    // "монстр" before "энергетическ". This player-recovery mod has
+    // "энергетического щита игроков" (игроков after, no монстр before) →
+    // doesn't match monster-defense → falls through to player-penalty via
+    // `восстановлен.*здоровь.*меньш` pattern.
+    expect(classifyWaystoneSubBlock(makeGroup('Скорость восстановления здоровья и энергетического щита игроков на (20—40)% меньше'))).toBe('negative-player-penalty');
+  });
+
+  it('classifies area curses as negative-environment', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Область проклята Слабостью'))).toBe('negative-environment');
+    expect(classifyWaystoneSubBlock(makeGroup('Область проклята Уязвимостью к стихиям'))).toBe('negative-environment');
+  });
+
+  it('classifies ground effects as negative-environment', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('В области есть участки подожженной земли'))).toBe('negative-environment');
+    expect(classifyWaystoneSubBlock(makeGroup('Область имеет участки замерзшей земли'))).toBe('negative-environment');
+    expect(classifyWaystoneSubBlock(makeGroup('Область содержит участки заряженной земли'))).toBe('negative-environment');
+  });
+
+  it('classifies soul-eating as negative-environment', () => {
+    expect(classifyWaystoneSubBlock(makeGroup('Естественные редкие обитатели области пожирают души убитых в их присутствии монстров'))).toBe('negative-environment');
+  });
+
+  // ─── NEUTRAL fallback ───
+
+  it('classifies unfamiliar desecrated mod as neutral-generic', () => {
+    // Mod that doesn't match any positive or negative keyword → neutral → neutral-generic.
+    // "Область захвачена монстрами Бездны" is currently neutral (no keyword catches it).
+    expect(classifyWaystoneSubBlock(makeGroup('Область захвачена монстрами Бездны'))).toBe('neutral-generic');
+  });
+
+  // ─── Label coverage sanity check ───
+
+  it('every WaystoneSubBlock has a label config', () => {
+    // Defensive: ensure WAYSTONE_SUBBLOCK_LABELS covers every variant.
+    // If a new sub-block is added without a label, this test catches it.
+    const expected: WaystoneSubBlock[] = [
+      'positive-loot', 'positive-mechanics', 'positive-buffs',
+      'negative-monster-power', 'negative-monster-defense', 'negative-monster-modifiers',
+      'negative-player-penalty', 'negative-environment',
+      'neutral-generic',
+    ];
+    for (const sb of expected) {
+      expect(WAYSTONE_SUBBLOCK_LABELS[sb]).toBeDefined();
+      expect(WAYSTONE_SUBBLOCK_LABELS[sb].label.length).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -2651,6 +2870,86 @@ describe('classifyGroups applies alphabetical within-block sort (iter 99)', () =
       '(6—16)% увеличение урона мечами',     // м
       '(6—16)% увеличение урона топорами',   // т (м < т)
     ]);
+  });
+
+  // ─── iter 104: affix-sentiment-subblocks mode ───
+
+  it('affix-sentiment-subblocks: produces composite-key sub-blocks (iter 104)', () => {
+    // Mix of positive-loot + negative-monster-power — verify both sub-blocks
+    // appear with composite keys, in canonical order (positive before negative).
+    const groups: FamilyGroup[] = [
+      makeGroup('#% повышение редкости найденных предметов'),          // positive-loot
+      makeGroup('(5—24)% увеличение урона монстров'),                  // negative-monster-power
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment-subblocks');
+    expect(result.map(sg => sg.key)).toEqual(['positive-loot', 'negative-monster-power']);
+    expect(result[0].label).toBe('Добыча');
+    expect(result[1].label).toBe('Сила монстров');
+  });
+
+  it('affix-sentiment-subblocks: empty sub-blocks are skipped (iter 104)', () => {
+    // Only positive-loot mods — only that sub-block should appear (others skipped).
+    const groups: FamilyGroup[] = [
+      makeGroup('#% повышение редкости найденных предметов'),
+      makeGroup('#% повышение количества найденных предметов'),
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment-subblocks');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('positive-loot');
+  });
+
+  it('affix-sentiment-subblocks: within sub-block, groups are alphabetically sorted (iter 104)', () => {
+    // 2 loot mods in reverse alpha — verify iter 99 alphabetical sort applies.
+    const groups: FamilyGroup[] = [
+      makeGroup('#% повышение редкости найденных предметов'),
+      makeGroup('#% повышение количества найденных предметов'),
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment-subblocks');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('positive-loot');
+    const familyKeys = result[0].groups.map(g => g.familyKey);
+    const reSorted = [...familyKeys].sort((a, b) => a.localeCompare(b, 'ru'));
+    expect(familyKeys).toEqual(reSorted);
+  });
+
+  it('affix-sentiment-subblocks: sub-blocks render in canonical order (iter 104)', () => {
+    // One mod per sub-block, in reverse order — verify result is in
+    // WAYSTONE_SUBBLOCK_ORDER (positive-loot → ... → neutral-generic).
+    const groups: FamilyGroup[] = [
+      makeGroup('Какой-то неизвестный мод'),                              // neutral-generic
+      makeGroup('В области есть участки подожженной земли'),              // negative-environment
+      makeGroup('Игроки получают уменьшение зарядов флакона на (20—35)%'), // negative-player-penalty
+      makeGroup('Дополнительных свойств у редких монстров: #'),           // negative-monster-modifiers
+      makeGroup('Монстры бронированы'),                                   // negative-monster-defense
+      makeGroup('(5—24)% увеличение урона монстров'),                     // negative-monster-power
+      makeGroup('Доступно возрождений: #', { affix: 'implicit' }),        // positive-buffs
+      makeGroup('В области можно встретить дополнительных Бездн: (2—3)'), // positive-mechanics
+      makeGroup('#% повышение редкости найденных предметов'),             // positive-loot
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment-subblocks');
+    expect(result.map(sg => sg.key)).toEqual([
+      'positive-loot',
+      'positive-mechanics',
+      'positive-buffs',
+      'negative-monster-power',
+      'negative-monster-defense',
+      'negative-monster-modifiers',
+      'negative-player-penalty',
+      'negative-environment',
+      'neutral-generic',
+    ]);
+  });
+
+  it('affix-sentiment-subblocks: preserves FamilyGroup references (no clone, iter 104)', () => {
+    // Same invariant as affix-functional: FamilyGroup object references must be
+    // preserved (not cloned) so downstream React memoization works.
+    const g1 = makeGroup('#% повышение редкости найденных предметов'); // positive-loot
+    const g2 = makeGroup('(5—24)% увеличение урона монстров');          // negative-monster-power
+    const result = classifyGroups([g1, g2], 'affix-sentiment-subblocks');
+    const lootSg = result.find(sg => sg.key === 'positive-loot');
+    const powerSg = result.find(sg => sg.key === 'negative-monster-power');
+    expect(lootSg?.groups[0]).toBe(g1);
+    expect(powerSg?.groups[0]).toBe(g2);
   });
 });
 

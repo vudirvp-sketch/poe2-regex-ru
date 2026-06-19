@@ -219,7 +219,7 @@ export function WaystonePage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-sentiment"
+              groupMode="affix-sentiment-subblocks"
               category="waystone"
               priorityFilter={priorityFilter}
             />
