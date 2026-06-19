@@ -4,61 +4,51 @@
 
 ---
 
-Task ID: 102
+Task ID: 103
 Agent: main
-Task: Закрыть gap iter 101 — добавить e2e-регрессионные тесты для runtime-classification pipeline, чтобы bug-сценарий iter 90-100 (Zod strips `functionalCategory` → все affixes в `other`) детектировался сразу, а не пользователем на production. Требование пользователя: «лучше недоделать, чем сломать» → выбрать самый безопасный пункт из roadmap iter 101 (рекомендованный: «расширить e2e-тестирование — tests/integration/»). Никаких изменений в runtime/ETL/JSON.
+Task: Закрыть Known Issue #3 (2 TanStack library-level ESLint warnings в `VirtualizedModList.tsx`) — подавить `react-hooks/incompatible-library` через `// eslint-disable-next-line` с комментарием-обоснованием. Довести ESLint до **0 problems** (раньше 0 errors + 2 warnings). Минимальный риск: только 2 строки disable + 2 коротких комментария, никакого runtime/ETL/JSON/схемы/тестов.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Чтение STATUS.md (iter 101 — P0-фикс Critical Bug #4), worklog.md (iter 101 подробно), AGENT_NAVIGATION.md (структура + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1414/1414 passing; `npx tsc -b` → 0 errors; `npx eslint .` → 0 errors + 2 warnings (TanStack library-level).
-- 2: Анализ gap. iter 101 добавил регрессионные тесты только в `tests/etl/etl-schemas.test.ts` (3 теста на field preservation) — они проверяют что `CategoryDataSchema.parse()` сохраняет `functionalCategory`, но НЕ проверяют, что runtime classifier (`groupTokensByFamily` → `classifyGroups`) реально использует это поле для разделения на functional-блоки. `tests/shared/mod-classifier.test.ts` использует synthetic `makeGroup()` fixtures, выставляя `functionalCategory` напрямую — обходит Zod/loader path полностью. Сценарий «schema strips → classifier fails» не покрыт end-to-end.
-- 3: Анализ production path:
-  - `src/data/loader.ts:24` — `const data = CategoryDataSchema.parse(raw) as CategoryData;` (Zod валидирует).
-  - `src/data/loader.ts:45-78` — `loadMergedCategoryData()` — для jewel (3 файла merged).
-  - `src/ui/components/ModList.tsx:324` — `groupTokensByFamily(filteredTokens, category)`.
-  - `src/ui/components/ModList.tsx:340-345` — split by affix (prefix/suffix/implicit).
-  - `src/ui/components/ModList.tsx:358/362` — `classifyGroups(prefixGroups/suffixGroups, groupMode)`.
-  - Group modes (по страницам): amulet/ring/belt → `affix-functional`; jewel → `jewel-functional`; waystone → `affix-sentiment`; tablet → `tablet-type`; relic → `relic-semantic`. iter 102 покрывает 4 категории с `functionalCategory` (jewel/amulet/ring/belt) — waystone/tablet/relic вне scope (не используют `functionalCategory`).
-- 4: Проверка данных: `python3` inspect `public/generated/{jewel,amulet,ring,belt}.json` — family-groups counts: jewel 193, amulet 105, ring 94, belt 85. merged jewel (3 files) = 210 family-groups. Все токены в 4 категориях имеют `functionalCategory` populated (ETL 100% coverage).
-- 5: Создание `tests/integration/runtime-classification.test.ts` (17 тестов):
-  - 4 categories × 4 invariants = 16 tests:
-    1. `produces multiple functional sub-groups` — `allSubGroups.length > 2` (regression guard: bug → 2 sub-groups с key='other', fix → 23-39 sub-groups).
-    2. `classifies family-groups into non-'other' functional blocks` — `nonOtherGroupsCount > 0` AND `≥ totalFamilyGroups / 2` (primary guard: bug → 0, fix → 81-192).
-    3. `'other' block does NOT collapse to 100%` — `otherGroupsCount < totalFamilyGroups` (bug → =, fix → <).
-    4. `every sub-group has at least one family-group` — defensive: no empty `ModSubGroup` entries.
-  - 1 sensitivity test: стрипает `functionalCategory` из raw `belt.json`, парсит через текущую (fixed) схему, проверяет что все family-groups падают в `other` — доказывает, что guards выше реально ловят bug-сценарий iter 90-100.
-  - jewel тестит merged-режим (3 файла: jewel + jewel-desecrated + jewel-corrupted), mirroring `loadMergedCategoryData()` в `src/data/loader.ts`.
-- 6: Запуск `npx vitest run tests/integration/runtime-classification.test.ts` → 17/17 passing за 13ms.
-- 7: Полная verификация: `npx vitest run` → 1431/1431 passing (+17 vs iter 101 baseline). `npx tsc -b` → 0 errors. `npx eslint .` → 0 errors + 2 warnings (TanStack, без изменений).
-- 8: Сбор actual-метрик через временный `scripts/_iter102-metrics.ts` (удалён после):
-  - jewel (merged): total_FG=210, subGroups=39, nonOther_blocks=37, nonOther_FG=192, other_FG=18.
-  - amulet: total_FG=105, subGroups=29, nonOther_blocks=27, nonOther_FG=98, other_FG=7.
-  - ring: total_FG=94, subGroups=26, nonOther_blocks=24, nonOther_FG=91, other_FG=3.
-  - belt: total_FG=85, subGroups=23, nonOther_blocks=21, nonOther_FG=81, other_FG=4.
-  - `other_FG` для amulet/ring/belt точно совпадает с ETL-метриками STATUS.md (7/3/4). jewel merged = 18 (single-file был 16 — добавились desecrated/corrupted origins).
-- 9: Документация:
-  - `STATUS.md` — iter 102 как текущая; метрики-таблица заменена на новую (с runtime sub-groups/non-other counts); обновлён Known Issue #4 (добавлено «iter 102: +17 e2e-тестов закрывают production path»); архитектура functionalCategory +iter 102 note.
-  - `worklog.md` — iter 101 сжат до одной строки, iter 102 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 102; `tests/` секция обновлена (`tests/integration/` добавлено); Pitfall #34 +iter 102 note; Roadmap iter 102 done.
+- 1: Клон репо. Чтение STATUS.md (iter 102 — e2e-регрессионные тесты для runtime-classification), worklog.md (iter 102 подробно), AGENT_NAVIGATION.md (entry + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1431/1431 passing; `npx tsc -b` → 0 errors; `npx eslint .` → 0 errors + 2 warnings (TanStack, library-level — `useVirtualizer()` returns non-memoizable functions, React Compiler не может безопасно memoize).
+- 2: Анализ warnings. Оба в `src/ui/components/VirtualizedModList.tsx`:
+  - Line 307: `const virtualizer = useVirtualizer({` — двухколоный virtualizer (prefix|suffix grid layout).
+  - Line 593: `const singleVirtualizer = useVirtualizer({` — single-column fallback когда применяется affix-filter или только один affix-type существует.
+  - Причина: `eslint-plugin-react-hooks` v7 активирует React Compiler, который генерирует `react-hooks/incompatible-library` для API, возвращающих non-memoizable functions. TanStack Virtual's `useVirtualizer()` — известный случай (возвращает `getVirtualItems`, `scrollToIndex`, etc.). Это library-level limitation, не наш код — апстрим не фиксит (TanStack намеренно возвращает non-memoizable функции для API flexibility).
+- 3: Анализ вариантов фикса:
+  - (a) `// eslint-disable-next-line react-hooks/incompatible-library` — минимальный, точечный, явно помечает library-level природу warning. Рекомендуется в STATUS.md Known Issue #3 и в подсказке iter 102.
+  - (b) `/* eslint-disable react-hooks/incompatible-library */` ... `/* eslint-enable */` — блок disable, избыточен для 2 строк.
+  - (c) Глобально в `eslint.config.js` отключить правило — слишком широко, скроет будущие реальные library-проблемы.
+  - (d) Refactor на `useMemoizedVirtualizer` или аналог — TanStack не предоставляет memoizable API, был бы work-around с `useRef` + manual measurement, значительно больше кода + риск багов.
+  - Выбран (a): минимальный риск, точечный, явно документирован.
+- 4: Применение фикса в `src/ui/components/VirtualizedModList.tsx`:
+  - Line 307 (теперь 312 после добавления комментария): добавлен 4-строчный комментарий-обоснование + `// eslint-disable-next-line react-hooks/incompatible-library` над `const virtualizer = useVirtualizer({`.
+  - Line 593 (теперь 600): добавлен 2-строчный комментарий + `// eslint-disable-next-line react-hooks/incompatible-library` над `const singleVirtualizer = useVirtualizer({`.
+  - Комментарии ссылаются на STATUS.md Known Issue #3 для будущего разработчика — чтобы понять, что это library-level, а не скрытый баг.
+- 5: Верификация: `npx eslint .` → **0 problems** (раньше 0 errors + 2 warnings). `npx tsc -b` → 0 errors. `npx vitest run` → 1431/1431 passing (без изменений, как и ожидалось — disable comments не влияют на runtime).
+- 6: Документация:
+  - `STATUS.md` — iter 103 как текущая; «Что сделано» + «Метрики» (ESLint теперь 0+0); Known Issue #3 помечен ✅ FIXED iter 103 с описанием фикса; архитектура functionalCategory и runtime-метрики без изменений (перенесены из iter 102). Убран длинный iter 102 narrative — заменён на ссылку «без изменений vs iter 102».
+  - `worklog.md` — iter 102 сжат до одной строки (был подробно), iter 103 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 103 (ESLint теперь 0 problems, Known Issue #3 закрыт); Roadmap iter 103 done + обновлён optional-список (убрано «подавить 2 TanStack warnings» — выполнено); Pitfall #34 без изменений (iter 103 не трогал architecture).
 
 Stage Summary:
-- **iter 102 COMPLETE.** e2e-регрессионные тесты для runtime-classification pipeline добавлены. 17 тестов в новом файле `tests/integration/runtime-classification.test.ts` покрывают production path (load JSON → Zod parse → groupTokensByFamily → split-by-affix → classifyGroups) для всех 4 категорий (jewel/amulet/ring/belt). Bug-сценарий iter 90-100 теперь детектится sensitivity-тестом + 4 инвариантами на категорию.
+- **iter 103 COMPLETE.** 2 TanStack library-level ESLint warnings подавлены через точечные `// eslint-disable-next-line react-hooks/incompatible-library` с комментариями-обоснованиями. ESLint теперь **0 errors + 0 warnings** (раньше 0 + 2). Known Issue #3 закрыт.
 - **Изменённые файлы (4):**
-  - `tests/integration/runtime-classification.test.ts` — НОВЫЙ файл, 17 тестов (~190 строк с комментариями).
-  - `STATUS.md` — iter 102 как текущая; метрики-таблица с runtime sub-groups/non-other counts; Known Issue #4 +iter 102 note; архитектура +iter 102 note.
-  - `worklog.md` — iter 102 подробно, iter 101 одной строкой.
-  - `AGENT_NAVIGATION.md` — entry paragraph iter 102; `tests/` секция +integration; Pitfall #34 +iter 102 note; Roadmap iter 102 done.
-- **Тесты:** 1414 → 1431 (+17). TSC: 0 errors. ESLint: 0 errors + 2 warnings (TanStack library-level, без изменений). ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime classifier, схеме.
-- **Точка остановки:** iter 102 done. В iter 103+ можно:
+  - `src/ui/components/VirtualizedModList.tsx` — +6 строк комментариев + 2 `eslint-disable-next-line` над обоими `useVirtualizer()` вызовами (lines 312 и 600).
+  - `STATUS.md` — iter 103 как текущая; метрики ESLint 0+0; Known Issue #3 ✅ FIXED iter 103; iter 102 narrative сжат до «без изменений vs iter 102».
+  - `worklog.md` — iter 103 подробно, iter 102 одной строкой.
+  - `AGENT_NAVIGATION.md` — entry paragraph iter 103; Roadmap iter 103 done + optional-список обновлён.
+- **Тесты:** 1431/1431 (без изменений). TSC: 0 errors. ESLint: **0 errors + 0 warnings**. ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime classifier, схеме, тестах.
+- **Точка остановки:** iter 103 done. В iter 104+ можно:
   1. **P2 — waystone/tablet sub-blocks**: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
   2. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
-  3. **Опционально: подавить 2 TanStack warnings** в `VirtualizedModList.tsx` через `// eslint-disable-next-line react-hooks/incompatible-library` (довести ESLint до 0 problems).
-  4. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
-- **Подсказка следующему агенту:** iter 102 = чисто тесты, runtime/ETL/JSON не тронуты. Baseline: 1431/1431 tests, TSC 0, ESLint 0 errors + 2 warnings. Перед стартом iter 103 прочитай STATUS.md (актуальный статус + Known Issues), worklog.md (iter 102 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (Pitfall #34 обновлён, Roadmap в конце).
+  3. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
+- **Подсказка следующему агенту:** iter 103 = чисто lint-cleanup, runtime/ETL/JSON/схема/тесты не тронуты. Baseline: 1431/1431 tests, TSC 0, ESLint **0 problems** (впервые с iter 99). Перед стартом iter 104 прочитай STATUS.md (актуальный статус + Known Issues — теперь только #1 и #2 остаются), worklog.md (iter 103 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (entry paragraph iter 103, Roadmap iter 103 done). Не создавай новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md (правило iter 100, зафиксировано в AGENT_NAVIGATION.md).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 102**: e2e-регрессионные тесты для runtime-classification pipeline — 17 тестов в `tests/integration/runtime-classification.test.ts` (4 категории × 4 инварианта + 1 sensitivity-test) закрывают production path. 1431/1431 tests.
 - **iter 101**: P0-фикс Critical Bug #4 — `GameTokenSchema` без `functionalCategory` → Zod strips → runtime classifier падал в `other` для всех токенов (с iter 90). Фикс = 1 строка в `src/shared/schemas.ts` + 3 регрессионных теста в `tests/etl/etl-schemas.test.ts`. 1414/1414 tests.
 - **iter 99**: alphabetical within-block sort. `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper для всех 9 режимов `classifyGroups()`. +19 unit-тестов. 1411/1411 tests.
 - **iter 98**: relic-semantic mode (7 Sanctum-категорий для 25 family-keys). 1392/1392 tests.

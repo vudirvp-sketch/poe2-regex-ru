@@ -2,29 +2,29 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 102
+> **Текущая итерация:** 103
 
 ---
 
 ## Текущее состояние
 
-**iter 102: e2e-регрессионные тесты для runtime-classification pipeline (закрытие gap iter 101).**
+**iter 103: подавление 2 TanStack library-level ESLint warnings — закрытие Known Issue #3.**
 
-iter 101 пофиксил Critical Bug #4 (`GameTokenSchema` без `functionalCategory` → Zod strips → runtime classifier падал в `other`). Однако фикc сопровождался только точечными unit-тестами на сохранение поля — тестов, прогоняющих **весь production path** (load JSON → `CategoryDataSchema.parse()` → `groupTokensByFamily()` → `classifyGroups(_, mode)`), не было. iter 102 закрывает этот gap.
+`useVirtualizer()` из `@tanstack/react-virtual` возвращает non-memoizable функции (`getVirtualItems`, `scrollToIndex`, …), на которые React Compiler (через `eslint-plugin-react-hooks` v7, правило `react-hooks/incompatible-library`) генерирует library-level warning. Не наш код — апстрим-ограничение TanStack Virtual.
 
 **Что сделано:**
-- `tests/integration/runtime-classification.test.ts` (новый файл, 17 тестов) — для каждой из 4 категорий (jewel/amulet/ring/belt) прогоняет production path через реальные `public/generated/*.json` и проверяет 4 инварианта:
-  1. `> 2` sub-groups (не одна корзина `other` на prefix+suffix).
-  2. `nonOtherGroupsCount > 0` И `≥ totalFamilyGroups / 2` — primary regression guard (если `functionalCategory` снова стрипается → 0 в non-other → fail).
-  3. `otherGroupsCount < totalFamilyGroups` — `other` не коллапсирует в 100%.
-  4. Каждый sub-group содержит ≥1 family-group (no empty `ModSubGroup` entries).
-- **Sensitivity test** в конце файла: стрипает `functionalCategory` из raw `belt.json`, парсит через текущую (fixed) схему и проверяет, что все family-groups падают в `other` — доказывает, что регрессионные guards выше реально ловят bug-сценарий iter 90-100.
-- jewel тестит merged-режим (3 файла: jewel + jewel-desecrated + jewel-corrupted), mirroring `loadMergedCategoryData()` в `src/data/loader.ts`.
-- Waystone/tablet/relic вне scope — они не используют `functionalCategory` (sentiment/tablet-type/relic-semantic классификация на основе text/tags).
+- `src/ui/components/VirtualizedModList.tsx` — `// eslint-disable-next-line react-hooks/incompatible-library` над обоими вызовами `useVirtualizer()` (двухколоный virtualizer + single-column virtualizer) + краткий комментарий-обоснование со ссылкой на Known Issue #3.
+- Никаких изменений в runtime/ETL/JSON/схеме/тестах.
 
-**Без изменений:** `public/generated/*.json`, ETL pipeline, runtime classifier, `src/shared/schemas.ts`, `src/shared/mod-classifier.ts`, `src/shared/family-grouper.ts`. iter 102 = чисто тесты.
+**Метрики:** ESLint теперь **0 errors + 0 warnings** (раньше 0 + 2). 1431/1431 tests. TSC 0 errors. ETL 11 fresh, 0 stale.
 
-### Метрики
+### Архитектура functionalCategory (без изменений vs iter 102)
+
+1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`): `classifyModFunctionalBlock(tags, rawText)` — 22-шаговый классификатор. `buildFunctionalCategoryMap()` строит modId→category из ModCalc страниц.
+2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify после патча rawText на русский.
+3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов. Fallback `return 'other';`. iter 101: Zod-схема пропускает поле. iter 102: e2e-тесты `tests/integration/runtime-classification.test.ts` закрывают весь production path.
+
+### Runtime-метрики (без изменений vs iter 102)
 
 | Категория | mode | Family-groups | sub-groups | non-other blocks | non-other FG | other FG |
 |-----------|------|---------------|------------|------------------|--------------|----------|
@@ -34,18 +34,10 @@ iter 101 пофиксил Critical Bug #4 (`GameTokenSchema` без `functionalC
 | belt | affix-functional | 85 | 23 | 21 | 81 | 4 |
 | relic | relic-semantic | 25 | N/A | N/A | N/A | N/A |
 
-`other FG` для amulet/ring/belt точно совпадает с ETL-метриками (7/3/4). jewel merged = 18 (single-file был 16 в iter 101 sanity — добавились desecrated/corrupted origins).
-
 - **Strategy 0 coverage (ETL):** 477/477 (100%).
 - **Cross-validation:** 477/477 match (0 расхождений).
-- **Тесты:** 1414 → 1431 (+17 iter 102). TSC: 0 errors. ESLint: 0 errors + 2 warnings (TanStack, library-level).
+- **Тесты:** 1431/1431. TSC: 0 errors. ESLint: **0 errors + 0 warnings** (iter 103).
 - **ETL:** 11 fresh, 0 stale.
-
-### Архитектура functionalCategory (без изменений vs iter 96)
-
-1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`): `classifyModFunctionalBlock(tags, rawText)` — 22-шаговый классификатор. `buildFunctionalCategoryMap()` строит modId→category из ModCalc страниц.
-2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify после патча rawText на русский.
-3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов. Fallback `return 'other';`. iter 101: Zod-схема пропускает поле. iter 102: e2e-тесты `tests/integration/runtime-classification.test.ts` закрывают весь production path.
 
 ---
 
@@ -53,8 +45,8 @@ iter 101 пофиксил Critical Bug #4 (`GameTokenSchema` без `functionalC
 
 1. **2 opt-table entries > 250 chars** в jewel.json — не помещаются в один PoE2 regex.
 2. **j05iep stays crit** — `jewel.mod_j05iep` «сила наносящих урон состояний при крит» имеет tags `[damage, critical, ailment]` и остаётся в `crit` (CRIT шаг 14 выигрывает у AILMENTS шаг 15 в ETL classifier). Intentional — critical tag семантически важнее.
-3. **VirtualizedModList.tsx TanStack warnings (2)** — `react-hooks/incompatible-library` warnings от `useVirtualizer()`. Library-level, не наш код. Можно подавить через `// eslint-disable-next-line` или дождаться апстрим-фикса.
-4. ~~**Zod schema strips `functionalCategory`** — `GameTokenSchema` не содержал поля `functionalCategory`, Zod удалял его при парсинге, runtime classifier падал в `other` для всех токенов.~~ **✅ FIXED iter 101** (добавлено `functionalCategory: z.string().optional()`). **iter 102: +17 e2e-регрессионных тестов** в `tests/integration/runtime-classification.test.ts` закрывают production path — bug-сценарий теперь детектится сразу.
+3. ~~**VirtualizedModList.tsx TanStack warnings (2)** — `react-hooks/incompatible-library` warnings от `useVirtualizer()`. Library-level, не наш код.~~ **✅ FIXED iter 103** — оба вызова `useVirtualizer()` (lines 312, 600) помечены `// eslint-disable-next-line react-hooks/incompatible-library` с комментарием-обоснованием. ESLint теперь 0 problems.
+4. ~~**Zod schema strips `functionalCategory`** — `GameTokenSchema` не содержал поля `functionalCategory`, Zod удалял его при парсинге, runtime classifier падал в `other` для всех токенов.~~ **✅ FIXED iter 101** + **iter 102: +17 e2e-регрессионных тестов** в `tests/integration/runtime-classification.test.ts` закрывают production path.
 
 ---
 

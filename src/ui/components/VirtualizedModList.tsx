@@ -304,6 +304,11 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   collapsedTokenIds,
   borderClass,
 }) => {
+  // TanStack Virtual's useVirtualizer returns non-memoizable functions
+  // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
+  // memoize. This is a known library-level limitation, not our code — see
+  // STATUS.md Known Issue #3 (closed iter 103).
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollElement,
@@ -590,6 +595,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   }, [hasBothAffixes, implicitRows, prefixRows, suffixRows, affixFilter, hasImplicit]);
 
   // Single-column virtualizer for when affix filter is applied
+  // (Same TanStack library limitation as above — see STATUS.md Known Issue #3.)
+  // eslint-disable-next-line react-hooks/incompatible-library
   const singleVirtualizer = useVirtualizer({
     count: mergedRows.length,
     getScrollElement: () => scrollElement,

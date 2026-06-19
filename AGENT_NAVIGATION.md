@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 102** (e2e-регрессионные тесты для runtime-classification pipeline — закрывают gap iter 101: 17 тестов в новом файле `tests/integration/runtime-classification.test.ts` прогоняют production path «load JSON → `CategoryDataSchema.parse()` → `groupTokensByFamily()` → `classifyGroups(_, mode)`» для всех 4 категорий (jewel/amulet/ring/belt) + sensitivity-test, доказывающий что guards ловят bug-сценарий iter 90-100. iter 102 = чисто тесты — runtime/ETL/JSON/схема не тронуты. 1431/1431 тестов зелёные, TSC 0 errors, ESLint 0 errors + 2 library-level warnings (TanStack), ETL 11 fresh / 0 stale). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 103** (подавление 2 TanStack library-level ESLint warnings — закрытие Known Issue #3: оба вызова `useVirtualizer()` в `src/ui/components/VirtualizedModList.tsx` помечены `// eslint-disable-next-line react-hooks/incompatible-library` с комментарием-обоснованием. iter 103 = чисто lint-cleanup, runtime/ETL/JSON/схема/тесты не тронуты. ESLint теперь **0 errors + 0 warnings** (впервые с iter 99). 1431/1431 тестов зелёные, TSC 0 errors, ETL 11 fresh / 0 stale). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -329,9 +329,9 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - **iter 100 done:** cleanup 17 устаревших iter*-скриптов. ESLint 0 errors.
 - **iter 101 done:** P0-фикс Critical Bug — `GameTokenSchema` добавлено `functionalCategory: z.string().optional()`. Zod больше не strips это поле → runtime classifier работает корректно → functional блоки (Дух / Атрибуты / Сопротивления / Урон / Крит / …) появляются на страницах jewel/amulet/ring/belt вместо одного «Прочее». +3 регрессионных теста.
 - **iter 102 done:** e2e-регрессионные тесты для runtime-classification pipeline — `tests/integration/runtime-classification.test.ts` (17 тестов, ~190 строк): 4 категории × 4 инварианта + 1 sensitivity-test. Bug-сценарий iter 90-100 теперь детектится сразу. iter 102 = чисто тесты, runtime/ETL/JSON/схема не тронуты. 1431/1431 tests.
+- **iter 103 done:** подавление 2 TanStack library-level ESLint warnings — `// eslint-disable-next-line react-hooks/incompatible-library` над обоими `useVirtualizer()` вызовами в `src/ui/components/VirtualizedModList.tsx` (lines 312 и 600) с комментариями-обоснованиями. Known Issue #3 закрыт. ESLint теперь **0 errors + 0 warnings** (впервые с iter 99). 1431/1431 tests.
 - **P2 (next):** waystone/tablet sub-blocks — sub-группировка внутри sentiment по gameplay mechanic (waystone: loot/danger/splinters; tablet: второй уровень внутри type).
 - **P4:** tier-aware sort toggle (UI-тумблер alpha vs tier-first в `CategoryControlPanel`).
 - **Опционально:** `sortKey?: number` в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
-- **Опционально:** подавить 2 TanStack warnings в `VirtualizedModList.tsx` через `// eslint-disable-next-line react-hooks/incompatible-library`.
 - `scripts/etl/classify-functional-category.ts` — ETL-tagged functionalCategory (iter 90). `buildFunctionalCategoryMap()` + `classifyModFunctionalBlock()`.
 - `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — ETL pipeline (functionalCategory patching через generate-dictionary).
