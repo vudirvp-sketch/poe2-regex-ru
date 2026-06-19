@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:07.152Z",
+  "version": "2026-06-19T05:39:03.135Z",
   "category": "amulet",
   "source": "poe2db.tw",
   "tokens": [
@@ -10853,7 +10853,7 @@
         13
       ],
       "level": 65,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "amulet.abyssmodringamuletkurgalsuffixcooldownrecoveryrate_desecrated",

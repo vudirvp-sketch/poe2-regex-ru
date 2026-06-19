@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 93** (penetration block activated — 3 family-keys moved from `resistances` to dedicated `penetration` block; AILMENTS/MINIONS patterns expanded defensively). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 94** (AILMENTS tag-priority refactor — AILMENTS_PATTERN moved BEFORE DAMAGE_TYPE + added `ailment` tag check; 26 mods reclassified damage-type → ailments across jewel/amulet/ring/belt; 4 ailment-tagged groups stayed in higher-priority buckets — expected). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 

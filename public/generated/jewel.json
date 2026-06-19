@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:02.879Z",
+  "version": "2026-06-19T05:38:58.983Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -101,7 +101,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_4mxucf",
@@ -457,7 +457,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_ec1qa7",
@@ -1878,7 +1878,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_q7sbar",
@@ -2569,7 +2569,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_90o1h0",
@@ -2867,7 +2867,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_7f2j1",
@@ -3014,7 +3014,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_kgc2ed",
@@ -3505,7 +3505,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_szkiml",
@@ -3662,7 +3662,7 @@
       ],
       "level": 1,
       "jewelType": "emerald",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_v23dqm",
@@ -3862,7 +3862,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_q0s6bs",
@@ -4542,7 +4542,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_zhr8fs",
@@ -4855,7 +4855,7 @@
       ],
       "level": 1,
       "jewelType": "sapphire",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_kcvuf",
@@ -5397,7 +5397,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_bmigen",
@@ -5540,7 +5540,7 @@
       ],
       "level": 1,
       "jewelType": "emerald",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_ha6tdi",
@@ -5633,7 +5633,7 @@
         ]
       },
       "jewelType": "shared",
-      "functionalCategory": "damage-type",
+      "functionalCategory": "ailments",
       "regexPrefixContext": {
         "ru": "урон"
       }
@@ -5861,7 +5861,7 @@
         ]
       },
       "jewelType": "sapphire",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_xxbuhi",
@@ -5905,7 +5905,7 @@
       ],
       "level": 1,
       "jewelType": "sapphire",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_2k4vf6",
@@ -5950,7 +5950,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_4yzy57",
@@ -7436,7 +7436,7 @@
       ],
       "level": 1,
       "jewelType": "emerald",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_nuzdb5",
@@ -7652,7 +7652,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_w1hboq",
@@ -7697,7 +7697,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_mkialb",
@@ -9045,7 +9045,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel.mod_91dj9d",

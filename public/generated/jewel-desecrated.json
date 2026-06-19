@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:02.936Z",
+  "version": "2026-06-19T05:38:59.029Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -913,7 +913,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_ldjy55.gfd0if",
@@ -1555,7 +1555,7 @@
       ],
       "level": 1,
       "jewelType": "ruby",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_38l65n.j5lorp",
@@ -1656,7 +1656,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_jhgxor.v8ialh",
@@ -1968,7 +1968,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_2oddfi",
@@ -2020,7 +2020,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_o3en7o.65w5sk",

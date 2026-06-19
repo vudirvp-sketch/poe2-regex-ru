@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:02.956Z",
+  "version": "2026-06-19T05:38:59.054Z",
   "category": "jewel-corrupted",
   "source": "poe2db.tw",
   "tokens": [
@@ -375,7 +375,7 @@
       ],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-corrupted.mod_2hn06i",

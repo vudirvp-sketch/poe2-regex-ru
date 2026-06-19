@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:04.652Z",
+  "version": "2026-06-19T05:39:00.702Z",
   "category": "belt",
   "source": "poe2db.tw",
   "tokens": [
@@ -7147,7 +7147,7 @@
         24
       ],
       "level": 65,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "belt.desecrated_9_desecrated",
@@ -7372,7 +7372,7 @@
         41
       ],
       "level": 65,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "belt.abyssmodbootsandbeltulamansuffixreducedpoisondurationself_desecrated",
@@ -7418,7 +7418,7 @@
         39
       ],
       "level": 65,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "belt.desecrated_15_desecrated",

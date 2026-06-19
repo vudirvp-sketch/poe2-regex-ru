@@ -1389,16 +1389,20 @@ const WEAPON_SPECIFIC_PATTERN = /(?:мечами|кинжалами|топора
  *  - NOT matching «ослабление влияния замедления» — slow resistance, defensive
  *    (left in `other`)
  *
- * Position: AFTER offence-speed, BEFORE the fallback. This way, ailments mods
- * that have attack/damage/critical tags but functionally describe ailment
- * application are caught here only if they weren't caught by earlier blocks
- * (i.e., they would otherwise fall into `other`). Verified safe by
- * simulate-iter88-impact.ts — 0 false positives across jewel/amulet/ring/belt.
+ * Position (iter 94): AFTER CRIT (step 14), BEFORE DAMAGE_TYPE (step 16).
+ *  - CRIT (critical tag) still wins for crit-ailment mods (e.g., j05iep stays crit).
+ *  - AILMENTS now wins over DAMAGE_TYPE — `ailment` tag + AILMENTS_PATTERN text
+ *    both take priority over `damage` tag / "урон" text.
+ *  - Verified safe by simulate-iter94-impact.ts — 26 reclassifications (all
+ *    damage-type → ailments), 0 FPs. 4 ailment-tagged groups stay in higher-
+ *    priority buckets (crit/weapon-specific/resources/defence-stats) — expected.
  *
- * iter 93 note: «(5—15)% увеличение силы накладываемых вами состояний» has tags
- * [damage, ailment] and is currently caught by DAMAGE_TYPE (tag damage wins
- * before ailments). The expanded pattern is defensive — if a future mod has
- * the same text WITHOUT damage tag, it will correctly go to ailments.
+ * iter 88-93 history:
+ *  - iter 88: pattern created, positioned AFTER offence-speed (only caught `other`-bound mods).
+ *  - iter 93: added `накладыва.*состоян` (defensive — pattern was AFTER damage-type so
+ *    no current mod reclassified).
+ *  - iter 94: MOVED before DAMAGE_TYPE + added `ailment` tag check. Reclassifies 26
+ *    mods damage-type → ailments (jewel: 21, amulet: 1, ring: 1, belt: 3).
  */
 const AILMENTS_PATTERN = /(?:поджог|шок|охлажден|заморозк|отравлен|отравить|кровотеч|оцепенен|парир|пригвожден|Разрез|ослеплен|ослепить|горючест|восприимчивост|истощен|накладыва.*состоян|наложен.*состоян|стихийн.*состоян)/i;
 
@@ -1545,10 +1549,10 @@ const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|к
  * 11. RESOURCES — tags `life`/`mana` OR text "максимум.*энерг.*щит/похищен/регенерац/восстанавливает" — BEFORE defence-stats (for ES max)
  * 12. DEFENCE_STATS — tags `armour`/`evasion`/`energy_shield`/`charm` OR text "брон/уклонен/блок/порог оглушен"
  * 13. WEAPON_SPECIFIC — text "{weapon name}" (iter 87: jewel-only, 24 family-keys) — BEFORE crit/damage-type/offence-speed
- * 14. CRIT — tag `critical` OR text "крит" — BEFORE damage-type
- * 15. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
- * 16. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
- * 17. AILMENTS (iter 88, expanded iter 93) — text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/накладыва.*состоян/состояний/..." — only catches mods that would otherwise fall into `other`
+ * 14. CRIT — tag `critical` OR text "крит" — BEFORE damage-type AND ailments (crit-ailment mods stay crit)
+ * 15. AILMENTS (iter 88, expanded iter 93, MOVED iter 94) — tag `ailment` OR text "поджог/шок/охлажден/отравлен/оцепенен/парир/пригвожден/ослеплен/накладыва.*состоян/..." — BEFORE damage-type (ailment tag wins over damage tag)
+ * 16. DAMAGE_TYPE — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text "урон"
+ * 17. OFFENCE_SPEED — tag `speed` OR text "скорость атаки/сотворения/передвижения/снарядов"
  * 18. AREA_DURATION (iter 88) — text "области действия / длительности проклятий и знамён / радиус пассивных умений" — only catches mods that would otherwise fall into `other`
  * 19. RAGE_CHARGES (iter 89) — text "свирепост / славы.*знамён" — ferocity max + banner glory speed (more specific than buff-skills for banner-glory)
  * 20. META_SKILLS (iter 89) — text "Мета-умени / Архонт / запечат / вызываем.*умени" — meta-skill / Archon / sealed-skill mods
@@ -1562,7 +1566,10 @@ const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|к
  *    too, but functionally they're resistances).
  *  - Life/mana tags beat energy_shield tag via text pattern for ES max (ES max mods have
  *    energy_shield tag AND "максимум" text — resources catches first).
- *  - Critical tag beats damage tag (crit mods have both).
+ *  - Critical tag beats damage tag AND ailment tag (crit mods have all three; iter 94:
+ *    crit-ailment mods like j05iep stay in crit — CRIT is step 14, AILMENTS is step 15).
+ *  - Ailment tag (iter 94) beats damage tag — mods with both `ailment`+`damage` tags
+ *    (e.g., l1y0fl, 40sol4) now bucket as `ailments`, not `damage-type`.
  *
  * Breach Lord source tags (kurgal_mod/amanamu_mod/ulaman_mod) are skipped during
  * tag collection — they indicate mod source, not function (Bug #7 fix, iter 84).
@@ -1660,18 +1667,23 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
 
   // 14. Crit — tag `critical` OR text «крит»
   //     Must be BEFORE damage-type (crit mods often have damage tag too).
+  //     iter 94: also wins over ailments — crit-ailment mods (e.g., j05iep) stay in crit.
   if (allTags.has('critical') || CRIT_PATTERN.test(text)) return 'crit';
 
-  // 15. Damage-type — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
+  // 15. Ailments (iter 88, expanded iter 93, MOVED iter 94) — tag `ailment` OR text pattern.
+  //     iter 94: MOVED from step 17 (was AFTER offence-speed) to step 15 (BEFORE damage-type).
+  //     iter 94: ALSO added `ailment` tag check (was text-only).
+  //     Rationale: mods with `ailment` tag (or matching AILMENTS_PATTERN text) are
+  //     functionally about ailments — they should bucket as `ailments`, not `damage-type`.
+  //     CRIT (step 14) still wins for crit-ailment mods.
+  //     Verified safe by simulate-iter94-impact.ts: 26 reclassifications (all damage-type → ailments), 0 FPs.
+  if (allTags.has('ailment') || AILMENTS_PATTERN.test(text)) return 'ailments';
+
+  // 16. Damage-type (was step 15) — tags `damage`/`physical`/`elemental`/`cold`/`fire`/`lightning`/`chaos` OR text «урон»
   if (allTags.has('damage') || allTags.has('physical') || allTags.has('elemental') || allTags.has('cold') || allTags.has('fire') || allTags.has('lightning') || allTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(text)) return 'damage-type';
 
-  // 16. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
+  // 17. Offence-speed — tag `speed` OR text «скорость атаки/сотворения/передвижения/снарядов»
   if (allTags.has('speed') || OFFENCE_SPEED_PATTERN.test(text)) return 'offence-speed';
-
-  // 17. Ailments (iter 88, expanded iter 93) — text-based: поджог/шок/охлажден/отравлен/оцепенен/парир/...
-  //     Positioned AFTER offence-speed so it only catches mods that would otherwise
-  //     fall into `other`. Verified safe by simulate-iter88-impact.ts (0 false positives).
-  if (AILMENTS_PATTERN.test(text)) return 'ailments';
 
   // 18. Area / Duration (iter 88) — text-based: области действия / длительности проклятий и знамён / радиус пассивных умений
   //     Positioned AFTER ailments so «длительность эффекта Парирован» goes to AILMENTS (parry = ailment).

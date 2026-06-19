@@ -115,12 +115,16 @@ export function classifyModFunctionalBlock(
   if (WEAPON_SPECIFIC_PATTERN.test(rawText)) return 'weapon-specific';
   // 14. Crit
   if (functionalTags.has('critical') || CRIT_PATTERN.test(rawText)) return 'crit';
-  // 15. Damage-type
+  // 15. Ailments (iter 94: moved BEFORE DAMAGE_TYPE; added `ailment` tag check).
+  //    Rationale: mods with `ailment` tag (or matching AILMENTS_PATTERN text) are
+  //    functionally about ailments — they should bucket as `ailments`, not `damage-type`.
+  //    CRIT (step 14) still wins for crit-ailment mods (e.g., j05iep crit-ailment stays crit).
+  //    Verified safe by simulate-iter94-impact.ts: 26 reclassifications, all damage-type → ailments, 0 FPs.
+  if (functionalTags.has('ailment') || AILMENTS_PATTERN.test(rawText)) return 'ailments';
+  // 16. Damage-type (was step 15)
   if (functionalTags.has('damage') || functionalTags.has('physical') || functionalTags.has('elemental') || functionalTags.has('cold') || functionalTags.has('fire') || functionalTags.has('lightning') || functionalTags.has('chaos') || DAMAGE_TYPE_PATTERN.test(rawText)) return 'damage-type';
-  // 16. Offence-speed
+  // 17. Offence-speed
   if (functionalTags.has('speed') || OFFENCE_SPEED_PATTERN.test(rawText)) return 'offence-speed';
-  // 17. Ailments
-  if (AILMENTS_PATTERN.test(rawText)) return 'ailments';
   // 18. Area / Duration
   if (AREA_DURATION_PATTERN.test(rawText)) return 'area-duration';
   // 19. Rage-charges

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:03:05.604Z",
+  "version": "2026-06-19T05:39:01.613Z",
   "category": "ring",
   "source": "poe2db.tw",
   "tokens": [
@@ -10840,7 +10840,7 @@
         13
       ],
       "level": 65,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "ring.abyssmodringamuletkurgalsuffixrecoverpercentmaxmanaonkill_desecrated",
@@ -11769,7 +11769,7 @@
         13
       ],
       "level": 1,
-      "functionalCategory": "damage-type"
+      "functionalCategory": "ailments"
     },
     {
       "id": "ring.genesistreeringmaximuminvocationenergy_breachborn",
