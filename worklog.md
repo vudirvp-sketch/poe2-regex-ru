@@ -4,57 +4,56 @@
 
 ---
 
-Task ID: 98
+Task ID: 99
 Agent: main
-Task: Реализовать P3-задачу relic-semantic mode — заменить flat `affix-only` режим на странице реликвий на семантическую подгруппировку (25 family-keys → 7 Sanctum-категорий). Не трогать существующие режимы, не менять `public/generated/*.json`.
+Task: Реализовать UX-задачу iter 99 — alphabetical within-block sort. Цель пользователя: «однотипные модификаторы должны быть в одном месте и идти один за другим как бы по алфавиту». Не менять `public/generated/*.json`, не сломать существующие тесты.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через corepack shim (`/usr/lib/node_modules/corepack/shims/pnpm`). Baseline: 1363/1363 tests passing, TSC 0 errors (state после iter 97).
-- 2: Изучение контекста: прочитаны STATUS.md, worklog.md, AGENT_NAVIGATION.md, src/shared/mod-classifier.ts (1545 строк), src/shared/family-grouper.ts, src/shared/types.ts, src/ui/components/ModList.tsx, src/ui/components/CategoryControlPanel.tsx, src/ui/pages/relic/RelicPage.tsx, src/ui/pages/waystone/WaystonePage.tsx, src/ui/pages/tablet/TabletPage.tsx, tests/shared/mod-classifier.test.ts (2136 строк). Стратегия P1-P3 проанализирована: выбран relic-semantic как наиболее self-contained + наибольший UX-impact (25 groups в одной корзине = явно плохой UX).
-- 3: Анализ relic.json: `python3` script извлёк 25 family-keys (12 suffix + 13 prefix). Распределение по семантическим категориям спроектировано вручную: honor=10, monsters=7, trials=2, keys=2, merchant=2, sanctum-water=1, curse=1, other=0. Изначально miscount как 9 honor — позже исправлен на 10 (7 suffix + 3 prefix, не 6+3).
-- 4: Реализация в `src/shared/mod-classifier.ts` (новый код: ~130 строк):
-  - `RelicCategory` type: 8 значений (`honor` / `sanctum-water` / `trials` / `keys` / `merchant` / `monsters` / `curse` / `other`).
-  - `RELIC_LABELS` — display config (label + colorClass + bgClass + borderClass + borderLClass),配色 reuses existing Tailwind classes.
-  - `RELIC_CATEGORY_ORDER` — render order: Sanctum-economy (honor/water/trials/keys/merchant) → combat (monsters/curse) → other.
-  - 7 keyword-паттернов: `RELIC_HONOR_KEYWORDS = /чест/i`, `RELIC_SANCTUM_WATER_KEYWORDS = /святой воды/i`, `RELIC_TRIALS_KEYWORDS = /испытан/i`, `RELIC_KEYS_KEYWORDS = /ключ/i`, `RELIC_MERCHANT_KEYWORDS = /торгов/i`, `RELIC_CURSE_KEYWORDS = /проклят/i`, `RELIC_MONSTER_KEYWORDS = /(?:монстр|босс)/i`.
-  - `classifyRelicCategory(group)` — function, проверяет patterns в порядке honor → sanctum-water → trials → keys → merchant → curse → monsters → other. Honor первым, чтобы «Восстанавливает # чести при убийстве босса» не ушло в monsters (текст содержит «босса»).
-  - `'relic-semantic'` добавлен в `ModGroupMode` type.
-  - Handling в `classifyGroups(mode='relic-semantic')`: Map<category, FamilyGroup[]>, emit в `RELIC_CATEGORY_ORDER`, skip empty categories. Architecture mirrors `affix-sentiment` и `tablet-type`.
-- 5: `src/ui/pages/relic/RelicPage.tsx` — `groupMode` изменён с `'affix-only'` на `'relic-semantic'`. Заголовок файла обновлён с описанием iter 98.
-- 6: Tests в `tests/shared/mod-classifier.test.ts` (новые ~255 строк, +29 unit-тестов):
-  - `describe('classifyRelicCategory (iter 98)')` — 15 тестов на individual family-keys: 6 honor (включая критический order-test «чести при убийстве босса» → honor, не monsters), 1 sanctum-water, 2 trials, 2 keys, 2 merchant, 6 monsters, 1 curse, 1 other fallback.
-  - `describe('classifyGroups with relic-semantic mode (iter 98)')` — 6 тестов: empty input / full coverage всех 25 family-keys из relic.json с проверкой распределения (10/1/2/2/2/7/1) / render order / skip empty categories / labels + colors из RELIC_LABELS / preserves group references.
-  - `describe('RELIC_LABELS (iter 98)')` — 2 sanity-теста: 8 entries, every entry has non-empty fields.
-- 7: Bug-fix iteration во время тестирования:
-  - Bug 1: `RELIC_MERCHANT_KEYWORDS = /торговец/i` — НЕ matching «торговца» (different inflection, suffix is «ца» not «ец»). First fix `/торговц/i` был тоже неверным («торговец» не содержит «торговц»). Final fix: `/торгов/i` — shared stem для всех inflections. 3 теста упало → 0 после fix.
-  - Bug 2: Miscount honor groups (написал 9 в комментарии и ожидании теста, фактически 10). Исправлено в комментарии функции и в ожидании теста.
-- 8: Верификация:
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через corepack shim. Baseline: 1392/1392 tests passing, TSC 0 errors (state после iter 98).
+- 2: Изучение контекста: прочитаны STATUS.md, worklog.md, AGENT_NAVIGATION.md, src/shared/mod-classifier.ts (1710 строк — целиком), src/shared/family-grouper.ts (316 строк), src/shared/types.ts, tests/shared/family-grouper.test.ts, tests/shared/mod-classifier.test.ts (2392 строк), src/ui/components/ModList.tsx + VirtualizedModList.tsx + CategoryControlPanel.tsx (по grep). Выявлена корневая проблема: `groupTokensByFamily()` сортирует по affix → **tier (S→A→B→C)** → alpha. После `classifyGroups()` этот within-block order сохраняется (Map сохраняет insertion order), фрагментируя алфавитный поток внутри функционального блока.
+- 3: Анализ UX-решений:
+  - Опция A: изменить sort в `groupTokensByFamily` на affix → alpha (drop tier). Минус: ломает тест "sorts by priority tier within same affix" (line 373) и меняет поведение ВСЕХ потребителей.
+  - Опция B (выбрана): добавить `sortGroupsAlphabetically()` helper + применять в `classifyGroups()` ко всем режимам. Минус: на первый взгляд дублирует sort. Плюсы: (1) не ломает `groupTokensByFamily`-тесты, (2) explicitly применяет alphabetical flow в точке partitioning, (3) работает для origin-split групп (strip `::origin` suffix), (4) все 9 режимов получают единообразное поведение.
+- 4: Анализ sort key: `familyKey` vs `displayText`. `displayText` содержит substituted ranges (напр. "+(5—7) к силе") — сортировка по нему interleaves families по numeric range, не по имени. `familyKey` — template ("+# к силе"), даёт чистый alphabetical. Решение: sort by `familyKey` (с strip `::origin`), Russian locale, `priorityTier` как tiebreaker (defensive — два одинаковых familyKey в одном sub-group не должно быть, но если есть, S перед A).
+- 5: Реализация в `src/shared/mod-classifier.ts` (новый код: ~75 строк, после `TIER_SORT_ORDER`):
+  - `sortGroupsAlphabetically(groups: FamilyGroup[]): FamilyGroup[]` — экспортируемая. Если `groups.length <= 1` — shallow copy без вызова comparator. Иначе `[...groups].sort(...)` с компаратором: strip `::origin`, `localeCompare('ru')`, tiebreaker `TIER_SORT_ORDER diff`. Возвращает NEW array (не мутирует input), сохраняет FamilyGroup references (тест "preserves group references" полагается на это).
+  - `withAlphabeticalGroups<T extends ModSubGroup>(result: T[]): T[]` — приватная wrapper. Мутирует `sg.groups` каждого sub-group, указывая на новый sorted array. Применяется ко всем 10 return-точкам `classifyGroups()` (9 режимов + fallback).
+- 6: MultiEdit на 10 return-точек в `classifyGroups()`: каждый `return X` → `return withAlphabeticalGroups(X)`. Включая `affix-only`, `relic-semantic`, `affix-semantic`, `affix-functional`, `jewel-functional` (через локальную `result` переменную), `affix-sentiment`, `tablet-type`, `origin`, `jewel-type`, fallback.
+- 7: Tests в `tests/shared/mod-classifier.test.ts` (новые ~265 строк, +19 unit-тестов в 2 describe-блоках):
+  - `describe('sortGroupsAlphabetically (iter 99)')` — 10 тестов: new array / preserve refs / empty input / single element / Russian alpha (и<л<с) / familyKey vs displayText (numeric ranges не фрагментируют) / tier как tiebreaker не primary / ::origin strip / mixed Cyrillic+Latin scripts.
+  - `describe('classifyGroups applies alphabetical within-block sort (iter 99)')` — 9 тестов: affix-functional alpha + tier не фрагментирует + render order preserved + preserve refs; relic-semantic (honor) alpha; tablet-type (ritual) alpha; affix-sentiment (positive) alpha; affix-only alpha; jewel-functional weapon sub-block alpha.
+- 8: Bug-fix iteration во время тестирования:
+  - Bug: Опечатка в строке 2603 — `expect(result[0].key).toBe('ritual';` (missing closing paren). TSC поймал. Fixed → `expect(result[0].key).toBe('ritual');`.
+- 9: Sanity-check на production данных (`scripts/verify-iter99-alpha-sort.ts`, ~50 строк): печатает within-block order для amulet/ring/belt, prefix+suffix. Подтверждает: в «Атрибутах» amulet suffix 10 groups идут alphabetically — `+# к интеллекту` → `+# к ловкости` → `+# к ловкости и интеллекту` → `+# к силе` → `+# к силе и интеллекту` → `+# к силе и ловкости` → `+# к силе, ловкости или интеллекту` → `+# ко всем характеристикам` (S-tier «всем» в КОНЦЕ, не в начале). В «Сопротивлениях» B-tier хаос-моды interleaved с C-tier по алфавиту, не фрагментируя поток.
+- 10: Верификация:
   - `pnpm exec tsc -b` → 0 errors.
-  - `pnpm test` → 1392/1392 passing (35 test files). +29 tests vs iter 97 (1363 → 1392).
-  - `pnpm exec eslint src/shared/mod-classifier.ts src/ui/pages/relic/RelicPage.tsx tests/shared/mod-classifier.test.ts` → 0 errors. (один `no-unused-vars` на `key` в `Object.entries(RELIC_LABELS)` исправлен → `[, cfg]`).
+  - `pnpm test` → 1411/1411 passing (35 test files). +19 tests vs iter 98 (1392 → 1411).
+  - `pnpm exec eslint src/shared/mod-classifier.ts tests/shared/mod-classifier.test.ts` → 0 errors.
+  - `pnpm lint` → 17 problems (15 errors + 2 warnings) — все предсуществующие (verify-iter90-* unused imports + VirtualizedModList TanStack warnings). 0 новых.
   - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
-- 9: Документация актуализирована:
-  - `STATUS.md` — iter 98 как текущая; добавлена метрика relic (80 tokens, 25 family-groups); таблица распределения 25 family-keys по 7 категориям; P3 relic-semantic отмечен как ✅ DONE, остальные P1-P3 — ⏳.
-  - `worklog.md` — iter 97 сжат до одной строки, iter 98 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 98; добавлено упоминание relic-semantic mode в секции классификаторов.
+- 11: Документация актуализирована:
+  - `STATUS.md` — iter 99 как текущая; добавлен пример amulet suffix «Атрибуты» (10 groups, alphabetical); P1 alphabetical отмечен как ✅ DONE, sortKey/UI-toggle оставлены как ⏳ future-compat.
+  - `worklog.md` — iter 98 сжат до одной строки, iter 99 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 99; добавлено упоминание `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` в секции классификаторов.
 
 Stage Summary:
-- **iter 98 COMPLETE.** Relic-semantic grouping mode добавлен. 25 family-keys разбиты на 7 Sanctum-категорий (10 honor + 7 monsters + 2 trials + 2 keys + 2 merchant + 1 sanctum-water + 1 curse + 0 other). 100% покрытие production data.
-- **Изменённые файлы (4):**
-  - `src/shared/mod-classifier.ts` — +130 строк (RelicCategory type + RELIC_LABELS + 7 patterns + classifyRelicCategory() + 'relic-semantic' mode в classifyGroups()).
-  - `src/ui/pages/relic/RelicPage.tsx` — groupMode `'affix-only'` → `'relic-semantic'` + обновлённый header.
-  - `tests/shared/mod-classifier.test.ts` — +29 unit-тестов (+255 строк).
+- **iter 99 COMPLETE.** Alphabetical within-block sort добавлен. Во всех 9 режимах `classifyGroups()` (affix-only / affix-semantic / affix-functional / jewel-functional / affix-sentiment / tablet-type / relic-semantic / origin / jewel-type) группы внутри sub-group теперь отсортированы по `familyKey` (Russian locale), с `priorityTier` как tiebreaker. Tier остаётся цветным бейджем, но больше не фрагментирует алфавитный поток.
+- **Изменённые файлы (5):**
+  - `src/shared/mod-classifier.ts` — +75 строк (sortGroupsAlphabetically + withAlphabeticalGroups + 10 return-точек обёрнуты).
+  - `tests/shared/mod-classifier.test.ts` — +19 unit-тестов (+265 строк).
+  - `scripts/verify-iter99-alpha-sort.ts` — новый audit-скрипт (~50 строк).
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
-- **Тесты:** 1392/1392 passing (35 test files). TSC: 0 errors. ESLint: 0 errors. ETL: 11 fresh, 0 stale.
-- **Точка остановки:** iter 98 done. В iter 99+ можно:
-  1. P1 — sortKey (сортировка внутри функциональных блоков): FamilyGroup.sortKey + groupingMode toggle в UI. Подготовка: ETL должен заполнять sortKey на основе functionalCategory + popularity research.
-  2. P2 — waystone/tablet sub-blocks: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic (loot/danger/splinters для waystone; ritual/breach/delirium уже есть для tablet — нужен второй уровень внутри type).
-  3. P4 — tier-aware сортировка: S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует).
+- **Тесты:** 1411/1411 passing (35 test files). TSC: 0 errors. ESLint: 0 новых errors. ETL: 11 fresh, 0 stale.
+- **Точка остановки:** iter 99 done. В iter 100+ можно:
+  1. P2 — waystone/tablet sub-blocks: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
+  2. P4 — tier-aware сортировка (toggle): S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует). iter 99 сделал tier вторичным, но UI-тумблер «режим сортировки» (alpha vs tier-first) не добавлен.
+  3. Опционально: `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research — для более сложных схем сортировки (не только alpha/tier). iter 99 решил UX-задачу без sortKey, но он остаётся как future-compat.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 98**: relic-semantic mode (7 Sanctum-категорий для 25 family-keys). 1392/1392 tests.
 - **iter 97**: Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено (2774 строки). `sanitizeJsObjectLiteral()` теперь экспортирована. 1363/1363 tests.
 - **iter 96**: Удалены 22-шаговый regex fallback + 21 pattern constants из `classifyFunctionalBlock()` (теперь тонкая Strategy 0 обёртка). 280 unit-тестов отрефакторены на `functionalCategory`. 1363/1363 tests.
 - **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). 1363/1363 tests.

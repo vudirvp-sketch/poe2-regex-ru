@@ -24,6 +24,7 @@ import {
   classifyGroups,
   classifyWeaponClass,
   classifyRelicCategory,
+  sortGroupsAlphabetically,
   FUNCTIONAL_BLOCK_LABELS,
   WEAPON_CLASS_LABELS,
   RELIC_LABELS,
@@ -2387,6 +2388,269 @@ describe('RELIC_LABELS (iter 98)', () => {
       expect(cfg.bgClass.length).toBeGreaterThan(0);
       expect(cfg.borderClass.length).toBeGreaterThan(0);
     }
+  });
+});
+
+// ─── sortGroupsAlphabetically (iter 99 — readability pass) ───
+
+describe('sortGroupsAlphabetically (iter 99)', () => {
+  it('returns a new array (does not mutate input)', () => {
+    const g1 = makeGroup('+# к силе');
+    const g2 = makeGroup('+# к ловкости');
+    const input = [g1, g2];
+    const result = sortGroupsAlphabetically(input);
+    // New array reference
+    expect(result).not.toBe(input);
+    // Input array order unchanged
+    expect(input[0]).toBe(g1);
+    expect(input[1]).toBe(g2);
+  });
+
+  it('preserves FamilyGroup object references (does not clone)', () => {
+    const g1 = makeGroup('+# к силе');
+    const g2 = makeGroup('+# к ловкости');
+    const result = sortGroupsAlphabetically([g1, g2]);
+    expect(result).toContain(g1);
+    expect(result).toContain(g2);
+    expect(result.length).toBe(2);
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(sortGroupsAlphabetically([])).toEqual([]);
+  });
+
+  it('returns shallow copy for single-element array', () => {
+    const g1 = makeGroup('+# к силе');
+    const result = sortGroupsAlphabetically([g1]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(g1);
+  });
+
+  it('sorts alphabetically by familyKey (Russian locale)', () => {
+    // Russian alpha order: и < л < с
+    const groups = [
+      makeGroup('+# к силе'),
+      makeGroup('+# к ловкости'),
+      makeGroup('+# к интеллекту'),
+    ];
+    const result = sortGroupsAlphabetically(groups);
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+  });
+
+  it('uses familyKey (NOT displayText) so numeric ranges do not fragment alpha flow', () => {
+    // displayText has ranges: "+(1—2) к силе", "+(9—12) к ловкости", "+(15—20) к интеллекту"
+    // Sorting by displayText would put 1 < 9 < 15 → силе, ловкости, интеллекту (WRONG)
+    // Sorting by familyKey gives: интеллекту, ловкости, силе (CORRECT alpha)
+    const groups = [
+      makeGroup('+(15—20) к интеллекту', { familyKey: '+# к интеллекту' }),
+      makeGroup('+(1—2) к силе', { familyKey: '+# к силе' }),
+      makeGroup('+(9—12) к ловкости', { familyKey: '+# к ловкости' }),
+    ];
+    const result = sortGroupsAlphabetically(groups);
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+  });
+
+  it('priority tier does NOT fragment alphabetical order (tier is tiebreaker only)', () => {
+    // In legacy tier-first sort: Сила (S) + Ловкость (S) + Интеллект (A) would give
+    //   [Сила S, Ловкость S, Интеллект A] — alphabetical fragmented by tier.
+    // In iter 99 alphabetical sort: [Интеллект A, Ловкость S, Сила S] — pure alpha.
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к ловкости', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'A' }),
+    ];
+    const result = sortGroupsAlphabetically(groups);
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',  // и — alpha first, even though A-tier
+      '+# к ловкости',    // л
+      '+# к силе',        // с
+    ]);
+  });
+
+  it('uses priority tier as tiebreaker when familyKey is identical', () => {
+    // Edge case: two groups with same familyKey but different tiers (shouldn't happen
+    // in production but tested defensively). S comes before A.
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'A' }),
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+    ];
+    const result = sortGroupsAlphabetically(groups);
+    expect(result[0].priorityTier).toBe('S');
+    expect(result[1].priorityTier).toBe('A');
+  });
+
+  it('strips ::origin suffix when sorting origin-split groups', () => {
+    // splitGroupByOrigin sets familyKey to `${familyKey}::${origin}`.
+    // All origin variants of the same family should sort together by their
+    // clean template name, not by their origin suffix.
+    const groups = [
+      makeGroup('ignored', { familyKey: '+# к силе::corrupted' }),
+      makeGroup('ignored', { familyKey: '+# к ловкости::normal' }),
+      makeGroup('ignored', { familyKey: '+# к интеллекту::desecrated' }),
+    ];
+    const result = sortGroupsAlphabetically(groups);
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту::desecrated',
+      '+# к ловкости::normal',
+      '+# к силе::corrupted',
+    ]);
+  });
+
+  it('handles mixed-Cyrillic-Latin familyKeys without throwing', () => {
+    const groups = [
+      makeGroup('English mod'),
+      makeGroup('Русский мод'),
+      makeGroup('Another english'),
+    ];
+    expect(() => sortGroupsAlphabetically(groups)).not.toThrow();
+    // Result is a permutation of the input
+    expect(sortGroupsAlphabetically(groups)).toHaveLength(3);
+  });
+});
+
+// ─── classifyGroups applies alphabetical within-block sort (iter 99) ───
+
+describe('classifyGroups applies alphabetical within-block sort (iter 99)', () => {
+  it('affix-functional: within attributes block, groups are alphabetically sorted', () => {
+    // Input order is "reverse alpha" to verify sort is applied.
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes' }),
+    ];
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('attributes');
+    // Alpha order: и < л < с
+    expect(result[0].groups.map(g => g.familyKey)).toEqual([
+      '+(5—7) к интеллекту',
+      '+(5—7) к ловкости',
+      '+(5—7) к силе',
+    ]);
+  });
+
+  it('affix-functional: tier does NOT fragment alphabetical flow within a block', () => {
+    // In tier-first sort: Сила S + Ловкость A + Интеллект S would give
+    //   [Сила S, Интеллект S, Ловкость A] — S-tier mods first, fragmenting alpha.
+    // In iter 99: [Интеллект S, Ловкость A, Сила S] — pure alpha.
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'S' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes', priorityTier: 'A' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes', priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result[0].groups.map(g => g.familyKey)).toEqual([
+      '+(5—7) к интеллекту',
+      '+(5—7) к ловкости',
+      '+(5—7) к силе',
+    ]);
+  });
+
+  it('affix-functional: sub-group render order (FUNCTIONAL_BLOCK_ORDER) is preserved', () => {
+    // iter 99 only changes WITHIN-block order — block-level order is still
+    // FUNCTIONAL_BLOCK_ORDER (spirit → skill-levels → attributes → ...).
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),
+      makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' }),
+    ];
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result.map(sg => sg.key)).toEqual(['spirit', 'attributes']);
+  });
+
+  it('affix-functional: preserves FamilyGroup references (no clone)', () => {
+    const g1 = makeGroup('+(1—2) к духу', { functionalCategory: 'spirit' });
+    const g2 = makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' });
+    const result = classifyGroups([g1, g2], 'affix-functional');
+    const spiritSg = result.find(sg => sg.key === 'spirit');
+    const attrSg = result.find(sg => sg.key === 'attributes');
+    expect(spiritSg?.groups[0]).toBe(g1);
+    expect(attrSg?.groups[0]).toBe(g2);
+  });
+
+  it('relic-semantic: within honor category, groups are alphabetically sorted', () => {
+    // 3 honor groups in reverse alpha — verify iter 99 sorts them.
+    const groups: FamilyGroup[] = [
+      makeGroup('#% увеличение максимума чести'),
+      makeGroup('+#% к сопротивлению чести'),
+      makeGroup('Восстанавливает # чести при завершении комнаты'),
+    ];
+    const result = classifyGroups(groups, 'relic-semantic');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('honor');
+    // Alpha order (Russian): "%" < "+" < "В" in localeCompare ru — but we test
+    // that the result IS sorted, not the specific order, to be robust to
+    // localeCompare quirks. Verify by re-sorting with same comparator.
+    const familyKeys = result[0].groups.map(g => g.familyKey);
+    const reSorted = [...familyKeys].sort((a, b) => a.localeCompare(b, 'ru'));
+    expect(familyKeys).toEqual(reSorted);
+  });
+
+  it('tablet-type: within ritual category, groups are alphabetically sorted', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('#% увеличение количества подношений за ритуал'),
+      makeGroup('Альтари ритуала предлагают дополнительный выбор'),
+    ];
+    const result = classifyGroups(groups, 'tablet-type');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('ritual');
+    // Verify alpha order
+    const familyKeys = result[0].groups.map(g => g.familyKey);
+    const reSorted = [...familyKeys].sort((a, b) => a.localeCompare(b, 'ru'));
+    expect(familyKeys).toEqual(reSorted);
+  });
+
+  it('affix-sentiment: within positive sentiment, groups are alphabetically sorted', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('#% повышение редкости найденных предметов'),
+      makeGroup('#% повышение количества найденных предметов'),
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('positive');
+    const familyKeys = result[0].groups.map(g => g.familyKey);
+    const reSorted = [...familyKeys].sort((a, b) => a.localeCompare(b, 'ru'));
+    expect(familyKeys).toEqual(reSorted);
+  });
+
+  it('affix-only: even legacy single-block mode gets alphabetical sort', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+# к силе'),
+      makeGroup('+# к ловкости'),
+      makeGroup('+# к интеллекту'),
+    ];
+    const result = classifyGroups(groups, 'affix-only');
+    expect(result).toHaveLength(1);
+    expect(result[0].groups.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+  });
+
+  it('jewel-functional: weapon sub-blocks are each alphabetically sorted', () => {
+    // 2 melee weapon mods ( мечами / топорами ) in reverse alpha + 1 attribute mod.
+    // After iter 99: within weapon-melee sub-block, mods are alphabetical.
+    const groups: FamilyGroup[] = [
+      makeGroup('(6—16)% увеличение урона топорами', { functionalCategory: 'weapon-specific' }),
+      makeGroup('(6—16)% увеличение урона мечами', { functionalCategory: 'weapon-specific' }),
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes' }),
+    ];
+    const result = classifyGroups(groups, 'jewel-functional');
+    // Block order: attributes → weapon-melee
+    expect(result.map(sg => sg.key)).toEqual(['attributes', 'weapon-melee']);
+    const meleeSg = result.find(sg => sg.key === 'weapon-melee');
+    expect(meleeSg?.groups.map(g => g.familyKey)).toEqual([
+      '(6—16)% увеличение урона мечами',     // м
+      '(6—16)% увеличение урона топорами',   // т (м < т)
+    ]);
   });
 });
 

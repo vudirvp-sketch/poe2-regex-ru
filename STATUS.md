@@ -2,15 +2,17 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 98
+> **Текущая итерация:** 99
 
 ---
 
 ## Текущее состояние
 
-**iter 98: relic-semantic grouping mode.** На странице реликвий добавлена семантическая подгруппировка: 25 family-keys (12 suffix + 13 prefix), которые раньше лежали в одной корзине (`affix-only`), теперь разбиты на 7 Sanctum-категорий: Честь / Святая вода / Испытания / Ключи / Торговец / Монстры / Проклятия. Классификатор (`classifyRelicCategory()`) — text-only, использует устойчивые подстроки (`чест`, `святой воды`, `испытан`, `ключ`, `торгов`, `монстр|босс`, `проклят`); порядок проверок критичен (honor → monsters, чтобы «Восстанавливает # чести при убийстве босса» не ушло в monsters). 100% покрытие 25 family-keys, 0 в `other`. Добавлено 29 unit-тестов (1392/1392 passing). TSC 0 errors, ESLint 0 errors. Никаких изменений в `public/generated/*.json`.
+**iter 99: alphabetical within-block sort (readability pass).** Внутри каждого функционального блока / sentiment-категории / tablet-type / relic-категории / origin-секции / jewel-type / affix-only группы теперь отсортированы по `familyKey` (Russian locale), с `priorityTier` как tiebreaker. Раньше sort был tier-first (S→A→B→C, потом alpha) — это фрагментировало алфавитный поток внутри блока: в «Атрибутах» все S-tier моды шли сначала, потом A-tier, и т.д. Теперь игрок видит чистый алфавитный поток Сила → Ловкость → Интеллект внутри блока, а tier остаётся цветным бейджем.
 
-### Метрики (без изменений vs iter 94-97)
+Реализация: `sortGroupsAlphabetically()` helper + `withAlphabeticalGroups()` wrapper в `classifyGroups()`. Сортировка применяется единообразно ко всем 9 режимам (affix-only / affix-semantic / affix-functional / jewel-functional / affix-sentiment / tablet-type / relic-semantic / origin / jewel-type). Никаких изменений в `public/generated/*.json` — сортировка чисто runtime, не ETL. `groupTokensByFamily()` первоначальный sort (affix → tier → alpha) сохранён для обратной совместимости, но `classifyGroups()` переписывает within-block order поверх него.
+
+### Метрики (без изменений vs iter 94-98)
 
 | Категория | Токенов | Family-groups | functionalCategory | other-bucket | ailments | damage-type |
 |-----------|---------|---------------|--------------------|--------------|----------|-------------|
@@ -22,42 +24,38 @@
 
 - **Strategy 0 coverage:** 477/477 (100%) — ring/amulet/belt/jewel
 - **Cross-validation:** 477/477 match (0 расхождений)
-- **Тесты:** 1392/1392 passing. TSC: 0 errors. ESLint: 0 errors.
+- **Тесты:** 1411/1411 passing (1392 + 19 новых iter 99). TSC: 0 errors. ESLint: 0 новых ошибок (17 предсуществующих в verify-iter90-* и VirtualizedModList warnings).
+- **ETL:** 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
 
 ### Архитектура functionalCategory (без изменений vs iter 96)
 
-1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`):
-   - `classifyModFunctionalBlock(tags, rawText)` — standalone 22-шаговый классификатор (используется при ETL-сборке).
-   - `buildFunctionalCategoryMap()` — строит modId→category из ModCalc страниц.
-   - Jewellery (amulet/ring/belt): прямая классификация по tags+rawText.
+1. **ETL pipeline** (`scripts/etl/classify-functional-category.ts`): `classifyModFunctionalBlock(tags, rawText)` — 22-шаговый классификатор. `buildFunctionalCategoryMap()` строит modId→category из ModCalc страниц.
+2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify functionalCategory после патча rawText на русский.
+3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов (ETL данные). Fallback `return 'other';`.
 
-2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`):
-   - re-classify functionalCategory после патча rawText на русский.
+### iter 99: что изменилось
 
-3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`):
-   - **Strategy 0 (единственный путь):** majority voting по `functionalCategory` с токенов (ETL данные).
-   - **Fallback:** `return 'other';` для групп без ETL-тега (waystone/tablet/relic не используют эту функцию; в продакшене все 477 family-groups имеют ETL-тег).
-   - Waystone/tablet/relic не используют `classifyFunctionalBlock()`. **relic теперь использует `classifyRelicCategory()` (iter 98).**
-
-### iter 98: что изменилось
-
-- **`src/shared/mod-classifier.ts`** — добавлен `RelicCategory` type (8 значений: honor / sanctum-water / trials / keys / merchant / monsters / curse / other), `RELIC_LABELS` (display config), 7 keyword-паттернов, `classifyRelicCategory()` функция, `'relic-semantic'` mode в `ModGroupMode` type + handling в `classifyGroups()`. Порядок паттернов: honor → sanctum-water → trials → keys → merchant → curse → monsters → other (honor первым, чтобы «чести при убийстве босса» не ушло в monsters).
-- **`src/ui/pages/relic/RelicPage.tsx`** — `groupMode` изменён с `'affix-only'` на `'relic-semantic'`. Заголовок файла обновлён.
-- **`tests/shared/mod-classifier.test.ts`** — добавлено 29 unit-тестов: 15 на `classifyRelicCategory()` (по 1-6 на каждую категорию + проверка order для «чести при убийстве босса»), 6 на `classifyGroups(mode='relic-semantic')` (пустой ввод / full coverage 25 family-keys / render order / skip empty / labels / group refs), 2 sanity-теста на `RELIC_LABELS`.
+- **`src/shared/mod-classifier.ts`** — добавлены `sortGroupsAlphabetically(groups)` (экспортируемая, для unit-тестов) и `withAlphabeticalGroups(result)` (приватная wrapper). `sortGroupsAlphabetically` сортирует по `familyKey` (с strip `::origin` suffix для origin-split групп), Russian locale, с `priorityTier` как tiebreaker. Возвращает новый массив (не мутирует input, сохраняет FamilyGroup references). `withAlphabeticalGroups` применяется ко всем 10 return-точкам `classifyGroups()` (9 режимов + fallback).
+- **`tests/shared/mod-classifier.test.ts`** — добавлено 19 unit-тестов в двух `describe`-блоках: 10 на `sortGroupsAlphabetically` (new array / preserve refs / empty input / single element / Russian alpha / familyKey vs displayText / tier as tiebreaker not primary / ::origin strip / mixed scripts) + 9 на интеграцию с `classifyGroups` (affix-functional / relic-semantic / tablet-type / affix-sentiment / affix-only / jewel-functional / preserve refs / render order preserved / tier не фрагментирует alpha).
+- **`scripts/verify-iter99-alpha-sort.ts`** — audit-скрипт: печатает within-block order для amulet/ring/belt, prefix+suffix. Подтверждает, что на production данных alphabetical flow работает (например, в «Атрибутах» amulet suffix: интеллекту → ловкость → силе → всем характеристикам (S-tier «всем» в конце, не в начале)).
 - **Документация актуализирована:** `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`.
 
-### Распределение 25 family-keys relic.json по 7 категориям
+### Пример: amulet suffix «Атрибуты» (10 groups, iter 99)
 
-| Категория | Group count | Примеры |
-|-----------|-------------|---------|
-| honor | 10 | `Восстанавливает # чести при завершении комнаты`, `+#% к сопротивлению чести`, `#% увеличение максимума чести` |
-| monsters | 7 | `Монстры получают увеличенный на #% урон`, `Боссы наносят уменьшенный на #% урон`, `Скорость ... монстров снижена на #%` |
-| trials | 2 | `На карте испытаний раскрывается дополнительная комната`, `...дополнительных комнат: #` |
-| keys | 2 | `Когда вы получаете ключ, вы с #% шансом получаете еще один`, `#% шанс для каждого из ваших ключей улучшиться...` |
-| merchant | 2 | `#% снижение цен у торговца`, `Торговец предлагает дополнительный товар на выбор` |
-| sanctum-water | 1 | `Дарует святой воды по завершению вами комнаты: #` |
-| curse | 1 | `#% шанс избежать получения проклятия` |
-| other | 0 | (fallback, 0 family-keys в текущих данных) |
+```
+[C] #% увеличение силы, ловкости или интеллекта
+[C] #% уменьшение требований к характеристикам у снаряжения и камней умений
+[C] +# к интеллекту
+[C] +# к ловкости
+[C] +# к ловкости и интеллекту
+[C] +# к силе
+[C] +# к силе и интеллекту
+[C] +# к силе и ловкости
+[C] +# к силе, ловкости или интеллекту
+[S] +# ко всем характеристикам
+```
+
+До iter 99 S-tier «+# ко всем характеристикам» шёл бы первым, фрагментируя алфавитный поток. Теперь — в конце, по алфавиту.
 
 ---
 
@@ -70,12 +68,13 @@
 
 ## Открытые долги
 
-- **Wisps/Conversion блоки**: 0 family-keys в текущих данных. Зарезервированы для future-compat — если появятся моды с этими характеристиками, блоки активируются автоматически через Strategy 0.
-- **P1-P3 (частично начаты в iter 98)**:
-  - ✅ **relic-semantic** (iter 98 DONE) — 7 категорий, 100% покрытие.
-  - ⏳ **sortKey** (сортировка внутри функциональных блоков) — не начато.
-  - ⏳ **waystone/tablet sub-blocks** (sub-группировка внутри sentiment/type) — не начато.
-  - ⏳ **tier-aware сортировка** (S+/S/All приоритеты внутри блоков) — не начато.
+- **Wisps/Conversion блоки**: 0 family-keys в текущих данных. Зарезервированы для future-compat.
+- **P1-P4 (iter 99 прогресс)**:
+  - ✅ **alphabetical within-block sort** (iter 99 DONE) — все 9 режимов получают alphabetical order в sub-group'ах.
+  - ⏳ **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research. iter 99 решил UX-задачу без sortKey (alphabetical + tier tiebreaker достаточно), но sortKey остаётся как future-compat для более сложных схем сортировки.
+  - ⏳ **waystone/tablet sub-blocks**: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic — для waystone: loot/danger/splinters; для tablet: ritual/breach/delirium уже есть как type, нужен второй уровень внутри type.
+  - ⏳ **tier-aware сортировка (toggle)**: S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует). iter 99 сделал tier вторичным, но UI-тумблер «режим сортировки» (alpha vs tier-first) не добавлен — оставлен на future iter.
+  - ⏳ **UI-тумблер «режим сортировки»**: опционально добавить переключатель alpha / tier-first в `CategoryControlPanel`.
 
 ---
 

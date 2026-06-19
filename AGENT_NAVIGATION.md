@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 98** (relic-semantic grouping mode: `RelicPage` теперь использует `'relic-semantic'` вместо `'affix-only'` — 25 family-keys разбиты на 7 Sanctum-категорий (Честь / Святая вода / Испытания / Ключи / Торговец / Монстры / Проклятия); 1392/1392 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 99** (alphabetical within-block sort: `classifyGroups()` теперь сортирует группы внутри каждого sub-group по `familyKey` (Russian locale) с `priorityTier` как tiebreaker — `sortGroupsAlphabetically()` helper + `withAlphabeticalGroups()` wrapper, применён ко всем 9 режимам; 1411/1411 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -220,7 +220,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 33. **`charClass` token/AST node имеет явное поле `negated: boolean`** (iter 81). Не использовать sentinel `{from: -1, to: -1}` в `ranges` массиве для negated char class — это удалено. PoE2 regex generator НЕ эмитит `[^...]` паттерны — это defensive parsing только для engine completeness.
 
-34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (legacy, jewellery/jewel), `affix-functional` (ring/amulet/belt — 24 functional blocks, iter 86-89), `jewel-functional` (jewel — +6 weapon-class sub-blocks, iter 87), `affix-sentiment` (waystone), `tablet-type` (tablet), `relic-semantic` (relic — 7 Sanctum-категорий: honor/sanctum-water/trials/keys/merchant/monsters/curse, iter 98), `affix-only` (legacy flat — superseded by relic-semantic), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. iter 84-98: P0-фиксы + функциональные блоки + relic-semantic все реализованы. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного OP-1.
+34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (legacy, jewellery/jewel), `affix-functional` (ring/amulet/belt — 24 functional blocks, iter 86-89), `jewel-functional` (jewel — +6 weapon-class sub-blocks, iter 87), `affix-sentiment` (waystone), `tablet-type` (tablet), `relic-semantic` (relic — 7 Sanctum-категорий: honor/sanctum-water/trials/keys/merchant/monsters/curse, iter 98), `affix-only` (legacy flat — superseded by relic-semantic), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока (iter 99): `familyKey` (Russian locale, primary) → `priorityTier` (S→A→B→C, tiebreaker). До iter 99 было `priority tier → alpha` — фрагментировало алфавитный поток. Реализация: `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper в `classifyGroups()`. iter 84-99: P0-фиксы + функциональные блоки + relic-semantic + alphabetical sort все реализованы. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного OP-1.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -315,15 +315,15 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `src/shared/mod-classifier.ts` — 3 P0-фикса (BREACH_LORD_TAGS, classifyByTags update, OFFENSIVE_TAGS += aura/gem, DEFENSIVE_KEYWORDS += флакон, POSITIVE/NEGATIVE_KEYWORDS += 4 waystone паттерна).
 - `tests/shared/mod-classifier.test.ts` — +14 новых тестов.
 
-**Ключевые файлы для будущих итераций (P1-P3, не начаты):**
-- `src/shared/mod-classifier.ts` (~1680 строк, +130 после iter 98) — будущие функциональные блоки, sortKey logic.
-- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` + будущий `sortKey` в `FamilyGroup`.
-- `src/shared/types.ts` — `FamilyGroup` (добавить `sortKey?: number`), `ModGroupMode` (новые режимы).
+**Ключевые файлы для будущих итераций (P2-P4, не начаты):**
+- `src/shared/mod-classifier.ts` (~1786 строк, +75 после iter 99) — будущие waystone/tablet sub-blocks, опциональный UI-toggle «режим сортировки».
+- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` (существующий sort affix → tier → alpha). iter 99 не трогал — `classifyGroups()` переписывает within-block order поверх.
+- `src/shared/types.ts` — `FamilyGroup` (опционально добавить `sortKey?: number` для future-compat), `ModGroupMode` (новые режимы).
 - `src/ui/components/ModList.tsx` (662 строки) — рендер sub-blocks.
-- `src/ui/components/CategoryControlPanel.tsx` — тумблер «режим группировки».
-- `src/store/url-sync.ts` — URL-персистентность для `groupingMode`.
+- `src/ui/components/CategoryControlPanel.tsx` — опциональный тумблер «режим сортировки» (alpha vs tier-first).
+- `src/store/url-sync.ts` — URL-персистентность для `groupingMode` / `sortMode`.
 - `src/shared/i18n.ts` — новые метки.
 
-**iter 98 done:** `RelicPage` использует `'relic-semantic'` mode (7 Sanctum-категорий). Осталось P1 (sortKey), P2 (waystone/tablet sub-blocks), P4 (tier-aware сортировка).
+**iter 99 done:** `classifyGroups()` применяет alphabetical within-block sort во всех 9 режимах через `sortGroupsAlphabetically()` + `withAlphabeticalGroups()` wrapper. Tier остаётся визуальным бейджем. Осталось P2 (waystone/tablet sub-blocks), P4 (tier-aware сортировка toggle), опционально sortKey.
 - `scripts/etl/classify-functional-category.ts` — ETL-tagged functionalCategory (iter 90). `buildFunctionalCategoryMap()` + `classifyModFunctionalBlock()`.
 - `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — ETL pipeline (functionalCategory patching через generate-dictionary).

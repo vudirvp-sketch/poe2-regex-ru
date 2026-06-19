@@ -958,6 +958,80 @@ function classifyBeltPriority(text: string): PriorityTier {
 /** Sort order for priority tiers (lower = higher priority) */
 export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2, C: 3 };
 
+// ─── Within-block alphabetical sort (iter 99: P1 — readability pass) ───
+
+/**
+ * Sort FamilyGroups alphabetically by familyKey (Russian locale), with
+ * priority tier as a tiebreaker.
+ *
+ * iter 99: replaces the legacy "tier-first" within-block sort. The previous
+ * behaviour — sort by tier (S→A→B→C) then alphabetically — fragmented the
+ * alphabetical flow inside a functional block: a player scanning the
+ * "Атрибуты" block would see all S-tier attribute mods first (alphabetic
+ * among themselves), then A-tier attribute mods, and so on, instead of a
+ * single alphabetical run Сила → Ловкость → Интеллект.
+ *
+ * After iter 99 the within-block order is:
+ *   1. familyKey (alphabetic, Russian locale) — primary
+ *   2. priorityTier (S→A→B→C) — tiebreaker for the (impossible in practice)
+ *      case of two groups with the same familyKey.
+ *
+ * The tier is still rendered as a coloured badge in the UI (priorityFilter
+ * still works), so the player retains the popularity signal — they just no
+ * longer pay for it with a fragmented alphabetical flow.
+ *
+ * Implementation notes:
+ *  - `familyKey` may carry an `::origin` suffix for origin-split groups
+ *    (see `splitGroupByOrigin` in family-grouper.ts). We strip everything
+ *    after the first `::` so all origin variants of the same family sort
+ *    together by their clean template name.
+ *  - Returns a NEW array; input is not mutated (the test "preserves group
+ *    references (does not mutate or clone)" in mod-classifier.test.ts
+ *    relies on this — the FamilyGroup object references themselves are
+ *    preserved, only their order in the array changes).
+ *  - Arrays of length ≤ 1 are returned as a shallow copy without calling
+ *    the comparator (micro-optimisation + avoids surprising behaviour
+ *    with sparse arrays).
+ *
+ * @param groups - FamilyGroup[] from a single sub-group (one functional
+ *                 block / sentiment / tablet-type / relic-category / etc.)
+ * @returns New array, alphabetically sorted by familyKey (Russian locale)
+ *          with priority tier as tiebreaker.
+ */
+export function sortGroupsAlphabetically(groups: FamilyGroup[]): FamilyGroup[] {
+  if (groups.length <= 1) return [...groups];
+  return [...groups].sort((a, b) => {
+    // Strip `::origin` suffix (added by splitGroupByOrigin) so origin-split
+    // variants sort by their clean family template name.
+    const keyA = a.familyKey.split('::')[0];
+    const keyB = b.familyKey.split('::')[0];
+    const cmp = keyA.localeCompare(keyB, 'ru');
+    if (cmp !== 0) return cmp;
+    // Tiebreaker: priority tier (S→A→B→C). Stable in practice because two
+    // groups with the same familyKey inside one sub-group should not exist.
+    return TIER_SORT_ORDER[a.priorityTier] - TIER_SORT_ORDER[b.priorityTier];
+  });
+}
+
+/**
+ * Apply `sortGroupsAlphabetically` to every sub-group's `groups` array.
+ *
+ * Mutates each `ModSubGroup.groups` reference to point at the new sorted
+ * array (the ModSubGroup object itself is mutated, but the FamilyGroup
+ * objects inside are not — references are preserved).
+ *
+ * Used by `classifyGroups()` as a single post-processing step before
+ * returning, so every mode (affix-only / affix-semantic / affix-functional /
+ * jewel-functional / affix-sentiment / tablet-type / relic-semantic /
+ * origin / jewel-type) gets the same predictable within-block ordering.
+ */
+function withAlphabeticalGroups<T extends ModSubGroup>(result: T[]): T[] {
+  for (const sg of result) {
+    sg.groups = sortGroupsAlphabetically(sg.groups);
+  }
+  return result;
+}
+
 // ─── Functional block classification (iter 85: P0 OP-1 Phase 2) ───
 
 /**
@@ -1409,8 +1483,10 @@ export function classifyGroups(
   mode: ModGroupMode
 ): ModSubGroup[] {
   if (mode === 'affix-only') {
-    // No sub-grouping — all groups in one "flat" sub-group
-    return [{
+    // No sub-grouping — all groups in one "flat" sub-group.
+    // iter 99: still apply alphabetical sort so even legacy callers get a
+    // predictable, ergonomic within-block order.
+    return withAlphabeticalGroups([{
       key: 'all',
       label: '',
       colorClass: '',
@@ -1418,7 +1494,7 @@ export function classifyGroups(
       borderClass: '',
       borderLClass: '',
       groups,
-    }];
+    }]);
   }
 
   if (mode === 'relic-semantic') {
@@ -1440,7 +1516,7 @@ export function classifyGroups(
       classified.set(category, list);
     }
 
-    return RELIC_CATEGORY_ORDER
+    return withAlphabeticalGroups(RELIC_CATEGORY_ORDER
       .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
       .map(cat => ({
         key: cat,
@@ -1450,7 +1526,7 @@ export function classifyGroups(
         borderClass: RELIC_LABELS[cat].borderClass,
         borderLClass: RELIC_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
-      }));
+      })));
   }
 
   if (mode === 'affix-semantic') {
@@ -1467,7 +1543,7 @@ export function classifyGroups(
       classified.set(category, list);
     }
 
-    return order
+    return withAlphabeticalGroups(order
       .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
       .map(cat => ({
         key: cat,
@@ -1477,7 +1553,7 @@ export function classifyGroups(
         borderClass: SEMANTIC_LABELS[cat].borderClass,
         borderLClass: SEMANTIC_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
-      }));
+      })));
   }
 
   if (mode === 'affix-functional') {
@@ -1493,7 +1569,7 @@ export function classifyGroups(
       classified.set(block, list);
     }
 
-    return FUNCTIONAL_BLOCK_ORDER
+    return withAlphabeticalGroups(FUNCTIONAL_BLOCK_ORDER
       .filter(block => classified.has(block) && classified.get(block)!.length > 0)
       .map(block => ({
         key: block,
@@ -1503,7 +1579,7 @@ export function classifyGroups(
         borderClass: FUNCTIONAL_BLOCK_LABELS[block].borderClass,
         borderLClass: FUNCTIONAL_BLOCK_LABELS[block].borderLClass,
         groups: classified.get(block)!,
-      }));
+      })));
   }
 
   if (mode === 'jewel-functional') {
@@ -1598,7 +1674,7 @@ export function classifyGroups(
       }
     }
 
-    return result;
+    return withAlphabeticalGroups(result);
   }
 
   if (mode === 'affix-sentiment') {
@@ -1612,7 +1688,7 @@ export function classifyGroups(
       classified.set(category, list);
     }
 
-    return order
+    return withAlphabeticalGroups(order
       .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
       .map(cat => ({
         key: cat,
@@ -1622,7 +1698,7 @@ export function classifyGroups(
         borderClass: SENTIMENT_LABELS[cat].borderClass,
         borderLClass: SENTIMENT_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
-      }));
+      })));
   }
 
   if (mode === 'tablet-type') {
@@ -1636,7 +1712,7 @@ export function classifyGroups(
       classified.set(category, list);
     }
 
-    return order
+    return withAlphabeticalGroups(order
       .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
       .map(cat => ({
         key: cat,
@@ -1646,7 +1722,7 @@ export function classifyGroups(
         borderClass: TABLET_TYPE_LABELS[cat].borderClass,
         borderLClass: TABLET_TYPE_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
-      }));
+      })));
   }
 
   if (mode === 'origin') {
@@ -1667,7 +1743,7 @@ export function classifyGroups(
       }
     }
 
-    return originOrder
+    return withAlphabeticalGroups(originOrder
       .filter(origin => classified.has(origin) && classified.get(origin)!.length > 0)
       .map(origin => ({
         key: origin,
@@ -1677,7 +1753,7 @@ export function classifyGroups(
         borderClass: ORIGIN_SECTION_LABELS[origin]?.borderClass ?? '',
         borderLClass: ORIGIN_SECTION_LABELS[origin]?.borderLClass ?? '',
         groups: classified.get(origin)!,
-      }));
+      })));
   }
 
   if (mode === 'jewel-type') {
@@ -1692,7 +1768,7 @@ export function classifyGroups(
       classified.set(category, list);
     }
 
-    return order
+    return withAlphabeticalGroups(order
       .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
       .map(cat => ({
         key: cat,
@@ -1702,9 +1778,9 @@ export function classifyGroups(
         borderClass: JEWEL_TYPE_LABELS[cat].borderClass,
         borderLClass: JEWEL_TYPE_LABELS[cat].borderLClass,
         groups: classified.get(cat)!,
-      }));
+      })));
   }
 
-  // Fallback
-  return [{ key: 'all', label: '', colorClass: '', bgClass: '', borderClass: '', borderLClass: '', groups }];
+  // Fallback — also alphabetically sorted for consistency.
+  return withAlphabeticalGroups([{ key: 'all', label: '', colorClass: '', bgClass: '', borderClass: '', borderLClass: '', groups }]);
 }
