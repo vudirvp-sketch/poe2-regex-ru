@@ -1234,6 +1234,139 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
   return 'other';
 }
 
+// ─── Relic semantic classification (iter 98) ───
+
+/**
+ * Relic semantic categories — fine-grained grouping for relic page.
+ *
+ * iter 98: replaces `affix-only` mode for RelicPage. Relics (Урны + Печати)
+ * have 25 family-keys (12 suffix + 13 prefix) all beneficial — but a flat
+ * list makes it hard to find related mods. The 7 semantic categories below
+ * group relic mods by Sanctum gameplay themes:
+ *
+ *  - `honor`           — Честь (max, restore, resist, recovery, "при вотере")
+ *  - `sanctum-water`   — Святая вода (Holy water granted on room completion)
+ *  - `trials`          — Карта испытаний (additional trial rooms)
+ *  - `keys`            — Ключ (key acquisition/improvement)
+ *  - `merchant`        — Торговец (price reduction / additional wares)
+ *  - `monsters`        — Монстры / Боссы / Редкие монстры (monster damage mods)
+ *  - `curse`           — Избежать проклятия
+ *  - `other`           — fallback (no current family-keys land here)
+ *
+ * Source: relic.json family-keys enumerated via
+ *   `python3 -c "import json; d=json.load(open('public/generated/relic.json')); ..."`
+ * 100% coverage of 25 family-keys: 10 honor + 7 monsters + 2 trials + 2 keys
+ * + 2 merchant + 1 sanctum-water + 1 curse + 0 other.
+ *
+ * Classification is text-only (relic tokens have no tags[] from poe2db).
+ * Patterns are deliberately anchored on substring tokens that are unique
+ * to each category in the current relic.json — they will continue to work
+ * for new relic mods added in future PoE2 patches as long as the Russian
+ * translation keeps the same keywords.
+ */
+export type RelicCategory =
+  | 'honor'
+  | 'sanctum-water'
+  | 'trials'
+  | 'keys'
+  | 'merchant'
+  | 'monsters'
+  | 'curse'
+  | 'other';
+
+export const RELIC_LABELS: Record<RelicCategory, CategoryLabel> = {
+  honor:         { label: 'Честь',           colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  'sanctum-water': { label: 'Святая вода',   colorClass: 'text-accent-teal',    bgClass: 'bg-section-emerald', borderClass: 'border-sborder-emerald', borderLClass: '' },
+  trials:        { label: 'Испытания',       colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  keys:          { label: 'Ключи',           colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  merchant:      { label: 'Торговец',        colorClass: 'text-accent-amber',   bgClass: 'bg-section-amber',   borderClass: 'border-sborder-amber',   borderLClass: '' },
+  monsters:      { label: 'Монстры',         colorClass: 'text-accent-red',     bgClass: 'bg-section-red',     borderClass: 'border-sborder-red',     borderLClass: '' },
+  curse:         { label: 'Проклятия',       colorClass: 'text-accent-violet',  bgClass: 'bg-section-violet',  borderClass: 'border-sborder-violet',  borderLClass: '' },
+  other:         { label: 'Прочее',          colorClass: 'text-muted',          bgClass: 'bg-panel/15',        borderClass: 'border-edge/15',         borderLClass: '' },
+};
+
+/** Render order for relic semantic categories — groups Sanctum-economy mods
+ *  first (honor / water / trials / keys / merchant), then combat mods
+ *  (monsters / curse), then other. Matches the typical crafting priority
+ *  for Sanctum runs (resource sustain > monster management). */
+const RELIC_CATEGORY_ORDER: RelicCategory[] = [
+  'honor', 'sanctum-water', 'trials', 'keys', 'merchant',
+  'monsters', 'curse',
+  'other',
+];
+
+/** Keywords indicating a Честь (Honor) mod.
+ *  Anchored on "чест" — covers all current honor mods: "Восстанавливает # чести",
+ *  "+#% к максимальному сопротивлению чести", "#% увеличение восстановления чести",
+ *  "#% шанс при вотере всей вашей чести". Matches BEFORE monster keywords so
+ *  that "Восстанавливает # чести при убийстве босса" classifies as honor
+ *  (not monsters) — the player is restoring honor, "босса" is just the trigger. */
+const RELIC_HONOR_KEYWORDS = /чест/i;
+
+/** Keywords indicating a Святая вода (Holy water) mod.
+ *  Anchored on "святой воды" — only matches "Дарует святой воды по завершению
+ *  вами комнаты: #". Unique substring, no false positives in current data. */
+const RELIC_SANCTUM_WATER_KEYWORDS = /святой воды/i;
+
+/** Keywords indicating a Trials (Карта испытаний) mod.
+ *  Anchored on "испытан" — covers both "На карте испытаний раскрывается
+ *  дополнительная комната" and "...дополнительных комнат: #". */
+const RELIC_TRIALS_KEYWORDS = /испытан/i;
+
+/** Keywords indicating a Keys (Ключ) mod.
+ *  Anchored on "ключ" — covers "Когда вы получаете ключ" and "#% шанс для
+ *  каждого из ваших ключей улучшиться при завершении этажа". */
+const RELIC_KEYS_KEYWORDS = /ключ/i;
+
+/** Keywords indicating a Merchant (Торговец) mod.
+ *  Anchored on "торгов" — the shared stem for all inflections:
+ *  "торговец" (nominative, Торговец предлагает...), "торговца" (genitive,
+ *  снижение цен у торговца), "торговцу" (dative), etc. */
+const RELIC_MERCHANT_KEYWORDS = /торгов/i;
+
+/** Keywords indicating a Curse (Проклятие) mod.
+ *  Anchored on "проклят" — covers "#% шанс избежать получения проклятия".
+ *  Note: "проклят" is the root — it also matches "проклятия", "проклятием", etc. */
+const RELIC_CURSE_KEYWORDS = /проклят/i;
+
+/** Keywords indicating a Monsters (Монстры / Боссы / Редкие монстры) mod.
+ *  Anchored on "монстр" or "босс" — covers all 7 monster damage mods
+ *  (увеличенный/уменьшенный урон for монстры / редкие монстры / боссы +
+ *  скорость снижена for монстров). */
+const RELIC_MONSTER_KEYWORDS = /(?:монстр|босс)/i;
+
+/**
+ * Classify a FamilyGroup into a relic semantic category.
+ *
+ * Order is critical — more specific patterns first:
+ *  1. HONOR   — checked first so "Восстанавливает # чести при убийстве босса"
+ *               classifies as honor, not monsters (босс appears in the text).
+ *  2. SANCTUM_WATER, TRIALS, KEYS, MERCHANT, CURSE — unique substrings.
+ *  3. MONSTERS — checked last among specific patterns.
+ *  4. other    — fallback (no current family-keys land here; kept for forward-compat).
+ *
+ * @param group - The FamilyGroup to classify (must contain relic token displayText)
+ * @returns RelicCategory key
+ */
+export function classifyRelicCategory(group: FamilyGroup): RelicCategory {
+  const text = group.displayText;
+
+  // 1. Honor first — prevents "босса" in "Восстанавливает # чести при убийстве босса"
+  //    from triggering the MONSTER pattern below.
+  if (RELIC_HONOR_KEYWORDS.test(text)) return 'honor';
+  // 2. Sanctum-economy categories — unique substrings, no overlap.
+  if (RELIC_SANCTUM_WATER_KEYWORDS.test(text)) return 'sanctum-water';
+  if (RELIC_TRIALS_KEYWORDS.test(text)) return 'trials';
+  if (RELIC_KEYS_KEYWORDS.test(text)) return 'keys';
+  if (RELIC_MERCHANT_KEYWORDS.test(text)) return 'merchant';
+  if (RELIC_CURSE_KEYWORDS.test(text)) return 'curse';
+  // 3. Monsters — only monster damage mods remain at this point.
+  if (RELIC_MONSTER_KEYWORDS.test(text)) return 'monsters';
+
+  // 4. Fallback — no current relic family-keys land here.
+  return 'other';
+}
+
 // ─── Unified classification ───
 
 /** Grouping mode determines how mods are sub-categorized within affix columns */
@@ -1242,7 +1375,8 @@ export type ModGroupMode =
   | 'affix-functional'  // prefix/suffix → 24 functional blocks (iter 89: 20 active + other) — ring/amulet/belt
   | 'jewel-functional'  // iter 87: same as affix-functional, BUT weapon-specific block is split into 6 weapon-class sub-blocks (melee/bow/crossbow/staff/spear/dagger) — jewel only
   | 'affix-sentiment'   // prefix/suffix → positive/negative/neutral (waystone)
-  | 'affix-only'        // just prefix/suffix, no sub-groups (relic)
+  | 'affix-only'        // just prefix/suffix, no sub-groups (legacy — superseded by relic-semantic for relic page, kept for backward compat)
+  | 'relic-semantic'    // iter 98: prefix/suffix → 7 relic gameplay categories (honor/sanctum-water/trials/keys/merchant/monsters/curse/other) — relic only
   | 'tablet-type'       // prefix/suffix → ritual/breach/delirium/vaal/expedition/generic (tablet)
   | 'origin'            // by origin: normal/desecrated/corrupted (jewel)
   | 'jewel-type';       // by jewel type: ruby/emerald/sapphire/shared (within jewel origin sections)
@@ -1285,6 +1419,38 @@ export function classifyGroups(
       borderLClass: '',
       groups,
     }];
+  }
+
+  if (mode === 'relic-semantic') {
+    // iter 98: classify each group into one of 7 relic gameplay categories
+    // (honor / sanctum-water / trials / keys / merchant / monsters / curse)
+    // plus the `other` fallback. Groups are returned in RELIC_CATEGORY_ORDER
+    // so the UI shows Sanctum-economy mods first, then combat mods.
+    //
+    // Architecture mirrors `affix-sentiment` and `tablet-type`: build a
+    // Map<category, FamilyGroup[]> by classifying each group, then emit
+    // sub-groups in the canonical render order. Empty categories are
+    // skipped so the UI shows only categories that actually have groups.
+    const classified = new Map<RelicCategory, FamilyGroup[]>();
+
+    for (const group of groups) {
+      const category = classifyRelicCategory(group);
+      const list = classified.get(category) || [];
+      list.push(group);
+      classified.set(category, list);
+    }
+
+    return RELIC_CATEGORY_ORDER
+      .filter(cat => classified.has(cat) && classified.get(cat)!.length > 0)
+      .map(cat => ({
+        key: cat,
+        label: RELIC_LABELS[cat].label,
+        colorClass: RELIC_LABELS[cat].colorClass,
+        bgClass: RELIC_LABELS[cat].bgClass,
+        borderClass: RELIC_LABELS[cat].borderClass,
+        borderLClass: RELIC_LABELS[cat].borderLClass,
+        groups: classified.get(cat)!,
+      }));
   }
 
   if (mode === 'affix-semantic') {

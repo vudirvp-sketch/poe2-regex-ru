@@ -6,8 +6,11 @@
  * ProfilePanel on right), 1-column mobile (status + sidebar below ModList,
  * RegexOutput in sticky bottom-bar via <MobileRegexBar>).
  *
- * Mod list uses two-column prefix/suffix layout (affix-only mode — no
- * sub-groups, relics have few mods and all are beneficial).
+ * iter 98: Mod list uses `relic-semantic` grouping mode — 25 family-keys are
+ * sub-grouped into 7 Sanctum gameplay categories (Честь / Святая вода /
+ * Испытания / Ключи / Торговец / Монстры / Проклятия) within each prefix/suffix
+ * column. Replaces the previous flat `affix-only` mode (single basket for all
+ * 25 groups). See src/shared/mod-classifier.ts → classifyRelicCategory().
  */
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
@@ -127,7 +130,7 @@ export function RelicPage() {
               onSetTokenRange={setTokenRange}
               onClearTokenRange={clearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
-              groupMode="affix-only"
+              groupMode="relic-semantic"
               showOriginSubSections
               category="relic"
             />

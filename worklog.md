@@ -4,64 +4,58 @@
 
 ---
 
-Task ID: 97
+Task ID: 98
 Agent: main
-Task: Аудиторская чистка тестов и исторических скриптов. Проанализировать все тесты на актуальность и полезность. Удалить устаревшие `simulate-iter*`/`verify-iter*`/`analyze-iter*` скрипты (они mirror-копии regex path, удалённого из runtime в iter 96). Исправить `tests/etl/sanitize-js-object-literal.test.ts` (дублировал реализацию функции вместо импорта). Актуализировать документацию.
+Task: Реализовать P3-задачу relic-semantic mode — заменить flat `affix-only` режим на странице реликвий на семантическую подгруппировку (25 family-keys → 7 Sanctum-категорий). Не трогать существующие режимы, не менять `public/generated/*.json`.
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Установлены зависимости через corepack wrapper `pnpm` v11.8.0. Baseline: 1363/1363 tests passing, TSC 0 errors.
-- 2: Анализ всех 35 тестовых файлов (15713 строк) — выводы:
-  - Все 35 файлов содержат осмысленные тесты; нет `it.skip`/`it.todo`/`xit`; нет `TODO`/`FIXME`/`HACK` в коде тестов.
-  - `tests/core/*` (22 файла): matcher, compiler, optimizer, oracle, factorizers, limits, number-regex, phase-9b/9c anchor tests, in-game iterations (15, 36-gems), hypothesis-patterns, tablet-patterns, waystone-anchor-tests, colon-anchor-verification, tablet-non-percent-fp, tablet-in-game, vendor-patterns — все актуальны. Тесты на real game data с in-game verification comments — критичны для dialect-fidelity.
-  - `tests/shared/*` (2 файла): mod-classifier (2136 строк, 280+ тестов на Strategy 0 path после iter 96), family-grouper — оба актуальны.
-  - `tests/ui/*` (5 файлов): RegexOutput, FilterChip, PageStateWrapper, vendor-regex-equivalence, buildAstFromSelections — все актуальны.
-  - `tests/etl/*` (8 файлов): parse-type-b-page, etl-schemas, compute-optimizations, sanitize-js-object-literal, compute-regex, normalize, path-d-transform, cross-validation — `sanitize-js-object-literal` был проблемным (дублировал реализацию функции вместо импорта), остальные актуальны.
-- 3: Анализ исторических `scripts/simulate-iter*`/`verify-iter*`/`analyze-iter*` (16 файлов, 2774 строки):
-  - `simulate-iter86/87/88/89/94-impact.ts` (5 файлов, 1358 строк) — mirror-копии regex-паттернов для симуляции impact прошлых итераций. Паттерны удалены из runtime в iter 96, симуляции неактуальны.
-  - `analyze-iter88/89-other-bucket.ts` (2 файла, 323 строки) — snapshot-дампы `other` bucket на момент iter 88/89. Давно устарели.
-  - `verify-iter49.ts` (148 строк) — верификация Pitfall 11 fix (multi-LITERAL AND+EXCLUDE inside OR). Логика уже покрыта в `tests/core/compiler.test.ts` и `tests/ui/buildAstFromSelections.test.ts`.
-  - `verify-iter89-deployment.ts`, `verify-iter90-cross-validation.ts`, `verify-iter90-etl-functional-category.ts`, `verify-iter91-discrepancies.ts`, `verify-iter91-strategy0.ts`, `verify-iter92-fixes.ts`, `verify-iter94-fixes.ts`, `verify-iter95-stability.ts` (8 файлов, 945 строк) — cross-validation снапшоты прошлых итераций. Дублируют друг друга и `tests/etl/cross-validation.test.ts`. Audit-trail сохранён в git.
-  - Все 16 скриптов запущены — все ещё работают, но дают историческую информацию без новой ценности.
-- 4: Реализация:
-  - `tests/etl/sanitize-js-object-literal.test.ts`: удалена inline-копия функции, добавлен `import { sanitizeJsObjectLiteral } from '@etl/parse-modifiers-calc';`.
-  - `scripts/etl/parse-modifiers-calc.ts`: `sanitizeJsObjectLiteral()` теперь `export function`.
-  - `src/shared/mod-classifier.ts`: обновлён комментарий к weapon fallback — удалена ссылка на удалённый `simulate-iter87-impact.ts`.
-  - `scripts/etl/classify-functional-category.ts`: обновлён комментарий к AILMENTS_PATTERN — удалена ссылка на удалённый `simulate-iter94-impact.ts`.
-  - Удалены 16 файлов: `scripts/simulate-iter86-impact.ts`, `scripts/simulate-iter87-impact.ts`, `scripts/simulate-iter88-impact.ts`, `scripts/simulate-iter89-impact.ts`, `scripts/simulate-iter94-impact.ts`, `scripts/analyze-iter88-other-bucket.ts`, `scripts/analyze-iter89-other-bucket.ts`, `scripts/verify-iter49.ts`, `scripts/verify-iter89-deployment.ts`, `scripts/verify-iter90-cross-validation.ts`, `scripts/verify-iter90-etl-functional-category.ts`, `scripts/verify-iter91-discrepancies.ts`, `scripts/verify-iter91-strategy0.ts`, `scripts/verify-iter92-fixes.ts`, `scripts/verify-iter94-fixes.ts`, `scripts/verify-iter95-stability.ts`.
-  - Удалён `DELETED-FILES-iter92.txt` — stale tracker от iter 92 (содержал только имена 3 файлов, удалённых в iter 92; git уже хранит их историю).
-- 5: Верификация:
-  - `npx tsc -b` → 0 errors.
-  - `pnpm test` → 1363/1363 passing (35 test files).
-  - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing.
-  - `npx eslint src/shared/mod-classifier.ts scripts/etl/parse-modifiers-calc.ts scripts/etl/classify-functional-category.ts tests/etl/sanitize-js-object-literal.test.ts` → 0 errors.
-  - Никаких изменений в `public/generated/*.json` (ETL не запускался, JSON не пересоздавались).
-- 6: Документация актуализирована:
-  - `STATUS.md` — iter 97 как текущая итерация; removed упоминания удалённых скриптов.
-  - `worklog.md` — iter 96 сжат до одной строки, iter 97 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — header обновлён до iter 97; removed упоминания удалённых скриптов из секции 1 ("Where Things Are").
-  - `docs/AFFIXES_GROUPING_ANALYSIS.md` — removed упоминания удалённых скриптов; сжаты устаревшие секции про iter 88/89/94 simulation reports.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Активирован pnpm 11.5.2 через corepack shim (`/usr/lib/node_modules/corepack/shims/pnpm`). Baseline: 1363/1363 tests passing, TSC 0 errors (state после iter 97).
+- 2: Изучение контекста: прочитаны STATUS.md, worklog.md, AGENT_NAVIGATION.md, src/shared/mod-classifier.ts (1545 строк), src/shared/family-grouper.ts, src/shared/types.ts, src/ui/components/ModList.tsx, src/ui/components/CategoryControlPanel.tsx, src/ui/pages/relic/RelicPage.tsx, src/ui/pages/waystone/WaystonePage.tsx, src/ui/pages/tablet/TabletPage.tsx, tests/shared/mod-classifier.test.ts (2136 строк). Стратегия P1-P3 проанализирована: выбран relic-semantic как наиболее self-contained + наибольший UX-impact (25 groups в одной корзине = явно плохой UX).
+- 3: Анализ relic.json: `python3` script извлёк 25 family-keys (12 suffix + 13 prefix). Распределение по семантическим категориям спроектировано вручную: honor=10, monsters=7, trials=2, keys=2, merchant=2, sanctum-water=1, curse=1, other=0. Изначально miscount как 9 honor — позже исправлен на 10 (7 suffix + 3 prefix, не 6+3).
+- 4: Реализация в `src/shared/mod-classifier.ts` (новый код: ~130 строк):
+  - `RelicCategory` type: 8 значений (`honor` / `sanctum-water` / `trials` / `keys` / `merchant` / `monsters` / `curse` / `other`).
+  - `RELIC_LABELS` — display config (label + colorClass + bgClass + borderClass + borderLClass),配色 reuses existing Tailwind classes.
+  - `RELIC_CATEGORY_ORDER` — render order: Sanctum-economy (honor/water/trials/keys/merchant) → combat (monsters/curse) → other.
+  - 7 keyword-паттернов: `RELIC_HONOR_KEYWORDS = /чест/i`, `RELIC_SANCTUM_WATER_KEYWORDS = /святой воды/i`, `RELIC_TRIALS_KEYWORDS = /испытан/i`, `RELIC_KEYS_KEYWORDS = /ключ/i`, `RELIC_MERCHANT_KEYWORDS = /торгов/i`, `RELIC_CURSE_KEYWORDS = /проклят/i`, `RELIC_MONSTER_KEYWORDS = /(?:монстр|босс)/i`.
+  - `classifyRelicCategory(group)` — function, проверяет patterns в порядке honor → sanctum-water → trials → keys → merchant → curse → monsters → other. Honor первым, чтобы «Восстанавливает # чести при убийстве босса» не ушло в monsters (текст содержит «босса»).
+  - `'relic-semantic'` добавлен в `ModGroupMode` type.
+  - Handling в `classifyGroups(mode='relic-semantic')`: Map<category, FamilyGroup[]>, emit в `RELIC_CATEGORY_ORDER`, skip empty categories. Architecture mirrors `affix-sentiment` и `tablet-type`.
+- 5: `src/ui/pages/relic/RelicPage.tsx` — `groupMode` изменён с `'affix-only'` на `'relic-semantic'`. Заголовок файла обновлён с описанием iter 98.
+- 6: Tests в `tests/shared/mod-classifier.test.ts` (новые ~255 строк, +29 unit-тестов):
+  - `describe('classifyRelicCategory (iter 98)')` — 15 тестов на individual family-keys: 6 honor (включая критический order-test «чести при убийстве босса» → honor, не monsters), 1 sanctum-water, 2 trials, 2 keys, 2 merchant, 6 monsters, 1 curse, 1 other fallback.
+  - `describe('classifyGroups with relic-semantic mode (iter 98)')` — 6 тестов: empty input / full coverage всех 25 family-keys из relic.json с проверкой распределения (10/1/2/2/2/7/1) / render order / skip empty categories / labels + colors из RELIC_LABELS / preserves group references.
+  - `describe('RELIC_LABELS (iter 98)')` — 2 sanity-теста: 8 entries, every entry has non-empty fields.
+- 7: Bug-fix iteration во время тестирования:
+  - Bug 1: `RELIC_MERCHANT_KEYWORDS = /торговец/i` — НЕ matching «торговца» (different inflection, suffix is «ца» not «ец»). First fix `/торговц/i` был тоже неверным («торговец» не содержит «торговц»). Final fix: `/торгов/i` — shared stem для всех inflections. 3 теста упало → 0 после fix.
+  - Bug 2: Miscount honor groups (написал 9 в комментарии и ожидании теста, фактически 10). Исправлено в комментарии функции и в ожидании теста.
+- 8: Верификация:
+  - `pnpm exec tsc -b` → 0 errors.
+  - `pnpm test` → 1392/1392 passing (35 test files). +29 tests vs iter 97 (1363 → 1392).
+  - `pnpm exec eslint src/shared/mod-classifier.ts src/ui/pages/relic/RelicPage.tsx tests/shared/mod-classifier.test.ts` → 0 errors. (один `no-unused-vars` на `key` в `Object.entries(RELIC_LABELS)` исправлен → `[, cfg]`).
+  - `pnpm etl:check-stale` → 11 fresh, 0 stale, 0 missing. Никаких изменений в `public/generated/*.json`.
+- 9: Документация актуализирована:
+  - `STATUS.md` — iter 98 как текущая; добавлена метрика relic (80 tokens, 25 family-groups); таблица распределения 25 family-keys по 7 категориям; P3 relic-semantic отмечен как ✅ DONE, остальные P1-P3 — ⏳.
+  - `worklog.md` — iter 97 сжат до одной строки, iter 98 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 98; добавлено упоминание relic-semantic mode в секции классификаторов.
 
 Stage Summary:
-- **iter 97 COMPLETE.** Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено (2774 строки). `sanitizeJsObjectLiteral()` теперь экспортирована и тестируется напрямую. 1363/1363 тестов зелёные, TSC 0 errors, ETL stable.
-- **Изменённые файлы:**
-  - `tests/etl/sanitize-js-object-literal.test.ts` — import реальной функции вместо дублирования.
-  - `scripts/etl/parse-modifiers-calc.ts` — `sanitizeJsObjectLiteral()` теперь `export`.
-  - `src/shared/mod-classifier.ts` — обновлён комментарий (removed stale script reference).
-  - `scripts/etl/classify-functional-category.ts` — обновлён комментарий (removed stale script reference).
-  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`, `docs/AFFIXES_GROUPING_ANALYSIS.md` — актуализированы.
-- **Удалённые файлы (16):**
-  - 5× `scripts/simulate-iter*-impact.ts` (1358 строк)
-  - 2× `scripts/analyze-iter*-other-bucket.ts` (323 строки)
-  - 9× `scripts/verify-iter*.ts` (1093 строки)
-- **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors.
-- **Точка остановки:** iter 97 done. В iter 98+ можно:
-  1. P1-P3 задачи (sortKey / waystone-tablet sub-blocks / relic-semantic / tier-aware).
-  2. Дальнейшая чистка documentation/code (если всплывёт).
+- **iter 98 COMPLETE.** Relic-semantic grouping mode добавлен. 25 family-keys разбиты на 7 Sanctum-категорий (10 honor + 7 monsters + 2 trials + 2 keys + 2 merchant + 1 sanctum-water + 1 curse + 0 other). 100% покрытие production data.
+- **Изменённые файлы (4):**
+  - `src/shared/mod-classifier.ts` — +130 строк (RelicCategory type + RELIC_LABELS + 7 patterns + classifyRelicCategory() + 'relic-semantic' mode в classifyGroups()).
+  - `src/ui/pages/relic/RelicPage.tsx` — groupMode `'affix-only'` → `'relic-semantic'` + обновлённый header.
+  - `tests/shared/mod-classifier.test.ts` — +29 unit-тестов (+255 строк).
+  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
+- **Тесты:** 1392/1392 passing (35 test files). TSC: 0 errors. ESLint: 0 errors. ETL: 11 fresh, 0 stale.
+- **Точка остановки:** iter 98 done. В iter 99+ можно:
+  1. P1 — sortKey (сортировка внутри функциональных блоков): FamilyGroup.sortKey + groupingMode toggle в UI. Подготовка: ETL должен заполнять sortKey на основе functionalCategory + popularity research.
+  2. P2 — waystone/tablet sub-blocks: sub-группировка внутри sentiment (positive/negative/neutral) по gameplay mechanic (loot/danger/splinters для waystone; ritual/breach/delirium уже есть для tablet — нужен второй уровень внутри type).
+  3. P4 — tier-aware сортировка: S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует).
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 97**: Аудиторская чистка тестов и исторических скриптов. 16 файлов удалено (2774 строки). `sanitizeJsObjectLiteral()` теперь экспортирована. 1363/1363 tests.
 - **iter 96**: Удалены 22-шаговый regex fallback + 21 pattern constants из `classifyFunctionalBlock()` (теперь тонкая Strategy 0 обёртка). 280 unit-тестов отрефакторены на `functionalCategory`. 1363/1363 tests.
 - **iter 95**: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). 1363/1363 tests.
 - **iter 94**: AILMENTS tag-priority refactor — AILMENTS_PATTERN перемещён ПЕРЕД DAMAGE_TYPE + добавлен `ailment` tag check. 26 модов реклассифицированы damage-type → ailments. 1363/1363 tests.

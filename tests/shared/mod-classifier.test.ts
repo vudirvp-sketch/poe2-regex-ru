@@ -23,8 +23,10 @@ import {
   classifyFunctionalBlock,
   classifyGroups,
   classifyWeaponClass,
+  classifyRelicCategory,
   FUNCTIONAL_BLOCK_LABELS,
   WEAPON_CLASS_LABELS,
+  RELIC_LABELS,
   TIER_SORT_ORDER,
   type JewelTypeCategory,
   type FunctionalBlock,
@@ -2134,3 +2136,257 @@ describe('classifyGroups with jewel-functional mode (iter 87)', () => {
     }
   });
 });
+
+// ─── classifyRelicCategory (iter 98) ───
+
+describe('classifyRelicCategory (iter 98)', () => {
+  describe('honor category', () => {
+    it('classifies "Восстанавливает # чести при завершении комнаты" as honor', () => {
+      expect(classifyRelicCategory(makeGroup('Восстанавливает # чести при завершении комнаты'))).toBe('honor');
+    });
+
+    it('classifies "+#% к максимальному сопротивлению чести" as honor', () => {
+      expect(classifyRelicCategory(makeGroup('+#% к максимальному сопротивлению чести'))).toBe('honor');
+    });
+
+    it('classifies "#% увеличение восстановления чести" as honor', () => {
+      expect(classifyRelicCategory(makeGroup('#% увеличение восстановления чести'))).toBe('honor');
+    });
+
+    it('classifies "#% увеличение максимума чести" as honor', () => {
+      expect(classifyRelicCategory(makeGroup('#% увеличение максимума чести'))).toBe('honor');
+    });
+
+    it('classifies "#% шанс при вотере всей вашей чести вместо этого остаться с 1 честью" as honor', () => {
+      expect(classifyRelicCategory(makeGroup('#% шанс при вотере всей вашей чести вместо этого остаться с 1 честью'))).toBe('honor');
+    });
+
+    // Critical ordering test: "Восстанавливает # чести при убийстве босса"
+    // contains "босса" — without HONOR being checked first, this would
+    // misclassify as monsters. Verifies the comment in classifyRelicCategory().
+    it('classifies "Восстанавливает # чести при убийстве босса" as honor (NOT monsters)', () => {
+      expect(classifyRelicCategory(makeGroup('Восстанавливает # чести при убийстве босса'))).toBe('honor');
+    });
+  });
+
+  describe('sanctum-water category', () => {
+    it('classifies "Дарует святой воды по завершению вами комнаты: #" as sanctum-water', () => {
+      expect(classifyRelicCategory(makeGroup('Дарует святой воды по завершению вами комнаты: #'))).toBe('sanctum-water');
+    });
+  });
+
+  describe('trials category', () => {
+    it('classifies "На карте испытаний раскрывается дополнительная комната" as trials', () => {
+      expect(classifyRelicCategory(makeGroup('На карте испытаний раскрывается дополнительная комната'))).toBe('trials');
+    });
+
+    it('classifies "На карте испытаний раскрывается дополнительных комнат: #" as trials', () => {
+      expect(classifyRelicCategory(makeGroup('На карте испытаний раскрывается дополнительных комнат: #'))).toBe('trials');
+    });
+  });
+
+  describe('keys category', () => {
+    it('classifies "Когда вы получаете ключ, вы с #% шансом получаете еще один" as keys', () => {
+      expect(classifyRelicCategory(makeGroup('Когда вы получаете ключ, вы с #% шансом получаете еще один'))).toBe('keys');
+    });
+
+    it('classifies "#% шанс для каждого из ваших ключей улучшиться при завершении этажа" as keys', () => {
+      expect(classifyRelicCategory(makeGroup('#% шанс для каждого из ваших ключей улучшиться при завершении этажа'))).toBe('keys');
+    });
+  });
+
+  describe('merchant category', () => {
+    it('classifies "#% снижение цен у торговца" as merchant', () => {
+      expect(classifyRelicCategory(makeGroup('#% снижение цен у торговца'))).toBe('merchant');
+    });
+
+    it('classifies "Торговец предлагает дополнительный товар на выбор" as merchant', () => {
+      expect(classifyRelicCategory(makeGroup('Торговец предлагает дополнительный товар на выбор'))).toBe('merchant');
+    });
+  });
+
+  describe('monsters category', () => {
+    it('classifies "Монстры получают увеличенный на #% урон" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Монстры получают увеличенный на #% урон'))).toBe('monsters');
+    });
+
+    it('classifies "Монстры наносят уменьшенный на #% урон" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Монстры наносят уменьшенный на #% урон'))).toBe('monsters');
+    });
+
+    it('classifies "Редкие монстры получают увеличенный на #% урон" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Редкие монстры получают увеличенный на #% урон'))).toBe('monsters');
+    });
+
+    it('classifies "Боссы наносят уменьшенный на #% урон" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Боссы наносят уменьшенный на #% урон'))).toBe('monsters');
+    });
+
+    it('classifies "Боссы получают увеличенный на #% урон" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Боссы получают увеличенный на #% урон'))).toBe('monsters');
+    });
+
+    it('classifies "Скорость атаки, сотворения чар и передвижения монстров снижена на #%" as monsters', () => {
+      expect(classifyRelicCategory(makeGroup('Скорость атаки, сотворения чар и передвижения монстров снижена на #%'))).toBe('monsters');
+    });
+  });
+
+  describe('curse category', () => {
+    it('classifies "#% шанс избежать получения проклятия" as curse', () => {
+      expect(classifyRelicCategory(makeGroup('#% шанс избежать получения проклятия'))).toBe('curse');
+    });
+  });
+
+  describe('other fallback', () => {
+    it('classifies unknown text as other', () => {
+      expect(classifyRelicCategory(makeGroup('Какой-то неизвестный мод'))).toBe('other');
+    });
+  });
+});
+
+// ─── classifyGroups with relic-semantic mode (iter 98) ───
+
+describe('classifyGroups with relic-semantic mode (iter 98)', () => {
+  it('returns empty array for empty input', () => {
+    expect(classifyGroups([], 'relic-semantic')).toEqual([]);
+  });
+
+  it('classifies all 25 relic family-keys from relic.json (full coverage)', () => {
+    // Every family-key from public/generated/relic.json — one synthetic
+    // FamilyGroup per family-key. Verifies 100% coverage (no family-key
+    // lands in `other` for current production data).
+    const familyKeys = [
+      // suffixes (12)
+      'Дарует святой воды по завершению вами комнаты: #',
+      'Восстанавливает # чести при завершении комнаты',
+      'На карте испытаний раскрывается дополнительных комнат: #',
+      '#% шанс избежать получения проклятия',
+      'Восстанавливает # чести при поднятии ключа',
+      '+#% к максимальному сопротивлению чести',
+      '#% увеличение восстановления чести',
+      '#% снижение цен у торговца',
+      'Восстанавливает # чести при убийстве босса',
+      'Восстанавливает # чести при оказании почестей у маракетского алтаря',
+      'На карте испытаний раскрывается дополнительная комната',
+      '+#% к сопротивлению чести',
+      // prefixes (13)
+      'Монстры получают увеличенный на #% урон',
+      'Монстры наносят уменьшенный на #% урон',
+      'Когда вы получаете ключ, вы с #% шансом получаете еще один',
+      'Скорость атаки, сотворения чар и передвижения монстров снижена на #%',
+      '#% шанс при вотере всей вашей чести вместо этого остаться с 1 честью',
+      '#% шанс для каждого из ваших ключей улучшиться при завершении этажа',
+      '#% увеличение восстановления чести',
+      '#% увеличение максимума чести',
+      'Редкие монстры получают увеличенный на #% урон',
+      'Боссы получают увеличенный на #% урон',
+      'Торговец предлагает дополнительный товар на выбор',
+      'Редкие монстры наносят уменьшенный на #% урон',
+      'Боссы наносят уменьшенный на #% урон',
+    ];
+    expect(familyKeys).toHaveLength(25);
+
+    const groups = familyKeys.map(text => makeGroup(text));
+    const result = classifyGroups(groups, 'relic-semantic');
+
+    // All 7 active categories should appear (no `other` for current data).
+    const keys = result.map(sg => sg.key);
+    expect(keys).toEqual(['honor', 'sanctum-water', 'trials', 'keys', 'merchant', 'monsters', 'curse']);
+    expect(keys).not.toContain('other');
+
+    // Category group counts match the expected distribution from relic.json:
+    //   honor=10, sanctum-water=1, trials=2, keys=2, merchant=2, monsters=7, curse=1
+    const countBy = (key: string) => result.find(sg => sg.key === key)?.groups.length ?? 0;
+    expect(countBy('honor')).toBe(10);
+    expect(countBy('sanctum-water')).toBe(1);
+    expect(countBy('trials')).toBe(2);
+    expect(countBy('keys')).toBe(2);
+    expect(countBy('merchant')).toBe(2);
+    expect(countBy('monsters')).toBe(7);
+    expect(countBy('curse')).toBe(1);
+
+    // Total group count preserved (no FamilyGroup lost in classification).
+    const totalGroups = result.reduce((sum, sg) => sum + sg.groups.length, 0);
+    expect(totalGroups).toBe(25);
+  });
+
+  it('returns sub-groups in RELIC_CATEGORY_ORDER (Sanctum-economy first, combat last)', () => {
+    // Pick one family-key per category — the order in the result must match
+    // RELIC_CATEGORY_ORDER: honor → sanctum-water → trials → keys → merchant
+    // → monsters → curse.
+    const groups: FamilyGroup[] = [
+      makeGroup('Боссы получают увеличенный на #% урон'),                    // monsters
+      makeGroup('#% шанс избежать получения проклятия'),                     // curse
+      makeGroup('Дарует святой воды по завершению вами комнаты: #'),         // sanctum-water
+      makeGroup('#% снижение цен у торговца'),                               // merchant
+      makeGroup('Восстанавливает # чести при завершении комнаты'),           // honor
+      makeGroup('На карте испытаний раскрывается дополнительная комната'),   // trials
+      makeGroup('Когда вы получаете ключ, вы с #% шансом получаете еще один'), // keys
+    ];
+
+    const result = classifyGroups(groups, 'relic-semantic');
+
+    expect(result.map(sg => sg.key)).toEqual([
+      'honor', 'sanctum-water', 'trials', 'keys', 'merchant', 'monsters', 'curse',
+    ]);
+  });
+
+  it('skips empty categories (only categories with at least one group appear)', () => {
+    // Only honor + monsters — other categories should NOT appear in result.
+    const groups: FamilyGroup[] = [
+      makeGroup('Восстанавливает # чести при завершении комнаты'),  // honor
+      makeGroup('Монстры наносят уменьшенный на #% урон'),          // monsters
+    ];
+
+    const result = classifyGroups(groups, 'relic-semantic');
+
+    expect(result.map(sg => sg.key)).toEqual(['honor', 'monsters']);
+  });
+
+  it('each sub-group carries label and colorClass from RELIC_LABELS', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('Восстанавливает # чести при завершении комнаты'),  // honor
+    ];
+
+    const result = classifyGroups(groups, 'relic-semantic');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].label).toBe(RELIC_LABELS.honor.label);
+    expect(result[0].colorClass).toBe(RELIC_LABELS.honor.colorClass);
+    expect(result[0].bgClass).toBe(RELIC_LABELS.honor.bgClass);
+    expect(result[0].borderClass).toBe(RELIC_LABELS.honor.borderClass);
+  });
+
+  it('preserves group references (does not mutate or clone)', () => {
+    const honorGroup = makeGroup('Восстанавливает # чести при завершении комнаты');
+    const monsterGroup = makeGroup('Монстры наносят уменьшенный на #% урон');
+
+    const result = classifyGroups([honorGroup, monsterGroup], 'relic-semantic');
+
+    const honorSg = result.find(sg => sg.key === 'honor');
+    const monsterSg = result.find(sg => sg.key === 'monsters');
+    expect(honorSg?.groups[0]).toBe(honorGroup);
+    expect(monsterSg?.groups[0]).toBe(monsterGroup);
+  });
+});
+
+// ─── RELIC_LABELS sanity (iter 98) ───
+
+describe('RELIC_LABELS (iter 98)', () => {
+  it('has 8 entries (one per RelicCategory, including `other`)', () => {
+    expect(Object.keys(RELIC_LABELS)).toHaveLength(8);
+    expect(Object.keys(RELIC_LABELS).sort()).toEqual([
+      'curse', 'honor', 'keys', 'merchant', 'monsters', 'other', 'sanctum-water', 'trials',
+    ]);
+  });
+
+  it('every relic category has non-empty label and colorClass', () => {
+    for (const [, cfg] of Object.entries(RELIC_LABELS)) {
+      expect(cfg.label.length).toBeGreaterThan(0);
+      expect(cfg.colorClass.length).toBeGreaterThan(0);
+      expect(cfg.bgClass.length).toBeGreaterThan(0);
+      expect(cfg.borderClass.length).toBeGreaterThan(0);
+    }
+  });
+});
+

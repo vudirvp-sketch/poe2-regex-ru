@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 97** (аудиторская чистка тестов и исторических скриптов: удалено 16 `simulate-iter*`/`verify-iter*`/`analyze-iter*` файлов (2774 строки), `sanitizeJsObjectLiteral()` теперь экспортирована и тестируется напрямую; 1363/1363 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 98** (relic-semantic grouping mode: `RelicPage` теперь использует `'relic-semantic'` вместо `'affix-only'` — 25 family-keys разбиты на 7 Sanctum-категорий (Честь / Святая вода / Испытания / Ключи / Торговец / Монстры / Проклятия); 1392/1392 тестов зелёные, cross-validation 477/477 match). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -220,7 +220,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 
 33. **`charClass` token/AST node имеет явное поле `negated: boolean`** (iter 81). Не использовать sentinel `{from: -1, to: -1}` в `ranges` массиве для negated char class — это удалено. PoE2 regex generator НЕ эмитит `[^...]` паттерны — это defensive parsing только для engine completeness.
 
-34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (jewellery/jewel), `affix-sentiment` (waystone), `tablet-type` (tablet), `affix-only` (relic — без подгрупп, 25 groups в одной корзине), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. iter 84: 3 P0-фикса реализованы (Breach Lord skip + text fallback / waystone keywords / aura+gem tags), neutral-корзина -18 групп (-15%). Остались P0: 24 функциональных блока + weapon sub-blocks. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного OP-1.
+34. **L4 architecture для affixes (актуально для OP-1):** 4-уровневая иерархия для ring/belt/amulet/jewel/relic — `Affix (L1) → Origin (L2, через showOriginSubSections=true) → Semantic (L3) → chips (L4)`. Для waystone/tablet — 3 уровня (без L2 origin). Режимы L3: `affix-semantic` (legacy, jewellery/jewel), `affix-functional` (ring/amulet/belt — 24 functional blocks, iter 86-89), `jewel-functional` (jewel — +6 weapon-class sub-blocks, iter 87), `affix-sentiment` (waystone), `tablet-type` (tablet), `relic-semantic` (relic — 7 Sanctum-категорий: honor/sanctum-water/trials/keys/merchant/monsters/curse, iter 98), `affix-only` (legacy flat — superseded by relic-semantic), `jewel-type` (доп. уровень внутри origin для jewel). Сортировка внутри L3-блока: `affix type → priority tier → alpha`. iter 84-98: P0-фиксы + функциональные блоки + relic-semantic все реализованы. См. `docs/AFFIXES_GROUPING_ANALYSIS.md` для полного OP-1.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -315,13 +315,15 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `src/shared/mod-classifier.ts` — 3 P0-фикса (BREACH_LORD_TAGS, classifyByTags update, OFFENSIVE_TAGS += aura/gem, DEFENSIVE_KEYWORDS += флакон, POSITIVE/NEGATIVE_KEYWORDS += 4 waystone паттерна).
 - `tests/shared/mod-classifier.test.ts` — +14 новых тестов.
 
-**Ключевые файлы для будущих итераций:**
-- `src/shared/mod-classifier.ts` (~1130 строк) — будущие функциональные блоки.
-- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` + `sortKey`.
-- `src/shared/types.ts` — `FamilyGroup` (добавить `sortKey`), `ModGroupMode` (новые режимы).
+**Ключевые файлы для будущих итераций (P1-P3, не начаты):**
+- `src/shared/mod-classifier.ts` (~1680 строк, +130 после iter 98) — будущие функциональные блоки, sortKey logic.
+- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` + будущий `sortKey` в `FamilyGroup`.
+- `src/shared/types.ts` — `FamilyGroup` (добавить `sortKey?: number`), `ModGroupMode` (новые режимы).
 - `src/ui/components/ModList.tsx` (662 строки) — рендер sub-blocks.
 - `src/ui/components/CategoryControlPanel.tsx` — тумблер «режим группировки».
 - `src/store/url-sync.ts` — URL-персистентность для `groupingMode`.
-- `src/shared/i18n.ts` — новые метки 24 блоков.
+- `src/shared/i18n.ts` — новые метки.
+
+**iter 98 done:** `RelicPage` использует `'relic-semantic'` mode (7 Sanctum-категорий). Осталось P1 (sortKey), P2 (waystone/tablet sub-blocks), P4 (tier-aware сортировка).
 - `scripts/etl/classify-functional-category.ts` — ETL-tagged functionalCategory (iter 90). `buildFunctionalCategoryMap()` + `classifyModFunctionalBlock()`.
 - `scripts/etl/normalize.ts` + `generate-dictionary.ts` + `fetch-poe2db.ts` — ETL pipeline (functionalCategory patching через generate-dictionary).
