@@ -20,7 +20,7 @@
  * hideRegexOutput) since they were never consumed in split mode.
  */
 import React from 'react';
-import type { SearchLogic, PriorityFilter } from '@shared/types';
+import type { SearchLogic, PriorityFilter, SortMode } from '@shared/types';
 import { MAX_ENUMERATE_RANGE } from '@core/number-regex';
 import { t } from '@shared/i18n';
 
@@ -46,6 +46,18 @@ interface CategoryControlPanelProps {
   /** Whether to show priority tier filter toggle. Only shown for categories
    *   that have priority classification (ring, amulet, belt, waystone, tablet). */
   showPriorityFilter?: boolean;
+  /**
+   * Within-block sort mode (iter 106 P4). Optional — only shown when
+   * `showSortMode` is true AND the page passes `setSortMode`.
+   *  - 'alpha'      : familyKey primary, priorityTier tiebreaker (iter 99 default)
+   *  - 'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker
+   */
+  sortMode?: SortMode;
+  /** Set within-block sort mode. Optional — paired with `sortMode` + `showSortMode`. */
+  setSortMode?: (v: SortMode) => void;
+  /** Whether to show the sort mode toggle. Only shown for categories that have
+   *  priority classification (same set as `showPriorityFilter`). */
+  showSortMode?: boolean;
   /** Slot for category-specific controls (waystone state, tablet types, etc.) */
   extraControls?: React.ReactNode;
   /**
@@ -106,6 +118,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   priorityFilter = 'all',
   setPriorityFilter,
   showPriorityFilter,
+  sortMode = 'alpha',
+  setSortMode,
+  showSortMode,
   excludedCount = 0,
   activeTokenCount = 0,
 }) => {
@@ -123,6 +138,15 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
     { value: 'all' as PriorityFilter, action: () => onSetPriorityFilter('all') },
     { value: 'S+A' as PriorityFilter, action: () => onSetPriorityFilter('S+A') },
     { value: 'S' as PriorityFilter, action: () => onSetPriorityFilter('S') },
+  ];
+
+  // iter 106 (P4): sort mode toggle options for arrow key navigation.
+  //   'alpha'      : familyKey primary, priorityTier tiebreaker (iter 99 default)
+  //   'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker (legacy)
+  const onSetSortMode = setSortMode ?? (() => {});
+  const sortOptions = [
+    { value: 'alpha' as SortMode, action: () => onSetSortMode('alpha') },
+    { value: 'tier-first' as SortMode, action: () => onSetSortMode('tier-first') },
   ];
 
   return (
@@ -301,6 +325,41 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 }`}
               >
                 {t('priority.s_only')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* iter 106 (P4): within-block sort mode toggle (alpha vs tier-first).
+            Placed next to priorityFilter — they're conceptually related:
+            priorityFilter decides WHICH tiers to show, sortMode decides
+            HOW to order the surviving groups. Only shown when showSortMode
+            is true (same set of pages as showPriorityFilter). */}
+        {showSortMode && setSortMode && (
+          <div className="flex items-center gap-1">
+            <span className="text-[12px] text-muted">{t('sort.label')}</span>
+            <div className="flex gap-0.5" role="radiogroup" aria-label={t('sort.label')}
+              onKeyDown={(e) => handleRadioKeyDown(e, sortOptions, sortMode)}
+            >
+              <button
+                onClick={() => onSetSortMode('alpha')}
+                role="radio"
+                aria-checked={sortMode === 'alpha'}
+                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
+                  sortMode === 'alpha' ? 'bg-raised text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
+                }`}
+              >
+                {t('sort.alpha')}
+              </button>
+              <button
+                onClick={() => onSetSortMode('tier-first')}
+                role="radio"
+                aria-checked={sortMode === 'tier-first'}
+                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
+                  sortMode === 'tier-first' ? 'bg-amber-700 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
+                }`}
+              >
+                {t('sort.tier_first')}
               </button>
             </div>
           </div>

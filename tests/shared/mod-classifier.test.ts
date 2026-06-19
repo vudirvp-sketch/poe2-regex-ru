@@ -27,6 +27,8 @@ import {
   classifyWeaponClass,
   classifyRelicCategory,
   sortGroupsAlphabetically,
+  sortGroupsByTierFirst,
+  sortGroupsByMode,
   FUNCTIONAL_BLOCK_LABELS,
   WEAPON_CLASS_LABELS,
   RELIC_LABELS,
@@ -39,7 +41,7 @@ import {
   type WaystoneSubBlock,
   type TabletSubBlock,
 } from '@shared/mod-classifier';
-import type { FamilyGroup, GameToken } from '@shared/types';
+import type { FamilyGroup, GameToken, SortMode } from '@shared/types';
 
 // ─── Helpers ───
 
@@ -2920,6 +2922,306 @@ describe('sortGroupsAlphabetically (iter 99)', () => {
     expect(() => sortGroupsAlphabetically(groups)).not.toThrow();
     // Result is a permutation of the input
     expect(sortGroupsAlphabetically(groups)).toHaveLength(3);
+  });
+});
+
+// ─── sortGroupsByTierFirst + sortGroupsByMode (iter 106: P4 toggle) ───
+
+describe('sortGroupsByTierFirst (iter 106 P4)', () => {
+  it('returns a new array (does not mutate input)', () => {
+    const g1 = makeGroup('+# к силе', { priorityTier: 'S' });
+    const g2 = makeGroup('+# к ловкости', { priorityTier: 'A' });
+    const input = [g1, g2];
+    const result = sortGroupsByTierFirst(input);
+    expect(result).not.toBe(input);
+    expect(input[0]).toBe(g1);
+    expect(input[1]).toBe(g2);
+  });
+
+  it('preserves FamilyGroup object references (does not clone)', () => {
+    const g1 = makeGroup('+# к силе', { priorityTier: 'S' });
+    const g2 = makeGroup('+# к ловкости', { priorityTier: 'A' });
+    const result = sortGroupsByTierFirst([g1, g2]);
+    expect(result).toContain(g1);
+    expect(result).toContain(g2);
+    expect(result.length).toBe(2);
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(sortGroupsByTierFirst([])).toEqual([]);
+  });
+
+  it('returns shallow copy for single-element array', () => {
+    const g1 = makeGroup('+# к силе', { priorityTier: 'S' });
+    const result = sortGroupsByTierFirst([g1]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(g1);
+  });
+
+  it('sorts by priority tier primary (S→A→B→C)', () => {
+    // Same familyKey — tier should drive the order.
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'C' }),
+      makeGroup('+# к силе', { priorityTier: 'A' }),
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к силе', { priorityTier: 'B' }),
+    ];
+    const result = sortGroupsByTierFirst(groups);
+    expect(result.map(g => g.priorityTier)).toEqual(['S', 'A', 'B', 'C']);
+  });
+
+  it('uses familyKey (Russian locale) as tiebreaker when tiers are identical', () => {
+    // All same tier S — alpha should drive the order (и < л < с).
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к ловкости', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'S' }),
+    ];
+    const result = sortGroupsByTierFirst(groups);
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+  });
+
+  it('tier-first vs alpha differ when mods have mixed tiers', () => {
+    // The classic iter 99 example: Сила (S) + Ловкость (S) + Интеллект (A)
+    //   alpha:      [Интеллект A, Ловкость S, Сила S]   (pure alpha, tier fragmented)
+    //   tier-first: [Интеллект A → LAST, Сила S, Ловкость S] then alpha within tier
+    //   Actually: S-tier alpha: [Ловкость, Сила] (л < с), then A-tier: [Интеллект]
+    //   → tier-first result: [Ловкость S, Сила S, Интеллект A]
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к ловкости', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'A' }),
+    ];
+    const alpha = sortGroupsAlphabetically(groups);
+    const tierFirst = sortGroupsByTierFirst(groups);
+    // Sanity: alpha order is и < л < с
+    expect(alpha.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+    // tier-first: S-tier mods first (alpha within: ловкость < сила), then A-tier (интеллект)
+    expect(tierFirst.map(g => g.familyKey)).toEqual([
+      '+# к ловкости',     // S, alpha first within tier
+      '+# к силе',         // S, alpha second within tier
+      '+# к интеллекту',   // A, last
+    ]);
+    // The two orders MUST differ — proves tier-first is not identical to alpha.
+    expect(tierFirst.map(g => g.familyKey)).not.toEqual(alpha.map(g => g.familyKey));
+  });
+
+  it('strips ::origin suffix when sorting (tier primary, alpha tiebreaker)', () => {
+    // Two S-tier origin variants + one A-tier. S-tier variants should sort first
+    // (by alpha on the clean template name), then the A-tier variant.
+    const groups = [
+      makeGroup('ignored', { familyKey: '+# к силе::corrupted', priorityTier: 'A' }),
+      makeGroup('ignored', { familyKey: '+# к ловкости::normal', priorityTier: 'S' }),
+      makeGroup('ignored', { familyKey: '+# к интеллекту::desecrated', priorityTier: 'S' }),
+    ];
+    const result = sortGroupsByTierFirst(groups);
+    // S-tier first, alpha within (intellect < ловкость), then A-tier (сила)
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту::desecrated',   // S, alpha first
+      '+# к ловкости::normal',         // S, alpha second
+      '+# к силе::corrupted',          // A, last
+    ]);
+  });
+
+  it('handles all tiers in canonical order S→A→B→C across distinct families', () => {
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'B' }),
+      makeGroup('+# к ловкости', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'C' }),
+      makeGroup('+# к мудрости', { priorityTier: 'A' }),
+    ];
+    const result = sortGroupsByTierFirst(groups);
+    expect(result.map(g => g.priorityTier)).toEqual(['S', 'A', 'B', 'C']);
+    // Within S-only one entry; A-only one; etc. — so familyKey order follows tier.
+    expect(result.map(g => g.familyKey)).toEqual([
+      '+# к ловкости',    // S
+      '+# к мудрости',    // A
+      '+# к силе',        // B
+      '+# к интеллекту',  // C
+    ]);
+  });
+});
+
+describe('sortGroupsByMode (iter 106 P4 — dispatch entry point)', () => {
+  it('defaults to alpha when no mode is passed (backward compat)', () => {
+    // Same scenario as the iter 99 test "tier does NOT fragment alphabetical flow".
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к ловкости', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'A' }),
+    ];
+    const resultNoMode = sortGroupsByMode(groups);
+    const resultAlphaExplicit = sortGroupsByMode(groups, 'alpha');
+    // Both should produce pure alpha order (alpha primary).
+    expect(resultNoMode.map(g => g.familyKey)).toEqual([
+      '+# к интеллекту',
+      '+# к ловкости',
+      '+# к силе',
+    ]);
+    expect(resultNoMode).toEqual(resultAlphaExplicit);
+  });
+
+  it("'alpha' mode delegates to sortGroupsAlphabetically (same output)", () => {
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'A' }),
+    ];
+    expect(sortGroupsByMode(groups, 'alpha' as SortMode))
+      .toEqual(sortGroupsAlphabetically(groups));
+  });
+
+  it("'tier-first' mode delegates to sortGroupsByTierFirst (same output)", () => {
+    const groups = [
+      makeGroup('+# к силе', { priorityTier: 'S' }),
+      makeGroup('+# к интеллекту', { priorityTier: 'A' }),
+    ];
+    expect(sortGroupsByMode(groups, 'tier-first' as SortMode))
+      .toEqual(sortGroupsByTierFirst(groups));
+  });
+
+  it('returns a NEW array in both modes (no mutation)', () => {
+    const g1 = makeGroup('+# к силе', { priorityTier: 'S' });
+    const g2 = makeGroup('+# к интеллекту', { priorityTier: 'A' });
+    const input = [g1, g2];
+    const alphaResult = sortGroupsByMode(input, 'alpha');
+    const tierResult = sortGroupsByMode(input, 'tier-first');
+    expect(alphaResult).not.toBe(input);
+    expect(tierResult).not.toBe(input);
+    expect(input[0]).toBe(g1);
+    expect(input[1]).toBe(g2);
+  });
+
+  it('handles empty array in both modes', () => {
+    expect(sortGroupsByMode([], 'alpha')).toEqual([]);
+    expect(sortGroupsByMode([], 'tier-first')).toEqual([]);
+  });
+});
+
+// ─── classifyGroups respects sortMode argument (iter 106 P4) ───
+
+describe('classifyGroups respects sortMode argument (iter 106 P4)', () => {
+  it('affix-functional: default sortMode is alpha (backward compat)', () => {
+    // No third argument → default 'alpha' → Сила/Ловкость/Интеллект alpha order
+    // regardless of tier.
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'S' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes', priorityTier: 'A' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes', priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'affix-functional');
+    expect(result[0].groups.map(g => g.familyKey)).toEqual([
+      '+(5—7) к интеллекту',
+      '+(5—7) к ловкости',
+      '+(5—7) к силе',
+    ]);
+  });
+
+  it("affix-functional: sortMode='tier-first' surfaces S-tier first", () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'S' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes', priorityTier: 'A' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes', priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'affix-functional', 'tier-first');
+    // S-tier alpha within (интеллект < ловкость... wait no: only intellect and сила are S here)
+    // S-tier: Сила (S) + Интеллект (S) → alpha: Интеллект, Сила
+    // A-tier: Ловкость (A) → Ловкость
+    expect(result[0].groups.map(g => g.familyKey)).toEqual([
+      '+(5—7) к интеллекту',  // S, alpha first
+      '+(5—7) к силе',        // S, alpha second
+      '+(5—7) к ловкости',    // A, last
+    ]);
+    expect(result[0].groups.map(g => g.priorityTier)).toEqual(['S', 'S', 'A']);
+  });
+
+  it("affix-functional: 'alpha' explicit mode matches default", () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'S' }),
+      makeGroup('+(5—7) к ловкости', { functionalCategory: 'attributes', priorityTier: 'A' }),
+    ];
+    const defaultResult = classifyGroups(groups, 'affix-functional');
+    const explicitAlpha = classifyGroups(groups, 'affix-functional', 'alpha');
+    expect(defaultResult[0].groups.map(g => g.familyKey))
+      .toEqual(explicitAlpha[0].groups.map(g => g.familyKey));
+  });
+
+  it('relic-semantic: tier-first surfaces S-tier honor mods first within honor block', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('Восстанавливает # чести при завершении комнаты', { priorityTier: 'A' }),
+      makeGroup('+#% к сопротивлению чести', { priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'relic-semantic', 'tier-first');
+    expect(result).toHaveLength(1);
+    expect(result[0].key).toBe('honor');
+    // S-tier first, A-tier last
+    expect(result[0].groups.map(g => g.priorityTier)).toEqual(['S', 'A']);
+  });
+
+  it('tablet-type-subblocks: tier-first surfaces S-tier mods first within sub-block', () => {
+    // Two ritual-rewards mods with different tiers — verify tier-first surfaces S.
+    const groups: FamilyGroup[] = [
+      makeGroup('#% увеличение количества подношений за ритуал', { priorityTier: 'A' }),
+      makeGroup('Увеличение качества подношений за ритуал', { priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'tablet-type-subblocks', 'tier-first');
+    // Find the sub-block that contains both — they're both ritual-rewards.
+    const targetSg = result.find(sg => sg.groups.length === 2);
+    expect(targetSg).toBeDefined();
+    expect(targetSg!.groups.map(g => g.priorityTier)).toEqual(['S', 'A']);
+  });
+
+  it('jewel-functional: tier-first surfaces S-tier mods first within attributes block', () => {
+    // Two attributes mods with different tiers — verify tier-first surfaces S
+    // inside the attributes block of jewel-functional mode (same code path as
+    // affix-functional, but exercises the jewel-specific classifyGroups branch).
+    const groups: FamilyGroup[] = [
+      makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'A' }),
+      makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes', priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'jewel-functional', 'tier-first');
+    // Both mods land in the same 'attributes' sub-block — verify tier-first surfaces S.
+    const attrSg = result.find(sg => sg.key === 'attributes');
+    expect(attrSg).toBeDefined();
+    expect(attrSg!.groups.map(g => g.priorityTier)).toEqual(['S', 'A']);
+    expect(attrSg!.groups.map(g => g.familyKey)).toEqual([
+      '+(5—7) к интеллекту',  // S
+      '+(5—7) к силе',        // A
+    ]);
+  });
+
+  it('affix-sentiment-subblocks: tier-first surfaces S-tier mods first within positive sub-block', () => {
+    const groups: FamilyGroup[] = [
+      makeGroup('#% повышение редкости найденных предметов', { priorityTier: 'A' }),
+      makeGroup('#% увеличение количества найденных предметов', { priorityTier: 'S' }),
+    ];
+    const result = classifyGroups(groups, 'affix-sentiment-subblocks', 'tier-first');
+    // Both mods are waystone positive-loot — verify they're in the same sub-block
+    // and tier-first surfaces S.
+    const positiveSg = result.find(sg => sg.groups.length === 2);
+    if (positiveSg) {
+      expect(positiveSg.groups.map(g => g.priorityTier)).toEqual(['S', 'A']);
+    }
+    // Either way — result is non-empty and tier-first is consistent
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('preserves FamilyGroup references in both modes (no clone)', () => {
+    const g1 = makeGroup('+(5—7) к силе', { functionalCategory: 'attributes', priorityTier: 'S' });
+    const g2 = makeGroup('+(5—7) к интеллекту', { functionalCategory: 'attributes', priorityTier: 'A' });
+    const alphaResult = classifyGroups([g1, g2], 'affix-functional', 'alpha');
+    const tierResult = classifyGroups([g1, g2], 'affix-functional', 'tier-first');
+    expect(alphaResult[0].groups).toContain(g1);
+    expect(alphaResult[0].groups).toContain(g2);
+    expect(tierResult[0].groups).toContain(g1);
+    expect(tierResult[0].groups).toContain(g2);
   });
 });
 

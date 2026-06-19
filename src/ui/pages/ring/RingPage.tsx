@@ -39,6 +39,7 @@ export function RingPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({ categoryId: 'ring' });
 
   return (
@@ -80,6 +81,9 @@ export function RingPage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
               />
@@ -138,6 +142,7 @@ export function RingPage() {
               showOriginSubSections
               category="ring"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );

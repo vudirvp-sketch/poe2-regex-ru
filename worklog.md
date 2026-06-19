@@ -4,63 +4,93 @@
 
 ---
 
-Task ID: 105
+Task ID: 106
 Agent: main
-Task: P2 second half — tablet sub-blocks (gameplay mechanic sub-grouping within type). Минимальный риск: новый режим `tablet-type-subblocks` + 19 sub-blocks + 28 новых тестов. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
+Task: P4 — tier-aware sort toggle (alpha vs tier-first) в CategoryControlPanel. iter 99 сделал tier вторичным tiebreaker'ом в within-block sort, но UI-тумблер не добавил. iter 106 закрывает UX-долг: пользователь может переключаться между alphabetical flow (iter 99 default) и tier-first (legacy pre-iter-99, surfaces S-tier first). Минимальный риск: новый опциональный SortMode тип, опциональный 3-й аргумент в classifyGroups (default 'alpha' — backward compat со всеми существующими tests), UI-toggle только на страницах с priority classification.
 
 Work Log:
-- 1: Клон репо. Чтение STATUS.md (iter 104 — waystone sub-blocks + Known Issue #5 fix, 1472/1472), worklog.md (iter 104 подробно), AGENT_NAVIGATION.md (entry iter 104 + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1472/1472; `npx tsc -b` → 0 errors; `npx eslint .` → 0 problems. Выбор scope: только tablet sub-blocks (P2 second half). P4 (tier-aware sort toggle) — отложен в iter 106+ (отдельный UI-work в CategoryControlPanel).
-- 2: Анализ tablet type distribution на реальных данных. Запуск sanity script (`scripts/sanity/analyze-tablet-type.ts`, временный) на `tablet.json` (82 family-groups): ritual 14, breach 11, delirium 9, vaal 8, expedition 8, generic 32. Дизайн second-level scheme: 3 sub-blocks per type (4 для generic, т.к. 32 groups слишком много для 3). Total: 19 sub-blocks. Схема:
-  - RITUAL (14 → 3 sub-blocks): rewards (6 — награды/дань/предзнаменования), monsters (3 — возрожденные/принесенные в жертву), content (5 — алтари и круги)
-  - BREACH (11 → 3): monsters (5 — эффективность/порождение/сложность монстров Бездны), rewards (2 — очерняющая валюта/награды провалов), content (4 — количество Бездн + Глубины Бездны)
-  - DELIRIUM (9 → 3): mist (4 — Туман/Плотность/таймер), rewards (4 — осколки/Симулякр/боссы/зеркала), monsters (1 — размер групп монстров Делириума)
-  - VAAL (8 → 3): monsters (5 — спавны/группы/уникальные монстры Маяков), rewards (2 — сундуки/кристаллы), content (1 — Маяки implicit)
-  - EXPEDITION (8 → 3): rewards (4 — реликт/артефакт/журнал/+реликт), explosives (2 — радиус взрывчатки), monsters (2 — рунические метки/редкие монстры Экспедиции)
-  - GENERIC (32 → 4): loot (6 — золото/путевые камни/редкость/предметы), monsters (9 — эффективность/редкость/количество/плотность/размер групп/доп. свойства), encounters (15 — доп. Сущности/изгнанники/дух/сундуки/Заражение/свойство/Разломы/заряды), player (2 — опыт)
-- 3: Implementation в `src/shared/mod-classifier.ts`:
-  - `TabletSubBlock` type (19 variants: 3+3+3+3+3+4).
-  - `TABLET_SUBBLOCK_LABELS` — display config (color/bg/border per sub-block; color matches parent type — red/violet/blue/amber/emerald/muted).
-  - `TABLET_SUBBLOCK_ORDER` — canonical render order (ritual → breach → delirium → vaal → expedition → generic; within each type by gameplay significance).
-  - 16 sub-block pattern regexes (по 2 на type, кроме generic где 3 — остальные sub-blocks через fallback).
-  - `classifyTabletSubBlock(group)` function — two-phase: 1) `classifyTabletType()` determines type, 2) sub-block patterns within type. Each type has fallback sub-block (ritual→content, breach→content, delirium→monsters, vaal→content, expedition→monsters, generic→monsters).
-  - `'tablet-type-subblocks'` mode added to `ModGroupMode` union type.
-  - Implementation в `classifyGroups()` для нового режима — mirror архитектуры `affix-sentiment-subblocks` (iter 104) и `tablet-type` (Map → order filter → map to ModSubGroup), just with finer-grained keys.
-- 4: Switch TabletPage на новый режим: `src/ui/pages/tablet/TabletPage.tsx` — `groupMode="tablet-type"` → `groupMode="tablet-type-subblocks"`. Старый режим `tablet-type` сохранён как legacy (как `affix-sentiment` сохранён после `affix-sentiment-subblocks`) — backward compat с тестами / external callers.
-- 5: Sanity-run `classifyTabletSubBlock` на real data. Расширенный sanity script (`scripts/sanity/analyze-tablet-subblocks.ts`) верифицирует actual-vs-expected distribution для всех 19 sub-blocks. Результат: **0 mismatches**, все 82 family-groups классифицированы. Distribution полностью совпала с дизайном.
-- 6: Pattern design notes (валидированы sanity-прогоном):
-  - (a) RITUAL — monsters BEFORE rewards. Regression: «Монстры, принесенные в жертву...даруют увеличенное...количество дани» имеет ОБА «жертв» (monsters) и «дан» (rewards). Семантически это monster-механика (subject = принесенные монстры), не reward-механика. Pattern priority: `RITUAL_MONSTERS_PATTERNS` (`возрожден|принесен.*жертв`) → `RITUAL_REWARDS_PATTERNS` (`дан|наград|предзнаменов`) → fallback `ritual-content`. +1 regression test.
-  - (b) DELIRIUM — rewards BEFORE mist. Regression: «Туман Делириума порождает...осколков зеркал» имеет ОБА «Туман» (mist) и «осколков» (rewards). Семантически это reward-модификатор (mist производит больше осколков), не mist-механика. Pattern priority: `DELIRIUM_REWARDS_PATTERNS` (`осколк|хрупк.*зеркал|Симулякр|боссов`) → `DELIRIUM_MIST_PATTERNS` (`Туман|Плотность|таймер`) → fallback `delirium-monsters`. +1 regression test.
-  - (c) GENERIC — encounters BEFORE monsters. Regression: «Нестабильные Разломы...порождают дополнительного редкого монстра» имеет «монстр» (monsters), но семантически это encounter-спавн (extra content), не monster-stat. Pattern priority: `GENERIC_LOOT_PATTERNS` (`золот|путев|предмет`) → `GENERIC_PLAYER_PATTERNS` (`опыт`) → `GENERIC_ENCOUNTERS_PATTERNS` (specific phrases: `На карте можно встретить|шансом можно встретить|Добавляет Заражение|Нестабильные Разломы|случайным свойством|Осталось зарядов`) → fallback `generic-monsters`. Encounters pattern намеренно использует specific phrases (не bare «на карте» или «Разломах»), чтобы не false-match на monster density mods.
-- 7: Tests в `tests/shared/mod-classifier.test.ts` (+28 новых, total 397 в файле):
-  - `classifyTabletSubBlock` suite (новый, 23 tests): coverage для всех 19 sub-blocks + 2 regression tests для pattern priority (ritual-monsters перед ritual-rewards, delirium-rewards перед delirium-mist) + 1 label-coverage sanity check.
-  - `classifyGroups` suite: +5 tests для `tablet-type-subblocks` mode (composite-key sub-blocks, empty-skip, alphabetical within sub-block, canonical order, FamilyGroup reference preservation).
-- 8: Cleanup. Удалены временные sanity scripts в `scripts/sanity/` (per iter 100 rule: «Не добавляй новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ или inline sanity в worklog.md»). Distribution вынесена в STATUS.md как inline sanity table.
-- 9: Верификация: `npx vitest run` → **1500/1500** (было 1472, +28). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. ETL не запускался — `public/generated/*.json` не тронуты (verified via `git status`).
-- 10: Документация:
-  - `STATUS.md` — iter 105 как текущая; «Что сделано» + «Метрики» (1500/1500); Known Issues без изменений (только #1 и #2 остаются, оба intentional); «Открытые долги» обновлены — P2 tablet closed, P4 + sortKey + waystone neutral-generic остаются; added «Tablet Разломы vs Бездна» как новый low-priority долг (2 mods используют «Разлом» вместо «Бездна» — классифицируются как generic, но sub-block classification корректна); added inline sanity table (sub-block distribution на real data); runtime-метрики таблица обновлена (tablet row: 82 groups / 19 sub-blocks).
-  - `worklog.md` — iter 104 сжат до одной строки, iter 105 добавлен подробно.
-  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 105 (tablet sub-blocks); Roadmap iter 105 done + обновлён optional-список (P2 полностью closed, P4 next).
+- 1: Клон репо. Чтение STATUS.md (iter 105 — tablet sub-blocks, 1500/1500), worklog.md (iter 105 подробно), AGENT_NAVIGATION.md (entry iter 105 + Roadmap + Pitfall #34). Подтверждение baseline: `npx vitest run` → 1500/1500; `npx tsc -b` → 0 errors; `npx eslint .` → 0 problems. Выбор scope: только P4 (tier-aware sort toggle). Опциональные пункты (sortKey, waystone neutral-generic, tablet Разломы vs Бездна) отложены в iter 107+.
+- 2: Анализ архитектуры. `sortGroupsAlphabetically()` (iter 99) — единственная точка within-block sort. `withAlphabeticalGroups()` применяет её ко всем sub-groups перед return из `classifyGroups()`. `classifyGroups()` имеет 11 веток режимов, каждая возвращает `withAlphabeticalGroups(result)` → единая post-processing точка. `useCategoryPage` уже имеет pattern для URL-persist через `extraState` (priorityFilter как референс). Дизайн: добавить `SortMode = 'alpha' | 'tier-first'` type → `sortGroupsByTierFirst()` функция → `sortGroupsByMode()` dispatch → `withSortedGroups(result, sortMode)` rename (default 'alpha') → `classifyGroups()` += опциональный 3-й аргумент → `ModList`/`VirtualizedModList` += опциональный prop → `useCategoryPage` += useState + URL-sync + restore → `CategoryControlPanel` += radio-group UI → 6 category pages wire toggle → tests.
+- 3: Type system. `src/shared/types.ts` — добавлен `export type SortMode = 'alpha' | 'tier-first';` с подробным JSDoc (iter 106 P4 reference, default 'alpha', persistence note).
+- 4: Sort logic. `src/shared/mod-classifier.ts`:
+  - Импорт `SortMode` из `./types`.
+  - Добавлена `sortGroupsByTierFirst(groups)` функция — mirror `sortGroupsAlphabetically()` архитектуры (new array, ref preservation, length ≤ 1 short-circuit, `::origin` stripping), но comparator: tier primary (S→A→B→C), familyKey alpha tiebreaker.
+  - Добавлена `sortGroupsByMode(groups, mode = 'alpha')` dispatch entry point — внешние callers используют её.
+  - `withAlphabeticalGroups()` переименована в `withSortedGroups(result, sortMode = 'alpha')` — пробрасывает sortMode в `sortGroupsByMode()`.
+  - Все 11 `withAlphabeticalGroups(...)` вызовов в `classifyGroups()` заменены на `withSortedGroups(..., sortMode)`. Python-скрипт `patch_with_sorted_groups.py` автоматически патчит (находит `withSortedGroups(`, walk-forward к matching `)`, inject `, sortMode` перед closing paren). Skipped 1 вызов в `affix-only` ветке (там я вручную прописал `sortMode` для consistency с JSDoc комментом).
+  - `classifyGroups()` signature: `classifyGroups(groups, mode, sortMode: SortMode = 'alpha')`. Default 'alpha' = iter 99 backward compat.
+- 5: UI компоненты. `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx`:
+  - Import `SortMode` из `@shared/types`.
+  - `interface ModListProps` / `interface VirtualizedModListProps` += опциональный `sortMode?: SortMode` с JSDoc.
+  - Destructuring `sortMode = 'alpha'` default.
+  - `splitByOriginThenSemantic()` + `buildColumnRows()` += `sortMode: SortMode = 'alpha'` параметр, пробрасывается в `classifyGroups()`.
+  - Все `classifyGroups(...)` вызовы внутри компонентов пробрасывают `sortMode` (включая `renderJewelTypeSubGroups` и origin-mode fallback render в ModList).
+  - Все `useMemo` deps обновлены: `sortMode` добавлен к `[implicitGroups, groupMode, sortMode]` etc.
+- 6: useCategoryPage hook. `src/ui/hooks/useCategoryPage.ts`:
+  - Import `SortMode` из `@shared/types`.
+  - `UseCategoryPageResult` interface += `sortMode: SortMode` + `setSortMode: (v: SortMode) => void` с JSDoc.
+  - `useState<SortMode>` lazy-init из `useStore.getState().getExtraState('sortMode')` (defaults 'alpha' on bad/absent value). Размещён после `priorityFilter` useState — mirror pattern.
+  - URL-sync `useEffect`: добавлен `useStore.getState().setExtraState('sortMode', sortMode);` + `sortMode` в deps array. Комментарий обновлён (iter 106 P4 reference).
+  - `restoreFilterState()`: добавлен restore block для `sortMode` из restored extraState (defaults 'alpha' on bad value).
+  - Return value += `sortMode, setSortMode`.
+- 7: UI-toggle в CategoryControlPanel. `src/ui/components/CategoryControlPanel.tsx`:
+  - Import `SortMode`.
+  - `interface CategoryControlPanelProps` += `sortMode?: SortMode`, `setSortMode?: (v: SortMode) => void`, `showSortMode?: boolean` с JSDoc.
+  - Destructuring `sortMode = 'alpha'`, `setSortMode`, `showSortMode`.
+  - `sortOptions` array для arrow-key navigation (mirror `priorityOptions` pattern): `[{value: 'alpha', action: ...}, {value: 'tier-first', action: ...}]`.
+  - Render: radio-group с 2 кнопками после `priorityFilter` блока. ARIA: `role="radiogroup"`, `aria-label={t('sort.label')}`, `aria-checked`, arrow-key handler. Visual: `bg-raised text-bright` для active alpha (neutral), `bg-amber-700 text-bright` для active tier-first (deeper amber — соответствует S+A tier button color, signals «priority-based»).
+- 8: i18n labels. `src/shared/i18n.ts`:
+  - `sort.label`: 'Сортировка:'
+  - `sort.alpha`: 'По алфавиту'
+  - `sort.tier_first`: 'По приоритету'
+- 9: Wire 6 category pages. Для каждой страницы (`BeltPage`, `AmuletPage`, `RingPage`, `WaystonePage`, `TabletPage`, `JewelPage`):
+  - Destructuring из `useCategoryPage` += `sortMode, setSortMode`.
+  - `<CategoryControlPanel>` += `sortMode={sortMode} setSortMode={setSortMode} showSortMode` (размещён после `showPriorityFilter` — conceptually related: priorityFilter решает КАКИЕ tier'ы показывать, sortMode решает КАК их сортировать).
+  - `<VirtualizedModList>` или `<ModList>` += `sortMode={sortMode}` (размещён после `priorityFilter`).
+  - Relic/Vendor pages НЕ затронуты (нет `showPriorityFilter` — sortMode там не нужен).
+- 10: Tests. `tests/shared/mod-classifier.test.ts`:
+  - Import += `sortGroupsByTierFirst, sortGroupsByMode` из `@shared/mod-classifier` + `SortMode` из `@shared/types`.
+  - +22 новых тестов в 3 новых `describe` блоках:
+    - `sortGroupsByTierFirst (iter 106 P4)` (8 tests): new-array, ref-preservation, empty/single edge cases, tier-primary sort (S→A→B→C на same familyKey), alpha-tiebreaker (same tier S → alpha), tier-first-vs-alpha difference regression (Сила S + Ловкость S + Интеллект A — alpha vs tier-first differ), `::origin` stripping (tier primary + alpha tiebreaker), all-tiers S→A→B→C across distinct families.
+    - `sortGroupsByMode (iter 106 P4 — dispatch entry point)` (5 tests): default 'alpha' backward compat, 'alpha' delegates to sortGroupsAlphabetically, 'tier-first' delegates to sortGroupsByTierFirst, no-mutation в обоих режимах, empty-array edge cases.
+    - `classifyGroups respects sortMode argument (iter 106 P4)` (9 tests): default alpha (no 3rd arg) backward compat, tier-first surfaces S-tier first в `affix-functional`/`jewel-functional`/`relic-semantic`/`tablet-type-subblocks`/`affix-sentiment-subblocks`, alpha-explicit matches default, ref-preservation в обоих режимах. 1 тест упал на initial run (`jewel-functional` + `weapon-specific` — weapon-class sub-blocks требуют полного ETL-контекста) → упрощён до `attributes` block (functional category, доступная в unit-test без ETL).
+- 11: Верификация. `npx vitest run` → **1522/1522** (было 1500, +22). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. ETL не запускался — `public/generated/*.json` не тронуты (verified via `git status`).
+- 12: Документация:
+  - `STATUS.md` — iter 106 как текущая; «Что сделано» (детальный список всех 8 затронутых файлов + 6 pages); «Метрики» (1522/1522, +22); Known Issues без изменений (только #1 и #2 остаются); «Открытые долги» обновлены — P4 closed, sortKey + waystone neutral-generic + tablet Разломы vs Бездна остаются; runtime-метрики таблица без изменений.
+  - `worklog.md` — iter 105 сжат до одной строки, iter 106 добавлен подробно.
+  - `AGENT_NAVIGATION.md` — entry paragraph bumped до iter 106 (P4 sort toggle); Roadmap iter 106 done + обновлён optional-список (P4 closed, остаются только low-priority).
 
 Stage Summary:
-- **iter 105 COMPLETE.** Tablet sub-blocks (P2 second half) реализованы: новый режим `tablet-type-subblocks` с 19 sub-blocks (3+3+3+3+3+4), TabletPage переключён на новый режим. P2 (sub-blocks для waystone и tablet) полностью закрыта.
-- **Изменённые файлы (4):**
-  - `src/shared/mod-classifier.ts` — +225 строк (TabletSubBlock type + TABLET_SUBBLOCK_LABELS + TABLET_SUBBLOCK_ORDER + 16 sub-block patterns + classifyTabletSubBlock function + tablet-type-subblocks mode в classifyGroups + tablet-type-subblocks в ModGroupMode union).
-  - `src/ui/pages/tablet/TabletPage.tsx` — 1 строка (groupMode change).
-  - `tests/shared/mod-classifier.test.ts` — +28 новых тестов (23 classifyTabletSubBlock unit + 5 tablet-type-subblocks mode). Включает 2 regression tests для pattern priority + 1 label-coverage sanity check.
+- **iter 106 COMPLETE.** P4 — tier-aware sort toggle реализован. UI-тумблер «Сортировка: По алфавиту / По приоритету» в `CategoryControlPanel` на 6 страницах (ring/amulet/belt/jewel/waystone/tablet). URL-persistent через `extraState.sortMode` (shareable links + profile restore). Default `'alpha'` — iter 99 backward compat со всеми 1500 существующими тестами.
+- **Изменённые файлы (12):**
+  - `src/shared/types.ts` — +14 строк (SortMode type + JSDoc).
+  - `src/shared/mod-classifier.ts` — +85 строк (sortGroupsByTierFirst + sortGroupsByMode + withSortedGroups rename, classifyGroups += 3-й аргумент, все 11 веток пробрасывают sortMode).
+  - `src/ui/components/ModList.tsx` — +12 строк (sortMode prop + classifyGroups/splitByOriginThenSemantic проброс + useMemo deps).
+  - `src/ui/components/VirtualizedModList.tsx` — +12 строк (sortMode prop + buildColumnRows проброс + useMemo deps).
+  - `src/ui/hooks/useCategoryPage.ts` — +25 строк (useState + URL-sync + restoreFilterState + return value).
+  - `src/ui/components/CategoryControlPanel.tsx` — +50 строк (3 props + radio-group UI с arrow-key navigation).
+  - `src/shared/i18n.ts` — +4 строки (3 ключа + комментарий).
+  - `src/ui/pages/belt/BeltPage.tsx` — +5 строк (sortMode wire).
+  - `src/ui/pages/amulet/AmuletPage.tsx` — +5 строк.
+  - `src/ui/pages/ring/RingPage.tsx` — +5 строк.
+  - `src/ui/pages/waystone/WaystonePage.tsx` — +5 строк.
+  - `src/ui/pages/tablet/TabletPage.tsx` — +5 строк.
+  - `src/ui/pages/jewel/JewelPage.tsx` — +5 строк.
+  - `tests/shared/mod-classifier.test.ts` — +220 строк (+22 теста в 3 новых describe блоках).
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — документация актуализирована.
-- **Тесты:** 1500/1500 (+28 vs iter 104). TSC: 0 errors. ESLint: **0 errors + 0 warnings**. ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
-- **Real-data distribution (inline sanity):** 82/82 tablet family-groups классифицированы — ritual-rewards 6, ritual-monsters 3, ritual-content 5, breach-monsters 5, breach-rewards 2, breach-content 4, delirium-mist 4, delirium-rewards 4, delirium-monsters 1, vaal-monsters 5, vaal-rewards 2, vaal-content 1, expedition-rewards 4, expedition-explosives 2, expedition-monsters 2, generic-loot 6, generic-monsters 9, generic-encounters 15, generic-player 2.
-- **Точка остановки:** iter 105 done. P2 (sub-blocks) полностью закрыта. В iter 106+ можно:
-  1. **P4 — tier-aware sort toggle**: UI-тумблер «режим сортировки» (alpha vs tier-first) в `CategoryControlPanel`. iter 99 сделал tier вторичным, но toggle не добавлен.
-  2. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории».
-  3. **Опционально: waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods можно расширить POSITIVE_KEYWORDS, чтобы их поймать. Low-priority.
-  4. **Опционально: Tablet Разломы vs Бездна**: 2 mods используют «Разлом» вместо «Бездна» и классифицируются как generic. Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution. Low-priority — текущая sub-block classification корректна.
-- **Подсказка следующему агенту:** iter 105 = tablet sub-blocks (P2 second half), runtime functional-classifier / ETL / JSON / схема / WaystonePage не тронуты. Baseline: 1500/1500 tests, TSC 0, ESLint **0 problems**. Перед стартом iter 106 прочитай STATUS.md (актуальный статус + Known Issues — только #1 и #2 остаются, оба intentional), worklog.md (iter 105 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (entry paragraph iter 105, Roadmap iter 105 done). Не создавай новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md (правило iter 100).
+- **Тесты:** 1522/1522 (+22 vs iter 105). TSC: 0 errors. ESLint: **0 errors + 0 warnings**. ETL: 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме.
+- **Точка остановки:** iter 106 done. P4 (tier-aware sort toggle) закрыт. В iter 107+ можно:
+  1. **Опционально: `sortKey?: number`** в `FamilyGroup` + ETL заполнение для «по популярности внутри категории» — third sort mode (alpha / tier-first / popularity).
+  2. **Опционально (low-priority): Waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods можно расширить POSITIVE_KEYWORDS, чтобы их поймать. Low-priority.
+  3. **Опционально (low-priority): Tablet Разломы vs Бездна**: 2 mods используют «Разлом» вместо «Бездна» и классифицируются как generic. Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution. Low-priority — текущая sub-block classification корректна.
+  4. **Возможное расширение P4**: добавить visual indicator (tier-colored left border) для S-tier модов в tier-first mode — улучшит scannability. Опционально.
+- **Подсказка следующему агенту:** iter 106 = P4 sort toggle (alpha vs tier-first), runtime functional-classifier / ETL / JSON / схема не тронуты. Baseline: 1522/1522 tests, TSC 0, ESLint **0 problems**. Перед стартом iter 107 прочитай STATUS.md (актуальный статус + Known Issues — только #1 и #2 остаются, оба intentional), worklog.md (iter 106 подробно + предыдущие одной строкой), AGENT_NAVIGATION.md (entry paragraph iter 106, Roadmap iter 106 done). Не создавай новые verify-iter*-*.ts скрипты — покрывай проверки через tests/ (vitest) или inline sanity в worklog.md (правило iter 100). Если добавляешь новый sort mode (e.g. popularity), расширь `SortMode` union + `sortGroupsByMode()` dispatch + `CategoryControlPanel` radio-group + `useCategoryPage` URL-persist pattern.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 105**: P2 second half — tablet sub-blocks. Новый режим `tablet-type-subblocks` с 19 sub-blocks. 1500/1500 tests.
 - **iter 104**: P2 first half — waystone sub-blocks + Known Issue #5 fix. Новый режим `affix-sentiment-subblocks` с 9 sub-blocks. 1472/1472 tests.
 - **iter 103**: подавление 2 TanStack library-level ESLint warnings — Known Issue #3 закрыт. 1431/1431 tests.
 - **iter 102**: e2e-регрессионные тесты для runtime-classification pipeline — 17 тестов в `tests/integration/runtime-classification.test.ts`. 1431/1431 tests.

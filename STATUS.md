@@ -2,63 +2,31 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 105
+> **Текущая итерация:** 106
 
 ---
 
 ## Текущее состояние
 
-**iter 105: P2 second half — tablet sub-blocks (gameplay mechanic sub-grouping within type).**
+**iter 106: P4 — tier-aware sort toggle (alpha vs tier-first) в CategoryControlPanel.**
 
-В рамках итерации добавлен новый режим `tablet-type-subblocks` для TabletPage: внутри каждого типа (ritual/breach/delirium/vaal/expedition/generic) семейные группы дополнительно подклассифицируются по gameplay mechanic. Production TabletPage переключён со старого `tablet-type` (6 корзин) на новый режим (19 sub-blocks). Архитектурно — mirror iter 104 (waystone sub-blocks): flat `ModSubGroup[]` с composite-ключами, существующий рендеринг ModList не тронут.
-
-**19 tablet sub-blocks:**
-- RITUAL (3): `ritual-rewards` (Награды Ритуала), `ritual-monsters` (Монстры Ритуала), `ritual-content` (Алтари и круги)
-- BREACH (3): `breach-monsters` (Монстры Бездны), `breach-rewards` (Награды Бездны), `breach-content` (Количество Бездн)
-- DELIRIUM (3): `delirium-mist` (Туман), `delirium-rewards` (Награды Делириума), `delirium-monsters` (Монстры Делириума)
-- VAAL (3): `vaal-monsters` (Монстры Маяков), `vaal-rewards` (Сундуки и кристаллы), `vaal-content` (Маяки Ваал)
-- EXPEDITION (3): `expedition-rewards` (Реликты и артефакты), `expedition-explosives` (Взрывчатка), `expedition-monsters` (Рунические монстры)
-- GENERIC (4): `generic-loot` (Добыча), `generic-monsters` (Монстры), `generic-encounters` (Доп. контент), `generic-player` (Бонусы игроку)
-
-Цвет бейджа продолжает коммуницировать родительский тип (red для ritual, violet для breach, blue для delirium, amber для vaal, emerald для expedition, muted для generic), лейбл коммуницирует gameplay mechanic. Архитектурно — flat `ModSubGroup[]` с composite-ключами (`ritual-rewards`, `breach-monsters`, …), без nested-структур — существующий рендеринг ModList не тронут.
+В рамках итерации добавлен UI-тумблер «Сортировка: По алфавиту / По приоритету» в `CategoryControlPanel` для всех 6 категорий с priority classification (ring, amulet, belt, jewel, waystone, tablet). iter 99 сделал `priorityTier` вторичным tiebreaker'ом в within-block sort (alpha primary), но toggle не добавил. iter 106 закрывает этот UX-долг: пользователь может переключаться между двумя режимами — alphabetical flow (iter 99 default, для чтения списков) и tier-first (legacy pre-iter-99, для surface best-in-class модов).
 
 **Что сделано:**
-- `src/shared/mod-classifier.ts` — `TabletSubBlock` type (19 variants) + `TABLET_SUBBLOCK_LABELS` + `TABLET_SUBBLOCK_ORDER` + 16 sub-block pattern regexes (по 2 на type, кроме generic где 3) + `classifyTabletSubBlock()` function. Новый режим `tablet-type-subblocks` в `ModGroupMode` + реализация в `classifyGroups()` (Mirror архитектуры `affix-sentiment-subblocks` из iter 104 и `tablet-type`: Map → order filter → map to ModSubGroup). Старый режим `tablet-type` сохранён как legacy для backward compat.
-- Two-phase architecture: `classifyTabletType()` → type, затем sub-block patterns within type. Каждый type имеет fallback sub-block (`ritual-content` / `breach-content` / `delirium-monsters` / `vaal-content` / `expedition-monsters` / `generic-monsters`) — ни один family-group не «потерян».
-- Pattern design notes: (a) RITUAL — monsters BEFORE rewards (жертвенные монстры, дарующие дань, имеют оба ключевых слова — семантически это monster-механика); (b) DELIRIUM — rewards BEFORE mist (Туман + осколки = rewards, т.к. награда — primary subject); (c) GENERIC — encounters BEFORE monsters (Нестабильные Разломы порождают редкого монстра = encounter-спавн, не monster-stat), encounters pattern использует specific phrases (`На карте можно встретить`, `шансом можно встретить`, `Добавляет Заражение`, `Нестабильные Разломы`, `случайным свойством`, `Осталось зарядов`) чтобы не false-match на monster density mods с `на карте` или `Разломах`.
-- `src/ui/pages/tablet/TabletPage.tsx` — `groupMode="tablet-type"` → `groupMode="tablet-type-subblocks"`.
-- `tests/shared/mod-classifier.test.ts` — +28 новых тестов (23 classifyTabletSubBlock unit tests + 5 tablet-type-subblocks mode tests). Включает 2 regression-теста для pattern priority (ritual-monsters перед ritual-rewards, delirium-rewards перед delirium-mist) + 1 label-coverage sanity check.
 
-**Метрики:** 1500/1500 tests (было 1472, +28). TSC 0 errors. ESLint 0 problems. ETL 11 fresh, 0 stale. Никаких изменений в `public/generated/*.json`, ETL, runtime functional-classifier, схеме, WaystonePage.
+- `src/shared/types.ts` — добавлен `SortMode = 'alpha' | 'tier-first'` union-тип.
+- `src/shared/mod-classifier.ts` — добавлена `sortGroupsByTierFirst()` функция (tier primary, alpha tiebreaker — legacy pre-iter-99 поведение) + `sortGroupsByMode()` dispatch entry point. `withAlphabeticalGroups()` переименована в `withSortedGroups(result, sortMode)` (default `'alpha'` — backward compat со всеми существующими callers/tests). `classifyGroups()` получила опциональный 3-й аргумент `sortMode?: SortMode = 'alpha'` — пробрасывается во все 11 веток режимов (affix-only / relic-semantic / affix-functional / jewel-functional / affix-sentiment / affix-sentiment-subblocks / tablet-type / tablet-type-subblocks / origin / jewel-type / fallback).
+- `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` — добавлен опциональный prop `sortMode?: SortMode = 'alpha'`. Пробрасывается во все `classifyGroups()` и `splitByOriginThenSemantic()` / `buildColumnRows()` вызовы (включая origin-split sub-sections и jewel-type sub-sections). Все `useMemo` deps обновлены.
+- `src/ui/hooks/useCategoryPage.ts` — добавлены `sortMode: SortMode` + `setSortMode` в return type. `useState` lazy-init из `extraState.sortMode` (URL-restore). URL-sync `useEffect` обновлён: `sortMode` синхронизируется в `extraState` → URL hash вместе с остальными 6 полями. `restoreFilterState()` восстанавливает `sortMode` из профиля.
+- `src/ui/components/CategoryControlPanel.tsx` — добавлены опциональные props `sortMode`, `setSortMode`, `showSortMode`. Render: radio-group с 2 кнопками («По алфавиту» / «По приоритету»), размещён сразу после `priorityFilter`. ARIA: `role="radiogroup"`, `aria-label`, arrow-key navigation (как priorityFilter).
+- `src/shared/i18n.ts` — добавлены 3 ключа: `sort.label`, `sort.alpha`, `sort.tier_first`.
+- 6 category pages (`BeltPage`, `AmuletPage`, `RingPage`, `WaystonePage`, `TabletPage`, `JewelPage`) — destructuring из `useCategoryPage` += `sortMode, setSortMode`; `<CategoryControlPanel>` += `sortMode/setSortMode/showSortMode`; `<VirtualizedModList>` или `<ModList>` += `sortMode`.
+- `tests/shared/mod-classifier.test.ts` — +22 новых тестов в 3 новых `describe` блоках:
+  - `sortGroupsByTierFirst` (8 тестов): new-array, ref-preservation, empty/single edge cases, tier-primary sort, alpha-tiebreaker, tier-first-vs-alpha difference regression, `::origin` stripping, all-tiers S→A→B→C.
+  - `sortGroupsByMode` (5 тестов): default `'alpha'` backward compat, delegation to `sortGroupsAlphabetically`/`sortGroupsByTierFirst`, no-mutation, empty-array.
+  - `classifyGroups respects sortMode argument` (9 тестов): default alpha backward compat, `tier-first` surfaces S-tier first в `affix-functional`/`relic-semantic`/`tablet-type-subblocks`/`jewel-functional`/`affix-sentiment-subblocks`, alpha-explicit matches default, ref-preservation в обоих режимах.
 
-### Inline sanity (iter 105 tablet sub-block distribution on real data)
-
-Запуск `classifyTabletSubBlock` на `tablet.json` (82 family-groups):
-
-| Sub-block | Label | Count |
-|-----------|-------|-------|
-| ritual-rewards | Награды Ритуала | 6 |
-| ritual-monsters | Монстры Ритуала | 3 |
-| ritual-content | Алтари и круги | 5 |
-| breach-monsters | Монстры Бездны | 5 |
-| breach-rewards | Награды Бездны | 2 |
-| breach-content | Количество Бездн | 4 |
-| delirium-mist | Туман | 4 |
-| delirium-rewards | Награды Делириума | 4 |
-| delirium-monsters | Монстры Делириума | 1 |
-| vaal-monsters | Монстры Маяков | 5 |
-| vaal-rewards | Сундуки и кристаллы | 2 |
-| vaal-content | Маяки Ваал | 1 |
-| expedition-rewards | Реликты и артефакты | 4 |
-| expedition-explosives | Взрывчатка | 2 |
-| expedition-monsters | Рунические монстры | 2 |
-| generic-loot | Добыча | 6 |
-| generic-monsters | Монстры | 9 |
-| generic-encounters | Доп. контент | 15 |
-| generic-player | Бонусы игроку | 2 |
-| **Total** | | **82** |
-
-Type distribution (без изменений vs iter 104): ritual 14, breach 11, delirium 9, vaal 8, expedition 8, generic 32. Все 82 family-groups классифицированы — ни один не «потерян».
+**Метрики:** 1522/1522 tests (было 1500, +22). TSC 0 errors. ESLint 0 problems. ETL не запускался — `public/generated/*.json` не тронуты. Никаких изменений в ETL, runtime functional-classifier, схеме, JSON, WaystonePage (только sortMode props добавлены).
 
 ### Архитектура functionalCategory (без изменений vs iter 102)
 
@@ -66,7 +34,11 @@ Type distribution (без изменений vs iter 104): ritual 14, breach 11,
 2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify после патча rawText на русский.
 3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов. Fallback `return 'other';`. iter 101: Zod-схема пропускает поле. iter 102: e2e-тесты `tests/integration/runtime-classification.test.ts` закрывают весь production path.
 
-### Runtime-метрики (без изменений vs iter 102)
+### Inline sanity (iter 106 sortMode не меняет alpha default)
+
+Toggle по умолчанию в режиме `'alpha'` — это iter 99 поведение. Все 1500 существующих тестов (до iter 106) продолжают проходить без модификаций, потому что `classifyGroups(groups, mode)` без третьего аргумента использует `sortMode = 'alpha'`. Новый `'tier-first'` режим opt-in через UI — covered 9 новыми тестами на 5 режимов (`affix-functional`, `jewel-functional`, `relic-semantic`, `tablet-type-subblocks`, `affix-sentiment-subblocks`).
+
+### Runtime-метрики (без изменений vs iter 105)
 
 | Категория | mode | Family-groups | sub-groups | non-other blocks | non-other FG | other FG |
 |-----------|------|---------------|------------|------------------|--------------|----------|
@@ -80,7 +52,7 @@ Type distribution (без изменений vs iter 104): ritual 14, breach 11,
 
 - **Strategy 0 coverage (ETL):** 477/477 (100%).
 - **Cross-validation:** 477/477 match (0 расхождений).
-- **Тесты:** 1500/1500. TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
+- **Тесты:** 1522/1522 (+22 vs iter 105). TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
 - **ETL:** 11 fresh, 0 stale.
 
 ---
@@ -89,17 +61,13 @@ Type distribution (без изменений vs iter 104): ritual 14, breach 11,
 
 1. **2 opt-table entries > 250 chars** в jewel.json — не помещаются в один PoE2 regex.
 2. **j05iep stays crit** — `jewel.mod_j05iep` «сила наносящих урон состояний при крит» имеет tags `[damage, critical, ailment]` и остаётся в `crit` (CRIT шаг 14 выигрывает у AILMENTS шаг 15 в ETL classifier). Intentional — critical tag семантически важнее.
-3. ~~**VirtualizedModList.tsx TanStack warnings (2)**~~ **✅ FIXED iter 103**.
-4. ~~**Zod schema strips `functionalCategory`**~~ **✅ FIXED iter 101** + **iter 102: +17 e2e-регрессионных тестов**.
-5. ~~**`приспешник.*урон` false-positive в POSITIVE_KEYWORDS**~~ **✅ FIXED iter 104**.
 
 ---
 
 ## Открытые долги
 
 - **Wisps/Conversion блоки**: 0 family-keys в текущих данных. Зарезервированы для future-compat.
-- **P4 — tier-aware сортировка (UI-toggle)**: S+/S/All приоритеты внутри блоков (vs текущий priorityFilter, который только фильтрует, не сортирует). iter 99 сделал tier вторичным, но UI-тумблер «режим сортировки» (alpha vs tier-first) не добавлен.
-- **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research.
+- **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research. (iter 106 закрыл только P4 toggle; popularity-based sort — отдельная задача.)
 - **Waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods («Провалы Бездны... могут породить волшебных монстров», «Область захвачена монстрами Бездны», «Игроки крадут поглощаемые души...», etc.) + 1 multi-line continuation («после убийства редкого или уникального монстра»). Можно расширить POSITIVE_KEYWORDS, чтобы их поймать (большинство семантически positive — extra Breach content / player soul-steal benefit). Low-priority — не блокирует UX.
 - **Tablet Разломы vs Бездна**: 2 mods («(5-15)% увеличение плотности монстров в Разломах» и «Нестабильные Разломы...порождают дополнительного редкого монстра») используют «Разлом» вместо «Бездна» и классифицируются как generic (BREACH_KEYWORDS не включает «Разлом»). Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution и потребовало бы регенерации. Отложено — текущая sub-block classification в generic (encounters/monsters) корректна.
 

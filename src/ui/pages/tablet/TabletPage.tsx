@@ -106,6 +106,7 @@ export function TabletPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({
     categoryId: 'tablet',
     extraAstNodes,
@@ -181,6 +182,9 @@ export function TabletPage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
                 extraControls={
@@ -293,6 +297,7 @@ export function TabletPage() {
               groupMode="tablet-type-subblocks"
               category="tablet"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );

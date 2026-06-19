@@ -13,7 +13,7 @@
  * - Full-width layout (takes entire available width)
  */
 import React, { useMemo, useCallback } from 'react';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter, SortMode } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
@@ -59,6 +59,13 @@ interface ModListProps {
   category?: string;
   /** Priority tier filter: 'all' = show all, 'S+A' = S and A only, 'S' = S only */
   priorityFilter?: PriorityFilter;
+  /**
+   * Within-block sort mode (iter 106 P4). Defaults to 'alpha' (iter 99 behaviour).
+   *  - 'alpha'      : familyKey primary, priorityTier tiebreaker.
+   *  - 'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker.
+   * Passed through to `classifyGroups()` via `withSortedGroups()`.
+   */
+  sortMode?: SortMode;
 }
 
 /** Origin section within an affix column */
@@ -78,10 +85,14 @@ const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence
 /**
  * Split family groups by origin, then classify each origin's groups by semantic category.
  * Returns origin sections, each containing classified sub-groups.
+ *
+ * iter 106 (P4): `sortMode` forwarded to `classifyGroups()` so the UI toggle
+ * propagates through origin-split sub-sections as well.
  */
 function splitByOriginThenSemantic(
   groups: FamilyGroup[],
-  mode: ModGroupMode
+  mode: ModGroupMode,
+  sortMode: SortMode = 'alpha',
 ): OriginSection[] {
   // Step 1: Split all groups by origin
   const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
@@ -102,7 +113,7 @@ function splitByOriginThenSemantic(
     if (!originGroups || originGroups.length === 0) continue;
 
     const labelConfig = ORIGIN_SECTION_LABELS[origin];
-    const subGroups = classifyGroups(originGroups, mode);
+    const subGroups = classifyGroups(originGroups, mode, sortMode);
 
     result.push({
       origin,
@@ -286,6 +297,7 @@ export const ModList: React.FC<ModListProps> = ({
   collapsedTokenIds,
   category,
   priorityFilter = 'all',
+  sortMode = 'alpha',
 }) => {
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -349,32 +361,33 @@ export const ModList: React.FC<ModListProps> = ({
     [priorityFilteredGroups]
   );
 
-  // Classify groups into sub-groups based on mode
+  // Classify groups into sub-groups based on mode (iter 106 P4: sortMode-aware)
   const implicitSubGroups = useMemo(
-    () => classifyGroups(implicitGroups, groupMode),
-    [implicitGroups, groupMode]
+    () => classifyGroups(implicitGroups, groupMode, sortMode),
+    [implicitGroups, groupMode, sortMode]
   );
   const prefixSubGroups = useMemo(
-    () => classifyGroups(prefixGroups, groupMode),
-    [prefixGroups, groupMode]
+    () => classifyGroups(prefixGroups, groupMode, sortMode),
+    [prefixGroups, groupMode, sortMode]
   );
   const suffixSubGroups = useMemo(
-    () => classifyGroups(suffixGroups, groupMode),
-    [suffixGroups, groupMode]
+    () => classifyGroups(suffixGroups, groupMode, sortMode),
+    [suffixGroups, groupMode, sortMode]
   );
 
   // When showOriginSubSections, also compute origin-then-semantic groupings
+  // (iter 106 P4: sortMode forwarded so origin-split sub-sections respect the toggle)
   const implicitOriginSections = useMemo(
-    () => showOriginSubSections ? splitByOriginThenSemantic(implicitGroups, groupMode) : [],
-    [implicitGroups, groupMode, showOriginSubSections]
+    () => showOriginSubSections ? splitByOriginThenSemantic(implicitGroups, groupMode, sortMode) : [],
+    [implicitGroups, groupMode, sortMode, showOriginSubSections]
   );
   const prefixOriginSections = useMemo(
-    () => showOriginSubSections ? splitByOriginThenSemantic(prefixGroups, groupMode) : [],
-    [prefixGroups, groupMode, showOriginSubSections]
+    () => showOriginSubSections ? splitByOriginThenSemantic(prefixGroups, groupMode, sortMode) : [],
+    [prefixGroups, groupMode, sortMode, showOriginSubSections]
   );
   const suffixOriginSections = useMemo(
-    () => showOriginSubSections ? splitByOriginThenSemantic(suffixGroups, groupMode) : [],
-    [suffixGroups, groupMode, showOriginSubSections]
+    () => showOriginSubSections ? splitByOriginThenSemantic(suffixGroups, groupMode, sortMode) : [],
+    [suffixGroups, groupMode, sortMode, showOriginSubSections]
   );
 
   const handleAffixFilter = useCallback(
@@ -402,7 +415,7 @@ export const ModList: React.FC<ModListProps> = ({
    *  the Level 3 badge is suppressed — the column header + origin header
    *  already tell the user which type they're looking at. */
   const renderJewelTypeSubGroups = (groups: FamilyGroup[]) => {
-    const jewelSubGroups = classifyGroups(groups, 'jewel-type')
+    const jewelSubGroups = classifyGroups(groups, 'jewel-type', sortMode)
       .filter(sg => {
         // When a specific type is selected, only show that type + shared
         if (jewelTypeFilter !== 'all') {
@@ -525,7 +538,7 @@ export const ModList: React.FC<ModListProps> = ({
         {isOriginMode ? (
           /* Origin mode: single column, sub-grouped by origin */
           <div className="flex flex-col gap-2">
-            {classifyGroups(priorityFilteredGroups.filter(g => g.affix !== 'implicit'), 'origin').map((sg) => (
+            {classifyGroups(priorityFilteredGroups.filter(g => g.affix !== 'implicit'), 'origin', sortMode).map((sg) => (
               <div key={sg.key}>
                 <div className={`block ml-2 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass} flex items-center gap-1.5`}>
                   {(() => {

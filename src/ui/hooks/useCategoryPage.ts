@@ -26,7 +26,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
-import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter } from '@shared/types';
+import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter, SortMode } from '@shared/types';
 import { and } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
@@ -161,6 +161,15 @@ export interface CategoryPageState {
   priorityFilter: PriorityFilter;
   /** Set priority tier filter */
   setPriorityFilter: (v: PriorityFilter) => void;
+  /**
+   * Within-block sort mode (iter 106 P4).
+   *  - 'alpha'      : familyKey primary, priorityTier tiebreaker (iter 99 default)
+   *  - 'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker (legacy)
+   * Persisted in filter-store.extraState → URL hash.
+   */
+  sortMode: SortMode;
+  /** Set within-block sort mode */
+  setSortMode: (v: SortMode) => void;
   /** Toggle a token's selection */
   toggleToken: (id: string) => void;
   /** Toggle multiple tokens at once (for FamilyGroup batch toggle) */
@@ -483,6 +492,12 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     if (val === 'all' || val === 'S+A' || val === 'S') return val;
     return 'all';
   });
+  // iter 106 (P4): sortMode toggle (alpha vs tier-first). Persisted via extraState → URL hash.
+  const [sortMode, setSortMode] = useState<SortMode>(() => {
+    const val = useStore.getState().getExtraState('sortMode');
+    if (val === 'alpha' || val === 'tier-first') return val;
+    return 'alpha';
+  });
   const [thresholdEnabled, setThresholdEnabled] = useState(() => {
     const val = useStore.getState().getExtraState('thresholdEnabled');
     if (typeof val === 'boolean') return val;
@@ -521,6 +536,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // hook would require passing all 13 values as args — awkward, the lint rule
   // wouldn't be simpler, and the coupling wouldn't actually decrease. Decision
   // documented in STATUS.md (debt list cleared iter 81).
+  //
+  // iter 106 (P4): sortMode added to the same sync block — it follows the exact
+  // same extraState pattern as priorityFilter, so no separate effect is needed.
   useEffect(() => {
     if (!syncReadyRef.current) {
       syncReadyRef.current = true;
@@ -533,10 +551,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('maxValue', maxValue);
     useStore.getState().setExtraState('priorityFilter', priorityFilter);
     useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
+    useStore.getState().setExtraState('sortMode', sortMode);
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, useStore]);
+      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, sortMode, useStore]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
@@ -582,6 +601,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     if (restoredPriority === 'all' || restoredPriority === 'S+A' || restoredPriority === 'S') setPriorityFilter(restoredPriority);
     else setPriorityFilter('all');
 
+    // iter 106 (P4): restore sortMode from extraState (defaults to 'alpha' on bad value).
+    const restoredSortMode = restored.getExtraState('sortMode');
+    if (restoredSortMode === 'alpha' || restoredSortMode === 'tier-first') setSortMode(restoredSortMode);
+    else setSortMode('alpha');
+
     const restoredThreshold = restored.getExtraState('thresholdEnabled');
     if (typeof restoredThreshold === 'boolean') setThresholdEnabled(restoredThreshold);
     else setThresholdEnabled(false);
@@ -620,6 +644,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setPriorityFilter,
     thresholdEnabled,
     setThresholdEnabled,
+    sortMode,
+    setSortMode,
     perTokenRanges,
     setTokenRange,
     clearTokenRange,

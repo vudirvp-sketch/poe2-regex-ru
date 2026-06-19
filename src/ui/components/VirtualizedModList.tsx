@@ -20,7 +20,7 @@
  */
 import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter, SortMode } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
@@ -56,6 +56,13 @@ interface VirtualizedModListProps {
   category?: string;
   /** Priority tier filter */
   priorityFilter?: PriorityFilter;
+  /**
+   * Within-block sort mode (iter 106 P4). Defaults to 'alpha' (iter 99 behaviour).
+   *  - 'alpha'      : familyKey primary, priorityTier tiebreaker.
+   *  - 'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker.
+   * Forwarded to `classifyGroups()` via `buildColumnRows()` → `withSortedGroups()`.
+   */
+  sortMode?: SortMode;
 }
 
 /** A flat virtual row for the virtualizer */
@@ -98,6 +105,10 @@ function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
 
 /**
  * Build flat row list for a single affix column.
+ *
+ * iter 106 (P4): `sortMode` forwarded to every `classifyGroups()` call so the
+ * UI toggle propagates through origin-split sub-sections and jewel-type
+ * sub-sections as well.
  */
 function buildColumnRows(
   affix: AffixType,
@@ -106,6 +117,7 @@ function buildColumnRows(
   groupMode: ModGroupMode,
   showOriginSubSections: boolean,
   showJewelTypeSubGroups: boolean,
+  sortMode: SortMode = 'alpha',
 ): VirtualRow[] {
   const rows: VirtualRow[] = [];
   if (groups.length === 0) return rows;
@@ -129,7 +141,7 @@ function buildColumnRows(
       if (!originGroups || originGroups.length === 0) continue;
 
       const labelConfig = ORIGIN_SECTION_LABELS[origin];
-      const originSubGroups = classifyGroups(originGroups, groupMode);
+      const originSubGroups = classifyGroups(originGroups, groupMode, sortMode);
       const sectionCount = originSubGroups.reduce((s, sg) => s + sg.groups.length, 0);
 
       // Origin section header (skip for normal-only — already implied by column header)
@@ -171,7 +183,7 @@ function buildColumnRows(
             count: jtGroups.length,
           });
 
-          const jtSubGroups = classifyGroups(jtGroups, groupMode);
+          const jtSubGroups = classifyGroups(jtGroups, groupMode, sortMode);
           for (const sg of jtSubGroups) {
             rows.push({ type: 'subgroup', subGroup: sg, affix });
           }
@@ -471,6 +483,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   collapsedTokenIds,
   category,
   priorityFilter = 'all',
+  sortMode = 'alpha',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -539,30 +552,31 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   );
 
   const implicitSubGroups = useMemo(
-    () => classifyGroups(implicitGroups, groupMode),
-    [implicitGroups, groupMode]
+    () => classifyGroups(implicitGroups, groupMode, sortMode),
+    [implicitGroups, groupMode, sortMode]
   );
   const prefixSubGroups = useMemo(
-    () => classifyGroups(prefixGroups, groupMode),
-    [prefixGroups, groupMode]
+    () => classifyGroups(prefixGroups, groupMode, sortMode),
+    [prefixGroups, groupMode, sortMode]
   );
   const suffixSubGroups = useMemo(
-    () => classifyGroups(suffixGroups, groupMode),
-    [suffixGroups, groupMode]
+    () => classifyGroups(suffixGroups, groupMode, sortMode),
+    [suffixGroups, groupMode, sortMode]
   );
 
   // Build separate row lists for each column
+  // iter 106 (P4): sortMode forwarded so the UI toggle propagates to all sub-groups.
   const implicitRows = useMemo(
-    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
-    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
+    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
   );
   const prefixRows = useMemo(
-    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
-    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
+    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
   );
   const suffixRows = useMemo(
-    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups),
-    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups]
+    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
+    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
   );
 
   const hasImplicit = implicitGroups.length > 0;

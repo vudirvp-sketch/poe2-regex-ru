@@ -8,6 +8,20 @@ export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 export type PriorityTier = 'S' | 'A' | 'B' | 'C';
 /** Filter mode for priority tiers in UI */
 export type PriorityFilter = 'all' | 'S+A' | 'S';
+/**
+ * Within-block sort mode for family groups inside a sub-group.
+ *  - 'alpha'      : familyKey (Russian locale) primary, priorityTier tiebreaker
+ *                   (iter 99 default — preserves alphabetical flow within
+ *                   functional blocks; tier still visible as a coloured badge).
+ *  - 'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker
+ *                   (legacy pre-iter-99 behaviour — surfaces best-in-class
+ *                   mods at the top of every block).
+ *
+ * iter 106 (P4): exposed as a UI toggle in CategoryControlPanel for categories
+ * that have priority classification (ring/amulet/belt/jewel/waystone/tablet).
+ * Persisted via filter-store.extraState → URL hash (key: 'sortMode').
+ */
+export type SortMode = 'alpha' | 'tier-first';
 
 export interface GenderForms {
   ms?: string;  // masculine singular

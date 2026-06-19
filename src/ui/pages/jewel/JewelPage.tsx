@@ -103,6 +103,7 @@ export function JewelPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -197,6 +198,9 @@ export function JewelPage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
                 extraControls={
@@ -302,6 +306,7 @@ export function JewelPage() {
               showOriginSubSections
               category="jewel"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );

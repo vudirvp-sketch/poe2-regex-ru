@@ -143,6 +143,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'priority.s_only': 'S',
     'priority.label': 'Приоритет:',
 
+    // Within-block sort mode (iter 106 P4: alpha vs tier-first toggle)
+    'sort.label': 'Сортировка:',
+    'sort.alpha': 'По алфавиту',
+    'sort.tier_first': 'По приоритету',
+
     // Navigation
     'nav.categories': 'Категории',
     'nav.feedback': 'Баги и идеи → Discord: woonderdad',

@@ -38,6 +38,7 @@ export function BeltPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({ categoryId: 'belt' });
 
   return (
@@ -79,6 +80,9 @@ export function BeltPage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
               />
@@ -137,6 +141,7 @@ export function BeltPage() {
               showOriginSubSections
               category="belt"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );

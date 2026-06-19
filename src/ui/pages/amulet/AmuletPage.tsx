@@ -37,6 +37,7 @@ export function AmuletPage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -78,6 +79,9 @@ export function AmuletPage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
               />
@@ -136,6 +140,7 @@ export function AmuletPage() {
               showOriginSubSections
               category="amulet"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );

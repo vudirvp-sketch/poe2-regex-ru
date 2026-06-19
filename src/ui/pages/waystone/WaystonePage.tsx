@@ -72,6 +72,7 @@ export function WaystonePage() {
     collapsedTokenIds,
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
+    sortMode, setSortMode,
   } = useCategoryPage({
     categoryId: 'waystone',
     extraAstNodes,
@@ -134,6 +135,9 @@ export function WaystonePage() {
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 showPriorityFilter
+                sortMode={sortMode}
+                setSortMode={setSortMode}
+                showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
                 extraControls={
@@ -222,6 +226,7 @@ export function WaystonePage() {
               groupMode="affix-sentiment-subblocks"
               category="waystone"
               priorityFilter={priorityFilter}
+              sortMode={sortMode}
             />
           </CategoryLayout>
         );
