@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 94** (AILMENTS tag-priority refactor — AILMENTS_PATTERN moved BEFORE DAMAGE_TYPE + added `ailment` tag check; 26 mods reclassified damage-type → ailments across jewel/amulet/ring/belt; 4 ailment-tagged groups stayed in higher-priority buckets — expected). Regex-движок: чистый TS, 0 npm-зависимостей. 1363/1363 тестов зелёные. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Entry document.** Read this first. Current state: **iter 95** (документационная чистка + deprecation-маркер для regex-паттернов в `classifyFunctionalBlock()`; Strategy 0 покрывает 477/477 family-groups в продакшене, regex сохранён как safety-net для тестов/отладки/future-proofing; никакой функциональной смены — 1363/1363 тестов зелёные). Regex-движок: чистый TS, 0 npm-зависимостей. ETL: 1697 токенов, FN=0, FP=9463. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -59,7 +59,7 @@ pnpm dev                  # Vite dev server
 pnpm build                # tsc -b + vite build + shell prerender (no Playwright)
 pnpm build:full           # tsc -b + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
-pnpm test                 # Vitest (all tests) — current: 1216 passing
+pnpm test                 # Vitest (all tests) — current: 1363 passing
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # ETL without cache (regenerate all)
 pnpm etl:check-stale      # Check source HTML staleness

@@ -1062,7 +1062,13 @@ export const FUNCTIONAL_BLOCK_LABELS: Record<FunctionalBlock, CategoryLabel> = {
  *  6. Fallback: other.
  *
  *  iter 89: 20 implemented blocks + `other` will actually appear in production.
- *  iter 93: `penetration` block activated (3 family-keys moved from resistances). */
+ *  iter 93: `penetration` block activated (3 family-keys moved from resistances).
+ *  iter 95: `wisps` + `conversion` are RESERVED-FOR-FUTURE entries — 0 family-keys
+ *  in current data. Kept in type + render order for forward-compat: if ETL ever
+ *  classifies a token as `wisps`/`conversion` (e.g., new poe2db mod), it will
+ *  render correctly without code changes. To deactivate, remove from this array
+ *  AND from FUNCTIONAL_BLOCK_LABELS — but doing so silently drops future mods
+ *  with that category. */
 const FUNCTIONAL_BLOCK_ORDER: FunctionalBlock[] = [
   'spirit', 'skill-levels', 'attributes', 'resources',
   'runes-barrier', 'resistances', 'defence-stats',
@@ -1578,9 +1584,27 @@ const BUFF_SKILLS_PATTERN = /(?:аур|Вестник|мет[о]?к(?!ост)|к
  * @returns FunctionalBlock key
  */
 export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
-  // Strategy 0: Lookup from ETL data (~100% accurate)
-  // If all members have functionalCategory populated from poe2db ModCalc pages,
-  // use that directly — no fragile regex needed.
+  // ─── Strategy 0: ETL lookup (production path, ~100% accurate) ──────────────
+  // iter 91+: ETL pipeline populates `functionalCategory` on every token in
+  // jewel/amulet/ring/belt (477/477 family-groups covered). Strategy 0 returns
+  // the majority-voted functionalCategory directly — no regex needed.
+  //
+  // iter 95 DEPRECATION NOTICE: the regex fallback below (steps 1-21) is kept
+  // as a SAFETY-NET ONLY. It is no longer reached in production (Strategy 0
+  // covers 100% of family-groups), but is preserved for:
+  //   1. Unit tests — tests construct FamilyGroup via `makeGroup()` without
+  //      `functionalCategory`, so they exercise the regex path.
+  //   2. Debugging — when an ETL-classified mod looks mis-bucketed, the regex
+  //      classifier is a useful second opinion (see scripts/verify-iter*-fixes.ts
+  //      cross-validation pattern).
+  //   3. Future-proofing — if a new mod appears in poe2db before ETL rerun,
+  //      regex will still classify it (possibly less accurately).
+  //
+  // To remove the regex fallback in a future iter:
+  //   - Refactor tests to set `functionalCategory` on synthetic groups.
+  //   - Delete pattern constants + steps 1-21 + `allTags` collection.
+  //   - Replace with: `return 'other';` fallback.
+  //   - Verify Strategy 0 coverage stays at 100% after ETL rerun.
   if (group.members.length > 0 && group.members[0].functionalCategory) {
     // Use majority voting across all members
     const catCounts: Record<string, number> = {};
@@ -1606,6 +1630,7 @@ export function classifyFunctionalBlock(group: FamilyGroup): FunctionalBlock {
     // Fallback to regex if ETL category is invalid
   }
 
+  // ─── Regex fallback (DEPRECATED safety-net — see notice above) ─────────────
   const text = group.displayText;
 
   // Collect all non-Breach-Lord tags from group members (mirror of classifyByTags logic)

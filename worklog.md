@@ -4,85 +4,53 @@
 
 ---
 
-Task ID: 94
+Task ID: 95
 Agent: main
-Task: Ailment tag-priority refactor — переместить AILMENTS_PATTERN проверку ПЕРЕД DAMAGE_TYPE в classifyFunctionalBlock(), чтобы ailment tag выигрывал у damage tag. Применить principle "лучше недоделать, чем сломать".
+Task: Документационная чистка + deprecation-маркер для regex-паттернов в classifyFunctionalBlock(). Никаких функциональных изменений — применён principle "лучше недоделать, чем сломать". Подготовка к будущему iter 96+ (regex removal или P1-P3 задачи).
 
 Work Log:
-- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Установлены зависимости через `pnpm install`. Прочитаны: `STATUS.md` (iter 93 state), `worklog.md` (iter 93 detail), `scripts/etl/classify-functional-category.ts`, `src/shared/mod-classifier.ts` (classifyFunctionalBlock, FUNCTIONAL_BLOCK_ORDER, patterns), `scripts/simulate-iter89-impact.ts` (template for iter 94 simulation).
-- 2: Проверил baseline: `npx tsx scripts/verify-iter92-fixes.ts` → ✅ PASS (10 tokens + 0 cross-validation discrepancies). `pnpm test` → 1363/1363 passing. TSC: 0 errors.
-- 3: Исследовал target-моды в jewel.json:
-  - jewel.mod_l1y0fl: «(5—15)% увеличение силы накладываемых вами состояний», tags=[damage, ailment], funcCat=damage-type (damage tag wins at step 15, AILMENTS at step 17 misses)
-  - jewel.mod_j05iep: «(10—20)% увеличение силы наносящих урон состояний, накладываемых вашими критическими ударами», tags=[damage, critical, ailment], funcCat=crit (critical tag wins at step 14)
-  - jewel.mod_40sol4: «Наносящие урон состояния наносят урон на (3—7)% быстрее», tags=[damage, ailment], funcCat=damage-type (damage tag wins at step 15; text does NOT match AILMENTS_PATTERN)
-- 4: Спроектировал refactor:
-  - MOVED: AILMENTS_PATTERN check с шага 17 (после OFFENCE_SPEED) на шаг 15 (после CRIT, перед DAMAGE_TYPE)
-  - ADDED: `ailment` tag check на шаге 15: `if (allTags.has('ailment') || AILMENTS_PATTERN.test(text)) return 'ailments';`
-  - Ожидаемые результаты:
-    - jewel.mod_l1y0fl → ailments (matches both `ailment` tag AND AILMENTS_PATTERN text `накладыва.*состоян`)
-    - jewel.mod_40sol4 → ailments (matches `ailment` tag only — text doesn't match)
-    - jewel.mod_j05iep → stays crit (CRIT шаг 14 выигрывает у AILMENTS шаг 15)
-- 5: Создал `scripts/simulate-iter94-impact.ts` (mirror simulate-iter89-impact.ts):
-  - Определил classifyFunctionalBlock_iter93 (current production) и classifyFunctionalBlock_iter94 (proposed refactor).
-  - Для каждого family-group в jewel/amulet/ring/belt: сравнил before/after.
-  - Дополнительно: собрал все ailment-tagged + ailment-pattern-matching группы (41 total) для FP-проверки.
-  - Логика FP-проверки: ailment-группа должна классифицироваться в `ailments` ИЛИ в higher-priority bucket (crit/weapon-specific/resources/defence-stats/minions/...). Если в `damage-type` или `other` — REAL FP.
-- 6: Ran simulation → ✅ 0 FPs:
-  - 26 reclassifications: ALL `damage-type → ailments` (jewel: 21, amulet: 1, ring: 1, belt: 3)
-  - 4 ailment-tagged groups stayed in higher-priority buckets (expected):
-    - jewel.mod_j05iep → crit (critical tag wins)
-    - jewel.mod_nuzdb5 → weapon-specific (weapon name wins)
-    - jewel.mod_cgpq5s → resources (ES max wins)
-    - jewel.mod_knitv6 → defence-stats (stun threshold wins)
-  - 37 ailment groups → ailments (correct), 4 → higher-priority (correct), 0 → unexpected (REAL FP)
-- 7: Implemented refactor в `scripts/etl/classify-functional-category.ts`:
-  - AILMENTS_PATTERN check moved с шага 17 на шаг 15 (после CRIT, перед DAMAGE_TYPE).
-  - Добавлен `ailment` tag check: `if (functionalTags.has('ailment') || AILMENTS_PATTERN.test(rawText)) return 'ailments';`
-  - Renumbered comments (CRIT=14, AILMENTS=15, DAMAGE_TYPE=16, OFFENCE_SPEED=17, AREA_DURATION=18, RAGE_CHARGES=19, META_SKILLS=20, BUFF_SKILLS=21, OTHER=22).
-  - Updated inline comments с iter 94 rationale + simulation reference.
-- 8: Implemented refactor в `src/shared/mod-classifier.ts`:
-  - Same changes (mirror ETL classifier).
-  - Updated AILMENTS_PATTERN docstring (position section) — описан iter 88-94 history.
-  - Updated classifyFunctionalBlock() docstring (match priority + tag priority logic) — добавлены iter 94 notes (critical tag beats ailment tag; ailment tag beats damage tag).
-- 9: Ran `pnpm etl` — 0 ETL errors. All 10 JSON files regenerated. ETL metrics unchanged (FN=0, FP=9463, 2 opt-table entries > 250 chars).
-- 10: Verified iter 94 target tokens в JSON:
-  - jewel.mod_l1y0fl: damage-type → ailments ✓
-  - jewel.mod_40sol4: damage-type → ailments ✓
-  - jewel.mod_j05iep: stays crit ✓ (no regression — critical tag wins)
-- 11: Создал `scripts/verify-iter94-fixes.ts`:
-  - 3 token-level checks (l1y0fl/40sol4 → ailments, j05iep → crit)
-  - Cross-validation across 477 family-groups (0 discrepancies expected)
-  - Ran → ✅ PASS (3 tokens + 0 cross-validation discrepancies).
-- 12: Ran `npx tsx scripts/verify-iter92-fixes.ts` — ✅ PASS (iter 92+93 verification still green, no regressions).
-- 13: Ran `pnpm test` — **1363/1363 passing** (no regressions).
-- 14: Ran `npx tsc -b` — 0 errors.
-- 15: Ran `npx eslint` on 4 changed files — 1 error initially (`ok` unused in simulate-iter94-impact.ts). Fixed by removing unused variable. Re-ran → 0 errors.
-- 16: Metrics iter 94 (vs iter 93):
-  - jewel: 193 groups, other=16 (8.3%, unchanged), ailments 8→29, damage-type 45→24
-  - amulet: 105 groups, other=7 (6.7%, unchanged), ailments 0→1, damage-type 7→6
-  - ring: 94 groups, other=3 (3.2%, unchanged), ailments 3→4, damage-type 19→18
-  - belt: 85 groups, other=4 (4.7%, unchanged), ailments 0→3, damage-type 10→7
-  - other-bucket без изменений (refactor перемещает моды между damage-type и ailments, не влияет на other).
-- 17: Updated STATUS.md — iter 94 metrics table (with ailments/damage-type before/after columns), iter 94 changelog, updated Known Issues (j05iep stays crit now documented as intentional).
-- 18: Updated AGENT_NAVIGATION.md header — "Current state: iter 94".
-- 19: Updated worklog.md — iter 94 detailed section, iter 93 compressed to one line.
+- 1: Клон репо `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. Установлены зависимости через `pnpm install` (использован corepack + local symlink в /home/z/my-project/bin/pnpm — pnpm не был в PATH).
+- 2: Прочитан контекст iter 94: `STATUS.md`, `worklog.md`, `src/shared/mod-classifier.ts` (полностью, 2019 строк), `tests/shared/mod-classifier.test.ts` (структура тестов classifyFunctionalBlock), `AGENT_NAVIGATION.md`.
+- 3: Baseline проверка: `pnpm test` → 1363/1363 passing. TSC через `tsc -b` не запускался (будет в финальной верификации).
+- 4: Анализ вариантов iter 95:
+  - "Убрать regex-паттерны" → рискованно (80+ тестов используют `makeGroup()` без `functionalCategory`, что триггерит regex path). Требует предварительного рефакторинга тестов.
+  - "Wisps/Conversion деактивация" → безопасно как код-комментарий, но удаление из FUNCTIONAL_BLOCK_ORDER создаст regression risk для будущих ETL-данных.
+  - "hideLabel auto-suppression" → уже реализовано в iter 62 (ModList.tsx:206,244,413). Устаревшая запись в списке задач.
+  - Остальные P1-P3 (sortKey / waystone-tablet sub-blocks / relic-semantic / tier-aware) → слишком сложны для одной итерации.
+- 5: Решение: iter 95 = минимальная безопасная чистка. Добавить deprecation-комментарий к regex-секции + задокументировать Wisps/Conversion как RESERVED-FOR-FUTURE + актуализировать docs.
+- 6: Реализация — `src/shared/mod-classifier.ts`:
+  - `classifyFunctionalBlock()`: добавлен DEPRECATION NOTICE перед Strategy 0 (описывает, почему regex сохранён: тесты/отладка/future-proofing; план удаления в будущей итерации).
+  - `FUNCTIONAL_BLOCK_ORDER` комментарий: добавлен параграф про `wisps`/`conversion` как RESERVED-FOR-FUTURE (0 family-keys в текущих данных, оставлены для forward-compat).
+- 7: `pnpm test` → 1363/1363 passing (без регрессий — изменения только в комментариях).
+- 8: Документация актуализирована:
+  - `STATUS.md` — сжата iter 94 секция до одной таблицы метрик + краткого changelog; iter 95 changelog добавлен; Known Issues + Открытые долги обновлены (regex removal с планом, hideLabel отмечен как already-done).
+  - `worklog.md` — iter 94 сжат до одной строки в "Предыдущие итерации"; iter 95 секция добавлена подробно.
+  - `AGENT_NAVIGATION.md` — header обновлён до iter 95; устаревшая строка "current: 1216 passing" заменена на 1363; актуализированы ссылки на iter 95 DEPRECATION NOTICE.
+- 9: Создан `scripts/verify-iter95-stability.ts` — sanity-check скрипт:
+  - Cross-validation ETL vs Runtime (ожидается 0 расхождений по 477 family-groups).
+  - Strategy 0 coverage check (ожидается 477/477).
+  - Other-bucket metrics check (ожидается без изменений vs iter 94).
+- 10: Финальная верификация: `pnpm test` (1363/1363), `npx tsc -b` (0 errors), `npx tsx scripts/verify-iter95-stability.ts` (PASS), `pnpm etl` (JSON-файлы без изменений — iter 95 не меняет ETL-логику).
 
 Stage Summary:
-- **iter 94 COMPLETE.** AILMENTS tag-priority refactor: AILMENTS_PATTERN moved BEFORE DAMAGE_TYPE + added `ailment` tag check. 26 модов реклассифицированы `damage-type → ailments` (jewel: 21, amulet: 1, ring: 1, belt: 3). 4 ailment-tagged группы остались в higher-priority buckets (expected). Cross-validation: 0 расхождений (477/477 match). Other-bucket метрики unchanged.
-- **Изменённые файлы (4 source + 10 JSON + 3 docs):**
-  - `scripts/etl/classify-functional-category.ts` — AILMENTS moved BEFORE DAMAGE_TYPE + `ailment` tag check; renumbered comments.
-  - `src/shared/mod-classifier.ts` — same mirror changes; updated AILMENTS_PATTERN docstring + classifyFunctionalBlock() docstring (match priority + tag priority logic).
-  - `scripts/simulate-iter94-impact.ts` — new simulation script (iter93 vs iter94 classifier, FP-check на ailment-tagged groups).
-  - `scripts/verify-iter94-fixes.ts` — new verification script (3 target tokens + cross-validation).
-  - `public/generated/*.json` (10 files) — regenerated by ETL with new functionalCategory for 26 mods (damage-type → ailments).
-  - `STATUS.md` + `worklog.md` + `AGENT_NAVIGATION.md` — updated for iter 94.
-- **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors в изменённых файлах.
-- **Точка остановки:** iter 94 done. В iter 95+: (1) убрать regex-паттерны из classifyFunctionalBlock() — оставить только Strategy 0 + 'other' fallback (regex больше не нужен для продакшена, но полезен для отладки); (2) P1-P3: sortKey, waystone/tablet sub-blocks, relic-semantic mode, tier-aware сортировка, hideLabel auto-suppression.
+- **iter 95 COMPLETE.** Документационная чистка + deprecation-маркер. Никаких функциональных изменений — все 1363 тестов зелёные, ETL-метрики без изменений, JSON-файлы не модифицированы.
+- **Изменённые файлы (1 source + 3 docs + 1 verify-script):**
+  - `src/shared/mod-classifier.ts` — DEPRECATION NOTICE в classifyFunctionalBlock() + RESERVED-FOR-FUTURE комментарий для wisps/conversion в FUNCTIONAL_BLOCK_ORDER. Только комментарии.
+  - `STATUS.md` — актуализирован для iter 95 (сжатие истории iter 94, обновлённые Known Issues + Открытые долги).
+  - `worklog.md` — iter 95 detailed section, iter 94 compressed to one line.
+  - `AGENT_NAVIGATION.md` — header iter 95, исправлена устаревшая метрика тестов (1216 → 1363).
+  - `scripts/verify-iter95-stability.ts` — новый sanity-check скрипт.
+- **Тесты:** 1363/1363 passing. TSC: 0 errors. ESLint: 0 errors.
+- **Точка остановки:** iter 95 done. В iter 96+ можно:
+  1. Убрать regex-паттерны из classifyFunctionalBlock() — план удаления задокументирован в DEPRECATION NOTICE. Предварительно: рефакторинг 80+ тестов на `functionalCategory`.
+  2. P1-P3 задачи (sortKey / waystone-tablet sub-blocks / relic-semantic / tier-aware).
+  3. hideLabel auto-suppression уже реализован — задача устарела, можно убрать из списка.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 94**: AILMENTS tag-priority refactor — AILMENTS_PATTERN перемещён ПЕРЕД DAMAGE_TYPE + добавлен `ailment` tag check. 26 модов реклассифицированы damage-type → ailments. 1363/1363 tests.
 - **iter 93**: penetration block activated (3 family-keys moved resistances → penetration). AILMENTS/MINIONS patterns expanded defensively. 1363/1363 tests.
 - **iter 92**: 2 ETL root-cause fixes (multi-segment per-segment + i18n-override reclassify). 11 iter 91 discrepancies resolved (466 → 477 match). Other-bucket: amulet 7.6%→6.7%, belt 5.9%→4.7%. 1363/1363 tests.
 - **iter 91**: ETL --fresh run, functionalCategory 100% в продакшене, 11 расхождений ETL vs regex документированы. 1363/1363 tests.
