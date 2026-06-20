@@ -987,6 +987,214 @@ describe('compile: AND-in-OR with EXCLUDE → anchored lookahead (iter 44 → it
     expect(result).not.toContain('^(?!.*A).*ctx');
   });
 
+  // ─── iter 108: AND(LITERAL...) WITHOUT EXCLUDE inside OR ──────────────
+  //
+  // iter 108 extends the compiler transform to handle AND(LITERAL_ctx, LITERAL_regex)
+  // (no EXCLUDE) inside OR — common shape when a token has `regexPrefixContext`
+  // but NO `regexExclude`. Without the transform, the AND compiles to `"ctx" "regex"`
+  // (cross-block AND of two quoted groups), which inside the outer OR quote produces
+  // BROKEN nested quotes — PoE2 returns zero matches (rule B0).
+  //
+  // Fix: merge LITERALs via `.*` bridges into `LITERAL("ctx.*regex")` (same-block AND).
+  // Semantically MORE correct than the previous cross-block AND — `regexPrefixContext`
+  // was always intended as a same-block context anchor.
+  //
+  // Reproduces user-reported bug: 7 Abyss tablet affixes selected in OR mode, including
+  // mod_by2ufv «(8—12)% увеличение эффективности монстров Бездны за каждый закрытый
+  // провал, вплоть до 100%» with regex="вплоть" + regexPrefixContext="провал,".
+
+  it('iter 108: AND(LITERAL_ctx, LITERAL_regex) inside OR — merges via .* bridge', () => {
+    // The user's bug scenario: token with regexPrefixContext but no regexExclude.
+    // Shape: AND(LITERAL("ctx"), LITERAL("regex")) inside OR.
+    // Compiles to: "ctx.*regex|Q" (single quoted group, .* bridge between ctx and regex).
+    const ast = or(
+      and(
+        literal('провал,'),
+        literal('вплоть', 'tablet.mod_by2ufv')
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Single quoted group (no nested quotes)
+    expect(result.startsWith('"')).toBe(true);
+    expect(result.endsWith('"')).toBe(true);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    // .* bridge between ctx and regex (same-block matching)
+    expect(inner).toBe('провал,.*вплоть|Q');
+    // OR-separator preserved
+    expect(inner).toContain('|Q');
+    // Length within PoE2 hard limit (≈250 chars)
+    expect(result.length).toBeLessThanOrEqual(250);
+  });
+
+  it('iter 108: AND(LITERAL_A, LITERAL_B, LITERAL_C) inside OR — 3-way merge', () => {
+    // Stress test: 3 LITERALs merged via 2 .* bridges.
+    const ast = or(
+      and(
+        literal('ctx1'),
+        literal('ctx2'),
+        literal('X')
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner).toBe('ctx1.*ctx2.*X|Q');
+    expect(inner.includes('"')).toBe(false);
+  });
+
+  it('iter 108: full 7-affix Abyss tablet scenario — no nested quotes', () => {
+    // Reproduces the user's exact bug scenario from iter 108:
+    // 7 Abyss tablet affixes selected in OR mode, one of which (mod_by2ufv)
+    // has regexPrefixContext "провал," wrapping regex "вплоть" in AND.
+    // Before fix: compiled to "...|\"провал,\" \"вплоть\"|..." (nested quotes → B0).
+    // After fix: compiles to "...|провал,.*вплоть|..." (single quoted group).
+    const ast = or(
+      literal('дополнительные Бездны', 'tablet.mod_l616q8'),
+      literal('валюты из Бездн на карте', 'tablet.mod_3y9nuc'),
+      literal('свойствами Бездны', 'tablet.mod_1vman9'),
+      literal('ную бездну', 'tablet.mod_m17m7u'),
+      and(
+        literal('провал,'),
+        literal('вплоть', 'tablet.mod_by2ufv')
+      ),
+      literal('личиваются', 'tablet.mod_7jrajl'),
+      literal('появляется', 'tablet.mod_7ms10f')
+    );
+    const result = compile(ast);
+    // Single quoted group (no nested quotes)
+    expect(result.startsWith('"')).toBe(true);
+    expect(result.endsWith('"')).toBe(true);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    // .* bridge between ctx "провал," and regex "вплоть"
+    expect(inner).toContain('провал,.*вплоть');
+    // All 7 alternatives present (split by |)
+    const alternatives = inner.split('|');
+    expect(alternatives.length).toBe(7);
+    // Length within PoE2 hard limit
+    expect(result.length).toBeLessThanOrEqual(250);
+    // Exact expected form (locks the compiled string)
+    expect(result).toBe('"дополнительные Бездны|валюты из Бездн на карте|свойствами Бездны|ную бездну|провал,.*вплоть|личиваются|появляется"');
+  });
+
+  it('iter 108: AND(LITERAL_ctx, LITERAL_regex) inside OR preserves tokenId from regex LITERAL', () => {
+    // The regex LITERAL carries tokenId; regexPrefixContext LITERAL does not.
+    // Transform should preserve tokenId from the first LITERAL that has one.
+    const ast = or(
+      and(
+        literal('ctx'),                       // no tokenId (context)
+        literal('X', 'token:regex')           // tokenId on regex LITERAL
+      ),
+      literal('Q')
+    );
+    // Just verify it compiles without error — tokenId preservation is internal
+    const result = compile(ast);
+    expect(result).toContain('ctx.*X');
+  });
+
+  it('iter 108: AND with single LITERAL inside OR — unwraps to plain LITERAL', () => {
+    // Defensive: AND([LITERAL]) shouldn't happen in practice (buildLiteralNode
+    // never wraps single LITERAL in AND), but if it does, unwrap it to avoid
+    // nested-quote issue inside OR.
+    const ast = or(
+      and(literal('X', 'token:regex')),
+      literal('Q')
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner).toBe('X|Q');
+    expect(inner.includes('"')).toBe(false);
+  });
+
+  it('iter 108: AND with RANGE child + no EXCLUDE inside OR — still NOT transformed (conservative)', () => {
+    // AND with a RANGE child (not LITERAL) — transform should bail.
+    // Conservative: only all-LITERAL ANDs are merged.
+    const ast = or(
+      and(
+        literal('ctx'),
+        { type: 'RANGE', min: 10, max: 20, suffix: 'dmg' }
+      ),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Should NOT contain the merged form — RANGE blocks transform
+    expect(result).not.toContain('ctx.*');
+    // Should contain the original AND compilation (quoted groups + space)
+    expect(result).toContain('"');
+  });
+
+  it('iter 108: top-level AND(LITERAL, LITERAL) NOT inside OR — preserved as cross-block AND', () => {
+    // Top-level AND (not inside OR) should NOT be transformed.
+    // It compiles to "ctx" "regex" (cross-block AND, verified in-game).
+    // The same-block merge only applies to AND-in-OR (where nested quotes break).
+    const ast = and(
+      literal('ctx'),
+      literal('regex')
+    );
+    const result = compile(ast);
+    expect(result).toBe('"ctx" "regex"');
+  });
+
+  it('iter 108: OR with mixed children — some AND-no-EXCLUDE, some plain LITERAL, some AND-with-EXCLUDE', () => {
+    // Stress test: OR group with all three child shapes.
+    // - AND(LITERAL, LITERAL) → merged via .* (iter 108)
+    // - plain LITERAL → as-is
+    // - AND(LITERAL, EXCLUDE(LITERAL)) → ^-anchored lookahead (iter 49)
+    const ast = or(
+      and(literal('ctx'), literal('X')),
+      literal('Y'),
+      and(literal('Z'), exclude(literal('A')))
+    );
+    const result = compile(ast);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    expect(inner).toBe('ctx.*X|Y|^(?!.*A).*Z');
+  });
+
+  it('iter 108: AND(LITERAL_A, LITERAL_B) inside OR — same-block semantic (matcher)', () => {
+    // Verify the .* bridge enforces same-block matching (not cross-block).
+    // Block 1 has "ctx" only, block 2 has "X" only → NO match (different blocks).
+    // Block 3 has both "ctx" and "X" → match.
+    // Note: this test verifies the COMPILED form, semantic verification is in
+    // tests/core/poe2-regex-matcher.test.ts.
+    const ast = or(
+      and(literal('ctx'), literal('X')),
+      literal('Q')
+    );
+    const result = compile(ast);
+    // Same-block AND: "ctx.*X|Q" — both ctx and X must be in the SAME block
+    expect(result).toBe('"ctx.*X|Q"');
+  });
+
+  it('iter 108: regression — opt-table skip with partial subset still produces valid regex', () => {
+    // The user's bug scenario: opt-table entries for the family are strict
+    // subsets with top-level alternation → opt-table is SKIPPED (iter 44 FP
+    // prevention). Before iter 108, this left the broken nested-quotes regex
+    // in place. After iter 108, the compiler's normalizeAst transforms the
+    // AND(LITERAL, LITERAL) at compile time — independent of opt-table.
+    //
+    // This test verifies the fix works even with an EMPTY opt-table
+    // (simulating the skip case).
+    const emptyOptTable: Record<string, OptimizationEntry> = {};
+    const ast = or(
+      and(literal('провал,'), literal('вплоть', 'tablet.mod_by2ufv')),
+      literal('личиваются', 'tablet.mod_7jrajl')
+    );
+    // Optimize with empty table (no opt applied)
+    const optimized = optimize(ast, emptyOptTable);
+    const result = compile(optimized);
+    // Single quoted group, no nested quotes
+    expect(result.startsWith('"')).toBe(true);
+    expect(result.endsWith('"')).toBe(true);
+    const inner = result.slice(1, -1);
+    expect(inner.includes('"')).toBe(false);
+    // .* bridge applied
+    expect(inner).toContain('провал,.*вплоть');
+  });
+
+
   // ─── iter 46: NEW backward-exclude regression tests (minion-block FP root cause) ───
   //
   // iter 45 in-game finding: old format `X(?!.*A)` was forward-only — failed when

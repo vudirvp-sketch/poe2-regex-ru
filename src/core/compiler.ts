@@ -92,8 +92,20 @@ export interface CompileOptions {
  * `^(?!…).*ctx.*regex` (same-block semantic — correct for minion mods where the
  * prefix context word and the suffix are in the SAME mod block).
  *
- * Restrictions (conservative):
- * - AND must have ≥1 LITERAL child + EXACTLY ONE EXCLUDE child
+ * iter 108 — EXTENDED to AND(LITERAL...) WITHOUT EXCLUDE:
+ * Common shape for tokens with `regexPrefixContext` but NO `regexExclude`
+ * (e.g., tablet.mod_by2ufv «...провал, вплоть до 100%» with ctx="провал,"
+ * and regex="вплоть"). Without the transform, the AND compiles to `"ctx" "regex"`
+ * (cross-block AND of two quoted groups), which inside the outer OR quote produces
+ * BROKEN nested quotes — PoE2 returns zero matches (rule B0). Merges LITERALs via
+ * `.*` bridges into `LITERAL("ctx.*regex")` (same-block AND). This is MORE correct
+ * semantically than the previous cross-block AND, which was the original intent of
+ * `regexPrefixContext` (a context word stem from the SAME mod block as the regex).
+ *
+ * Restrictions (conservative, both iter 49 and iter 108):
+ * - iter 108: AND must have ≥2 LITERAL children + 0 EXCLUDE children
+ *   (single-LITERAL AND → unwrapped to plain LITERAL defensively)
+ * - iter 49: AND must have ≥1 LITERAL child + EXACTLY ONE EXCLUDE child
  * - All non-LITERAL children must be the single EXCLUDE (no RANGE, no nested AND)
  * - EXCLUDE's child must be LITERAL or OR(LITERAL, ...)
  */
@@ -114,12 +126,13 @@ function normalizeAst(node: ASTNode): ASTNode {
       return { ...node, children: flatChildren };
     }
     case 'OR': {
-      // Normalize each child, then apply AND-in-OR-with-EXCLUDE transform
+      // Normalize each child, then apply AND-in-OR transforms:
+      //  - iter 49: AND(LITERAL..., EXCLUDE(...)) → LITERAL("^(?!…).*ctx.*Z")
+      //  - iter 108: AND(LITERAL...) without EXCLUDE → LITERAL("A.*B.*...")
+      // Both transforms avoid nested quotes inside the outer OR-quoted group,
+      // which PoE2 cannot parse (rule B0: zero matches between quoted groups).
       const normalizedChildren = node.children.map(normalizeAst);
       const transformedChildren = normalizedChildren.map(child => {
-        // Detect: AND(LITERAL..., EXCLUDE(LITERAL | OR(LITERAL, ...)))
-        // iter 49: extended from "exactly 1 LITERAL + 1 EXCLUDE" to "1+ LITERALs + 1 EXCLUDE"
-        // (closes Pitfall 11 / Known Issue #4 — AND(regexPrefixContext, regex, EXCLUDE)).
         if (child.type !== 'AND') return child;
 
         const literalChildren = child.children.filter(
@@ -129,6 +142,49 @@ function normalizeAst(node: ASTNode): ASTNode {
           (c): c is Extract<ASTNode, { type: 'EXCLUDE' }> => c.type === 'EXCLUDE'
         );
 
+        // ─── iter 108: AND(LITERAL...) without EXCLUDE ───────────────────
+        // Common shape for tokens with `regexPrefixContext` but no `regexExclude`
+        // (e.g., tablet.mod_by2ufv «...провал, вплоть до 100%» with ctx="провал,"
+        // and regex="вплоть"). Without this transform, the AND compiles to
+        // `"ctx" "regex"` (cross-block AND of two quoted groups), which inside
+        // the outer OR quote produces BROKEN nested quotes — PoE2 returns zero
+        // matches (rule B0). Merge via `.*` bridge into a single LITERAL:
+        //   AND(LITERAL("ctx"), LITERAL("regex")) → LITERAL("ctx.*regex")
+        // Semantics: same-block AND (both substrings must appear in ONE block).
+        // This is actually MORE correct than the previous cross-block AND,
+        // which was the original intent of `regexPrefixContext` (a context
+        // word stem from the SAME mod block as the regex suffix).
+        //
+        // Requires: ≥2 LITERALs + 0 EXCLUDEs + all children are LITERAL
+        // (no RANGE, no nested AND, no MULTI_RANGE — those are left untouched).
+        // Single-LITERAL AND (shouldn't happen but defensive) → unwrap to plain
+        // LITERAL to avoid `"X"` nested-quote issue inside OR.
+        if (excludeChildren.length === 0) {
+          if (literalChildren.length === child.children.length) {
+            if (literalChildren.length === 1) {
+              // AND([LITERAL]) — unwrap to plain LITERAL
+              return literalChildren[0];
+            }
+            if (literalChildren.length >= 2) {
+              // iter 108: merge LITERALs via `.*` bridge
+              const mergedLiterals = literalChildren.map(l => l.value).join('.*');
+              const firstLiteralWithId = literalChildren.find(l => l.tokenId);
+              const mergedLiteral: ASTNode = {
+                type: 'LITERAL',
+                value: mergedLiterals,
+                ...(firstLiteralWithId?.tokenId ? { tokenId: firstLiteralWithId.tokenId } : {}),
+              };
+              return mergedLiteral;
+            }
+          }
+          // AND with no EXCLUDE but with non-LITERAL children (RANGE/MULTI_RANGE/
+          // nested AND) — leave untouched (conservative).
+          return child;
+        }
+
+        // ─── iter 49: AND(LITERAL..., EXCLUDE(...)) — original branch ─────
+        // Detect: AND(LITERAL..., EXCLUDE(LITERAL | OR(LITERAL, ...)))
+        // (closes Pitfall 11 / Known Issue #4 — AND(regexPrefixContext, regex, EXCLUDE)).
         // Require: ≥1 LITERAL + exactly 1 EXCLUDE + all other children are LITERAL/EXCLUDE
         // (no RANGE, no nested AND, no MULTI_RANGE — those are left untouched)
         if (literalChildren.length === 0) return child;
