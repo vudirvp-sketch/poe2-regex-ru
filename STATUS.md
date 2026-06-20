@@ -3,73 +3,52 @@
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
 > **Текущая итерация:** 108
+> **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 108 + post-fix audit: вложенные кавычки в OR-регексах устранены во всех категориях.**
+**iter 108 + post-fix audit: вложенные кавычки в OR-регексах устранены. UI-аудит v2 проведён.**
 
-### Симптом (исходный баг)
+### Regex-движок: стабилен
 
-При выборе в OR-режиме токенов с `regexPrefixContext` компилятор генерил регекс с **вложенными кавычками** внутри внешней OR-группы: `"...\|"провал," "вплоть"\|..."`. PoE2-парсер по правилу B0 (zero matches between quoted groups) такие регексы не подсвечивает ничего.
+- 1543/1543 тестов (vitest). TSC 0 errors. ESLint 0 problems.
+- iter 108 фикс глобально эффективен (0 критических нарушений по всем 10 категориям).
 
-### Root cause
+### UI-аудит v2 (2026-06-21): найдены проблемы
 
-`normalizeAst` в `src/core/compiler.ts` transform-ил AND-in-OR только для случая с EXCLUDE (iter 49). Случай **без** EXCLUDE (`AND(LITERAL_ctx, LITERAL_regex)`) не покрывался. opt-table Path D маскировал баг для full-family selection, но при partial subset opt-table skip-уется и регекс оставался сломанным.
+Полный аудит → `docs/UI_AUDIT.md`. Краткое резюме:
 
-### Фикс
+**Критические (Приоритет 1):**
+1. `--text-primary: #ffffff` — halation на dark bg (контраст 18.3:1, рекомендован ≤ 15:1). Заменить на `#F0E6D2`.
+2. `--text-faint (#4b5563)` — контраст 3.5:1 на #0D0B09 → **FAIL WCAG AA** (нужно ≥ 4.5:1). Осветлить до `#7C8494`.
+3. Тексты 10px (StatusPanel, ProfilePanel) — **FAIL WCAG AA**. Минимум → 12px.
+4. Тексты 11px (TopNav subtitle, RegexOutput part label, chip badges) — трудночитаемы в dark mode. Минимум → 12px.
+5. `.topnav-brand-title` font-weight 700 → 600 (dark mode bleed).
 
-`normalizeAst` расширен — добавлена ветка для `AND(LITERAL..., LITERAL...)` без EXCLUDE внутри OR. LITERALs мержатся через `.*` bridge в один `LITERAL("A.*B.*...")`. Семантически **более корректно**: same-block AND вместо cross-block AND — именно так и задумывался `regexPrefixContext`.
+**Рекомендуемые (Приоритет 2):**
+6. Подключить Noto Sans (400/500/600, Cyrillic+Latin subset).
+7. Увеличить `--poe-bg-secondary` до `#1A1510` (luminance-разделение).
+8. `body { line-height: 1.6; letter-spacing: 0.01em; }` для dark mode.
+9. ProfilePanel `bg-btn-primary` → `btn-cta` (палитровая консистентность).
 
-### Scope фикса (глобальный, не только Бездна)
-
-| Категория | Всего токенов | С regexPrefixContext | iter 108 scope (без exclude) | iter 49 scope (с exclude) |
-|-----------|---------------|----------------------|------------------------------|---------------------------|
-| amulet | 428 | 19 | 13 | 6 |
-| jewel | 193 | 8 | 2 | 6 |
-| ring | 369 | 14 | 6 | 8 |
-| tablet | 84 | 2 | 2 | 0 |
-| relic | 80 | 5 | 5 | 0 |
-| jewel-desecrated | 47 | 1 | 1 | 0 |
-| **Итого** | **1201** | **49** | **29** | **20** |
-
-Категории `belt`, `jewel-corrupted`, `waystone`, `waystone-desecrated` не имели токенов с `regexPrefixContext` и не были затронуты багом.
-
-### Post-fix аудит (exhaustive)
-
-Аудит-скрипт `/home/z/my-project/scripts/audit-corrected.ts` тестирует 4 сценария на каждой категории:
-
-| Тест | Сценарий | Что проверяет |
-|------|----------|---------------|
-| T1 | Single-token в OR (минимальный case для iter 108 transform) | Базовая корректность fixed-компилятора |
-| T2 | All-tokens в OR (worst-case) | Полная OR-компиляция всей категории |
-| T3 | opt-table pre-compiled regexes | ETL-генерированные регексы |
-| T4 | Family-AND (top-level AND mode) | Cross-family AND с family-OR внутри |
-
-**Результаты аудита:**
-
-| Метрика | Значение |
-|---------|----------|
-| Категорий просканировано | 10 |
-| Всего токенов | 1697 |
-| opt-table entries | 543 |
-| **T1 single-token OR: критических нарушений** | **0** |
-| **B0 (`"X"\|"Y"` top-level)** | **0** |
-| **NESTED (вложенные кавычки)** | **0** |
-| **EMPTY_REGEX** | **0** |
-| LIMIT (>250 chars, runtime-split handled) | 20 (inherent, не баг) |
-
-**Вывод:** iter 108 фикс **глобально эффективен**. Аналогичных проблем в других категориях нет. LIMIT-overflow обрабатывается runtime-сplit-логикой (iter 50, `splitOverLimitRegex` в `src/core/limits.ts`).
-
-**Метрики тестов:** 1543/1543 (vitest). TSC 0 errors. ESLint 0 problems. JSON не тронуты.
+**Улучшения (Приоритет 3):**
+10. `font-feature-settings: "tnum"` для числовых элементов.
+11. Noto Sans Mono для regex display.
+12. APCA-валидация контрастов.
+13. `--text-dim-val` осветлить до `#7A8494`.
 
 ---
 
 ## Known Issues
 
-1. **2 opt-table entries > 250 chars** в jewel.json — не помещаются в один PoE2 regex. Runtime split handles at UI level.
-2. **j05iep stays crit** — `jewel.mod_j05iep` имеет tags `[damage, critical, ailment]` и остаётся в `crit` (CRIT шаг 14 выигрывает у AILMENTS шаг 15 в ETL classifier). Intentional.
+1. **2 opt-table entries > 250 chars** в jewel.json — runtime split handles at UI level.
+2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
+3. **UI: --text-primary #ffffff halation** — высокий контраст 18.3:1, нужен off-white.
+4. **UI: text-faint FAIL WCAG AA** — контраст 3.5:1 на dark bg, минимум 4.5:1.
+5. **UI: 10–11px тексты** — ниже WCAG-минимума для dark mode, повысить до 12px.
+6. **UI: btn-primary (#2563eb) в ProfilePanel** — холодный синий в тёплой палитре.
 
 ---
 

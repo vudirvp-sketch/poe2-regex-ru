@@ -74,3 +74,24 @@ Stage Summary:
 - **iter 85**: Инфраструктура 24 функциональных блоков (7 активны). 1216/1216 tests.
 - **iter 84**: 3 P0-фикса (Breach Lord skip + text fallback / waystone keywords / aura+gem tags). 1172/1172 tests.
 - **iter 46-50**: `(?!…)` lookahead; `regexPrefixContext`; runtime split >250 chars.
+
+---
+Task ID: UI-audit-v2
+Agent: main
+Task: Провести экспертный UI-аудит палитры, типографики, размеров; ревью старого аудита; рекомендации по Noto Sans.
+
+Work Log:
+- 1: Клон репо. Полное чтение index.css (1103 строки), TopNav.tsx, FilterChip.tsx, RegexOutput.tsx, HomePage.tsx, CategoryControlPanel.tsx, StatusPanel.tsx, ProfilePanel.tsx, CategoryLayout.tsx, SeoBlock.tsx.
+- 2: Исследование актуальных данных (2023–2026): WCAG 2.2, APCA, Smashing Magazine 2025, Material Design dark-theme spec, исследования зрительной усталости (2024–2025 RCT), Noto Sans vs system fonts для кириллицы.
+- 3: Расчёт luminance и контрастных отношений для всех цветовых токенов. Выявление: --text-primary #ffffff (18.3:1, halation), --text-faint #4b5563 (3.5:1, FAIL WCAG AA), низкое Δ luminance между deep-bg/poe-bg/panel-bg.
+- 4: Инвентаризация всех размеров шрифтов в кодовой базе. Выявление: 10px тексты (StatusPanel, ProfilePanel — FAIL WCAG), 11px тексты (TopNav, RegexOutput, FilterChip — трудночитаемы в dark mode).
+- 5: Ревью старого аудита — подтверждение большинства пунктов + 8 новых находок (halation от #ffffff, text-faint FAIL, 10px тексты, letter-spacing для кириллицы, APCA, tnum, btn-primary остаток, line-height для dark mode).
+- 6: Рекомендация по Noto Sans: да, переход оправдан. Веса: 400/500/600. Subset: Cyrillic+Latin (~80–100 KB за 2 веса). Font-stack: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif.
+- 7: Создан `docs/UI_AUDIT.md` с полным аудитом (8 секций, приоритизированный план из 13 пунктов).
+- 8: Обновлён `STATUS.md` — добавлена секция UI-аудита, Known Issues 3–6, ссылка на docs/UI_AUDIT.md.
+
+Stage Summary:
+- Создан: docs/UI_AUDIT.md (полный UI-аудит v2)
+- Обновлён: STATUS.md (добавлены UI Known Issues + ссылка на аудит)
+- Никакой функциональный код не изменён — итерация документационная
+- Следующая итерация: реализация Приоритета 1 (5 пунктов CSS/JSX правок)
