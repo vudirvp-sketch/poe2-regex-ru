@@ -22,7 +22,7 @@
  * is nested inside a switch role. The outer div acts as a visual container only.
  */
 import React, { useMemo, useCallback } from 'react';
-import type { FamilyGroup } from '@shared/types';
+import type { FamilyGroup, SortMode } from '@shared/types';
 import { t } from '@shared/i18n';
 import type { TokenRangeOverride, SlotRangeOverride } from '@store/filter-store';
 
@@ -43,6 +43,18 @@ interface FilterChipProps {
   /** Set of token IDs whose individual regex was collapsed by the optimizer.
    *  When any member of this chip's group is in this set, show a visual indicator. */
   collapsedTokenIds?: Set<string>;
+  /**
+   * Within-block sort mode (iter 107). Controls whether the chip's left border
+   * communicates the priority tier (tier-first mode) or the affix type (alpha mode).
+   *  - 'alpha'      (default): S-tier → amber-soft border (existing always-on
+   *                  indicator); A/B/C → affix color (blue/orange/amber).
+   *  - 'tier-first' : ALL tiers get a distinct tier-colored border — S=amber-soft
+   *                  (brightest), A=amber, B=amber-dim (bronze), C=gray. The affix
+   *                  color is suppressed because tier scan is the user's primary
+   *                  intent in this mode (affix info remains visible via the
+   *                  column header / origin-section structure).
+   * Backward compat: omitted prop = 'alpha' = pre-iter-107 behaviour. */
+  sortMode?: SortMode;
 }
 
 export const FilterChip: React.FC<FilterChipProps> = ({
@@ -55,6 +67,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   onSetTokenRange,
   onClearTokenRange,
   collapsedTokenIds,
+  sortMode = 'alpha',
 }) => {
   const memberIds = useMemo(
     () => group.members.map((m) => m.id),
@@ -93,17 +106,21 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Affix color for left border
   const affixColor = group.affix === 'prefix' ? 'border-l-bl-blue' : group.affix === 'implicit' ? 'border-l-bl-amber' : 'border-l-bl-orange';
 
-  // Priority tier visual differentiation:
-  // S-tier: brighter border accent (amber/gold tint)
-  // C-tier: dimmer/muted appearance
-  // A/B: default
-  const tierBorderClass = group.priorityTier === 'S'
-    ? 'border-l-bl-amber-soft'
-    : group.priorityTier === 'A'
-      ? affixColor
-      : ''; // B and C use default affixColor
-
-  const effectiveBorderClass = tierBorderClass || affixColor;
+  // iter 107: tier-aware left border. Two policies depending on sortMode:
+  //  - 'alpha' (default, pre-iter-107 behaviour): S-tier gets amber-soft
+  //    (always-on indicator that an S-tier mod is here); A/B/C keep affixColor.
+  //  - 'tier-first': ALL four tiers get a distinct tier color, suppressing the
+  //    affix color on the chip border. Hierarchy mirrors the priorityFilter
+  //    buttons (Pitfall 28): S=brightest amber, A=medium amber, B=bronze
+  //    (amber-dim), C=neutral gray. The affix info remains visible via the
+  //    column header / origin-section structure, so swapping the chip-level
+  //    border from affix→tier does not lose information.
+  const effectiveBorderClass = sortMode === 'tier-first'
+    ? (group.priorityTier === 'S' ? 'border-l-bl-amber-soft'
+       : group.priorityTier === 'A' ? 'border-l-bl-amber'
+       : group.priorityTier === 'B' ? 'border-l-bl-amber-dim'
+       : 'border-l-bl-gray')  // 'C' or unknown
+    : (group.priorityTier === 'S' ? 'border-l-bl-amber-soft' : affixColor);
 
   const handleClick = () => {
     onToggleTokens(memberIds);

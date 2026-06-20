@@ -136,6 +136,13 @@
   --bl-violet: #a78bfa;     /* violet-400 */
   --bl-red-soft: #f87171;   /* red-400 */
   --bl-amber-soft: #fbbf24; /* amber-400 */
+  /* iter 107: tier-aware border shades for tier-first sort mode.
+     Hierarchy mirrors priorityFilter buttons (Pitfall 28):
+       S = amber-soft (brightest, amber-400)
+       A = amber      (medium,    amber-500)
+       B = amber-dim  (deeper,    amber-700, bronze)
+       C = gray       (neutral,   gray-500,  signals low priority) */
+  --bl-amber-dim: #b45309;  /* amber-700 */
 
   /* Section border colors */
   --sborder-emerald: rgba(16, 185, 129, 0.25);  /* emerald-500/25 */
@@ -221,6 +228,8 @@
   --color-bl-violet: var(--bl-violet);
   --color-bl-red-soft: var(--bl-red-soft);
   --color-bl-amber-soft: var(--bl-amber-soft);
+  /* iter 107: tier B border shade (deeper bronze) for tier-first sort mode */
+  --color-bl-amber-dim: var(--bl-amber-dim);
 
   /* Button backgrounds → bg-btn-primary, bg-btn-danger, bg-btn-success */
   --color-btn-primary: var(--btn-primary);

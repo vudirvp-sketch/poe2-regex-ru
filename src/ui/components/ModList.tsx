@@ -134,7 +134,8 @@ function splitByOriginThenSemantic(
  *  iter 62 (Phase 8c): when `hideLabel` is true, the Level 3 badge is suppressed.
  *  Caller sets this when the surrounding affix column / origin section contains
  *  only ONE sub-group — the badge is then pure noise (it repeats context the
- *  parent header already gives). */
+ *  parent header already gives).
+ *  iter 107: `sortMode` forwarded to FilterChip for tier-aware left border. */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
@@ -147,7 +148,9 @@ const ModSubGroupSection: React.FC<{
   collapsedTokenIds?: Set<string>;
   /** Suppress the Level 3 badge — set when the surrounding scope has only one sub-group. */
   hideLabel?: boolean;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel }) => {
+  /** iter 107: forwarded to FilterChip for tier-aware left border. */
+  sortMode?: SortMode;
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode }) => {
   return (
     <div className="mb-2">
       {subGroup.label && !hideLabel && (
@@ -168,6 +171,7 @@ const ModSubGroupSection: React.FC<{
             onSetTokenRange={onSetTokenRange}
             onClearTokenRange={onClearTokenRange}
             collapsedTokenIds={collapsedTokenIds}
+            sortMode={sortMode}
           />
         ))}
       </div>
@@ -189,7 +193,9 @@ const AffixColumn: React.FC<{
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
   collapsedTokenIds?: Set<string>;
-}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
+  /** iter 107: forwarded to FilterChip via ModSubGroupSection for tier-aware border. */
+  sortMode?: SortMode;
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode }) => {
   const totalCount = showOriginSubSections
     ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
     : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
@@ -242,6 +248,7 @@ const AffixColumn: React.FC<{
                   onClearTokenRange={onClearTokenRange}
                   collapsedTokenIds={collapsedTokenIds}
                   hideLabel={hideSubLabel}
+                  sortMode={sortMode}
                 />
               ))}
             </div>
@@ -266,6 +273,7 @@ const AffixColumn: React.FC<{
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               hideLabel={hideSubLabel}
+              sortMode={sortMode}
             />
           ));
         })()
@@ -434,7 +442,7 @@ export const ModList: React.FC<ModListProps> = ({
           )}
           <div className="flex flex-wrap gap-2">
             {sg.groups.map(group => (
-              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
+              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
             ))}
           </div>
         </div>
@@ -515,6 +523,7 @@ export const ModList: React.FC<ModListProps> = ({
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
+              sortMode={sortMode}
             />
           )}
           {/* Also show implicit when affixFilter is 'implicit' */}
@@ -532,6 +541,7 @@ export const ModList: React.FC<ModListProps> = ({
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
+              sortMode={sortMode}
             />
           )}
 
@@ -569,7 +579,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originPrefix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originPrefix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
                                 ))}
                               </div>
                           }
@@ -582,7 +592,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originSuffix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originSuffix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
                                 ))}
                               </div>
                           }
@@ -610,6 +620,7 @@ export const ModList: React.FC<ModListProps> = ({
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
+              sortMode={sortMode}
             />
             <AffixColumn
               affix="suffix"
@@ -624,6 +635,7 @@ export const ModList: React.FC<ModListProps> = ({
               onSetTokenRange={onSetTokenRange}
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
+              sortMode={sortMode}
             />
           </div>
         ) : (
@@ -643,6 +655,7 @@ export const ModList: React.FC<ModListProps> = ({
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
+                sortMode={sortMode}
               />
             )}
             {suffixGroups.length > 0 && (
@@ -659,6 +672,7 @@ export const ModList: React.FC<ModListProps> = ({
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
+                sortMode={sortMode}
               />
             )}
           </div>

@@ -2,31 +2,25 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 106
+> **Текущая итерация:** 107
 
 ---
 
 ## Текущее состояние
 
-**iter 106: P4 — tier-aware sort toggle (alpha vs tier-first) в CategoryControlPanel.**
+**iter 107: UX-полировка P4 — tier-colored left border для всех 4 tier'ов в tier-first режиме.**
 
-В рамках итерации добавлен UI-тумблер «Сортировка: По алфавиту / По приоритету» в `CategoryControlPanel` для всех 6 категорий с priority classification (ring, amulet, belt, jewel, waystone, tablet). iter 99 сделал `priorityTier` вторичным tiebreaker'ом в within-block sort (alpha primary), но toggle не добавил. iter 106 закрывает этот UX-долг: пользователь может переключаться между двумя режимами — alphabetical flow (iter 99 default, для чтения списков) и tier-first (legacy pre-iter-99, для surface best-in-class модов).
+iter 106 добавил UI-тумблер «Сортировка: По алфавиту / По приоритету», но визуально в tier-first режиме пользователь видел только S-tier (amber-soft border) и «всё остальное» (affix color). iter 107 закрывает этот UX-долг: в tier-first режиме каждый tier получает distinct colored border — S=amber-soft (brightest), A=amber, B=amber-dim (bronze), C=gray. В alpha режиме поведение не изменилось (S→amber-soft always-on, A/B/C→affix color). Чисто UI/CSS изменение — 0 риска для данных/логики/ETL/JSON/схемы.
 
 **Что сделано:**
 
-- `src/shared/types.ts` — добавлен `SortMode = 'alpha' | 'tier-first'` union-тип.
-- `src/shared/mod-classifier.ts` — добавлена `sortGroupsByTierFirst()` функция (tier primary, alpha tiebreaker — legacy pre-iter-99 поведение) + `sortGroupsByMode()` dispatch entry point. `withAlphabeticalGroups()` переименована в `withSortedGroups(result, sortMode)` (default `'alpha'` — backward compat со всеми существующими callers/tests). `classifyGroups()` получила опциональный 3-й аргумент `sortMode?: SortMode = 'alpha'` — пробрасывается во все 11 веток режимов (affix-only / relic-semantic / affix-functional / jewel-functional / affix-sentiment / affix-sentiment-subblocks / tablet-type / tablet-type-subblocks / origin / jewel-type / fallback).
-- `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` — добавлен опциональный prop `sortMode?: SortMode = 'alpha'`. Пробрасывается во все `classifyGroups()` и `splitByOriginThenSemantic()` / `buildColumnRows()` вызовы (включая origin-split sub-sections и jewel-type sub-sections). Все `useMemo` deps обновлены.
-- `src/ui/hooks/useCategoryPage.ts` — добавлены `sortMode: SortMode` + `setSortMode` в return type. `useState` lazy-init из `extraState.sortMode` (URL-restore). URL-sync `useEffect` обновлён: `sortMode` синхронизируется в `extraState` → URL hash вместе с остальными 6 полями. `restoreFilterState()` восстанавливает `sortMode` из профиля.
-- `src/ui/components/CategoryControlPanel.tsx` — добавлены опциональные props `sortMode`, `setSortMode`, `showSortMode`. Render: radio-group с 2 кнопками («По алфавиту» / «По приоритету»), размещён сразу после `priorityFilter`. ARIA: `role="radiogroup"`, `aria-label`, arrow-key navigation (как priorityFilter).
-- `src/shared/i18n.ts` — добавлены 3 ключа: `sort.label`, `sort.alpha`, `sort.tier_first`.
-- 6 category pages (`BeltPage`, `AmuletPage`, `RingPage`, `WaystonePage`, `TabletPage`, `JewelPage`) — destructuring из `useCategoryPage` += `sortMode, setSortMode`; `<CategoryControlPanel>` += `sortMode/setSortMode/showSortMode`; `<VirtualizedModList>` или `<ModList>` += `sortMode`.
-- `tests/shared/mod-classifier.test.ts` — +22 новых тестов в 3 новых `describe` блоках:
-  - `sortGroupsByTierFirst` (8 тестов): new-array, ref-preservation, empty/single edge cases, tier-primary sort, alpha-tiebreaker, tier-first-vs-alpha difference regression, `::origin` stripping, all-tiers S→A→B→C.
-  - `sortGroupsByMode` (5 тестов): default `'alpha'` backward compat, delegation to `sortGroupsAlphabetically`/`sortGroupsByTierFirst`, no-mutation, empty-array.
-  - `classifyGroups respects sortMode argument` (9 тестов): default alpha backward compat, `tier-first` surfaces S-tier first в `affix-functional`/`relic-semantic`/`tablet-type-subblocks`/`jewel-functional`/`affix-sentiment-subblocks`, alpha-explicit matches default, ref-preservation в обоих режимах.
+- `src/index.css` — добавлен новый цвет-токен `--bl-amber-dim: #b45309` (amber-700, бронза) + соответствующий `--color-bl-amber-dim` mapping в `@theme` блоке. Иерархия зеркалит `priorityFilter` кнопки (Pitfall 28): S=amber-soft (brightest), A=amber (medium), B=amber-dim (deeper bronze), C=gray (neutral low-priority).
+- `src/ui/components/FilterChip.tsx` — добавлен опциональный prop `sortMode?: SortMode` (default `'alpha'` — backward compat). Import `SortMode` из `@shared/types`. Логика `effectiveBorderClass` refactor'нута: в `'tier-first'` режиме — distinct tier color для каждого tier (suppressed affix color, т.к. affix info уже виден через column header / origin-section структуру); в `'alpha'` режиме — pre-iter-107 поведение (S→amber-soft always-on, A/B/C→affix color).
+- `src/ui/components/ModList.tsx` — `ModSubGroupSection` += опциональный prop `sortMode` (пробрасывается в `<FilterChip>`); `AffixColumn` += опциональный prop `sortMode` (пробрасывается в `<ModSubGroupSection>`); все 6 `<AffixColumn>` call sites и все 4 inline `<FilterChip>` call sites пробрасывают `sortMode={sortMode}` из `ModList` props.
+- `src/ui/components/VirtualizedModList.tsx` — `VirtualRowContent` += опциональный prop `sortMode` (пробрасывается в `<FilterChip>`); `VirtualizedColumnProps` += опциональное поле `sortMode`; `VirtualizedColumn` destructuring += `sortMode`; `columnProps` object += `sortMode` field (auto-threading во все 3 `<VirtualizedColumn>` call sites); оба `<VirtualRowContent>` call sites (two-column и single-column modes) пробрасывают `sortMode={sortMode}`.
+- `tests/ui/FilterChip.test.tsx` — +11 новых тестов в новом `describe('tier-aware left border (iter 107)')` блоке: alpha mode (4 теста — S/A/B/C behavior), omitted sortMode backward compat (1 тест), tier-first mode (4 теста — S/A/B/C distinct colors), visual hierarchy regression (4 distinct classes + affix color suppression across all 3 affix types).
 
-**Метрики:** 1522/1522 tests (было 1500, +22). TSC 0 errors. ESLint 0 problems. ETL не запускался — `public/generated/*.json` не тронуты. Никаких изменений в ETL, runtime functional-classifier, схеме, JSON, WaystonePage (только sortMode props добавлены).
+**Метрики:** 1533/1533 tests (было 1522, +11). TSC 0 errors. ESLint 0 problems. ETL не запускался — `public/generated/*.json` не тронуты. Никаких изменений в ETL, runtime functional-classifier, схеме, JSON.
 
 ### Архитектура functionalCategory (без изменений vs iter 102)
 
@@ -34,9 +28,9 @@
 2. **i18n overrides** (`scripts/run-etl.ts` `applyI18nOverrides()`): re-classify после патча rawText на русский.
 3. **Runtime** (`src/shared/mod-classifier.ts` `classifyFunctionalBlock()`): Strategy 0 — majority voting по `functionalCategory` с токенов. Fallback `return 'other';`. iter 101: Zod-схема пропускает поле. iter 102: e2e-тесты `tests/integration/runtime-classification.test.ts` закрывают весь production path.
 
-### Inline sanity (iter 106 sortMode не меняет alpha default)
+### Inline sanity (iter 107 sortMode threading)
 
-Toggle по умолчанию в режиме `'alpha'` — это iter 99 поведение. Все 1500 существующих тестов (до iter 106) продолжают проходить без модификаций, потому что `classifyGroups(groups, mode)` без третьего аргумента использует `sortMode = 'alpha'`. Новый `'tier-first'` режим opt-in через UI — covered 9 новыми тестами на 5 режимов (`affix-functional`, `jewel-functional`, `relic-semantic`, `tablet-type-subblocks`, `affix-sentiment-subblocks`).
+`sortMode` prop опционален во всех точках threading (`FilterChip`, `ModSubGroupSection`, `AffixColumn`, `VirtualRowContent`, `VirtualizedColumnProps`). Default `'alpha'` — backward compat со всеми существующими callers/tests. Новый `'tier-first'` режим opt-in через UI (iter 106 toggle) — покрыт 11 новыми тестами (alpha 4 + tier-first 4 + backward compat 1 + visual hierarchy 2).
 
 ### Runtime-метрики (без изменений vs iter 105)
 
@@ -52,7 +46,7 @@ Toggle по умолчанию в режиме `'alpha'` — это iter 99 по
 
 - **Strategy 0 coverage (ETL):** 477/477 (100%).
 - **Cross-validation:** 477/477 match (0 расхождений).
-- **Тесты:** 1522/1522 (+22 vs iter 105). TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
+- **Тесты:** 1533/1533 (+11 vs iter 106). TSC: 0 errors. ESLint: **0 errors + 0 warnings**.
 - **ETL:** 11 fresh, 0 stale.
 
 ---
@@ -67,9 +61,9 @@ Toggle по умолчанию в режиме `'alpha'` — это iter 99 по
 ## Открытые долги
 
 - **Wisps/Conversion блоки**: 0 family-keys в текущих данных. Зарезервированы для future-compat.
-- **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполняет на основе functionalCategory + popularity research. (iter 106 закрыл только P4 toggle; popularity-based sort — отдельная задача.)
-- **Waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods («Провалы Бездны... могут породить волшебных монстров», «Область захвачена монстрами Бездны», «Игроки крадут поглощаемые души...», etc.) + 1 multi-line continuation («после убийства редкого или уникального монстра»). Можно расширить POSITIVE_KEYWORDS, чтобы их поймать (большинство семантически positive — extra Breach content / player soul-steal benefit). Low-priority — не блокирует UX.
-- **Tablet Разломы vs Бездна**: 2 mods («(5-15)% увеличение плотности монстров в Разломах» и «Нестабильные Разломы...порождают дополнительного редкого монстра») используют «Разлом» вместо «Бездна» и классифицируются как generic (BREACH_KEYWORDS не включает «Разлом»). Можно расширить BREACH_KEYWORDS, чтобы их поймать — но это изменило бы type distribution и потребовало бы регенерации. Отложено — текущая sub-block classification в generic (encounters/monsters) корректна.
+- **sortKey?**: опционально добавить `sortKey?: number` в `FamilyGroup` + ETL заполнение на основе functionalCategory + popularity research. Third sort mode (alpha / tier-first / popularity). Требует ETL-расширения — отдельная задача.
+- **Waystone neutral-generic (6 groups)**: 5 desecrated Breach-adjacent mods + 1 multi-line continuation. Можно расширить POSITIVE_KEYWORDS. Low-priority — не блокирует UX.
+- **Tablet Разломы vs Бездна**: 2 mods используют «Разлом» вместо «Бездна». Можно расширить BREACH_KEYWORDS, но это изменило бы type distribution. Low-priority — текущая sub-block classification в generic корректна.
 
 ---
 

@@ -205,6 +205,7 @@ function buildColumnRows(
 
 /**
  * Render a single virtual row's content (without positioning wrapper).
+ * iter 107: `sortMode` forwarded to FilterChip for tier-aware left border.
  */
 const VirtualRowContent: React.FC<{
   row: VirtualRow;
@@ -216,7 +217,9 @@ const VirtualRowContent: React.FC<{
   onSetTokenRange?: (tokenId: string, range: TokenRangeOverride) => void;
   onClearTokenRange?: (tokenId: string) => void;
   collapsedTokenIds?: Set<string>;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds }) => {
+  /** iter 107: forwarded to FilterChip for tier-aware left border. */
+  sortMode?: SortMode;
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode }) => {
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     const headerClass = isImplicit
@@ -277,6 +280,7 @@ const VirtualRowContent: React.FC<{
             onSetTokenRange={onSetTokenRange}
             onClearTokenRange={onClearTokenRange}
             collapsedTokenIds={collapsedTokenIds}
+            sortMode={sortMode}
           />
         ))}
       </div>
@@ -300,6 +304,8 @@ interface VirtualizedColumnProps {
   collapsedTokenIds?: Set<string>;
   /** Border color class for left border (affix-specific) */
   borderClass: string;
+  /** iter 107: forwarded to FilterChip via VirtualRowContent for tier-aware border. */
+  sortMode?: SortMode;
 }
 
 /** A single virtualized column (prefix or suffix) */
@@ -315,6 +321,7 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   onClearTokenRange,
   collapsedTokenIds,
   borderClass,
+  sortMode,
 }) => {
   // TanStack Virtual's useVirtualizer returns non-memoizable functions
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
@@ -448,6 +455,7 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
                 onSetTokenRange={onSetTokenRange}
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
+                sortMode={sortMode}
               />
             </div>
           );
@@ -705,6 +713,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     onSetTokenRange,
     onClearTokenRange,
     collapsedTokenIds,
+    // iter 107: forwarded to FilterChip via VirtualRowContent for tier-aware border.
+    sortMode,
   };
 
   return (
@@ -813,6 +823,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                   onSetTokenRange={onSetTokenRange}
                   onClearTokenRange={onClearTokenRange}
                   collapsedTokenIds={collapsedTokenIds}
+                  sortMode={sortMode}
                 />
               </div>
             );

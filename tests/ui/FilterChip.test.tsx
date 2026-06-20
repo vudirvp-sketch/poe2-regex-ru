@@ -397,4 +397,153 @@ describe('FilterChip', () => {
     expect(ariaLabel).toContain('тестовый мод');
     expect(ariaLabel).toContain('не выбрано');
   });
+
+  // ─── iter 107: tier-aware left border (sortMode prop) ───
+
+  /**
+   * Helper: render a chip and return the outer container div className.
+   * The tier-aware border class lives on the outer container (along with
+   * border-l-2, padding, selection bg, etc.).
+   */
+  function renderChipAndGetClass(opts: {
+    priorityTier?: 'S' | 'A' | 'B' | 'C';
+    affix?: 'prefix' | 'suffix' | 'implicit';
+    sortMode?: 'alpha' | 'tier-first';
+  }): string {
+    const group = makeGroup({
+      priorityTier: opts.priorityTier ?? 'B',
+      affix: opts.affix ?? 'suffix',
+    });
+    const { container } = render(
+      <FilterChip
+        group={group}
+        selectedIds={new Set()}
+        onToggleTokens={vi.fn()}
+        sortMode={opts.sortMode}
+      />
+    );
+    // The outer container is the first child div of the rendered output.
+    const outerDiv = container.firstChild as HTMLElement;
+    return outerDiv.className;
+  }
+
+  describe('tier-aware left border (iter 107)', () => {
+    // ── alpha mode (default — backward compat) ──
+
+    it('alpha mode + S-tier → amber-soft border (always-on indicator)', () => {
+      const className = renderChipAndGetClass({ priorityTier: 'S', sortMode: 'alpha' });
+      expect(className).toContain('border-l-bl-amber-soft');
+    });
+
+    it('alpha mode + A-tier → affix color (suffix → orange)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'suffix', sortMode: 'alpha',
+      });
+      expect(className).toContain('border-l-bl-orange');
+      expect(className).not.toContain('border-l-bl-amber-soft');
+    });
+
+    it('alpha mode + B-tier → affix color (prefix → blue)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'B', affix: 'prefix', sortMode: 'alpha',
+      });
+      expect(className).toContain('border-l-bl-blue');
+      expect(className).not.toContain('border-l-bl-amber-soft');
+    });
+
+    it('alpha mode + C-tier → affix color (implicit → amber)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'C', affix: 'implicit', sortMode: 'alpha',
+      });
+      expect(className).toContain('border-l-bl-amber');
+      expect(className).not.toContain('border-l-bl-amber-soft');
+    });
+
+    it('omitted sortMode = alpha mode (backward compat: A-tier keeps affix color)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'suffix',
+      });
+      expect(className).toContain('border-l-bl-orange');
+      expect(className).not.toContain('border-l-bl-amber-soft');
+    });
+
+    // ── tier-first mode ──
+
+    it('tier-first mode + S-tier → amber-soft border (brightest)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'S', affix: 'suffix', sortMode: 'tier-first',
+      });
+      expect(className).toContain('border-l-bl-amber-soft');
+      // affix color is suppressed in tier-first mode
+      expect(className).not.toContain('border-l-bl-orange');
+    });
+
+    it('tier-first mode + A-tier → amber border (medium)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'suffix', sortMode: 'tier-first',
+      });
+      // A-tier = 'border-l-bl-amber' (amber-500, NOT amber-soft which is amber-400)
+      expect(className).toMatch(/border-l-bl-amber(?!-)/);
+      expect(className).not.toContain('border-l-bl-amber-soft');
+      expect(className).not.toContain('border-l-bl-orange');
+    });
+
+    it('tier-first mode + B-tier → amber-dim border (bronze)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'B', affix: 'prefix', sortMode: 'tier-first',
+      });
+      expect(className).toContain('border-l-bl-amber-dim');
+      expect(className).not.toContain('border-l-bl-blue');
+    });
+
+    it('tier-first mode + C-tier → gray border (neutral, low priority)', () => {
+      const className = renderChipAndGetClass({
+        priorityTier: 'C', affix: 'implicit', sortMode: 'tier-first',
+      });
+      expect(className).toContain('border-l-bl-gray');
+      // implicit default (amber) is suppressed in tier-first mode
+      expect(className).not.toMatch(/border-l-bl-amber(?!-)/);
+    });
+
+    // ── Visual hierarchy regression ──
+
+    it('tier-first mode produces 4 distinct border classes across S/A/B/C', () => {
+      const s = renderChipAndGetClass({ priorityTier: 'S', sortMode: 'tier-first' });
+      const a = renderChipAndGetClass({ priorityTier: 'A', sortMode: 'tier-first' });
+      const b = renderChipAndGetClass({ priorityTier: 'B', sortMode: 'tier-first' });
+      const c = renderChipAndGetClass({ priorityTier: 'C', sortMode: 'tier-first' });
+
+      // All 4 must be distinct — visual scan must differentiate tiers.
+      const set = new Set([s, a, b, c]);
+      expect(set.size).toBe(4);
+
+      // Spot-check: each tier has its specific border class.
+      expect(s).toContain('border-l-bl-amber-soft');
+      expect(a).toMatch(/border-l-bl-amber(?!-)/);
+      expect(b).toContain('border-l-bl-amber-dim');
+      expect(c).toContain('border-l-bl-gray');
+    });
+
+    it('tier-first mode suppresses affix color regardless of affix type', () => {
+      // Same tier across all three affix types should produce the same tier
+      // border class (no affix color leaking through).
+      const prefixClass = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'prefix', sortMode: 'tier-first',
+      });
+      const suffixClass = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'suffix', sortMode: 'tier-first',
+      });
+      const implicitClass = renderChipAndGetClass({
+        priorityTier: 'A', affix: 'implicit', sortMode: 'tier-first',
+      });
+
+      // All three should have the same tier border (amber).
+      for (const cls of [prefixClass, suffixClass, implicitClass]) {
+        expect(cls).toMatch(/border-l-bl-amber(?!-)/);
+        // No affix color should leak through.
+        expect(cls).not.toContain('border-l-bl-blue');
+        expect(cls).not.toContain('border-l-bl-orange');
+      }
+    });
+  });
 });
