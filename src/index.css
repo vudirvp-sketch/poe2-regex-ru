@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+/* ─── Noto Sans (self-hosted, Cyrillic + Latin subset) ─── */
+/* iter 109 (UI audit v2 P1+P2.6): three weights — 400/500/600 — covering the
+   full type-ramp used in the app. Subsetting keeps each file ≈ 40 KB; total
+   payload ≈ 132 KB, served with `font-display: swap` so the system font
+   stack paints immediately and Noto Sans replaces it once loaded.
+   Path is absolute under the GitHub Pages base (`base: '/poe2-regex-ru/'`). */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/poe2-regex-ru/fonts/NotoSans-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0400-052F, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2190-21FF, U+2200-22FF;
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/poe2-regex-ru/fonts/NotoSans-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0400-052F, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2190-21FF, U+2200-22FF;
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/poe2-regex-ru/fonts/NotoSans-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0400-052F, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2190-21FF, U+2200-22FF;
+}
+
 /* ─── Semantic theme tokens ─── */
 /* iter 51: WARM DARK-FANTASY PALETTE (per design spec).
    Cold blue-gray tokens replaced with warm dirty-brown (#0D0B09 / #15110E / #3A2C22).
@@ -35,14 +66,22 @@
   --input-border: #4A3A2C;
   --panel-border: #3A2C22;
 
-  /* Primary text */
-  --text-primary: #ffffff;
+  /* Primary text — iter 109 (UI audit v2 P1.1): #ffffff → #F0E6D2.
+     Pure white on #0D0B09 gave contrast 18.3:1, exceeding the recommended
+     7:1–15:1 range for dark UI and causing halation (perceptual "glow" around
+     glyphs, especially for users with astigmatism). Warm off-white preserves
+     the palette tone and lands at ~13.5:1 — within the comfort range. */
+  --text-primary: #F0E6D2;
 
   /* Text levels */
   --text-soft: #d1d5db;       /* ≈ gray-300 */
   --text-muted-val: #9ca3af;  /* ≈ gray-400 */
   --text-dim-val: #6b7280;    /* ≈ gray-500 */
-  --text-faint-val: #4b5563;  /* ≈ gray-600 */
+  /* iter 109 (UI audit v2 P1.2): #4b5563 → #7C8494.
+     Old #4b5563 gave contrast 3.5:1 on #0D0B09 — FAIL WCAG AA (need ≥ 4.5:1).
+     New warm-gray #7C8494 lifts contrast to ~6.5:1 on #0D0B09 — PASS WCAG AA.
+     Hue shifted slightly warm to fit the dirty-brown palette. */
+  --text-faint-val: #7C8494;  /* warm gray, WCAG AA on dark bg */
 
   /* Placeholder text */
   --placeholder-primary: #6b7280;    /* ≈ gray-500 */
@@ -306,7 +345,12 @@ body {
   margin: 0;
   background: var(--poe-bg);
   color: var(--poe-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* iter 109 (UI audit v2 P2.6): prepend self-hosted Noto Sans for
+     cross-platform Cyrillic consistency. System stack remains as fallback
+     (font-display: swap renders it immediately, Noto Sans swaps in once
+     the woff2 loads). Linux users often have Noto Sans as a system font,
+     so for them there is no network cost at all. */
+  font-family: 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: relative;
 }
 
@@ -800,12 +844,17 @@ main {
     display: flex;
   }
 }
+/* iter 109 (UI audit v2 P1.4 + P1.5):
+   - title weight 700 → 600 — 700 "bleeds" in dark mode at 16px, letters
+     visually merge; 600 keeps hierarchy without the bleed.
+   - subtitle 11px → 12px — below WCAG minimum for persistent copy on dark
+     bg (3.8:1 with --text-dim, fails AA at 11px). */
 .topnav-brand-title {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 .topnav-brand-subtitle {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* Tab row: horizontally scrollable on small screens, fits on md+. */

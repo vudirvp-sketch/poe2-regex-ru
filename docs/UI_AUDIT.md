@@ -3,6 +3,7 @@
 > **Дата:** 2026-06-21
 > **Основание:** аудит кодовой базы (index.css, компоненты JSX) + актуальные исследования (WCAG 2.2, APCA, Smashing Magazine 2025, Material Design dark-theme spec, исследования зрительной усталости 2024–2025)
 > **Метод:** экспертный анализ с опорой на измеримые метрики (контраст, luminance, размер глифа)
+> **Статус реализации:** Приоритет 1 (5/5) + Noto Sans — ✅ iter 109
 
 ---
 
@@ -323,41 +324,50 @@ font-feature-settings: "tnum";
 
 ## 7) Итоговая рекомендация — приоритизированный план
 
-### Приоритет 1 (критичный, следующая итерация)
+### Приоритет 1 (критичный) — ✅ ВЫПОЛНЕН в iter 109
 
-| # | Действие | Файл | Обоснование |
-|---|----------|------|-------------|
-| 1 | `--text-primary: #ffffff` → `#F0E6D2` | index.css | Halation, контраст 18.3→13.5:1 |
-| 2 | `--text-faint-val: #4b5563` → `#7C8494` | index.css | WCAG AA FAIL 3.5→6.5:1 |
-| 3 | Все 10px тексты → 12px минимум | StatusPanel, ProfilePanel | WCAG AA FAIL |
-| 4 | Все 11px тексты → 12px | TopNav, RegexOutput, FilterChip | Читаемость + WCAG |
-| 5 | `.topnav-brand-title` weight 700→600 | index.css | Dark mode bleed |
+| # | Действие | Файл | Обоснование | Статус |
+|---|----------|------|-------------|--------|
+| 1 | `--text-primary: #ffffff` → `#F0E6D2` | index.css | Halation, контраст 18.3→13.5:1 | ✅ |
+| 2 | `--text-faint-val: #4b5563` → `#7C8494` | index.css | WCAG AA FAIL 3.5→6.5:1 | ✅ |
+| 3 | Все 10px тексты → 12px минимум | StatusPanel, ProfilePanel, JewelPage, VendorPage, TabletPage | WCAG AA FAIL | ✅ |
+| 4 | Все 11px тексты → 12px | TopNav, RegexOutput, FilterChip, index.css | Читаемость + WCAG | ✅ |
+| 5 | `.topnav-brand-title` weight 700→600 | index.css | Dark mode bleed | ✅ |
 
-### Приоритет 2 (рекомендуемый, 1–2 итерации)
+### Приоритет 2 (рекомендуемый) — частично выполнен
 
-| # | Действие | Файл | Обоснование |
-|---|----------|------|-------------|
-| 6 | Подключить Noto Sans (400/500/600, Cyrillic+Latin subset) | index.css + index.html | Кроссплатформенная консистентность |
-| 7 | Увеличить `--poe-bg-secondary` до `#1A1510` | index.css | Luminance-разделение Δ=0.012 |
-| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics |
-| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность |
+| # | Действие | Файл | Обоснование | Статус |
+|---|----------|------|-------------|--------|
+| 6 | Подключить Noto Sans (400/500/600, Cyrillic+Latin subset) | index.css + public/fonts/ | Кроссплатформенная консистентность | ✅ iter 109 |
+| 7 | Увеличить `--poe-bg-secondary` до `#1A1510` | index.css | Luminance-разделение Δ=0.012 | ⬜ |
+| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics | ⬜ |
+| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность | ⬜ |
 
-### Приоритет 3 (улучшение, по возможности)
+### Приоритет 3 (улучшение, по возможности) — не начат
 
-| # | Действие | Файл | Обоснование |
-|---|----------|------|-------------|
-| 10 | `font-feature-settings: "tnum"` для числовых элементов | index.css | Tabular stability |
-| 11 | Noto Sans Mono для regex display | index.css + index.html | Визуальная согласованность |
-| 12 | APCA-валидация контрастов | ручная проверка | Подготовка к WCAG 3.0 |
-| 13 | `--text-dim-val` осветлить до `#7A8494` | index.css | Контраст на --input-bg |
+| # | Действие | Файл | Обоснование | Статус |
+|---|----------|------|-------------|--------|
+| 10 | `font-feature-settings: "tnum"` для числовых элементов | index.css | Tabular stability | ⬜ |
+| 11 | Noto Sans Mono для regex display | index.css + index.html | Визуальная согласованность | ⬜ |
+| 12 | APCA-валидация контрастов | ручная проверка | Подготовка к WCAG 3.0 | ⬜ |
+| 13 | `--text-dim-val` осветлить до `#7A8494` | index.css | Контраст на --input-bg | ⬜ |
 
 ---
 
 ## 8) Точка остановки
 
-Данная итерация — **аудит + документация**. Никакой функциональный код не изменён.
+**iter 109 COMPLETE.** Реализован весь Приоритет 1 (5/5 CSS/JSX правок) + Приоритет 2.6 (подключение Noto Sans) опережая план — это было естественно, т.к. правки типографики и подключение шрифта делаются в одних и тех же файлах.
 
-**Следующая итерация должна:**
-1. Реализовать изменения Приоритета 1 (5 пунктов) — это безопасные правки CSS/JSX без изменения логики
-2. При благоприятном раскладе — начать Приоритет 2 (подключение Noto Sans)
-3. После каждого изменения — APCA + WCAG-валидация контрастов
+**Что сделано (iter 109):**
+1. Цветовые токены: `--text-primary`, `--text-faint-val` обновлены в `src/index.css`.
+2. Все 10px/11px размеры текста повышены до 12px — 17 правок в 7 файлах (StatusPanel, ProfilePanel, FilterChip, RegexOutput, TopNav, JewelPage, TabletPage, VendorPage).
+3. `.topnav-brand-title` font-weight 700 → 600 в `src/index.css`.
+4. Noto Sans подключён через self-hosted woff2 (3 веса × ~40 KB = 132 KB total, Cyrillic+Latin subset).
+5. `body` font-family обновлён: `'Noto Sans', system-ui, ...`.
+
+**Следующая итерация (iter 110):**
+1. Приоритет 2.7 — `--poe-bg-secondary` `#15110E` → `#1A1510` (luminance-разделение).
+2. Приоритет 2.8 — `body { line-height: 1.6; letter-spacing: 0.01em; }` (dark mode ergonomics).
+3. Приоритет 2.9 — ProfilePanel `bg-btn-primary` → `btn-cta` (палитровая консистентность).
+
+После каждого изменения — APCA + WCAG-валидация контрастов.

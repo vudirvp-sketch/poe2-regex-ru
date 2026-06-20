@@ -92,7 +92,7 @@ const PartCopyButton: React.FC<{ part: string; index: number; total: number }> =
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-dim">
+        <span className="text-[12px] text-dim">
           {t('regex.part_label').replace('{n}', String(index + 1)).replace('{total}', String(total))}
           <span className={`ml-1.5 font-mono ${partHealth === 'green' ? 'text-accent-emerald' : partHealth === 'yellow' ? 'text-accent-yellow' : 'text-accent-red'}`}>
             {partLen}/{MAX_CHARS}

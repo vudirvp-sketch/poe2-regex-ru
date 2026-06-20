@@ -190,12 +190,12 @@ export function TabletPage() {
                 extraControls={
                   <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
                     {/* Tablet type buttons */}
-                    <span className="text-[10px] text-dim">{t('tablet.type_label')}</span>
+                    <span className="text-[12px] text-dim">{t('tablet.type_label')}</span>
                     {TABLET_TYPES.map(typeDef => (
                       <button key={typeDef.id}
                         onClick={() => toggleType(typeDef.id)}
                         title={typeDef.id === 'expedition' ? EXPEDITION_NOTE : undefined}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                        className={`px-1.5 py-0.5 rounded text-[12px] font-medium transition-colors border ${
                           selectedTypes.has(typeDef.id)
                             ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
@@ -208,11 +208,11 @@ export function TabletPage() {
                     ))}
 
                     {/* Rarity buttons */}
-                    <span className="text-[10px] text-dim ml-1">{t('tablet.rarity_label')}</span>
+                    <span className="text-[12px] text-dim ml-1">{t('tablet.rarity_label')}</span>
                     {RARITY_OPTIONS.map(rarityDef => (
                       <button key={rarityDef.id}
                         onClick={() => toggleRarity(rarityDef.id)}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                        className={`px-1.5 py-0.5 rounded text-[12px] font-medium transition-colors border ${
                           selectedRarities.has(rarityDef.id)
                             ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
@@ -225,7 +225,7 @@ export function TabletPage() {
                     ))}
 
                     {/* Uses remaining */}
-                    <span className="text-[10px] text-dim ml-1">{t('tablet.uses_label')}</span>
+                    <span className="text-[12px] text-dim ml-1">{t('tablet.uses_label')}</span>
                     <input type="number" step="1" min={1} max={30} value={usesMin ?? ''}
                       onChange={(e) => { const v = parseInt(e.target.value, 10); setUsesMin(e.target.value === '' ? null : isNaN(v) ? null : v); }}
                       placeholder="≥N"

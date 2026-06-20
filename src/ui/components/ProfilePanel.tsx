@@ -134,7 +134,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
           {/* Saved profiles list */}
           {profiles.length === 0 ? (
-            <div className="text-[10px] text-faint">{t('profile.label')} — 0</div>
+            <div className="text-[12px] text-faint">{t('profile.label')} — 0</div>
           ) : (
             <div className="flex flex-col gap-1" onBlur={handleDeleteCancel}>
               {profiles.map((profile) => (
@@ -164,7 +164,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
                   <button
                     onClick={() => handleStartRename(profile.id, profile.name)}
-                    className="text-[10px] text-dim hover:text-soft px-1"
+                    className="text-[12px] text-dim hover:text-soft px-1"
                     title={t('profile.rename')}
                     aria-label={`${t('profile.rename')}: ${profile.name}`}
                   >
@@ -174,7 +174,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   {pendingDeleteId === profile.id ? (
                     <button
                       onMouseDown={(e) => { e.preventDefault(); handleDeleteConfirm(profile.id); }}
-                      className="text-[10px] text-accent-red hover:text-accent-red-soft px-1 font-bold"
+                      className="text-[12px] text-accent-red hover:text-accent-red-soft px-1 font-bold"
                       title={t('profile.delete')}
                       aria-label={`${t('profile.delete')}: ${profile.name}`}
                       autoFocus
@@ -184,7 +184,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
                   ) : (
                     <button
                       onClick={() => handleDeleteRequest(profile.id)}
-                      className="text-[10px] text-dim hover:text-accent-red px-1"
+                      className="text-[12px] text-dim hover:text-accent-red px-1"
                       title={t('profile.delete')}
                       aria-label={`${t('profile.delete')}: ${profile.name}`}
                     >

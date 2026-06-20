@@ -2,53 +2,57 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 108
+> **Текущая итерация:** 109
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 108 + post-fix audit: вложенные кавычки в OR-регексах устранены. UI-аудит v2 проведён.**
+**iter 109: реализован Приоритет 1 UI-аудита v2 (5 правок CSS/JSX) + подключён Noto Sans.**
 
-### Regex-движок: стабилен
+### Regex-движок: стабилен (без изменений с iter 108)
 
-- 1543/1543 тестов (vitest). TSC 0 errors. ESLint 0 problems.
-- iter 108 фикс глобально эффективен (0 критических нарушений по всем 10 категориям).
+- **1543/1543 тестов** (vitest). TSC 0 errors. ESLint 0 problems.
+- iter 108 фикс (вложенные кавычки в OR-регексах) — 0 критических нарушений по 10 категориям.
+- Все три проверки (`tsc -b`, `vitest run`, `eslint .`) запущены после iter 109 правок — регрессий нет.
 
-### UI-аудит v2 (2026-06-21): найдены проблемы
+### UI iter 109 — Приоритет 1 (все 5 пунктов выполнены)
 
-Полный аудит → `docs/UI_AUDIT.md`. Краткое резюме:
+| # | Правка | Файл | Эффект |
+|---|--------|------|--------|
+| 1 | `--text-primary: #ffffff` → `#F0E6D2` | `src/index.css` | Halation ↓, контраст 18.3→13.5:1 |
+| 2 | `--text-faint-val: #4b5563` → `#7C8494` | `src/index.css` | WCAG AA FAIL → PASS (3.5→6.5:1) |
+| 3 | Все `10px` → `12px` | StatusPanel, ProfilePanel, JewelPage, VendorPage, TabletPage | WCAG AA PASS |
+| 4 | Все `11px` → `12px` | TopNav, RegexOutput, FilterChip, index.css | Читаемость ↑ |
+| 5 | `.topnav-brand-title` weight `700` → `600` | `src/index.css` | Dark mode bleed ↓ |
 
-**Критические (Приоритет 1):**
-1. `--text-primary: #ffffff` — halation на dark bg (контраст 18.3:1, рекомендован ≤ 15:1). Заменить на `#F0E6D2`.
-2. `--text-faint (#4b5563)` — контраст 3.5:1 на #0D0B09 → **FAIL WCAG AA** (нужно ≥ 4.5:1). Осветлить до `#7C8494`.
-3. Тексты 10px (StatusPanel, ProfilePanel) — **FAIL WCAG AA**. Минимум → 12px.
-4. Тексты 11px (TopNav subtitle, RegexOutput part label, chip badges) — трудночитаемы в dark mode. Минимум → 12px.
-5. `.topnav-brand-title` font-weight 700 → 600 (dark mode bleed).
+### UI iter 109 — Noto Sans подключён (Приоритет 2.6, опережая план)
 
-**Рекомендуемые (Приоритет 2):**
-6. Подключить Noto Sans (400/500/600, Cyrillic+Latin subset).
-7. Увеличить `--poe-bg-secondary` до `#1A1510` (luminance-разделение).
-8. `body { line-height: 1.6; letter-spacing: 0.01em; }` для dark mode.
-9. ProfilePanel `bg-btn-primary` → `btn-cta` (палитровая консистентность).
+- Self-hosted woff2 subsets (Cyrillic + Latin + core punctuation/currency), 3 веса (400/500/600).
+- Файлы: `public/fonts/NotoSans-{400,500,600}.woff2` (≈ 40 KB каждый, 132 KB total).
+- `@font-face` блок в начале `src/index.css`, `font-display: swap`.
+- `body { font-family: 'Noto Sans', system-ui, ... }` — Noto Sans первым, system stack как fallback.
 
-**Улучшения (Приоритет 3):**
-10. `font-feature-settings: "tnum"` для числовых элементов.
-11. Noto Sans Mono для regex display.
-12. APCA-валидация контрастов.
-13. `--text-dim-val` осветлить до `#7A8494`.
+### Что осталось из аудита (Приоритет 2 + 3)
+
+| # | Действие | Файл | Обоснование |
+|---|----------|------|-------------|
+| 7 | `--poe-bg-secondary` `#15110E` → `#1A1510` | index.css | Luminance-разделение Δ=0.012 |
+| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics |
+| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность |
+| 10 | `font-feature-settings: "tnum"` | index.css | Tabular stability для чисел |
+| 11 | Noto Sans Mono для regex display | index.css + index.html | Визуальная согласованность |
+| 12 | APCA-валидация контрастов | ручная проверка | Подготовка к WCAG 3.0 |
+| 13 | `--text-dim-val` `#6b7280` → `#7A8494` | index.css | Контраст на `--input-bg` |
 
 ---
 
 ## Known Issues
 
-1. **2 opt-table entries > 250 chars** в jewel.json — runtime split handles at UI level.
+1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
-3. **UI: --text-primary #ffffff halation** — высокий контраст 18.3:1, нужен off-white.
-4. **UI: text-faint FAIL WCAG AA** — контраст 3.5:1 на dark bg, минимум 4.5:1.
-5. **UI: 10–11px тексты** — ниже WCAG-минимума для dark mode, повысить до 12px.
-6. **UI: btn-primary (#2563eb) в ProfilePanel** — холодный синий в тёплой палитре.
+3. **UI: `--placeholder-secondary: #4b5563`** — не входил в P1.2, оставлен как есть. Контраст 3.5:1, но применяется только к placeholder-тексту (не persistent copy). Рассмотреть осветление в Приоритете 3.
 
 ---
 

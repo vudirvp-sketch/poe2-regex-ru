@@ -121,7 +121,7 @@ export function TopNav() {
 
         {/* Feedback hint — desktop only (lg+), doesn't push tabs. */}
         <div
-          className="topnav-feedback hidden lg:block shrink-0 text-[11px] leading-snug"
+          className="topnav-feedback hidden lg:block shrink-0 text-[12px] leading-snug"
           style={{ color: 'var(--poe-text)', opacity: 0.45 }}
         >
           {t('nav.feedback')}

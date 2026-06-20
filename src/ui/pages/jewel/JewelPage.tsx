@@ -205,11 +205,11 @@ export function JewelPage() {
                 activeTokenCount={allActiveTokens.length}
                 extraControls={
                   <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
-                    <span className="text-[10px] text-dim">{t('jewel.type_label')}</span>
+                    <span className="text-[12px] text-dim">{t('jewel.type_label')}</span>
                     {JEWEL_TYPE_OPTIONS.map(opt => (
                       <button key={opt.id}
                         onClick={() => setJewelTypeFilter(opt.id)}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border ${
+                        className={`px-1.5 py-0.5 rounded text-[12px] font-medium transition-colors border ${
                           jewelTypeFilter === opt.id
                             ? 'bg-raised border-accent-amber text-bright'
                             : 'bg-surface border-edge-panel text-dim hover:border-edge'
@@ -243,7 +243,7 @@ export function JewelPage() {
                     <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
                     <button
                       onClick={deselectHidden}
-                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
+                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[12px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
                     >
                       {t('jewel.deselect_hidden')}
                     </button>
@@ -274,7 +274,7 @@ export function JewelPage() {
                     <span>{t('jewel.hidden_mods').replace('{n}', String(hiddenActiveCount))}</span>
                     <button
                       onClick={deselectHidden}
-                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[10px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
+                      className="px-2 py-0.5 bg-abg-amber border border-aborder-amber-badge rounded text-[12px] text-atext-amber-light hover:bg-abg-amber-hover transition-colors"
                     >
                       {t('jewel.deselect_hidden')}
                     </button>

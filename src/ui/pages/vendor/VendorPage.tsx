@@ -248,7 +248,7 @@ export function VendorPage() {
           const colors = GROUP_COLORS[groupName] ?? { header: 'text-muted', border: 'border-l-bl-gray' };
           return (
             <div key={groupName}>
-              <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${colors.header}`}>
+              <div className={`text-[12px] font-semibold uppercase tracking-wider mb-1 ${colors.header}`}>
                 ── {groupName} ({families.length}) ──
               </div>
               <div className="flex flex-wrap gap-1.5">
