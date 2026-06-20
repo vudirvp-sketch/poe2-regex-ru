@@ -51,6 +51,7 @@ Stage Summary:
 
 ## Предыдущие итерации (кратко)
 
+- **iter 108-audit**: exhaustive audit iter 108 fix scope. Аудит-скрипт `/home/z/my-project/scripts/audit-corrected.ts` — 4 теста × 10 категорий × 1697 токенов + 543 opt-table entries. 0 критических нарушений (B0/NESTED/EMPTY). LIMIT-overflow 20 случаев (inherent, runtime-split handled). STATUS.md + docs/IN_GAME_TESTS.md обновлены с audit results.
 - **iter 107**: UX-полировка P4 — tier-colored left border для всех 4 tier'ов в tier-first режиме. `FilterChip` += optional `sortMode` prop, threading через ModList/VirtualizedModList. 1533/1533 tests.
 - **iter 106**: P4 — tier-aware sort toggle (alpha vs tier-first). `SortMode` type + `sortGroupsByTierFirst()` + UI-toggle в `CategoryControlPanel`. 1522/1522 tests.
 - **iter 105**: P2 second half — tablet sub-blocks. Новый режим `tablet-type-subblocks` с 19 sub-blocks. 1500/1500 tests.
