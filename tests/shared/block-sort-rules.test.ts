@@ -6,6 +6,7 @@
  * iter 113: adds damage-type block (47 family-keys, most visible category).
  * iter 114: adds defence-stats block (28 family-keys, second-most-visible defensive block).
  * iter 115: adds resources block (29 family-keys — Health/Mana/ES pools + conversion).
+ * iter 116: adds weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
  *
  * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
@@ -607,6 +608,202 @@ describe('computeSortKey: resources (iter 115)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5e: computeSortKey — weapon-specific canonical ordering (iter 116)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: weapon-specific (iter 116)', () => {
+  const cases = [
+    // Мечи (Swords) — 0-9
+    { familyKey: '#% увеличение урона мечами', expectedOrder: 0, comment: 'swords: damage' },
+    { familyKey: '#% повышение скорости атаки мечами', expectedOrder: 1, comment: 'swords: attack-speed' },
+    // Топоры (Axes) — 10-19
+    { familyKey: '#% увеличение урона топорами', expectedOrder: 10, comment: 'axes: damage' },
+    { familyKey: '#% повышение скорости атаки топорами', expectedOrder: 11, comment: 'axes: attack-speed' },
+    // Булавы (Maces) — 20-29
+    { familyKey: '#% увеличение урона булавами', expectedOrder: 20, comment: 'maces: damage' },
+    { familyKey: '#% повышение скорости накопления шкалы оглушения булавами', expectedOrder: 21, comment: 'maces: stun-gauge' },
+    // Боевые посохи (Warstaves) — 30-39
+    { familyKey: '#% увеличение урона боевыми посохами', expectedOrder: 30, comment: 'warstaves: damage' },
+    { familyKey: '#% повышение скорости атаки боевыми посохами', expectedOrder: 31, comment: 'warstaves: attack-speed' },
+    { familyKey: '#% повышение скорости накопления шкалы заморозки боевыми посохами', expectedOrder: 32, comment: 'warstaves: freeze-gauge' },
+    // Кинжалы (Daggers) — 40-49
+    { familyKey: '#% увеличение урона кинжалами', expectedOrder: 40, comment: 'daggers: damage' },
+    { familyKey: '#% повышение скорости атаки кинжалами', expectedOrder: 41, comment: 'daggers: attack-speed' },
+    { familyKey: '#% повышение шанса критического удара кинжалами', expectedOrder: 42, comment: 'daggers: crit-chance' },
+    // Копья (Spears) — 50-59
+    { familyKey: '#% увеличение урона копьями', expectedOrder: 50, comment: 'spears: damage' },
+    { familyKey: '#% повышение скорости атаки копьями', expectedOrder: 51, comment: 'spears: attack-speed' },
+    { familyKey: '#% увеличение бонуса к критическому урону копьями', expectedOrder: 52, comment: 'spears: crit-damage' },
+    // Кистени (Flails) — 60-69
+    { familyKey: '#% увеличение урона кистенями', expectedOrder: 60, comment: 'flails: damage' },
+    { familyKey: '#% увеличение шанса критического удара кистенями', expectedOrder: 61, comment: 'flails: crit-chance' },
+    // Луки (Bows) — 70-79
+    { familyKey: '#% увеличение урона луками', expectedOrder: 70, comment: 'bows: damage' },
+    { familyKey: '#% повышение скорости атаки луками', expectedOrder: 71, comment: 'bows: attack-speed' },
+    { familyKey: '#% повышение меткости луками', expectedOrder: 72, comment: 'bows: accuracy' },
+    // Самострелы (Crossbows) — 80-89
+    { familyKey: '#% увеличение урона самострелами', expectedOrder: 80, comment: 'crossbows: damage' },
+    { familyKey: '#% повышение скорости атаки самострелами', expectedOrder: 81, comment: 'crossbows: attack-speed' },
+    // Без оружия (Unarmed) — 90-99
+    { familyKey: '#% увеличение урона атаками без оружия', expectedOrder: 90, comment: 'unarmed: damage' },
+    { familyKey: '#% повышение скорости атаки без оружия', expectedOrder: 91, comment: 'unarmed: attack-speed' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`weapon-specific: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('weapon-specific', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('weapon-specific: full canonical bucket order Мечи → Топоры → Булавы → Боевые посохи → Кинжалы → Копья → Кистени → Луки → Самострелы → Без оружия', () => {
+    // Pick one representative family-key per weapon (damage variant for each)
+    const keys = [
+      '#% увеличение урона мечами',            // 0  — Мечи
+      '#% увеличение урона топорами',          // 10 — Топоры
+      '#% увеличение урона булавами',          // 20 — Булавы
+      '#% увеличение урона боевыми посохами',  // 30 — Боевые посохи
+      '#% увеличение урона кинжалами',         // 40 — Кинжалы
+      '#% увеличение урона копьями',           // 50 — Копья
+      '#% увеличение урона кистенями',         // 60 — Кистени
+      '#% увеличение урона луками',            // 70 — Луки
+      '#% увеличение урона самострелами',      // 80 — Самострелы
+      '#% увеличение урона атаками без оружия', // 90 — Без оружия
+    ];
+    const sortKeys = keys.map(k => computeSortKey('weapon-specific', k)).sort();
+    expect(sortKeys[0]).toContain('мечами');
+    expect(sortKeys[1]).toContain('топорами');
+    expect(sortKeys[2]).toContain('булавами');
+    expect(sortKeys[3]).toContain('боевыми посохами');
+    expect(sortKeys[4]).toContain('кинжалами');
+    expect(sortKeys[5]).toContain('копьями');
+    expect(sortKeys[6]).toContain('кистенями');
+    expect(sortKeys[7]).toContain('луками');
+    expect(sortKeys[8]).toContain('самострелами');
+    expect(sortKeys[9]).toContain('без оружия');
+  });
+
+  it('weapon-specific: damage BEFORE attack-speed within same weapon (swords)', () => {
+    const damage = computeSortKey('weapon-specific', '#% увеличение урона мечами');
+    const speed = computeSortKey('weapon-specific', '#% повышение скорости атаки мечами');
+    expect(damage.localeCompare(speed, 'ru')).toBeLessThan(0);
+  });
+
+  it('weapon-specific: damage BEFORE attack-speed within same weapon (warstaves)', () => {
+    const damage = computeSortKey('weapon-specific', '#% увеличение урона боевыми посохами');
+    const speed = computeSortKey('weapon-specific', '#% повышение скорости атаки боевыми посохами');
+    expect(damage.localeCompare(speed, 'ru')).toBeLessThan(0);
+  });
+
+  it('weapon-specific: attack-speed BEFORE weapon-specific stat (warstaves freeze-gauge)', () => {
+    const speed = computeSortKey('weapon-specific', '#% повышение скорости атаки боевыми посохами');
+    const freeze = computeSortKey('weapon-specific', '#% повышение скорости накопления шкалы заморозки боевыми посохами');
+    expect(speed.localeCompare(freeze, 'ru')).toBeLessThan(0);
+  });
+
+  it('weapon-specific: unarmed uses "атаками без оружия" wording (distinct from other weapons)', () => {
+    // Verify the unarmed damage pattern doesn't accidentally match other weapon damage keys.
+    const unarmedDamage = computeSortKey('weapon-specific', '#% увеличение урона атаками без оружия');
+    const swordDamage = computeSortKey('weapon-specific', '#% увеличение урона мечами');
+    // Unarmed is order 90, sword is order 0 — sword sorts first.
+    expect(swordDamage.localeCompare(unarmedDamage, 'ru')).toBeLessThan(0);
+    expect(unarmedDamage.startsWith('090::')).toBe(true);
+    expect(swordDamage.startsWith('000::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5f: computeSortKey — flasks canonical ordering (iter 116)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: flasks (iter 116)', () => {
+  const cases = [
+    // Health flask (0-9) — 5 keys
+    { familyKey: '#% повышение скорости восстановления здоровья от флакона', expectedOrder: 0, comment: 'health-flask: recovery-speed' },
+    { familyKey: '#% увеличение восстановления здоровья от флаконов', expectedOrder: 1, comment: 'health-flask: recovery-amount' },
+    { familyKey: '#% увеличение количества получаемых зарядов флакона здоровья', expectedOrder: 2, comment: 'health-flask: charges-gained' },
+    { familyKey: '#% увеличение регенерации здоровья во время действия эффекта любого флакона здоровья', expectedOrder: 3, comment: 'health-flask: regen-during-effect' },
+    { familyKey: 'Флаконы здоровья получают зарядов в секунду: #', expectedOrder: 4, comment: 'health-flask: regen-per-sec' },
+    // Mana flask (10-19) — 4 keys
+    { familyKey: '#% повышение скорости восстановления маны от флакона', expectedOrder: 10, comment: 'mana-flask: recovery-speed' },
+    { familyKey: '#% увеличение восстановления маны от флаконов', expectedOrder: 11, comment: 'mana-flask: recovery-amount' },
+    { familyKey: '#% увеличение количества получаемых зарядов флакона маны', expectedOrder: 12, comment: 'mana-flask: charges-gained' },
+    { familyKey: 'Флаконы маны получают зарядов в секунду: #', expectedOrder: 13, comment: 'mana-flask: regen-per-sec' },
+    // Any flask (20-29) — 5 keys
+    { familyKey: '#% увеличение длительности эффекта флакона', expectedOrder: 20, comment: 'any-flask: duration' },
+    { familyKey: '#% увеличение количества получаемых зарядов флакона', expectedOrder: 21, comment: 'any-flask: charges-gained' },
+    { familyKey: '#% уменьшение используемого количества зарядов флакона', expectedOrder: 22, comment: 'any-flask: charges-used-reduction' },
+    { familyKey: '#% шанс сохранить заряды флаконов при их использовании', expectedOrder: 23, comment: 'any-flask: keep-charges' },
+    { familyKey: 'Флаконы получают зарядов в секунду: #', expectedOrder: 24, comment: 'any-flask: regen-per-sec' },
+    // Flask buffs (30-39) — 2 keys
+    { familyKey: '(#)% увеличение скорости сотворения чар во время действия любого флакона', expectedOrder: 30, comment: 'buff: cast-speed' },
+    { familyKey: '(#)% увеличение урона чар во время действия любого флакона', expectedOrder: 31, comment: 'buff: spell-damage' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`flasks: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('flasks', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('flasks: full canonical bucket order Health → Mana → Any → Buffs', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '#% повышение скорости восстановления здоровья от флакона',                     // 0  — Health
+      '#% повышение скорости восстановления маны от флакона',                         // 10 — Mana
+      '#% увеличение длительности эффекта флакона',                                   // 20 — Any
+      '(#)% увеличение скорости сотворения чар во время действия любого флакона',     // 30 — Buffs
+    ];
+    const sortKeys = keys.map(k => computeSortKey('flasks', k)).sort();
+    expect(sortKeys[0]).toContain('здоровья от флакона');
+    expect(sortKeys[1]).toContain('маны от флакона');
+    expect(sortKeys[2]).toContain('длительности эффекта флакона');
+    expect(sortKeys[3]).toContain('скорости сотворения чар');
+  });
+
+  it('flasks: Health parallel to Mana — recovery-speed health (0) BEFORE recovery-speed mana (10)', () => {
+    const health = computeSortKey('flasks', '#% повышение скорости восстановления здоровья от флакона');
+    const mana = computeSortKey('flasks', '#% повышение скорости восстановления маны от флакона');
+    expect(health.localeCompare(mana, 'ru')).toBeLessThan(0);
+  });
+
+  it('flasks: end-anchored `флакона$` does NOT match `флакона здоровья` (any-flask vs health-flask charges-gained)', () => {
+    // "получаемых зарядов флакона$" should match only "получаемых зарядов флакона" (any)
+    // but NOT "получаемых зарядов флакона здоровья" (health-specific).
+    const anyFlask = computeSortKey('flasks', '#% увеличение количества получаемых зарядов флакона');
+    const healthFlask = computeSortKey('flasks', '#% увеличение количества получаемых зарядов флакона здоровья');
+    // Any is order 21, health is order 2 — health sorts first (more specific).
+    expect(anyFlask.startsWith('021::')).toBe(true);
+    expect(healthFlask.startsWith('002::')).toBe(true);
+    expect(healthFlask.localeCompare(anyFlask, 'ru')).toBeLessThan(0);
+  });
+
+  it('flasks: start-anchored `^Флаконы получают` does NOT match `Флаконы здоровья получают` (any vs health regen-per-sec)', () => {
+    const anyFlask = computeSortKey('flasks', 'Флаконы получают зарядов в секунду: #');
+    const healthFlask = computeSortKey('flasks', 'Флаконы здоровья получают зарядов в секунду: #');
+    // Any is order 24, health is order 4 — health sorts first (more specific).
+    expect(anyFlask.startsWith('024::')).toBe(true);
+    expect(healthFlask.startsWith('004::')).toBe(true);
+    expect(healthFlask.localeCompare(anyFlask, 'ru')).toBeLessThan(0);
+  });
+
+  it('flasks: recovery-speed (0) BEFORE recovery-amount (1) — speed more fundamental than amount', () => {
+    const speed = computeSortKey('flasks', '#% повышение скорости восстановления здоровья от флакона');
+    const amount = computeSortKey('flasks', '#% увеличение восстановления здоровья от флаконов');
+    expect(speed.localeCompare(amount, 'ru')).toBeLessThan(0);
+  });
+
+  it('flasks: any-flask duration (20) BEFORE buffs (30) — flask properties before player buffs', () => {
+    const duration = computeSortKey('flasks', '#% увеличение длительности эффекта флакона');
+    const buff = computeSortKey('flasks', '(#)% увеличение скорости сотворения чар во время действия любого флакона');
+    expect(duration.localeCompare(buff, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -785,6 +982,46 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       '#% увеличение здоровья тотема',
     ]);
   });
+
+  it('weapon-specific (iter 116): 4 weapons order Мечи → Топоры → Булавы → Без оружия', () => {
+    const tokens = [
+      makeToken('#% увеличение урона атаками без оружия', 'weapon-specific'),
+      makeToken('#% увеличение урона булавами', 'weapon-specific'),
+      makeToken('#% увеличение урона топорами', 'weapon-specific'),
+      makeToken('#% увеличение урона мечами', 'weapon-specific'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'jewel');
+    // Use 'affix-functional' (not 'jewel-functional') to keep weapon-specific
+    // as a single block — 'jewel-functional' splits it into 6 weapon-class sub-blocks.
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const weaponGroup = subGroups.find(sg => sg.key === 'weapon-specific');
+    expect(weaponGroup).toBeDefined();
+    const familyKeys = weaponGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% увеличение урона мечами',
+      '#% увеличение урона топорами',
+      '#% увеличение урона булавами',
+      '#% увеличение урона атаками без оружия',
+    ]);
+  });
+
+  it('flasks (iter 116): 3 buckets order Health → Mana → Any', () => {
+    const tokens = [
+      makeToken('#% увеличение длительности эффекта флакона', 'flasks'),
+      makeToken('#% повышение скорости восстановления маны от флакона', 'flasks'),
+      makeToken('#% повышение скорости восстановления здоровья от флакона', 'flasks'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'belt');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const flasksGroup = subGroups.find(sg => sg.key === 'flasks');
+    expect(flasksGroup).toBeDefined();
+    const familyKeys = flasksGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% повышение скорости восстановления здоровья от флакона',
+      '#% повышение скорости восстановления маны от флакона',
+      '#% увеличение длительности эффекта флакона',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -811,8 +1048,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 115 scope: 7 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources)', () => {
+  it('iter 116 scope: 9 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'minions', 'resistances', 'resources']);
+    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'flasks', 'minions', 'resistances', 'resources', 'weapon-specific']);
   });
 });

@@ -4,6 +4,7 @@
 > **iter 113** — добавлены правила для `damage-type` (47 family-keys).
 > **iter 114** — добавлены правила для `defence-stats` (28 family-keys).
 > **iter 115** — добавлены правила для `resources` (29 family-keys).
+> **iter 116** — добавлены правила для `weapon-specific` (24 family-keys) + `flasks` (16 family-keys).
 > **Следующие итерации** — расширение на остальные functional blocks.
 
 ---
@@ -122,9 +123,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 4. Текущее покрытие (iter 115)
+## 4. Текущее покрытие (iter 116)
 
-### 4.1. Блоки с правилами (7 из 20 functional blocks)
+### 4.1. Блоки с правилами (9 из 20 functional blocks)
 
 | Блок | # family-keys | # rules | Покрытие |
 |------|---------------|---------|----------|
@@ -135,24 +136,24 @@ export function computeSortKey(block, familyKey): string {
 | `damage-type` | 47 | 47 | 100% |
 | `defence-stats` | 28 | 28 | 100% |
 | `resources` | 29 | 29 | 100% |
-| **Итого** | **209** | **209** | **100%** |
+| `weapon-specific` | 24 | 24 | 100% |
+| `flasks` | 16 | 16 | 100% |
+| **Итого** | **249** | **249** | **100%** |
 
 Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
 
-### 4.2. Блоки БЕЗ правил (13 из 20)
+### 4.2. Блоки БЕЗ правил (11 из 20)
 
 Возвращают `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
 
-| Блок | # family-keys | Приоритет iter 116+ |
+| Блок | # family-keys | Приоритет iter 117+ |
 |------|---------------|---------------------|
-| `weapon-specific` | 24 | HIGH (jewel-only, есть sub-blocks по типу оружия) |
-| `flasks` | 16 | HIGH (belt+jewel, геймплейно важный блок) |
 | `other` | 27 | LOW (heterogeneous — сложно систематизировать) |
-| `offence-speed` | 12 | MEDIUM |
+| `offence-speed` | 12 | HIGH (видимый блок) |
 | `skill-levels` | 10 | MEDIUM |
-| `crit` | 9 | MEDIUM |
+| `crit` | 9 | HIGH (видимый блок, §5.4) |
 | `area-duration` | 8 | LOW |
-| `buff-skills` | 7 | MEDIUM |
+| `buff-skills` | 7 | MEDIUM (§5.6) |
 | `meta-skills` | 6 | LOW |
 | `runes-barrier` | 4 | LOW |
 | `rage-charges` | 4 | LOW |
@@ -167,9 +168,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 5. Канонические порядки для будущих итераций
+## 5. Канонические порядки (реализованные и для будущих итераций)
 
-Ниже — предложения canonical orderings для priority-блоков iter 115+. Не реализовано, задокументировано для планирования.
+Ниже — canonical orderings для functional blocks. §5.1, §5.2, §5.5, §5.7, §5.8 — РЕАЛИЗОВАНЫ (iter 113–116). §5.3, §5.4, §5.6 — предложения для iter 117+, не реализованы, задокументированы для планирования.
 
 ### 5.1. `damage-type` — РЕАЛИЗОВАН в iter 113 (47 family-keys)
 
@@ -272,34 +273,59 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 50: Метки (усиление эффекта, скорость сотворения)
 ```
 
-### 5.7. `weapon-specific` (24 family-keys) — приоритет iter 116
+### 5.7. `weapon-specific` — РЕАЛИЗОВАН в iter 116 (24 family-keys)
 
-Все family-keys — jewel-only. Группировка по типу оружия + stat (damage/speed/crit).
+Все family-keys — jewel-only. Группировка по типу оружия × stat (damage/speed/crit/gauge/accuracy).
 
-```
-0-9:    Мечи (damage, attack-speed, crit)
-10-19:  Топоры (damage, attack-speed)
-20-29:  Булавы (damage, attack-speed, freeze-gauge)
-30-39:  Боевые посохи (damage, attack-speed, freeze-gauge)
-40-49:  Кинжалы (damage, attack-speed, crit)
-50-59:  Копья (damage, attack-speed, crit-damage)
-60-69:  Кистени (damage, crit)
-70-79:  Луки (damage, attack-speed, accuracy)
-80-89:  Самострелы (damage, attack-speed, reload)
-90-99:  Без оружия (damage, attack-speed)
-```
-
-### 5.8. `flasks` (16 family-keys) — приоритет iter 116/117
-
-Группировка: resource (health/mana/any) × mechanic (recovery-speed, recovery-amount, charges-gained, charges-used, duration, keep-charges, spell-buff).
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['weapon-specific']`:
 
 ```
-0-9:    Health flask (recovery speed, recovery amount, charges gained, charges used reduction)
-10-19:  Mana flask (recovery speed, recovery amount, charges gained, charges used reduction)
-20-29:  Any flask (duration, charges gained, charges used reduction, keep-charges)
-30-39:  Flask buffs (cast-speed while flask active, spell-damage while flask active)
-40-49:  Passive regen (health-flask regen, mana-flask regen, any-flask regen)
+0-9:    Мечи (Swords)             — damage 0, attack-speed 1
+10-19:  Топоры (Axes)             — damage 10, attack-speed 11
+20-29:  Булавы (Maces)            — damage 20, stun-gauge 21
+30-39:  Боевые посохи (Warstaves) — damage 30, attack-speed 31, freeze-gauge 32
+40-49:  Кинжалы (Daggers)         — damage 40, attack-speed 41, crit-chance 42
+50-59:  Копья (Spears)            — damage 50, attack-speed 51, crit-damage 52
+60-69:  Кистени (Flails)          — damage 60, crit-chance 61
+70-79:  Луки (Bows)               — damage 70, attack-speed 71, accuracy 72
+80-89:  Самострелы (Crossbows)    — damage 80, attack-speed 81
+90-99:  Без оружия (Unarmed)      — damage 90, attack-speed 91
 ```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'weapon-specific':`).
+
+**Корректировки плана** (vs первичной оценки в §5.7 plan):
+- Фактически 24 family-keys (совпадает с планом).
+- Swords не имеют crit в данных (план предполагал crit-chance).
+- Maces имеют stun-gauge (план предполагал freeze-gauge — неверно).
+- Кистени не имеют attack-speed в данных (план предполагал attack-speed).
+- Самострелы не имеют reload в данных (план предполагал reload).
+- Дополнительно: «Без оружия» имеет damage wording «атаками без оружия» (с «атаками»), отличающийся от других weapons.
+
+### 5.8. `flasks` — РЕАЛИЗОВАН в iter 116 (16 family-keys)
+
+Группировка: RESOURCE TYPE (Health/Mana/Any) × MECHANIC (recovery-speed, recovery-amount, charges-gained, regen, duration, keep-charges, buffs).
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['flasks']`:
+
+```
+0-9:    Health flask (5 keys: recovery-speed 0, recovery-amount 1,
+        charges-gained 2, regen-during-effect 3, regen-per-sec 4)
+10-19:  Mana flask (4 keys: recovery-speed 10, recovery-amount 11,
+        charges-gained 12, regen-per-sec 13)
+20-29:  Any flask (5 keys: duration 20, charges-gained 21,
+        charges-used-reduction 22, keep-charges 23, regen-per-sec 24)
+30-39:  Flask buffs (2 keys: cast-speed 30, spell-damage 31)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'flasks':`).
+
+**Корректировки плана** (vs первичной оценки в §5.8 plan):
+- **Resource-first bucketing** (vs plan's mechanic-first bucketing) — каждый resource (Health/Mana/Any) имеет parallel stat-типы. План «Passive regen» bucket разрезал бы parallel структуру.
+- Health flask имеет 5 keys (план говорил 4) — добавлен regen-during-effect (`#% увеличение регенерации здоровья во время действия эффекта любого флакона здоровья`).
+- Mana flask имеет 4 keys (план говорил 4) — нет regen-during-effect для mana в данных.
+- Any flask имеет 5 keys (план говорил 4) — добавлен regen-per-sec (`Флаконы получают зарядов в секунду: #`).
+- Flask buffs — 2 keys (план говорил 2) ✓.
 
 ---
 
@@ -307,11 +333,11 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 
 ### 6.1. Unit tests (`tests/shared/block-sort-rules.test.ts`)
 
-- `computeSortKey()` для каждого canonical family-key (209 cases — 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
+- `computeSortKey()` для каждого canonical family-key (249 cases — 24 weapon-specific + 16 flasks + 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
 - `sortGroupsAlphabetically()` использует sortKey когда set.
 - `sortGroupsAlphabetically()` fallback к familyKey когда sortKey отсутствует (backward compat).
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
-- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 115 scope = 7 блоков.
+- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 116 scope = 9 блоков.
 
 ### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
 
@@ -335,48 +361,50 @@ iter 112 добавил 2 теста для regex-бага:
 
 | Файл | Назначение |
 |------|------------|
-| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (7 блоков) |
+| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (9 блоков) |
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (209 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (7 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (249 case-tests + relationship + E2E) |
+| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (9 блоков) |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
 
 ---
 
----
+## 8. Точка остановки iter 116 → iter 117
 
-## 8. Точка остановки iter 115 → iter 116
+**Сделано в iter 116:**
+1. ✅ `weapon-specific` block — 24 family-keys, 100% coverage. Canonical order: Мечи → Топоры → Булавы → Боевые посохи → Кинжалы → Копья → Кистени → Луки → Самострелы → Без оружия (10 weapon buckets).
+2. ✅ `flasks` block — 16 family-keys, 100% coverage. Canonical order: Health flask → Mana flask → Any flask → Flask buffs (4 resource buckets).
+3. ✅ Audit script обновлён — проверяет 9 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks, 249 family-keys total).
+4. ✅ 53 новых unit/relationship/E2E теста — все green (1774/1774 total).
+5. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md, AGENT_NAVIGATION.md.
 
-**Сделано в iter 115:**
-1. ✅ `resources` block — 29 family-keys, 100% coverage. Canonical order: Здоровье → Мана → ES → Конверсия → Тотем → Прочее (6 buckets).
-2. ✅ Audit script обновлён — проверяет 7 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources).
-3. ✅ 34 новых unit/relationship/E2E теста — все green (1721/1721 total).
-4. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md, AGENT_NAVIGATION.md.
+**Корректировки плана в iter 116:**
+- `weapon-specific`: 24 family-keys (совпадает с планом §5.7).
+- `weapon-specific` sword has no crit (план предполагал) — нет в данных.
+- `weapon-specific` maces имеют stun-gauge, не freeze-gauge (план был неточен).
+- `weapon-specific` кистени не имеют attack-speed (план был неточен).
+- `weapon-specific` самострелы не имеют reload (план был неточен).
+- `flasks`: 16 family-keys ✓ (совпадает с iter 115 корректировкой).
+- `flasks`: **resource-first bucketing** вместо mechanic-first (план §5.8 был неточен) — Health/Mana/Any параллельны по stat-типам, что делает resource-first более чистым.
+- `flasks`: Health flask имеет 5 keys (план говорил 4) — добавлен regen-during-effect.
+- `flasks`: Any flask имеет 5 keys (план говорил 4) — добавлен regen-per-sec.
 
-**Корректировки плана в iter 115:**
-- Фактически `resources` содержит 29 family-keys, а не 33 как планировалось в iter 112.
-- Фактически `flasks` содержит 16 family-keys (а не 18).
-- Фактически `buff-skills` содержит 7 family-keys (а не 8).
-- Фактически `magic-find` содержит 1 family-key (а не 2).
-- Фактически `breach` содержит 1 family-key (а не 2).
-- Эти обновлённые counts отражены в §4.2.
+**НЕ сделано (переносится в iter 117+):**
 
-**НЕ сделано (переносится в iter 116+):**
-
-1. **Добавить правила для 13 functional blocks без правил** (см. §4.2).
-   - Приоритет: `weapon-specific` (24, jewel-only, §5.7), `flasks` (16, §5.8).
-   - Канонические порядки предложены в §5.7 и §5.8.
+1. **Добавить правила для 11 functional blocks без правил** (см. §4.2).
+   - Приоритет: `offence-speed` (12, §5.3), `crit` (9, §5.4), `buff-skills` (7, §5.6).
+   - Канонические порядки предложены в §5.3, §5.4, §5.6.
 
 2. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
    - UI в браузере: контрасты, читаемость 12px, рендеринг Noto Sans (Linux).
-   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + **NEW iter 115: resources** — проверить, что канонический порядок выглядит правильно визуально.
+   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + **NEW iter 116: weapon-specific + flasks** — проверить, что канонический порядок выглядит правильно визуально.
 
 3. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
 
 4. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
 
-**Подсказка следующему агенту:** iter 115 = resources block rules (29 family-keys, 100% coverage). Перед стартом iter 116 прочитай STATUS.md (актуальный статус + Known Issues #4 — 13 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки §5.7 weapon-specific + §5.8 flasks), worklog.md (этот раздел iter 115). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 7 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+**Подсказка следующему агенту:** iter 116 = weapon-specific (24) + flasks (16) block rules, 100% coverage each. Перед стартом iter 117 прочитай STATUS.md (актуальный статус + Known Issues #4 — 11 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки §5.3 offence-speed + §5.4 crit + §5.6 buff-skills), worklog.md (этот раздел iter 116). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 9 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.

@@ -31,6 +31,7 @@
  * iter 113: added damage-type (47 family-keys, most visible category).
  * iter 114: added defence-stats (28 family-keys, second-most-visible defensive block).
  * iter 115: added resources (29 family-keys — health/mana/ES pools + damage conversion).
+ * iter 116: added weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
  *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
@@ -573,6 +574,154 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     // ─── Прочее (50-59) ─────────────────────────────────────────────────
     { pattern: /увеличение радиуса обзора/i, order: 50, comment: 'other: vision radius' },
     { pattern: /усиление эффекта Колдовского выброса/i, order: 51, comment: 'other: Hexblast skill effect' },
+  ],
+
+  // ─── weapon-specific (24 family-keys) — iter 116 ──────────────────────────
+  // All family-keys are jewel-only. Each key has the shape
+  // "#% <stat> <weapon-instrumental-case>" where stat is one of:
+  //   - увеличение урона                (damage increase)
+  //   - повышение скорости атаки        (attack speed)
+  //   - повышение шанса критического удара (crit chance)
+  //   - увеличение бонуса к критическому урону (crit damage bonus)
+  //   - повышение меткости              (accuracy)
+  //   - повышение скорости накопления шкалы ... (gauge accumulation speed)
+  //
+  // Canonical order: WEAPON TYPE (tens digit) × STAT TYPE (ones digit).
+  //
+  // Weapon type order (player mental model — melee first, then ranged, then unarmed):
+  //   0-9:   Мечи (Swords)             — damage 0, attack-speed 1
+  //   10-19: Топоры (Axes)             — damage 10, attack-speed 11
+  //   20-29: Булавы (Maces)            — damage 20, stun-gauge 21
+  //   30-39: Боевые посохи (Warstaves) — damage 30, attack-speed 31, freeze-gauge 32
+  //   40-49: Кинжалы (Daggers)         — damage 40, attack-speed 41, crit-chance 42
+  //   50-59: Копья (Spears)            — damage 50, attack-speed 51, crit-damage 52
+  //   60-69: Кистени (Flails)          — damage 60, crit-chance 61
+  //   70-79: Луки (Bows)               — damage 70, attack-speed 71, accuracy 72
+  //   80-89: Самострелы (Crossbows)    — damage 80, attack-speed 81
+  //   90-99: Без оружия (Unarmed)      — damage 90, attack-speed 91
+  //
+  // Design notes:
+  //   - Each weapon name (instrumental case: мечами/топорами/булавами/etc.) is
+  //     unique — no collision risk between weapons. No end-anchoring needed.
+  //   - Stat-type patterns are word-specific: "увеличение урона X" vs
+  //     "скорости атаки X" vs "критического удара X" vs "бонуса к критическому
+  //     урону X" vs "меткости X" vs "скорости накопления шкалы Y X" — all
+  //     distinct substrings, no first-match-wins conflict within a weapon.
+  //   - Some weapons lack certain stat types in the data (e.g., swords have
+  //     no crit, maces have no attack-speed, flails have no attack-speed) —
+  //     canonical orders leave gaps intentionally.
+  //   - "Без оружия" (unarmed) uses slightly different wording: "увеличение
+  //     урона атаками без оружия" (with "атаками") vs other weapons' "увеличение
+  //     урона X". Pattern includes "атаками" to match only unarmed damage.
+  'weapon-specific': [
+    // ─── Мечи (Swords) — 0-9 ────────────────────────────────────────────
+    { pattern: /увеличение урона мечами/i, order: 0, comment: 'swords: damage' },
+    { pattern: /скорости атаки мечами/i, order: 1, comment: 'swords: attack-speed' },
+
+    // ─── Топоры (Axes) — 10-19 ──────────────────────────────────────────
+    { pattern: /увеличение урона топорами/i, order: 10, comment: 'axes: damage' },
+    { pattern: /скорости атаки топорами/i, order: 11, comment: 'axes: attack-speed' },
+
+    // ─── Булавы (Maces) — 20-29 ─────────────────────────────────────────
+    { pattern: /увеличение урона булавами/i, order: 20, comment: 'maces: damage' },
+    { pattern: /скорости накопления шкалы оглушения булавами/i, order: 21, comment: 'maces: stun-gauge' },
+
+    // ─── Боевые посохи (Warstaves) — 30-39 ──────────────────────────────
+    { pattern: /увеличение урона боевыми посохами/i, order: 30, comment: 'warstaves: damage' },
+    { pattern: /скорости атаки боевыми посохами/i, order: 31, comment: 'warstaves: attack-speed' },
+    { pattern: /скорости накопления шкалы заморозки боевыми посохами/i, order: 32, comment: 'warstaves: freeze-gauge' },
+
+    // ─── Кинжалы (Daggers) — 40-49 ───────────────────────────────────────
+    { pattern: /увеличение урона кинжалами/i, order: 40, comment: 'daggers: damage' },
+    { pattern: /скорости атаки кинжалами/i, order: 41, comment: 'daggers: attack-speed' },
+    { pattern: /шанса критического удара кинжалами/i, order: 42, comment: 'daggers: crit-chance' },
+
+    // ─── Копья (Spears) — 50-59 ─────────────────────────────────────────
+    { pattern: /увеличение урона копьями/i, order: 50, comment: 'spears: damage' },
+    { pattern: /скорости атаки копьями/i, order: 51, comment: 'spears: attack-speed' },
+    { pattern: /бонуса к критическому урону копьями/i, order: 52, comment: 'spears: crit-damage' },
+
+    // ─── Кистени (Flails) — 60-69 ───────────────────────────────────────
+    { pattern: /увеличение урона кистенями/i, order: 60, comment: 'flails: damage' },
+    { pattern: /шанса критического удара кистенями/i, order: 61, comment: 'flails: crit-chance' },
+
+    // ─── Луки (Bows) — 70-79 ────────────────────────────────────────────
+    { pattern: /увеличение урона луками/i, order: 70, comment: 'bows: damage' },
+    { pattern: /скорости атаки луками/i, order: 71, comment: 'bows: attack-speed' },
+    { pattern: /меткости луками/i, order: 72, comment: 'bows: accuracy' },
+
+    // ─── Самострелы (Crossbows) — 80-89 ─────────────────────────────────
+    { pattern: /увеличение урона самострелами/i, order: 80, comment: 'crossbows: damage' },
+    { pattern: /скорости атаки самострелами/i, order: 81, comment: 'crossbows: attack-speed' },
+
+    // ─── Без оружия (Unarmed) — 90-99 ───────────────────────────────────
+    // Note: unarmed damage uses "атаками без оружия" (with "атаками"), other
+    // weapons use just "<weapon-instrumental>".
+    { pattern: /увеличение урона атаками без оружия/i, order: 90, comment: 'unarmed: damage' },
+    { pattern: /скорости атаки без оружия/i, order: 91, comment: 'unarmed: attack-speed' },
+  ],
+
+  // ─── flasks (16 family-keys) — iter 116 ───────────────────────────────────
+  // Family-keys are split across belt + jewel files. Canonical order groups
+  // by RESOURCE TYPE (Health/Mana/Any) × MECHANIC (recovery speed, recovery
+  // amount, charges gained, regen, etc.).
+  //
+  // Bucket layout:
+  //   0-9:   Health flask (5 keys: recovery-speed, recovery-amount,
+  //          charges-gained, regen-during-effect, regen-per-sec)
+  //   10-19: Mana flask (4 keys: recovery-speed, recovery-amount,
+  //          charges-gained, regen-per-sec — no regen-during-effect for mana)
+  //   20-29: Any flask (5 keys: duration, charges-gained, charges-used-reduction,
+  //          keep-charges, regen-per-sec)
+  //   30-39: Flask buffs (2 keys: cast-speed while flask active,
+  //          spell-damage while flask active)
+  //
+  // Design notes:
+  //   - Resource-first bucketing (vs §5.8 plan's mechanic-first bucketing)
+  //     is cleaner because each resource (health/mana) has parallel stat
+  //     types (recovery-speed, recovery-amount, charges-gained). The plan's
+  //     "Passive regen" bucket would have split this parallel structure.
+  //   - End-anchored `$` for `флакона$` (any-flask duration/charges-gained)
+  //     prevents collision with `флакона здоровья` / `флакона маны` variants
+  //     which end with "здоровья" / "маны".
+  //   - Start-anchored `^` for `^Флаконы получают зарядов` (any-flask regen-per-sec)
+  //     prevents collision with `^Флаконы здоровья получают` / `^Флаконы маны
+  //     получают` variants. All three exist in the data.
+  //   - Specific (health/mana) rules listed BEFORE generic (any) rules —
+  //     first-match-wins safety. Even though end/start anchors make them
+  //     independent, listing specific-first is more readable.
+  //   - Health bucket has 5 keys (most prominent), Mana has 4 (no
+  //     regen-during-effect in data), Any has 5, Buffs has 2.
+  //   - Mana lacks the "regen-during-effect" stat type in the data —
+  //     only Health has `#% увеличение регенерации здоровья во время действия
+  //     эффекта любого флакона здоровья`.
+  //   - Flask buffs (orders 30, 31) are separated because they affect player
+  //     stats while flask is active, not flask properties themselves.
+  'flasks': [
+    // ─── Health flask (0-9) — 5 keys ────────────────────────────────────
+    { pattern: /скорости восстановления здоровья от флакона/i, order: 0, comment: 'health-flask: recovery-speed' },
+    { pattern: /восстановления здоровья от флаконов/i, order: 1, comment: 'health-flask: recovery-amount' },
+    { pattern: /получаемых зарядов флакона здоровья/i, order: 2, comment: 'health-flask: charges-gained' },
+    { pattern: /регенерации здоровья во время действия эффекта/i, order: 3, comment: 'health-flask: regen-during-effect' },
+    { pattern: /^Флаконы здоровья получают зарядов в секунду/i, order: 4, comment: 'health-flask: regen-per-sec' },
+
+    // ─── Mana flask (10-19) — 4 keys ────────────────────────────────────
+    { pattern: /скорости восстановления маны от флакона/i, order: 10, comment: 'mana-flask: recovery-speed' },
+    { pattern: /восстановления маны от флаконов/i, order: 11, comment: 'mana-flask: recovery-amount' },
+    { pattern: /получаемых зарядов флакона маны/i, order: 12, comment: 'mana-flask: charges-gained' },
+    { pattern: /^Флаконы маны получают зарядов в секунду/i, order: 13, comment: 'mana-flask: regen-per-sec' },
+
+    // ─── Any flask (20-29) — 5 keys ─────────────────────────────────────
+    // End-anchored to prevent collision with health/mana specific variants.
+    { pattern: /увеличение длительности эффекта флакона$/i, order: 20, comment: 'any-flask: duration' },
+    { pattern: /получаемых зарядов флакона$/i, order: 21, comment: 'any-flask: charges-gained' },
+    { pattern: /уменьшение используемого количества зарядов флакона/i, order: 22, comment: 'any-flask: charges-used-reduction' },
+    { pattern: /шанс сохранить заряды флаконов/i, order: 23, comment: 'any-flask: keep-charges' },
+    { pattern: /^Флаконы получают зарядов в секунду/i, order: 24, comment: 'any-flask: regen-per-sec' },
+
+    // ─── Flask buffs (30-39) — 2 keys ───────────────────────────────────
+    { pattern: /увеличение скорости сотворения чар во время действия любого флакона/i, order: 30, comment: 'buff: cast-speed while flask active' },
+    { pattern: /увеличение урона чар во время действия любого флакона/i, order: 31, comment: 'buff: spell-damage while flask active' },
   ],
 };
 

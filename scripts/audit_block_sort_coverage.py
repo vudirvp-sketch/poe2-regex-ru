@@ -4,9 +4,10 @@ Audit script for iter 112+ block sort rules coverage.
 
 For each block with explicit sort rules (resistances, attributes, minions,
 ailments, damage-type [iter 113], defence-stats [iter 114], resources
-[iter 115]), enumerates all production family-keys and checks whether the
-rule set covers them. Reports any family-keys that fall into the "900::"
-fallback bucket (rules exist but none matched) — these need new rules.
+[iter 115], weapon-specific + flasks [iter 116]), enumerates all production
+family-keys and checks whether the rule set covers them. Reports any
+family-keys that fall into the "900::" fallback bucket (rules exist but
+none matched) — these need new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -298,6 +299,64 @@ BLOCK_SORT_RULES = {
         (re.compile(r'увеличение радиуса обзора', re.I), 50, 'other: vision radius'),
         (re.compile(r'усиление эффекта Колдовского выброса', re.I), 51, 'other: Hexblast effect'),
     ],
+    'weapon-specific': [
+        # Мечи (0-9)
+        (re.compile(r'увеличение урона мечами', re.I), 0, 'swords: damage'),
+        (re.compile(r'скорости атаки мечами', re.I), 1, 'swords: attack-speed'),
+        # Топоры (10-19)
+        (re.compile(r'увеличение урона топорами', re.I), 10, 'axes: damage'),
+        (re.compile(r'скорости атаки топорами', re.I), 11, 'axes: attack-speed'),
+        # Булавы (20-29)
+        (re.compile(r'увеличение урона булавами', re.I), 20, 'maces: damage'),
+        (re.compile(r'скорости накопления шкалы оглушения булавами', re.I), 21, 'maces: stun-gauge'),
+        # Боевые посохи (30-39)
+        (re.compile(r'увеличение урона боевыми посохами', re.I), 30, 'warstaves: damage'),
+        (re.compile(r'скорости атаки боевыми посохами', re.I), 31, 'warstaves: attack-speed'),
+        (re.compile(r'скорости накопления шкалы заморозки боевыми посохами', re.I), 32, 'warstaves: freeze-gauge'),
+        # Кинжалы (40-49)
+        (re.compile(r'увеличение урона кинжалами', re.I), 40, 'daggers: damage'),
+        (re.compile(r'скорости атаки кинжалами', re.I), 41, 'daggers: attack-speed'),
+        (re.compile(r'шанса критического удара кинжалами', re.I), 42, 'daggers: crit-chance'),
+        # Копья (50-59)
+        (re.compile(r'увеличение урона копьями', re.I), 50, 'spears: damage'),
+        (re.compile(r'скорости атаки копьями', re.I), 51, 'spears: attack-speed'),
+        (re.compile(r'бонуса к критическому урону копьями', re.I), 52, 'spears: crit-damage'),
+        # Кистени (60-69)
+        (re.compile(r'увеличение урона кистенями', re.I), 60, 'flails: damage'),
+        (re.compile(r'шанса критического удара кистенями', re.I), 61, 'flails: crit-chance'),
+        # Луки (70-79)
+        (re.compile(r'увеличение урона луками', re.I), 70, 'bows: damage'),
+        (re.compile(r'скорости атаки луками', re.I), 71, 'bows: attack-speed'),
+        (re.compile(r'меткости луками', re.I), 72, 'bows: accuracy'),
+        # Самострелы (80-89)
+        (re.compile(r'увеличение урона самострелами', re.I), 80, 'crossbows: damage'),
+        (re.compile(r'скорости атаки самострелами', re.I), 81, 'crossbows: attack-speed'),
+        # Без оружия (90-99)
+        (re.compile(r'увеличение урона атаками без оружия', re.I), 90, 'unarmed: damage'),
+        (re.compile(r'скорости атаки без оружия', re.I), 91, 'unarmed: attack-speed'),
+    ],
+    'flasks': [
+        # Health flask (0-9) — 5 keys
+        (re.compile(r'скорости восстановления здоровья от флакона', re.I), 0, 'health-flask: recovery-speed'),
+        (re.compile(r'восстановления здоровья от флаконов', re.I), 1, 'health-flask: recovery-amount'),
+        (re.compile(r'получаемых зарядов флакона здоровья', re.I), 2, 'health-flask: charges-gained'),
+        (re.compile(r'регенерации здоровья во время действия эффекта', re.I), 3, 'health-flask: regen-during-effect'),
+        (re.compile(r'^Флаконы здоровья получают зарядов в секунду', re.I), 4, 'health-flask: regen-per-sec'),
+        # Mana flask (10-19) — 4 keys
+        (re.compile(r'скорости восстановления маны от флакона', re.I), 10, 'mana-flask: recovery-speed'),
+        (re.compile(r'восстановления маны от флаконов', re.I), 11, 'mana-flask: recovery-amount'),
+        (re.compile(r'получаемых зарядов флакона маны', re.I), 12, 'mana-flask: charges-gained'),
+        (re.compile(r'^Флаконы маны получают зарядов в секунду', re.I), 13, 'mana-flask: regen-per-sec'),
+        # Any flask (20-29) — 5 keys (end-anchored to avoid collision with health/mana specific)
+        (re.compile(r'увеличение длительности эффекта флакона$', re.I), 20, 'any-flask: duration'),
+        (re.compile(r'получаемых зарядов флакона$', re.I), 21, 'any-flask: charges-gained'),
+        (re.compile(r'уменьшение используемого количества зарядов флакона', re.I), 22, 'any-flask: charges-used-reduction'),
+        (re.compile(r'шанс сохранить заряды флаконов', re.I), 23, 'any-flask: keep-charges'),
+        (re.compile(r'^Флаконы получают зарядов в секунду', re.I), 24, 'any-flask: regen-per-sec'),
+        # Flask buffs (30-39) — 2 keys
+        (re.compile(r'увеличение скорости сотворения чар во время действия любого флакона', re.I), 30, 'buff: cast-speed while flask active'),
+        (re.compile(r'увеличение урона чар во время действия любого флакона', re.I), 31, 'buff: spell-damage while flask active'),
+    ],
 }
 
 
@@ -326,7 +385,8 @@ def main() -> int:
             by_cat.setdefault(cat, {})[fk] = fk
 
     exit_code = 0
-    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type', 'defence-stats', 'resources']:
+    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type',
+                  'defence-stats', 'resources', 'weapon-specific', 'flasks']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -343,7 +403,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 7 blocks fully covered. No gaps.')
+        print('\n✓ All 9 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code
