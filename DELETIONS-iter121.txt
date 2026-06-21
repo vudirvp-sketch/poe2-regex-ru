@@ -1,3 +1,0 @@
-# Files to delete (stale docs from previous iterations)
-README_ITER120.md
-DELETIONS-iter100.txt

@@ -1,0 +1,23 @@
+# iter 123 — Files to DELETE from your local checkout
+#
+# These two instruction-list files are stale: the files they instructed
+# you to delete (README_ITER120.md, DELETIONS-iter100.txt, 4 stale
+# atmosphere webp, optimize_hero_images.py) were all already deleted
+# in iter 121 / iter 122. iter 123 cleans up the instruction lists
+# themselves (same pattern iter 121 used to delete DELETIONS-iter100.txt).
+#
+# Run from your repo root:
+#
+#   rm DELETIONS-iter121.txt
+#   rm DELETIONS-iter122.txt
+#
+# Or, if you extracted this archive over your checkout (which already
+# replaced the modified docs), the two DELETIONS files will still be
+# on disk because zip extract doesn't delete files. So you need to
+# run these rm commands manually.
+#
+# After deletion, you can also delete this DELETIONS-iter123.txt file
+# itself — it is only needed once, at archive-apply time.
+
+DELETIONS-iter121.txt
+DELETIONS-iter122.txt

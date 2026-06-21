@@ -4,70 +4,52 @@
 
 ---
 
-Task ID: 122
+Task ID: 123
 Agent: main
-Task: iter 122 — cleanup неиспользуемых atmosphere assets + интеграция faf.png (1672×941, landscape) в SeoBlock как широкий landscape backdrop. Пользователь дал faf.png без указания места, попросил "пристроить органично". Также выполнить cleanup 4 stale atmosphere webp, отмеченных в iter 121 worklog как "перенос в iter 122+".
+Task: iter 123 — cleanup stale `DELETIONS-iter{121,122}.txt` instruction files. iter 121 создал `DELETIONS-iter121.txt` (указание удалить `README_ITER120.md` + `DELETIONS-iter100.txt`), iter 122 создал `DELETIONS-iter122.txt` (указание удалить 4 stale atmosphere webp + `optimize_hero_images.py`). Оба списка инструкций устарели: целевые файлы уже удалены в соответствующих итерациях. iter 123 завершает cleanup, удаляя сами списки инструкций (по аналогии с тем, как iter 121 удалил `DELETIONS-iter100.txt` после его применения).
 
 Work Log:
-- 1: Контекст загружен из STATUS.md (iter 121 = current, KI#7 fixed, 1890/1890 tests), worklog.md (iter 121 section — ре-фикс hero decorations), AGENT_NAVIGATION.md (структура проекта). Репозиторий клонирован с GitHub. faf.png загружен в /home/z/my-project/upload/faf.png.
-- 2: Проверка ссылок на 4 candidate'а на удаление (`hero-horned-warrior.webp`, `hero-monster-red.webp`, `hero-bas-relief.webp`, `news-bg-center.webp`) — поиск по `*.tsx, *.ts, *.css, *.html` файлам. Результат: **0 активных ссылок**. Единственное упоминание — в comment в HomePage.tsx (line 113) про iter 120 REMOVED — stale comment, не src=.
-- 3: Анализ faf.png через PIL + VLM. Свойства: 1672×941, RGB, 8-bit, ~81% пикселей чёрные (RGB~0,0,0), средняя яркость 18.8/255, std 20.8, тёплые акценты (R>B в 57.5% ярких пикселей). VLM: dark-fantasy арт — воительница + череп/демоническая структура, фон чёрный с тёплыми highlight'ами. Подходит для атмосферного backdrop'а в тёмной теме проекта.
-- 4: Решение по размещению faf.png. Рассмотрены варианты: (A) backdrop в SeoBlock — ландшафтный формат подходит для широкого контейнера, SeoBlock уже имеет `hero-demon-blue.webp` как right-edge акцент, можно добавить второй слой backdrop'а. (B) hero backdrop на HomePage — слишком заметно, конкурирует с side ghosts. (C) новый section — слишком структурно для одного изображения. (D) замена `.poe-divider--banner` — не подходит формат. **Выбран вариант A**: ADD (не replace) как широкий backdrop в SeoBlock, lg+ only, opacity 0.18, mix-blend-screen. Существующий `hero-demon-blue.webp` остаётся как right-edge акцент поверх backdrop'а.
-- 5: Cleanup — удалены 4 неиспользуемых webp + 1 dead script:
-  - `public/atmosphere/hero-horned-warrior.webp` — iter 69 side ghost, iter 120 removed from JSX.
-  - `public/atmosphere/hero-monster-red.webp` — iter 69 side ghost, iter 120 removed from JSX.
-  - `public/atmosphere/hero-bas-relief.webp` — iter 69 backdrop, iter 120 removed from JSX.
-  - `public/atmosphere/news-bg-center.webp` — iter 71 mobile backdrop, iter 120 removed from JSX.
-  - `scripts/optimize_hero_images.py` — one-off iter 69 script, ссылается на отсутствующие `.png` исходники + устаревший путь `/home/z/my-project/repo/public/atmosphere`. Dead code.
-- 6: HomePage.tsx — обновлён comment над hero section. Старый comment (12 строк) описывал iter 57/69/120/121 историю с упоминанием удалённых файлов. Новый comment (7 строк) — кратко: text-only block, iter 121 вынес side ghosts в root, iter 122 удалил 4 leftover backdrop images.
-- 7: Конвертация faf.png → seo-atmosphere.webp. Скрипт `/home/z/my-project/scripts/convert_faf_to_webp.py` сохранён (persisted, не inline) для воспроизводимости. Параметры: max side 1600px (source 1672 → rescale to 1600×900, aspect preserved), WebP q85 method=6, RGBA mode. Результат: 2,166,048 → 145,928 bytes (6.7% от исходного). Целевой файл: `public/atmosphere/seo-atmosphere.webp`.
-- 8: SeoBlock.tsx — добавлен новый `<img>` элемент ПЕРВЫМ ребёнком после `<summary>` (перед `hero-demon-blue.webp`). Classes: `home-seo-atmosphere pointer-events-none absolute inset-0 hidden h-full w-full object-cover lg:block`. DOM order: atmosphere → demon → content → так demon (right-edge accent) рисуется поверх atmosphere (wide backdrop), оба под content (z-index: 1). Docstring обновлён с описанием iter 122.
-- 9: index.css — новый класс `.home-seo-atmosphere` (рядом с `.home-seo-demon`). Паттерн как у `.home-seo-demon`: opacity 0 → 0.18 на `.home-seo-details[open]`, transition 0.25s, z-index: 0, `pointer-events-none` (в JSX). Дополнительно: `mix-blend-mode: screen` (dark areas blend with bg, highlights etch onto bg — same as demon), `mask-image: linear-gradient(to bottom, #000 60%, transparent 100%)` (fade bottom 40% — top 60% fully visible, bottom 40% fades into bg). Подробный comment (32 строки) описывает: источник, параметры конвертации, DOM order, blend mode rationale, mask rationale, mobile handling.
-- 10: Верификация — все 5 проверок зелёные:
+- 1: Контекст загружен из STATUS.md (iter 122 = current, KI#7/KI#8 awaiting user verification, 1890/1890 tests), worklog.md (iter 122 section — cleanup + faf интеграция), AGENT_NAVIGATION.md. Репозиторий клонирован с GitHub.
+- 2: Проверка ссылок на `DELETIONS-iter121.txt` и `DELETIONS-iter122.txt` — поиск по всем файлам репозитория. Результат: **0 активных ссылок**. Единственное упоминание `DELETIONS-iter` строки — внутри самого `DELETIONS-iter121.txt` (refers to `DELETIONS-iter100.txt` как к файлу для удаления — уже выполнено в iter 121). Оба файла — stale instruction lists, не код, не тесты, не конфиги. Безопасно удалить.
+- 3: Cleanup — оба файла удалены:
+  - `DELETIONS-iter121.txt` — instruction list от iter 121 (требовал удалить `README_ITER120.md` + `DELETIONS-iter100.txt` — оба уже удалены в iter 121).
+  - `DELETIONS-iter122.txt` — instruction list от iter 122 (требовал удалить 4 webp + `optimize_hero_images.py` — все уже удалены в iter 122).
+- 4: Документация:
+  - `STATUS.md` — актуализирован под iter 123. "Текущее состояние" переписано: cleanup DELETIONS файлов. Подраздел "НЕ сделано в iter 122 (перенос в iter 123+)" удалён (заменён на "НЕ сделано в iter 123 (перенос в iter 124+)"). KI#7 (iter 121) и KI#8 (iter 122) — без изменений, awaiting user visual verification. Проверки iter 123 (без изменений vs iter 122 — cleanup-only, код не затронут).
+  - `worklog.md` — iter 123 подробно, iter 122 сжат до одной строки в "Предыдущие итерации".
+  - `AGENT_NAVIGATION.md` — header summary обновлён: iter 123 = cleanup DELETIONS файлов, остальное без изменений.
+- 5: Верификация — все 5 проверок зелёные (запущены для подтверждения, что cleanup не сломал ничего косвенно):
   - `npx tsc --noEmit` → **0 errors**.
   - `npx eslint .` → **0 errors, 0 warnings**.
-  - `npx vitest run` → **1890/1890 tests passed** (37 test files, без изменений vs iter 121 — UI/cleanup-only).
+  - `npx vitest run` → **1890/1890 tests passed** (37 test files, без изменений vs iter 122 — код не затронут).
   - `python3 scripts/audit_block_sort_coverage.py` → **18/18 blocks fully covered** (312 family-keys — без изменений).
-  - `npx vite build` → **built successfully** (156 modules, 564 KB JS / 49 KB CSS). `dist/atmosphere/seo-atmosphere.webp` присутствует (146 KB), 4 удалённых webp отсутствуют. Built CSS содержит `.home-seo-atmosphere` с правильными gradient stops.
-- 11: Документация:
-  - `STATUS.md` — актуализирован под iter 122. "Текущее состояние" переписано: cleanup + faf интеграция. KI#5 (Истощения Бездны, closed iter 112) и KI#6 (scroll jitter, closed iter 120) — удалены из Known Issues (closed, ancient, не нужны следующему агенту). KI#7 (hero decorations, fixed iter 121) — переименован в "awaiting user visual verification", сжат до 4 строк. KI#8 (NEW) — SeoBlock atmosphere backdrop, awaiting user visual verification. Проверки iter 122 (без изменений vs iter 121). Таблицы confirmed limitations и optimal strategies — без изменений.
-  - `worklog.md` — iter 122 подробно, iter 121 сжат до одной строки в "Предыдущие итерации". Старые итерации (iter 111-120) уже сжаты — оставлены как есть (история для контекста, не мусор).
+  - `npx vite build` → **built successfully** (без изменений vs iter 122).
 
 Stage Summary:
-- **iter 122 COMPLETE.** Cleanup + faf интеграция. 2 из 5 опциональных задач iter 121 закрыты:
-  1. **Cleanup** — 4 неиспользуемых atmosphere webp удалены с диска + 1 dead script (`optimize_hero_images.py`). Все 4 файла были помечены как "no longer referenced" ещё в iter 120, но не удалены с диска. iter 122 завершает cleanup.
-  2. **faf.png интеграция** — новый `seo-atmosphere.webp` (1600×900, 146 KB) добавлен как широкий landscape backdrop в SeoBlock, lg+ only, opacity 0.18, mix-blend-screen, fade bottom 40%. DOM order: atmosphere → demon → content. Не заменяет `hero-demon-blue.webp` (right-edge accent), а дополняет его (atmosphere позади, demon поверх).
-- **Изменённые файлы (5):**
-  - `src/ui/pages/home/HomePage.tsx` — обновлён comment над hero section (стал короче, без упоминания удалённых файлов).
-  - `src/ui/pages/home/SeoBlock.tsx` — добавлен `<img className="home-seo-atmosphere ...">` + обновлён docstring.
-  - `src/index.css` — новый класс `.home-seo-atmosphere` (32 строки + comment).
-  - `STATUS.md`, `worklog.md` — обновлены.
-- **Удалённые файлы (5):**
-  - `public/atmosphere/hero-horned-warrior.webp`
-  - `public/atmosphere/hero-monster-red.webp`
-  - `public/atmosphere/hero-bas-relief.webp`
-  - `public/atmosphere/news-bg-center.webp`
-  - `scripts/optimize_hero_images.py`
-- **Новые файлы (2):**
-  - `public/atmosphere/seo-atmosphere.webp` (146 KB, конвертирован из faf.png).
-  - (вне репозитория) `/home/z/my-project/scripts/convert_faf_to_webp.py` — скрипт конвертации для воспроизводимости.
-- **Тесты/типы/lint/build:** ✅ tsc 0 errors, vitest 1890/1890 (без изменений vs iter 121), eslint 0 problems, vite build OK (146 KB seo-atmosphere.webp в dist/), audit script 18/18 blocks.
-- **НЕ сделано (перенос в iter 123+):**
+- **iter 123 COMPLETE.** Cleanup stale DELETIONS instruction files. iter 121 удалил `DELETIONS-iter100.txt` после применения инструкций; iter 123 удаляет `DELETIONS-iter121.txt` и `DELETIONS-iter122.txt` по той же логике (их инструкции выполнены в соответствующих итерациях).
+- **Изменённые файлы (3):**
+  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — обновлены.
+- **Удалённые файлы (2):**
+  - `DELETIONS-iter121.txt`
+  - `DELETIONS-iter122.txt`
+- **Тесты/типы/lint/build:** ✅ tsc 0 errors, vitest 1890/1890 (без изменений vs iter 122), eslint 0 problems, vite build OK, audit script 18/18 blocks.
+- **НЕ сделано (перенос в iter 124+):**
   1. **Визуальная верификация пользователем** — UI в браузере:
      - KI#7 (iter 121 hero decorations): xl+ экран (≥1280px) — shaman слева у края, ива справа у края, оба full-body, головы у TopNav, ноги плавно затухают в нижних 25%, inner edge плавно затухает к тексту. На <xl скрыты.
      - KI#8 (iter 122 SeoBlock atmosphere): lg+ экран (≥1024px), раскрыть SeoBlock `<details>` — тёплый тёмный арт виден позади SEO-текста, не отвлекает, плавно затухает к низу, текст читаем поверх, `hero-demon-blue.webp` правый край виден поверх backdrop'а.
   2. Опционально (перенос из iter 111): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2 — не сделано (risky без визуальной верификации, low impact).
   3. Опционально (LOW): систематизация `other` block (27 family-keys) — heterogeneous, low priority.
-- **Точка остановки:** iter 122 done. Cleanup + faf интеграция завершены. В iter 123 можно:
-  1. Получить visual feedback от пользователя по KI#7 (hero) и KI#8 (SeoBlock atmosphere). При необходимости — tweak opacity/mask/blend values.
+- **Точка остановки:** iter 123 done. Cleanup DELETIONS файлов завершён. В iter 124 можно:
+  1. Получить visual feedback от пользователя по KI#7 (hero) и KI#8 (SeoBlock atmosphere). При необходимости — tweak opacity/mask/blend values в `src/index.css` (`.home-seo-atmosphere` и/или `.hero-side-ghost`).
   2. Опционально: cleanup `--text-faint-val` alias / lift `--text-dim-val`.
   3. Опционально (LOW): систематизация `other` block.
-- **Подсказка следующему агенту:** iter 122 = cleanup + faf интеграция. Перед стартом iter 123 прочитай STATUS.md (актуальный статус + KI#7/KI#8 — awaiting user verification), worklog.md (этот раздел iter 122). Изменённые файлы: `src/ui/pages/home/HomePage.tsx`, `src/ui/pages/home/SeoBlock.tsx`, `src/index.css`. Удалённые файлы: 4 webp + `optimize_hero_images.py`. Новый файл: `public/atmosphere/seo-atmosphere.webp`. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Подсказка следующему агенту:** iter 123 = cleanup DELETIONS файлов. Перед стартом iter 124 прочитай STATUS.md (актуальный статус + KI#7/KI#8 — awaiting user verification), worklog.md (этот раздел iter 123). Изменённые файлы: только документация (`STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`). Удалённые файлы: `DELETIONS-iter121.txt`, `DELETIONS-iter122.txt`. Код/тесты/UI — без изменений. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 122**: cleanup 4 неиспользуемых atmosphere webp (`hero-horned-warrior`, `hero-monster-red`, `hero-bas-relief`, `news-bg-center`) + dead script `optimize_hero_images.py` + интеграция `faf.png` как `seo-atmosphere.webp` (1600×900, 146 KB) — широкий landscape backdrop в SeoBlock, lg+ only, opacity 0.18, mix-blend-screen, fade bottom 40%. DOM order: atmosphere → demon → content.
 - **iter 121**: ре-фикс HomePage hero decorations (KI#7 — iter 120 был неполным: 2 бага — `overflow-hidden`+center-anchor обрезали голову/ноги, изображения заперты в max-w-4xl). iter 121: Layout.tsx — `<main>` получил `relative`; HomePage.tsx — side ghosts вынесены в Fragment, anchored к viewport edges, `h-[80vh] max-h-[720px]`, opacity 0.20, content в `relative z-10`; index.css — bottom fade 75%, horizontal fade на INNER edge (баг iter 120 fixed).
 - **iter 120**: фикс UI-багов — scroll jump-to-top + jitter в VirtualizedModList (KI#6, корректный фикс — остаётся в силе) + HomePage hero decorations (KI#7, фикс был неполным — ре-фикс в iter 121).
 - **iter 119**: rage-charges (4) + runes-barrier (4) + penetration (3) block rules — все priority-блоки закрыты. 18 блоков правил, 312 family-keys, 100% coverage. 1890/1890 tests.

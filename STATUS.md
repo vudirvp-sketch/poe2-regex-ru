@@ -2,39 +2,28 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 122
+> **Текущая итерация:** 123
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 122: cleanup unused atmosphere assets + интеграция faf.png в SeoBlock.**
+**iter 123: cleanup stale DELETIONS-iter*.txt instruction files.**
 
-iter 121 закрыл ре-фикс hero decorations (KI#7). iter 122 закрывает 2 из 5 опциональных задач, отмеченных в worklog iter 121 как "перенос в iter 122+":
+iter 121 и iter 122 создали `DELETIONS-iter{121,122}.txt` — однострочные списки файлов, которые пользователь должен был удалить из локальной копии при применении архива. Эти инструкции устарели: целевые файлы уже удалены в соответствующих итерациях. iter 123 завершает cleanup, удаляя сами списки инструкций (по аналогии с тем, как iter 121 удалил `DELETIONS-iter100.txt`).
 
-1. **Cleanup неиспользуемых atmosphere images** — 4 файла удалены с диска:
-   - `public/atmosphere/hero-horned-warrior.webp` — iter 69 side ghost, iter 120 removed from JSX, iter 122 удаляем с диска.
-   - `public/atmosphere/hero-monster-red.webp` — iter 69 side ghost, iter 120 removed from JSX, iter 122 удаляем с диска.
-   - `public/atmosphere/hero-bas-relief.webp` — iter 69 backdrop, iter 120 removed from JSX, iter 122 удаляем с диска.
-   - `public/atmosphere/news-bg-center.webp` — iter 71 mobile backdrop, iter 120 removed from JSX, iter 122 удаляем с диска.
-   - Также удалён `scripts/optimize_hero_images.py` — one-off iter 69 скрипт (ссылается на отсутствующие `.png` исходники + устаревший путь `/home/z/my-project/repo/public/atmosphere`).
+Никаких изменений в коде, тестах или UI. KI#7 (hero decorations, iter 121) и KI#8 (SeoBlock atmosphere, iter 122) остаются в состоянии awaiting user visual verification — это визуальные проверки, которые может выполнить только пользователь в браузере.
 
-2. **Интеграция faf.png (1672×941, landscape)** — пользователь не определил место, попросил "пристроить органично". VLM-анализ показал: dark-fantasy арт (воительница + череп/демоническая структура, ~81% пикселей чёрные, теплые акценты). Органичное место — широкий landscape backdrop в SeoBlock (когда `<details>` раскрыт):
-   - Сконвертирован в `public/atmosphere/seo-atmosphere.webp` (1600×900, q85, 146 KB — 6.7% от исходного PNG).
-   - SeoBlock.tsx: новый `<img className="home-seo-atmosphere ...">` — первый ребёнок после `<summary>`, перед `hero-demon-blue.webp` (DOM order: atmosphere → demon → content).
-   - index.css: новый класс `.home-seo-atmosphere` — opacity 0 → 0.18 на `[open]`, `mix-blend-mode: screen`, `mask-image: linear-gradient(to bottom, #000 60%, transparent 100%)` (fade bottom 40%), z-index: 0 (позади content z-index: 1).
-   - lg+ only (`hidden lg:block` в JSX) — на мобильных нет горизонтального места + производительность.
+**НЕ сделано в iter 123 (перенос в iter 124+):**
+- Визуальная верификация пользователем KI#7 (hero decorations) — xl+ экран (≥1280px).
+- Визуальная верификация пользователем KI#8 (SeoBlock atmosphere) — lg+ экран (≥1024px), раскрытый `<details>`.
+- Опционально: cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2 (перенос из iter 111, risky без визуальной верификации).
+- Опционально (LOW): систематизация `other` block (27 family-keys) — heterogeneous.
 
-**НЕ сделано в iter 122 (перенос в iter 123+):**
-- Визуальная верификация пользователем KI#7 (hero decorations iter 121) — UI в браузере на xl+ (≥1280px).
-- Визуальная верификация пользователем нового `.home-seo-atmosphere` backdrop — UI в браузере на lg+ (≥1024px), при раскрытом SeoBlock.
-- Опционально: cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2 (перенос из iter 111).
-- Опционально: систематизация `other` block (27 family-keys) — LOW priority, heterogeneous.
+### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120/121/122/123)
 
-### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120/121/122)
-
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120/121/122 не трогали правила сортировки.
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120–123 не трогали правила сортировки.
 
 **18 блоков с правилами (iter 119 scope):**
 
@@ -63,13 +52,13 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 
 **Остальные 6 functional blocks** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Эти блоки либо слишком heterogeneous (`other` — 27 family-keys), либо содержат только 1 family-key (`magic-find`, `breach`, `spirit`), либо пусты (`wisps`, `conversion`).
 
-### Проверки (iter 122)
+### Проверки (iter 123)
 
-- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 121 (UI/cleanup-only, тесты не затронуты).
+- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 122 (cleanup-only, код не затронут).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **audit script:** 18/18 blocks fully covered (312 family-keys).
-- **vite build:** ✅ built successfully (156 modules, 564 KB JS / 49 KB CSS). `dist/atmosphere/seo-atmosphere.webp` присутствует (146 KB), удалённые webp отсутствуют.
+- **vite build:** ✅ built successfully (без изменений vs iter 122).
 
 ---
 
