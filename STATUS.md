@@ -2,20 +2,20 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 118
+> **Текущая итерация:** 119
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 118: расширение систематической сортировки на 3 priority-блока — `skill-levels` (10 family-keys), `area-duration` (8 family-keys), `meta-skills` (6 family-keys).**
+**iter 119: расширение систематической сортировки на 3 оставшихся priority-блока — `rage-charges` (4 family-keys), `runes-barrier` (4 family-keys), `penetration` (3 family-keys).**
 
 ### Сортировка аффиксов внутри блоков
 
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–117 добавили правила для 12 блоков. iter 118 добавляет правила для `skill-levels`, `area-duration`, `meta-skills`.
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрывает 3 оставшихся priority-блока. **Все priority-блоки закрыты.**
 
-**15 блоков с правилами (iter 118 scope):**
+**18 блоков с правилами (iter 119 scope):**
 
 | Блок | # family-keys | # rules | Канонический порядок |
 |------|---------------|---------|----------------------|
@@ -34,78 +34,62 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 | `skill-levels` | 10 | 10 | Levels (all→spells→melee→minion→projectile) → Quality (%→max) → Duration (generic→mark) → Cooldown |
 | `area-duration` | 8 | 8 | Area (generic→spells→curses→banners→presence) → Radius improvement → Duration (curses→banners) |
 | `meta-skills` | 6 | 6 | Energy (amount→max) → Archon (buff-effect→duration) → Sealed skills (max-charges→frequency) |
+| `rage-charges` | 4 | 4 | Flat cap → Active gain (melee hit) → Passive gain (being hit) → Glory gain speed (banners) |
+| `runes-barrier` | 4 | 4 | Flat cap → % cap → Regen speed → Conditional recovery (on-ward-use) |
+| `penetration` | 3 | 3 | Lightning → Cold → Fire (mirrors resistances element order without chaos) |
 
-**Покрытие:** 100% — все 301 family-keys в 15 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
+**Покрытие:** 100% — все 312 family-keys в 18 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
 
-**Остальные 9 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Это сознательная стратегия «не сломать» — будущие итерации добавят правила.
+**Остальные 6 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Эти блоки либо слишком heterogeneous (`other` — 27 family-keys), либо содержат только 1 family-key (`magic-find`, `breach`, `spirit`), либо пусты (`wisps`, `conversion`).
 
-### skill-levels canonical order (iter 118)
+### rage-charges canonical order (iter 119)
 
 ```
-0:   +# к уровню всех камней умений (ALL skills — most universal)
-10:  +# к уровню всех камней умений чар (spells)
-11:  +# к уровню всех камней умений ближнего боя (melee)
-12:  +# к уровню всех камней умений приспешников (minion)
-13:  +# к уровню всех камней умений снарядов (projectile)
-20:  +#% к качеству всех умений (quality %)
-21:  +#% к максимальному качеству (quality cap)
-30:  #% увеличение длительности эффекта умения (generic duration)
-31:  Умения меток имеют #% увеличение длительности эффекта умения (mark subset)
-40:  #% повышение скорости перезарядки умений (cooldown recovery)
+0:   +# к максимуму свирепости (flat cap — most fundamental)
+10:  Дарует # свирепости при нанесении удара в ближнем бою (active gain)
+11:  Дарует # свирепости при получении удара от врага (passive gain)
+20:  #% повышение скорости накопления славы для умений знамён (glory gain speed)
 ```
 
 **Design notes:**
-- Levels FIRST (most-impactful stat), then Quality, then Duration, then Cooldown LAST (timing).
-- Within levels: all-skills FIRST (most universal), then specific subsets (spells→melee→minion→projectile).
-- Two substring conflicts handled via first-match-wins (most-specific FIRST):
-  1. `увеличение длительности эффекта умения` в generic duration И в mark-skill duration — mark rule (с `умения меток имеют.*` prefix) listed FIRST.
-  2. `уровню всех камней умений` в 5 family-keys — generic all-skills rule end-anchored `$`, specific subset rules match their own distinctive phrase (умений чар / ближнего боя / приспешников / снарядов).
-- `качеству` в both quality % AND max-quality % — full phrases distinct (`качеству всех умений` vs `максимальному качеству`).
+- Cap FIRST (sets ceiling — without cap, gain is unbounded).
+- Active gain (player-initiated trigger) before passive gain (enemy-initiated) — more controllable.
+- Glory (Слава) gain speed LAST — different resource, used by banner skills only.
+- `свирепости` в 3 family-keys — cap rule end-anchored `$`, gain rules match distinctive action phrase (`в ближнем бою` vs `получении удара`).
 
-### area-duration canonical order (iter 118)
+### runes-barrier canonical order (iter 119)
 
 ```
-0:   #% увеличение области действия (generic area)
-10:  #% увеличение области действия умений чар (spells area)
-11:  #% увеличение области действия проклятий (curses area)
-12:  #% увеличение области действия умений знамён (banners area)
-13:  #% увеличение области действия присутствия (presence area)
-20:  Улучшает радиус до очень большого (special radius-improvement mod)
-30:  #% увеличение длительности проклятий (curse duration)
-31:  #% увеличение длительности умений знамён (banner duration)
+0:   +# к максимуму рунического барьера (flat cap)
+1:   #% увеличение максимума рунического барьера (% cap)
+10:  #% повышение скорости регенерации рунического барьера (regen speed)
+20:  Восстанавливает # рунического барьера при использовании оберега (on-ward-use)
 ```
 
 **Design notes:**
-- Area FIRST (more universal — affects many skills).
-- Radius improvement is a special mod (order 20) — between area-% and duration.
-- `увеличение области действия` в 5 family-keys — generic rule end-anchored `$`, specific subset rules match their own distinctive phrase.
-- `проклятий` и `умений знамён` appear in BOTH area AND duration variants — no conflict because leading phrase differs (`области действия` vs `длительности`).
+- Mirrors `resources` block pattern: flat → % → regen → on-event recovery.
+- `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored `$`, % rule matches `увеличение максимума` distinctive phrase.
+- `оберега` — only in on-ward-use family-key, no conflict.
 
-### meta-skills canonical order (iter 118)
+### penetration canonical order (iter 119)
 
 ```
-0:   Мета-умения получают увеличенное на #% количество энергии (energy amount)
-1:   #% увеличение максимума энергии вызываемых умений (max energy cap)
-10:  #% усиление положительных эффектов Архонта на вас (Archon buff effect)
-11:  #% увеличение длительности эффекта Архонта (Archon duration)
-20:  Запечатанные умения имеют +1 к максимуму зарядов печати (sealed max charges)
-21:  Запечатанные умения имеют (#)% увеличение частоты получения зарядов печати (sealed frequency)
+0:  Урон пробивает #% сопротивления молнии (lightning)
+1:  Урон пробивает #% сопротивления холоду (cold)
+2:  Урон пробивает #% сопротивления огню (fire)
 ```
 
 **Design notes:**
-- Energy FIRST (most universal — powers all meta-skills).
-- Archon SECOND (buff effect before duration, same pattern as buff-skills).
-- Sealed skills THIRD (max charges before frequency — cap is more fundamental than gain speed).
-- `энергии` в 2 family-keys — distinctive phrases (`Мета-умения получают.*количество энергии` vs `максимума энергии вызываемых умений`).
-- `Архонта` в 2 family-keys — distinctive phrases (`усиление положительных эффектов Архонта` vs `длительности эффекта Архонта`).
-- `зарядов печати` в 2 family-keys — distinctive phrases (`максимуму зарядов печати` vs `частоты получения зарядов печати`).
+- Element order mirrors `resistances` block (orders 1-3 there): молния → холод → огонь.
+- Renumbered 0-2 since chaos-penetration family-key doesn't exist in jewellery data.
+- No substring conflicts — `пробивает.*сопротивления <element>` is fully distinctive.
 
-### Проверки (iter 118)
+### Проверки (iter 119)
 
-- **vitest:** 1862/1862 tests passed (37 test files). +42 vs iter 117 baseline 1820 (10 case-tests + 5 relationship для skill-levels, 8 case-tests + 4 relationship для area-duration, 6 case-tests + 6 relationship для meta-skills, 3 E2E + 1 update structural).
+- **vitest:** 1890/1890 tests passed (37 test files). +28 vs iter 118 baseline 1862 (4 case + 5 relationship для rage-charges, 4 case + 5 relationship для runes-barrier, 3 case + 4 relationship для penetration, 3 E2E + 1 update structural).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **audit script:** 15/15 blocks fully covered (301 family-keys).
+- **audit script:** 18/18 blocks fully covered (312 family-keys).
 
 ---
 
@@ -114,10 +98,10 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
 3. **APCA Lc<75 для small text с weight 400** (accepted design tradeoff, iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как частичная компенсация.
-4. **Сортировка внутри блоков: 9 functional blocks без явных правил** (iter 118):
-   - Блоки БЕЗ правил: `spirit` (1), `magic-find` (1), `breach` (1), `rage-charges` (4), `runes-barrier` (4), `penetration` (3), `wisps` (0), `conversion` (0), `other` (27).
+4. **Сортировка внутри блоков: 6 functional blocks без явных правил** (iter 119):
+   - Блоки БЕЗ правил: `other` (27), `magic-find` (1), `breach` (1), `spirit` (1), `wisps` (0), `conversion` (0).
    - Поведение: `computeSortKey` возвращает `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
-   - **План:** iter 119+ добавит правила для оставшихся блоков. Канонические порядки для `rage-charges` (4) / `runes-barrier` (4) / `penetration` (3) пока не предложены (требуется анализ данных, но объём небольшой — 11 family-keys total). `other` heterogeneous — скорее всего останется без правил.
+   - **План:** `other` heterogeneous — скорее всего останется без правил. `magic-find`/`breach`/`spirit` содержат только 1 family-key каждый — правила не нужны (один элемент сортируется сам с собой). `wisps`/`conversion` пустые — нет данных. Таким образом, **iter 119 завершает систематическую сортировку priority-блоков**.
 5. **Истощения Бездны regex bug** (closed iter 112): `jewel-desecrated.mod_3yl2ru` имел `regexPrefixContext: "(10—20)%"` (literal range) — regex не матчат реальные предметы. Фикс: data patch + ETL algorithm filter + 2 regression tests.
 
 ---

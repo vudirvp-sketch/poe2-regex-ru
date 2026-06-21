@@ -5,10 +5,11 @@ Audit script for iter 112+ block sort rules coverage.
 For each block with explicit sort rules (resistances, attributes, minions,
 ailments, damage-type [iter 113], defence-stats [iter 114], resources
 [iter 115], weapon-specific + flasks [iter 116], offence-speed + crit +
-buff-skills [iter 117], skill-levels + area-duration + meta-skills [iter 118]),
-enumerates all production family-keys and checks whether the rule set covers
-them. Reports any family-keys that fall into the "900::" fallback bucket
-(rules exist but none matched) — these need new rules.
+buff-skills [iter 117], skill-levels + area-duration + meta-skills [iter 118],
+rage-charges + runes-barrier + penetration [iter 119]), enumerates all
+production family-keys and checks whether the rule set covers them. Reports
+any family-keys that fall into the "900::" fallback bucket (rules exist but
+none matched) — these need new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -443,6 +444,34 @@ BLOCK_SORT_RULES = {
         (re.compile(r'максимуму зарядов печати', re.I), 20, 'sealed-skills: max charges (cap)'),
         (re.compile(r'частоты получения зарядов печати', re.I), 21, 'sealed-skills: charge frequency (speed)'),
     ],
+    'rage-charges': [
+        # Flat max cap (end-anchored)
+        (re.compile(r'максимуму свирепости$', re.I), 0, 'rage: flat max cap'),
+        # Active gain (player-initiated trigger)
+        (re.compile(r'Дарует.*свирепости.*в ближнем бою', re.I), 10, 'rage: gain on melee hit (active)'),
+        # Passive gain (enemy-initiated trigger)
+        (re.compile(r'Дарует.*свирепости.*получении удара', re.I), 11, 'rage: gain on being hit (passive)'),
+        # Alt-resource (Слава for banner skills)
+        (re.compile(r'скорости накопления славы', re.I), 20, 'glory: gain speed for banner skills'),
+    ],
+    'runes-barrier': [
+        # Flat max cap (end-anchored — bare flat)
+        (re.compile(r'максимуму рунического барьера$', re.I), 0, 'runes: flat max cap'),
+        # % max cap (distinctive leading phrase)
+        (re.compile(r'увеличение максимума рунического барьера', re.I), 1, 'runes: % max cap'),
+        # Regen speed
+        (re.compile(r'скорости регенерации рунического барьера', re.I), 10, 'runes: regen speed %'),
+        # Conditional recovery (when using ward)
+        (re.compile(r'Восстанавливает.*рунического барьера.*оберега', re.I), 20, 'runes: on-ward-use recovery'),
+    ],
+    'penetration': [
+        # Lightning penetration (mirrors resistances element order 1)
+        (re.compile(r'пробивает.*сопротивления молнии', re.I), 0, 'penetration: lightning'),
+        # Cold penetration (mirrors resistances element order 2)
+        (re.compile(r'пробивает.*сопротивления холоду', re.I), 1, 'penetration: cold'),
+        # Fire penetration (mirrors resistances element order 3)
+        (re.compile(r'пробивает.*сопротивления огню', re.I), 2, 'penetration: fire'),
+    ],
 }
 
 
@@ -474,7 +503,8 @@ def main() -> int:
     for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type',
                   'defence-stats', 'resources', 'weapon-specific', 'flasks',
                   'offence-speed', 'crit', 'buff-skills',
-                  'skill-levels', 'area-duration', 'meta-skills']:
+                  'skill-levels', 'area-duration', 'meta-skills',
+                  'rage-charges', 'runes-barrier', 'penetration']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -491,7 +521,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 15 blocks fully covered. No gaps.')
+        print('\n✓ All 18 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code

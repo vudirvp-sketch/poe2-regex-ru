@@ -34,6 +34,7 @@
  * iter 116: added weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
  * iter 117: added offence-speed (12 family-keys) + crit (9 family-keys) + buff-skills (7 family-keys).
  * iter 118: added skill-levels (10 family-keys) + area-duration (8 family-keys) + meta-skills (6 family-keys).
+ * iter 119: added rage-charges (4 family-keys) + runes-barrier (4 family-keys) + penetration (3 family-keys).
  *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
@@ -1029,6 +1030,111 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     // ─── Sealed skills (max charges before frequency) ──────────────────
     { pattern: /максимуму зарядов печати/i, order: 20, comment: 'sealed-skills: max charges (cap)' },
     { pattern: /частоты получения зарядов печати/i, order: 21, comment: 'sealed-skills: charge frequency (speed)' },
+  ],
+
+  // ─── rage-charges (4 family-keys) — iter 119 ───────────────────────────────
+  // All rage (Свирепость) and glory (Слава) resource family-keys.
+  // Свирепость powers warcries; Слава powers banner skills. Both build up
+  // via combat actions. Alphabetical sort interleaves cap mods with gain mods.
+  //
+  // Canonical order (player mental model — cap first, then active gain, then passive, then alt-resource):
+  //   0:   +# к максимуму свирепости (flat cap — most fundamental)
+  //   10:  Дарует # свирепости при нанесении удара в ближнем бою (active gain — player triggers)
+  //   11:  Дарует # свирепости при получении удара от врага (passive gain — enemy triggers)
+  //   20:  #% повышение скорости накопления славы для умений знамён (alt-resource gain speed — Слава for banners)
+  //
+  // Design notes:
+  //   - Cap FIRST (sets ceiling — without cap, gain is unbounded).
+  //   - Active gain (melee hit) before passive gain (being hit) — player-initiated
+  //     triggers are more controllable/reliable than enemy-initiated ones.
+  //   - Glory (Слава) gain speed LAST — different resource, used by banner skills
+  //     only. Grouped here because it's also a "charge accumulation" mechanic,
+  //     but visually separated via order-20 bucket.
+  //
+  // Substring conflicts:
+  //   1. "свирепости" appears in 3 family-keys. Cap rule anchored on "максимуму
+  //      свирепости$"; gain rules match distinctive phrase "Дарует.*свирепости"
+  //      with further discrimination by "в ближнем бою" vs "получении удара".
+  //   2. "славы" appears in 1 family-key (banner-skill glory). Distinctive from
+  //      "свирепости" — no overlap.
+  //   3. "накопления" — only in glory-speed family-key. No conflict.
+  'rage-charges': [
+    // ─── Flat max cap (most fundamental) ───────────────────────────────
+    { pattern: /максимуму свирепости$/i, order: 0, comment: 'rage: flat max cap' },
+
+    // ─── Active gain (player-initiated trigger) ────────────────────────
+    { pattern: /Дарует.*свирепости.*в ближнем бою/i, order: 10, comment: 'rage: gain on melee hit (active)' },
+
+    // ─── Passive gain (enemy-initiated trigger) ────────────────────────
+    { pattern: /Дарует.*свирепости.*получении удара/i, order: 11, comment: 'rage: gain on being hit (passive)' },
+
+    // ─── Alt-resource (Слава for banner skills) ────────────────────────
+    { pattern: /скорости накопления славы/i, order: 20, comment: 'glory: gain speed for banner skills' },
+  ],
+
+  // ─── runes-barrier (4 family-keys) — iter 119 ──────────────────────────────
+  // All рунический барьер (runic barrier / ward-like resource) family-keys.
+  // Mirrors the resources block pattern: flat max → % max → regen → on-event.
+  //
+  // Canonical order (player mental model — cap first, then regen, then conditional):
+  //   0:   +# к максимуму рунического барьера (flat cap)
+  //   1:   #% увеличение максимума рунического барьера (% cap)
+  //   10:  #% повышение скорости регенерации рунического барьера (regen speed)
+  //   20:  Восстанавливает # рунического барьера при использовании оберега (on-ward-use recovery)
+  //
+  // Design notes:
+  //   - Cap FIRST (flat before %, same pattern as resources health/mana).
+  //   - Regen speed SECOND (passive recharge — most common mechanic).
+  //   - Conditional recovery LAST (active trigger — when using ward, situational).
+  //
+  // Substring conflicts:
+  //   1. "максимуму рунического барьера" appears in 2 family-keys. Flat rule
+  //      end-anchored `$` (matches bare flat); % rule matches "увеличение
+  //      максимума" — distinctive phrase.
+  //   2. "рунического барьера" appears in all 4 family-keys. Each rule uses
+  //      its own distinctive leading phrase to discriminate.
+  //   3. "оберега" — only in on-ward-use family-key. No conflict.
+  'runes-barrier': [
+    // ─── Flat max cap (end-anchored — bare flat) ───────────────────────
+    { pattern: /максимуму рунического барьера$/i, order: 0, comment: 'runes: flat max cap' },
+
+    // ─── % max cap (distinctive leading phrase) ────────────────────────
+    { pattern: /увеличение максимума рунического барьера/i, order: 1, comment: 'runes: % max cap' },
+
+    // ─── Regen speed ───────────────────────────────────────────────────
+    { pattern: /скорости регенерации рунического барьера/i, order: 10, comment: 'runes: regen speed %' },
+
+    // ─── Conditional recovery (when using ward) ────────────────────────
+    { pattern: /Восстанавливает.*рунического барьера.*оберега/i, order: 20, comment: 'runes: on-ward-use recovery' },
+  ],
+
+  // ─── penetration (3 family-keys) — iter 119 ────────────────────────────────
+  // All elemental penetration family-keys. Mirrors resistances element order
+  // (хаос → молния → холод → огонь) but without chaos (no chaos-penetration
+  // mods exist in jewellery data).
+  //
+  // Canonical order (player mental model — matches resistances element order):
+  //   0:  Урон пробивает #% сопротивления молнии (lightning pen)
+  //   1:  Урон пробивает #% сопротивления холоду (cold pen)
+  //   2:  Урон пробивает #% сопротивления огню (fire pen)
+  //
+  // Design notes:
+  //   - Element order mirrors `resistances` block (orders 1-3 there):
+  //     молния (1) → холод (2) → огонь (3). Here renumbered 0-2 since
+  //     chaos-penetration family-key doesn't exist in jewellery data.
+  //   - No substring conflicts — "пробивает" + element name fully distinctive
+  //     per family-key.
+  //   - Player builds around one element typically, so each element gets
+  //     its own bucket (no need for sub-buckets within penetration).
+  'penetration': [
+    // ─── Lightning penetration (mirrors resistances element order 1) ───
+    { pattern: /пробивает.*сопротивления молнии/i, order: 0, comment: 'penetration: lightning' },
+
+    // ─── Cold penetration (mirrors resistances element order 2) ────────
+    { pattern: /пробивает.*сопротивления холоду/i, order: 1, comment: 'penetration: cold' },
+
+    // ─── Fire penetration (mirrors resistances element order 3) ────────
+    { pattern: /пробивает.*сопротивления огню/i, order: 2, comment: 'penetration: fire' },
   ],
 };
 

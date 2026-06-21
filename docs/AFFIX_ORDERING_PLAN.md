@@ -7,7 +7,7 @@
 > **iter 116** — добавлены правила для `weapon-specific` (24 family-keys) + `flasks` (16 family-keys).
 > **iter 117** — добавлены правила для `offence-speed` (12 family-keys) + `crit` (9 family-keys) + `buff-skills` (7 family-keys).
 > **iter 118** — добавлены правила для `skill-levels` (10 family-keys) + `area-duration` (8 family-keys) + `meta-skills` (6 family-keys).
-> **Следующие итерации** — расширение на остальные functional blocks.
+> **iter 119** — добавлены правила для `rage-charges` (4 family-keys) + `runes-barrier` (4 family-keys) + `penetration` (3 family-keys). **Priority-блоки закрыты.**
 
 ---
 
@@ -125,9 +125,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 4. Текущее покрытие (iter 118)
+## 4. Текущее покрытие (iter 119)
 
-### 4.1. Блоки с правилами (15 из 24 functional blocks)
+### 4.1. Блоки с правилами (18 из 24 functional blocks)
 
 | Блок | # family-keys | # rules | Покрытие |
 |------|---------------|---------|----------|
@@ -146,35 +146,35 @@ export function computeSortKey(block, familyKey): string {
 | `skill-levels` | 10 | 10 | 100% |
 | `area-duration` | 8 | 8 | 100% |
 | `meta-skills` | 6 | 6 | 100% |
-| **Итого** | **301** | **301** | **100%** |
+| `rage-charges` | 4 | 4 | 100% |
+| `runes-barrier` | 4 | 4 | 100% |
+| `penetration` | 3 | 3 | 100% |
+| **Итого** | **312** | **312** | **100%** |
 
 Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
 
-### 4.2. Блоки БЕЗ правил (9 из 24 functional blocks)
+### 4.2. Блоки БЕЗ правил (6 из 24 functional blocks)
 
 Возвращают `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
 
-| Блок | # family-keys | Приоритет iter 119+ |
-|------|---------------|---------------------|
-| `other` | 27 | LOW (heterogeneous — сложно систематизировать) |
-| `rage-charges` | 4 | MEDIUM |
-| `runes-barrier` | 4 | MEDIUM |
-| `penetration` | 3 | MEDIUM |
-| `magic-find` | 1 | LOW |
-| `breach` | 1 | LOW (только 1 token: Знак повелителя Бездны) |
-| `spirit` | 1 | LOW (только 1 token) |
-| `wisps` | 0 | N/A |
-| `conversion` | 0 | N/A |
+| Блок | # family-keys | Статус |
+|------|---------------|--------|
+| `other` | 27 | LOW (heterogeneous — сложно систематизировать, отложено) |
+| `magic-find` | 1 | N/A (1 family-key — правила избыточны) |
+| `breach` | 1 | N/A (1 family-key — Знак повелителя Бездны) |
+| `spirit` | 1 | N/A (1 family-key) |
+| `wisps` | 0 | N/A (пусто) |
+| `conversion` | 0 | N/A (пусто) |
 
 **Примечание:** counts приведены для jewellery-only scope (6 файлов: amulet/ring/belt/jewel/jewel-desecrated/jewel-corrupted) — это scope скрипта `audit_block_sort_coverage.py`. Для full-scope (10 файлов, с relic/tablet/waystone) блок `other` содержит 201 family-key, остальные блоки не меняются.
 
-**План iter 119:** добавить правила для 3 оставшихся priority-блоков: `rage-charges` (4), `runes-barrier` (4), `penetration` (3) — всего 11 family-keys. Канонические порядки пока не предложены, но объём небольшой.
+**Статус priority-блоков:** iter 119 закрыл все 3 priority-блока (`rage-charges` / `runes-barrier` / `penetration`). Оставшиеся 6 блоков не требуют правил: 4 содержат 0-1 family-key (правила избыточны для одного элемента), `other` heterogeneous и отложен. **Систематическая сортировка priority-блоков завершена в iter 119.**
 
 ---
 
 ## 5. Канонические порядки (реализованные и для будущих итераций)
 
-Ниже — canonical orderings для functional blocks. §5.1–§5.11 — РЕАЛИЗОВАНЫ (iter 113–118). Для будущих итераций канонические порядки пока не предложены — потребуется анализ данных.
+Ниже — canonical orderings для functional blocks. §5.1–§5.14 — РЕАЛИЗОВАНЫ (iter 113–119). Все priority-блоки закрыты в iter 119.
 
 ### 5.1. `damage-type` — РЕАЛИЗОВАН в iter 113 (47 family-keys)
 
@@ -466,17 +466,84 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 - `Архонта` в 2 family-keys — distinctive phrases (`усиление положительных эффектов Архонта` vs `длительности эффекта Архонта`).
 - `зарядов печати` в 2 family-keys — distinctive phrases (`максимуму зарядов печати` vs `частоты получения зарядов печати`).
 
+### 5.12. `rage-charges` — РЕАЛИЗОВАН в iter 119 (4 family-keys)
+
+Все rage (Свирепость) и glory (Слава) resource family-keys. Свирепость powers warcries; Слава powers banner skills.
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['rage-charges']`:
+
+```
+0:   +# к максимуму свирепости (flat cap — most fundamental)
+10:  Дарует # свирепости при нанесении удара в ближнем бою (active gain — player triggers)
+11:  Дарует # свирепости при получении удара от врага (passive gain — enemy triggers)
+20:  #% повышение скорости накопления славы для умений знамён (alt-resource gain speed — Слава for banners)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'rage-charges':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 119 — первый план канонического порядка для rage-charges (раньше не предлагался).
+- Cap FIRST (sets ceiling — without cap, gain is unbounded).
+- Active gain (player-initiated trigger) before passive gain (enemy-initiated) — more controllable.
+- Glory (Слава) gain speed LAST — different resource, used by banner skills only. Grouped here because it's also a "charge accumulation" mechanic, but visually separated via order-20 bucket.
+- `свирепости` в 3 family-keys — cap rule end-anchored `$` (matches `максимуму свирепости$`), gain rules match distinctive action phrase (`в ближнем бою` vs `получении удара`).
+- `славы` в 1 family-key — no conflict.
+
+### 5.13. `runes-barrier` — РЕАЛИЗОВАН в iter 119 (4 family-keys)
+
+Все рунический барьер (runic barrier / ward-like resource) family-keys. Mirrors `resources` block pattern: flat max → % max → regen → on-event.
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['runes-barrier']`:
+
+```
+0:   +# к максимуму рунического барьера (flat cap)
+1:   #% увеличение максимума рунического барьера (% cap)
+10:  #% повышение скорости регенерации рунического барьера (regen speed)
+20:  Восстанавливает # рунического барьера при использовании оберега (on-ward-use recovery)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'runes-barrier':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 119 — первый план канонического порядка для runes-barrier (раньше не предлагался).
+- Cap FIRST (flat before %, same pattern as resources health/mana).
+- Regen speed SECOND (passive recharge — most common mechanic).
+- Conditional recovery LAST (active trigger — when using ward, situational).
+- `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored `$`, % rule matches distinctive phrase `увеличение максимума`.
+- `рунического барьера` appears in all 4 family-keys — each rule uses its own distinctive leading phrase.
+- `оберега` — only in on-ward-use family-key, no conflict.
+
+### 5.14. `penetration` — РЕАЛИЗОВАН в iter 119 (3 family-keys)
+
+Все elemental penetration family-keys. Mirrors resistances element order (хаос → молния → холод → огонь), но без chaos — chaos-penetration family-keys не существуют в jewellery data.
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['penetration']`:
+
+```
+0:  Урон пробивает #% сопротивления молнии (lightning — mirrors resistances order 1)
+1:  Урон пробивает #% сопротивления холоду (cold — mirrors resistances order 2)
+2:  Урон пробивает #% сопротивления огню (fire — mirrors resistances order 3)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'penetration':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 119 — первый план канонического порядка для penetration (раньше не предлагался).
+- Element order mirrors `resistances` block (orders 1-3 there): молния → холод → огонь. Renumbered 0-2 since chaos-penetration family-key doesn't exist.
+- No substring conflicts — `пробивает.*сопротивления <element>` is fully distinctive per family-key.
+- Player builds around one element typically, so each element gets its own bucket (no need for sub-buckets within penetration).
+
 ---
 
 ## 6. Тестирование
 
 ### 6.1. Unit tests (`tests/shared/block-sort-rules.test.ts`)
 
-- `computeSortKey()` для каждого canonical family-key (301 cases — 10 skill-levels + 8 area-duration + 6 meta-skills + 12 offence-speed + 9 crit + 7 buff-skills + 24 weapon-specific + 16 flasks + 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
+- `computeSortKey()` для каждого canonical family-key (312 cases — 10 skill-levels + 8 area-duration + 6 meta-skills + 12 offence-speed + 9 crit + 7 buff-skills + 24 weapon-specific + 16 flasks + 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112 + 4 rage-charges + 4 runes-barrier + 3 penetration).
 - `sortGroupsAlphabetically()` использует sortKey когда set.
 - `sortGroupsAlphabetically()` fallback к familyKey когда sortKey отсутствует (backward compat).
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
-- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 118 scope = 15 блоков.
+- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 119 scope = 18 блоков.
 
 ### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
 
@@ -500,50 +567,48 @@ iter 112 добавил 2 теста для regex-бага:
 
 | Файл | Назначение |
 |------|------------|
-| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (15 блоков) |
+| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (18 блоков, 312 family-keys) |
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (301 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (15 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (312 case-tests + relationship + E2E) |
+| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (18 блоков) |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
 
 ---
 
-## 8. Точка остановки iter 118 → iter 119
+## 8. Точка остановки iter 119 → iter 120
 
-**Сделано в iter 118:**
-1. ✅ `skill-levels` block — 10 family-keys, 100% coverage. Canonical order: Levels (all→spells→melee→minion→projectile) → Quality (%→max) → Duration (generic→mark) → Cooldown.
-2. ✅ `area-duration` block — 8 family-keys, 100% coverage. Canonical order: Area (generic→spells→curses→banners→presence) → Radius improvement → Duration (curses→banners).
-3. ✅ `meta-skills` block — 6 family-keys, 100% coverage. Canonical order: Energy (amount→max) → Archon (buff-effect→duration) → Sealed skills (max-charges→frequency).
-4. ✅ Audit script обновлён — проверяет 15 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills, 301 family-keys total).
-5. ✅ 42 новых unit/relationship/E2E теста — все green (1862/1862 total).
+**Сделано в iter 119:**
+1. ✅ `rage-charges` block — 4 family-keys, 100% coverage. Canonical order: Flat cap → Active gain (melee hit) → Passive gain (being hit) → Glory gain speed (banners).
+2. ✅ `runes-barrier` block — 4 family-keys, 100% coverage. Canonical order: Flat cap → % cap → Regen speed → Conditional recovery (on-ward-use).
+3. ✅ `penetration` block — 3 family-keys, 100% coverage. Canonical order: Lightning → Cold → Fire (mirrors resistances element order without chaos).
+4. ✅ Audit script обновлён — проверяет 18 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills/rage-charges/runes-barrier/penetration, 312 family-keys total).
+5. ✅ 28 новых unit/relationship/E2E теста — все green (1890/1890 total).
 6. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md, AGENT_NAVIGATION.md.
 
-**Корректировки плана в iter 118:**
-- iter 118 — первый план канонических порядков для skill-levels / area-duration / meta-skills (раньше не предлагались).
-- `skill-levels`: 10 family-keys ✓. Levels FIRST (most-impactful — +1 level is huge). Cooldown LAST (timing-related).
-- `skill-levels`: 2 substring conflicts handled via first-match-wins (mark duration + all-skills level — оба с generic variants).
-- `area-duration`: 8 family-keys ✓. Area FIRST (more universal). Radius improvement as special bucket (order 20) between area-% and duration.
-- `area-duration`: `проклятий` и `умений знамён` appear in BOTH area AND duration variants — no conflict, leading phrase differs.
-- `meta-skills`: 6 family-keys ✓. Energy FIRST (most universal — powers all meta-skills). Archon before Sealed skills.
-- `meta-skills`: 3 substring conflicts (`энергии`, `Архонта`, `зарядов печати`) — все resolved via distinctive phrases (no first-match-wins needed actually).
+**Корректировки плана в iter 119:**
+- iter 119 — первый план канонических порядков для rage-charges / runes-barrier / penetration (раньше не предлагались).
+- `rage-charges`: 4 family-keys ✓. Cap FIRST. Active gain before passive gain. Glory (Слава) gain speed LAST — different resource.
+- `rage-charges`: `свирепости` в 3 family-keys — cap rule end-anchored, gain rules match distinctive action phrase.
+- `runes-barrier`: 4 family-keys ✓. Mirrors `resources` block pattern: flat → % → regen → on-event.
+- `runes-barrier`: `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored, % rule matches distinctive phrase `увеличение максимума`.
+- `penetration`: 3 family-keys ✓. Element order mirrors `resistances` block (молния → холод → огонь), без chaos (нет в данных).
+- `penetration`: no substring conflicts — `пробивает.*сопротивления <element>` fully distinctive.
+- **Все priority-блоки закрыты.** Оставшиеся 6 блоков (`other`/`magic-find`/`breach`/`spirit`/`wisps`/`conversion`) не требуют правил.
 
-**НЕ сделано (переносится в iter 119+):**
+**НЕ сделано (переносится в iter 120+):**
 
-1. **Добавить правила для оставшихся 3 priority-блоков без правил** (см. §4.2):
-   - `rage-charges` (4 family-keys), `runes-barrier` (4), `penetration` (3) — всего 11 family-keys.
-   - Канонические порядки пока не предложены — потребуется анализ данных, но объём небольшой.
-   - Прогноз: iter 119 закроет эти 3 блока одним заходом.
-
-2. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
+1. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
    - UI в браузере: контрасты, читаемость 12px, рендеринг Noto Sans (Linux).
-   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + offence-speed + crit + buff-skills + **NEW iter 118: skill-levels + area-duration + meta-skills** — проверить, что канонический порядок выглядит правильно визуально.
+   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + offence-speed + crit + buff-skills + skill-levels + area-duration + meta-skills + **NEW iter 119: rage-charges + runes-barrier + penetration** — проверить, что канонический порядок выглядит правильно визуально.
 
-3. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
+2. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
 
-4. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
+3. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
 
-**Подсказка следующему агенту:** iter 118 = skill-levels (10) + area-duration (8) + meta-skills (6) block rules, 100% coverage each. Перед стартом iter 119 прочитай STATUS.md (актуальный статус + Known Issues #4 — 9 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (этот раздел iter 118). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 15 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+4. **При желании дополнительно систематизировать `other` block** (27 family-keys): heterogeneous — потребует анализа группировки. LOW priority.
+
+**Подсказка следующему агенту:** iter 119 = rage-charges (4) + runes-barrier (4) + penetration (3) block rules, 100% coverage each. **Все priority-блоки закрыты.** Перед стартом iter 120 прочитай STATUS.md (актуальный статус + Known Issues #4 — 6 блоков без правил, все low-priority/empty), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (раздел iter 119). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 18 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.

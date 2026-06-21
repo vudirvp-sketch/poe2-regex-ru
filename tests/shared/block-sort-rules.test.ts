@@ -1302,6 +1302,208 @@ describe('computeSortKey: meta-skills (iter 118)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5m: computeSortKey — rage-charges canonical ordering (iter 119)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: rage-charges (iter 119)', () => {
+  const cases = [
+    // Flat cap (0)
+    { familyKey: '+# к максимуму свирепости', expectedOrder: 0, comment: 'rage: flat max cap' },
+    // Active gain (10)
+    { familyKey: 'Дарует # свирепости при нанесении удара в ближнем бою', expectedOrder: 10, comment: 'rage: gain on melee hit (active)' },
+    // Passive gain (11)
+    { familyKey: 'Дарует # свирепости при получении удара от врага', expectedOrder: 11, comment: 'rage: gain on being hit (passive)' },
+    // Alt-resource (20)
+    { familyKey: '#% повышение скорости накопления славы для умений знамён', expectedOrder: 20, comment: 'glory: gain speed for banner skills' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`rage-charges: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('rage-charges', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('rage-charges: full canonical bucket order Cap → Active gain → Passive gain → Glory speed', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '+# к максимуму свирепости',                                          // 0  — flat cap
+      'Дарует # свирепости при нанесении удара в ближнем бою',              // 10 — active gain
+      'Дарует # свирепости при получении удара от врага',                   // 11 — passive gain
+      '#% повышение скорости накопления славы для умений знамён',           // 20 — glory gain speed
+    ];
+    const sortKeys = keys.map(k => computeSortKey('rage-charges', k)).sort();
+    expect(sortKeys[0]).toContain('максимуму свирепости');
+    expect(sortKeys[1]).toContain('в ближнем бою');
+    expect(sortKeys[2]).toContain('получении удара');
+    expect(sortKeys[3]).toContain('славы');
+  });
+
+  it('rage-charges: flat cap (0) BEFORE active gain (10) — cap sets ceiling', () => {
+    const cap = computeSortKey('rage-charges', '+# к максимуму свирепости');
+    const active = computeSortKey('rage-charges', 'Дарует # свирепости при нанесении удара в ближнем бою');
+    expect(cap.localeCompare(active, 'ru')).toBeLessThan(0);
+    expect(cap.startsWith('000::')).toBe(true);
+    expect(active.startsWith('010::')).toBe(true);
+  });
+
+  it('rage-charges: active gain (10) BEFORE passive gain (11) — player-initiated before enemy-initiated', () => {
+    const active = computeSortKey('rage-charges', 'Дарует # свирепости при нанесении удара в ближнем бою');
+    const passive = computeSortKey('rage-charges', 'Дарует # свирепости при получении удара от врага');
+    expect(active.localeCompare(passive, 'ru')).toBeLessThan(0);
+    expect(active.startsWith('010::')).toBe(true);
+    expect(passive.startsWith('011::')).toBe(true);
+  });
+
+  it('rage-charges: passive gain (11) BEFORE glory gain speed (20) — primary resource before alt-resource', () => {
+    const passive = computeSortKey('rage-charges', 'Дарует # свирепости при получении удара от врага');
+    const glory = computeSortKey('rage-charges', '#% повышение скорости накопления славы для умений знамён');
+    expect(passive.localeCompare(glory, 'ru')).toBeLessThan(0);
+    expect(passive.startsWith('011::')).toBe(true);
+    expect(glory.startsWith('020::')).toBe(true);
+  });
+
+  it('rage-charges: flat cap rule end-anchored — does NOT match "Дарует свирепости"', () => {
+    // Both family-keys contain "свирепости", but cap rule anchored on `максимуму свирепости$`.
+    const cap = computeSortKey('rage-charges', '+# к максимуму свирепости');
+    const gain = computeSortKey('rage-charges', 'Дарует # свирепости при нанесении удара в ближнем бою');
+    expect(cap.startsWith('000::')).toBe(true);
+    expect(gain.startsWith('010::')).toBe(true);
+  });
+
+  it('rage-charges: distinctive phrase `в ближнем бою` does NOT match `получении удара`', () => {
+    // Both family-keys contain "Дарует.*свирепости", but distinctive action phrase differs.
+    const active = computeSortKey('rage-charges', 'Дарует # свирепости при нанесении удара в ближнем бою');
+    const passive = computeSortKey('rage-charges', 'Дарует # свирепости при получении удара от врага');
+    expect(active.startsWith('010::')).toBe(true);
+    expect(passive.startsWith('011::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5n: computeSortKey — runes-barrier canonical ordering (iter 119)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: runes-barrier (iter 119)', () => {
+  const cases = [
+    // Flat cap (0)
+    { familyKey: '+# к максимуму рунического барьера', expectedOrder: 0, comment: 'runes: flat max cap' },
+    // % cap (1)
+    { familyKey: '#% увеличение максимума рунического барьера', expectedOrder: 1, comment: 'runes: % max cap' },
+    // Regen speed (10)
+    { familyKey: '#% повышение скорости регенерации рунического барьера', expectedOrder: 10, comment: 'runes: regen speed %' },
+    // Conditional recovery (20)
+    { familyKey: 'Восстанавливает # рунического барьера при использовании оберега', expectedOrder: 20, comment: 'runes: on-ward-use recovery' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`runes-barrier: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('runes-barrier', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('runes-barrier: full canonical bucket order Flat cap → % cap → Regen → Conditional recovery', () => {
+    const keys = [
+      '+# к максимуму рунического барьера',                                            // 0  — flat cap
+      '#% увеличение максимума рунического барьера',                                   // 1  — % cap
+      '#% повышение скорости регенерации рунического барьера',                         // 10 — regen speed
+      'Восстанавливает # рунического барьера при использовании оберега',               // 20 — on-ward-use
+    ];
+    const sortKeys = keys.map(k => computeSortKey('runes-barrier', k)).sort();
+    expect(sortKeys[0]).toContain('максимуму рунического');
+    expect(sortKeys[1]).toContain('увеличение максимума');
+    expect(sortKeys[2]).toContain('регенерации');
+    expect(sortKeys[3]).toContain('оберега');
+  });
+
+  it('runes-barrier: flat cap (0) BEFORE % cap (1) — flat before %', () => {
+    const flat = computeSortKey('runes-barrier', '+# к максимуму рунического барьера');
+    const percent = computeSortKey('runes-barrier', '#% увеличение максимума рунического барьера');
+    expect(flat.localeCompare(percent, 'ru')).toBeLessThan(0);
+    expect(flat.startsWith('000::')).toBe(true);
+    expect(percent.startsWith('001::')).toBe(true);
+  });
+
+  it('runes-barrier: % cap (1) BEFORE regen speed (10) — cap before regen', () => {
+    const percent = computeSortKey('runes-barrier', '#% увеличение максимума рунического барьера');
+    const regen = computeSortKey('runes-barrier', '#% повышение скорости регенерации рунического барьера');
+    expect(percent.localeCompare(regen, 'ru')).toBeLessThan(0);
+    expect(percent.startsWith('001::')).toBe(true);
+    expect(regen.startsWith('010::')).toBe(true);
+  });
+
+  it('runes-barrier: regen speed (10) BEFORE conditional recovery (20) — passive before active trigger', () => {
+    const regen = computeSortKey('runes-barrier', '#% повышение скорости регенерации рунического барьера');
+    const recovery = computeSortKey('runes-barrier', 'Восстанавливает # рунического барьера при использовании оберега');
+    expect(regen.localeCompare(recovery, 'ru')).toBeLessThan(0);
+    expect(regen.startsWith('010::')).toBe(true);
+    expect(recovery.startsWith('020::')).toBe(true);
+  });
+
+  it('runes-barrier: flat cap rule end-anchored — does NOT match "% увеличение максимума"', () => {
+    // Both family-keys contain "максимуму рунического барьера", but flat rule anchored `$`.
+    const flat = computeSortKey('runes-barrier', '+# к максимуму рунического барьера');
+    const percent = computeSortKey('runes-barrier', '#% увеличение максимума рунического барьера');
+    expect(flat.startsWith('000::')).toBe(true);
+    expect(percent.startsWith('001::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5o: computeSortKey — penetration canonical ordering (iter 119)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: penetration (iter 119)', () => {
+  const cases = [
+    // Lightning (0) — mirrors resistances element order 1
+    { familyKey: 'Урон пробивает #% сопротивления молнии', expectedOrder: 0, comment: 'penetration: lightning' },
+    // Cold (1) — mirrors resistances element order 2
+    { familyKey: 'Урон пробивает #% сопротивления холоду', expectedOrder: 1, comment: 'penetration: cold' },
+    // Fire (2) — mirrors resistances element order 3
+    { familyKey: 'Урон пробивает #% сопротивления огню', expectedOrder: 2, comment: 'penetration: fire' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`penetration: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('penetration', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('penetration: full canonical bucket order Lightning → Cold → Fire (mirrors resistances element order)', () => {
+    const keys = [
+      'Урон пробивает #% сопротивления молнии',  // 0 — lightning
+      'Урон пробивает #% сопротивления холоду',  // 1 — cold
+      'Урон пробивает #% сопротивления огню',    // 2 — fire
+    ];
+    const sortKeys = keys.map(k => computeSortKey('penetration', k)).sort();
+    expect(sortKeys[0]).toContain('молнии');
+    expect(sortKeys[1]).toContain('холоду');
+    expect(sortKeys[2]).toContain('огню');
+  });
+
+  it('penetration: lightning (0) BEFORE cold (1) — mirrors resistances element order', () => {
+    const lightning = computeSortKey('penetration', 'Урон пробивает #% сопротивления молнии');
+    const cold = computeSortKey('penetration', 'Урон пробивает #% сопротивления холоду');
+    expect(lightning.localeCompare(cold, 'ru')).toBeLessThan(0);
+    expect(lightning.startsWith('000::')).toBe(true);
+    expect(cold.startsWith('001::')).toBe(true);
+  });
+
+  it('penetration: cold (1) BEFORE fire (2) — mirrors resistances element order', () => {
+    const cold = computeSortKey('penetration', 'Урон пробивает #% сопротивления холоду');
+    const fire = computeSortKey('penetration', 'Урон пробивает #% сопротивления огню');
+    expect(cold.localeCompare(fire, 'ru')).toBeLessThan(0);
+    expect(cold.startsWith('001::')).toBe(true);
+    expect(fire.startsWith('002::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1630,6 +1832,64 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       'Запечатанные умения имеют +1 к максимуму зарядов печати',
     ]);
   });
+
+  it('rage-charges (iter 119): order Cap → Active gain → Passive gain → Glory speed', () => {
+    const tokens = [
+      makeToken('#% повышение скорости накопления славы для умений знамён', 'rage-charges'),
+      makeToken('Дарует # свирепости при получении удара от врага', 'rage-charges'),
+      makeToken('Дарует # свирепости при нанесении удара в ближнем бою', 'rage-charges'),
+      makeToken('+# к максимуму свирепости', 'rage-charges'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const rageGroup = subGroups.find(sg => sg.key === 'rage-charges');
+    expect(rageGroup).toBeDefined();
+    const familyKeys = rageGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '+# к максимуму свирепости',
+      'Дарует # свирепости при нанесении удара в ближнем бою',
+      'Дарует # свирепости при получении удара от врага',
+      '#% повышение скорости накопления славы для умений знамён',
+    ]);
+  });
+
+  it('runes-barrier (iter 119): order Flat cap → % cap → Regen → Conditional recovery', () => {
+    const tokens = [
+      makeToken('Восстанавливает # рунического барьера при использовании оберега', 'runes-barrier'),
+      makeToken('#% повышение скорости регенерации рунического барьера', 'runes-barrier'),
+      makeToken('#% увеличение максимума рунического барьера', 'runes-barrier'),
+      makeToken('+# к максимуму рунического барьера', 'runes-barrier'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const runesGroup = subGroups.find(sg => sg.key === 'runes-barrier');
+    expect(runesGroup).toBeDefined();
+    const familyKeys = runesGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '+# к максимуму рунического барьера',
+      '#% увеличение максимума рунического барьера',
+      '#% повышение скорости регенерации рунического барьера',
+      'Восстанавливает # рунического барьера при использовании оберега',
+    ]);
+  });
+
+  it('penetration (iter 119): order Lightning → Cold → Fire (mirrors resistances element order)', () => {
+    const tokens = [
+      makeToken('Урон пробивает #% сопротивления огню', 'penetration'),
+      makeToken('Урон пробивает #% сопротивления холоду', 'penetration'),
+      makeToken('Урон пробивает #% сопротивления молнии', 'penetration'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const penGroup = subGroups.find(sg => sg.key === 'penetration');
+    expect(penGroup).toBeDefined();
+    const familyKeys = penGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      'Урон пробивает #% сопротивления молнии',
+      'Урон пробивает #% сопротивления холоду',
+      'Урон пробивает #% сопротивления огню',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1656,8 +1916,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 118 scope: 15 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills)', () => {
+  it('iter 119 scope: 18 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills/rage-charges/runes-barrier/penetration)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'area-duration', 'attributes', 'buff-skills', 'crit', 'damage-type', 'defence-stats', 'flasks', 'meta-skills', 'minions', 'offence-speed', 'resistances', 'resources', 'skill-levels', 'weapon-specific']);
+    expect(blocksWithRules).toEqual(['ailments', 'area-duration', 'attributes', 'buff-skills', 'crit', 'damage-type', 'defence-stats', 'flasks', 'meta-skills', 'minions', 'offence-speed', 'penetration', 'rage-charges', 'resistances', 'resources', 'runes-barrier', 'skill-levels', 'weapon-specific']);
   });
 });

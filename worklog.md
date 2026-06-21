@@ -4,96 +4,81 @@
 
 ---
 
-Task ID: 118
+Task ID: 119
 Agent: main
-Task: iter 118 — расширение систематической сортировки аффиксов внутри блоков на 3 priority-блока: `skill-levels` (10 family-keys), `area-duration` (8 family-keys), `meta-skills` (6 family-keys).
+Task: iter 119 — расширение систематической сортировки аффиксов внутри блоков на 3 оставшихся priority-блока: `rage-charges` (4 family-keys), `runes-barrier` (4 family-keys), `penetration` (3 family-keys). Всего 11 family-keys. Это закрывает все priority-блоки — оставшиеся 6 блоков (`other`/`magic-find`/`breach`/`spirit`/`wisps`/`conversion`) не требуют правил (1 или 0 family-keys каждый, либо heterogeneous `other`).
 
 Work Log:
-- 1: Клон репо. Чтение STATUS.md (iter 117 — 12 блоков правил, 277 family-keys, 100% coverage), docs/AFFIX_ORDERING_PLAN.md (полный план + §4.2 — 12 блоков без правил, приоритеты iter 118+), worklog.md (iter 117 подробно), src/shared/block-sort-rules.ts (12 блоков, ~916 строк), scripts/audit_block_sort_coverage.py (12 блоков, ~459 строк), tests/shared/block-sort-rules.test.ts (1820 тестов, 1375 строк). Полное понимание задачи iter 118.
-- 2: Извлечение фактических family-keys через helper Python-скрипт `/home/z/my-project/scripts/list_uncovered_blocks.py` (jewellery-scope) + `/home/z/my-project/scripts/verify_family_keys.py` (full-scope). **Подтверждены counts и точный текст family-keys:**
-  - `skill-levels`: 10 family-keys ✓
-  - `area-duration`: 8 family-keys ✓
-  - `meta-skills`: 6 family-keys ✓
-  - `rage-charges`: 4 family-keys (отложено на iter 119)
-  - `runes-barrier`: 4 family-keys (отложено на iter 119)
-  - `penetration`: 3 family-keys (отложено на iter 119)
-- 3: Decision — выполнить **только топ-3 priority-блока в iter 118** согласно итеративной философии «лучше недоделать, чем сломать». Объём manageable (24 family-keys total, ~90 строк правил) — сопоставимо с iter 117 (28 family-keys). Остальные 3 блока (11 family-keys) — iter 119.
-- 4: Проектирование canonical order для `skill-levels`:
-  - Player mental model: Levels FIRST (most-impactful), затем Quality, Duration, Cooldown LAST.
-  - Within levels: all-skills FIRST (most universal), then specific subsets (spells → melee → minion → projectile).
-  - Two substring conflicts handled via first-match-wins (most-specific FIRST):
-    1. `увеличение длительности эффекта умения` — в generic duration И в mark-skill duration → mark rule (с `умения меток имеют.*` prefix) listed FIRST.
-    2. `уровню всех камней умений` — в 5 family-keys → generic all-skills rule end-anchored `$`, specific subset rules match their own distinctive phrase.
-  - `качеству` в both quality % AND max-quality % — full phrases distinct, no real conflict.
-- 5: Проектирование canonical order для `area-duration`:
-  - Area FIRST (more universal — affects many skills).
-  - Within area: generic FIRST (most universal), then specific subsets (spells → curses → banners → presence).
-  - Radius improvement as special mod (order 20) between area-% and duration.
-  - Duration SECOND (less universal — only curse/banner duration in data).
-  - `увеличение области действия` в 5 family-keys — generic rule end-anchored `$`.
-  - `проклятий` и `умений знамён` в BOTH area AND duration variants — no conflict, leading phrase differs (`области действия` vs `длительности`).
-- 6: Проектирование canonical order для `meta-skills`:
-  - Energy FIRST (most universal — powers all meta-skills).
-  - Archon SECOND (buff effect before duration, same pattern as buff-skills).
-  - Sealed skills THIRD (max charges before frequency — cap is more fundamental than gain speed).
-  - 3 substring conflicts (`энергии`, `Архонта`, `зарядов печати`) — все resolved via distinctive phrases (no first-match-wins needed actually).
-- 7: Реализация правил в `src/shared/block-sort-rules.ts`:
-  - Добавлен `'skill-levels': [...]` block (10 правил, включая 1 most-specific-FIRST для mark-duration) с comment block перед ним.
-  - Добавлен `'area-duration': [...]` block (8 правил, generic end-anchored) с comment block перед ним.
-  - Добавлен `'meta-skills': [...]` block (6 правил, по energy/archon/sealed) с comment block перед ним.
-  - Обновлён header комментарий: упоминание iter 118.
-- 8: Зеркалирование правил в `scripts/audit_block_sort_coverage.py` (Python regex, идентичные patterns). Обновление main() — добавить `'skill-levels'`, `'area-duration'`, `'meta-skills'` в список проверяемых блоков, заменить "All 12 blocks" → "All 15 blocks". Обновлён docstring.
-- 9: Первый запуск audit script — ✅ All 15 blocks fully covered (301 family-keys total, 100% coverage). **Никаких uncovered family-keys** — все 24 новых правил сматчились корректно с первого раза благодаря morphology-aware patterns и правильному anchoring.
-- 10: Тесты (`tests/shared/block-sort-rules.test.ts`, +42 тестов в новых SECTION 5j + 5k + 5l + 3 E2E в SECTION 7 + 1 update structural в SECTION 8):
-  - SECTION 5j (skill-levels): 10 case-tests для всех family-keys + 5 relationship tests (full bucket order Levels→Quality→Duration→Cooldown, all-skills-before-spell-skills, mark-first-match-wins, all-skills-end-anchored, quality-vs-max-quality).
-  - SECTION 5k (area-duration): 8 case-tests для всех family-keys + 4 relationship tests (full bucket order Area→Radius→Duration, generic-end-anchored, area-curse-vs-duration-curse, area-banner-vs-duration-banner).
-  - SECTION 5l (meta-skills): 6 case-tests для всех family-keys + 6 relationship tests (full bucket order Energy→Archon→Sealed, energy-amount-before-max, archon-effect-before-duration, sealed-max-before-frequency, distinctive-phrase энергии, distinctive-phrase Архонта).
-  - 3 E2E tests в SECTION 7: skill-levels 3 stat types order, area-duration 3 buckets order, meta-skills 3 buckets order.
-  - Обновлён structural test в SECTION 8: "iter 118 scope: 15 blocks have rules" (изменён с 12 на 15) + добавлены 'area-duration', 'meta-skills', 'skill-levels' в ожидаемый список.
-  - Обновлён header комментарий файла: упоминание iter 118.
-- 11: Верификация — все четыре проверки зелёные:
-  - `pnpm exec tsc --noEmit` → **0 errors**
-  - `pnpm exec vitest run` → **1862/1862 tests passed** (37 test files, +42 новых тестов vs iter 117 baseline 1820)
-  - `pnpm exec eslint src/shared/block-sort-rules.ts tests/shared/block-sort-rules.test.ts` → **0 errors**
-  - `python3 scripts/audit_block_sort_coverage.py` → **15/15 blocks fully covered** (301 family-keys)
-- 12: Документация:
-  - `STATUS.md` — полный rewrite: iter 118 как текущее состояние. skill-levels + area-duration + meta-skills canonical orders + design notes + 15 блоков правил (301 family-keys, 100% coverage). Known Issues #4 updated: 9 блоков без правил (было 12 в iter 117 — 12 - 3 = 9).
-  - `docs/AFFIX_ORDERING_PLAN.md` — обновлён: §4.1 (15 блоков с правилами, 301 family-keys), §4.2 (9 блоков без правил, обновлённые counts + iter 119+ priorities), §5 header (все 11 sections реализованы), §5.9 (skill-levels — РЕАЛИЗОВАН с фактическим canonical order + корректировки плана), §5.10 (area-duration — РЕАЛИЗОВАН с фактическим canonical order + корректировки плана), §5.11 (meta-skills — РЕАЛИЗОВАН с фактическим canonical order + корректировки плана), §6 (тесты — 301 case-tests, iter 118 scope = 15 блоков), §7 (ключевые файлы — 15 блоков), §8 (точка остановки iter 118 → iter 119 + корректировки плана).
-  - `worklog.md` — iter 118 подробно, iter 117 сжат до одной строки в «Предыдущие итерации».
+- 1: Контекст загружен из STATUS.md (iter 118 = current state, 15 блоков правил, 301 family-keys, 100% coverage) + docs/AFFIX_ORDERING_PLAN.md (§4.2 — 3 priority-блока без правил: rage-charges/runes-barrier/penetration, всего 11 family-keys) + worklog.md (iter 118 section).
+- 2: Извлечены все 11 family-keys для 3 target-блоков через Python-скрипт (использовался `public/generated/{amulet,ring,belt,jewel,jewel-desecrated,jewel-corrupted}.json`):
+  - `rage-charges` (4): `+# к максимуму свирепости`, `Дарует # свирепости при нанесении удара в ближнем бою`, `Дарует # свирепости при получении удара от врага`, `#% повышение скорости накопления славы для умений знамён`.
+  - `runes-barrier` (4): `+# к максимуму рунического барьера`, `#% увеличение максимума рунического барьера`, `#% повышение скорости регенерации рунического барьера`, `Восстанавливает # рунического барьера при использовании оберега`.
+  - `penetration` (3): `Урон пробивает #% сопротивления молнии`, `Урон пробивает #% сопротивления холоду`, `Урон пробивает #% сопротивления огню`.
+- 3: Спроектированы канонические порядки для каждого блока:
+  - `rage-charges`: Cap FIRST (0) → Active gain (10) → Passive gain (11) → Glory gain speed (20). Cap sets ceiling without which gain is unbounded. Active (player-initiated) before passive (enemy-initiated) — more controllable. Glory (Слава) — different resource for banner skills, separated via order-20 bucket.
+  - `runes-barrier`: Flat cap (0) → % cap (1) → Regen speed (10) → Conditional recovery (20). Mirrors `resources` block pattern: flat → % → regen → on-event.
+  - `penetration`: Lightning (0) → Cold (1) → Fire (2). Element order mirrors `resistances` block (orders 1-3 there), без chaos (нет в данных). Renumbered 0-2.
+- 4: Анализ substring conflicts:
+  - `rage-charges`: `свирепости` в 3 family-keys — cap rule end-anchored `$` (matches `максимуму свирепости$`), gain rules match distinctive action phrase (`в ближнем бою` vs `получении удара`). `славы` в 1 family-key — no conflict.
+  - `runes-barrier`: `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored `$`, % rule matches distinctive phrase `увеличение максимума`. `оберега` — only in on-ward-use family-key.
+  - `penetration`: no substring conflicts — `пробивает.*сопротивления <element>` is fully distinctive per family-key.
+- 5: Реализация правил в `src/shared/block-sort-rules.ts`:
+  - Добавлен `'rage-charges': [...]` block (4 правила, end-anchored cap rule + distinctive action phrases) с comment block перед ним.
+  - Добавлен `'runes-barrier': [...]` block (4 правила, mirrors resources pattern) с comment block перед ним.
+  - Добавлен `'penetration': [...]` block (3 правила, element order mirrors resistances) с comment block перед ним.
+  - Обновлён header комментарий: упоминание iter 119.
+- 6: Зеркалирование правил в `scripts/audit_block_sort_coverage.py` (Python regex, идентичные patterns). Обновление main() — добавить `'rage-charges'`, `'runes-barrier'`, `'penetration'` в список проверяемых блоков, заменить "All 15 blocks" → "All 18 blocks". Обновлён docstring.
+- 7: Первый запуск audit script — ✅ All 18 blocks fully covered (312 family-keys total, 100% coverage). **Никаких uncovered family-keys** — все 11 новых правил сматчились корректно с первого раза.
+- 8: Тесты (`tests/shared/block-sort-rules.test.ts`, +28 тестов в новых SECTION 5m + 5n + 5o + 3 E2E в SECTION 7 + 1 update structural в SECTION 8):
+  - SECTION 5m (rage-charges): 4 case-tests для всех family-keys + 5 relationship tests (full bucket order Cap→Active→Passive→Glory, cap-before-active, active-before-passive, passive-before-glory, cap-end-anchored, distinctive-action-phrase).
+  - SECTION 5n (runes-barrier): 4 case-tests для всех family-keys + 5 relationship tests (full bucket order Flat→%→Regen→Recovery, flat-before-%, %-before-regen, regen-before-recovery, flat-end-anchored).
+  - SECTION 5o (penetration): 3 case-tests для всех family-keys + 4 relationship tests (full bucket order Lightning→Cold→Fire, lightning-before-cold, cold-before-fire).
+  - 3 E2E tests в SECTION 7: rage-charges 4 buckets order, runes-barrier 4 buckets order, penetration 3 buckets order.
+  - Обновлён structural test в SECTION 8: "iter 119 scope: 18 blocks have rules" (изменён с 15 на 18) + добавлены 'penetration', 'rage-charges', 'runes-barrier' в ожидаемый список.
+- 9: Верификация — все четыре проверки зелёные:
+  - `npx tsc --noEmit` → **0 errors**
+  - `npx vitest run` → **1890/1890 tests passed** (37 test files, +28 новых тестов vs iter 118 baseline 1862)
+  - `npx eslint src/shared/block-sort-rules.ts tests/shared/block-sort-rules.test.ts` → **0 errors**
+  - `python3 scripts/audit_block_sort_coverage.py` → **18/18 blocks fully covered** (312 family-keys)
+- 10: Документация:
+  - `STATUS.md` — полный rewrite: iter 119 как текущее состояние. rage-charges + runes-barrier + penetration canonical orders + design notes + 18 блоков правил (312 family-keys, 100% coverage). Known Issues #4 updated: 6 блоков без правил (было 9 в iter 118 — 9 - 3 = 6). Добавлено "Все priority-блоки закрыты" в Known Issues #4.
+  - `docs/AFFIX_ORDERING_PLAN.md` — обновлён: §4.1 (18 блоков с правилами, 312 family-keys), §4.2 (6 блоков без правил, обновлённые counts + статус "priority-блоки закрыты"), §5 header (все 14 sections реализованы), §5.12 (rage-charges — РЕАЛИЗОВАН с фактическим canonical order + корректировки плана), §5.13 (runes-barrier — РЕАЛИЗОВАН), §5.14 (penetration — РЕАЛИЗОВАН), §6 (тесты — 312 case-tests, iter 119 scope = 18 блоков), §7 (ключевые файлы — 18 блоков), §8 (точка остановки iter 119 → iter 120 + корректировки плана).
+  - `worklog.md` — iter 119 подробно, iter 118 сжат до одной строки в «Предыдущие итерации».
 
 Stage Summary:
-- **iter 118 COMPLETE.** skill-levels (10 family-keys, 100% coverage) + area-duration (8 family-keys, 100% coverage) + meta-skills (6 family-keys, 100% coverage) block rules внедрены. Total 15 блоков правил, 301 family-keys, 100% coverage.
+- **iter 119 COMPLETE.** rage-charges (4 family-keys, 100% coverage) + runes-barrier (4 family-keys, 100% coverage) + penetration (3 family-keys, 100% coverage) block rules внедрены. Total 18 блоков правил, 312 family-keys, 100% coverage. **Все priority-блоки закрыты.**
 - **Изменённые файлы (5 в репозитории):**
-  - `src/shared/block-sort-rules.ts` — +158 строк: добавлен `'skill-levels': [...]` block (10 правил + comment) + `'area-duration': [...]` block (8 правил + comment) + `'meta-skills': [...]` block (6 правил + comment) + обновлён header.
-  - `scripts/audit_block_sort_coverage.py` — +42 строк: добавлены `'skill-levels'` + `'area-duration'` + `'meta-skills'` blocks (зеркало TS правил) + 3 блока в список проверяемых + "All 15 blocks" в сообщение + обновлён docstring.
-  - `tests/shared/block-sort-rules.test.ts` — +242 строк: SECTION 5j (10 case-tests + 5 relationship tests для skill-levels), SECTION 5k (8 case-tests + 4 relationship tests для area-duration), SECTION 5l (6 case-tests + 6 relationship tests для meta-skills), 3 E2E tests в SECTION 7, обновлён structural test в SECTION 8 (15 блоков).
+  - `src/shared/block-sort-rules.ts` — +105 строк: добавлен `'rage-charges': [...]` block (4 правила + comment) + `'runes-barrier': [...]` block (4 правила + comment) + `'penetration': [...]` block (3 правила + comment) + обновлён header.
+  - `scripts/audit_block_sort_coverage.py` — +30 строк: добавлены `'rage-charges'` + `'runes-barrier'` + `'penetration'` blocks (зеркало TS правил) + 3 блока в список проверяемых + "All 18 blocks" в сообщение + обновлён docstring.
+  - `tests/shared/block-sort-rules.test.ts` — +186 строк: SECTION 5m (4 case-tests + 5 relationship tests для rage-charges), SECTION 5n (4 case-tests + 5 relationship tests для runes-barrier), SECTION 5o (3 case-tests + 4 relationship tests для penetration), 3 E2E tests в SECTION 7, обновлён structural test в SECTION 8 (18 блоков).
   - `STATUS.md`, `docs/AFFIX_ORDERING_PLAN.md`, `worklog.md` — обновлены.
-- **Тесты/типы/lint:** ✅ tsc 0 errors, vitest 1862/1862 (+42 vs iter 117 baseline 1820), eslint 0 problems.
-- **Audit script:** ✅ 15/15 blocks fully covered (resistances 18 + attributes 13 + minions 34 + ailments 40 + damage-type 47 + defence-stats 28 + resources 29 + weapon-specific 24 + flasks 16 + offence-speed 12 + crit 9 + buff-skills 7 + skill-levels 10 + area-duration 8 + meta-skills 6 = 301 family-keys).
-- **Корректировки плана iter 118** (зафиксированы в docs/AFFIX_ORDERING_PLAN.md §5.9 + §5.10 + §5.11):
-  - iter 118 — первый план канонических порядков для skill-levels / area-duration / meta-skills (раньше не предлагались).
-  - `skill-levels`: 10 family-keys ✓. Levels FIRST (most-impactful). Cooldown LAST (timing-related).
-  - `skill-levels`: 2 substring conflicts handled via first-match-wins (mark duration + all-skills level).
-  - `area-duration`: 8 family-keys ✓. Area FIRST. Radius improvement as special bucket (order 20).
-  - `area-duration`: `проклятий` и `умений знамён` в BOTH area AND duration variants — no conflict, leading phrase differs.
-  - `meta-skills`: 6 family-keys ✓. Energy FIRST. Archon before Sealed skills.
-  - `meta-skills`: 3 substring conflicts (`энергии`, `Архонта`, `зарядов печати`) — все resolved via distinctive phrases.
+- **Тесты/типы/lint:** ✅ tsc 0 errors, vitest 1890/1890 (+28 vs iter 118 baseline 1862), eslint 0 problems.
+- **Audit script:** ✅ 18/18 blocks fully covered (resistances 18 + attributes 13 + minions 34 + ailments 40 + damage-type 47 + defence-stats 28 + resources 29 + weapon-specific 24 + flasks 16 + offence-speed 12 + crit 9 + buff-skills 7 + skill-levels 10 + area-duration 8 + meta-skills 6 + rage-charges 4 + runes-barrier 4 + penetration 3 = 312 family-keys).
+- **Корректировки плана iter 119** (зафиксированы в docs/AFFIX_ORDERING_PLAN.md §5.12 + §5.13 + §5.14):
+  - iter 119 — первый план канонических порядков для rage-charges / runes-barrier / penetration (раньше не предлагались).
+  - `rage-charges`: 4 family-keys ✓. Cap FIRST. Active gain (player-initiated) before passive gain (enemy-initiated). Glory (Слава) gain speed LAST — different resource for banner skills.
+  - `rage-charges`: `свирепости` в 3 family-keys — cap rule end-anchored, gain rules match distinctive action phrase.
+  - `runes-barrier`: 4 family-keys ✓. Mirrors `resources` block pattern: flat → % → regen → on-event.
+  - `runes-barrier`: `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored, % rule matches distinctive phrase `увеличение максимума`.
+  - `penetration`: 3 family-keys ✓. Element order mirrors `resistances` block (молния → холод → огонь), без chaos (нет в данных).
+  - `penetration`: no substring conflicts — `пробивает.*сопротивления <element>` fully distinctive.
 - **Known Issues (итог):**
   - #1 (jewel.json opt-table > 250 chars) — runtime split handles.
   - #2 (j05iep crit) — intentional.
   - #3 (APCA Lc<75 для small text — iter 111 accepted tradeoff).
-  - #4 (UPDATED iter 118): 9 functional blocks БЕЗ правил сортировки → fallback к alphabetical. План iter 119+ в docs/AFFIX_ORDERING_PLAN.md §4.2 (приоритеты: rage-charges/runes-barrier/penetration — всего 11 family-keys, manageable для одного захода).
+  - #4 (UPDATED iter 119): 6 functional blocks БЕЗ правил сортировки → fallback к alphabetical. **Все priority-блоки закрыты.** Оставшиеся 6 блоков не требуют правил: 4 содержат 0-1 family-key (правила избыточны для одного элемента), `other` heterogeneous и отложен.
   - #5 (бывший regex-баг — closed iter 112).
-- **Точка остановки:** iter 118 done. В iter 119 можно:
-  1. **Добавить правила для оставшихся 3 priority-блоков** (см. docs/AFFIX_ORDERING_PLAN.md §4.2): `rage-charges` (4 family-keys), `runes-barrier` (4), `penetration` (3). Всего 11 family-keys — небольшой объём, iter 119 может закрыть одним заходом. Канонические порядки пока не предложены — потребуется анализ данных.
-  2. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + offence-speed + crit + buff-skills + **NEW iter 118: skill-levels + area-duration + meta-skills**.
-  3. Опционально (iter 111 leftover): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
-- **Подсказка следующему агенту:** iter 118 = skill-levels (10) + area-duration (8) + meta-skills (6) block rules, 100% coverage each. Перед стартом iter 119 прочитай STATUS.md (актуальный статус + Known Issues #4 — 9 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (этот раздел iter 118). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 15 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Точка остановки:** iter 119 done. **Систематическая сортировка priority-блоков завершена.** В iter 120 можно:
+  1. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, affix ordering в 18 блоках (resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + offence-speed + crit + buff-skills + skill-levels + area-duration + meta-skills + **NEW iter 119: rage-charges + runes-barrier + penetration**).
+  2. Опционально (iter 111 leftover): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
+  3. Опционально: систематизация `other` block (27 family-keys) — LOW priority, heterogeneous.
+- **Подсказка следующему агенту:** iter 119 = rage-charges (4) + runes-barrier (4) + penetration (3) block rules, 100% coverage each. **Все priority-блоки закрыты.** Перед стартом iter 120 прочитай STATUS.md (актуальный статус + Known Issues #4 — 6 блоков без правил, все low-priority/empty), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (этот раздел iter 119). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 18 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 118**: skill-levels (10) + area-duration (8) + meta-skills (6) block rules, 100% coverage each. Canonical orders: Levels→Quality→Duration→Cooldown, Area→Radius→Duration, Energy→Archon→Sealed. 1862/1862 tests.
 - **iter 117**: offence-speed (12) + crit (9) + buff-skills (7) block rules, 100% coverage each. Canonical orders: 12 speed buckets (attack→...→skill), 9 crit buckets (chance%→...→ailment), 7 buff-skill buckets (Ауры→...→Метки). 1820/1820 tests.
 - **iter 116**: weapon-specific (24) + flasks (16) block rules, 100% coverage each. Canonical orders: 10 weapon buckets (Мечи→...→Без оружия), 4 flask buckets (Health→Mana→Any→Buffs). 1774/1774 tests.
 - **iter 115**: resources block rules (29 family-keys, 100% coverage). Canonical order: Здоровье → Мана → ES → Конверсия → Тотем → Прочее. 1721/1721 tests.
