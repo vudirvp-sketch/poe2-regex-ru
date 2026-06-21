@@ -105,23 +105,14 @@ export function HomePage() {
           ghosts. z-10 on this wrapper establishes a stacking context that
           lifts all descendants above the side ghosts. */}
       <div className="relative z-10 mx-auto max-w-4xl">
-      {/* Hero section — iter 57: tightened (mb-10→mb-6, mb-3→mb-2, mb-4→mb-3, mb-6→mb-4, badges text-[13px]→[12px] + gap-3→gap-2)
-          iter 69: 3 atmospheric decorations added on lg+/xl+ only — mobile (<lg)
-          stays identical to iter 57. Wrapper used `isolate` + `overflow-hidden`
-          so the backdrops' `mix-blend-screen` blends only within this container
-          and side ghosts don't cause horizontal scroll.
-          iter 120: backdrop images (hero-bas-relief lg+, news-bg-center mobile)
-          REMOVED. Side ghosts REPLACED with full-body portrait images: shaman
-          (left) + ива (right). But they were kept inside this hero block with
-          `overflow-hidden` + center-anchor → BUG: head + legs cropped (KI#7).
-          iter 121: side ghosts moved OUT of this hero block (now siblings at
-          the root of HomePage's JSX, see above). Hero block stripped of
-          `isolate` and `overflow-hidden` — no longer needed (no absolute
-          children inside, no mix-blend-mode backdrops). Just text content. */}
+      {/* Hero section — text-only block. iter 121 moved the full-body side
+          ghost portraits (shaman left, ива right) OUT of this hero block to
+          the root of HomePage's JSX (see above) so they anchor to <main>
+          edges (not the max-w-4xl content column) and are not clipped by
+          overflow-hidden. iter 122 deleted the 4 leftover iter-69 backdrop
+          images (hero-bas-relief, hero-horned-warrior, hero-monster-red,
+          news-bg-center) that were no longer referenced after iter 120. */}
       <div className="relative mb-6 text-center">
-        {/* Original hero text content. `relative` lifts it above any
-            absolutely positioned decorations inside this stacking context
-            (none as of iter 121, but kept for future-proofing). */}
         <div className="relative">
           <h1 className="mb-2 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
             {t('home.title')}

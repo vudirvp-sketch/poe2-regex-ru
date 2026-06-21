@@ -1,0 +1,25 @@
+# iter 122 — Files to DELETE from your local checkout
+#
+# These files are no longer referenced in the codebase (verified via grep
+# across *.tsx, *.ts, *.css, *.html). They were marked "removed from JSX"
+# in iter 120 but kept on disk; iter 122 completes the cleanup by deleting
+# them from disk too.
+#
+# Run from your repo root:
+#
+#   rm public/atmosphere/hero-bas-relief.webp
+#   rm public/atmosphere/hero-horned-warrior.webp
+#   rm public/atmosphere/hero-monster-red.webp
+#   rm public/atmosphere/news-bg-center.webp
+#   rm scripts/optimize_hero_images.py
+#
+# Or, if you extracted this archive over your checkout (which already
+# replaced the modified files), the deleted files will still be on disk
+# because zip extract doesn't delete files. So you need to run these
+# rm commands manually.
+
+public/atmosphere/hero-bas-relief.webp
+public/atmosphere/hero-horned-warrior.webp
+public/atmosphere/hero-monster-red.webp
+public/atmosphere/news-bg-center.webp
+scripts/optimize_hero_images.py

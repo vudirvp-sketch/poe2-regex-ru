@@ -1087,6 +1087,42 @@ main {
   opacity: 0.10;
 }
 
+/* iter 122: wide landscape atmospheric backdrop for the SEO content area.
+   Source: atmosphere/seo-atmosphere.webp (1600x900, originally faf.png
+   1672x941 — dark-fantasy artwork with a warrior + skull/demonic structure,
+   ~6.7% of the source PNG size after WebP q85).
+
+   Same fade-in pattern as .home-seo-demon (opacity 0 → 0.18 on
+   <details>[open]), same `pointer-events-none` + `z-index: 0`. DOM order
+   in SeoBlock.tsx: atmosphere → demon → content — so the right-edge demon
+   accent paints ON TOP of this wide backdrop, and both are below the SEO
+   text content (z-index: 1).
+
+   `mix-blend-mode: screen` lets the dark areas of the artwork blend with
+   the bg (no darkening of the warm --poe-bg-secondary), while the lighter
+   highlights (warrior silhouette, skull structure) "etch" onto the bg.
+   Same blend mode as .home-seo-demon for visual consistency.
+
+   `mask-image: linear-gradient(to bottom, #000 60%, transparent 100%)`
+   fades the bottom 40% of the artwork — prevents the image from ending
+   abruptly mid-content. The top 60% (where the artwork is most detailed)
+   is fully visible; the bottom 40% fades into the bg.
+
+   Mobile (`< lg`): the JSX uses `hidden lg:block`, so this rule never
+   applies on mobile (image is `display: none`). No `@media` wrapper
+   needed — Tailwind's `.lg\:block` handles the responsive show. */
+.home-seo-atmosphere {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 0;
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+.home-seo-details[open] .home-seo-atmosphere {
+  opacity: 0.18;
+}
+
 .home-seo-summary {
   display: flex;
   align-items: center;

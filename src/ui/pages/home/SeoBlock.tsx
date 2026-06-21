@@ -13,6 +13,14 @@
  * места для silhouette. `pointer-events-none` + `aria-hidden` — декорация
  * не влияет на доступность и клики.
  *
+ * iter 122: широкий ландшафтный backdrops `seo-atmosphere.webp` (1600x900,
+ * исходник faf.png 1672x941 — dark-fantasy арт: воительница + череп/демоническая
+ * структура). Виден только при раскрытии `<details>`, lg+ only. Сидит ПОЗАДИ
+ * `.home-seo-content` (z-index: 0 vs content z-index: 1), а `.home-seo-demon`
+ * (правый край) рисуется поверх этого backdrop'а (DOM order: atmosphere → demon
+ * → content). `mix-blend-screen` + `mask-image` (fade bottom 40%) — мягкое
+ * атмосферное наложение, не отвлекает от чтения SEO-текста.
+ *
  * Ключевые поисковые запросы: регексы poe2, регулярное выражение poe2,
  * фильтрация предметов poe2, поиск предметов poe2, поисковые строки poe2
  */
@@ -26,10 +34,27 @@ export function SeoBlock() {
         <span className="home-seo-summary-text">{t('home.seo_summary')}</span>
       </summary>
 
+      {/* iter 122: wide landscape atmospheric backdrop. Visible only when
+          <details> is open (see .home-seo-details[open] .home-seo-atmosphere
+          rule in index.css). lg+ only — mobile doesn't have horizontal room
+          and performance matters more on small screens. Sits behind the SEO
+          text content (z-index: 0 vs content's z-index: 1). DOM order:
+          atmosphere → demon → content, so the right-edge demon accent paints
+          ON TOP of this wide backdrop. `mix-blend-screen` + bottom mask
+          gradient (fade bottom 40%) keeps the artwork subtle and the text
+          readable. */}
+      <img
+        src={`${import.meta.env.BASE_URL}atmosphere/seo-atmosphere.webp`}
+        alt=""
+        aria-hidden="true"
+        className="home-seo-atmosphere pointer-events-none absolute inset-0 hidden h-full w-full object-cover lg:block"
+      />
+
       {/* iter 71: decorative demon-blue silhouette, right side, lg+ only.
           Visible only when <details> is open (see .home-seo-details[open]
           .home-seo-demon rule in index.css). `mix-blend-screen` lets the
-          dark-blue demon face "etch" onto the warm bg without darkening it. */}
+          dark-blue demon face "etch" onto the warm bg without darkening it.
+          iter 122: now sits ON TOP of .home-seo-atmosphere (DOM order). */}
       <img
         src={`${import.meta.env.BASE_URL}atmosphere/hero-demon-blue.webp`}
         alt=""
