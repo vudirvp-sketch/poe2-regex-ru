@@ -1377,6 +1377,16 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  *   2. priorityTier (S→A→B→C) — tiebreaker for the (impossible in practice)
  *      case of two groups with the same familyKey.
  *
+ * iter 112: EXTENDED to use `sortKey` (computed by `computeSortKey` in
+ * `src/shared/block-sort-rules.ts`) as the PRIMARY sort key, with familyKey
+ * as the secondary tiebreaker. The sortKey encodes per-block canonical
+ * ordering rules (e.g., in `resistances`: chaos → lightning → cold → fire;
+ * in `minions`: subject → stat; in `ailments`: operation → state).
+ *
+ * When `sortKey` is undefined (legacy callers, test helpers that don't go
+ * through `groupTokensByFamily`), the sort falls back to pure alphabetical
+ * by familyKey — preserving pre-iter-112 behaviour for those callers.
+ *
  * The tier is still rendered as a coloured badge in the UI (priorityFilter
  * still works), so the player retains the popularity signal — they just no
  * longer pay for it with a fragmented alphabetical flow.
@@ -1386,6 +1396,10 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  *    (see `splitGroupByOrigin` in family-grouper.ts). We strip everything
  *    after the first `::` so all origin variants of the same family sort
  *    together by their clean template name.
+ *  - `sortKey` (when set) is computed from the CLEAN familyKey, so the
+ *    `::origin` suffix on familyKey does NOT affect sortKey ordering.
+ *    All origin-split variants share the same sortKey prefix and fall
+ *    into alphabetical order by their clean familyKey.
  *  - Returns a NEW array; input is not mutated (the test "preserves group
  *    references (does not mutate or clone)" in mod-classifier.test.ts
  *    relies on this — the FamilyGroup object references themselves are
@@ -1396,12 +1410,28 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  *
  * @param groups - FamilyGroup[] from a single sub-group (one functional
  *                 block / sentiment / tablet-type / relic-category / etc.)
- * @returns New array, alphabetically sorted by familyKey (Russian locale)
- *          with priority tier as tiebreaker.
+ * @returns New array, sorted by sortKey (if set) then familyKey (Russian
+ *          locale) with priority tier as final tiebreaker.
  */
 export function sortGroupsAlphabetically(groups: FamilyGroup[]): FamilyGroup[] {
   if (groups.length <= 1) return [...groups];
   return [...groups].sort((a, b) => {
+    // iter 112: sortKey (when set on both groups) is the primary sort.
+    // sortKey format: "<2-digit order>::<familyKey>". Lexicographic compare
+    // on the sortKey string gives the correct order (numeric prefix first,
+    // then familyKey alphabetical tiebreaker).
+    if (a.sortKey && b.sortKey) {
+      const cmp = a.sortKey.localeCompare(b.sortKey, 'ru');
+      if (cmp !== 0) return cmp;
+      // Fall through to familyKey/tier tiebreaker if sortKeys are equal
+      // (shouldn't happen in production but defensive).
+    } else if (a.sortKey && !b.sortKey) {
+      // Group with sortKey comes AFTER group without (legacy/test group).
+      // This preserves backward compat: production groups (with sortKey)
+      // all sort together, test groups (without) sort together at the end.
+      // Actually we want them mixed alphabetically by familyKey when one
+      // is missing — so fall through to familyKey compare.
+    }
     // Strip `::origin` suffix (added by splitGroupByOrigin) so origin-split
     // variants sort by their clean family template name.
     const keyA = a.familyKey.split('::')[0];
@@ -1421,6 +1451,10 @@ export function sortGroupsAlphabetically(groups: FamilyGroup[]): FamilyGroup[] {
  * user-facing toggle so power users can surface best-in-class mods at the
  * top of every functional block / sentiment / tablet-type / relic-category
  * instead of the alphabetical flow.
+ *
+ * iter 112: this tier-first mode does NOT use sortKey — by design, the user
+ * has explicitly chosen "tier-first" over the systematic within-block order.
+ * Tier-first always means: tier is primary, familyKey is tiebreaker.
  *
  * Within-block order:
  *   1. priorityTier (S→A→B→C) — primary

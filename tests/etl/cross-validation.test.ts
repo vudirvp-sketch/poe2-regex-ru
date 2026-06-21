@@ -159,5 +159,49 @@ describe('ETL vs регис cross-validation', () => {
         expect(shortRegexTokens.length, `${file} has ${shortRegexTokens.length} tokens with regex < ${minLen} chars`).toBe(0);
       }
     });
+
+    // iter 112 regression: regexPrefixContext must NOT be a range template
+    // like "(10—20)%" — such literal text never appears in real rolled items,
+    // which show a specific value like "15%". Using a range template as
+    // context makes the regex NEVER match in-game.
+    // Bug case: jewel-desecrated.mod_3yl2ru had ctx="(10—20)%" + regex="Бездны".
+    it('no token has range-like regexPrefixContext (iter 112 regression)', () => {
+      const files = [
+        'waystone.json', 'waystone-desecrated.json', 'tablet.json',
+        'relic.json', 'jewel.json', 'jewel-desecrated.json', 'jewel-corrupted.json',
+        'belt.json', 'ring.json', 'amulet.json',
+      ];
+      const suspicious: string[] = [];
+      for (const file of files) {
+        const data = loadCategoryData(file);
+        for (const t of data.tokens) {
+          const ctx = t.regexPrefixContext?.ru;
+          if (!ctx) continue;
+          // A valid context word/phrase must contain ≥3 Cyrillic/Latin letters.
+          // Range templates like "(10—20)%" or "—" alone have <3 letters.
+          const letterCount = (ctx.match(/[а-яА-ЯёЁa-zA-Z]/g) || []).length;
+          if (letterCount < 3) {
+            suspicious.push(`${file}:${t.id} ctx="${ctx}"`);
+          }
+        }
+      }
+      expect(suspicious, `suspicious ctx values:\n  ${suspicious.join('\n  ')}`).toEqual([]);
+    });
+
+    // iter 112 regression: verify the Истощения Бездны token specifically.
+    // Before iter 112, it had regexPrefixContext "(10—20)%" which would
+    // compile to "(10—20)%.*Бездны" — a regex that NEVER matches in-game
+    // because real items show specific rolls like "15%", not "(10—20)%".
+    it('jewel-desecrated.mod_3yl2ru (Истощения Бездны) has no range context', () => {
+      const data = loadCategoryData('jewel-desecrated.json');
+      const token = data.tokens.find((t: { id: string }) => t.id === 'jewel-desecrated.mod_3yl2ru');
+      expect(token, 'mod_3yl2ru must exist in jewel-desecrated.json').toBeTruthy();
+      const ctx = token.regexPrefixContext?.ru ?? '';
+      // Context must be empty or contain ≥3 letters (NOT "(10—20)%" or similar)
+      if (ctx.length > 0) {
+        const letterCount = (ctx.match(/[а-яА-ЯёЁa-zA-Z]/g) || []).length;
+        expect(letterCount, `ctx "${ctx}" must have ≥3 letters`).toBeGreaterThanOrEqual(3);
+      }
+    });
   });
 });

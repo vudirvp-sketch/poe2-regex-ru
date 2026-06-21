@@ -1246,10 +1246,7 @@
       "yoficationPositions": [],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "ailments",
-      "regexPrefixContext": {
-        "ru": "(10—20)%"
-      }
+      "functionalCategory": "ailments"
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.65nirt",

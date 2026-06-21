@@ -356,29 +356,39 @@ font-feature-settings: "tnum";
 
 ## 8) Точка остановки
 
-**iter 111 COMPLETE.** Реализованы все 13 пунктов аудита v2 (iter 109–110) + закрыты Known Issues #3, #4, частично #5.
+**iter 112 COMPLETE.** iter 111 закрыл Known Issues #3/#4/#5 из аудита v2. iter 112 — фикс regex-бага «Истощения Бездны» + внедрение систематической сортировки аффиксов внутри функциональных блоков.
 
-**Что сделано (iter 111):**
-1. **KI#3 fix** — `--placeholder-primary` (`#6b7280` → `#7A8494`) и `--placeholder-secondary` (`#4b5563` → `#7A8494`) консолидированы с `--text-dim-val`. WCAG AA FAIL 3.6:1 / 2.3:1 → PASS 4.6:1 / 4.6:1 на `--input-bg`. APCA Lc -32.5 / -16.6 → -43.6 / -43.6.
-2. **KI#4 fix** — `--text-faint-val` теперь alias `var(--text-dim-val)`. Все 4 `text-faint` Tailwind-класса в TSX заменены на `text-dim`: `ProfilePanel.tsx` (2 места), `StatusPanel.tsx` (1 место), `CategoryControlPanel.tsx` (1 место). Токен `--color-faint` в `@theme` сохранён как backwards-compat alias.
-3. **KI#5 partial fix** — `font-medium` (weight 500) добавлен к 2 критичным 12px text-dim лейблам в `RegexOutput.tsx` (part_label + char count, auto-copy toggle). APCA threshold для этих элементов: 90 → 75. Gap FAIL сокращён с 46.4 до 31.4 Lc. Остальные 12px text-dim (page mod-counters в 8 файлах) оставлены weight 400 — дизайн-выбор (secondary info не конкурирует с primary content).
-4. **APCA-валидация** — `scripts/apca_validate_iter111.py` (каноническая APCA 0.0.98G, polarity-aware, soft-clamp ±108). 19 пар проверено. PASS body text: text-primary/soft/accent-yellow. PASS WCAG AA + FAIL APCA Lc≥90 для small text: text-dim/faint/muted + accent-blue/red/emerald — реклассифицировано из KI#5 в "accepted design tradeoff" (см. STATUS.md).
+**Что сделано (iter 112):**
+1. **Regex-баг «Истощения Бездны»** — закрыт (KI#5). Token `jewel-desecrated.mod_3yl2ru` имел `regexPrefixContext: "(10—20)%"` (literal range template, никогда не встречается в реальных rolled-item текстах). Скомпилированный regex `"(10—20)%.*Бездны"` НЕ матчит ни один предмет в игре. Фикс: data patch (удалили ключ) + ETL algorithm fix (фильтр ≥3 букв в `tryAddContextForShortRegex`) + 2 regression tests.
+2. **Инфраструктура систематической сортировки аффиксов** — внедрена:
+   - Новое поле `FamilyGroup.sortKey` (`src/shared/types.ts`).
+   - Новый модуль `src/shared/block-sort-rules.ts` — per-block ordering rules + `computeSortKey()`.
+   - `groupTokensByFamily` вычисляет sortKey; `sortGroupsAlphabetically` использует sortKey как PRIMARY sort.
+3. **4 functional blocks с правилами** (105 family-keys, 100% coverage):
+   - `resistances` (18) — chaos→lightning→cold→fire.
+   - `attributes` (13) — Сила→Ловкость→Интеллект→Все→dual→tri-or.
+   - `minions` (34) — Subject (Companion/Minion/Offering) × Stat (Health/Damage/Crit/Speed/Area/Resists/Utility).
+   - `ailments` (40) — Operation (Увеличение силы/шанса/длительности/уменьшение/шанс наложения/порог/скорость накопления) × State.
+4. **Audit script** `scripts/audit_block_sort_coverage.py` — проверяет 100% coverage family-keys в 4 блоках.
 
-**Изменённые файлы (iter 111):**
-- `src/index.css` — 3 правки: `--placeholder-primary`, `--placeholder-secondary`, `--text-faint-val` (alias)
-- `src/ui/components/ProfilePanel.tsx` — 2 правки: `text-faint` → `text-dim`
-- `src/ui/components/StatusPanel.tsx` — 1 правка: `text-faint` → `text-dim`
-- `src/ui/components/CategoryControlPanel.tsx` — 1 правка: `text-faint` → `text-dim`
-- `src/ui/components/RegexOutput.tsx` — 2 правки: `font-medium` к 12px text-dim лейблам
-- `STATUS.md`, `docs/UI_AUDIT.md`, `worklog.md` — обновлены
-- `scripts/apca_validate_iter111.py` + `scripts/apca_iter111_results.txt` — новый валидатор (вне репозитория, в архиве)
+**Изменённые файлы (iter 112):**
+- `public/generated/jewel-desecrated.json` — iter 112 regex fix: удалён `regexPrefixContext` у `mod_3yl2ru`.
+- `scripts/etl/iterative-optimizer.ts` — iter 112 ETL fix: `tryAddContextForShortRegex` фильтрует range-like candidates.
+- `src/shared/types.ts` — добавлено `FamilyGroup.sortKey?: string`.
+- `src/shared/family-grouper.ts` — `buildFamilyGroup` вычисляет sortKey.
+- `src/shared/mod-classifier.ts` — `sortGroupsAlphabetically` использует sortKey как PRIMARY.
+- `tests/etl/cross-validation.test.ts` — +2 regression tests.
+- `STATUS.md`, `docs/AFFIX_ORDERING_PLAN.md` (новый), `worklog.md` — обновлены.
+- `src/shared/block-sort-rules.ts` + `tests/shared/block-sort-rules.test.ts` + `scripts/audit_block_sort_coverage.py` — новые файлы (вне репозитория, в архиве).
 
 **Тесты/типы/lint:** ✅ все три проверки зелёные после правок:
 - `npx tsc -b` → **0 errors**
-- `npx vitest run` → **1543/1543 tests passed** (36 test files)
+- `npx vitest run` → **1602/1602 tests passed** (37 test files, +59 vs iter 111)
 - `npx eslint .` → **0 problems**
 
-**Следующая итерация (iter 112) — опциональные улучшения:**
-1. **Визуальная верификация пользователем** — проверить UI в браузере: контрасты, читаемость 12px текста, корректность рендеринга Noto Sans (особенно на Linux), отсутствие визуальных артефактов от `letter-spacing`/`line-height`/`tnum`. Уделить внимание визуалу placeholder-текста (теперь #7A8494) в chip-inputs — раньше он был гораздо темнее (#4b5563), сейчас может выглядеть ярче ожидаемого.
-2. **APCA small-text tradeoff (бывший KI#5)** — если визуальная верификация покажет, что dim-текст всё ещё напряжён для чтения, опции: (a) lift `--text-dim-val` до `#8A92A2` (нарушит дистанцию от `text-muted`); (b) расширить `font-medium` на остальные 12px text-dim лейблы (8 page mod-counters); (c) принять текущее состояние как окончательное.
-3. Полный план и статус — в STATUS.md и этом файле.
+**Следующая итерация (iter 113+) — план:**
+1. **Расширить правила сортировки** на 16 functional blocks без правил. Приоритет: `damage-type` (47 family-keys), `defence-stats` (32), `resources` (33), `weapon-specific` (24), `flasks` (18). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md` §5.
+2. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, корректность нового affix ordering в resistances/attributes/minions/ailments.
+3. Опционально (iter 111 leftover): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
+4. Полный план и статус — в STATUS.md, docs/AFFIX_ORDERING_PLAN.md и этом файле.
+

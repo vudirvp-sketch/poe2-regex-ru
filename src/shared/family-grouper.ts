@@ -13,6 +13,7 @@
  */
 import type { GameToken, AffixType, FamilyGroup, ModOrigin, PriorityTier } from './types';
 import { classifyPriorityTier, TIER_SORT_ORDER } from './mod-classifier';
+import { computeSortKey } from './block-sort-rules';
 
 /**
  * Parse a rawTextTemplate to extract placeholder info.
@@ -252,6 +253,15 @@ function buildFamilyGroup(familyKey: string, affix: AffixType, members: GameToke
   group.priorityTier = category
     ? classifyPriorityTier(group, category)
     : 'C';
+
+  // iter 112: compute canonical within-block sortKey.
+  // Uses the functionalCategory of the first member (ETL-tagged on every
+  // jewellery/jewel token). Falls back to 'other' if missing — which
+  // produces sortKey "99::<familyKey>" (alphabetical bucket, pre-iter-112
+  // behaviour). The familyKey passed here is the CLEAN template (no ::origin
+  // suffix) so all origin-split variants of the same family sort together.
+  const functionalCategory = members[0]?.functionalCategory ?? 'other';
+  group.sortKey = computeSortKey(functionalCategory, familyKey);
 
   return group;
 }

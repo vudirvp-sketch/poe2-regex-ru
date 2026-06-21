@@ -394,7 +394,17 @@ function tryAddContextForShortRegex(
 
   // Extract words before the regex position
   const prefix = lowerRaw.substring(0, idx).trim();
-  const prefixWords = prefix.split(/\s+/).filter(w => w.length >= 3 && !/^\d+$/.test(w));
+  // iter 112 (bug fix): filter out candidates that look like range notation
+  // (e.g., "(10—20)%"). Such tokens appear unique within a category file but
+  // they are literal range templates — real rolled items show a specific
+  // number like "15%", never "(10—20)%". Using them as regexPrefixContext
+  // produces a regex that NEVER matches in-game.
+  // Heuristic: a valid context word must contain ≥3 Cyrillic/Latin letters.
+  const hasMinLetters = (s: string): boolean =>
+    (s.match(/[а-яА-ЯёЁa-zA-Z]/g) || []).length >= 3;
+  const prefixWords = prefix.split(/\s+/).filter(w =>
+    w.length >= 3 && !/^\d+$/.test(w) && hasMinLetters(w)
+  );
 
   // Try each prefix word as context (from closest to furthest)
   for (let i = prefixWords.length - 1; i >= 0; i--) {
@@ -420,6 +430,8 @@ function tryAddContextForShortRegex(
   if (prefixWords.length >= 2) {
     for (let i = prefixWords.length - 1; i >= 1; i--) {
       const candidate = `${prefixWords[i - 1]} ${prefixWords[i]}`;
+      // iter 112 (bug fix): also filter 2-word candidates that are range-like
+      if (!hasMinLetters(candidate)) continue;
       const tokenFamily = token.familyKey.ru;
       let crossFamilyCount = 0;
       for (const other of allTokens) {

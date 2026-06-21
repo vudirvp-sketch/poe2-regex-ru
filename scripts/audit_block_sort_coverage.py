@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+"""
+Audit script for iter 112 block sort rules coverage.
+
+For each of the 4 blocks with explicit sort rules (resistances, attributes,
+minions, ailments), enumerates all production family-keys and checks whether
+the rule set covers them. Reports any family-keys that fall into the "900::"
+fallback bucket (rules exist but none matched) — these need new rules.
+
+Usage:
+    python3 scripts/audit_block_sort_coverage.py
+"""
+import json
+import os
+import re
+import sys
+
+# Add project root to path for imports
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+
+GENERATED_DIR = os.path.join(PROJECT_ROOT, 'public', 'generated')
+
+# Mirror of BLOCK_SORT_RULES from src/shared/block-sort-rules.ts
+# (kept in sync manually — update both files when adding rules)
+BLOCK_SORT_RULES = {
+    'resistances': [
+        # Passive-tree first (most specific)
+        (re.compile(r'значимые пассивные умения.*сопротивлению хаосу', re.I), 30, 'passive chaos'),
+        (re.compile(r'значимые пассивные умения.*сопротивлению молнии', re.I), 31, 'passive lightning'),
+        (re.compile(r'значимые пассивные умения.*сопротивлению холоду', re.I), 32, 'passive cold'),
+        (re.compile(r'значимые пассивные умения.*сопротивлению огню', re.I), 33, 'passive fire'),
+        # Single-element regular
+        (re.compile(r'к сопротивлению хаосу$', re.I), 0, 'chaos single'),
+        (re.compile(r'к сопротивлению молнии$', re.I), 1, 'lightning single'),
+        (re.compile(r'к сопротивлению холоду$', re.I), 2, 'cold single'),
+        (re.compile(r'к сопротивлению огню$', re.I), 3, 'fire single'),
+        # Dual-element
+        (re.compile(r'к сопротивлениям молнии и хаосу', re.I), 4, 'lightning+chaos'),
+        (re.compile(r'к сопротивлениям холоду и хаосу', re.I), 5, 'cold+chaos'),
+        (re.compile(r'к сопротивлениям огню и хаосу', re.I), 6, 'fire+chaos'),
+        # All-elements
+        (re.compile(r'к сопротивлению всем стихиям', re.I), 7, 'all-elements regular'),
+        (re.compile(r'к максимуму сопротивлений всем стихиям', re.I), 8, 'all-elements max'),
+        # Max-resist single
+        (re.compile(r'к максимальному сопротивлению хаосу$', re.I), 10, 'chaos max'),
+        (re.compile(r'к максимальному сопротивлению молнии$', re.I), 11, 'lightning max'),
+        (re.compile(r'к максимальному сопротивлению холоду$', re.I), 12, 'cold max'),
+        (re.compile(r'к максимальному сопротивлению огню$', re.I), 13, 'fire max'),
+        # Meta
+        (re.compile(r'добавленных свойств сопротивлений', re.I), 20, 'meta: added-resist props'),
+    ],
+    'attributes': [
+        (re.compile(r'к силе$', re.I), 0, 'Сила flat'),
+        (re.compile(r'к ловкости$', re.I), 1, 'Ловкость flat'),
+        (re.compile(r'к интеллекту$', re.I), 2, 'Интеллект flat'),
+        (re.compile(r'ко всем характеристикам', re.I), 3, 'all attrs flat'),
+        (re.compile(r'к силе и ловкости', re.I), 4, 'Сила+Ловкость'),
+        (re.compile(r'к силе и интеллекту', re.I), 5, 'Сила+Интеллект'),
+        (re.compile(r'к ловкости и интеллекту', re.I), 6, 'Ловкость+Интеллект'),
+        (re.compile(r'силе, ловкости или интеллекту', re.I), 7, 'tri-or flat'),
+        (re.compile(r'повышение силы', re.I), 10, 'Сила %'),
+        (re.compile(r'повышение ловкости', re.I), 11, 'Ловкость %'),
+        (re.compile(r'повышение интеллекта', re.I), 12, 'Интеллект %'),
+        (re.compile(r'увеличение силы, ловкости или интеллекта', re.I), 13, 'tri-or %'),
+        (re.compile(r'уменьшение требований', re.I), 20, 'requirement reduction'),
+    ],
+    'minions': [
+        # Companion
+        (re.compile(r'максимума здоровья компаньонов', re.I), 0, 'Companion: health'),
+        (re.compile(r'компаньоны наносят.*урон', re.I), 1, 'Companion: damage'),
+        # Minion health
+        (re.compile(r'приспешники имеют.*максимума здоровья', re.I), 100, 'Minion: health'),
+        (re.compile(r'приспешники.*дополнительного уменьшения.*физического урона', re.I), 101, 'Minion: phys reduction'),
+        # Minion damage
+        (re.compile(r'приспешники имеют.*увеличение урона(?!.*умениями|.*скорости)', re.I), 110, 'Minion: damage (generic)'),
+        (re.compile(r'приспешники наносят.*урон умениями-приказами', re.I), 111, 'Minion: damage (order skills)'),
+        (re.compile(r'приспешники наносят.*урон, если недавно вы наносили удар', re.I), 112, 'Minion: damage (conditional)'),
+        (re.compile(r'приспешники.*увеличение силы наносящих урон состояний', re.I), 113, 'Minion: ailment damage'),
+        (re.compile(r'приспешники разрушают броню', re.I), 114, 'Minion: armour break'),
+        (re.compile(r'приспешников за каждое.*умение-приказ', re.I), 115, 'Minion: damage (per-order)'),
+        # Minion crit — word order varies
+        (re.compile(r'(приспешников.*критическому урону|критическому урону приспешников)', re.I), 120, 'Minion: crit damage'),
+        (re.compile(r'приспешники имеют.*шанса критического удара', re.I), 121, 'Minion: crit chance'),
+        # Minion speed
+        (re.compile(r'приспешники имеют.*скорости атаки и сотворения', re.I), 130, 'Minion: atk+cast speed'),
+        (re.compile(r'приспешники имеют.*скорости умений приказов', re.I), 131, 'Minion: order skill speed'),
+        (re.compile(r'приспешники имеют.*скорости перезарядки', re.I), 132, 'Minion: reload speed'),
+        (re.compile(r'приспешники имеют.*скорости передвижения', re.I), 133, 'Minion: move speed'),
+        (re.compile(r'приспешники воскрешаются.*быстрее', re.I), 134, 'Minion: resurrect speed'),
+        # Minion area
+        (re.compile(r'приспешники имеют.*области действия', re.I), 140, 'Minion: area'),
+        # Minion resists
+        (re.compile(r'приспешники имеют.*сопротивлению всем стихиям', re.I), 150, 'Minion: all-res'),
+        (re.compile(r'приспешники имеют.*сопротивлению хаосу', re.I), 151, 'Minion: chaos res'),
+        # Minion utility (word order varies)
+        (re.compile(r'приспешники имеют.*накопления обездвиживания', re.I), 160, 'Minion: slow accum'),
+        (re.compile(r'приспешники имеют.*выпустить дополнительный снаряд', re.I), 161, 'Minion: extra projectile'),
+        (re.compile(r'(приспешников.*превосходящий шанс|кукловода)', re.I), 162, 'Minion: puppeteer charge'),
+        (re.compile(r'(приспешников.*меткости|меткости приспешников)', re.I), 163, 'Minion: accuracy'),
+        (re.compile(r'(приспешников.*эффективности удержания ресурсов|удержания ресурсов умениями приспешников)', re.I), 164, 'Minion: reservation eff'),
+        (re.compile(r'(приспешников.*времени существования|времени существования приспешников)', re.I), 165, 'Minion: duration'),
+        (re.compile(r'лимит.*приспешников', re.I), 166, 'Minion: minion cap'),
+        (re.compile(r'приспешники становятся гигантскими', re.I), 167, 'Minion: giant transform'),
+        (re.compile(r'усиленные удары приспешников', re.I), 168, 'Minion: enhanced hits'),
+        (re.compile(r'урона от ударов.*здоровья ваших призраков', re.I), 169, 'Minion: ghost damage redirect'),
+        # Offerings
+        (re.compile(r'максимума здоровья подношений', re.I), 200, 'Offering: health'),
+        (re.compile(r'усиление эффекта подношений', re.I), 210, 'Offering: effect'),
+        (re.compile(r'длительности умений подношений', re.I), 220, 'Offering: duration'),
+        (re.compile(r'архонта нежити.*подношения', re.I), 230, 'Offering: archon undead'),
+    ],
+    'ailments': [
+        # Увеличение силы
+        (re.compile(r'увеличение силы накладываемого вами Истощения Бездны', re.I), 0, 'str: Abyss Depletion'),
+        (re.compile(r'увеличение силы истощения', re.I), 1, 'str: depletion'),
+        (re.compile(r'увеличение силы накладываемого вами кровотечения', re.I), 2, 'str: bleed'),
+        (re.compile(r'увеличение силы накладываемого вами отравления', re.I), 3, 'str: poison'),
+        (re.compile(r'увеличение силы поджога, если недавно', re.I), 4, 'str: burn (cond)'),
+        (re.compile(r'увеличение силы поджога', re.I), 5, 'str: burn'),
+        (re.compile(r'увеличение силы накладываемого вами шока', re.I), 6, 'str: shock'),
+        (re.compile(r'увеличение силы шока, если недавно', re.I), 7, 'str: shock (cond)'),
+        (re.compile(r'увеличение силы накладываемых вами состояний', re.I), 8, 'str: states (generic)'),
+        (re.compile(r'увеличение силы горючести', re.I), 9, 'str: combustibility'),
+        (re.compile(r'увеличение урона парирования', re.I), 10, 'str: parry damage'),
+        # Увеличение шанса
+        (re.compile(r'увеличение шанса наложения кровотечения', re.I), 100, 'chance: bleed'),
+        (re.compile(r'увеличение шанса отравить', re.I), 101, 'chance: poison'),
+        (re.compile(r'увеличение шанса наложения шока', re.I), 102, 'chance: shock'),
+        (re.compile(r'увеличение шанса наложения состояний', re.I), 103, 'chance: states (generic)'),
+        # Увеличение длительности
+        (re.compile(r'увеличение длительности кровотечения', re.I), 200, 'dur: bleed'),
+        (re.compile(r'увеличение длительности яда', re.I), 201, 'dur: poison'),
+        (re.compile(r'увеличение длительности поджога, шока и охлаждения', re.I), 202, 'dur: burn+shock+chill combo'),
+        (re.compile(r'увеличение длительности охлаждения', re.I), 203, 'dur: chill'),
+        (re.compile(r'увеличение длительности шока', re.I), 204, 'dur: shock'),
+        (re.compile(r'увеличение длительности эффекта парирован', re.I), 205, 'dur: parried'),
+        (re.compile(r'увеличение длительности наносящих урон состояний', re.I), 206, 'dur: damaging states'),
+        # Уменьшение длительности
+        (re.compile(r'уменьшение длительности кровотечения на вас', re.I), 300, 'reduce: bleed on you'),
+        (re.compile(r'уменьшение длительности отравления на вас', re.I), 301, 'reduce: poison on you'),
+        (re.compile(r'уменьшение длительности поджога на вас', re.I), 302, 'reduce: burn on you'),
+        # Шанс наложения
+        (re.compile(r'шанс наложить кровотечение при нанесении удара', re.I), 400, 'proc: bleed on hit'),
+        (re.compile(r'шанс отравить при нанесении удара', re.I), 401, 'proc: poison on hit'),
+        (re.compile(r'шанс наложения оцепенения при нанесении удара', re.I), 402, 'proc: stun on hit'),
+        (re.compile(r'шанс ослепить врагов при нанесении удара атаками', re.I), 403, 'proc: blind on hit (attacks)'),
+        # iter 112 fix: Разрез has different wording
+        (re.compile(r'наложить разрез|шансом.*разрез', re.I), 404, 'proc: slit on hit'),
+        # Порог
+        (re.compile(r'увеличение порога заморозки', re.I), 500, 'threshold: freeze'),
+        (re.compile(r'увеличение порога стихийных состояний', re.I), 501, 'threshold: elemental states'),
+        # Скорость накопления (use stem 'скорост' for case variants)
+        (re.compile(r'скорост.* накопления шкалы заморозки(?!.*боевыми)', re.I), 600, 'gauge: freeze speed'),
+        (re.compile(r'скорост.* накопления шкалы пригвождения', re.I), 601, 'gauge: pin speed'),
+        (re.compile(r'увеличение накопления шкалы заморозки, если недавно', re.I), 602, 'gauge: freeze (cond)'),
+        # Прочее
+        (re.compile(r'усиление эффекта восприимчивости', re.I), 700, 'other: susceptibility'),
+        (re.compile(r'усиление эффекта ослепления', re.I), 701, 'other: blind effect'),
+        (re.compile(r'на вас нельзя наложить эффект оскверненной крови', re.I), 702, 'other: corrupted blood immune'),
+        (re.compile(r'накладывает восприимчивость к стихиям', re.I), 703, 'other: elem susceptibility proc'),
+        (re.compile(r'наносящие урон состояния наносят урон на #% быстрее', re.I), 704, 'other: faster damaging states'),
+    ],
+}
+
+
+def compute_sort_key(block: str, family_key: str) -> tuple[str, str | None]:
+    """Returns (sort_key, matched_rule_comment)."""
+    rules = BLOCK_SORT_RULES.get(block)
+    if not rules:
+        return (f'999::{family_key}', None)
+    for pattern, order, comment in rules:
+        if pattern.search(family_key):
+            return (f'{order:03d}::{family_key}', comment)
+    return (f'900::{family_key}', None)
+
+
+def main() -> int:
+    # Aggregate family-keys per functionalCategory across jewellery files
+    by_cat: dict[str, dict[str, str]] = {}
+    for fname in ['amulet.json', 'ring.json', 'belt.json', 'jewel.json',
+                  'jewel-desecrated.json', 'jewel-corrupted.json']:
+        path = os.path.join(GENERATED_DIR, fname)
+        with open(path, encoding='utf-8') as f:
+            d = json.load(f)
+        for t in d.get('tokens', []):
+            cat = t.get('functionalCategory', 'other')
+            fk = t['familyKey']['ru']
+            by_cat.setdefault(cat, {})[fk] = fk
+
+    exit_code = 0
+    for block in ['resistances', 'attributes', 'minions', 'ailments']:
+        family_keys = sorted(by_cat.get(block, {}).keys())
+        print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
+        uncovered = []
+        for fk in family_keys:
+            sort_key, comment = compute_sort_key(block, fk)
+            if sort_key.startswith('900::'):
+                uncovered.append((fk, comment))
+        if uncovered:
+            print(f'  ⚠ {len(uncovered)} family-key(s) NOT matched by any rule:')
+            for fk, _ in uncovered:
+                print(f'    - "{fk}"')
+            exit_code = 1
+        else:
+            print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
+
+    if exit_code == 0:
+        print('\n✓ All 4 blocks fully covered. No gaps.')
+    else:
+        print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
+    return exit_code
+
+
+if __name__ == '__main__':
+    sys.exit(main())

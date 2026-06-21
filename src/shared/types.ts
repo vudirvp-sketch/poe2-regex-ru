@@ -138,6 +138,22 @@ export interface FamilyGroup {
    *  Assigned by classifyPriorityTier() during grouping. Used for default sort order
    *  (S→A→B→C) and UI filter. Defaults to 'C' if not classified. */
   priorityTier: PriorityTier;
+  /** iter 112: canonical within-block sort key.
+   *
+   *  Computed by `computeSortKey(functionalCategory, familyKey)` based on
+   *  per-block ordering rules in `src/shared/block-sort-rules.ts`.
+   *
+   *  Format: `"<2-digit order>::<familyKey>"`.
+   *  - When rules exist for the block and one matches, the 2-digit order
+   *    encodes the semantic position (e.g., chaos=00, lightning=01, cold=02,
+   *    fire=03 in `resistances`).
+   *  - When the block has no rules or no rule matches, defaults to "99" or
+   *    "90" respectively — both fall back to alphabetical familyKey as
+   *    tiebreaker (preserves pre-iter-112 behaviour).
+   *
+   *  Used by `sortGroupsAlphabetically()` (primary sort) before familyKey.
+   *  Undefined when set by tests/legacy callers → falls back to familyKey. */
+  sortKey?: string;
 }
 
 export type ASTNode =

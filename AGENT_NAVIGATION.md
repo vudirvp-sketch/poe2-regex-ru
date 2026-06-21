@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 111** — закрыты Known Issues #3 (placeholder consolidation), #4 (text-faint alias of text-dim), частично #5 (font-medium на критичных 12px text-dim лейблах в RegexOutput). Все 13 пунктов UI-аудита v2 реализованы в iter 109–110. Regex-движок не тронут (стабилен с iter 108). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
+> **Entry document.** Read this first. Current state: **iter 112** — закрыт regex-баг «Истощения Бездны» (data + ETL algorithm fix + regression tests) + внедрена инфраструктура систематической сортировки аффиксов внутри функциональных блоков (sortKey field + per-block rules для resistances/attributes/minions/ailments — 105 family-keys, 100% coverage). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный план сортировки — в `docs/AFFIX_ORDERING_PLAN.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
 
 ---
 
@@ -315,10 +315,11 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 - `src/shared/mod-classifier.ts` — 3 P0-фикса (BREACH_LORD_TAGS, classifyByTags update, OFFENSIVE_TAGS += aura/gem, DEFENSIVE_KEYWORDS += флакон, POSITIVE/NEGATIVE_KEYWORDS += 4 waystone паттерна).
 - `tests/shared/mod-classifier.test.ts` — +14 новых тестов.
 
-**Ключевые файлы для будущих итераций (P4 закрыт в iter 106; UX-полировка P4 закрыта в iter 107; опциональные расширения):**
-- `src/shared/mod-classifier.ts` (~2330 строк) — iter 104 закрыл waystone sub-blocks, iter 105 закрыл tablet sub-blocks, iter 106 закрыл P4 (tier-aware sort toggle), iter 107 не трогал (только UI). Остаются low-priority waystone neutral-generic / tablet Разломы-keyword расширения.
-- `src/shared/family-grouper.ts` (316 строк) — `groupTokensByFamily` (существующий sort affix → tier → alpha). iter 99 не трогал — `classifyGroups()` переписывает within-block order поверх (iter 106: sortMode-aware).
-- `src/shared/types.ts` — `FamilyGroup` (опционально добавить `sortKey?: number` для future-compat), `ModGroupMode` (новые режимы), `SortMode` (iter 106: `'alpha' | 'tier-first'`).
+**Ключевые файлы для будущих итераций (P4 закрыт в iter 106; UX-полировка P4 закрыта в iter 107; опциональные расширения; iter 112: sortKey infrastructure):**
+- `src/shared/mod-classifier.ts` (~2330 строк) — iter 104 закрыл waystone sub-blocks, iter 105 закрыл tablet sub-blocks, iter 106 закрыл P4 (tier-aware sort toggle), iter 107 не трогал (только UI). **iter 112: `sortGroupsAlphabetically()` использует `FamilyGroup.sortKey` как PRIMARY sort.** Остаются low-priority waystone neutral-generic / tablet Разломы-keyword расширения.
+- `src/shared/family-grouper.ts` (326 строк) — `groupTokensByFamily` (существующий sort affix → tier → alpha). **iter 112: `buildFamilyGroup()` вычисляет `sortKey` через `computeSortKey()`.**
+- `src/shared/block-sort-rules.ts` (330 строк, **iter 112 NEW**) — `BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>>` + `computeSortKey(block, familyKey)`. 4 блока с правилами (resistances/attributes/minions/ailments — 105 family-keys, 100% coverage). 16 блоков без правил → fallback к alphabetical (как pre-iter-112).
+- `src/shared/types.ts` — `FamilyGroup.sortKey?: string` (**iter 112 NEW**), `ModGroupMode`, `SortMode` (iter 106: `'alpha' | 'tier-first'`).
 - `src/ui/components/FilterChip.tsx` (~475 строк) — iter 107: опциональный `sortMode?: SortMode` prop; `effectiveBorderClass` 2-branch conditional (alpha mode = pre-iter-107 behaviour; tier-first mode = 4-way tier color dispatch suppressing affix color).
 - `src/ui/components/ModList.tsx` (~685 строк) — iter 107: `sortMode` prop пробрасывается в `ModSubGroupSection` + `AffixColumn` + 11 inline call sites.
 - `src/ui/components/VirtualizedModList.tsx` (~845 строк) — iter 107: `sortMode` prop пробрасывается в `VirtualRowContent` + `VirtualizedColumnProps` + `columnProps` auto-threading + 2 `VirtualRowContent` call sites.
