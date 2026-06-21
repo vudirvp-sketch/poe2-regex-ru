@@ -28,6 +28,9 @@
  *    behaviour identical to pre-iter-112 (pure alphabetical).
  *  - Future iterations can extend by adding rules to BLOCK_SORT_RULES.
  *
+ * iter 113: added damage-type (47 family-keys, most visible category).
+ * iter 114: added defence-stats (28 family-keys, second-most-visible defensive block).
+ *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
  *  2. Patterns use case-insensitive regex on the familyKey text.
@@ -394,6 +397,97 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     { pattern: /увеличение величины элементальных недугов/i, order: 101, comment: 'special: elemental ailments magnitude' },
     { pattern: /накладывает анем/i, order: 102, comment: 'special: Anemia on hit' },
     { pattern: /отрицательных эффектов оскверненной крови/i, order: 103, comment: 'special: corrupted blood extra debuffs' },
+  ],
+
+  // ─── defence-stats (28 family-keys) — iter 114 ───────────────────────────
+  // User feedback (iter 113 carry-over): alphabetical sort mixes flat armour
+  // with %-increase, body-armour-source mods with shield-triple mods, ward
+  // mechanics with armour-break mechanics, etc. — produces "каша" inside the
+  // "Защита" functional block.
+  //
+  // Canonical order (player mental model — "from most concrete to most meta"):
+  //   0-9:   Броня (flat, %, from-body, shield-triple, global-triple)
+  //   10-19: Уклонение (flat, %, from-body)
+  //   20-29: Энергетический щит (from-body, from-focus, recharge-speed,
+  //          recharge-start)
+  //   30-39: Блок (% шанс)
+  //   40-49: Порог оглушения (flat, %, conditional-recent, conditional-parry)
+  //   50-59: Отклонение (%)
+  //   60-69: Обереги (длительность, заряды получаемые, заряды используемые,
+  //          условное замедление, free-use chance, регенерация, ward-active damage)
+  //   70-79: Разрушение брони (длительность, количество, урон по разбитой броне)
+  //
+  // Design notes:
+  //   - Triple-stat rules (shield, global) MUST come BEFORE single-stat rules.
+  //     Family-keys like "#% увеличение брони, уклонения и энергетического щита
+  //     от щита в руках" contain "брони", "уклонения", "энергетического щита"
+  //     — patterns for single-stat rules would match these triples.
+  //   - Conditional порог оглушения rules MUST come BEFORE bare "увеличение
+  //     порога оглушения$" (end-anchored) — otherwise the bare rule wouldn't
+  //     match the conditional variant anyway (anchored), but it's clearer.
+  //   - Flat rules (`+# к броне$`, `+# к уклонению$`, `+# к порогу оглушению$`)
+  //     use `$` end-anchor to NOT match the dual-stat "..., уклонению и ..."
+  //     family-keys (which would otherwise be intercepted by triple-stat rules
+  //     above, but defensive anchoring is best practice).
+  //   - Stem "оберег" covers all case forms: оберега (genitive sg),
+  //     оберегов (genitive pl), обереги (nominative pl), оберег (accusative).
+  //   - Pattern "уменьшение силы замедления.*если недавно вы использовали оберег"
+  //     uses `.*` bridge because family-key is long with commas.
+  'defence-stats': [
+    // ─── Triple-stat (must come BEFORE single-stat rules) ──────────────
+    // Shield triple: armour + evasion + ES from shield
+    { pattern: /от щита в руках/i, order: 3, comment: 'armour: shield triple-stat (armour+evasion+ES)' },
+    // Global triple: armour + evasion + ES global %
+    { pattern: /глобальной брони/i, order: 4, comment: 'armour: global triple-stat (armour+evasion+ES)' },
+
+    // ─── Броня (0-9) ───────────────────────────────────────────────────
+    { pattern: /к броне$/i, order: 0, comment: 'armour: flat (+# к броне)' },
+    { pattern: /повышение брони/i, order: 1, comment: 'armour: % generic' },
+    { pattern: /увеличение брони от надетого нательного доспеха/i, order: 2, comment: 'armour: from body armour' },
+
+    // ─── Уклонение (10-19) ─────────────────────────────────────────────
+    { pattern: /к уклонению$/i, order: 10, comment: 'evasion: flat (+# к уклонению)' },
+    // From-body must come BEFORE bare `увеличение уклонения$` (both end-anchored
+    // for "уклонения" but the from-body one continues with "от вашего...").
+    { pattern: /увеличение уклонения от вашего нательного доспеха/i, order: 12, comment: 'evasion: from body armour' },
+    { pattern: /увеличение уклонения$/i, order: 11, comment: 'evasion: % generic' },
+
+    // ─── Энергетический щит (20-29) ────────────────────────────────────
+    { pattern: /увеличение энергетического щита от надетого нательного доспеха/i, order: 20, comment: 'ES: from body armour' },
+    { pattern: /увеличение энергетического щита от фокуса в руках/i, order: 21, comment: 'ES: from focus' },
+    { pattern: /скорости перезарядки энергетического щита/i, order: 22, comment: 'ES: recharge speed' },
+    { pattern: /ускорение начала перезарядки энергетического щита/i, order: 23, comment: 'ES: recharge start' },
+
+    // ─── Блок (30-39) ──────────────────────────────────────────────────
+    { pattern: /увеличение шанса блока/i, order: 30, comment: 'block: chance' },
+
+    // ─── Порог оглушения (40-49) ───────────────────────────────────────
+    // Conditional variants MUST come BEFORE bare (defensive: bare is end-anchored
+    // so wouldn't match conditional anyway, but ordering is clearer this way).
+    { pattern: /увеличение порога оглушения если недавно/i, order: 42, comment: 'stun threshold: conditional (recently not stunned)' },
+    { pattern: /увеличение порога оглушения при парировании/i, order: 43, comment: 'stun threshold: conditional (parry)' },
+    { pattern: /увеличение порога оглушения$/i, order: 41, comment: 'stun threshold: % generic' },
+    { pattern: /к порогу оглушения$/i, order: 40, comment: 'stun threshold: flat (+# к порогу оглушения)' },
+
+    // ─── Отклонение (50-59) ────────────────────────────────────────────
+    { pattern: /увеличение отклонения ударов/i, order: 50, comment: 'deflection: %' },
+
+    // ─── Обереги (60-69) ───────────────────────────────────────────────
+    // Stem "оберег" covers all case forms (оберега, оберегов, обереги).
+    { pattern: /увеличение длительности эффекта оберега/i, order: 60, comment: 'ward: duration' },
+    { pattern: /увеличение количества получаемых зарядов оберегов/i, order: 61, comment: 'ward: charges gained' },
+    { pattern: /уменьшение количества используемых зарядов оберегов/i, order: 62, comment: 'ward: charges used reduction' },
+    { pattern: /уменьшение силы замедления.*если недавно вы использовали оберег/i, order: 63, comment: 'ward: conditional slow reduction' },
+    { pattern: /обереги с .* шансом могут не потратить заряды/i, order: 64, comment: 'ward: free use chance' },
+    { pattern: /обереги получают зарядов в секунду/i, order: 65, comment: 'ward: regen per second' },
+    // Ward-synergy damage mod — comes last in ward bucket (it's a damage buff
+    // gated on ward being active, conceptually a synergy mod not a ward mod).
+    { pattern: /увеличение урона.*активен оберег/i, order: 66, comment: 'ward: damage while ward active' },
+
+    // ─── Разрушение брони (70-79) ──────────────────────────────────────
+    { pattern: /увеличение длительности разрушения брони/i, order: 70, comment: 'armour break: duration' },
+    { pattern: /увеличение количества разрушаемой брони/i, order: 71, comment: 'armour break: quantity' },
+    { pattern: /увеличение урона по врагам с полностью разрушенной брон/i, order: 72, comment: 'armour break: damage vs broken armour' },
   ],
 };
 

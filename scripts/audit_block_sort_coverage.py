@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Audit script for iter 112 block sort rules coverage.
+Audit script for iter 112+ block sort rules coverage.
 
-For each of the 4 blocks with explicit sort rules (resistances, attributes,
-minions, ailments), enumerates all production family-keys and checks whether
-the rule set covers them. Reports any family-keys that fall into the "900::"
-fallback bucket (rules exist but none matched) — these need new rules.
+For each block with explicit sort rules (resistances, attributes, minions,
+ailments, damage-type [iter 113], defence-stats [iter 114]), enumerates all
+production family-keys and checks whether the rule set covers them. Reports
+any family-keys that fall into the "900::" fallback bucket (rules exist but
+none matched) — these need new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -220,6 +221,45 @@ BLOCK_SORT_RULES = {
         (re.compile(r'накладывает анем', re.I), 102, 'special: Anemia on hit'),
         (re.compile(r'отрицательных эффектов оскверненной крови', re.I), 103, 'special: corrupted blood extra debuffs'),
     ],
+    'defence-stats': [
+        # Triple-stat (before single-stat rules)
+        (re.compile(r'от щита в руках', re.I), 3, 'armour: shield triple-stat'),
+        (re.compile(r'глобальной брони', re.I), 4, 'armour: global triple-stat'),
+        # Броня
+        (re.compile(r'к броне$', re.I), 0, 'armour: flat'),
+        (re.compile(r'повышение брони', re.I), 1, 'armour: % generic'),
+        (re.compile(r'увеличение брони от надетого нательного доспеха', re.I), 2, 'armour: from body'),
+        # Уклонение
+        (re.compile(r'к уклонению$', re.I), 10, 'evasion: flat'),
+        (re.compile(r'увеличение уклонения от вашего нательного доспеха', re.I), 12, 'evasion: from body'),
+        (re.compile(r'увеличение уклонения$', re.I), 11, 'evasion: % generic'),
+        # Энергетический щит
+        (re.compile(r'увеличение энергетического щита от надетого нательного доспеха', re.I), 20, 'ES: from body'),
+        (re.compile(r'увеличение энергетического щита от фокуса в руках', re.I), 21, 'ES: from focus'),
+        (re.compile(r'скорости перезарядки энергетического щита', re.I), 22, 'ES: recharge speed'),
+        (re.compile(r'ускорение начала перезарядки энергетического щита', re.I), 23, 'ES: recharge start'),
+        # Блок
+        (re.compile(r'увеличение шанса блока', re.I), 30, 'block: chance'),
+        # Порог оглушения (conditionals first)
+        (re.compile(r'увеличение порога оглушения если недавно', re.I), 42, 'stun threshold: conditional (recently)'),
+        (re.compile(r'увеличение порога оглушения при парировании', re.I), 43, 'stun threshold: conditional (parry)'),
+        (re.compile(r'увеличение порога оглушения$', re.I), 41, 'stun threshold: % generic'),
+        (re.compile(r'к порогу оглушения$', re.I), 40, 'stun threshold: flat'),
+        # Отклонение
+        (re.compile(r'увеличение отклонения ударов', re.I), 50, 'deflection: %'),
+        # Обереги
+        (re.compile(r'увеличение длительности эффекта оберега', re.I), 60, 'ward: duration'),
+        (re.compile(r'увеличение количества получаемых зарядов оберегов', re.I), 61, 'ward: charges gained'),
+        (re.compile(r'уменьшение количества используемых зарядов оберегов', re.I), 62, 'ward: charges used reduction'),
+        (re.compile(r'уменьшение силы замедления.*если недавно вы использовали оберег', re.I), 63, 'ward: conditional slow reduction'),
+        (re.compile(r'обереги с .* шансом могут не потратить заряды', re.I), 64, 'ward: free use chance'),
+        (re.compile(r'обереги получают зарядов в секунду', re.I), 65, 'ward: regen per second'),
+        (re.compile(r'увеличение урона.*активен оберег', re.I), 66, 'ward: damage while ward active'),
+        # Разрушение брони
+        (re.compile(r'увеличение длительности разрушения брони', re.I), 70, 'armour break: duration'),
+        (re.compile(r'увеличение количества разрушаемой брони', re.I), 71, 'armour break: quantity'),
+        (re.compile(r'увеличение урона по врагам с полностью разрушенной брон', re.I), 72, 'armour break: damage vs broken'),
+    ],
 }
 
 
@@ -248,7 +288,7 @@ def main() -> int:
             by_cat.setdefault(cat, {})[fk] = fk
 
     exit_code = 0
-    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type']:
+    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type', 'defence-stats']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -265,7 +305,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 5 blocks fully covered. No gaps.')
+        print('\n✓ All 6 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code

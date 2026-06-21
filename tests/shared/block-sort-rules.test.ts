@@ -4,6 +4,7 @@
  * iter 112: introduces systematic within-block ordering for 4 functional blocks
  * (resistances, attributes, minions, ailments).
  * iter 113: adds damage-type block (47 family-keys, most visible category).
+ * iter 114: adds defence-stats block (28 family-keys, second-most-visible defensive block).
  *
  * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
@@ -407,6 +408,109 @@ describe('damage-type sortKey (iter 113: physical → fire → cold → lightnin
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5c: computeSortKey — defence-stats canonical ordering (iter 114)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: defence-stats (iter 114)', () => {
+  const cases = [
+    // Triple-stat (must be matched before single-stat rules)
+    { familyKey: '#% увеличение брони, уклонения и энергетического щита от щита в руках', expectedOrder: 3, comment: 'armour: shield triple-stat' },
+    { familyKey: '#% увеличение глобальной брони, уклонения и энергетического щита', expectedOrder: 4, comment: 'armour: global triple-stat' },
+    // Броня (0-9)
+    { familyKey: '+# к броне', expectedOrder: 0, comment: 'armour: flat' },
+    { familyKey: '#% повышение брони', expectedOrder: 1, comment: 'armour: % generic' },
+    { familyKey: '#% увеличение брони от надетого нательного доспеха', expectedOrder: 2, comment: 'armour: from body' },
+    // Уклонение (10-19)
+    { familyKey: '+# к уклонению', expectedOrder: 10, comment: 'evasion: flat' },
+    { familyKey: '#% увеличение уклонения', expectedOrder: 11, comment: 'evasion: % generic' },
+    { familyKey: '#% увеличение уклонения от вашего нательного доспеха', expectedOrder: 12, comment: 'evasion: from body' },
+    // Энергетический щит (20-29)
+    { familyKey: '#% увеличение энергетического щита от надетого нательного доспеха', expectedOrder: 20, comment: 'ES: from body' },
+    { familyKey: '#% увеличение энергетического щита от фокуса в руках', expectedOrder: 21, comment: 'ES: from focus' },
+    { familyKey: '#% повышение скорости перезарядки энергетического щита', expectedOrder: 22, comment: 'ES: recharge speed' },
+    { familyKey: '#% ускорение начала перезарядки энергетического щита', expectedOrder: 23, comment: 'ES: recharge start' },
+    // Блок (30-39)
+    { familyKey: '#% увеличение шанса блока', expectedOrder: 30, comment: 'block: chance' },
+    // Порог оглушения (40-49)
+    { familyKey: '+# к порогу оглушения', expectedOrder: 40, comment: 'stun threshold: flat' },
+    { familyKey: '#% увеличение порога оглушения', expectedOrder: 41, comment: 'stun threshold: % generic' },
+    { familyKey: '#% увеличение порога оглушения если недавно вы не были оглушены', expectedOrder: 42, comment: 'stun threshold: conditional (recently)' },
+    { familyKey: '#% увеличение порога оглушения при парировании', expectedOrder: 43, comment: 'stun threshold: conditional (parry)' },
+    // Отклонение (50-59)
+    { familyKey: '#% увеличение отклонения ударов', expectedOrder: 50, comment: 'deflection: %' },
+    // Обереги (60-69)
+    { familyKey: '#% увеличение длительности эффекта оберега', expectedOrder: 60, comment: 'ward: duration' },
+    { familyKey: '#% увеличение количества получаемых зарядов оберегов', expectedOrder: 61, comment: 'ward: charges gained' },
+    { familyKey: '#% уменьшение количества используемых зарядов оберегов', expectedOrder: 62, comment: 'ward: charges used reduction' },
+    { familyKey: '#% уменьшение силы замедления у отрицательных эффектов на вас, если недавно вы использовали оберег', expectedOrder: 63, comment: 'ward: conditional slow reduction' },
+    { familyKey: 'Используемые вами обереги с #% шансом могут не потратить заряды', expectedOrder: 64, comment: 'ward: free use chance' },
+    { familyKey: 'Обереги получают зарядов в секунду: #', expectedOrder: 65, comment: 'ward: regen per second' },
+    { familyKey: '#% увеличение урона, пока у вас активен оберег', expectedOrder: 66, comment: 'ward: damage while ward active' },
+    // Разрушение брони (70-79)
+    { familyKey: '#% увеличение длительности разрушения брони', expectedOrder: 70, comment: 'armour break: duration' },
+    { familyKey: '#% увеличение количества разрушаемой брони', expectedOrder: 71, comment: 'armour break: quantity' },
+    { familyKey: '#% увеличение урона по врагам с полностью разрушенной бронёй', expectedOrder: 72, comment: 'armour break: damage vs broken' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`defence-stats: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('defence-stats', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('defence-stats: full canonical bucket order Броня → Уклонение → ES → Блок → Порог → Отклонение → Обереги → Разрушение', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '+# к броне',                                              // 0  — Броня
+      '+# к уклонению',                                          // 10 — Уклонение
+      '#% увеличение энергетического щита от фокуса в руках',   // 21 — ES
+      '#% увеличение шанса блока',                              // 30 — Блок
+      '+# к порогу оглушения',                                   // 40 — Порог
+      '#% увеличение отклонения ударов',                        // 50 — Отклонение
+      '#% увеличение длительности эффекта оберега',             // 60 — Обереги
+      '#% увеличение длительности разрушения брони',            // 70 — Разрушение брони
+    ];
+    const sortKeys = keys.map(k => computeSortKey('defence-stats', k)).sort();
+    expect(sortKeys[0]).toContain('к броне');
+    expect(sortKeys[1]).toContain('к уклонению');
+    expect(sortKeys[2]).toContain('фокуса в руках');
+    expect(sortKeys[3]).toContain('шанса блока');
+    expect(sortKeys[4]).toContain('к порогу оглушения');
+    expect(sortKeys[5]).toContain('отклонения ударов');
+    expect(sortKeys[6]).toContain('длительности эффекта оберега');
+    expect(sortKeys[7]).toContain('длительности разрушения брони');
+  });
+
+  it('defence-stats: triple-stat "щит в руках" (3) matched BEFORE single-stat "к броне" (0) — both share "брон" stem', () => {
+    // Triple-stat family-key contains "брони, уклонения и энергетического щита от щита в руках"
+    // — pattern "к броне$" must NOT match it (anchored), but pattern "от щита в руках" must.
+    const triple = computeSortKey('defence-stats', '#% увеличение брони, уклонения и энергетического щита от щита в руках');
+    const single = computeSortKey('defence-stats', '+# к броне');
+    // Triple has order 3, single has order 0 → single sorts first.
+    expect(single.localeCompare(triple, 'ru')).toBeLessThan(0);
+    // Verify the prefix explicitly.
+    expect(triple.startsWith('003::')).toBe(true);
+    expect(single.startsWith('000::')).toBe(true);
+  });
+
+  it('defence-stats: conditional порог оглушения (42, 43) AFTER bare % (41) — bare is more fundamental', () => {
+    const bare = computeSortKey('defence-stats', '#% увеличение порога оглушения');
+    const condRecent = computeSortKey('defence-stats', '#% увеличение порога оглушения если недавно вы не были оглушены');
+    const condParry = computeSortKey('defence-stats', '#% увеличение порога оглушения при парировании');
+    expect(bare.localeCompare(condRecent, 'ru')).toBeLessThan(0);
+    expect(bare.localeCompare(condParry, 'ru')).toBeLessThan(0);
+  });
+
+  it('defence-stats: flat "+# к броне" (0) BEFORE % "#% повышение брони" (1) — flat is more fundamental', () => {
+    const flat = computeSortKey('defence-stats', '+# к броне');
+    const percent = computeSortKey('defence-stats', '#% повышение брони');
+    expect(flat.localeCompare(percent, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -545,6 +649,26 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       '#% увеличение урона от молнии',
     ]);
   });
+
+  it('defence-stats (iter 114): 4 buckets order Броня → Уклонение → Блок → Обереги', () => {
+    const tokens = [
+      makeToken('#% увеличение длительности эффекта оберега', 'defence-stats'),
+      makeToken('#% увеличение шанса блока', 'defence-stats'),
+      makeToken('+# к броне', 'defence-stats'),
+      makeToken('+# к уклонению', 'defence-stats'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'belt');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const defenceGroup = subGroups.find(sg => sg.key === 'defence-stats');
+    expect(defenceGroup).toBeDefined();
+    const familyKeys = defenceGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '+# к броне',
+      '+# к уклонению',
+      '#% увеличение шанса блока',
+      '#% увеличение длительности эффекта оберега',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -571,8 +695,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 113 scope: 5 blocks have rules (resistances/attributes/minions/ailments/damage-type)', () => {
+  it('iter 114 scope: 6 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'minions', 'resistances']);
+    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'minions', 'resistances']);
   });
 });

@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 113** — расширение систематической сортировки аффиксов внутри функциональных блоков на `damage-type` (47 family-keys, 100% coverage). iter 112 внедрил инфраструктуру sortKey + 4 блока правил (resistances/attributes/minions/ailments). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный план сортировки — в `docs/AFFIX_ORDERING_PLAN.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
+> **Entry document.** Read this first. Current state: **iter 114** — расширение систематической сортировки аффиксов внутри функциональных блоков на `defence-stats` (28 family-keys, 100% coverage). iter 112 внедрил инфраструктуру sortKey + 4 блока правил (resistances/attributes/minions/ailments). iter 113 добавил `damage-type` (47 family-keys). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный план сортировки — в `docs/AFFIX_ORDERING_PLAN.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
 
 ---
 

@@ -2,6 +2,7 @@
 
 > **iter 112** — внедрена инфраструктура + правила для 4 блоков.
 > **iter 113** — добавлены правила для `damage-type` (47 family-keys).
+> **iter 114** — добавлены правила для `defence-stats` (28 family-keys).
 > **Следующие итерации** — расширение на остальные functional blocks.
 
 ---
@@ -120,9 +121,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 4. Текущее покрытие (iter 113)
+## 4. Текущее покрытие (iter 114)
 
-### 4.1. Блоки с правилами (5 из 20 functional blocks)
+### 4.1. Блоки с правилами (6 из 20 functional blocks)
 
 | Блок | # family-keys | # rules | Покрытие |
 |------|---------------|---------|----------|
@@ -131,17 +132,17 @@ export function computeSortKey(block, familyKey): string {
 | `minions` | 34 | 34 | 100% |
 | `ailments` | 40 | 40 | 100% |
 | `damage-type` | 47 | 47 | 100% |
-| **Итого** | **152** | **152** | **100%** |
+| `defence-stats` | 28 | 28 | 100% |
+| **Итого** | **180** | **180** | **100%** |
 
 Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
 
-### 4.2. Блоки БЕЗ правил (15 из 20)
+### 4.2. Блоки БЕЗ правил (14 из 20)
 
 Возвращают `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
 
-| Блок | # family-keys | Приоритет iter 114+ |
+| Блок | # family-keys | Приоритет iter 115+ |
 |------|---------------|---------------------|
-| `defence-stats` | 32 | HIGH |
 | `resources` | 33 | HIGH |
 | `weapon-specific` | 24 | MEDIUM (jewel-only, есть sub-blocks) |
 | `flasks` | 18 | MEDIUM |
@@ -165,7 +166,7 @@ export function computeSortKey(block, familyKey): string {
 
 ## 5. Канонические порядки для будущих итераций
 
-Ниже — предложения canonical orderings для priority-блоков iter 114+. Не реализовано, задокументировано для планирования.
+Ниже — предложения canonical orderings для priority-блоков iter 115+. Не реализовано, задокументировано для планирования.
 
 ### 5.1. `damage-type` — РЕАЛИЗОВАН в iter 113 (47 family-keys)
 
@@ -188,18 +189,23 @@ export function computeSortKey(block, familyKey): string {
 
 Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'damage-type':`).
 
-### 5.2. `defence-stats` (32 family-keys)
+### 5.2. `defence-stats` — РЕАЛИЗОВАН в iter 114 (28 family-keys)
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['defence-stats']`:
 
 ```
-0-9:   Броня (плоская, %, от доспеха, от щита, global)
-10-19: Уклонение (плоское, %, от доспеха)
-20-29: Энергетический щит (% max, от доспеха, от фокуса, перезарядка)
-30-39: Блок (% шанс)
-40-49: Порог оглушения (плоский, %, conditional)
-50-59: Отклонение (%)
-60-69: Обереги (длительность, заряды, использование, регенерация)
-70-79: Разрушение брони (длительность, количество, урон по разбитой броне)
+0-9:    Броня (flat 0, % 1, from-body 2, shield-triple 3, global-triple 4)
+10-19:  Уклонение (flat 10, % 11, from-body 12)
+20-29:  Энергетический щит (from-body 20, from-focus 21, recharge-speed 22, recharge-start 23)
+30-39:  Блок (% шанс 30)
+40-49:  Порог оглушения (flat 40, % 41, conditional-recent 42, conditional-parry 43)
+50-59:  Отклонение (% 50)
+60-69:  Обереги (duration 60, charges-gained 61, charges-used-reduction 62,
+        conditional-slow 63, free-use 64, regen 65, ward-active-damage 66)
+70-79:  Разрушение брони (duration 70, quantity 71, damage-vs-broken 72)
 ```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'defence-stats':`).
 
 ### 5.3. `offence-speed` (12 family-keys)
 ```
@@ -253,11 +259,11 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 
 ### 6.1. Unit tests (`tests/shared/block-sort-rules.test.ts`)
 
-- `computeSortKey()` для каждого canonical family-key (152 cases — 47 damage-type + 105 iter 112).
+- `computeSortKey()` для каждого canonical family-key (180 cases — 28 defence-stats + 47 damage-type + 105 iter 112).
 - `sortGroupsAlphabetically()` использует sortKey когда set.
 - `sortGroupsAlphabetically()` fallback к familyKey когда sortKey отсутствует (backward compat).
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
-- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 113 scope = 5 блоков.
+- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 114 scope = 6 блоков.
 
 ### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
 
@@ -281,38 +287,40 @@ iter 112 добавил 2 теста для regex-бага:
 
 | Файл | Назначение |
 |------|------------|
-| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (5 блоков) |
+| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (6 блоков) |
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | 109 unit + e2e тестов (152 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (5 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (180 case-tests + relationship + E2E) |
+| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (6 блоков) |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
 
 ---
 
-## 8. Точка остановки iter 113 → iter 114
+---
 
-**Сделано в iter 113:**
-1. ✅ `damage-type` block — 47 family-keys, 100% coverage. Canonical order: физический → огонь → холод → молния → хаос → стихийный → generic/by-source → conditional → by-target → special.
-2. ✅ Audit script обновлён — проверяет 5 блоков (resistances/attributes/minions/ailments/damage-type).
-3. ✅ 52 новых unit/e2e теста — все green (1654/1654 total).
+## 8. Точка остановки iter 114 → iter 115
+
+**Сделано в iter 114:**
+1. ✅ `defence-stats` block — 28 family-keys, 100% coverage. Canonical order: Броня → Уклонение → ES → Блок → Порог оглушения → Отклонение → Обереги → Разрушение брони (8 buckets).
+2. ✅ Audit script обновлён — проверяет 6 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats).
+3. ✅ 33 новых unit/relationship/E2E теста — все green (1687/1687 total).
 4. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md.
 
-**НЕ сделано (переносится в iter 114+):**
+**НЕ сделано (переносится в iter 115+):**
 
-1. **Добавить правила для 15 functional blocks без правил** (см. §4.2).
-   - Приоритет: `defence-stats` (32), `resources` (33), `weapon-specific` (24), `flasks` (18).
-   - Канонические порядки предложены в §5.2-§5.6.
+1. **Добавить правила для 14 functional blocks без правил** (см. §4.2).
+   - Приоритет: `resources` (33), `weapon-specific` (24, jewel-only), `flasks` (18).
+   - Канонические порядки предложены в §5.5 (`resources`).
 
 2. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
    - UI в браузере: контрасты, читаемость 12px, рендеринг Noto Sans (Linux).
-   - Особое внимание: новый affix ordering в resistances/attributes/minions/ailments + **NEW iter 113: damage-type** — проверить, что канонический порядок выглядит правильно визуально.
+   - Особое внимание: новый affix ordering в resistances/attributes/minions/ailments + damage-type + **NEW iter 114: defence-stats** — проверить, что канонический порядок выглядит правильно визуально.
 
 3. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
 
 4. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
 
-**Подсказка следующему агенту:** iter 113 = damage-type block rules (47 family-keys, 100% coverage). Перед стартом iter 114 прочитай STATUS.md (актуальный статус + Known Issues #4), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки для 15 оставшихся блоков), worklog.md (этот раздел iter 113). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 5 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
+**Подсказка следующему агенту:** iter 114 = defence-stats block rules (28 family-keys, 100% coverage). Перед стартом iter 115 прочитай STATUS.md (актуальный статус + Known Issues #4), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки для 14 оставшихся блоков), worklog.md (этот раздел iter 114). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 6 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
