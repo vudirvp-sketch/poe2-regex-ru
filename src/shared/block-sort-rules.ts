@@ -289,6 +289,112 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     { pattern: /накладывает восприимчивость к стихиям/i, order: 703, comment: 'other: elem susceptibility proc' },
     { pattern: /наносящие урон состояния наносят урон на #% быстрее/i, order: 704, comment: 'other: faster damaging states' },
   ],
+
+  // ─── damage-type (47 family-keys) — iter 113 ────────────────────────────
+  // User feedback (iter 112 carry-over): damage-type is the most visible
+  // functional block; alphabetical sort produces "каша" mixing elemental
+  // damage with conversion mods, conditional damage, by-source damage, etc.
+  //
+  // Canonical order (player mental model):
+  //   0-9:   Физический (глобальный, добавленный к атакам, шипы)
+  //   10-19: Огонь (увеличение, добавленный, насыщение, конверсия, шипы-огонь)
+  //   20-29: Холод (увеличение, добавленный, насыщение, конверсия в холод)
+  //   30-39: Молния (увеличение, добавленный, насыщение, конверсия в молнию)
+  //   40-49: Хаос (увеличение, конверсия в хаос)
+  //   50-59: Стихийный / насыщения (увеличение, max-насыщений, mechanic)
+  //   60-79: Generic damage + by-source damage types (атаки, чары, снаряды,
+  //          ближний бой, тотемы, кличи, растения, ловушки, помехи, шипы,
+  //          улучшенные атаки, срабатывающие чары, вестники)
+  //   80-89: Условный урон (low-HP, full-ES, transformed, corpse, melee-if-proj,
+  //          proj-if-melee)
+  //   90-99: По мишени (редкие/уникальные враги)
+  //   100-109: Проколы + elementales недуги + Анемия + оскверненная кровь
+  //
+  // Design notes:
+  //   - Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
+  //   - Generic patterns use `$` end-anchor to NOT match conditional variants
+  //     (e.g., `увеличение урона от огня$` matches "#% увеличение урона от огня"
+  //     but NOT "(#)% увеличение урона от огня, если вы подобрали ...").
+  //   - Conversion patterns (Наносит ... в виде дополнительного урона от X)
+  //     come BEFORE generic element patterns because they contain the same
+  //     element name as substring but at end of familyKey.
+  //   - `^#% увеличение урона$` (exact-match generic damage) is anchored both
+  //     ends to NOT match "#% увеличение урона будучи превращенным" etc.
+  'damage-type': [
+    // ─── Conversion (must come BEFORE generic element rules) ───────────
+    { pattern: /наносит.*дополнительного урона от огня/i, order: 13, comment: 'fire: conversion to fire' },
+    { pattern: /дарует.*дополнительного урона от холода/i, order: 23, comment: 'cold: phys→cold conversion (Дарует)' },
+    { pattern: /наносит.*дополнительного урона от холода/i, order: 24, comment: 'cold: conversion to cold (Наносит)' },
+    { pattern: /наносит.*дополнительного урона от молнии/i, order: 33, comment: 'lightning: conversion to lightning' },
+    { pattern: /чары наносят.*дополнительного урона хаосом/i, order: 41, comment: 'chaos: conversion to chaos' },
+
+    // ─── Added damage to attacks (must come BEFORE generic element rules) ──
+    { pattern: /добавляет.*физического урона к атакам/i, order: 1, comment: 'physical: added to attacks' },
+    { pattern: /добавляет.*урона от огня к атакам/i, order: 11, comment: 'fire: added to attacks' },
+    { pattern: /добавляет.*урона от холода к атакам/i, order: 21, comment: 'cold: added to attacks' },
+    { pattern: /добавляет.*урона от молнии к атакам/i, order: 31, comment: 'lightning: added to attacks' },
+
+    // ─── Saturation-conditional element damage (before generic) ────────
+    { pattern: /увеличение урона от огня, если вы подобрали/i, order: 12, comment: 'fire: saturation-conditional' },
+    { pattern: /увеличение урона от холода, если вы подобрали/i, order: 22, comment: 'cold: saturation-conditional' },
+    { pattern: /увеличение урона от молнии, если вы подобрали/i, order: 32, comment: 'lightning: saturation-conditional' },
+
+    // ─── Thorns variants (must come BEFORE generic element/$-anchored rules) ──
+    { pattern: /физического урона шипами/i, order: 2, comment: 'physical: thorns (flat)' },
+    { pattern: /урона от огня шипами/i, order: 14, comment: 'fire: thorns (per 100 max health)' },
+
+    // ─── Generic element damage (end-anchored to exclude conditional/conversion) ──
+    { pattern: /глобального физического урона/i, order: 0, comment: 'physical: global %' },
+    { pattern: /увеличение урона от огня$/i, order: 10, comment: 'fire: increase generic' },
+    { pattern: /увеличение урона от холода$/i, order: 20, comment: 'cold: increase generic' },
+    { pattern: /увеличение урона от молнии$/i, order: 30, comment: 'lightning: increase generic' },
+    { pattern: /увеличение урона хаосом/i, order: 40, comment: 'chaos: increase generic' },
+    { pattern: /увеличение урона от стихий$/i, order: 50, comment: 'elemental: all-elements increase' },
+
+    // ─── Elemental saturation mechanics (ring/belt) ────────────────────
+    { pattern: /максимальному количеству стихийных насыщений/i, order: 51, comment: 'elemental: max saturation count' },
+    { pattern: /могут не удалить стихийные насыщения/i, order: 52, comment: 'elemental: saturation preservation mechanic' },
+
+    // ─── Conditional damage (must come BEFORE by-source generic rules) ──
+    // End-anchored generic rules below would match conditional variants if
+    // we don't intercept them here first.
+    { pattern: /увеличение урона от атак при малом количестве здоровья/i, order: 80, comment: 'conditional: low-HP attacks' },
+    { pattern: /увеличение урона от чар при полном энергетическом щите/i, order: 81, comment: 'conditional: full-ES spells' },
+    { pattern: /увеличение урона будучи превращенным/i, order: 82, comment: 'conditional: transformed' },
+    { pattern: /увеличение урона, если вы недавно поглотили труп/i, order: 83, comment: 'conditional: corpse consumed' },
+    { pattern: /увеличение урона в ближнем бою, если/i, order: 84, comment: 'conditional: melee if projectile' },
+    { pattern: /увеличение урона снарядами, если/i, order: 85, comment: 'conditional: projectile if melee' },
+
+    // ─── Generic damage + by-source damage types ───────────────────────
+    // `^...$` exact match for the bare generic damage (no continuation).
+    { pattern: /^#% увеличение урона$/i, order: 60, comment: 'generic: damage increase (bare)' },
+    // End-anchored rules — match the bare by-source variant but NOT conditional
+    // (conditional variants were intercepted above).
+    { pattern: /увеличение урона от атак$/i, order: 61, comment: 'by-source: attacks generic' },
+    { pattern: /увеличение урона от чар$/i, order: 62, comment: 'by-source: spells generic' },
+    { pattern: /увеличение урона снарядов$/i, order: 63, comment: 'by-source: projectiles generic' },
+    { pattern: /увеличение урона в ближнем бою$/i, order: 64, comment: 'by-source: melee generic' },
+    { pattern: /увеличение урона тотемов/i, order: 65, comment: 'by-source: totems' },
+    { pattern: /увеличение урона боевыми кличами/i, order: 66, comment: 'by-source: warcries' },
+    { pattern: /увеличение урона умениями растений/i, order: 67, comment: 'by-source: plants' },
+    { pattern: /увеличение урона от ловушек/i, order: 68, comment: 'by-source: traps' },
+    { pattern: /увеличение урона помехами/i, order: 69, comment: 'by-source: obstacles' },
+    { pattern: /увеличение урона шипами$/i, order: 70, comment: 'by-source: thorns generic' },
+    // Word-form variants ("Улучшенные атаки наносят ...", "Срабатывающие чары наносят ...",
+    // "Умения Вестников наносят ...") — different verb form, not intercepted above.
+    { pattern: /улучшенные атаки наносят/i, order: 71, comment: 'by-source: enhanced attacks' },
+    { pattern: /срабатывающие чары наносят/i, order: 72, comment: 'by-source: triggered spells' },
+    { pattern: /умения вестников наносят/i, order: 73, comment: 'by-source: heralds' },
+
+    // ─── By-target damage ──────────────────────────────────────────────
+    { pattern: /увеличение урона от ударов по редким/i, order: 90, comment: 'by-target: rare/unique enemies' },
+
+    // ─── Special mechanics (Проколы, elementales недуги, Анемия, оскверненная кровь) ──
+    { pattern: /накладываемых чарами проколов/i, order: 100, comment: 'special: Puncture strength' },
+    { pattern: /увеличение величины элементальных недугов/i, order: 101, comment: 'special: elemental ailments magnitude' },
+    { pattern: /накладывает анем/i, order: 102, comment: 'special: Anemia on hit' },
+    { pattern: /отрицательных эффектов оскверненной крови/i, order: 103, comment: 'special: corrupted blood extra debuffs' },
+  ],
 };
 
 /**

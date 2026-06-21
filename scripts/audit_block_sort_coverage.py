@@ -161,6 +161,65 @@ BLOCK_SORT_RULES = {
         (re.compile(r'накладывает восприимчивость к стихиям', re.I), 703, 'other: elem susceptibility proc'),
         (re.compile(r'наносящие урон состояния наносят урон на #% быстрее', re.I), 704, 'other: faster damaging states'),
     ],
+    'damage-type': [
+        # Conversion (before generic element rules)
+        (re.compile(r'наносит.*дополнительного урона от огня', re.I), 13, 'fire: conversion to fire'),
+        (re.compile(r'дарует.*дополнительного урона от холода', re.I), 23, 'cold: phys→cold (Дарует)'),
+        (re.compile(r'наносит.*дополнительного урона от холода', re.I), 24, 'cold: conversion to cold (Наносит)'),
+        (re.compile(r'наносит.*дополнительного урона от молнии', re.I), 33, 'lightning: conversion to lightning'),
+        (re.compile(r'чары наносят.*дополнительного урона хаосом', re.I), 41, 'chaos: conversion to chaos'),
+        # Added damage to attacks (before generic)
+        (re.compile(r'добавляет.*физического урона к атакам', re.I), 1, 'physical: added to attacks'),
+        (re.compile(r'добавляет.*урона от огня к атакам', re.I), 11, 'fire: added to attacks'),
+        (re.compile(r'добавляет.*урона от холода к атакам', re.I), 21, 'cold: added to attacks'),
+        (re.compile(r'добавляет.*урона от молнии к атакам', re.I), 31, 'lightning: added to attacks'),
+        # Saturation-conditional (before generic)
+        (re.compile(r'увеличение урона от огня, если вы подобрали', re.I), 12, 'fire: saturation-conditional'),
+        (re.compile(r'увеличение урона от холода, если вы подобрали', re.I), 22, 'cold: saturation-conditional'),
+        (re.compile(r'увеличение урона от молнии, если вы подобрали', re.I), 32, 'lightning: saturation-conditional'),
+        # Thorns (before generic)
+        (re.compile(r'физического урона шипами', re.I), 2, 'physical: thorns (flat)'),
+        (re.compile(r'урона от огня шипами', re.I), 14, 'fire: thorns (per 100 max health)'),
+        # Generic element damage (end-anchored)
+        (re.compile(r'глобального физического урона', re.I), 0, 'physical: global %'),
+        (re.compile(r'увеличение урона от огня$', re.I), 10, 'fire: increase generic'),
+        (re.compile(r'увеличение урона от холода$', re.I), 20, 'cold: increase generic'),
+        (re.compile(r'увеличение урона от молнии$', re.I), 30, 'lightning: increase generic'),
+        (re.compile(r'увеличение урона хаосом', re.I), 40, 'chaos: increase generic'),
+        (re.compile(r'увеличение урона от стихий$', re.I), 50, 'elemental: all-elements increase'),
+        # Elemental saturation mechanics
+        (re.compile(r'максимальному количеству стихийных насыщений', re.I), 51, 'elemental: max saturation count'),
+        (re.compile(r'могут не удалить стихийные насыщения', re.I), 52, 'elemental: saturation preservation mechanic'),
+        # Conditional damage (before by-source generic)
+        (re.compile(r'увеличение урона от атак при малом количестве здоровья', re.I), 80, 'conditional: low-HP attacks'),
+        (re.compile(r'увеличение урона от чар при полном энергетическом щите', re.I), 81, 'conditional: full-ES spells'),
+        (re.compile(r'увеличение урона будучи превращенным', re.I), 82, 'conditional: transformed'),
+        (re.compile(r'увеличение урона, если вы недавно поглотили труп', re.I), 83, 'conditional: corpse consumed'),
+        (re.compile(r'увеличение урона в ближнем бою, если', re.I), 84, 'conditional: melee if projectile'),
+        (re.compile(r'увеличение урона снарядами, если', re.I), 85, 'conditional: projectile if melee'),
+        # Generic + by-source
+        (re.compile(r'^#% увеличение урона$', re.I), 60, 'generic: damage increase (bare)'),
+        (re.compile(r'увеличение урона от атак$', re.I), 61, 'by-source: attacks generic'),
+        (re.compile(r'увеличение урона от чар$', re.I), 62, 'by-source: spells generic'),
+        (re.compile(r'увеличение урона снарядов$', re.I), 63, 'by-source: projectiles generic'),
+        (re.compile(r'увеличение урона в ближнем бою$', re.I), 64, 'by-source: melee generic'),
+        (re.compile(r'увеличение урона тотемов', re.I), 65, 'by-source: totems'),
+        (re.compile(r'увеличение урона боевыми кличами', re.I), 66, 'by-source: warcries'),
+        (re.compile(r'увеличение урона умениями растений', re.I), 67, 'by-source: plants'),
+        (re.compile(r'увеличение урона от ловушек', re.I), 68, 'by-source: traps'),
+        (re.compile(r'увеличение урона помехами', re.I), 69, 'by-source: obstacles'),
+        (re.compile(r'увеличение урона шипами$', re.I), 70, 'by-source: thorns generic'),
+        (re.compile(r'улучшенные атаки наносят', re.I), 71, 'by-source: enhanced attacks'),
+        (re.compile(r'срабатывающие чары наносят', re.I), 72, 'by-source: triggered spells'),
+        (re.compile(r'умения вестников наносят', re.I), 73, 'by-source: heralds'),
+        # By-target
+        (re.compile(r'увеличение урона от ударов по редким', re.I), 90, 'by-target: rare/unique enemies'),
+        # Special mechanics
+        (re.compile(r'накладываемых чарами проколов', re.I), 100, 'special: Puncture strength'),
+        (re.compile(r'увеличение величины элементальных недугов', re.I), 101, 'special: elemental ailments magnitude'),
+        (re.compile(r'накладывает анем', re.I), 102, 'special: Anemia on hit'),
+        (re.compile(r'отрицательных эффектов оскверненной крови', re.I), 103, 'special: corrupted blood extra debuffs'),
+    ],
 }
 
 
@@ -189,7 +248,7 @@ def main() -> int:
             by_cat.setdefault(cat, {})[fk] = fk
 
     exit_code = 0
-    for block in ['resistances', 'attributes', 'minions', 'ailments']:
+    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -206,7 +265,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 4 blocks fully covered. No gaps.')
+        print('\n✓ All 5 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code

@@ -2,7 +2,10 @@
  * Block Sort Rules Tests — validates per-block canonical within-block ordering.
  *
  * iter 112: introduces systematic within-block ordering for 4 functional blocks
- * (resistances, attributes, minions, ailments). These tests verify:
+ * (resistances, attributes, minions, ailments).
+ * iter 113: adds damage-type block (47 family-keys, most visible category).
+ *
+ * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
  *  2. sortGroupsAlphabetically() uses sortKey when set (production path).
  *  3. sortGroupsAlphabetically() falls back to familyKey when sortKey missing.
@@ -294,6 +297,116 @@ describe('ailments sortKey (iter 112: operation → state)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5b: damage-type block — physical → fire → cold → lightning → chaos → elemental → generic/by-source → conditional → by-target → special
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('damage-type sortKey (iter 113: physical → fire → cold → lightning → chaos → elemental → by-source → conditional → by-target → special)', () => {
+  const cases: Array<{ familyKey: string; expectedOrder: number; comment: string }> = [
+    // Physical (0-9)
+    { familyKey: '#% увеличение глобального физического урона', expectedOrder: 0, comment: 'physical: global %' },
+    { familyKey: 'Добавляет от # до # физического урона к атакам', expectedOrder: 1, comment: 'physical: added to attacks' },
+    { familyKey: 'От # до # физического урона шипами', expectedOrder: 2, comment: 'physical: thorns flat' },
+    // Fire (10-19)
+    { familyKey: '#% увеличение урона от огня', expectedOrder: 10, comment: 'fire: increase generic' },
+    { familyKey: 'Добавляет от # до # урона от огня к атакам', expectedOrder: 11, comment: 'fire: added to attacks' },
+    { familyKey: '(#)% увеличение урона от огня, если вы подобрали Огненное насыщение за последние 8 секунд', expectedOrder: 12, comment: 'fire: saturation-conditional' },
+    { familyKey: 'Наносит #% урона чарами в виде дополнительного урона от огня', expectedOrder: 13, comment: 'fire: conversion' },
+    { familyKey: 'От # до # урона от огня шипами за каждые 100 максимума здоровья', expectedOrder: 14, comment: 'fire: thorns per 100 max HP' },
+    // Cold (20-29)
+    { familyKey: '#% увеличение урона от холода', expectedOrder: 20, comment: 'cold: increase generic' },
+    { familyKey: 'Добавляет от # до # урона от холода к атакам', expectedOrder: 21, comment: 'cold: added to attacks' },
+    { familyKey: '(#)% увеличение урона от холода, если вы подобрали Холодное насыщение за последние 8 секунд', expectedOrder: 22, comment: 'cold: saturation-conditional' },
+    { familyKey: 'Дарует #% от физического урона в виде дополнительного урона от холода', expectedOrder: 23, comment: 'cold: phys→cold conversion (Дарует)' },
+    { familyKey: 'Наносит #% урона чарами в виде дополнительного урона от холода', expectedOrder: 24, comment: 'cold: conversion (Наносит)' },
+    // Lightning (30-39)
+    { familyKey: '#% увеличение урона от молнии', expectedOrder: 30, comment: 'lightning: increase generic' },
+    { familyKey: 'Добавляет от # до # урона от молнии к атакам', expectedOrder: 31, comment: 'lightning: added to attacks' },
+    { familyKey: '(#)% увеличение урона от молнии, если вы подобрали Молниевое насыщение за последние 8 секунд', expectedOrder: 32, comment: 'lightning: saturation-conditional' },
+    { familyKey: 'Наносит #% урона чар в виде дополнительного урона от молнии', expectedOrder: 33, comment: 'lightning: conversion' },
+    // Chaos (40-49)
+    { familyKey: '#% увеличение урона хаосом', expectedOrder: 40, comment: 'chaos: increase generic' },
+    { familyKey: 'Чары наносят #% от урона в виде дополнительного урона хаосом', expectedOrder: 41, comment: 'chaos: conversion' },
+    // Elemental (50-59)
+    { familyKey: '#% увеличение урона от стихий', expectedOrder: 50, comment: 'elemental: all-elements increase' },
+    { familyKey: '+# к максимальному количеству стихийных насыщений', expectedOrder: 51, comment: 'elemental: max saturation count' },
+    { familyKey: 'Умения с #% шансом могут не удалить стихийные насыщения, но все равно считаться поглотившими их, если вы теряли положительный эффект архонта за последние 6 секунд', expectedOrder: 52, comment: 'elemental: saturation preservation mechanic' },
+    // Generic + by-source (60-79)
+    { familyKey: '#% увеличение урона', expectedOrder: 60, comment: 'generic: damage increase (bare)' },
+    { familyKey: '#% увеличение урона от атак', expectedOrder: 61, comment: 'by-source: attacks generic' },
+    { familyKey: '#% увеличение урона от чар', expectedOrder: 62, comment: 'by-source: spells generic' },
+    { familyKey: '#% увеличение урона снарядов', expectedOrder: 63, comment: 'by-source: projectiles generic' },
+    { familyKey: '#% увеличение урона в ближнем бою', expectedOrder: 64, comment: 'by-source: melee generic' },
+    { familyKey: '#% увеличение урона тотемов', expectedOrder: 65, comment: 'by-source: totems' },
+    { familyKey: '#% увеличение урона боевыми кличами', expectedOrder: 66, comment: 'by-source: warcries' },
+    { familyKey: '#% увеличение урона умениями растений', expectedOrder: 67, comment: 'by-source: plants' },
+    { familyKey: '#% увеличение урона от ловушек', expectedOrder: 68, comment: 'by-source: traps' },
+    { familyKey: '#% увеличение урона помехами', expectedOrder: 69, comment: 'by-source: obstacles' },
+    { familyKey: '#% увеличение урона шипами', expectedOrder: 70, comment: 'by-source: thorns generic' },
+    { familyKey: 'Улучшенные атаки наносят увеличенный на #% урон', expectedOrder: 71, comment: 'by-source: enhanced attacks' },
+    { familyKey: 'Срабатывающие чары наносят увеличенный на #% урон от чар', expectedOrder: 72, comment: 'by-source: triggered spells' },
+    { familyKey: 'Умения Вестников наносят увеличенный на #% урон', expectedOrder: 73, comment: 'by-source: heralds' },
+    // Conditional (80-89)
+    { familyKey: '#% увеличение урона от атак при малом количестве здоровья', expectedOrder: 80, comment: 'conditional: low-HP attacks' },
+    { familyKey: '#% увеличение урона от чар при полном энергетическом щите', expectedOrder: 81, comment: 'conditional: full-ES spells' },
+    { familyKey: '#% увеличение урона будучи превращенным', expectedOrder: 82, comment: 'conditional: transformed' },
+    { familyKey: '#% увеличение урона, если вы недавно поглотили труп', expectedOrder: 83, comment: 'conditional: corpse consumed' },
+    { familyKey: '#% увеличение урона в ближнем бою, если за последние восемь секунд вы наносили Удар снарядами атак', expectedOrder: 84, comment: 'conditional: melee if projectile' },
+    { familyKey: '#% увеличение урона снарядами, если за последние восемь секунд вы наносили Удар в ближнем бою', expectedOrder: 85, comment: 'conditional: projectile if melee' },
+    // By-target (90-99)
+    { familyKey: '#% увеличение урона от ударов по редким и уникальным врагам', expectedOrder: 90, comment: 'by-target: rare/unique enemies' },
+    // Special (100-109)
+    { familyKey: '#% увеличение силы накладываемых чарами Проколов', expectedOrder: 100, comment: 'special: Puncture strength' },
+    { familyKey: '(#)% увеличение величины элементальных недугов, накладываемых вашими чарами', expectedOrder: 101, comment: 'special: elemental ailments magnitude' },
+    { familyKey: 'Накладывает Анемию при нанесении удара', expectedOrder: 102, comment: 'special: Anemia on hit' },
+    { familyKey: 'Позволяет наложить на врагов +# отрицательных эффектов оскверненной крови', expectedOrder: 103, comment: 'special: corrupted blood extra debuffs' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`damage-type: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('damage-type', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('damage-type: full canonical element order физический → огонь → холод → молния → хаос → стихийный', () => {
+    const keys = [
+      '#% увеличение урона от огня',
+      '#% увеличение урона от молнии',
+      '#% увеличение урона от холода',
+      '#% увеличение урона от стихий',
+      '#% увеличение урона хаосом',
+      '#% увеличение глобального физического урона',
+    ];
+    const sortKeys = keys.map(k => computeSortKey('damage-type', k)).sort();
+    expect(sortKeys[0]).toContain('глобального физического урона');
+    expect(sortKeys[1]).toContain('урона от огня');
+    expect(sortKeys[2]).toContain('урона от холода');
+    expect(sortKeys[3]).toContain('урона от молнии');
+    expect(sortKeys[4]).toContain('урона хаосом');
+    expect(sortKeys[5]).toContain('урона от стихий');
+  });
+
+  it('damage-type: generic "увеличение урона" (60) BEFORE conditional "увеличение урона будучи превращенным" (82)', () => {
+    const generic = computeSortKey('damage-type', '#% увеличение урона');
+    const conditional = computeSortKey('damage-type', '#% увеличение урона будучи превращенным');
+    expect(generic.localeCompare(conditional, 'ru')).toBeLessThan(0);
+  });
+
+  it('damage-type: by-source "увеличение урона от чар" (62) BEFORE conditional "увеличение урона от чар при полном ES" (81)', () => {
+    const generic = computeSortKey('damage-type', '#% увеличение урона от чар');
+    const conditional = computeSortKey('damage-type', '#% увеличение урона от чар при полном энергетическом щите');
+    expect(generic.localeCompare(conditional, 'ru')).toBeLessThan(0);
+  });
+
+  it('damage-type: conversion "Наносит ... огня" (13) NOT confused with generic "увеличение урона от огня" (10) — generic first', () => {
+    const generic = computeSortKey('damage-type', '#% увеличение урона от огня');
+    const conversion = computeSortKey('damage-type', 'Наносит #% урона чарами в виде дополнительного урона от огня');
+    expect(generic.localeCompare(conversion, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -412,6 +525,26 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       'Приспешники имеют #% увеличение урона',
     ]);
   });
+
+  it('damage-type (iter 113): 4 element damage mods order физический → огонь → холод → молния', () => {
+    const tokens = [
+      makeToken('#% увеличение урона от молнии', 'damage-type'),
+      makeToken('#% увеличение урона от огня', 'damage-type'),
+      makeToken('#% увеличение урона от холода', 'damage-type'),
+      makeToken('#% увеличение глобального физического урона', 'damage-type'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'jewel');
+    const subGroups = classifyGroups(groups, 'jewel-functional', 'alpha');
+    const damageGroup = subGroups.find(sg => sg.key === 'damage-type');
+    expect(damageGroup).toBeDefined();
+    const familyKeys = damageGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% увеличение глобального физического урона',
+      '#% увеличение урона от огня',
+      '#% увеличение урона от холода',
+      '#% увеличение урона от молнии',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -438,8 +571,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 112 scope: only 4 blocks have rules (resistances/attributes/minions/ailments)', () => {
+  it('iter 113 scope: 5 blocks have rules (resistances/attributes/minions/ailments/damage-type)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'minions', 'resistances']);
+    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'minions', 'resistances']);
   });
 });
