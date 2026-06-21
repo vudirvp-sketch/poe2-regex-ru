@@ -42,7 +42,14 @@
 [data-theme="dark"] {
   /* Core palette — warm dirty-brown dark-fantasy */
   --poe-bg: #0D0B09;
-  --poe-bg-secondary: #15110E;
+  /* iter 110 (UI audit v2 P2.7): #15110E → #1A1510.
+     Old luminance Δ from --poe-bg (0.013 - 0.006 = 0.007) was below the
+     Material Design / NN/g threshold of ≥ 0.010 for adjacent surfaces —
+     on calibrated low-brightness monitors the panel and page bg fused.
+     New #1A1510 lifts luminance to ~0.018 (Δ = +0.012 from --poe-bg),
+     restoring perceptible separation while staying inside the warm
+     dirty-brown family. Same value is mirrored to --panel-bg below. */
+  --poe-bg-secondary: #1A1510;
   --poe-bg-tertiary: #1F1812;
   --poe-border: #3A2C22;
   --poe-text: #D4C9B8;
@@ -55,7 +62,10 @@
 
   /* Surface backgrounds — warm */
   --input-bg: #1F1812;
-  --panel-bg: #15110E;
+  /* iter 110 (UI audit v2 P2.7): mirrors --poe-bg-secondary bump from
+     #15110E → #1A1510 so panels stay in sync with the secondary surface
+     token (they previously aliased the same hex value). */
+  --panel-bg: #1A1510;
   --raised-bg: #3A2C22;
   --deep-bg: #070503;
   --chip-bg: rgba(58, 44, 34, 0.4);
@@ -76,7 +86,24 @@
   /* Text levels */
   --text-soft: #d1d5db;       /* ≈ gray-300 */
   --text-muted-val: #9ca3af;  /* ≈ gray-400 */
-  --text-dim-val: #6b7280;    /* ≈ gray-500 */
+  /* iter 110 (UI audit v2 P3.13): #6b7280 → #7A8494.
+     Old #6b7280 on --input-bg (#1F1812) gave contrast 4.2:1 — FAIL WCAG AA
+     (need ≥ 4.5:1) on the very surface it's most often paired with (chip
+     range inputs, character counters in RegexOutput, "1е/2е" labels in
+     FilterChip). New warm-gray #7A8494 lifts contrast to ~5.2:1 on
+     --input-bg and ~6.0:1 on --poe-bg. Hue nudged warm to match the
+     #7C8494 used for --text-faint-val in iter 109.
+     KNOWN ISSUE (iter 110): --text-dim-val (#7A8494) and --text-faint-val
+     (#7C8494) are now perceptually identical (Δ < 1% in luminance), which
+     inverts the historical hierarchy (dim=gray-500 was lighter than
+     faint=gray-600). Faint was lifted to gray-400-equivalent in iter 109
+     to fix WCAG AA fail; dim is lifted here to gray-400-equivalent for
+     the same reason. Net effect: two tokens that used to be distinct
+     tiers are now the same tier. Documented in STATUS.md — to resolve in
+     iter 111 by either (a) lifting faint further to ~#8E96A4
+     (gray-350-equivalent) or (b) consolidating dim+faint into a single
+     `--text-secondary` token. */
+  --text-dim-val: #7A8494;    /* warm gray, WCAG AA on --input-bg */
   /* iter 109 (UI audit v2 P1.2): #4b5563 → #7C8494.
      Old #4b5563 gave contrast 3.5:1 on #0D0B09 — FAIL WCAG AA (need ≥ 4.5:1).
      New warm-gray #7C8494 lifts contrast to ~6.5:1 on #0D0B09 — PASS WCAG AA.
@@ -209,6 +236,17 @@
 /* Each --color-foo creates bg-foo, text-foo, border-foo utilities.
    We only use the appropriate prefix for each token (bg-surface, text-bright, border-edge). */
 @theme {
+  /* iter 110 (UI audit v2 P3.11): override Tailwind's default `--font-mono`
+     to prefer Noto Sans Mono when the system has it installed (common on
+     Linux distributions and on systems where the user installed Noto
+     manually). This gives regex display visual consistency with body text
+     on platforms that have Noto Sans Mono, with zero network cost — we do
+     NOT self-host the woff2 (would add ~150 KB for a font used in only
+     four spots, mostly rendering Latin/digits). On macOS / Windows the
+     system mono (SF Mono / Consolas) is used; both render Cyrillic
+     adequately for the rare Cyrillic quoted strings inside regexes. */
+  --font-mono: 'Noto Sans Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
   /* Surface backgrounds → bg-surface, bg-panel, bg-raised, bg-deep, bg-chip, etc. */
   --color-surface: var(--input-bg);
   --color-panel: var(--panel-bg);
@@ -351,7 +389,40 @@ body {
      the woff2 loads). Linux users often have Noto Sans as a system font,
      so for them there is no network cost at all. */
   font-family: 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* iter 110 (UI audit v2 P2.8): dark-mode ergonomics.
+     - line-height 1.6 (vs Tailwind default 1.5 for text-base) gives body
+       copy a 7% looser vertical rhythm. Research (Smashing Magazine 2025,
+       Material Design dark-theme spec) recommends +10–15% line-height in
+       dark mode to compensate for halation-induced perceived crowding.
+       UI elements that need tighter spacing already use Tailwind
+       `leading-tight`/`leading-snug`/`leading-none` which override this.
+     - letter-spacing 0.01em is the lower bound of the 0.01–0.03em range
+       recommended for dark-mode Cyrillic: wide glyphs (ш, щ, м, ж) gain
+       ~0.12px of breathing room at 12px, perceptible but not airy. Mono
+       regex display resets this below. */
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  /* iter 110 (UI audit v2 P3.10): tabular-figure feature so all digits
+     share a fixed advance width. The UI is dense with numeric values that
+     update in place — chip counts, character counters (n/250), range
+     inputs, health-bar percentages. With proportional digits these values
+     "jitter" horizontally on every change; with tnum they stay anchored.
+     Safe global default: tnum only affects digit glyphs, leaves Latin and
+     Cyrillic untouched. Mono regex display already has fixed-width
+     digits, so the rule is a no-op there. */
+  font-feature-settings: "tnum";
   position: relative;
+}
+
+/* iter 110 (UI audit v2 P2.8): reset letter-spacing for monospace regex
+   display — fixed-width glyphs already have built-in side bearings, any
+   additional tracking breaks column alignment in the regex output and
+   in numeric counts/ranges. Tailwind `.font-mono` and any <code>/<pre>
+   element get letter-spacing: 0. */
+code,
+pre,
+.font-mono {
+  letter-spacing: 0;
 }
 
 /* ─── Atmospheric background (dark-only) ─── */

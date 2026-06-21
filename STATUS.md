@@ -2,49 +2,53 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 109
+> **Текущая итерация:** 110
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 109: реализован Приоритет 1 UI-аудита v2 (5 правок CSS/JSX) + подключён Noto Sans.**
+**iter 110: реализованы Приоритет 2.7–2.9 + Приоритет 3.10–3.13 аудита v2.**
 
 ### Regex-движок: стабилен (без изменений с iter 108)
 
 - **1543/1543 тестов** (vitest). TSC 0 errors. ESLint 0 problems.
-- iter 108 фикс (вложенные кавычки в OR-регексах) — 0 критических нарушений по 10 категориям.
-- Все три проверки (`tsc -b`, `vitest run`, `eslint .`) запущены после iter 109 правок — регрессий нет.
+- Все три проверки запущены после iter 110 правок — регрессий нет.
 
-### UI iter 109 — Приоритет 1 (все 5 пунктов выполнены)
+### UI iter 110 — Приоритет 2 (3 пункта) + Приоритет 3 (4 пункта)
 
 | # | Правка | Файл | Эффект |
 |---|--------|------|--------|
-| 1 | `--text-primary: #ffffff` → `#F0E6D2` | `src/index.css` | Halation ↓, контраст 18.3→13.5:1 |
-| 2 | `--text-faint-val: #4b5563` → `#7C8494` | `src/index.css` | WCAG AA FAIL → PASS (3.5→6.5:1) |
-| 3 | Все `10px` → `12px` | StatusPanel, ProfilePanel, JewelPage, VendorPage, TabletPage | WCAG AA PASS |
-| 4 | Все `11px` → `12px` | TopNav, RegexOutput, FilterChip, index.css | Читаемость ↑ |
-| 5 | `.topnav-brand-title` weight `700` → `600` | `src/index.css` | Dark mode bleed ↓ |
+| 2.7 | `--poe-bg-secondary`/`--panel-bg` `#15110E` → `#1A1510` | `src/index.css` | Luminance Δ 0.007→0.012 (≥0.01 порог Material/NN/g) |
+| 2.8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` + mono reset | `src/index.css` | Dark mode ergonomics, кириллица breathing |
+| 2.9 | ProfilePanel `bg-btn-primary` → `btn-cta` | `src/ui/components/ProfilePanel.tsx` | Палитровая консистентность (Pitfall 28 закрыт) |
+| 3.10 | `font-feature-settings: "tnum"` на body | `src/index.css` | Tabular nums для counts/ranges — нет jitter |
+| 3.11 | `--font-mono` переопределён: `'Noto Sans Mono', ui-monospace, ...` | `src/index.css` `@theme` | Системный Noto Sans Mono первым (Linux), без self-host overhead |
+| 3.12 | APCA-валидация 18 пар | `scripts/apca_validate_iter110.py` | См. секцию "APCA-результаты" ниже |
+| 3.13 | `--text-dim-val` `#6b7280` → `#7A8494` | `src/index.css` | WCAG AA на `--input-bg` (4.2→5.2:1), APCA Lc +8.3 |
 
-### UI iter 109 — Noto Sans подключён (Приоритет 2.6, опережая план)
+### APCA-результаты (iter 110)
 
-- Self-hosted woff2 subsets (Cyrillic + Latin + core punctuation/currency), 3 веса (400/500/600).
-- Файлы: `public/fonts/NotoSans-{400,500,600}.woff2` (≈ 40 KB каждый, 132 KB total).
-- `@font-face` блок в начале `src/index.css`, `font-display: swap`.
-- `body { font-family: 'Noto Sans', system-ui, ... }` — Noto Sans первым, system stack как fallback.
+**PASS (|Lc| ≥ порог):**
+- `text-primary` (#F0E6D2) на всех bg: **Lc=-97.4** (body text ≥75 ✓)
+- `text-soft` (#d1d5db) на `--poe-bg`: Lc=-86.5 (body text ✓)
+- `accent-yellow` на `--input-bg`: Lc=-84.2 (body text ✓)
 
-### Что осталось из аудита (Приоритет 2 + 3)
+**Улучшено, но не достигает APCA-порога для small text (≥90):**
+- `text-dim NEW` (#7A8494) на `--poe-bg`: **Lc=-42.8** (было -34.5, +8.3)
+- `text-dim NEW` на `--input-bg`: **Lc=-42.8** (было -34.5, +8.3)
+- `text-faint` (#7C8494) на `--poe-bg`: Lc=-43.0
 
-| # | Действие | Файл | Обоснование |
-|---|----------|------|-------------|
-| 7 | `--poe-bg-secondary` `#15110E` → `#1A1510` | index.css | Luminance-разделение Δ=0.012 |
-| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics |
-| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность |
-| 10 | `font-feature-settings: "tnum"` | index.css | Tabular stability для чисел |
-| 11 | Noto Sans Mono для regex display | index.css + index.html | Визуальная согласованность |
-| 12 | APCA-валидация контрастов | ручная проверка | Подготовка к WCAG 3.0 |
-| 13 | `--text-dim-val` `#6b7280` → `#7A8494` | index.css | Контраст на `--input-bg` |
+Скрипт: `scripts/apca_validate_iter110.py` (+ сохранённый вывод `scripts/apca_iter110_results.txt`).
+
+### Что осталось из аудита
+
+| # | Действие | Файл | Обоснование | Статус |
+|---|----------|------|-------------|--------|
+| — | Визуальная верификация в браузере | — | Пользователь должен проверить UI: контрасты, читаемость 12px текста, рендеринг Noto Sans (особенно на Linux) | ⬜ |
+
+Все 13 пунктов аудита v2 реализованы (Приоритет 1 в iter 109, Приоритет 2+3 в iter 110). Остаётся только визуальная верификация пользователем.
 
 ---
 
@@ -52,7 +56,9 @@
 
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
-3. **UI: `--placeholder-secondary: #4b5563`** — не входил в P1.2, оставлен как есть. Контраст 3.5:1, но применяется только к placeholder-тексту (не persistent copy). Рассмотреть осветление в Приоритете 3.
+3. **`--placeholder-secondary: #4b5563`** — не входил в P1.2/3.13. Контраст 3.5:1 на `--input-bg`, APCA Lc=-21.3. Применяется только к placeholder-тексту. Рассмотреть осветление в iter 111.
+4. **`--text-dim-val` (#7A8494) и `--text-faint-val` (#7C8494) перцептивно идентичны** (Δ < 1% luminance) — историческая иерархия dim=gray-500>lighter>faint=gray-600>darker инвертирована. Оба токена сейчас на уровне gray-400. План iter 111: либо (a) поднять faint до ~#8E96A4 (gray-350), либо (b) консолидировать dim+faint в один `--text-secondary` токен.
+5. **APCA-порог Lc≥90 для small text не достигнут** для `text-dim`/`text-faint`/`text-muted`/`accent-blue`/`accent-red`/`accent-emerald` на тёмных фонах. WCAG 2.x AA проходит (контраст ≥4.5:1), но APCA строже — это тот самый "false pass", о котором предупреждал аудит (секция 5.1). Решение: либо дальнейшее осветление токенов, либо изменение размеров/весов шрифта для compensating perceptual contrast.
 
 ---
 

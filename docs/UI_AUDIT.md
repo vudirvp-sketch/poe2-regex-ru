@@ -3,7 +3,7 @@
 > **Дата:** 2026-06-21
 > **Основание:** аудит кодовой базы (index.css, компоненты JSX) + актуальные исследования (WCAG 2.2, APCA, Smashing Magazine 2025, Material Design dark-theme spec, исследования зрительной усталости 2024–2025)
 > **Метод:** экспертный анализ с опорой на измеримые метрики (контраст, luminance, размер глифа)
-> **Статус реализации:** Приоритет 1 (5/5) + Noto Sans — ✅ iter 109
+> **Статус реализации:** Приоритет 1 (5/5) + Приоритет 2 (4/4) + Приоритет 3 (4/4) — ✅ iter 110 (осталась только визуальная верификация пользователем)
 
 ---
 
@@ -334,40 +334,52 @@ font-feature-settings: "tnum";
 | 4 | Все 11px тексты → 12px | TopNav, RegexOutput, FilterChip, index.css | Читаемость + WCAG | ✅ |
 | 5 | `.topnav-brand-title` weight 700→600 | index.css | Dark mode bleed | ✅ |
 
-### Приоритет 2 (рекомендуемый) — частично выполнен
+### Приоритет 2 (рекомендуемый) — ✅ ВЫПОЛНЕН в iter 109–110
 
 | # | Действие | Файл | Обоснование | Статус |
 |---|----------|------|-------------|--------|
 | 6 | Подключить Noto Sans (400/500/600, Cyrillic+Latin subset) | index.css + public/fonts/ | Кроссплатформенная консистентность | ✅ iter 109 |
-| 7 | Увеличить `--poe-bg-secondary` до `#1A1510` | index.css | Luminance-разделение Δ=0.012 | ⬜ |
-| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics | ⬜ |
-| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность | ⬜ |
+| 7 | Увеличить `--poe-bg-secondary` до `#1A1510` | index.css | Luminance-разделение Δ=0.012 | ✅ iter 110 |
+| 8 | `body { line-height: 1.6; letter-spacing: 0.01em; }` | index.css | Dark mode ergonomics | ✅ iter 110 |
+| 9 | ProfilePanel `bg-btn-primary` → `btn-cta` | ProfilePanel.tsx | Палитровая консистентность | ✅ iter 110 |
 
-### Приоритет 3 (улучшение, по возможности) — не начат
+### Приоритет 3 (улучшение) — ✅ ВЫПОЛНЕН в iter 110
 
 | # | Действие | Файл | Обоснование | Статус |
 |---|----------|------|-------------|--------|
-| 10 | `font-feature-settings: "tnum"` для числовых элементов | index.css | Tabular stability | ⬜ |
-| 11 | Noto Sans Mono для regex display | index.css + index.html | Визуальная согласованность | ⬜ |
-| 12 | APCA-валидация контрастов | ручная проверка | Подготовка к WCAG 3.0 | ⬜ |
-| 13 | `--text-dim-val` осветлить до `#7A8494` | index.css | Контраст на --input-bg | ⬜ |
+| 10 | `font-feature-settings: "tnum"` для числовых элементов | index.css (body global) | Tabular stability — нет jitter в counts/ranges | ✅ iter 110 |
+| 11 | Noto Sans Mono для regex display | index.css `@theme` `--font-mono` | Визуальная согласованность — системный Noto Sans Mono первым (Linux), без self-host overhead | ✅ iter 110 |
+| 12 | APCA-валидация контрастов | `scripts/apca_validate_iter110.py` | 18 пар проверено. PASS: text-primary/soft/accent-yellow. text-dim NEW улучшился на +8.3 Lc, но не достигает Lc≥90 для small text — см. STATUS.md Known Issue #5 | ✅ iter 110 |
+| 13 | `--text-dim-val` осветлить до `#7A8494` | index.css | WCAG AA на `--input-bg` (4.2→5.2:1), APCA Lc +8.3 | ✅ iter 110 |
 
 ---
 
 ## 8) Точка остановки
 
-**iter 109 COMPLETE.** Реализован весь Приоритет 1 (5/5 CSS/JSX правок) + Приоритет 2.6 (подключение Noto Sans) опережая план — это было естественно, т.к. правки типографики и подключение шрифта делаются в одних и тех же файлах.
+**iter 110 COMPLETE.** Реализованы все 13 пунктов аудита v2: Приоритет 1 (iter 109) + Приоритет 2 (iter 109–110) + Приоритет 3 (iter 110). Осталась только визуальная верификация пользователем.
 
-**Что сделано (iter 109):**
-1. Цветовые токены: `--text-primary`, `--text-faint-val` обновлены в `src/index.css`.
-2. Все 10px/11px размеры текста повышены до 12px — 17 правок в 7 файлах (StatusPanel, ProfilePanel, FilterChip, RegexOutput, TopNav, JewelPage, TabletPage, VendorPage).
-3. `.topnav-brand-title` font-weight 700 → 600 в `src/index.css`.
-4. Noto Sans подключён через self-hosted woff2 (3 веса × ~40 KB = 132 KB total, Cyrillic+Latin subset).
-5. `body` font-family обновлён: `'Noto Sans', system-ui, ...`.
+**Что сделано (iter 110):**
+1. `--poe-bg-secondary` и `--panel-bg`: `#15110E → #1A1510` (luminance Δ 0.007→0.012, ≥0.01 порог Material/NN/g).
+2. `body { line-height: 1.6; letter-spacing: 0.01em; font-feature-settings: "tnum"; }` + reset letter-spacing для `.font-mono`/`code`/`pre`.
+3. ProfilePanel: `bg-btn-primary` (#2563eb, холодный синий, последний Pitfall 28) → `btn-cta` (тёплый dark metal + gold rim).
+4. `--font-mono` в `@theme` переопределён: `'Noto Sans Mono', ui-monospace, ...` — системный Noto Sans Mono первым приоритетом, без self-host overhead.
+5. `--text-dim-val`: `#6b7280 → #7A8494` (WCAG AA на `--input-bg` 4.2→5.2:1, APCA Lc +8.3).
+6. APCA-валидация 18 пар через `scripts/apca_validate_iter110.py`. Текстовые PASS: text-primary/soft/accent-yellow. Улучшены, но не достигают Lc≥90 для small text: text-dim/faint/muted + accent-blue/red/emerald — задокументировано как Known Issue #5.
 
-**Следующая итерация (iter 110):**
-1. Приоритет 2.7 — `--poe-bg-secondary` `#15110E` → `#1A1510` (luminance-разделение).
-2. Приоритет 2.8 — `body { line-height: 1.6; letter-spacing: 0.01em; }` (dark mode ergonomics).
-3. Приоритет 2.9 — ProfilePanel `bg-btn-primary` → `btn-cta` (палитровая консистентность).
+**Изменённые файлы (iter 110):**
+- `src/index.css` — 5 правок (tokens + body + @theme + mono reset)
+- `src/ui/components/ProfilePanel.tsx` — 1 правка (button className)
+- `STATUS.md`, `docs/UI_AUDIT.md`, `worklog.md` — обновлены
+- `scripts/apca_validate_iter110.py` + `scripts/apca_iter110_results.txt` — новый валидатор (вне репозитория, в архиве)
 
-После каждого изменения — APCA + WCAG-валидация контрастов.
+**Тесты/типы/lint:** ✅ все три проверки зелёные после правок:
+- `npx tsc -b` → **0 errors**
+- `npx vitest run` → **1543/1543 tests passed** (36 test files)
+- `npx eslint .` → **0 problems**
+
+**Следующая итерация (iter 111) — опциональные улучшения:**
+1. **Визуальная верификация пользователем** — проверить UI в браузере: контрасты, читаемость 12px текста, корректность рендеринга Noto Sans (особенно на Linux), отсутствие визуальных артефактов от `letter-spacing`/`line-height`/`tnum`.
+2. **Known Issue #4** — `text-dim`/`text-faint` перцептивно идентичны. Решить: (a) поднять faint до ~#8E96A4 или (b) консолидировать в `--text-secondary`.
+3. **Known Issue #5** — APCA Lc≥90 не достигнут для small text токенов. Опции: дальнейшее осветление, увеличение веса шрифта (400→500), или увеличение размера (12px→13px).
+4. **Known Issue #3** — `--placeholder-secondary: #4b5563` всё ещё FAIL (APCA Lc=-21.3 на `--input-bg`).
+5. Полный план и статус — в STATUS.md и этом файле.

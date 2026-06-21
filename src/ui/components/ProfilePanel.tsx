@@ -121,9 +121,17 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
             <button
               onClick={handleSave}
               disabled={!profileName.trim() || isDuplicateName}
-              className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
+              /* iter 110 (UI audit v2 P2.9): swapped `bg-btn-primary` (#2563eb,
+                 cold blue, last residual cold token in ProfilePanel — Pitfall 28
+                 violation) for `btn-cta` (warm dark metal + gold rim). Now the
+                 "Add profile" CTA matches the rest of the app's primary CTA
+                 language (Copy / Share buttons in RegexOutput). Disabled state
+                 keeps `bg-raised text-dim` — `btn-cta:disabled` already styles
+                 itself via the same palette, but the explicit `bg-raised` branch
+                 avoids any ambiguity when the button is non-interactive. */
+              className={`px-3 py-1 text-xs rounded font-medium transition-all ${
                 profileName.trim() && !isDuplicateName
-                  ? 'bg-btn-primary text-bright hover:bg-btn-primary-hover'
+                  ? 'btn-cta'
                   : 'bg-raised text-dim cursor-not-allowed'
               }`}
               title={isDuplicateName ? t('profile.duplicate') : undefined}
