@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 116** — расширение систематической сортировки аффиксов внутри функциональных блоков на `weapon-specific` (24 family-keys, jewel-only) + `flasks` (16 family-keys, belt+jewel). iter 112 внедрил инфраструктуру sortKey + 4 блока правил (resistances/attributes/minions/ailments). iter 113 добавил `damage-type` (47 family-keys). iter 114 добавил `defence-stats` (28 family-keys). iter 115 добавил `resources` (29 family-keys). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный план сортировки — в `docs/AFFIX_ORDERING_PLAN.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
+> **Entry document.** Read this first. Current state: **iter 117** — расширение систематической сортировки аффиксов внутри функциональных блоков на `offence-speed` (12 family-keys) + `crit` (9 family-keys) + `buff-skills` (7 family-keys). iter 112 внедрил инфраструктуру sortKey + 4 блока правил (resistances/attributes/minions/ailments). iter 113 добавил `damage-type` (47 family-keys). iter 114 добавил `defence-stats` (28 family-keys). iter 115 добавил `resources` (29 family-keys). iter 116 добавил `weapon-specific` (24 family-keys) + `flasks` (16 family-keys). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный план сортировки — в `docs/AFFIX_ORDERING_PLAN.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
 
 ---
 
@@ -59,7 +59,7 @@ pnpm dev                  # Vite dev server
 pnpm build                # tsc -b + vite build + shell prerender (no Playwright)
 pnpm build:full           # tsc -b + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
-pnpm test                 # Vitest (all tests) — current: 1774 passing
+pnpm test                 # Vitest (all tests) — current: 1820 passing
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # ETL without cache (regenerate all)
 pnpm etl:check-stale      # Check source HTML staleness
@@ -318,7 +318,7 @@ Compiler (`compiler.ts`) `normalizeAst` transform for **AND(LITERAL..., EXCLUDE)
 **Ключевые файлы для будущих итераций (P4 закрыт в iter 106; UX-полировка P4 закрыта в iter 107; опциональные расширения; iter 112: sortKey infrastructure):**
 - `src/shared/mod-classifier.ts` (~2330 строк) — iter 104 закрыл waystone sub-blocks, iter 105 закрыл tablet sub-blocks, iter 106 закрыл P4 (tier-aware sort toggle), iter 107 не трогал (только UI). **iter 112: `sortGroupsAlphabetically()` использует `FamilyGroup.sortKey` как PRIMARY sort.** Остаются low-priority waystone neutral-generic / tablet Разломы-keyword расширения.
 - `src/shared/family-grouper.ts` (326 строк) — `groupTokensByFamily` (существующий sort affix → tier → alpha). **iter 112: `buildFamilyGroup()` вычисляет `sortKey` через `computeSortKey()`.**
-- `src/shared/block-sort-rules.ts` (~770 строк, **iter 112 NEW**) — `BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>>` + `computeSortKey(block, familyKey)`. 9 блоков с правилами (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks — 249 family-keys, 100% coverage). 11 блоков без правил → fallback к alphabetical (как pre-iter-112).
+- `src/shared/block-sort-rules.ts` (~920 строк, **iter 112 NEW**) — `BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>>` + `computeSortKey(block, familyKey)`. 12 блоков с правилами (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills — 277 family-keys, 100% coverage). 12 блоков без правил → fallback к alphabetical (как pre-iter-112).
 - `src/shared/types.ts` — `FamilyGroup.sortKey?: string` (**iter 112 NEW**), `ModGroupMode`, `SortMode` (iter 106: `'alpha' | 'tier-first'`).
 - `src/ui/components/FilterChip.tsx` (~475 строк) — iter 107: опциональный `sortMode?: SortMode` prop; `effectiveBorderClass` 2-branch conditional (alpha mode = pre-iter-107 behaviour; tier-first mode = 4-way tier color dispatch suppressing affix color).
 - `src/ui/components/ModList.tsx` (~685 строк) — iter 107: `sortMode` prop пробрасывается в `ModSubGroupSection` + `AffixColumn` + 11 inline call sites.

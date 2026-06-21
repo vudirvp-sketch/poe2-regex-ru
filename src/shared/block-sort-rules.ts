@@ -32,6 +32,7 @@
  * iter 114: added defence-stats (28 family-keys, second-most-visible defensive block).
  * iter 115: added resources (29 family-keys — health/mana/ES pools + damage conversion).
  * iter 116: added weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
+ * iter 117: added offence-speed (12 family-keys) + crit (9 family-keys) + buff-skills (7 family-keys).
  *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
@@ -722,6 +723,153 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     // ─── Flask buffs (30-39) — 2 keys ───────────────────────────────────
     { pattern: /увеличение скорости сотворения чар во время действия любого флакона/i, order: 30, comment: 'buff: cast-speed while flask active' },
     { pattern: /увеличение урона чар во время действия любого флакона/i, order: 31, comment: 'buff: spell-damage while flask active' },
+  ],
+
+  // ─── offence-speed (12 family-keys) — iter 117 ────────────────────────────
+  // All speed-related family-keys (attack/cast/move/projectile/etc. speeds).
+  // Alphabetical sort interleaves these — produces "каша" inside the
+  // "Скорость" functional block.
+  //
+  // Canonical order (player mental model — combat-relevant speeds first):
+  //   0:   Скорость атаки (attack speed — most commonly modded)
+  //   10:  Скорость сотворения чар (cast speed — generic spells)
+  //   11:  Скорость сотворения чар (cast speed — mark skills, subset of spells)
+  //   20:  Скорость передвижения (move speed)
+  //   30:  Скорость снарядов (projectile speed)
+  //   40:  Скорость перезарядки самострела (crossbow reload speed)
+  //   50:  Скорость применения боевых кличей (warcry application speed)
+  //   60:  Скорость броска ловушки (trap throw speed)
+  //   70:  Скорость установки тотемов (totem placement speed)
+  //   80:  Скорость смены оружия (weapon swap speed)
+  //   90:  Скорость умений (generic skill speed)
+  //   91:  Скорость умений будучи превращенным (transformed conditional)
+  //
+  // Design notes:
+  //   - Two substring conflicts handled via first-match-wins (most-specific FIRST):
+  //     1. "скорости сотворения чар" appears in BOTH generic cast speed
+  //        ('#% повышение скорости сотворения чар') and mark-skill cast speed
+  //        ('Умения метки имеют #% повышение скорости сотворения чар').
+  //        Mark rule (with `умения метки имеют.*` prefix) is listed FIRST.
+  //     2. "скорости умений" appears in BOTH generic skill speed
+  //        ('#% повышение скорости умений') and transformed-conditional
+  //        ('#% повышение скорости умений будучи превращенным').
+  //        Transformed rule (with `будучи превращенным` suffix) is listed FIRST.
+  //   - End-anchored `$` on bare generic rules prevents accidental match of
+  //     conditional variants (defensive — first-match-wins already handles this).
+  //   - Mark skill cast speed has order 11 (subset of spell cast speed at 10).
+  'offence-speed': [
+    // ─── Most-specific FIRST (substring-conflict resolution) ────────────
+    { pattern: /умения метки имеют.*скорости сотворения чар/i, order: 11, comment: 'cast-speed: mark skills (subset of spells)' },
+    { pattern: /скорости умений будучи превращенным/i, order: 91, comment: 'skill-speed: transformed (conditional)' },
+
+    // ─── Generic speeds (end-anchored for safety) ──────────────────────
+    { pattern: /скорости атаки$/i, order: 0, comment: 'attack-speed' },
+    { pattern: /скорости сотворения чар$/i, order: 10, comment: 'cast-speed: generic spells' },
+    { pattern: /скорости передвижения/i, order: 20, comment: 'move-speed' },
+    { pattern: /скорости снарядов/i, order: 30, comment: 'projectile-speed' },
+    { pattern: /скорости перезарядки самострела/i, order: 40, comment: 'crossbow-reload-speed' },
+    { pattern: /скорости применения боевых кличей/i, order: 50, comment: 'warcry-application-speed' },
+    { pattern: /скорости броска ловушки/i, order: 60, comment: 'trap-throw-speed' },
+    { pattern: /скорости установки тотемов/i, order: 70, comment: 'totem-place-speed' },
+    { pattern: /скорости смены оружия/i, order: 80, comment: 'weapon-swap-speed' },
+    { pattern: /скорости умений$/i, order: 90, comment: 'skill-speed: generic' },
+  ],
+
+  // ─── crit (9 family-keys) — iter 117 ───────────────────────────────────────
+  // All crit-related family-keys. Alphabetical sort mixes crit-chance %
+  // increase with flat +#% to crit-chance/damage, mixing attacks/spells/thorns.
+  //
+  // Canonical order (player mental model — chance first, then damage,
+  // then ailment-on-crit):
+  //   0:   Шанс критического удара (generic % increase)
+  //   10:  Шанс критического удара атаками (% increase)
+  //   20:  Шанс критического удара для чар (% increase)
+  //   30:  Шанс критического удара шипами (flat + — dative "шансу")
+  //   40:  Бонус к критическому урону (generic % increase)
+  //   41:  Бонус к критическому урону от чар (% increase — spells variant)
+  //   50:  Бонус к критическому урону для атак (flat + — dative "бонусу")
+  //   60:  Шанс критического удара чар огня (flat + — dative "шансу")
+  //   70:  Силы состояний от критических ударов (ailment strength from crits)
+  //
+  // Design notes:
+  //   - Russian morphology disambiguates % vs flat:
+  //     - "% increase" uses genitive case: "шанса", "бонуса".
+  //     - "+ flat" uses dative case (after "к"): "шансу", "бонусу".
+  //     These word forms are distinct, so % rules don't match flat family-keys.
+  //   - Within % rules, end-anchored `$` on generic variant prevents matching
+  //     the specific variant (e.g., `бонуса к критическому урону$` matches
+  //     '#% увеличение бонуса к критическому урону' but NOT
+  //     '#% увеличение бонуса к критическому урону от чар').
+  //   - Crit-induced ailment strength ('силы наносящих урон состояний...
+  //     критическими ударами') comes LAST (order 70) — it's a synergy mod,
+  //     not a direct crit stat.
+  'crit': [
+    // ─── Flat (dative word form — distinct from % increase) ─────────────
+    { pattern: /шансу критического удара шипами/i, order: 30, comment: 'crit-chance: thorns (flat +)' },
+    { pattern: /шансу критического удара чар огня/i, order: 60, comment: 'crit-chance: fire spells (flat +)' },
+    { pattern: /бонусу критического урона для урона атаками/i, order: 50, comment: 'crit-damage: attacks (flat +)' },
+
+    // ─── % increase — specific variants BEFORE end-anchored generic ─────
+    // Crit damage % (specific spell variant first, then end-anchored generic)
+    { pattern: /бонуса к критическому урону от чар/i, order: 41, comment: 'crit-damage: spells %' },
+    { pattern: /бонуса к критическому урону$/i, order: 40, comment: 'crit-damage: generic %' },
+
+    // Crit chance % (specific variants first, then end-anchored generic)
+    { pattern: /шанса критического удара атаками/i, order: 10, comment: 'crit-chance: attacks %' },
+    { pattern: /шанса критического удара для чар/i, order: 20, comment: 'crit-chance: spells %' },
+    { pattern: /шанса критического удара$/i, order: 0, comment: 'crit-chance: generic %' },
+
+    // ─── Crit-induced ailment strength (synergy mod, comes last) ────────
+    { pattern: /силы наносящих урон состояний.*критическими ударами/i, order: 70, comment: 'crit: ailment strength from crits' },
+  ],
+
+  // ─── buff-skills (7 family-keys) — iter 117 ────────────────────────────────
+  // All buff-skill-related family-keys (auras/heralds/curses/warcries/marks).
+  // Alphabetical sort groups by stat type, not by skill type — produces "каша".
+  //
+  // Canonical order (player mental model — buff skill categories):
+  //   0:   Ауры (сила умений аур — skill strength)
+  //   10:  Вестники (эффективность удержания ресурсов умениями вестниками)
+  //   20:  Проклятия (сила проклятий — strength)
+  //   21:  Проклятия (быстрее активация проклятия — activation speed)
+  //   40:  Кличи (усиление положительного эффекта боевого клича — buff effect)
+  //   41:  Кличи (скорость перезарядки боевых кличей — reload speed)
+  //   50:  Метки (усиление эффекта ваших умений меток — effect)
+  //
+  // Design notes:
+  //   - Plan §5.6 mentioned "Знамёна (длительность)" at order 30 — NO знамёна
+  //     family-keys exist in jewellery-scope data. Bucket 30 left empty.
+  //   - Plan §5.6 mentioned "скорость применения" for warcries — actual data
+  //     has "скорость перезарядки" (reload speed). Order 41 used for reload.
+  //   - Plan §5.6 mentioned "скорость сотворения" for marks — actual data has
+  //     only "усиление эффекта" (effect). Mark cast speed is in `offence-speed`
+  //     block (order 11), not in `buff-skills`. Order 50 used for effect only.
+  //   - Distinctive phrases used to avoid substring conflicts:
+  //     `силы умений аур` (auras) vs `силы проклятий` (curses) — both contain
+  //     "силы" but full phrases are distinct.
+  //     `усиление положительного эффекта боевого клича` (warcries) vs
+  //     `усиление эффекта.*умений меток` (marks) — different word order.
+  //   - Mark rule uses `.*` bridge: "усиление эффекта ваших умений меток"
+  //     has "ваших" between "эффекта" and "умений меток".
+  'buff-skills': [
+    // ─── Auras (0-9) — skill strength ──────────────────────────────────
+    { pattern: /силы умений аур/i, order: 0, comment: 'auras: skill strength' },
+
+    // ─── Heralds (10-19) — reservation efficiency ──────────────────────
+    { pattern: /эффективности удержания ресурсов умениями вестниками/i, order: 10, comment: 'heralds: reservation efficiency' },
+
+    // ─── Curses (20-29) — strength + activation speed ──────────────────
+    { pattern: /силы проклятий/i, order: 20, comment: 'curses: strength' },
+    { pattern: /быстрее активация проклятия/i, order: 21, comment: 'curses: activation speed' },
+
+    // ─── Warcries (40-49) — buff effect + reload speed ─────────────────
+    // Note: family-key uses "перезарядки" (reload), not "применения" (application).
+    { pattern: /усиление положительного эффекта боевого клича/i, order: 40, comment: 'warcries: buff effect' },
+    { pattern: /скорости перезарядки боевых кличей/i, order: 41, comment: 'warcries: reload speed' },
+
+    // ─── Marks (50-59) — effect ────────────────────────────────────────
+    // Note: no mark cast-speed family-key in buff-skills data (it's in offence-speed).
+    { pattern: /усиление эффекта.*умений меток/i, order: 50, comment: 'marks: effect' },
   ],
 };
 

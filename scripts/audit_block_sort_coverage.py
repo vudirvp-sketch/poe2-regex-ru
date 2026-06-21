@@ -4,10 +4,11 @@ Audit script for iter 112+ block sort rules coverage.
 
 For each block with explicit sort rules (resistances, attributes, minions,
 ailments, damage-type [iter 113], defence-stats [iter 114], resources
-[iter 115], weapon-specific + flasks [iter 116]), enumerates all production
-family-keys and checks whether the rule set covers them. Reports any
-family-keys that fall into the "900::" fallback bucket (rules exist but
-none matched) — these need new rules.
+[iter 115], weapon-specific + flasks [iter 116], offence-speed + crit +
+buff-skills [iter 117]), enumerates all production family-keys and checks
+whether the rule set covers them. Reports any family-keys that fall into
+the "900::" fallback bucket (rules exist but none matched) — these need
+new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -357,6 +358,50 @@ BLOCK_SORT_RULES = {
         (re.compile(r'увеличение скорости сотворения чар во время действия любого флакона', re.I), 30, 'buff: cast-speed while flask active'),
         (re.compile(r'увеличение урона чар во время действия любого флакона', re.I), 31, 'buff: spell-damage while flask active'),
     ],
+    'offence-speed': [
+        # Most-specific FIRST (substring-conflict resolution)
+        (re.compile(r'умения метки имеют.*скорости сотворения чар', re.I), 11, 'cast-speed: mark skills (subset)'),
+        (re.compile(r'скорости умений будучи превращенным', re.I), 91, 'skill-speed: transformed (conditional)'),
+        # Generic speeds (end-anchored for safety)
+        (re.compile(r'скорости атаки$', re.I), 0, 'attack-speed'),
+        (re.compile(r'скорости сотворения чар$', re.I), 10, 'cast-speed: generic spells'),
+        (re.compile(r'скорости передвижения', re.I), 20, 'move-speed'),
+        (re.compile(r'скорости снарядов', re.I), 30, 'projectile-speed'),
+        (re.compile(r'скорости перезарядки самострела', re.I), 40, 'crossbow-reload-speed'),
+        (re.compile(r'скорости применения боевых кличей', re.I), 50, 'warcry-application-speed'),
+        (re.compile(r'скорости броска ловушки', re.I), 60, 'trap-throw-speed'),
+        (re.compile(r'скорости установки тотемов', re.I), 70, 'totem-place-speed'),
+        (re.compile(r'скорости смены оружия', re.I), 80, 'weapon-swap-speed'),
+        (re.compile(r'скорости умений$', re.I), 90, 'skill-speed: generic'),
+    ],
+    'crit': [
+        # Flat (dative word form — distinct from % increase)
+        (re.compile(r'шансу критического удара шипами', re.I), 30, 'crit-chance: thorns (flat +)'),
+        (re.compile(r'шансу критического удара чар огня', re.I), 60, 'crit-chance: fire spells (flat +)'),
+        (re.compile(r'бонусу критического урона для урона атаками', re.I), 50, 'crit-damage: attacks (flat +)'),
+        # % increase — specific variants BEFORE end-anchored generic
+        (re.compile(r'бонуса к критическому урону от чар', re.I), 41, 'crit-damage: spells %'),
+        (re.compile(r'бонуса к критическому урону$', re.I), 40, 'crit-damage: generic %'),
+        (re.compile(r'шанса критического удара атаками', re.I), 10, 'crit-chance: attacks %'),
+        (re.compile(r'шанса критического удара для чар', re.I), 20, 'crit-chance: spells %'),
+        (re.compile(r'шанса критического удара$', re.I), 0, 'crit-chance: generic %'),
+        # Crit-induced ailment strength (synergy mod, comes last)
+        (re.compile(r'силы наносящих урон состояний.*критическими ударами', re.I), 70, 'crit: ailment strength from crits'),
+    ],
+    'buff-skills': [
+        # Auras (0-9) — skill strength
+        (re.compile(r'силы умений аур', re.I), 0, 'auras: skill strength'),
+        # Heralds (10-19) — reservation efficiency
+        (re.compile(r'эффективности удержания ресурсов умениями вестниками', re.I), 10, 'heralds: reservation efficiency'),
+        # Curses (20-29) — strength + activation speed
+        (re.compile(r'силы проклятий', re.I), 20, 'curses: strength'),
+        (re.compile(r'быстрее активация проклятия', re.I), 21, 'curses: activation speed'),
+        # Warcries (40-49) — buff effect + reload speed
+        (re.compile(r'усиление положительного эффекта боевого клича', re.I), 40, 'warcries: buff effect'),
+        (re.compile(r'скорости перезарядки боевых кличей', re.I), 41, 'warcries: reload speed'),
+        # Marks (50-59) — effect
+        (re.compile(r'усиление эффекта.*умений меток', re.I), 50, 'marks: effect'),
+    ],
 }
 
 
@@ -386,7 +431,8 @@ def main() -> int:
 
     exit_code = 0
     for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type',
-                  'defence-stats', 'resources', 'weapon-specific', 'flasks']:
+                  'defence-stats', 'resources', 'weapon-specific', 'flasks',
+                  'offence-speed', 'crit', 'buff-skills']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -403,7 +449,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 9 blocks fully covered. No gaps.')
+        print('\n✓ All 12 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code

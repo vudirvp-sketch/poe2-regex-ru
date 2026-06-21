@@ -7,6 +7,7 @@
  * iter 114: adds defence-stats block (28 family-keys, second-most-visible defensive block).
  * iter 115: adds resources block (29 family-keys — Health/Mana/ES pools + conversion).
  * iter 116: adds weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
+ * iter 117: adds offence-speed (12 family-keys) + crit (9 family-keys) + buff-skills (7 family-keys).
  *
  * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
@@ -804,6 +805,269 @@ describe('computeSortKey: flasks (iter 116)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5g: computeSortKey — offence-speed canonical ordering (iter 117)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: offence-speed (iter 117)', () => {
+  const cases = [
+    // Generic speeds (end-anchored)
+    { familyKey: '#% повышение скорости атаки', expectedOrder: 0, comment: 'attack-speed' },
+    { familyKey: '#% повышение скорости сотворения чар', expectedOrder: 10, comment: 'cast-speed: generic spells' },
+    { familyKey: '#% повышение скорости передвижения', expectedOrder: 20, comment: 'move-speed' },
+    { familyKey: '#% повышение скорости снарядов', expectedOrder: 30, comment: 'projectile-speed' },
+    { familyKey: '#% повышение скорости перезарядки самострела', expectedOrder: 40, comment: 'crossbow-reload-speed' },
+    { familyKey: '#% повышение скорости применения боевых кличей', expectedOrder: 50, comment: 'warcry-application-speed' },
+    { familyKey: '#% повышение скорости броска ловушки', expectedOrder: 60, comment: 'trap-throw-speed' },
+    { familyKey: '#% повышение скорости установки тотемов', expectedOrder: 70, comment: 'totem-place-speed' },
+    { familyKey: '#% повышение скорости смены оружия', expectedOrder: 80, comment: 'weapon-swap-speed' },
+    { familyKey: '#% повышение скорости умений', expectedOrder: 90, comment: 'skill-speed: generic' },
+    // Subset/conditional variants (most-specific, listed first)
+    { familyKey: 'Умения метки имеют #% повышение скорости сотворения чар', expectedOrder: 11, comment: 'cast-speed: mark skills (subset)' },
+    { familyKey: '#% повышение скорости умений будучи превращенным', expectedOrder: 91, comment: 'skill-speed: transformed (conditional)' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`offence-speed: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('offence-speed', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('offence-speed: full canonical bucket order attack → cast → move → projectile → crossbow-reload → warcry → trap → totem → swap → skill', () => {
+    // Pick one representative family-key per speed type
+    const keys = [
+      '#% повышение скорости атаки',                     // 0  — attack
+      '#% повышение скорости сотворения чар',            // 10 — cast (generic)
+      '#% повышение скорости передвижения',              // 20 — move
+      '#% повышение скорости снарядов',                  // 30 — projectile
+      '#% повышение скорости перезарядки самострела',    // 40 — crossbow reload
+      '#% повышение скорости применения боевых кличей',  // 50 — warcry
+      '#% повышение скорости броска ловушки',            // 60 — trap
+      '#% повышение скорости установки тотемов',         // 70 — totem
+      '#% повышение скорости смены оружия',              // 80 — weapon swap
+      '#% повышение скорости умений',                    // 90 — skill (generic)
+    ];
+    const sortKeys = keys.map(k => computeSortKey('offence-speed', k)).sort();
+    expect(sortKeys[0]).toContain('скорости атаки');
+    expect(sortKeys[1]).toContain('скорости сотворения чар');
+    expect(sortKeys[2]).toContain('скорости передвижения');
+    expect(sortKeys[3]).toContain('скорости снарядов');
+    expect(sortKeys[4]).toContain('скорости перезарядки самострела');
+    expect(sortKeys[5]).toContain('скорости применения боевых кличей');
+    expect(sortKeys[6]).toContain('скорости броска ловушки');
+    expect(sortKeys[7]).toContain('скорости установки тотемов');
+    expect(sortKeys[8]).toContain('скорости смены оружия');
+    expect(sortKeys[9]).toContain('скорости умений');
+  });
+
+  it('offence-speed: mark-skill cast speed (11) comes AFTER generic cast speed (10) — subset', () => {
+    const generic = computeSortKey('offence-speed', '#% повышение скорости сотворения чар');
+    const mark = computeSortKey('offence-speed', 'Умения метки имеют #% повышение скорости сотворения чар');
+    expect(generic.localeCompare(mark, 'ru')).toBeLessThan(0);
+    expect(generic.startsWith('010::')).toBe(true);
+    expect(mark.startsWith('011::')).toBe(true);
+  });
+
+  it('offence-speed: transformed skill speed (91) comes AFTER generic skill speed (90) — conditional variant', () => {
+    const generic = computeSortKey('offence-speed', '#% повышение скорости умений');
+    const transformed = computeSortKey('offence-speed', '#% повышение скорости умений будучи превращенным');
+    expect(generic.localeCompare(transformed, 'ru')).toBeLessThan(0);
+    expect(generic.startsWith('090::')).toBe(true);
+    expect(transformed.startsWith('091::')).toBe(true);
+  });
+
+  it('offence-speed: mark-skill rule does NOT match generic cast speed (first-match-wins)', () => {
+    // Generic cast speed family-key does NOT contain "умения метки имеют"
+    // → falls through to `скорости сотворения чар$` rule → order 10
+    const generic = computeSortKey('offence-speed', '#% повышение скорости сотворения чар');
+    expect(generic.startsWith('010::')).toBe(true);
+  });
+
+  it('offence-speed: end-anchored `скорости умений$` does NOT match transformed variant', () => {
+    // Transformed family-key ends with "превращенным", not "умений"
+    // → bare `скорости умений$` rule should not match it.
+    // First-match-wins also intercepts via `будучи превращенным` rule.
+    const transformed = computeSortKey('offence-speed', '#% повышение скорости умений будучи превращенным');
+    const generic = computeSortKey('offence-speed', '#% повышение скорости умений');
+    expect(transformed.startsWith('091::')).toBe(true);
+    expect(generic.startsWith('090::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5h: computeSortKey — crit canonical ordering (iter 117)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: crit (iter 117)', () => {
+  const cases = [
+    // % increase — crit chance (end-anchored generics)
+    { familyKey: '#% повышение шанса критического удара', expectedOrder: 0, comment: 'crit-chance: generic %' },
+    { familyKey: '#% повышение шанса критического удара атаками', expectedOrder: 10, comment: 'crit-chance: attacks %' },
+    { familyKey: '#% повышение шанса критического удара для чар', expectedOrder: 20, comment: 'crit-chance: spells %' },
+    // Flat — crit chance (dative "шансу", after "к")
+    { familyKey: '+#% к шансу критического удара шипами', expectedOrder: 30, comment: 'crit-chance: thorns (flat +)' },
+    // % increase — crit damage (end-anchored generic + specific spell variant)
+    { familyKey: '#% увеличение бонуса к критическому урону', expectedOrder: 40, comment: 'crit-damage: generic %' },
+    { familyKey: '#% увеличение бонуса к критическому урону от чар', expectedOrder: 41, comment: 'crit-damage: spells %' },
+    // Flat — crit damage (dative "бонусу", after "к")
+    { familyKey: '+#% к бонусу критического урона для урона атаками', expectedOrder: 50, comment: 'crit-damage: attacks (flat +)' },
+    // Flat — fire spell crit chance (dative "шансу")
+    { familyKey: '+(#)% к шансу критического удара чар огня', expectedOrder: 60, comment: 'crit-chance: fire spells (flat +)' },
+    // Crit-induced ailment strength (synergy)
+    { familyKey: '#% увеличение силы наносящих урон состояний, накладываемых вашими критическими ударами', expectedOrder: 70, comment: 'crit: ailment strength from crits' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`crit: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('crit', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('crit: full canonical bucket order chance-generic → chance-attacks → chance-spells → chance-thorns → damage-generic → damage-spells → damage-attacks-flat → chance-fire-spells → ailment-from-crit', () => {
+    const keys = [
+      '#% повышение шанса критического удара',                                                       // 0
+      '#% повышение шанса критического удара атаками',                                               // 10
+      '#% повышение шанса критического удара для чар',                                               // 20
+      '+#% к шансу критического удара шипами',                                                       // 30
+      '#% увеличение бонуса к критическому урону',                                                   // 40
+      '#% увеличение бонуса к критическому урону от чар',                                            // 41
+      '+#% к бонусу критического урона для урона атаками',                                           // 50
+      '+(#)% к шансу критического удара чар огня',                                                   // 60
+      '#% увеличение силы наносящих урон состояний, накладываемых вашими критическими ударами',      // 70
+    ];
+    const sortKeys = keys.map(k => computeSortKey('crit', k)).sort();
+    expect(sortKeys[0]).toContain('шанса критического удара'); // generic ends here
+    expect(sortKeys[1]).toContain('атаками');
+    expect(sortKeys[2]).toContain('для чар');
+    expect(sortKeys[3]).toContain('шипами');
+    expect(sortKeys[4]).toContain('бонуса к критическому урону'); // generic
+    expect(sortKeys[5]).toContain('от чар');
+    expect(sortKeys[6]).toContain('бонусу критического урона');
+    expect(sortKeys[7]).toContain('чар огня');
+    expect(sortKeys[8]).toContain('критическими ударами');
+  });
+
+  it('crit: Russian morphology disambiguates % (genitive "шанса") from flat (dative "шансу")', () => {
+    const percent = computeSortKey('crit', '#% повышение шанса критического удара');
+    const flat = computeSortKey('crit', '+#% к шансу критического удара шипами');
+    // Both rules are independent — `шанса` won't match `шансу` family-key and vice versa.
+    expect(percent.startsWith('000::')).toBe(true);
+    expect(flat.startsWith('030::')).toBe(true);
+  });
+
+  it('crit: end-anchored `бонуса к критическому урону$` does NOT match spell variant', () => {
+    const generic = computeSortKey('crit', '#% увеличение бонуса к критическому урону');
+    const spells = computeSortKey('crit', '#% увеличение бонуса к критическому урону от чар');
+    // Generic ends with "урону$" — matches. Spells ends with "чар" — doesn't match generic rule.
+    expect(generic.startsWith('040::')).toBe(true);
+    expect(spells.startsWith('041::')).toBe(true);
+    expect(generic.localeCompare(spells, 'ru')).toBeLessThan(0);
+  });
+
+  it('crit: end-anchored `шанса критического удара$` does NOT match attacks/spells variants', () => {
+    const generic = computeSortKey('crit', '#% повышение шанса критического удара');
+    const attacks = computeSortKey('crit', '#% повышение шанса критического удара атаками');
+    const spells = computeSortKey('crit', '#% повышение шанса критического удара для чар');
+    expect(generic.startsWith('000::')).toBe(true);
+    expect(attacks.startsWith('010::')).toBe(true);
+    expect(spells.startsWith('020::')).toBe(true);
+    expect(generic.localeCompare(attacks, 'ru')).toBeLessThan(0);
+    expect(attacks.localeCompare(spells, 'ru')).toBeLessThan(0);
+  });
+
+  it('crit: crit-induced ailment strength (70) comes LAST — synergy mod after direct crit stats', () => {
+    const directCrit = computeSortKey('crit', '#% повышение шанса критического удара');
+    const ailmentFromCrit = computeSortKey('crit', '#% увеличение силы наносящих урон состояний, накладываемых вашими критическими ударами');
+    expect(directCrit.localeCompare(ailmentFromCrit, 'ru')).toBeLessThan(0);
+    expect(ailmentFromCrit.startsWith('070::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5i: computeSortKey — buff-skills canonical ordering (iter 117)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: buff-skills (iter 117)', () => {
+  const cases = [
+    // Auras (0-9)
+    { familyKey: '#% увеличение силы умений аур', expectedOrder: 0, comment: 'auras: skill strength' },
+    // Heralds (10-19)
+    { familyKey: '#% увеличение эффективности удержания ресурсов умениями вестниками', expectedOrder: 10, comment: 'heralds: reservation efficiency' },
+    // Curses (20-29) — strength + activation speed
+    { familyKey: '#% увеличение силы проклятий', expectedOrder: 20, comment: 'curses: strength' },
+    { familyKey: 'На #% быстрее активация проклятия', expectedOrder: 21, comment: 'curses: activation speed' },
+    // Warcries (40-49) — buff effect + reload speed
+    { familyKey: '#% усиление положительного эффекта боевого клича', expectedOrder: 40, comment: 'warcries: buff effect' },
+    { familyKey: '#% повышение скорости перезарядки боевых кличей', expectedOrder: 41, comment: 'warcries: reload speed' },
+    // Marks (50-59) — effect
+    { familyKey: '#% усиление эффекта ваших умений меток', expectedOrder: 50, comment: 'marks: effect' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`buff-skills: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('buff-skills', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('buff-skills: full canonical bucket order Auras → Heralds → Curses → Warcries → Marks', () => {
+    // Pick one representative family-key per bucket (знамёна bucket 30 has no family-keys in data)
+    const keys = [
+      '#% увеличение силы умений аур',                                                  // 0  — Auras
+      '#% увеличение эффективности удержания ресурсов умениями вестниками',             // 10 — Heralds
+      '#% увеличение силы проклятий',                                                   // 20 — Curses (strength)
+      '#% усиление положительного эффекта боевого клича',                               // 40 — Warcries (buff effect)
+      '#% усиление эффекта ваших умений меток',                                         // 50 — Marks (effect)
+    ];
+    const sortKeys = keys.map(k => computeSortKey('buff-skills', k)).sort();
+    expect(sortKeys[0]).toContain('аур');
+    expect(sortKeys[1]).toContain('вестниками');
+    expect(sortKeys[2]).toContain('проклятий');
+    expect(sortKeys[3]).toContain('боевого клича');
+    expect(sortKeys[4]).toContain('умений меток');
+  });
+
+  it('buff-skills: curse strength (20) BEFORE curse activation speed (21) — strength more fundamental', () => {
+    const strength = computeSortKey('buff-skills', '#% увеличение силы проклятий');
+    const activation = computeSortKey('buff-skills', 'На #% быстрее активация проклятия');
+    expect(strength.localeCompare(activation, 'ru')).toBeLessThan(0);
+    expect(strength.startsWith('020::')).toBe(true);
+    expect(activation.startsWith('021::')).toBe(true);
+  });
+
+  it('buff-skills: warcry buff effect (40) BEFORE warcry reload speed (41) — effect more fundamental', () => {
+    const effect = computeSortKey('buff-skills', '#% усиление положительного эффекта боевого клича');
+    const reload = computeSortKey('buff-skills', '#% повышение скорости перезарядки боевых кличей');
+    expect(effect.localeCompare(reload, 'ru')).toBeLessThan(0);
+    expect(effect.startsWith('040::')).toBe(true);
+    expect(reload.startsWith('041::')).toBe(true);
+  });
+
+  it('buff-skills: distinctive phrase `силы умений аур` does NOT match `силы проклятий` (auras vs curses)', () => {
+    // Both contain "силы" but full phrases are distinct — no first-match-wins conflict.
+    const auras = computeSortKey('buff-skills', '#% увеличение силы умений аур');
+    const curses = computeSortKey('buff-skills', '#% увеличение силы проклятий');
+    expect(auras.startsWith('000::')).toBe(true);
+    expect(curses.startsWith('020::')).toBe(true);
+    expect(auras.localeCompare(curses, 'ru')).toBeLessThan(0);
+  });
+
+  it('buff-skills: warcry `усиление положительного эффекта боевого клича` does NOT match mark `усиление эффекта`', () => {
+    // Warcry family-key has "усиление положительного эффекта" (with "положительного" between).
+    // Mark pattern is `усиление эффекта.*умений меток` — requires "усиление эффекта" (no gap).
+    // "усиление положительного эффекта боевого клича" does NOT contain "усиление эффекта".
+    const warcry = computeSortKey('buff-skills', '#% усиление положительного эффекта боевого клича');
+    const mark = computeSortKey('buff-skills', '#% усиление эффекта ваших умений меток');
+    expect(warcry.startsWith('040::')).toBe(true);
+    expect(mark.startsWith('050::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1022,6 +1286,62 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       '#% увеличение длительности эффекта флакона',
     ]);
   });
+
+  it('offence-speed (iter 117): 4 speeds order attack → cast → move → projectile', () => {
+    const tokens = [
+      makeToken('#% повышение скорости снарядов', 'offence-speed'),
+      makeToken('#% повышение скорости передвижения', 'offence-speed'),
+      makeToken('#% повышение скорости сотворения чар', 'offence-speed'),
+      makeToken('#% повышение скорости атаки', 'offence-speed'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'ring');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const speedGroup = subGroups.find(sg => sg.key === 'offence-speed');
+    expect(speedGroup).toBeDefined();
+    const familyKeys = speedGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% повышение скорости атаки',
+      '#% повышение скорости сотворения чар',
+      '#% повышение скорости передвижения',
+      '#% повышение скорости снарядов',
+    ]);
+  });
+
+  it('crit (iter 117): 3 crit-chance variants order generic → attacks → spells', () => {
+    const tokens = [
+      makeToken('#% повышение шанса критического удара для чар', 'crit'),
+      makeToken('#% повышение шанса критического удара атаками', 'crit'),
+      makeToken('#% повышение шанса критического удара', 'crit'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'ring');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const critGroup = subGroups.find(sg => sg.key === 'crit');
+    expect(critGroup).toBeDefined();
+    const familyKeys = critGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% повышение шанса критического удара',
+      '#% повышение шанса критического удара атаками',
+      '#% повышение шанса критического удара для чар',
+    ]);
+  });
+
+  it('buff-skills (iter 117): 3 skill types order Auras → Curses → Marks', () => {
+    const tokens = [
+      makeToken('#% усиление эффекта ваших умений меток', 'buff-skills'),
+      makeToken('#% увеличение силы проклятий', 'buff-skills'),
+      makeToken('#% увеличение силы умений аур', 'buff-skills'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'ring');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const buffGroup = subGroups.find(sg => sg.key === 'buff-skills');
+    expect(buffGroup).toBeDefined();
+    const familyKeys = buffGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% увеличение силы умений аур',
+      '#% увеличение силы проклятий',
+      '#% усиление эффекта ваших умений меток',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1048,8 +1368,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 116 scope: 9 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks)', () => {
+  it('iter 117 scope: 12 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'flasks', 'minions', 'resistances', 'resources', 'weapon-specific']);
+    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'buff-skills', 'crit', 'damage-type', 'defence-stats', 'flasks', 'minions', 'offence-speed', 'resistances', 'resources', 'weapon-specific']);
   });
 });

@@ -2,20 +2,20 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 116
+> **Текущая итерация:** 117
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 116: расширение систематической сортировки на блоки `weapon-specific` (24 family-keys, jewel-only) + `flasks` (16 family-keys, belt+jewel).**
+**iter 117: расширение систематической сортировки на 3 priority-блока — `offence-speed` (12 family-keys), `crit` (9 family-keys), `buff-skills` (7 family-keys).**
 
 ### Сортировка аффиксов внутри блоков
 
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–115 добавили правила для `damage-type`, `defence-stats`, `resources`. iter 116 добавляет правила для `weapon-specific` и `flasks`.
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–116 добавили правила для `damage-type`, `defence-stats`, `resources`, `weapon-specific`, `flasks`. iter 117 добавляет правила для `offence-speed`, `crit`, `buff-skills`.
 
-**9 блоков с правилами (iter 116 scope):**
+**12 блоков с правилами (iter 117 scope):**
 
 | Блок | # family-keys | # rules | Канонический порядок |
 |------|---------------|---------|----------------------|
@@ -28,58 +28,85 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 | `resources` | 29 | 29 | Здоровье → Мана → ES → Конверсия → Тотем → Прочее |
 | `weapon-specific` | 24 | 24 | Мечи → Топоры → Булавы → Боевые посохи → Кинжалы → Копья → Кистени → Луки → Самострелы → Без оружия |
 | `flasks` | 16 | 16 | Health flask → Mana flask → Any flask → Flask buffs |
+| `offence-speed` | 12 | 12 | attack → cast (generic→mark) → move → projectile → crossbow-reload → warcry → trap → totem → swap → skill (generic→transformed) |
+| `crit` | 9 | 9 | chance % (generic→attacks→spells) → chance flat (thorns→fire-spells) → damage % (generic→spells) → damage flat (attacks) → ailment-from-crit |
+| `buff-skills` | 7 | 7 | Ауры → Вестники → Проклятия (strength→activation) → Кличи (effect→reload) → Метки (effect) |
 
-**Покрытие:** 100% — все 249 family-keys в 9 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
+**Покрытие:** 100% — все 277 family-keys в 12 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
 
-**Остальные 11 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Это сознательная стратегия «не сломать» — будущие итерации добавят правила.
+**Остальные 8 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Это сознательная стратегия «не сломать» — будущие итерации добавят правила.
 
-### weapon-specific canonical order (iter 116)
-
-```
-0-9:    Мечи (Swords)             — damage 0, attack-speed 1
-10-19:  Топоры (Axes)             — damage 10, attack-speed 11
-20-29:  Булавы (Maces)            — damage 20, stun-gauge 21
-30-39:  Боевые посохи (Warstaves) — damage 30, attack-speed 31, freeze-gauge 32
-40-49:  Кинжалы (Daggers)         — damage 40, attack-speed 41, crit-chance 42
-50-59:  Копья (Spears)            — damage 50, attack-speed 51, crit-damage 52
-60-69:  Кистени (Flails)          — damage 60, crit-chance 61
-70-79:  Луки (Bows)               — damage 70, attack-speed 71, accuracy 72
-80-89:  Самострелы (Crossbows)    — damage 80, attack-speed 81
-90-99:  Без оружия (Unarmed)      — damage 90, attack-speed 91
-```
-
-**Design notes:**
-- Все family-keys — jewel-only. Каждое правило использует weapon name (instrumental case: мечами/топорами/булавами/etc.) как дискриминатор.
-- Stat-тип patterns — word-specific: «увеличение урона X» vs «скорости атаки X» vs «критического удара X» vs «бонуса к критическому урону X» vs «меткости X» vs «скорости накопления шкалы Y X».
-- Некоторые weapons не имеют всех stat-типов в данных (мечи без crit, булавы без attack-speed, кистени без attack-speed) — канонический порядок оставляет gaps намеренно.
-- «Без оружия» использует особый wording: «увеличение урона атаками без оружия» (с «атаками») vs другие weapons «увеличение урона X».
-
-### flasks canonical order (iter 116)
+### offence-speed canonical order (iter 117)
 
 ```
-0-9:    Health flask (5 keys: recovery-speed 0, recovery-amount 1, charges-gained 2,
-        regen-during-effect 3, regen-per-sec 4)
-10-19:  Mana flask (4 keys: recovery-speed 10, recovery-amount 11, charges-gained 12,
-        regen-per-sec 13 — нет regen-during-effect в данных)
-20-29:  Any flask (5 keys: duration 20, charges-gained 21, charges-used-reduction 22,
-        keep-charges 23, regen-per-sec 24)
-30-39:  Flask buffs (2 keys: cast-speed 30, spell-damage 31 — пока flask active)
+0:   Скорость атаки (attack speed — most commonly modded)
+10:  Скорость сотворения чар (generic spells cast speed)
+11:  Скорость сотворения чар (mark skills cast speed — subset of spells)
+20:  Скорость передвижения (move speed)
+30:  Скорость снарядов (projectile speed)
+40:  Скорость перезарядки самострела (crossbow reload)
+50:  Скорость применения боевых кличей (warcry application)
+60:  Скорость броска ловушки (trap throw)
+70:  Скорость установки тотемов (totem placement)
+80:  Скорость смены оружия (weapon swap)
+90:  Скорость умений (generic skill speed)
+91:  Скорость умений будучи превращенным (transformed conditional)
 ```
 
 **Design notes:**
-- **Resource-first bucketing** (vs §5.8 plan's mechanic-first bucketing) — каждый resource (Health/Mana/Any) имеет parallel stat-типы (recovery-speed, recovery-amount, charges-gained). План «Passive regen» bucket разрезал бы parallel структуру.
-- **End-anchored `$` для `флакона$`** (any-flask duration/charges-gained) предотвращает коллизию с `флакона здоровья` / `флакона маны` variants, которые заканчиваются на «здоровья» / «маны».
-- **Start-anchored `^` для `^Флаконы получают зарядов`** (any-flask regen-per-sec) предотвращает коллизию с `^Флаконы здоровья получают` / `^Флаконы маны получают` variants.
-- Specific (health/mana) правила listed BEFORE generic (any) — first-match-wins safety + readability.
-- Health bucket имеет 5 keys (most prominent), Mana — 4 (нет regen-during-effect), Any — 5, Buffs — 2.
-- Flask buffs отделены: они affect player stats пока flask active, не свойства flask.
+- Two substring conflicts resolved via first-match-wins (most-specific FIRST):
+  1. `скорости сотворения чар` в generic cast speed И в mark-skill cast speed — mark rule (с `умения метки имеют.*` prefix) listed FIRST.
+  2. `скорости умений` в generic skill speed И в transformed-conditional — transformed rule (с `будучи превращенным` suffix) listed FIRST.
+- End-anchored `$` на bare generic rules — defensive (first-match-wins уже handles).
+- Mark skill cast speed имеет order 11 (subset of spell cast speed at 10).
 
-### Проверки (iter 116)
+### crit canonical order (iter 117)
 
-- **vitest:** 1774/1774 tests passed (37 test files). +53 vs iter 115 baseline 1721 (24 case-tests + 4 relationship для weapon-specific + 16 case-tests + 6 relationship для flasks + 2 E2E + 1 update structural).
+```
+0:   Шанс крит. удара (generic % increase)
+10:  Шанс крит. удара атаками (% increase)
+20:  Шанс крит. удара для чар (% increase)
+30:  Шанс крит. удара шипами (flat + — dative "шансу")
+40:  Бонус к крит. урону (generic % increase)
+41:  Бонус к крит. урону от чар (% increase — spells variant)
+50:  Бонус к крит. урону для атак (flat + — dative "бонусу")
+60:  Шанс крит. удара чар огня (flat + — dative "шансу")
+70:  Силы состояний от крит. ударов (ailment strength from crits)
+```
+
+**Design notes:**
+- Russian morphology disambiguates % vs flat:
+  - "% increase" uses genitive case: `шанса`, `бонуса`.
+  - "+ flat" uses dative case (after "к"): `шансу`, `бонусу`.
+  - These word forms are distinct — % rules don't match flat family-keys.
+- End-anchored `$` на generic variant (e.g., `бонуса к критическому урону$`) prevents matching specific variant (e.g., `...от чар`).
+- Crit-induced ailment strength comes LAST (order 70) — synergy mod, not direct crit stat.
+
+### buff-skills canonical order (iter 117)
+
+```
+0:   Ауры (сила умений аур)
+10:  Вестники (эффективность удержания ресурсов)
+20:  Проклятия (сила проклятий)
+21:  Проклятия (быстрее активация проклятия)
+40:  Кличи (усиление положительного эффекта)
+41:  Кличи (скорость перезарядки)
+50:  Метки (усиление эффекта)
+```
+
+**Design notes:**
+- Plan §5.6 mentioned "Знамёна (длительность)" at order 30 — NO знамёна family-keys в jewellery-scope data. Bucket 30 left empty.
+- Plan §5.6 mentioned "скорость применения" for warcries — actual data has "скорость перезарядки" (reload speed). Order 41 used for reload.
+- Plan §5.6 mentioned "скорость сотворения" for marks — actual data has only "усиление эффекта". Mark cast speed is in `offence-speed` block (order 11), not in `buff-skills`. Order 50 used for effect only.
+- Distinctive phrases avoid substring conflicts: `силы умений аур` (auras) vs `силы проклятий` (curses); `усиление положительного эффекта боевого клича` (warcries) vs `усиление эффекта.*умений меток` (marks).
+- Mark rule uses `.*` bridge: "усиление эффекта ваших умений меток" has "ваших" between "эффекта" and "умений меток".
+
+### Проверки (iter 117)
+
+- **vitest:** 1820/1820 tests passed (37 test files). +46 vs iter 116 baseline 1774 (12 case-tests + 7 relationship для offence-speed, 9 case-tests + 5 relationship для crit, 7 case-tests + 4 relationship для buff-skills, 3 E2E + 1 update structural).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **audit script:** 9/9 blocks fully covered (249 family-keys).
+- **audit script:** 12/12 blocks fully covered (277 family-keys).
 
 ---
 
@@ -88,10 +115,10 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
 3. **APCA Lc<75 для small text с weight 400** (accepted design tradeoff, iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как частичная компенсация.
-4. **Сортировка внутри блоков: 11 functional blocks без явных правил** (iter 116):
-   - Блоки БЕЗ правил: `spirit`, `skill-levels`, `runes-barrier`, `magic-find`, `offence-speed`, `crit`, `penetration`, `area-duration`, `wisps`, `buff-skills`, `meta-skills`, `conversion`, `rage-charges`, `breach`, `other`.
+4. **Сортировка внутри блоков: 12 functional blocks без явных правил** (iter 117):
+   - Блоки БЕЗ правил: `spirit` (1), `skill-levels` (10), `runes-barrier` (4), `magic-find` (1), `penetration` (3), `area-duration` (8), `wisps` (0), `meta-skills` (6), `conversion` (0), `rage-charges` (4), `breach` (1), `other` (27).
    - Поведение: `computeSortKey` возвращает `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
-   - **План:** iter 117+ добавит правила для следующих приоритетных блоков: `offence-speed` (12, §5.3), `crit` (9, §5.4), `buff-skills` (7, §5.6). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md`.
+   - **План:** iter 118+ добавит правила для оставшихся блоков. Канонические порядки для `area-duration` / `skill-levels` / `penetration` пока не предложены (требуется анализ данных). `other` heterogeneous — скорее всего останется без правил.
 5. **Истощения Бездны regex bug** (closed iter 112): `jewel-desecrated.mod_3yl2ru` имел `regexPrefixContext: "(10—20)%"` (literal range) — regex не матчил реальные предметы. Фикс: data patch + ETL algorithm filter + 2 regression tests.
 
 ---
