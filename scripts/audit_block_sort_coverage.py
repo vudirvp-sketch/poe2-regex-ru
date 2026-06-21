@@ -3,10 +3,10 @@
 Audit script for iter 112+ block sort rules coverage.
 
 For each block with explicit sort rules (resistances, attributes, minions,
-ailments, damage-type [iter 113], defence-stats [iter 114]), enumerates all
-production family-keys and checks whether the rule set covers them. Reports
-any family-keys that fall into the "900::" fallback bucket (rules exist but
-none matched) — these need new rules.
+ailments, damage-type [iter 113], defence-stats [iter 114], resources
+[iter 115]), enumerates all production family-keys and checks whether the
+rule set covers them. Reports any family-keys that fall into the "900::"
+fallback bucket (rules exist but none matched) — these need new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -260,6 +260,44 @@ BLOCK_SORT_RULES = {
         (re.compile(r'увеличение количества разрушаемой брони', re.I), 71, 'armour break: quantity'),
         (re.compile(r'увеличение урона по врагам с полностью разрушенной брон', re.I), 72, 'armour break: damage vs broken'),
     ],
+    'resources': [
+        # ES→threshold conversions (most-specific, use .* bridge)
+        (re.compile(r'дарует дополнительный порог оглушения.*от максимума энергетического щита', re.I), 22, 'ES: →stun threshold conversion'),
+        (re.compile(r'дарует дополнительный порог состояний.*от максимума энергетического щита', re.I), 23, 'ES: →ailment threshold conversion'),
+        # Здоровье (0-9) — fire-variant listed before generic recovery
+        (re.compile(r'полученного урона от огня восполняется в виде здоровья', re.I), 7, 'health: fire-damage recovery'),
+        (re.compile(r'физического урона от атак похищается в виде здоровья', re.I), 5, 'health: phys-attack leech'),
+        (re.compile(r'к максимуму здоровья$', re.I), 0, 'health: flat max'),
+        (re.compile(r'увеличение максимума здоровья', re.I), 1, 'health: % max'),
+        (re.compile(r'регенерация .* здоровья в секунду', re.I), 2, 'health: flat regen'),
+        (re.compile(r'повышение скорости регенерации здоровья', re.I), 3, 'health: % regen speed'),
+        (re.compile(r'увеличение количества похищенного здоровья', re.I), 4, 'health: leech generic'),
+        (re.compile(r'полученного урона восполняется в виде здоровья', re.I), 6, 'health: damage recovery'),
+        (re.compile(r'восстанавливает .* здоровья при убийстве', re.I), 8, 'health: on-kill %'),
+        (re.compile(r'дарует .* здоровья за каждого убитого врага', re.I), 9, 'health: per-kill flat'),
+        # Мана (10-19)
+        (re.compile(r'физического урона от атак похищается в виде маны', re.I), 15, 'mana: phys-attack leech'),
+        (re.compile(r'к максимуму маны$', re.I), 10, 'mana: flat max'),
+        (re.compile(r'увеличение максимума маны', re.I), 11, 'mana: % max'),
+        (re.compile(r'повышение скорости регенерации маны', re.I), 12, 'mana: % regen speed'),
+        (re.compile(r'увеличение количества похищенной маны', re.I), 13, 'mana: leech generic'),
+        (re.compile(r'полученного урона восполняется в виде маны', re.I), 14, 'mana: damage recovery'),
+        (re.compile(r'восстанавливает .* маны при убийстве', re.I), 16, 'mana: on-kill %'),
+        (re.compile(r'дарует .* маны за каждого убитого врага', re.I), 17, 'mana: per-kill flat'),
+        (re.compile(r'увеличение эффективности расхода маны чарами', re.I), 18, 'mana: cost efficiency'),
+        # ES (20-29) — generic, after conversions
+        (re.compile(r'к максимуму энергетического щита$', re.I), 20, 'ES: flat max'),
+        (re.compile(r'увеличение максимума энергетического щита', re.I), 21, 'ES: % max'),
+        # Конверсия урона (30-39)
+        (re.compile(r'от получаемого урона берется сначала из маны', re.I), 30, 'conversion: MoM'),
+        (re.compile(r'стоимости умений в мане берется из здоровья', re.I), 31, 'conversion: mana-cost→health'),
+        (re.compile(r'дарует.*максимума маны в виде брони', re.I), 32, 'conversion: mana→armour'),
+        # Тотем (40-49)
+        (re.compile(r'увеличение здоровья тотема', re.I), 40, 'totem: health'),
+        # Прочее (50-59)
+        (re.compile(r'увеличение радиуса обзора', re.I), 50, 'other: vision radius'),
+        (re.compile(r'усиление эффекта Колдовского выброса', re.I), 51, 'other: Hexblast effect'),
+    ],
 }
 
 
@@ -288,7 +326,7 @@ def main() -> int:
             by_cat.setdefault(cat, {})[fk] = fk
 
     exit_code = 0
-    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type', 'defence-stats']:
+    for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type', 'defence-stats', 'resources']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -305,7 +343,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 6 blocks fully covered. No gaps.')
+        print('\n✓ All 7 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code

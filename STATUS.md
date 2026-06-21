@@ -2,20 +2,20 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 114
+> **Текущая итерация:** 115
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 114: расширение систематической сортировки на блок `defence-stats` (28 family-keys, 100% coverage).**
+**iter 115: расширение систематической сортировки на блок `resources` (29 family-keys, 100% coverage).**
 
 ### Сортировка аффиксов внутри блоков
 
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113 добавил правила для `damage-type`. iter 114 добавляет правила для `defence-stats` (защитный блок — второй по видимости после damage-type).
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–114 добавили правила для `damage-type` и `defence-stats`. iter 115 добавляет правила для `resources` (Health/Mana/ES pools + conversion — приоритетный блок, 3-й по видимости).
 
-**6 блоков с правилами (iter 114 scope):**
+**7 блоков с правилами (iter 115 scope):**
 
 | Блок | # family-keys | # rules | Канонический порядок |
 |------|---------------|---------|----------------------|
@@ -25,36 +25,39 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 | `ailments` | 40 | 40 | Operation (Ув. силы → Ув. шанса → Ув. длительности → Ум. длительности → Шанс наложения → Порог → Скорость → Прочее) × State |
 | `damage-type` | 47 | 47 | Физический → Огонь → Холод → Молния → Хаос → Стихийный → Generic/by-source → Conditional → By-target → Special |
 | `defence-stats` | 28 | 28 | Броня → Уклонение → ES → Блок → Порог оглушения → Отклонение → Обереги → Разрушение брони |
+| `resources` | 29 | 29 | Здоровье → Мана → ES → Конверсия → Тотем → Прочее |
 
-**Покрытие:** 100% — все 180 family-keys в 6 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
+**Покрытие:** 100% — все 209 family-keys в 7 блоках покрыты правилами (см. `scripts/audit_block_sort_coverage.py`).
 
-**Остальные 14 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Это сознательная стратегия «не сломать» — будущие итерации добавят правила.
+**Остальные 13 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Это сознательная стратегия «не сломать» — будущие итерации добавят правила.
 
-### defence-stats canonical order (iter 114)
+### resources canonical order (iter 115)
 
 ```
-0-9:    Броня (flat, %, from-body, shield-triple, global-triple)
-10-19:  Уклонение (flat, %, from-body)
-20-29:  Энергетический щит (from-body, from-focus, recharge-speed, recharge-start)
-30-39:  Блок (% шанс)
-40-49:  Порог оглушения (flat, %, conditional-recent, conditional-parry)
-50-59:  Отклонение (%)
-60-69:  Обереги (duration, charges-gained, charges-used-reduction, conditional-slow, free-use, regen, ward-active-damage)
-70-79:  Разрушение брони (duration, quantity, damage-vs-broken)
+0-9:    Здоровье (flat max, % max, flat regen, % regen, leech generic, leech phys,
+        recovery generic, recovery fire, on-kill %, per-kill flat)
+10-19:  Мана (flat max, % max, % regen, leech generic, recovery, leech phys,
+        on-kill %, per-kill flat, cost efficiency)
+20-29:  Энергетический щит (flat max, % max, ES→stun threshold, ES→ailment threshold)
+30-39:  Конверсия урона (MoM, mana-cost→health, mana→armour)
+40-49:  Тотем (здоровье тотема)
+50-59:  Прочее (радиус обзора, Hexblast skill effect)
 ```
 
 **Design notes:**
-- **Triple-stat правила идут ПЕРВЫМИ** (most-specific-first) — family-keys вроде «брони, уклонения и энергетического щита от щита в руках» содержат «брони», «уклонения», «энергетического щита», которые матчили бы более простые single-stat паттерны.
-- **Conditional правила** (порог оглушения) идут перед bare `%`-правилом — bare end-anchored `увеличение порога оглушения$` всё равно не match conditional variant, но порядок clearer.
-- **Flat-правила** (`к броне$`, `к уклонению$`, `к порогу оглушения$`) используют `$` end-anchor для уникальности.
-- **Stem "оберег"** покрывает все падежи: оберега (genitive sg), оберегов (genitive pl), обереги (nominative pl).
+- **Health и Mana buckets параллельны** — 8 одинаковых stat-типов (flat max, % max, regen, leech, recovery, on-kill, per-kill). Мана имеет дополнительный stat — cost-efficiency (порядок 18).
+- **End-anchor `$` для flat max правил** (`+# к максимуму здоровья$`) предотвращает коллизию с conversion-правилом `Дарует #% максимума маны в виде брони` (заканчивается на «брони», а не на «маны»).
+- **ES→threshold conversions** (порядки 22, 23) используют `.*` bridge для длинных family-keys с wording «в размере #% от максимума энергетического щита».
+- **Per-kill и on-kill правила** (`Дарует # ... за каждого убитого врага`, `Восстанавливает #% ... при убийстве`) используют `.*` bridge для `#`/`#%` placeholder.
+- **Fire-variant recovery** (порядок 7) идёт ПОСЛЕ generic recovery (порядок 6) — generic более фундаментален.
+- **Hexblast skill effect** (`#% усиление эффекта Колдовского выброса на вас`) классифицирован в `resources` в данных; правило помещено в Other bucket (порядок 51).
 
-### Проверки (iter 114)
+### Проверки (iter 115)
 
-- **vitest:** 1687/1687 tests passed (37 test files). +33 vs iter 113 baseline 1654 (28 case-tests + 4 relationship + 1 E2E для defence-stats).
+- **vitest:** 1721/1721 tests passed (37 test files). +34 vs iter 114 baseline 1687 (29 case-tests + 4 relationship + 1 E2E для resources).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **audit script:** 6/6 blocks fully covered.
+- **audit script:** 7/7 blocks fully covered (209 family-keys).
 
 ---
 
@@ -63,10 +66,10 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **j05iep stays crit** — intentional (CRIT шаг 14 > AILMENTS шаг 15).
 3. **APCA Lc<75 для small text с weight 400** (accepted design tradeoff, iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как частичная компенсация.
-4. **Сортировка внутри блоков: 14 functional blocks без явных правил** (iter 114):
-   - Блоки БЕЗ правил: `spirit`, `skill-levels`, `resources`, `runes-barrier`, `magic-find`, `offence-speed`, `crit`, `penetration`, `area-duration`, `wisps`, `buff-skills`, `meta-skills`, `weapon-specific`, `flasks`, `conversion`, `rage-charges`, `breach`, `other`.
+4. **Сортировка внутри блоков: 13 functional blocks без явных правил** (iter 115):
+   - Блоки БЕЗ правил: `spirit`, `skill-levels`, `runes-barrier`, `magic-find`, `offence-speed`, `crit`, `penetration`, `area-duration`, `wisps`, `buff-skills`, `meta-skills`, `weapon-specific`, `flasks`, `conversion`, `rage-charges`, `breach`, `other`.
    - Поведение: `computeSortKey` возвращает `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
-   - **План:** iter 115+ добавит правила для следующих приоритетных блоков: `resources` (33 family-keys), `weapon-specific` (24, jewel-only), `flasks` (18). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md`.
+   - **План:** iter 116+ добавит правила для следующих приоритетных блоков: `weapon-specific` (24, jewel-only), `flasks` (16, belt+jewel). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md`.
 5. **Истощения Бездны regex bug** (closed iter 112): `jewel-desecrated.mod_3yl2ru` имел `regexPrefixContext: "(10—20)%"` (literal range) — regex не матчил реальные предметы. Фикс: data patch + ETL algorithm filter + 2 regression tests.
 
 ---

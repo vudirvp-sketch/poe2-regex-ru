@@ -30,6 +30,7 @@
  *
  * iter 113: added damage-type (47 family-keys, most visible category).
  * iter 114: added defence-stats (28 family-keys, second-most-visible defensive block).
+ * iter 115: added resources (29 family-keys — health/mana/ES pools + damage conversion).
  *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
@@ -488,6 +489,90 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     { pattern: /увеличение длительности разрушения брони/i, order: 70, comment: 'armour break: duration' },
     { pattern: /увеличение количества разрушаемой брони/i, order: 71, comment: 'armour break: quantity' },
     { pattern: /увеличение урона по врагам с полностью разрушенной брон/i, order: 72, comment: 'armour break: damage vs broken armour' },
+  ],
+
+  // ─── resources (29 family-keys) ─────────────────────────────────────────
+  // Resources pool management: Health / Mana / ES / damage conversion / totem.
+  // User-mental-model: "first all Health mods, then all Mana mods, then ES,
+  // then conversion-of-pools mods, then totem, then misc". Alphabetical sort
+  // mixes Health and Mana (both have "максимума" / "похищен" / "при убийстве"
+  // wording) — this rule set groups them.
+  //
+  // Order:
+  //   0-9:   Здоровье (10 keys: flat max, % max, flat regen, % regen,
+  //          leech generic, leech phys, recovery generic, recovery fire,
+  //          on-kill %, per-kill flat)
+  //   10-19: Мана (9 keys — same shape as Health, + mana cost efficiency at 18)
+  //   20-29: Энергетический щит (4 keys: flat max, % max, ES→stun threshold,
+  //          ES→ailment threshold)
+  //   30-39: Damage conversion (MoM, mana-cost→health, mana→armour)
+  //   40-49: Тотем здоровье
+  //   50-59: Прочее (vision radius, Hexblast skill effect)
+  //
+  // Design notes:
+  //   - Each rule matches exactly one family-key (patterns are independent —
+  //     no first-match-wins conflicts). Order within the array is for
+  //     readability (most-specific patterns listed first within each bucket).
+  //   - End-anchored `$` for flat max rules (`+# к максимуму здоровья$`)
+  //     prevents collision with conversion key `Дарует #% максимума маны
+  //     в виде брони` (ends with "брони", not "маны").
+  //   - ES→threshold rules (orders 22, 23) use `.*` bridge for long family-keys
+  //     with "в размере #% от максимума энергетического щита" wording.
+  //   - Per-kill rules (`Дарует # ... за каждого убитого врага`) and on-kill
+  //     rules (`Восстанавливает #% ... при убийстве`) use `.*` bridge to
+  //     accommodate the `#` / `#%` placeholder in family-key text.
+  //   - Health and Mana buckets have parallel structure: same 8 stat types
+  //     (flat max, % max, regen, leech, recovery, on-kill, per-kill). Mana
+  //     additionally has cost-efficiency at order 18.
+  //   - Hexblast skill effect (`#% усиление эффекта Колдовского выброса на вас`)
+  //     is classified as `resources` in the data (likely because it modifies
+  //     a buff effect on the player); rule placed in Other bucket at order 51.
+  'resources': [
+    // ─── ES→threshold conversions (most-specific, use `.*` bridge) ──────
+    { pattern: /дарует дополнительный порог оглушения.*от максимума энергетического щита/i, order: 22, comment: 'ES: →stun threshold conversion' },
+    { pattern: /дарует дополнительный порог состояний.*от максимума энергетического щита/i, order: 23, comment: 'ES: →ailment threshold conversion' },
+
+    // ─── Здоровье (0-9) ──────────────────────────────────────────────────
+    // Fire-variant rule listed BEFORE generic recovery (independent match,
+    // ordering for clarity).
+    { pattern: /полученного урона от огня восполняется в виде здоровья/i, order: 7, comment: 'health: fire-damage recovery' },
+    { pattern: /физического урона от атак похищается в виде здоровья/i, order: 5, comment: 'health: phys-attack leech' },
+    { pattern: /к максимуму здоровья$/i, order: 0, comment: 'health: flat max (+# к максимуму здоровья)' },
+    { pattern: /увеличение максимума здоровья/i, order: 1, comment: 'health: % max' },
+    { pattern: /регенерация .* здоровья в секунду/i, order: 2, comment: 'health: flat regen' },
+    { pattern: /повышение скорости регенерации здоровья/i, order: 3, comment: 'health: % regen speed' },
+    { pattern: /увеличение количества похищенного здоровья/i, order: 4, comment: 'health: leech generic' },
+    { pattern: /полученного урона восполняется в виде здоровья/i, order: 6, comment: 'health: damage recovery' },
+    { pattern: /восстанавливает .* здоровья при убийстве/i, order: 8, comment: 'health: on-kill %' },
+    { pattern: /дарует .* здоровья за каждого убитого врага/i, order: 9, comment: 'health: per-kill flat' },
+
+    // ─── Мана (10-19) ────────────────────────────────────────────────────
+    { pattern: /физического урона от атак похищается в виде маны/i, order: 15, comment: 'mana: phys-attack leech' },
+    { pattern: /к максимуму маны$/i, order: 10, comment: 'mana: flat max (+# к максимуму маны)' },
+    { pattern: /увеличение максимума маны/i, order: 11, comment: 'mana: % max' },
+    { pattern: /повышение скорости регенерации маны/i, order: 12, comment: 'mana: % regen speed' },
+    { pattern: /увеличение количества похищенной маны/i, order: 13, comment: 'mana: leech generic' },
+    { pattern: /полученного урона восполняется в виде маны/i, order: 14, comment: 'mana: damage recovery' },
+    { pattern: /восстанавливает .* маны при убийстве/i, order: 16, comment: 'mana: on-kill %' },
+    { pattern: /дарует .* маны за каждого убитого врага/i, order: 17, comment: 'mana: per-kill flat' },
+    { pattern: /увеличение эффективности расхода маны чарами/i, order: 18, comment: 'mana: cost efficiency' },
+
+    // ─── Энергетический щит (20-29) ─────────────────────────────────────
+    { pattern: /к максимуму энергетического щита$/i, order: 20, comment: 'ES: flat max (+# к максимуму ЭЩ)' },
+    { pattern: /увеличение максимума энергетического щита/i, order: 21, comment: 'ES: % max' },
+
+    // ─── Конверсия урона (30-39) ────────────────────────────────────────
+    // MoM = Mind Over Matter (damage taken from mana before health).
+    { pattern: /от получаемого урона берется сначала из маны/i, order: 30, comment: 'conversion: MoM (damage→mana before health)' },
+    { pattern: /стоимости умений в мане берется из здоровья/i, order: 31, comment: 'conversion: mana-cost→health' },
+    { pattern: /дарует.*максимума маны в виде брони/i, order: 32, comment: 'conversion: mana→armour' },
+
+    // ─── Тотем (40-49) ──────────────────────────────────────────────────
+    { pattern: /увеличение здоровья тотема/i, order: 40, comment: 'totem: health' },
+
+    // ─── Прочее (50-59) ─────────────────────────────────────────────────
+    { pattern: /увеличение радиуса обзора/i, order: 50, comment: 'other: vision radius' },
+    { pattern: /усиление эффекта Колдовского выброса/i, order: 51, comment: 'other: Hexblast skill effect' },
   ],
 };
 

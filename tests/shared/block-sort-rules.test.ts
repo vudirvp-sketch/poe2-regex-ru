@@ -5,6 +5,7 @@
  * (resistances, attributes, minions, ailments).
  * iter 113: adds damage-type block (47 family-keys, most visible category).
  * iter 114: adds defence-stats block (28 family-keys, second-most-visible defensive block).
+ * iter 115: adds resources block (29 family-keys — Health/Mana/ES pools + conversion).
  *
  * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
@@ -511,6 +512,101 @@ describe('computeSortKey: defence-stats (iter 114)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5d: computeSortKey — resources canonical ordering (iter 115)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: resources (iter 115)', () => {
+  const cases = [
+    // Здоровье (0-9) — 10 keys
+    { familyKey: '+# к максимуму здоровья', expectedOrder: 0, comment: 'health: flat max' },
+    { familyKey: '#% увеличение максимума здоровья', expectedOrder: 1, comment: 'health: % max' },
+    { familyKey: 'Регенерация # здоровья в секунду', expectedOrder: 2, comment: 'health: flat regen' },
+    { familyKey: '#% повышение скорости регенерации здоровья', expectedOrder: 3, comment: 'health: % regen speed' },
+    { familyKey: '#% увеличение количества похищенного здоровья', expectedOrder: 4, comment: 'health: leech generic' },
+    { familyKey: '#% физического урона от атак похищается в виде здоровья', expectedOrder: 5, comment: 'health: phys-attack leech' },
+    { familyKey: '#% полученного урона восполняется в виде здоровья', expectedOrder: 6, comment: 'health: damage recovery' },
+    { familyKey: '#% полученного урона от огня восполняется в виде здоровья', expectedOrder: 7, comment: 'health: fire-damage recovery' },
+    { familyKey: 'Восстанавливает #% здоровья при убийстве', expectedOrder: 8, comment: 'health: on-kill %' },
+    { familyKey: 'Дарует # здоровья за каждого убитого врага', expectedOrder: 9, comment: 'health: per-kill flat' },
+    // Мана (10-19) — 9 keys
+    { familyKey: '+# к максимуму маны', expectedOrder: 10, comment: 'mana: flat max' },
+    { familyKey: '#% увеличение максимума маны', expectedOrder: 11, comment: 'mana: % max' },
+    { familyKey: '#% повышение скорости регенерации маны', expectedOrder: 12, comment: 'mana: % regen speed' },
+    { familyKey: '#% увеличение количества похищенной маны', expectedOrder: 13, comment: 'mana: leech generic' },
+    { familyKey: '#% полученного урона восполняется в виде маны', expectedOrder: 14, comment: 'mana: damage recovery' },
+    { familyKey: '#% физического урона от атак похищается в виде маны', expectedOrder: 15, comment: 'mana: phys-attack leech' },
+    { familyKey: 'Восстанавливает #% маны при убийстве', expectedOrder: 16, comment: 'mana: on-kill %' },
+    { familyKey: 'Дарует # маны за каждого убитого врага', expectedOrder: 17, comment: 'mana: per-kill flat' },
+    { familyKey: '#% увеличение эффективности расхода маны чарами', expectedOrder: 18, comment: 'mana: cost efficiency' },
+    // ES (20-29) — 4 keys
+    { familyKey: '+# к максимуму энергетического щита', expectedOrder: 20, comment: 'ES: flat max' },
+    { familyKey: '#% увеличение максимума энергетического щита', expectedOrder: 21, comment: 'ES: % max' },
+    { familyKey: 'Дарует дополнительный порог оглушения в размере #% от максимума энергетического щита', expectedOrder: 22, comment: 'ES: →stun threshold conversion' },
+    { familyKey: 'Дарует дополнительный порог состояний в размере #% от максимума энергетического щита', expectedOrder: 23, comment: 'ES: →ailment threshold conversion' },
+    // Conversion (30-39) — 3 keys
+    { familyKey: '#% от получаемого урона берется сначала из маны вместо здоровья', expectedOrder: 30, comment: 'conversion: MoM (damage→mana)' },
+    { familyKey: '#% стоимости умений в мане берется из здоровья', expectedOrder: 31, comment: 'conversion: mana-cost→health' },
+    { familyKey: 'Дарует #% максимума маны в виде брони', expectedOrder: 32, comment: 'conversion: mana→armour' },
+    // Totem (40-49) — 1 key
+    { familyKey: '#% увеличение здоровья тотема', expectedOrder: 40, comment: 'totem: health' },
+    // Other (50-59) — 2 keys
+    { familyKey: '#% увеличение радиуса обзора', expectedOrder: 50, comment: 'other: vision radius' },
+    { familyKey: '#% усиление эффекта Колдовского выброса на вас', expectedOrder: 51, comment: 'other: Hexblast effect' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`resources: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('resources', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('resources: full canonical bucket order Здоровье → Мана → ES → Конверсия → Тотем → Прочее', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '+# к максимуму здоровья',                                              // 0  — Здоровье
+      '+# к максимуму маны',                                                  // 10 — Мана
+      '+# к максимуму энергетического щита',                                  // 20 — ES
+      '#% от получаемого урона берется сначала из маны вместо здоровья',      // 30 — Конверсия
+      '#% увеличение здоровья тотема',                                        // 40 — Тотем
+      '#% увеличение радиуса обзора',                                         // 50 — Прочее
+    ];
+    const sortKeys = keys.map(k => computeSortKey('resources', k)).sort();
+    expect(sortKeys[0]).toContain('к максимуму здоровья');
+    expect(sortKeys[1]).toContain('к максимуму маны');
+    expect(sortKeys[2]).toContain('к максимуму энергетического щита');
+    expect(sortKeys[3]).toContain('берется сначала из маны');
+    expect(sortKeys[4]).toContain('здоровья тотема');
+    expect(sortKeys[5]).toContain('радиуса обзора');
+  });
+
+  it('resources: Health parallel to Mana — flat max health (0) BEFORE flat max mana (10)', () => {
+    // Mental model: Health comes first because it's the life pool.
+    const health = computeSortKey('resources', '+# к максимуму здоровья');
+    const mana = computeSortKey('resources', '+# к максимуму маны');
+    expect(health.localeCompare(mana, 'ru')).toBeLessThan(0);
+  });
+
+  it('resources: generic recovery (6) BEFORE fire-variant (7) — generic is more fundamental', () => {
+    const generic = computeSortKey('resources', '#% полученного урона восполняется в виде здоровья');
+    const fire = computeSortKey('resources', '#% полученного урона от огня восполняется в виде здоровья');
+    expect(generic.localeCompare(fire, 'ru')).toBeLessThan(0);
+  });
+
+  it('resources: ES bare max (20, 21) BEFORE ES→threshold conversions (22, 23) — pool stat before conversion use', () => {
+    const esFlat = computeSortKey('resources', '+# к максимуму энергетического щита');
+    const esPercent = computeSortKey('resources', '#% увеличение максимума энергетического щита');
+    const esStun = computeSortKey('resources', 'Дарует дополнительный порог оглушения в размере #% от максимума энергетического щита');
+    const esAilment = computeSortKey('resources', 'Дарует дополнительный порог состояний в размере #% от максимума энергетического щита');
+    expect(esFlat.localeCompare(esStun, 'ru')).toBeLessThan(0);
+    expect(esFlat.localeCompare(esAilment, 'ru')).toBeLessThan(0);
+    expect(esPercent.localeCompare(esStun, 'ru')).toBeLessThan(0);
+    expect(esPercent.localeCompare(esAilment, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -669,6 +765,26 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       '#% увеличение длительности эффекта оберега',
     ]);
   });
+
+  it('resources (iter 115): 4 buckets order Здоровье → Мана → ES → Тотем', () => {
+    const tokens = [
+      makeToken('#% увеличение здоровья тотема', 'resources'),
+      makeToken('+# к максимуму энергетического щита', 'resources'),
+      makeToken('+# к максимуму маны', 'resources'),
+      makeToken('+# к максимуму здоровья', 'resources'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'belt');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const resourcesGroup = subGroups.find(sg => sg.key === 'resources');
+    expect(resourcesGroup).toBeDefined();
+    const familyKeys = resourcesGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '+# к максимуму здоровья',
+      '+# к максимуму маны',
+      '+# к максимуму энергетического щита',
+      '#% увеличение здоровья тотема',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -695,8 +811,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 114 scope: 6 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats)', () => {
+  it('iter 115 scope: 7 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'minions', 'resistances']);
+    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'damage-type', 'defence-stats', 'minions', 'resistances', 'resources']);
   });
 });

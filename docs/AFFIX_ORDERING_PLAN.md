@@ -3,6 +3,7 @@
 > **iter 112** — внедрена инфраструктура + правила для 4 блоков.
 > **iter 113** — добавлены правила для `damage-type` (47 family-keys).
 > **iter 114** — добавлены правила для `defence-stats` (28 family-keys).
+> **iter 115** — добавлены правила для `resources` (29 family-keys).
 > **Следующие итерации** — расширение на остальные functional blocks.
 
 ---
@@ -121,9 +122,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 4. Текущее покрытие (iter 114)
+## 4. Текущее покрытие (iter 115)
 
-### 4.1. Блоки с правилами (6 из 20 functional blocks)
+### 4.1. Блоки с правилами (7 из 20 functional blocks)
 
 | Блок | # family-keys | # rules | Покрытие |
 |------|---------------|---------|----------|
@@ -133,34 +134,36 @@ export function computeSortKey(block, familyKey): string {
 | `ailments` | 40 | 40 | 100% |
 | `damage-type` | 47 | 47 | 100% |
 | `defence-stats` | 28 | 28 | 100% |
-| **Итого** | **180** | **180** | **100%** |
+| `resources` | 29 | 29 | 100% |
+| **Итого** | **209** | **209** | **100%** |
 
 Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
 
-### 4.2. Блоки БЕЗ правил (14 из 20)
+### 4.2. Блоки БЕЗ правил (13 из 20)
 
 Возвращают `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
 
-| Блок | # family-keys | Приоритет iter 115+ |
+| Блок | # family-keys | Приоритет iter 116+ |
 |------|---------------|---------------------|
-| `resources` | 33 | HIGH |
-| `weapon-specific` | 24 | MEDIUM (jewel-only, есть sub-blocks) |
-| `flasks` | 18 | MEDIUM |
+| `weapon-specific` | 24 | HIGH (jewel-only, есть sub-blocks по типу оружия) |
+| `flasks` | 16 | HIGH (belt+jewel, геймплейно важный блок) |
 | `other` | 27 | LOW (heterogeneous — сложно систематизировать) |
-| `skill-levels` | 10 | MEDIUM |
-| `buff-skills` | 8 | MEDIUM |
 | `offence-speed` | 12 | MEDIUM |
+| `skill-levels` | 10 | MEDIUM |
 | `crit` | 9 | MEDIUM |
 | `area-duration` | 8 | LOW |
-| `runes-barrier` | 4 | LOW |
-| `magic-find` | 2 | LOW |
-| `rage-charges` | 4 | LOW |
+| `buff-skills` | 7 | MEDIUM |
 | `meta-skills` | 6 | LOW |
-| `breach` | 2 | LOW (только 2 token-а: prefix/suffix Breach Lord's Mark) |
-| `spirit` | 1 | LOW (только 1 token) |
+| `runes-barrier` | 4 | LOW |
+| `rage-charges` | 4 | LOW |
 | `penetration` | 3 | LOW |
+| `magic-find` | 1 | LOW |
+| `breach` | 1 | LOW (только 1 token: Знак повелителя Бездны) |
+| `spirit` | 1 | LOW (только 1 token) |
 | `wisps` | 0 | N/A |
 | `conversion` | 0 | N/A |
+
+**Примечание:** counts приведены для jewellery-only scope (6 файлов: amulet/ring/belt/jewel/jewel-desecrated/jewel-corrupted) — это scope скрипта `audit_block_sort_coverage.py`. Для full-scope (10 файлов, с relic/tablet/waystone) блок `other` содержит 201 family-key, остальные блоки не меняются.
 
 ---
 
@@ -233,17 +236,33 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 70-79: Силы состояний от критических ударов
 ```
 
-### 5.5. `resources` (33 family-keys)
+### 5.5. `resources` — РЕАЛИЗОВАН в iter 115 (29 family-keys)
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['resources']`:
+
 ```
-0-9:   Здоровье (max, плоский, регенерация, похищение, восстановление)
-10-19: Мана (max, плоский, регенерация, похищение, восстановление, эффективность расхода)
-20-29: Энергетический щит (max, плоский, конверсия в броню/порог)
-30-39: Конверсия урона (MoM, урон→мана, урон→здоровье, стоимость маны→здоровье)
-40-49: Тотем здоровье
-50-59: Прочее (радиус обзора)
+0-9:    Здоровье (10 keys: flat max 0, % max 1, flat regen 2, % regen 3,
+        leech generic 4, leech phys 5, recovery generic 6, recovery fire 7,
+        on-kill % 8, per-kill flat 9)
+10-19:  Мана (9 keys: flat max 10, % max 11, % regen 12, leech generic 13,
+        recovery 14, leech phys 15, on-kill % 16, per-kill flat 17,
+        cost efficiency 18)
+20-29:  Энергетический щит (4 keys: flat max 20, % max 21,
+        ES→stun threshold 22, ES→ailment threshold 23)
+30-39:  Конверсия урона (3 keys: MoM 30, mana-cost→health 31, mana→armour 32)
+40-49:  Тотем (1 key: здоровье тотема 40)
+50-59:  Прочее (2 keys: радиус обзора 50, Hexblast skill effect 51)
 ```
 
-### 5.6. `buff-skills` (8 family-keys)
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'resources':`).
+
+**Важные корректировки плана** (vs первичной оценки в iter 112):
+- Фактически 29 family-keys, а не 33 как планировалось — план завышал.
+- ES bucket объединён с ES→threshold conversions (4 keys вместо отдельных bucketов).
+- Добавлен Other bucket для не-ресурсных mods (радиус обзора, Hexblast effect).
+- Health и Mana buckets параллельны по 8 stat-типов, Мана имеет дополнительный cost-efficiency.
+
+### 5.6. `buff-skills` (7 family-keys)
 ```
 0:  Ауры (сила умений аур)
 10: Вестники (эффективность удержания)
@@ -253,17 +272,46 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 50: Метки (усиление эффекта, скорость сотворения)
 ```
 
+### 5.7. `weapon-specific` (24 family-keys) — приоритет iter 116
+
+Все family-keys — jewel-only. Группировка по типу оружия + stat (damage/speed/crit).
+
+```
+0-9:    Мечи (damage, attack-speed, crit)
+10-19:  Топоры (damage, attack-speed)
+20-29:  Булавы (damage, attack-speed, freeze-gauge)
+30-39:  Боевые посохи (damage, attack-speed, freeze-gauge)
+40-49:  Кинжалы (damage, attack-speed, crit)
+50-59:  Копья (damage, attack-speed, crit-damage)
+60-69:  Кистени (damage, crit)
+70-79:  Луки (damage, attack-speed, accuracy)
+80-89:  Самострелы (damage, attack-speed, reload)
+90-99:  Без оружия (damage, attack-speed)
+```
+
+### 5.8. `flasks` (16 family-keys) — приоритет iter 116/117
+
+Группировка: resource (health/mana/any) × mechanic (recovery-speed, recovery-amount, charges-gained, charges-used, duration, keep-charges, spell-buff).
+
+```
+0-9:    Health flask (recovery speed, recovery amount, charges gained, charges used reduction)
+10-19:  Mana flask (recovery speed, recovery amount, charges gained, charges used reduction)
+20-29:  Any flask (duration, charges gained, charges used reduction, keep-charges)
+30-39:  Flask buffs (cast-speed while flask active, spell-damage while flask active)
+40-49:  Passive regen (health-flask regen, mana-flask regen, any-flask regen)
+```
+
 ---
 
 ## 6. Тестирование
 
 ### 6.1. Unit tests (`tests/shared/block-sort-rules.test.ts`)
 
-- `computeSortKey()` для каждого canonical family-key (180 cases — 28 defence-stats + 47 damage-type + 105 iter 112).
+- `computeSortKey()` для каждого canonical family-key (209 cases — 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
 - `sortGroupsAlphabetically()` использует sortKey когда set.
 - `sortGroupsAlphabetically()` fallback к familyKey когда sortKey отсутствует (backward compat).
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
-- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 114 scope = 6 блоков.
+- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 115 scope = 7 блоков.
 
 ### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
 
@@ -287,12 +335,12 @@ iter 112 добавил 2 теста для regex-бага:
 
 | Файл | Назначение |
 |------|------------|
-| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (6 блоков) |
+| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (7 блоков) |
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (180 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (6 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (209 case-tests + relationship + E2E) |
+| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (7 блоков) |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
@@ -301,26 +349,34 @@ iter 112 добавил 2 теста для regex-бага:
 
 ---
 
-## 8. Точка остановки iter 114 → iter 115
+## 8. Точка остановки iter 115 → iter 116
 
-**Сделано в iter 114:**
-1. ✅ `defence-stats` block — 28 family-keys, 100% coverage. Canonical order: Броня → Уклонение → ES → Блок → Порог оглушения → Отклонение → Обереги → Разрушение брони (8 buckets).
-2. ✅ Audit script обновлён — проверяет 6 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats).
-3. ✅ 33 новых unit/relationship/E2E теста — все green (1687/1687 total).
-4. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md.
+**Сделано в iter 115:**
+1. ✅ `resources` block — 29 family-keys, 100% coverage. Canonical order: Здоровье → Мана → ES → Конверсия → Тотем → Прочее (6 buckets).
+2. ✅ Audit script обновлён — проверяет 7 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources).
+3. ✅ 34 новых unit/relationship/E2E теста — все green (1721/1721 total).
+4. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md, AGENT_NAVIGATION.md.
 
-**НЕ сделано (переносится в iter 115+):**
+**Корректировки плана в iter 115:**
+- Фактически `resources` содержит 29 family-keys, а не 33 как планировалось в iter 112.
+- Фактически `flasks` содержит 16 family-keys (а не 18).
+- Фактически `buff-skills` содержит 7 family-keys (а не 8).
+- Фактически `magic-find` содержит 1 family-key (а не 2).
+- Фактически `breach` содержит 1 family-key (а не 2).
+- Эти обновлённые counts отражены в §4.2.
 
-1. **Добавить правила для 14 functional blocks без правил** (см. §4.2).
-   - Приоритет: `resources` (33), `weapon-specific` (24, jewel-only), `flasks` (18).
-   - Канонические порядки предложены в §5.5 (`resources`).
+**НЕ сделано (переносится в iter 116+):**
+
+1. **Добавить правила для 13 functional blocks без правил** (см. §4.2).
+   - Приоритет: `weapon-specific` (24, jewel-only, §5.7), `flasks` (16, §5.8).
+   - Канонические порядки предложены в §5.7 и §5.8.
 
 2. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
    - UI в браузере: контрасты, читаемость 12px, рендеринг Noto Sans (Linux).
-   - Особое внимание: новый affix ordering в resistances/attributes/minions/ailments + damage-type + **NEW iter 114: defence-stats** — проверить, что канонический порядок выглядит правильно визуально.
+   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + **NEW iter 115: resources** — проверить, что канонический порядок выглядит правильно визуально.
 
 3. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
 
 4. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
 
-**Подсказка следующему агенту:** iter 114 = defence-stats block rules (28 family-keys, 100% coverage). Перед стартом iter 115 прочитай STATUS.md (актуальный статус + Known Issues #4), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки для 14 оставшихся блоков), worklog.md (этот раздел iter 114). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 6 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+**Подсказка следующему агенту:** iter 115 = resources block rules (29 family-keys, 100% coverage). Перед стартом iter 116 прочитай STATUS.md (актуальный статус + Known Issues #4 — 13 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план + канонические порядки §5.7 weapon-specific + §5.8 flasks), worklog.md (этот раздел iter 115). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 7 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.

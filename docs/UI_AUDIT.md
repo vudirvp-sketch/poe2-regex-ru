@@ -358,18 +358,19 @@ font-feature-settings: "tnum";
 
 ## 8) Точка остановки
 
-**iter 114 COMPLETE.** iter 112 внедрил инфраструктуру `sortKey` + правила для 4 функциональных блоков. iter 113 добавил `damage-type` (47 family-keys). iter 114 добавил `defence-stats` (28 family-keys, 100% coverage). Все 13 пунктов аудита v2 закрыты с iter 110; APCA Lc<75 для small text — accepted design tradeoff (STATUS.md Known Issue #3).
+**iter 115 COMPLETE.** iter 112 внедрил инфраструктуру `sortKey` + правила для 4 функциональных блоков. iter 113 добавил `damage-type` (47 family-keys). iter 114 добавил `defence-stats` (28 family-keys). iter 115 добавил `resources` (29 family-keys, 100% coverage). Все 13 пунктов аудита v2 закрыты с iter 110; APCA Lc<75 для small text — accepted design tradeoff (STATUS.md Known Issue #3).
 
-**Что сделано (iter 114):**
-- `defence-stats` block rules в `src/shared/block-sort-rules.ts` — 28 family-keys, 100% coverage. Canonical order: Броня → Уклонение → ES → Блок → Порог оглушения → Отклонение → Обереги → Разрушение брони (8 buckets).
-- Audit script `scripts/audit_block_sort_coverage.py` обновлён — проверяет 6 блоков (180 family-keys total).
-- 33 новых unit/relationship/E2E теста в `tests/shared/block-sort-rules.test.ts`.
+**Что сделано (iter 115):**
+- `resources` block rules в `src/shared/block-sort-rules.ts` — 29 family-keys, 100% coverage. Canonical order: Здоровье → Мана → ES → Конверсия → Тотем → Прочее (6 buckets).
+- Audit script `scripts/audit_block_sort_coverage.py` обновлён — проверяет 7 блоков (209 family-keys total).
+- 34 новых unit/relationship/E2E теста в `tests/shared/block-sort-rules.test.ts`.
 
-**Тесты/типы/lint:** ✅ tsc 0 errors, vitest 1687/1687 (+33 vs iter 113), eslint 0 problems.
+**Тесты/типы/lint:** ✅ tsc 0 errors, vitest 1721/1721 (+34 vs iter 114), eslint 0 problems.
 
-**Следующая итерация (iter 115+) — план:**
-1. **Расширить правила сортировки** на 14 functional blocks без правил. Приоритет: `resources` (33), `weapon-specific` (24, jewel-only), `flasks` (18). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md` §5.5.
-2. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, корректность нового affix ordering в resistances/attributes/minions/ailments + damage-type + **NEW iter 114: defence-stats**.
+**Следующая итерация (iter 116+) — план:**
+1. **Расширить правила сортировки** на 13 functional blocks без правил. Приоритет: `weapon-specific` (24, jewel-only), `flasks` (16, belt+jewel). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md` §5.7 и §5.8.
+2. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, корректность нового affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + **NEW iter 115: resources**.
 3. Опционально (iter 111 leftover): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
 4. Полный план и статус — в STATUS.md, docs/AFFIX_ORDERING_PLAN.md и worklog.md.
+
 
