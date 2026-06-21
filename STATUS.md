@@ -2,22 +2,30 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 120
+> **Текущая итерация:** 121
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 120: фикс UI-багов — scroll jump-to-top + jitter в VirtualizedModList (KI#6) и HomePage hero decorations (KI#7).**
+**iter 121: ре-фикс HomePage hero decorations — iter 120 fix был неполным.**
 
-iter 119 закрыл все priority-блоки сортировки (18 блоков, 312 family-keys). iter 120 занялся UI-багами, выявленными пользователем:
+Пользователь проверил результат iter 120 и обнаружил: "ты обрезал все". Анализ показал **2 бага в iter 120 fix**:
 
-1. **Scroll jump-to-top + jitter** — на вкладке самоцветов (и других) при выборе аффикса с прокрученной страницей вниз — резкий jump наверх. В некоторых вкладках при скролле аффиксы "дрожат" и наслаиваются. Причина: `useLayoutEffect` в `VirtualizedModList` вызывал `virtualizer.measure()` (3 раза) при каждом изменении `selectedIds`/`perTokenRanges`. `measure()` инвалидирует ВЕСЬ кэш измерений → все rows возвращаются к estimate (120px для subgroup vs actual 40–80px) → padding дрейфует → "jump to top". Фикс: удалён весь блок `useLayoutEffect` с `measure()` + `restore()`, `measureElement` ref + ResizeObserver обрабатывают dynamic measurement автоматически. `ROW_ESTIMATES.subgroup` снижен 120 → 60.
+1. **Head cropping**: hero block имеет `overflow-hidden`, а side ghosts — `absolute top-1/2 -translate-y-1/2 h-[500px]`. При hero block высотой ~165px (текст h1+p+p+badges) и изображении 500px → image top на -167px (ВЫШЕ блока), image bottom на +332px (НИЖЕ блока). `overflow-hidden` обрезает изображение так, что видна только средняя часть (~33%–66% от image height) → **ГОЛОВА ПОЛНОСТЬЮ ОБРЕЗАНА**, ноги тоже обрезаны. Это полная противоположность "full body" — виден только торс.
 
-2. **HomePage hero decorations** — `hero-bas-relief.webp` (lg+) "полностью скрывает текст", `news-bg-center.webp` (mobile) "вообще не вижу нигде". Side ghosts (horned-warrior + monster-red, оба landscape) заменены на full-body portrait images: `hero-shaman.webp` (533×800, "шаманка полный рост") слева + `hero-iva.webp` (501×800, "ива") справа. Высота `h-[500px]` (вместо `w-44`), CSS `mask-image: linear-gradient(to bottom, #000 55%, transparent 100%)` для плавного затухания ног + горизонтальный fade на inner edge. Opacity 0.22 (вместо 0.28). Backdrop'ы удалены.
+2. **Images trapped in max-w-4xl**: side ghosts были внутри `<div className="mx-auto max-w-4xl">` (896px max). На wide-экранах они оказывались у краёв 896px-колонки, а **НЕ у краёв экрана**. Пользователь хотел "по краям экрана".
 
-### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120)
+**Фикс (iter 121):**
+- Layout.tsx: `<main>` получает `relative` (становится positioning context для side ghosts).
+- HomePage.tsx: side ghosts вынесены ИЗ hero block и ИЗ max-w-4xl — теперь siblings max-w-4xl в Fragment. Anchor: `absolute top-0 left-0` (shaman) / `top-0 right-0` (iva) — относительно `<main>`, т.е. у краёв экрана ниже TopNav. Высота `h-[80vh] max-h-[720px]` (вместо `h-[500px]`) — 90% от natural 800px, full body. Opacity 0.20. Content обёрнут в `relative z-10` (поверх side ghosts).
+- index.css: bottom fade смягчён `#000 75% → transparent 100%` (вместо 55%→100% — было слишком агрессивно, fade только нижние 25% = ноги/ступни). Horizontal fade ПОЧИНЕН: iter 120 fade был на OUTER edge (у viewport edge) — баг; iter 121 fade на INNER edge (к тексту) — правильно. `linear-gradient(to right, #000 0%, #000 75%, transparent 100%)` для shaman (fade правого edge), mirror для iva.
+- Hero block: удалены `isolate` и `overflow-hidden` (side ghosts больше не внутри, эти классы не нужны).
+
+iter 120 также пофиксил scroll jump-to-top + jitter (KI#6) — этот фикс **остаётся в силе** (корректный, без багов).
+
+### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120/121)
 
 iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120 не трогал правила сортировки.
 
@@ -48,13 +56,13 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 
 **Остальные 6 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Эти блоки либо слишком heterogeneous (`other` — 27 family-keys), либо содержат только 1 family-key (`magic-find`, `breach`, `spirit`), либо пусты (`wisps`, `conversion`).
 
-### Проверки (iter 120)
+### Проверки (iter 121)
 
-- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 119 (тесты сортировки не затронуты).
+- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 120 (UI-only fix, тесты не затронуты).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **audit script:** 18/18 blocks fully covered (312 family-keys).
-- **vite build:** ✅ built successfully (156 modules, 564 KB JS / 49 KB CSS).
+- **vite build:** ✅ built successfully.
 
 ---
 
@@ -73,10 +81,12 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
    - **Симптом 2:** В некоторых вкладках при скролле аффиксы "дрожат" и наслаиваются друг на друга.
    - **Причина:** `useLayoutEffect` в `VirtualizedModList` вызывал `virtualizer.measure()` (3 раза: immediate + RAF + setTimeout) при каждом изменении `selectedIds`/`perTokenRanges`. `measure()` инвалидирует ВЕСЬ кэш измерений → все rows возвращаются к estimate-размерам (120px для subgroup, тогда как actual 40–80px) → paddingTop/paddingBottom дрейфуют → visible items смещаются → "jump to top". Jitter при скролле — та же причина: новые rows используют estimate 120px, после ResizeObserver actual размер меньше → totalSize уменьшается → padding дрейфует.
    - **Фикс (iter 120):** Удалён весь блок `useLayoutEffect` с `measure()` + `restore()` (оба: two-column и single-column). `measureElement` ref + ResizeObserver автоматически обрабатывают dynamic measurement. `ROW_ESTIMATES.subgroup` снижен с 120 → 60 (ближе к среднему actual размеру). Браузер сам сохраняет `scrollTop` когда content выше viewport'а не меняется.
-7. **HomePage hero decorations: text hidden + images not visible** (iter 120 — fixed):
-   - **Симптом 1:** `hero-bas-relief.webp` (lg+, opacity 0.18, mix-blend-screen) — "полностью скрывает текст, мал, странно расположен".
-   - **Симптом 2:** `news-bg-center.webp` (mobile, opacity 0.14, mix-blend-screen) — "вообще не вижу нигде".
-   - **Фикс (iter 120):** Удалены оба backdrop'а. Side ghosts заменены: `hero-horned-warrior.webp` (landscape 640×390) → `hero-shaman.webp` (portrait 800×1200, "шаманка полный рост"); `hero-monster-red.webp` (landscape 640×375) → `hero-iva.webp` (portrait 800×1200, "ива"). Side ghosts теперь `h-[500px] w-auto` (вместо `w-44`), с CSS `mask-image: linear-gradient(to bottom, black 60%, transparent 100%)` для плавного затухания ног. `faf.png` (1672×941, landscape) — пока не пристроено, нет подходящего места.
+7. **HomePage hero decorations: head cropping + images not at viewport edges** (iter 121 — fixed):
+   - **Симптом (user feedback после iter 120):** "ты обрезал все" — видна только средняя часть (торс), голова и ноги обрезаны. Plus изображения "по бокам" max-w-4xl колонки, а не по бокам экрана.
+   - **Причина (2 бага в iter 120 fix):**
+     - **(a) Head cropping:** hero block имеет `overflow-hidden`, а side ghosts — `absolute top-1/2 -translate-y-1/2 h-[500px]`. При hero block высотой ~165px и изображении 500px → image top на -167px (ВЫШЕ блока), image bottom на +332px (НИЖЕ блока). `overflow-hidden` обрезает до видимой средней части (~33%–66% image height) → голова и ноги обрезаны.
+     - **(b) Images trapped:** side ghosts были внутри `<div className="mx-auto max-w-4xl">` (896px max) → на wide-экранах у краёв 896px-колонки, не у краёв экрана.
+   - **Фикс (iter 121):** Layout.tsx — `<main>` получает `relative`. HomePage.tsx — side ghosts вынесены ИЗ hero block И ИЗ max-w-4xl в Fragment, anchored `absolute top-0 left-0` / `top-0 right-0` относительно main (края экрана ниже TopNav), `h-[80vh] max-h-[720px]` (вместо `h-[500px]`), opacity 0.20. Content обёрнут в `relative z-10`. index.css — bottom fade `#000 75% → transparent 100%` (вместо 55%→100%), horizontal fade на INNER edge (вместо OUTER — баг iter 120). Hero block: удалены `isolate` и `overflow-hidden`.
 
 ---
 

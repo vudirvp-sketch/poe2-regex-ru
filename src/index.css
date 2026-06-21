@@ -606,45 +606,58 @@ pre,
   flex-shrink: 0;
 }
 
-/* iter 120: .hero-side-ghost — full-body portrait side decorations on the
-   HomePage hero (shaman left, ива right). The portrait images are tall
-   (533×800, aspect ~0.67), so at h-[500px] they're ~333px wide — tall
-   enough to read as "full-body characters" rather than cropped busts.
+/* iter 121: .hero-side-ghost — full-body portrait side decorations on the
+   HomePage hero (shaman left, ива right). iter 120 kept them inside the hero
+   block with `overflow-hidden` + center-anchor → head AND legs cropped (only
+   torso visible). iter 121 moved them OUT of the hero block, anchored to
+   `top-0 left-0` / `top-0 right-0` of <main> (Layout.tsx gained `relative`),
+   so they now sit at the viewport edges below TopNav. Height `h-[80vh]
+   max-h-[720px]` shows ~90% of the natural 800px portrait → full body visible.
 
-   The mask-image fades the bottom 40% (legs/feet) smoothly into the
-   background — this is the "плавное затухание по краям или низа изображения
-   (ног)" the user requested. Without this fade, the bottom edge of the
-   image would be a hard horizontal line that breaks the silhouette.
+   mask-image has TWO fade layers, combined via mask-composite: intersect:
 
-   We also add a subtle horizontal fade on the inner edge (the side facing
-   the hero text) via a second mask layer — this softens the visual
-   transition between the ghosted character and the centered text column.
-   mask-composite: intersect combines both fades (bottom + inner edge).
+   (1) Bottom fade: `linear-gradient(to bottom, #000 0%, #000 75%, transparent
+       100%)` — fades the bottom 25% (legs/feet area) smoothly into the
+       background. This is the "плавно мягко обрезать" the user requested.
+       iter 120 used 55% (faded bottom 45%) — too aggressive, faded most of
+       the legs. iter 121 uses 75% — only the lowest 25% (feet/lower legs)
+       fades, keeping the body fully visible.
+
+   (2) Horizontal fade on INNER edge: `linear-gradient(to right, #000 0%,
+       #000 75%, transparent 100%)` — fades the right 25% (the edge facing
+       the centered text). This softens the visual transition between the
+       ghosted character and the text column. iter 120 had this BACKWARDS —
+       it faded the OUTER edge (viewport edge) instead, leaving a hard edge
+       against the text. iter 121 fixes this.
+
+   The `--right` modifier mirrors the horizontal fade direction (`to left`
+   instead of `to right`) so the right-side image fades its LEFT edge (inner
+   edge, toward text), not its right edge (outer edge, viewport edge).
 
    WebKit prefix is required for Safari (Chrome/Firefox support unprefixed
    mask-image since 2018+). */
 .hero-side-ghost {
   -webkit-mask-image:
-    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
-    linear-gradient(to right, transparent 0%, #000 18%, #000 100%);
+    linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%),
+    linear-gradient(to right, #000 0%, #000 75%, transparent 100%);
   -webkit-mask-composite: source-in;
           mask-image:
-    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
-    linear-gradient(to right, transparent 0%, #000 18%, #000 100%);
+    linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%),
+    linear-gradient(to right, #000 0%, #000 75%, transparent 100%);
           mask-composite: intersect;
 }
 
-/* Mirror variant: fade the OPPOSITE horizontal edge (right side ghost
-   fades its left edge toward the text; this variant fades the right edge).
-   Applied by adding `.hero-side-ghost--right` on the right-side img. */
+/* Mirror variant: fades the LEFT edge (inner edge, toward text) instead of
+   the right edge. Applied by adding `.hero-side-ghost--right` on the
+   right-side img (hero-iva). Bottom fade is identical to .hero-side-ghost. */
 .hero-side-ghost--right {
   -webkit-mask-image:
-    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
-    linear-gradient(to left, transparent 0%, #000 18%, #000 100%);
+    linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%),
+    linear-gradient(to left, #000 0%, #000 75%, transparent 100%);
   -webkit-mask-composite: source-in;
           mask-image:
-    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
-    linear-gradient(to left, transparent 0%, #000 18%, #000 100%);
+    linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%),
+    linear-gradient(to left, #000 0%, #000 75%, transparent 100%);
           mask-composite: intersect;
 }
 

@@ -60,48 +60,68 @@ export function HomePage() {
   const loaded = Object.keys(counts).length > 0
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <>
+      {/* iter 121: side ghosts moved OUT of the hero block (and OUT of max-w-4xl)
+          to sit at the viewport edges. iter 120 kept them inside the hero block
+          which had `overflow-hidden` + `top-1/2 -translate-y-1/2 h-[500px]` →
+          the hero block (~165px tall) clipped the 500px image to its middle
+          band → head AND legs were cropped, only torso visible. User feedback:
+          "ты обрезал все". iter 121 fixes this by:
+            (1) anchoring to `top-0` (not `top-1/2`) — heads sit at top, never
+                clipped by overflow.
+            (2) using `h-[80vh] max-h-[720px]` (not `h-[500px]`) — 90% of the
+                natural 800px portrait, full body visible.
+            (3) positioning relative to `<main>` (now `relative` in Layout.tsx),
+                so `left-0` / `right-0` are at the viewport edges — NOT at the
+                edges of the max-w-4xl (896px) content column.
+            (4) `xl:block` — below xl (1280px) there's no room beside the
+                content column for full-body portraits without overlapping text.
+            (5) opacity 0.20 — soft ghost silhouettes, "in the background" as
+                the user requested. Lower than iter 120's 0.22 because the
+                larger image size makes them more prominent.
+            (6) `pointer-events-none` + `aria-hidden` + empty alt — purely
+                decorative, no a11y impact.
+          The `.hero-side-ghost` / `--right` CSS classes (in index.css) apply
+          mask-image gradients for soft fades: bottom 25% (legs/feet) and inner
+          edge 25% (toward text) — see index.css for details. */}
+      <img
+        src={`${import.meta.env.BASE_URL}atmosphere/hero-shaman.webp`}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 hidden h-[80vh] max-h-[720px] w-auto opacity-[0.20] xl:block hero-side-ghost"
+      />
+      <img
+        src={`${import.meta.env.BASE_URL}atmosphere/hero-iva.webp`}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute right-0 top-0 hidden h-[80vh] max-h-[720px] w-auto opacity-[0.20] xl:block hero-side-ghost hero-side-ghost--right"
+      />
+
+      {/* iter 121: content wrapped in `relative z-10` to stay above the side
+          ghosts (which are positioned-absolute siblings with default z-auto).
+          Without z-10, painting order would put non-positioned blocks (cards,
+          SEO, footer — painted at step 3) BEHIND the positioned side ghosts
+          (painted at step 6) — cards' backgrounds would be hidden by the
+          ghosts. z-10 on this wrapper establishes a stacking context that
+          lifts all descendants above the side ghosts. */}
+      <div className="relative z-10 mx-auto max-w-4xl">
       {/* Hero section — iter 57: tightened (mb-10→mb-6, mb-3→mb-2, mb-4→mb-3, mb-6→mb-4, badges text-[13px]→[12px] + gap-3→gap-2)
           iter 69: 3 atmospheric decorations added on lg+/xl+ only — mobile (<lg)
-          stays identical to iter 57. Wrapper uses `isolate` so the backdrop's
-          `mix-blend-screen` blends only within this container (not with the body
-          bg), and `overflow-hidden` so the side ghosts never cause horizontal
-          scroll. All decorations are `aria-hidden` + `pointer-events-none`.
+          stays identical to iter 57. Wrapper used `isolate` + `overflow-hidden`
+          so the backdrops' `mix-blend-screen` blends only within this container
+          and side ghosts don't cause horizontal scroll.
           iter 120: backdrop images (hero-bas-relief lg+, news-bg-center mobile)
-          REMOVED — bas-relief visually competed with hero text and was reported
-          as "completely hides text"; news-bg-center was too subtle to be visible
-          ("don't see it anywhere"). Side ghosts REPLACED with full-body portrait
-          images: shaman (left) + ива (right). They use `h-[500px] w-auto` to
-          show the full body, with a CSS mask-image gradient for smooth fade-out
-          of the legs at the bottom. Opacity 0.22 keeps them as silhouettes. */}
-      <div className="relative mb-6 isolate overflow-hidden text-center">
-        {/* Side ghost: shaman full-body (iter 120, replaces hero-horned-warrior).
-            xl+ only (≥1280px) — below that, the content column has no room for
-            side decorations without squeezing the text. Portrait aspect ratio
-            (533×800) → at h-[500px], width ≈ 333px. CSS mask-image fades the
-            bottom 40% (legs) smoothly into the background. Opacity 0.22 keeps
-            the shaman as a ghosted silhouette, not a focal point. */}
-        <img
-          src={`${import.meta.env.BASE_URL}atmosphere/hero-shaman.webp`}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-1/2 hidden h-[500px] w-auto -translate-y-1/2 opacity-[0.22] xl:block hero-side-ghost"
-        />
-        {/* Side ghost: ива full-body (iter 120, replaces hero-monster-red).
-            Mirrors the left shaman. Symmetry is intentional — two flanking
-            full-body silhouettes frame the centered hero text. Same h-[500px],
-            same mask-image fade, same opacity 0.22. The `--right` modifier
-            flips the horizontal mask gradient so the fade is on the inner edge
-            (facing the hero text) rather than the outer edge. */}
-        <img
-          src={`${import.meta.env.BASE_URL}atmosphere/hero-iva.webp`}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-1/2 hidden h-[500px] w-auto -translate-y-1/2 opacity-[0.22] xl:block hero-side-ghost hero-side-ghost--right"
-        />
-
-        {/* Original hero text content. `relative` lifts it above the absolutely
-            positioned decorations inside this isolated stacking context. */}
+          REMOVED. Side ghosts REPLACED with full-body portrait images: shaman
+          (left) + ива (right). But they were kept inside this hero block with
+          `overflow-hidden` + center-anchor → BUG: head + legs cropped (KI#7).
+          iter 121: side ghosts moved OUT of this hero block (now siblings at
+          the root of HomePage's JSX, see above). Hero block stripped of
+          `isolate` and `overflow-hidden` — no longer needed (no absolute
+          children inside, no mix-blend-mode backdrops). Just text content. */}
+      <div className="relative mb-6 text-center">
+        {/* Original hero text content. `relative` lifts it above any
+            absolutely positioned decorations inside this stacking context
+            (none as of iter 121, but kept for future-proofing). */}
         <div className="relative">
           <h1 className="mb-2 text-3xl font-bold md:text-4xl" style={{ color: 'var(--poe-gold)' }}>
             {t('home.title')}
@@ -227,6 +247,7 @@ export function HomePage() {
       <div className="mt-6 text-center text-[13px]" style={{ color: 'var(--poe-text)', opacity: 0.4 }}>
         <p>{t('home.footer')}</p>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -35,7 +35,15 @@ export function Layout() {
     <div className="flex h-screen flex-col overflow-hidden layout-shell">
       <a href="#main-content" className="skip-link">Перейти к основному содержимому</a>
       <TopNav />
-      <main id="main-content" className="flex-1 overflow-auto p-3 md:p-6" tabIndex={-1}>
+      {/* iter 121: `relative` on <main> establishes it as the positioning context
+          for HomePage's side ghost decorations (hero-shaman / hero-iva). They
+          anchor to `top-0 left-0` / `top-0 right-0` of <main> so they sit at
+          the viewport edges below TopNav (not trapped inside HomePage's
+          max-w-4xl column). Without `relative` here, the absolute side ghosts
+          would fall back to the nearest positioned ancestor (the layout-shell
+          div, which spans the full viewport including TopNav — they'd peek
+          behind TopNav). */}
+      <main id="main-content" className="relative flex-1 overflow-auto p-3 md:p-6" tabIndex={-1}>
         <Outlet />
       </main>
     </div>
