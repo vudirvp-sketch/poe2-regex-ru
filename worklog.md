@@ -4,51 +4,52 @@
 
 ---
 
-Task ID: 123
+Task ID: 124
 Agent: main
-Task: iter 123 — cleanup stale `DELETIONS-iter{121,122}.txt` instruction files. iter 121 создал `DELETIONS-iter121.txt` (указание удалить `README_ITER120.md` + `DELETIONS-iter100.txt`), iter 122 создал `DELETIONS-iter122.txt` (указание удалить 4 stale atmosphere webp + `optimize_hero_images.py`). Оба списка инструкций устарели: целевые файлы уже удалены в соответствующих итерациях. iter 123 завершает cleanup, удаляя сами списки инструкций (по аналогии с тем, как iter 121 удалил `DELETIONS-iter100.txt` после его применения).
+Task: iter 124 — cleanup stale `DELETIONS-iter123.txt` instruction file. iter 123 создал `DELETIONS-iter123.txt` (указание пользователю удалить `DELETIONS-iter{121,122}.txt` при применении архива iter 123). Список инструкций устарел: целевые файлы уже удалены в iter 123. iter 124 завершает cleanup, удаляя сам список инструкций (по аналогии с iter 121 → `DELETIONS-iter100.txt`, iter 123 → `DELETIONS-iter{121,122}.txt`).
 
 Work Log:
-- 1: Контекст загружен из STATUS.md (iter 122 = current, KI#7/KI#8 awaiting user verification, 1890/1890 tests), worklog.md (iter 122 section — cleanup + faf интеграция), AGENT_NAVIGATION.md. Репозиторий клонирован с GitHub.
-- 2: Проверка ссылок на `DELETIONS-iter121.txt` и `DELETIONS-iter122.txt` — поиск по всем файлам репозитория. Результат: **0 активных ссылок**. Единственное упоминание `DELETIONS-iter` строки — внутри самого `DELETIONS-iter121.txt` (refers to `DELETIONS-iter100.txt` как к файлу для удаления — уже выполнено в iter 121). Оба файла — stale instruction lists, не код, не тесты, не конфиги. Безопасно удалить.
-- 3: Cleanup — оба файла удалены:
-  - `DELETIONS-iter121.txt` — instruction list от iter 121 (требовал удалить `README_ITER120.md` + `DELETIONS-iter100.txt` — оба уже удалены в iter 121).
-  - `DELETIONS-iter122.txt` — instruction list от iter 122 (требовал удалить 4 webp + `optimize_hero_images.py` — все уже удалены в iter 122).
+- 1: Контекст загружен из STATUS.md (iter 123 = current, KI#7/KI#8 awaiting user visual verification, 1890/1890 tests), worklog.md (iter 123 section — cleanup DELETIONS файлов), AGENT_NAVIGATION.md. Репозиторий клонирован с GitHub.
+- 2: Проверка ссылок на `DELETIONS-iter123.txt` — поиск по всем файлам репозитория. Результат: **0 активных ссылок**. Единственное упоминание строки `DELETIONS-iter123` — внутри самого файла. Stale instruction list, не код, не тесты, не конфиг. Безопасно удалить.
+- 3: Cleanup — `DELETIONS-iter123.txt` удалён. Создан `DELETIONS-iter124.txt` для следующего агента (по установленной конвенции — указание удалить `DELETIONS-iter123.txt` при применении архива iter 124; сам `DELETIONS-iter124.txt` будет удалён в следующей cleanup-итерации).
 - 4: Документация:
-  - `STATUS.md` — актуализирован под iter 123. "Текущее состояние" переписано: cleanup DELETIONS файлов. Подраздел "НЕ сделано в iter 122 (перенос в iter 123+)" удалён (заменён на "НЕ сделано в iter 123 (перенос в iter 124+)"). KI#7 (iter 121) и KI#8 (iter 122) — без изменений, awaiting user visual verification. Проверки iter 123 (без изменений vs iter 122 — cleanup-only, код не затронут).
-  - `worklog.md` — iter 123 подробно, iter 122 сжат до одной строки в "Предыдущие итерации".
-  - `AGENT_NAVIGATION.md` — header summary обновлён: iter 123 = cleanup DELETIONS файлов, остальное без изменений.
+  - `STATUS.md` — актуализирован под iter 124. "Текущее состояние" переписано: cleanup `DELETIONS-iter123.txt`. Подраздел "НЕ сделано в iter 123" заменён на "НЕ сделано в iter 124 (перенос в iter 125+)". KI#7 (iter 121) и KI#8 (iter 122) — без изменений, awaiting user visual verification. Сортировка-блоки: "без изменений в iter 120/121/122/123" → ".../124". Проверки iter 124 (без изменений vs iter 123 — cleanup-only, код не затронут).
+  - `worklog.md` — iter 124 подробно, iter 123 сжат до одной строки в "Предыдущие итерации".
+  - `AGENT_NAVIGATION.md` — header summary обновлён: iter 124 = cleanup `DELETIONS-iter123.txt`, остальное без изменений.
 - 5: Верификация — все 5 проверок зелёные (запущены для подтверждения, что cleanup не сломал ничего косвенно):
   - `npx tsc --noEmit` → **0 errors**.
   - `npx eslint .` → **0 errors, 0 warnings**.
-  - `npx vitest run` → **1890/1890 tests passed** (37 test files, без изменений vs iter 122 — код не затронут).
+  - `npx vitest run` → **1890/1890 tests passed** (37 test files, без изменений vs iter 123 — код не затронут).
   - `python3 scripts/audit_block_sort_coverage.py` → **18/18 blocks fully covered** (312 family-keys — без изменений).
-  - `npx vite build` → **built successfully** (без изменений vs iter 122).
+  - `npx vite build` → **built successfully** (без изменений vs iter 123).
 
 Stage Summary:
-- **iter 123 COMPLETE.** Cleanup stale DELETIONS instruction files. iter 121 удалил `DELETIONS-iter100.txt` после применения инструкций; iter 123 удаляет `DELETIONS-iter121.txt` и `DELETIONS-iter122.txt` по той же логике (их инструкции выполнены в соответствующих итерациях).
-- **Изменённые файлы (3):**
+- **iter 124 COMPLETE.** Cleanup stale `DELETIONS-iter123.txt` instruction file. iter 123 удалил `DELETIONS-iter{121,122}.txt` после применения инструкций; iter 124 удаляет `DELETIONS-iter123.txt` по той же логике (его инструкции выполнены в iter 123).
+- **Изменённые файлы (4):**
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — обновлены.
-- **Удалённые файлы (2):**
-  - `DELETIONS-iter121.txt`
-  - `DELETIONS-iter122.txt`
-- **Тесты/типы/lint/build:** ✅ tsc 0 errors, vitest 1890/1890 (без изменений vs iter 122), eslint 0 problems, vite build OK, audit script 18/18 blocks.
-- **НЕ сделано (перенос в iter 124+):**
+  - `DELETIONS-iter124.txt` — создан (instruction list для следующего агента).
+- **Удалённые файлы (1):**
+  - `DELETIONS-iter123.txt`
+- **Тесты/типы/lint/build:** ✅ tsc 0 errors, vitest 1890/1890 (без изменений vs iter 123), eslint 0 problems, vite build OK, audit script 18/18 blocks.
+- **НЕ сделано (перенос в iter 125+):**
   1. **Визуальная верификация пользователем** — UI в браузере:
-     - KI#7 (iter 121 hero decorations): xl+ экран (≥1280px) — shaman слева у края, ива справа у края, оба full-body, головы у TopNav, ноги плавно затухают в нижних 25%, inner edge плавно затухает к тексту. На <xl скрыты.
-     - KI#8 (iter 122 SeoBlock atmosphere): lg+ экран (≥1024px), раскрыть SeoBlock `<details>` — тёплый тёмный арт виден позади SEO-текста, не отвлекает, плавно затухает к низу, текст читаем поверх, `hero-demon-blue.webp` правый край виден поверх backdrop'а.
+     - KI#7 (iter 121 hero decorations): xl+ экран (≥1280px) — shaman слева у края, ива справа у края, оба full-body, головы у TopNav без обрезки, ноги плавно затухают в нижних 25%, inner edge плавно затухает к тексту. На <xl скрыты.
+     - KI#8 (iter 122 SeoBlock atmosphere): lg+ экран (≥1024px), раскрыть SeoBlock `<details>` — тёплый тёмный арт виден позади SEO-текста, не отвлекает от чтения, плавно затухает к низу, текст читаем поверх, `hero-demon-blue.webp` правый край виден поверх backdrop'а.
+     - При необходимости — tweak opacity/mask/blend values в `src/index.css` (`.home-seo-atmosphere` и/или `.hero-side-ghost`).
   2. Опционально (перенос из iter 111): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2 — не сделано (risky без визуальной верификации, low impact).
   3. Опционально (LOW): систематизация `other` block (27 family-keys) — heterogeneous, low priority.
-- **Точка остановки:** iter 123 done. Cleanup DELETIONS файлов завершён. В iter 124 можно:
-  1. Получить visual feedback от пользователя по KI#7 (hero) и KI#8 (SeoBlock atmosphere). При необходимости — tweak opacity/mask/blend values в `src/index.css` (`.home-seo-atmosphere` и/или `.hero-side-ghost`).
+  4. (cleanup) удалить `DELETIONS-iter124.txt` в следующей итерации (по аналогии с тем, как iter 124 удалил `DELETIONS-iter123.txt`).
+- **Точка остановки:** iter 124 done. Cleanup `DELETIONS-iter123.txt` завершён. В iter 125 можно:
+  1. Получить visual feedback от пользователя по KI#7 (hero) и KI#8 (SeoBlock atmosphere). При необходимости — tweak opacity/mask/blend values в `src/index.css`.
   2. Опционально: cleanup `--text-faint-val` alias / lift `--text-dim-val`.
   3. Опционально (LOW): систематизация `other` block.
-- **Подсказка следующему агенту:** iter 123 = cleanup DELETIONS файлов. Перед стартом iter 124 прочитай STATUS.md (актуальный статус + KI#7/KI#8 — awaiting user verification), worklog.md (этот раздел iter 123). Изменённые файлы: только документация (`STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`). Удалённые файлы: `DELETIONS-iter121.txt`, `DELETIONS-iter122.txt`. Код/тесты/UI — без изменений. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Подсказка следующему агенту:** iter 124 = cleanup-only (`DELETIONS-iter123.txt`). Перед стартом iter 125 прочитай STATUS.md (актуальный статус + KI#7/KI#8 — awaiting user verification), worklog.md (этот раздел iter 124). Изменённые файлы в iter 124: только документация + создан `DELETIONS-iter124.txt`. Удалённые файлы: `DELETIONS-iter123.txt`. Код/тесты/UI — без изменений. Главное событие iter 125 — получить visual feedback от пользователя по KI#7 и KI#8. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 123**: cleanup stale `DELETIONS-iter{121,122}.txt` instruction files (оба — instruction lists от прошлых итераций, целевые файлы уже удалены).
 - **iter 122**: cleanup 4 неиспользуемых atmosphere webp (`hero-horned-warrior`, `hero-monster-red`, `hero-bas-relief`, `news-bg-center`) + dead script `optimize_hero_images.py` + интеграция `faf.png` как `seo-atmosphere.webp` (1600×900, 146 KB) — широкий landscape backdrop в SeoBlock, lg+ only, opacity 0.18, mix-blend-screen, fade bottom 40%. DOM order: atmosphere → demon → content.
 - **iter 121**: ре-фикс HomePage hero decorations (KI#7 — iter 120 был неполным: 2 бага — `overflow-hidden`+center-anchor обрезали голову/ноги, изображения заперты в max-w-4xl). iter 121: Layout.tsx — `<main>` получил `relative`; HomePage.tsx — side ghosts вынесены в Fragment, anchored к viewport edges, `h-[80vh] max-h-[720px]`, opacity 0.20, content в `relative z-10`; index.css — bottom fade 75%, horizontal fade на INNER edge (баг iter 120 fixed).
 - **iter 120**: фикс UI-багов — scroll jump-to-top + jitter в VirtualizedModList (KI#6, корректный фикс — остаётся в силе) + HomePage hero decorations (KI#7, фикс был неполным — ре-фикс в iter 121).

@@ -2,28 +2,28 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 123
+> **Текущая итерация:** 124
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 123: cleanup stale DELETIONS-iter*.txt instruction files.**
+**iter 124: cleanup stale `DELETIONS-iter123.txt` instruction file.**
 
-iter 121 и iter 122 создали `DELETIONS-iter{121,122}.txt` — однострочные списки файлов, которые пользователь должен был удалить из локальной копии при применении архива. Эти инструкции устарели: целевые файлы уже удалены в соответствующих итерациях. iter 123 завершает cleanup, удаляя сами списки инструкций (по аналогии с тем, как iter 121 удалил `DELETIONS-iter100.txt`).
+iter 123 создал `DELETIONS-iter123.txt` — указание пользователю удалить `DELETIONS-iter{121,122}.txt` при применении архива iter 123. Эти инструкции устарели: целевые файлы уже удалены в iter 123. iter 124 завершает cleanup, удаляя сам список инструкций (по аналогии с тем, как iter 121 удалил `DELETIONS-iter100.txt`, а iter 123 удалил `DELETIONS-iter{121,122}.txt`).
 
 Никаких изменений в коде, тестах или UI. KI#7 (hero decorations, iter 121) и KI#8 (SeoBlock atmosphere, iter 122) остаются в состоянии awaiting user visual verification — это визуальные проверки, которые может выполнить только пользователь в браузере.
 
-**НЕ сделано в iter 123 (перенос в iter 124+):**
+**НЕ сделано в iter 124 (перенос в iter 125+):**
 - Визуальная верификация пользователем KI#7 (hero decorations) — xl+ экран (≥1280px).
 - Визуальная верификация пользователем KI#8 (SeoBlock atmosphere) — lg+ экран (≥1024px), раскрытый `<details>`.
 - Опционально: cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2 (перенос из iter 111, risky без визуальной верификации).
 - Опционально (LOW): систематизация `other` block (27 family-keys) — heterogeneous.
 
-### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120/121/122/123)
+### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120/121/122/123/124)
 
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120–123 не трогали правила сортировки.
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120–124 не трогали правила сортировки.
 
 **18 блоков с правилами (iter 119 scope):**
 
@@ -52,13 +52,13 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 
 **Остальные 6 functional blocks** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Эти блоки либо слишком heterogeneous (`other` — 27 family-keys), либо содержат только 1 family-key (`magic-find`, `breach`, `spirit`), либо пусты (`wisps`, `conversion`).
 
-### Проверки (iter 123)
+### Проверки (iter 124)
 
-- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 122 (cleanup-only, код не затронут).
+- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 123 (cleanup-only, код не затронут).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **audit script:** 18/18 blocks fully covered (312 family-keys).
-- **vite build:** ✅ built successfully (без изменений vs iter 122).
+- **vite build:** ✅ built successfully (без изменений vs iter 123).
 
 ---
 
