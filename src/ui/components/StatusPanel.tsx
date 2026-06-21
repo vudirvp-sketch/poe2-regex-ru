@@ -89,7 +89,7 @@ export function StatusPanel({
             ))}
           </div>
           {hasWantTokens && (
-            <div className="text-[12px] text-faint">
+            <div className="text-[12px] text-dim">
               {t('summary.include')}: {wantTokens.map(tok => truncToken(tok)).join(', ')}
             </div>
           )}

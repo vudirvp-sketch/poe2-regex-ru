@@ -102,7 +102,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
         aria-controls="profile-panel-content"
       >
         <span className="text-xs text-muted">{t('profile.label')}</span>
-        <span className="text-xs text-faint" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
+        <span className="text-xs text-dim" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
@@ -142,7 +142,7 @@ export function ProfilePanel({ category, currentFilterData, onRestore }: Profile
 
           {/* Saved profiles list */}
           {profiles.length === 0 ? (
-            <div className="text-[12px] text-faint">{t('profile.label')} — 0</div>
+            <div className="text-[12px] text-dim">{t('profile.label')} — 0</div>
           ) : (
             <div className="flex flex-col gap-1" onBlur={handleDeleteCancel}>
               {profiles.map((profile) => (

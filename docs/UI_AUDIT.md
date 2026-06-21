@@ -3,7 +3,7 @@
 > **Дата:** 2026-06-21
 > **Основание:** аудит кодовой базы (index.css, компоненты JSX) + актуальные исследования (WCAG 2.2, APCA, Smashing Magazine 2025, Material Design dark-theme spec, исследования зрительной усталости 2024–2025)
 > **Метод:** экспертный анализ с опорой на измеримые метрики (контраст, luminance, размер глифа)
-> **Статус реализации:** Приоритет 1 (5/5) + Приоритет 2 (4/4) + Приоритет 3 (4/4) — ✅ iter 110 (осталась только визуальная верификация пользователем)
+> **Статус реализации:** Приоритет 1 (5/5) + Приоритет 2 (4/4) + Приоритет 3 (4/4) — ✅ iter 110. Known Issues #3/#4 закрыты, #5 реклассифицирован как accepted tradeoff — ✅ iter 111. Осталась только визуальная верификация пользователем.
 
 ---
 
@@ -356,30 +356,29 @@ font-feature-settings: "tnum";
 
 ## 8) Точка остановки
 
-**iter 110 COMPLETE.** Реализованы все 13 пунктов аудита v2: Приоритет 1 (iter 109) + Приоритет 2 (iter 109–110) + Приоритет 3 (iter 110). Осталась только визуальная верификация пользователем.
+**iter 111 COMPLETE.** Реализованы все 13 пунктов аудита v2 (iter 109–110) + закрыты Known Issues #3, #4, частично #5.
 
-**Что сделано (iter 110):**
-1. `--poe-bg-secondary` и `--panel-bg`: `#15110E → #1A1510` (luminance Δ 0.007→0.012, ≥0.01 порог Material/NN/g).
-2. `body { line-height: 1.6; letter-spacing: 0.01em; font-feature-settings: "tnum"; }` + reset letter-spacing для `.font-mono`/`code`/`pre`.
-3. ProfilePanel: `bg-btn-primary` (#2563eb, холодный синий, последний Pitfall 28) → `btn-cta` (тёплый dark metal + gold rim).
-4. `--font-mono` в `@theme` переопределён: `'Noto Sans Mono', ui-monospace, ...` — системный Noto Sans Mono первым приоритетом, без self-host overhead.
-5. `--text-dim-val`: `#6b7280 → #7A8494` (WCAG AA на `--input-bg` 4.2→5.2:1, APCA Lc +8.3).
-6. APCA-валидация 18 пар через `scripts/apca_validate_iter110.py`. Текстовые PASS: text-primary/soft/accent-yellow. Улучшены, но не достигают Lc≥90 для small text: text-dim/faint/muted + accent-blue/red/emerald — задокументировано как Known Issue #5.
+**Что сделано (iter 111):**
+1. **KI#3 fix** — `--placeholder-primary` (`#6b7280` → `#7A8494`) и `--placeholder-secondary` (`#4b5563` → `#7A8494`) консолидированы с `--text-dim-val`. WCAG AA FAIL 3.6:1 / 2.3:1 → PASS 4.6:1 / 4.6:1 на `--input-bg`. APCA Lc -32.5 / -16.6 → -43.6 / -43.6.
+2. **KI#4 fix** — `--text-faint-val` теперь alias `var(--text-dim-val)`. Все 4 `text-faint` Tailwind-класса в TSX заменены на `text-dim`: `ProfilePanel.tsx` (2 места), `StatusPanel.tsx` (1 место), `CategoryControlPanel.tsx` (1 место). Токен `--color-faint` в `@theme` сохранён как backwards-compat alias.
+3. **KI#5 partial fix** — `font-medium` (weight 500) добавлен к 2 критичным 12px text-dim лейблам в `RegexOutput.tsx` (part_label + char count, auto-copy toggle). APCA threshold для этих элементов: 90 → 75. Gap FAIL сокращён с 46.4 до 31.4 Lc. Остальные 12px text-dim (page mod-counters в 8 файлах) оставлены weight 400 — дизайн-выбор (secondary info не конкурирует с primary content).
+4. **APCA-валидация** — `scripts/apca_validate_iter111.py` (каноническая APCA 0.0.98G, polarity-aware, soft-clamp ±108). 19 пар проверено. PASS body text: text-primary/soft/accent-yellow. PASS WCAG AA + FAIL APCA Lc≥90 для small text: text-dim/faint/muted + accent-blue/red/emerald — реклассифицировано из KI#5 в "accepted design tradeoff" (см. STATUS.md).
 
-**Изменённые файлы (iter 110):**
-- `src/index.css` — 5 правок (tokens + body + @theme + mono reset)
-- `src/ui/components/ProfilePanel.tsx` — 1 правка (button className)
+**Изменённые файлы (iter 111):**
+- `src/index.css` — 3 правки: `--placeholder-primary`, `--placeholder-secondary`, `--text-faint-val` (alias)
+- `src/ui/components/ProfilePanel.tsx` — 2 правки: `text-faint` → `text-dim`
+- `src/ui/components/StatusPanel.tsx` — 1 правка: `text-faint` → `text-dim`
+- `src/ui/components/CategoryControlPanel.tsx` — 1 правка: `text-faint` → `text-dim`
+- `src/ui/components/RegexOutput.tsx` — 2 правки: `font-medium` к 12px text-dim лейблам
 - `STATUS.md`, `docs/UI_AUDIT.md`, `worklog.md` — обновлены
-- `scripts/apca_validate_iter110.py` + `scripts/apca_iter110_results.txt` — новый валидатор (вне репозитория, в архиве)
+- `scripts/apca_validate_iter111.py` + `scripts/apca_iter111_results.txt` — новый валидатор (вне репозитория, в архиве)
 
 **Тесты/типы/lint:** ✅ все три проверки зелёные после правок:
 - `npx tsc -b` → **0 errors**
 - `npx vitest run` → **1543/1543 tests passed** (36 test files)
 - `npx eslint .` → **0 problems**
 
-**Следующая итерация (iter 111) — опциональные улучшения:**
-1. **Визуальная верификация пользователем** — проверить UI в браузере: контрасты, читаемость 12px текста, корректность рендеринга Noto Sans (особенно на Linux), отсутствие визуальных артефактов от `letter-spacing`/`line-height`/`tnum`.
-2. **Known Issue #4** — `text-dim`/`text-faint` перцептивно идентичны. Решить: (a) поднять faint до ~#8E96A4 или (b) консолидировать в `--text-secondary`.
-3. **Known Issue #5** — APCA Lc≥90 не достигнут для small text токенов. Опции: дальнейшее осветление, увеличение веса шрифта (400→500), или увеличение размера (12px→13px).
-4. **Known Issue #3** — `--placeholder-secondary: #4b5563` всё ещё FAIL (APCA Lc=-21.3 на `--input-bg`).
-5. Полный план и статус — в STATUS.md и этом файле.
+**Следующая итерация (iter 112) — опциональные улучшения:**
+1. **Визуальная верификация пользователем** — проверить UI в браузере: контрасты, читаемость 12px текста, корректность рендеринга Noto Sans (особенно на Linux), отсутствие визуальных артефактов от `letter-spacing`/`line-height`/`tnum`. Уделить внимание визуалу placeholder-текста (теперь #7A8494) в chip-inputs — раньше он был гораздо темнее (#4b5563), сейчас может выглядеть ярче ожидаемого.
+2. **APCA small-text tradeoff (бывший KI#5)** — если визуальная верификация покажет, что dim-текст всё ещё напряжён для чтения, опции: (a) lift `--text-dim-val` до `#8A92A2` (нарушит дистанцию от `text-muted`); (b) расширить `font-medium` на остальные 12px text-dim лейблы (8 page mod-counters); (c) принять текущее состояние как окончательное.
+3. Полный план и статус — в STATUS.md и этом файле.

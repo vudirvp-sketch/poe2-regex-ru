@@ -1,6 +1,6 @@
 # PoE2 Regex RU — Agent Navigation
 
-> **Entry document.** Read this first. Current state: **iter 109** — реализован Приоритет 1 UI-аудита v2 (5 правок CSS/JSX: `--text-primary` #ffffff→#F0E6D2, `--text-faint-val` #4b5563→#7C8494, все 10px/11px → 12px, `.topnav-brand-title` weight 700→600) + подключён self-hosted Noto Sans (3 веса × ~40 KB woff2, Cyrillic+Latin subset, `font-display: swap`). Regex-движок не тронут (стабилен с iter 108). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
+> **Entry document.** Read this first. Current state: **iter 111** — закрыты Known Issues #3 (placeholder consolidation), #4 (text-faint alias of text-dim), частично #5 (font-medium на критичных 12px text-dim лейблах в RegexOutput). Все 13 пунктов UI-аудита v2 реализованы в iter 109–110. Regex-движок не тронут (стабилен с iter 108). Актуальный статус — в `STATUS.md`, история — в `worklog.md`, полный UI-аудит — в `docs/UI_AUDIT.md`.
 
 ---
 

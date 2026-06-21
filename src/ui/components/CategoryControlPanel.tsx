@@ -239,7 +239,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
               <span className="text-[12px] text-muted">N &le; {maxValue}</span>
             )}
             {rangedSuffixes.length > 0 && (minValue !== null || maxValue !== null) && (
-              <span className="text-[12px] text-faint">
+              <span className="text-[12px] text-dim">
                 {t('suffixes.label')}: {rangedSuffixes.slice(0, 3).join(', ')}{rangedSuffixes.length > 3 ? '...' : ''}
               </span>
             )}

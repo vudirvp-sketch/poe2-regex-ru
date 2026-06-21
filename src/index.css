@@ -91,28 +91,40 @@
      (need ≥ 4.5:1) on the very surface it's most often paired with (chip
      range inputs, character counters in RegexOutput, "1е/2е" labels in
      FilterChip). New warm-gray #7A8494 lifts contrast to ~5.2:1 on
-     --input-bg and ~6.0:1 on --poe-bg. Hue nudged warm to match the
-     #7C8494 used for --text-faint-val in iter 109.
-     KNOWN ISSUE (iter 110): --text-dim-val (#7A8494) and --text-faint-val
-     (#7C8494) are now perceptually identical (Δ < 1% in luminance), which
-     inverts the historical hierarchy (dim=gray-500 was lighter than
-     faint=gray-600). Faint was lifted to gray-400-equivalent in iter 109
-     to fix WCAG AA fail; dim is lifted here to gray-400-equivalent for
-     the same reason. Net effect: two tokens that used to be distinct
-     tiers are now the same tier. Documented in STATUS.md — to resolve in
-     iter 111 by either (a) lifting faint further to ~#8E96A4
-     (gray-350-equivalent) or (b) consolidating dim+faint into a single
-     `--text-secondary` token. */
+     --input-bg and ~6.0:1 on --poe-bg. Hue nudged warm to fit the
+     dirty-brown palette. */
   --text-dim-val: #7A8494;    /* warm gray, WCAG AA on --input-bg */
-  /* iter 109 (UI audit v2 P1.2): #4b5563 → #7C8494.
-     Old #4b5563 gave contrast 3.5:1 on #0D0B09 — FAIL WCAG AA (need ≥ 4.5:1).
-     New warm-gray #7C8494 lifts contrast to ~6.5:1 on #0D0B09 — PASS WCAG AA.
-     Hue shifted slightly warm to fit the dirty-brown palette. */
-  --text-faint-val: #7C8494;  /* warm gray, WCAG AA on dark bg */
 
-  /* Placeholder text */
-  --placeholder-primary: #6b7280;    /* ≈ gray-500 */
-  --placeholder-secondary: #4b5563;  /* ≈ gray-600 */
+  /* iter 111 (KI#4 fix): --text-faint-val is now an alias of --text-dim-val.
+     History: in iter 109, --text-faint-val was lifted from #4b5563 (FAIL
+     WCAG AA) to #7C8494 (PASS WCAG AA) to fix P1.2. In iter 110,
+     --text-dim-val was lifted from #6b7280 to #7A8494 for the same
+     reason. The two tokens ended up at near-identical luminance
+     (Δ < 1%), which inverted the historical dim=gray-500 > faint=gray-600
+     hierarchy. Rather than introduce a third intermediate tier
+     (option a: faint = ~#8E96A4, gray-350-equivalent — would have no
+     clear semantic role), we consolidate: faint aliases dim. Both
+     represent "secondary helper text" semantics in the design system.
+     The --color-faint Tailwind utility is kept as a backwards-compat
+     alias so any future `text-faint` usages keep working, but all
+     current call sites in TSX have been migrated to `text-dim`. */
+  --text-faint-val: var(--text-dim-val);  /* alias — iter 111 KI#4 */
+
+  /* iter 111 (KI#3 fix): both placeholder tokens consolidated to #7A8494.
+     Old values were FAIL WCAG AA on --input-bg:
+       --placeholder-primary   #6b7280  -> 3.6:1  (FAIL, APCA Lc=-32.5)
+       --placeholder-secondary #4b5563  -> 2.3:1  (FAIL, APCA Lc=-16.6)
+     New value #7A8494 (same as --text-dim-val):
+       both                     -> 4.6:1  (PASS WCAG AA, APCA Lc=-43.6)
+     Semantic intent of placeholder text is "helper text describing what
+     could be here" — visually it should match the dim helper text tier,
+     not be a separate (failing) tier. The primary/secondary distinction
+     was a holdover from the pre-iter-109 palette where both were
+     distinct shades of gray; with both lifted to AA-passing values they
+     are now the same shade. Component context (large search input vs
+     small chip input) preserves the visual hierarchy. */
+  --placeholder-primary: #7A8494;    /* iter 111: consolidated with --text-dim-val */
+  --placeholder-secondary: #7A8494;  /* iter 111: consolidated with --text-dim-val */
 
   /* Accent text colors */
   --accent-green-soft: #86efac;   /* green-300 */

@@ -92,7 +92,7 @@ const PartCopyButton: React.FC<{ part: string; index: number; total: number }> =
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-dim">
+        <span className="text-[12px] text-dim font-medium">
           {t('regex.part_label').replace('{n}', String(index + 1)).replace('{total}', String(total))}
           <span className={`ml-1.5 font-mono ${partHealth === 'green' ? 'text-accent-emerald' : partHealth === 'yellow' ? 'text-accent-yellow' : 'text-accent-red'}`}>
             {partLen}/{MAX_CHARS}
@@ -216,7 +216,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               onChange={(e) => setAutoCopy(e.target.checked)}
               className="w-3.5 h-3.5 rounded bg-raised border-edge text-accent-amber"
             />
-            <span className="text-[12px] text-dim">{t('regex.auto')}</span>
+            <span className="text-[12px] text-dim font-medium">{t('regex.auto')}</span>
           </label>
           {/* Share button */}
           {filterStore && regex && (
