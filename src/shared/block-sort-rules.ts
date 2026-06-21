@@ -33,6 +33,7 @@
  * iter 115: added resources (29 family-keys — health/mana/ES pools + damage conversion).
  * iter 116: added weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
  * iter 117: added offence-speed (12 family-keys) + crit (9 family-keys) + buff-skills (7 family-keys).
+ * iter 118: added skill-levels (10 family-keys) + area-duration (8 family-keys) + meta-skills (6 family-keys).
  *
  * Design principles:
  *  1. Rules are ordered MOST-SPECIFIC to LEAST-SPECIFIC. First match wins.
@@ -870,6 +871,164 @@ export const BLOCK_SORT_RULES: Partial<Record<FunctionalBlock, SortRule[]>> = {
     // ─── Marks (50-59) — effect ────────────────────────────────────────
     // Note: no mark cast-speed family-key in buff-skills data (it's in offence-speed).
     { pattern: /усиление эффекта.*умений меток/i, order: 50, comment: 'marks: effect' },
+  ],
+
+  // ─── skill-levels (10 family-keys) — iter 118 ──────────────────────────────
+  // All gem-level / quality / skill-duration / cooldown family-keys.
+  // Alphabetical sort mixes gem-level subsets with quality and duration,
+  // producing "каша" inside the "Уровень умений" functional block.
+  //
+  // Canonical order (player mental model — most-impactful first):
+  //   0:   +# к уровню всех камней умений (ALL skills — most universal)
+  //   10:  +# к уровню всех камней умений чар (spells — most common subset)
+  //   11:  +# к уровню всех камней умений ближнего боя (melee subset)
+  //   12:  +# к уровню всех камней умений приспешников (minion subset)
+  //   13:  +# к уровню всех камней умений снарядов (projectile subset)
+  //   20:  +#% к качеству всех умений (quality % — all skills)
+  //   21:  +#% к максимальному качеству (quality cap)
+  //   30:  #% увеличение длительности эффекта умения (generic duration)
+  //   31:  Умения меток имеют #% увеличение длительности эффекта умения (mark subset)
+  //   40:  #% повышение скорости перезарядки умений (cooldown recovery)
+  //
+  // Design notes:
+  //   - Levels FIRST (most-impactful stat — +1 level is huge).
+  //   - Within levels: all-skills FIRST (most universal), then specific subsets
+  //     (spells → melee → minion → projectile — alphabetical order is preserved
+  //     WITHIN the same bucket via familyKey tiebreaker, but bucket boundaries
+  //     separate "ALL" from subsets).
+  //   - Quality second (boosts gem quality — secondary stat).
+  //   - Duration third (changes how long effects last).
+  //   - Cooldown LAST (timing-related, less universal).
+  //
+  // Substring conflicts handled via first-match-wins (most-specific FIRST):
+  //   1. "увеличение длительности эффекта умения" appears in BOTH generic
+  //      duration AND mark-skill duration. Mark rule (with `умения меток имеют.*`
+  //      prefix) listed FIRST; generic rule end-anchored `$`.
+  //   2. "уровню всех камней умений" appears in 5 family-keys. Generic all-skills
+  //      rule end-anchored `$`; specific subset rules match their own distinctive
+  //      phrase (умений чар / ближнего боя / приспешников / снарядов).
+  //   3. "качеству" appears in both quality % AND max-quality % — but full phrases
+  //      differ ("качеству всех умений" vs "максимальному качеству"). No real
+  //      conflict — distinctive patterns used.
+  'skill-levels': [
+    // ─── Mark skill duration (subset — listed FIRST before generic) ────
+    { pattern: /умения меток имеют.*длительности эффекта умения/i, order: 31, comment: 'mark-skills: effect duration (subset)' },
+
+    // ─── Gem levels — generic end-anchored, then specific subsets ──────
+    { pattern: /уровню всех камней умений$/i, order: 0, comment: 'all-skills: +level (most universal)' },
+    { pattern: /уровню всех камней умений чар/i, order: 10, comment: 'spell-skills: +level' },
+    { pattern: /уровню всех камней умений ближнего боя/i, order: 11, comment: 'melee-skills: +level' },
+    { pattern: /уровню всех камней умений приспешников/i, order: 12, comment: 'minion-skills: +level' },
+    { pattern: /уровню всех камней умений снарядов/i, order: 13, comment: 'projectile-skills: +level' },
+
+    // ─── Quality ───────────────────────────────────────────────────────
+    { pattern: /качеству всех умений/i, order: 20, comment: 'quality: +% (all skills)' },
+    { pattern: /максимальному качеству/i, order: 21, comment: 'quality: +% max cap' },
+
+    // ─── Generic duration (end-anchored to avoid matching mark variant) ─
+    { pattern: /увеличение длительности эффекта умения$/i, order: 30, comment: 'skill-effect-duration: generic' },
+
+    // ─── Cooldown recovery ─────────────────────────────────────────────
+    { pattern: /скорости перезарядки умений/i, order: 40, comment: 'skill-cooldown: recovery speed' },
+  ],
+
+  // ─── area-duration (8 family-keys) — iter 118 ───────────────────────────────
+  // All area-of-effect and skill-duration family-keys (curses/banners/spells/etc.).
+  // Alphabetical sort interleaves area-effect mods with duration mods.
+  //
+  // Canonical order (player mental model — area first, then duration):
+  //   0:   #% увеличение области действия (generic area — most universal)
+  //   10:  #% увеличение области действия умений чар (spells area)
+  //   11:  #% увеличение области действия проклятий (curses area)
+  //   12:  #% увеличение области действия умений знамён (banners area)
+  //   13:  #% увеличение области действия присутствия (presence area)
+  //   20:  Улучшает радиус до очень большого (special radius-improvement mod)
+  //   30:  #% увеличение длительности проклятий (curse duration)
+  //   31:  #% увеличение длительности умений знамён (banner duration)
+  //
+  // Design notes:
+  //   - Area FIRST (more universal — affects many skills).
+  //   - Within area: generic FIRST (most universal), then specific subsets.
+  //   - Radius improvement is a special mod (order 20) — comes after standard
+  //     area-% mods but before duration.
+  //   - Duration SECOND (less universal — only curse/banner duration in data).
+  //
+  // Substring conflicts handled via end-anchored generic rule:
+  //   1. "увеличение области действия" appears in 5 family-keys. Generic rule
+  //      end-anchored `$` (matches only bare generic); specific subset rules
+  //      match their own distinctive phrase (умений чар / проклятий / умений
+  //      знамён / присутствия).
+  //   2. "увеличение длительности" appears in 2 family-keys (curse/banner
+  //      duration). No conflict with area rules — different leading word.
+  //   3. "умений знамён" appears in BOTH area-banner (order 12) AND
+  //      duration-banner (order 31). No conflict — different leading phrase
+  //      ("увеличение области действия" vs "увеличение длительности").
+  //   4. "проклятий" appears in BOTH area-curse (order 11) AND duration-curse
+  //      (order 30). No conflict — same reason as above.
+  'area-duration': [
+    // ─── Area — generic end-anchored, then specific subsets ────────────
+    { pattern: /увеличение области действия$/i, order: 0, comment: 'area: generic' },
+    { pattern: /увеличение области действия умений чар/i, order: 10, comment: 'area: spells' },
+    { pattern: /увеличение области действия проклятий/i, order: 11, comment: 'area: curses' },
+    { pattern: /увеличение области действия умений знамён/i, order: 12, comment: 'area: banners' },
+    { pattern: /увеличение области действия присутствия/i, order: 13, comment: 'area: presence' },
+
+    // ─── Radius improvement (special mod) ──────────────────────────────
+    { pattern: /Улучшает радиус до очень большого/i, order: 20, comment: 'area: radius improvement (special)' },
+
+    // ─── Duration ──────────────────────────────────────────────────────
+    { pattern: /увеличение длительности проклятий/i, order: 30, comment: 'duration: curses' },
+    { pattern: /увеличение длительности умений знамён/i, order: 31, comment: 'duration: banners' },
+  ],
+
+  // ─── meta-skills (6 family-keys) — iter 118 ─────────────────────────────────
+  // All meta-skill-related family-keys (Archon / sealed-skills / energy).
+  // Meta-skills in PoE2 are weapon-swap skills — alphabetical sort mixes
+  // energy mods with Archon/sealed-skill mods.
+  //
+  // Canonical order (player mental model — energy first, then Archon, then sealed):
+  //   0:   Мета-умения получают увеличенное на #% количество энергии (energy amount)
+  //   1:   #% увеличение максимума энергии вызываемых умений (max energy cap)
+  //   10:  #% усиление положительных эффектов Архонта на вас (Archon buff effect)
+  //   11:  #% увеличение длительности эффекта Архонта (Archon duration)
+  //   20:  Запечатанные умения имеют +1 к максимуму зарядов печати (sealed max charges)
+  //   21:  Запечатанные умения имеют (#)% увеличение частоты получения зарядов печати
+  //        (sealed charge frequency)
+  //
+  // Design notes:
+  //   - Energy FIRST (most universal meta-skill stat — powers all meta-skills).
+  //   - Archon SECOND (specific meta-skill type — buff effect before duration,
+  //     same pattern as buff-skills block).
+  //   - Sealed skills THIRD (another specific type — max charges before frequency,
+  //     cap boost is more fundamental than gain speed).
+  //
+  // Substring conflicts:
+  //   1. "энергии" appears in 2 family-keys. Distinctive phrases:
+  //      - "Мета-умения получают.*количество энергии" (energy amount)
+  //      - "максимума энергии вызываемых умений" (max energy)
+  //      No overlap — different word context.
+  //   2. "Архонта" appears in 2 family-keys. Distinctive phrases:
+  //      - "усиление положительных эффектов Архонта" (buff effect)
+  //      - "длительности эффекта Архонта" (duration)
+  //      No overlap.
+  //   3. "зарядов печати" appears in 2 family-keys. Distinctive phrases:
+  //      - "максимуму зарядов печати" (max charges)
+  //      - "частоты получения зарядов печати" (frequency)
+  //      No overlap — different word context.
+  //   4. "умений" appears in many family-keys (it's a common Russian word).
+  //      Rules use full distinctive phrases to avoid false matches.
+  'meta-skills': [
+    // ─── Energy (most universal meta-skill stat) ───────────────────────
+    { pattern: /Мета-умения получают.*количество энергии/i, order: 0, comment: 'meta-skill: energy amount' },
+    { pattern: /максимума энергии вызываемых умений/i, order: 1, comment: 'meta-skill: max energy (triggered skills)' },
+
+    // ─── Archon (buff effect before duration) ──────────────────────────
+    { pattern: /усиление положительных эффектов Архонта/i, order: 10, comment: 'archon: buff effect strength' },
+    { pattern: /длительности эффекта Архонта/i, order: 11, comment: 'archon: effect duration' },
+
+    // ─── Sealed skills (max charges before frequency) ──────────────────
+    { pattern: /максимуму зарядов печати/i, order: 20, comment: 'sealed-skills: max charges (cap)' },
+    { pattern: /частоты получения зарядов печати/i, order: 21, comment: 'sealed-skills: charge frequency (speed)' },
   ],
 };
 

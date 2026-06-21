@@ -8,6 +8,7 @@
  * iter 115: adds resources block (29 family-keys — Health/Mana/ES pools + conversion).
  * iter 116: adds weapon-specific (24 family-keys, jewel-only) + flasks (16 family-keys, belt+jewel).
  * iter 117: adds offence-speed (12 family-keys) + crit (9 family-keys) + buff-skills (7 family-keys).
+ * iter 118: adds skill-levels (10 family-keys) + area-duration (8 family-keys) + meta-skills (6 family-keys).
  *
  * These tests verify:
  *  1. computeSortKey() returns expected order for canonical family-keys.
@@ -1068,6 +1069,239 @@ describe('computeSortKey: buff-skills (iter 117)', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5j: computeSortKey — skill-levels canonical ordering (iter 118)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: skill-levels (iter 118)', () => {
+  const cases = [
+    // All-skills (0) — most universal
+    { familyKey: '+# к уровню всех камней умений', expectedOrder: 0, comment: 'all-skills: +level (most universal)' },
+    // Specific subsets (10-13)
+    { familyKey: '+# к уровню всех камней умений чар', expectedOrder: 10, comment: 'spell-skills: +level' },
+    { familyKey: '+# к уровню всех камней умений ближнего боя', expectedOrder: 11, comment: 'melee-skills: +level' },
+    { familyKey: '+# к уровню всех камней умений приспешников', expectedOrder: 12, comment: 'minion-skills: +level' },
+    { familyKey: '+# к уровню всех камней умений снарядов', expectedOrder: 13, comment: 'projectile-skills: +level' },
+    // Quality (20-21)
+    { familyKey: '+#% к качеству всех умений', expectedOrder: 20, comment: 'quality: +% (all skills)' },
+    { familyKey: '+#% к максимальному качеству', expectedOrder: 21, comment: 'quality: +% max cap' },
+    // Duration (30-31)
+    { familyKey: '#% увеличение длительности эффекта умения', expectedOrder: 30, comment: 'skill-effect-duration: generic' },
+    { familyKey: 'Умения меток имеют #% увеличение длительности эффекта умения', expectedOrder: 31, comment: 'mark-skills: effect duration (subset)' },
+    // Cooldown (40)
+    { familyKey: '#% повышение скорости перезарядки умений', expectedOrder: 40, comment: 'skill-cooldown: recovery speed' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`skill-levels: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('skill-levels', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('skill-levels: full canonical bucket order Levels → Quality → Duration → Cooldown', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '+# к уровню всех камней умений',                                                    // 0  — all-skills level
+      '+#% к качеству всех умений',                                                        // 20 — quality
+      '#% увеличение длительности эффекта умения',                                         // 30 — generic duration
+      '#% повышение скорости перезарядки умений',                                          // 40 — cooldown
+    ];
+    const sortKeys = keys.map(k => computeSortKey('skill-levels', k)).sort();
+    expect(sortKeys[0]).toContain('уровню всех камней умений');
+    expect(sortKeys[1]).toContain('качеству всех умений');
+    expect(sortKeys[2]).toContain('длительности эффекта умения');
+    expect(sortKeys[3]).toContain('скорости перезарядки умений');
+  });
+
+  it('skill-levels: all-skills level (0) BEFORE spell-skills level (10) — universal before subset', () => {
+    const all = computeSortKey('skill-levels', '+# к уровню всех камней умений');
+    const spells = computeSortKey('skill-levels', '+# к уровню всех камней умений чар');
+    expect(all.localeCompare(spells, 'ru')).toBeLessThan(0);
+    expect(all.startsWith('000::')).toBe(true);
+    expect(spells.startsWith('010::')).toBe(true);
+  });
+
+  it('skill-levels: mark-skill duration (31) matches BEFORE generic duration (30) — first-match-wins', () => {
+    // Both family-keys contain "увеличение длительности эффекта умения".
+    // Mark rule (with `умения меток имеют.*` prefix) is listed FIRST.
+    const mark = computeSortKey('skill-levels', 'Умения меток имеют #% увеличение длительности эффекта умения');
+    const generic = computeSortKey('skill-levels', '#% увеличение длительности эффекта умения');
+    expect(mark.startsWith('031::')).toBe(true);
+    expect(generic.startsWith('030::')).toBe(true);
+  });
+
+  it('skill-levels: all-skills level (0) does NOT match spell-skills (10) — end-anchored generic', () => {
+    // "+# к уровню всех камней умений чар" does NOT match `уровню всех камней умений$`
+    // because the family-key ends with "чар", not "умений".
+    const all = computeSortKey('skill-levels', '+# к уровню всех камней умений');
+    const spells = computeSortKey('skill-levels', '+# к уровню всех камней умений чар');
+    expect(all.startsWith('000::')).toBe(true);
+    expect(spells.startsWith('010::')).toBe(true);
+    expect(all.localeCompare(spells, 'ru')).toBeLessThan(0);
+  });
+
+  it('skill-levels: quality (20) does NOT match max-quality (21) — distinctive phrases', () => {
+    // "качеству всех умений" vs "максимальному качеству" — both contain "качеству"
+    // but full phrases are distinct.
+    const quality = computeSortKey('skill-levels', '+#% к качеству всех умений');
+    const maxQuality = computeSortKey('skill-levels', '+#% к максимальному качеству');
+    expect(quality.startsWith('020::')).toBe(true);
+    expect(maxQuality.startsWith('021::')).toBe(true);
+    expect(quality.localeCompare(maxQuality, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5k: computeSortKey — area-duration canonical ordering (iter 118)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: area-duration (iter 118)', () => {
+  const cases = [
+    // Area (0-13)
+    { familyKey: '#% увеличение области действия', expectedOrder: 0, comment: 'area: generic' },
+    { familyKey: '#% увеличение области действия умений чар', expectedOrder: 10, comment: 'area: spells' },
+    { familyKey: '#% увеличение области действия проклятий', expectedOrder: 11, comment: 'area: curses' },
+    { familyKey: '#% увеличение области действия умений знамён', expectedOrder: 12, comment: 'area: banners' },
+    { familyKey: '#% увеличение области действия присутствия', expectedOrder: 13, comment: 'area: presence' },
+    // Radius (20)
+    { familyKey: 'Улучшает радиус до очень большого', expectedOrder: 20, comment: 'area: radius improvement (special)' },
+    // Duration (30-31)
+    { familyKey: '#% увеличение длительности проклятий', expectedOrder: 30, comment: 'duration: curses' },
+    { familyKey: '#% увеличение длительности умений знамён', expectedOrder: 31, comment: 'duration: banners' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`area-duration: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('area-duration', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('area-duration: full canonical bucket order Area → Radius → Duration', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      '#% увеличение области действия',                // 0  — area generic
+      'Улучшает радиус до очень большого',             // 20 — radius improvement
+      '#% увеличение длительности проклятий',          // 30 — duration curses
+    ];
+    const sortKeys = keys.map(k => computeSortKey('area-duration', k)).sort();
+    expect(sortKeys[0]).toContain('области действия');
+    expect(sortKeys[1]).toContain('радиус');
+    expect(sortKeys[2]).toContain('длительности проклятий');
+  });
+
+  it('area-duration: generic area (0) does NOT match specific subset (10) — end-anchored', () => {
+    // "#% увеличение области действия умений чар" does NOT match `увеличение области действия$`
+    // because the family-key ends with "чар", not "действия".
+    const generic = computeSortKey('area-duration', '#% увеличение области действия');
+    const spells = computeSortKey('area-duration', '#% увеличение области действия умений чар');
+    expect(generic.startsWith('000::')).toBe(true);
+    expect(spells.startsWith('010::')).toBe(true);
+    expect(generic.localeCompare(spells, 'ru')).toBeLessThan(0);
+  });
+
+  it('area-duration: area-curse (11) vs duration-curse (30) — distinct leading phrase', () => {
+    // Both family-keys contain "проклятий", but leading phrase differs
+    // ("увеличение области действия" vs "увеличение длительности").
+    const areaCurse = computeSortKey('area-duration', '#% увеличение области действия проклятий');
+    const durationCurse = computeSortKey('area-duration', '#% увеличение длительности проклятий');
+    expect(areaCurse.startsWith('011::')).toBe(true);
+    expect(durationCurse.startsWith('030::')).toBe(true);
+    expect(areaCurse.localeCompare(durationCurse, 'ru')).toBeLessThan(0);
+  });
+
+  it('area-duration: area-banner (12) vs duration-banner (31) — distinct leading phrase', () => {
+    // Both family-keys contain "умений знамён", but leading phrase differs.
+    const areaBanner = computeSortKey('area-duration', '#% увеличение области действия умений знамён');
+    const durationBanner = computeSortKey('area-duration', '#% увеличение длительности умений знамён');
+    expect(areaBanner.startsWith('012::')).toBe(true);
+    expect(durationBanner.startsWith('031::')).toBe(true);
+    expect(areaBanner.localeCompare(durationBanner, 'ru')).toBeLessThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5l: computeSortKey — meta-skills canonical ordering (iter 118)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('computeSortKey: meta-skills (iter 118)', () => {
+  const cases = [
+    // Energy (0-1)
+    { familyKey: 'Мета-умения получают увеличенное на #% количество энергии', expectedOrder: 0, comment: 'meta-skill: energy amount' },
+    { familyKey: '#% увеличение максимума энергии вызываемых умений', expectedOrder: 1, comment: 'meta-skill: max energy (triggered skills)' },
+    // Archon (10-11)
+    { familyKey: '#% усиление положительных эффектов Архонта на вас', expectedOrder: 10, comment: 'archon: buff effect strength' },
+    { familyKey: '#% увеличение длительности эффекта Архонта', expectedOrder: 11, comment: 'archon: effect duration' },
+    // Sealed skills (20-21)
+    { familyKey: 'Запечатанные умения имеют +1 к максимуму зарядов печати', expectedOrder: 20, comment: 'sealed-skills: max charges (cap)' },
+    { familyKey: 'Запечатанные умения имеют (#)% увеличение частоты получения зарядов печати', expectedOrder: 21, comment: 'sealed-skills: charge frequency (speed)' },
+  ];
+
+  for (const { familyKey, expectedOrder, comment } of cases) {
+    it(`meta-skills: "${comment}" → order ${expectedOrder}`, () => {
+      const sortKey = computeSortKey('meta-skills', familyKey);
+      const prefix = String(expectedOrder).padStart(3, '0');
+      expect(sortKey).toBe(`${prefix}::${familyKey}`);
+    });
+  }
+
+  it('meta-skills: full canonical bucket order Energy → Archon → Sealed', () => {
+    // Pick one representative family-key per bucket
+    const keys = [
+      'Мета-умения получают увеличенное на #% количество энергии',       // 0  — energy amount
+      '#% усиление положительных эффектов Архонта на вас',               // 10 — archon buff effect
+      'Запечатанные умения имеют +1 к максимуму зарядов печати',         // 20 — sealed max charges
+    ];
+    const sortKeys = keys.map(k => computeSortKey('meta-skills', k)).sort();
+    expect(sortKeys[0]).toContain('Мета-умения получают');
+    expect(sortKeys[1]).toContain('Архонта');
+    expect(sortKeys[2]).toContain('Запечатанные умения');
+  });
+
+  it('meta-skills: energy amount (0) BEFORE max energy (1) — gain before cap', () => {
+    const amount = computeSortKey('meta-skills', 'Мета-умения получают увеличенное на #% количество энергии');
+    const max = computeSortKey('meta-skills', '#% увеличение максимума энергии вызываемых умений');
+    expect(amount.localeCompare(max, 'ru')).toBeLessThan(0);
+    expect(amount.startsWith('000::')).toBe(true);
+    expect(max.startsWith('001::')).toBe(true);
+  });
+
+  it('meta-skills: archon buff effect (10) BEFORE archon duration (11) — effect before duration', () => {
+    const effect = computeSortKey('meta-skills', '#% усиление положительных эффектов Архонта на вас');
+    const duration = computeSortKey('meta-skills', '#% увеличение длительности эффекта Архонта');
+    expect(effect.localeCompare(duration, 'ru')).toBeLessThan(0);
+    expect(effect.startsWith('010::')).toBe(true);
+    expect(duration.startsWith('011::')).toBe(true);
+  });
+
+  it('meta-skills: sealed max charges (20) BEFORE sealed frequency (21) — cap before speed', () => {
+    const max = computeSortKey('meta-skills', 'Запечатанные умения имеют +1 к максимуму зарядов печати');
+    const freq = computeSortKey('meta-skills', 'Запечатанные умения имеют (#)% увеличение частоты получения зарядов печати');
+    expect(max.localeCompare(freq, 'ru')).toBeLessThan(0);
+    expect(max.startsWith('020::')).toBe(true);
+    expect(freq.startsWith('021::')).toBe(true);
+  });
+
+  it('meta-skills: distinctive phrase `Мета-умения получают` does NOT match `максимума энергии`', () => {
+    // Both family-keys contain "энергии", but distinctive phrases differ.
+    const amount = computeSortKey('meta-skills', 'Мета-умения получают увеличенное на #% количество энергии');
+    const max = computeSortKey('meta-skills', '#% увеличение максимума энергии вызываемых умений');
+    expect(amount.startsWith('000::')).toBe(true);
+    expect(max.startsWith('001::')).toBe(true);
+  });
+
+  it('meta-skills: distinctive phrase `усиление положительных эффектов Архонта` does NOT match `длительности эффекта Архонта`', () => {
+    // Both family-keys contain "Архонта", but distinctive phrases differ.
+    const effect = computeSortKey('meta-skills', '#% усиление положительных эффектов Архонта на вас');
+    const duration = computeSortKey('meta-skills', '#% увеличение длительности эффекта Архонта');
+    expect(effect.startsWith('010::')).toBe(true);
+    expect(duration.startsWith('011::')).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 6: sortGroupsAlphabetically — uses sortKey when set
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1342,6 +1576,60 @@ describe('End-to-end: canonical within-block ordering (iter 112)', () => {
       '#% усиление эффекта ваших умений меток',
     ]);
   });
+
+  it('skill-levels (iter 118): 3 stat types order Levels → Quality → Cooldown', () => {
+    const tokens = [
+      makeToken('#% повышение скорости перезарядки умений', 'skill-levels'),
+      makeToken('+#% к качеству всех умений', 'skill-levels'),
+      makeToken('+# к уровню всех камней умений', 'skill-levels'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const skillGroup = subGroups.find(sg => sg.key === 'skill-levels');
+    expect(skillGroup).toBeDefined();
+    const familyKeys = skillGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '+# к уровню всех камней умений',
+      '+#% к качеству всех умений',
+      '#% повышение скорости перезарядки умений',
+    ]);
+  });
+
+  it('area-duration (iter 118): 3 buckets order Area → Radius → Duration', () => {
+    const tokens = [
+      makeToken('#% увеличение длительности проклятий', 'area-duration'),
+      makeToken('Улучшает радиус до очень большого', 'area-duration'),
+      makeToken('#% увеличение области действия', 'area-duration'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const areaGroup = subGroups.find(sg => sg.key === 'area-duration');
+    expect(areaGroup).toBeDefined();
+    const familyKeys = areaGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      '#% увеличение области действия',
+      'Улучшает радиус до очень большого',
+      '#% увеличение длительности проклятий',
+    ]);
+  });
+
+  it('meta-skills (iter 118): 3 buckets order Energy → Archon → Sealed', () => {
+    const tokens = [
+      makeToken('Запечатанные умения имеют +1 к максимуму зарядов печати', 'meta-skills'),
+      makeToken('#% усиление положительных эффектов Архонта на вас', 'meta-skills'),
+      makeToken('Мета-умения получают увеличенное на #% количество энергии', 'meta-skills'),
+    ];
+    const groups = groupTokensByFamily(tokens, 'amulet');
+    const subGroups = classifyGroups(groups, 'affix-functional', 'alpha');
+    const metaGroup = subGroups.find(sg => sg.key === 'meta-skills');
+    expect(metaGroup).toBeDefined();
+    const familyKeys = metaGroup!.groups.map(g => g.familyKey);
+    expect(familyKeys).toEqual([
+      'Мета-умения получают увеличенное на #% количество энергии',
+      '#% усиление положительных эффектов Архонта на вас',
+      'Запечатанные умения имеют +1 к максимуму зарядов печати',
+    ]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1368,8 +1656,8 @@ describe('BLOCK_SORT_RULES structural integrity (iter 112)', () => {
     }
   });
 
-  it('iter 117 scope: 12 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills)', () => {
+  it('iter 118 scope: 15 blocks have rules (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills)', () => {
     const blocksWithRules = Object.keys(BLOCK_SORT_RULES).sort();
-    expect(blocksWithRules).toEqual(['ailments', 'attributes', 'buff-skills', 'crit', 'damage-type', 'defence-stats', 'flasks', 'minions', 'offence-speed', 'resistances', 'resources', 'weapon-specific']);
+    expect(blocksWithRules).toEqual(['ailments', 'area-duration', 'attributes', 'buff-skills', 'crit', 'damage-type', 'defence-stats', 'flasks', 'meta-skills', 'minions', 'offence-speed', 'resistances', 'resources', 'skill-levels', 'weapon-specific']);
   });
 });

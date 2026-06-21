@@ -6,6 +6,7 @@
 > **iter 115** — добавлены правила для `resources` (29 family-keys).
 > **iter 116** — добавлены правила для `weapon-specific` (24 family-keys) + `flasks` (16 family-keys).
 > **iter 117** — добавлены правила для `offence-speed` (12 family-keys) + `crit` (9 family-keys) + `buff-skills` (7 family-keys).
+> **iter 118** — добавлены правила для `skill-levels` (10 family-keys) + `area-duration` (8 family-keys) + `meta-skills` (6 family-keys).
 > **Следующие итерации** — расширение на остальные functional blocks.
 
 ---
@@ -124,9 +125,9 @@ export function computeSortKey(block, familyKey): string {
 
 ---
 
-## 4. Текущее покрытие (iter 117)
+## 4. Текущее покрытие (iter 118)
 
-### 4.1. Блоки с правилами (12 из 24 functional blocks)
+### 4.1. Блоки с правилами (15 из 24 functional blocks)
 
 | Блок | # family-keys | # rules | Покрытие |
 |------|---------------|---------|----------|
@@ -142,23 +143,23 @@ export function computeSortKey(block, familyKey): string {
 | `offence-speed` | 12 | 12 | 100% |
 | `crit` | 9 | 9 | 100% |
 | `buff-skills` | 7 | 7 | 100% |
-| **Итого** | **277** | **277** | **100%** |
+| `skill-levels` | 10 | 10 | 100% |
+| `area-duration` | 8 | 8 | 100% |
+| `meta-skills` | 6 | 6 | 100% |
+| **Итого** | **301** | **301** | **100%** |
 
 Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
 
-### 4.2. Блоки БЕЗ правил (12 из 24 functional blocks)
+### 4.2. Блоки БЕЗ правил (9 из 24 functional blocks)
 
 Возвращают `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
 
-| Блок | # family-keys | Приоритет iter 118+ |
+| Блок | # family-keys | Приоритет iter 119+ |
 |------|---------------|---------------------|
 | `other` | 27 | LOW (heterogeneous — сложно систематизировать) |
-| `skill-levels` | 10 | MEDIUM |
-| `area-duration` | 8 | MEDIUM |
-| `meta-skills` | 6 | LOW |
-| `runes-barrier` | 4 | LOW |
-| `rage-charges` | 4 | LOW |
-| `penetration` | 3 | LOW |
+| `rage-charges` | 4 | MEDIUM |
+| `runes-barrier` | 4 | MEDIUM |
+| `penetration` | 3 | MEDIUM |
 | `magic-find` | 1 | LOW |
 | `breach` | 1 | LOW (только 1 token: Знак повелителя Бездны) |
 | `spirit` | 1 | LOW (только 1 token) |
@@ -167,11 +168,13 @@ export function computeSortKey(block, familyKey): string {
 
 **Примечание:** counts приведены для jewellery-only scope (6 файлов: amulet/ring/belt/jewel/jewel-desecrated/jewel-corrupted) — это scope скрипта `audit_block_sort_coverage.py`. Для full-scope (10 файлов, с relic/tablet/waystone) блок `other` содержит 201 family-key, остальные блоки не меняются.
 
+**План iter 119:** добавить правила для 3 оставшихся priority-блоков: `rage-charges` (4), `runes-barrier` (4), `penetration` (3) — всего 11 family-keys. Канонические порядки пока не предложены, но объём небольшой.
+
 ---
 
 ## 5. Канонические порядки (реализованные и для будущих итераций)
 
-Ниже — canonical orderings для functional blocks. §5.1, §5.2, §5.3, §5.4, §5.5, §5.6, §5.7, §5.8 — РЕАЛИЗОВАНЫ (iter 113–117). Для будущих итераций канонические порядки пока не предложены — потребуется анализ данных.
+Ниже — canonical orderings для functional blocks. §5.1–§5.11 — РЕАЛИЗОВАНЫ (iter 113–118). Для будущих итераций канонические порядки пока не предложены — потребуется анализ данных.
 
 ### 5.1. `damage-type` — РЕАЛИЗОВАН в iter 113 (47 family-keys)
 
@@ -381,17 +384,99 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 - Any flask имеет 5 keys (план говорил 4) — добавлен regen-per-sec (`Флаконы получают зарядов в секунду: #`).
 - Flask buffs — 2 keys (план говорил 2) ✓.
 
+### 5.9. `skill-levels` — РЕАЛИЗОВАН в iter 118 (10 family-keys)
+
+Все gem-level / quality / skill-duration / cooldown family-keys.
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['skill-levels']`:
+
+```
+0:   +# к уровню всех камней умений (ALL skills — most universal)
+10:  +# к уровню всех камней умений чар (spells)
+11:  +# к уровню всех камней умений ближнего боя (melee)
+12:  +# к уровню всех камней умений приспешников (minion)
+13:  +# к уровню всех камней умений снарядов (projectile)
+20:  +#% к качеству всех умений (quality %)
+21:  +#% к максимальному качеству (quality cap)
+30:  #% увеличение длительности эффекта умения (generic duration)
+31:  Умения меток имеют #% увеличение длительности эффекта умения (mark subset)
+40:  #% повышение скорости перезарядки умений (cooldown recovery)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'skill-levels':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 118 — первый план канонического порядка для skill-levels (раньше не предлагался).
+- Levels FIRST (most-impactful — +1 level is huge), затем Quality, Duration, Cooldown LAST.
+- Within levels: all-skills FIRST (most universal), then specific subsets (spells → melee → minion → projectile).
+- Two substring conflicts handled via first-match-wins (most-specific FIRST):
+  1. `увеличение длительности эффекта умения` в generic duration И в mark-skill duration — mark rule (с `умения меток имеют.*` prefix) listed FIRST.
+  2. `уровню всех камней умений` в 5 family-keys — generic all-skills rule end-anchored `$`, specific subset rules match their own distinctive phrase.
+- `качеству` в both quality % AND max-quality % — full phrases distinct.
+
+### 5.10. `area-duration` — РЕАЛИЗОВАН в iter 118 (8 family-keys)
+
+Все area-of-effect и skill-duration family-keys (curses/banners/spells/etc.).
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['area-duration']`:
+
+```
+0:   #% увеличение области действия (generic area)
+10:  #% увеличение области действия умений чар (spells area)
+11:  #% увеличение области действия проклятий (curses area)
+12:  #% увеличение области действия умений знамён (banners area)
+13:  #% увеличение области действия присутствия (presence area)
+20:  Улучшает радиус до очень большого (special radius-improvement mod)
+30:  #% увеличение длительности проклятий (curse duration)
+31:  #% увеличение длительности умений знамён (banner duration)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'area-duration':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 118 — первый план канонического порядка для area-duration (раньше не предлагался).
+- Area FIRST (more universal — affects many skills).
+- Radius improvement — special mod (order 20) between area-% and duration.
+- `увеличение области действия` в 5 family-keys — generic rule end-anchored `$`, specific subset rules match their own distinctive phrase.
+- `проклятий` и `умений знамён` appear in BOTH area AND duration variants — no conflict because leading phrase differs (`области действия` vs `длительности`).
+
+### 5.11. `meta-skills` — РЕАЛИЗОВАН в iter 118 (6 family-keys)
+
+Все meta-skill-related family-keys (Archon / sealed-skills / energy). Meta-skills in PoE2 are weapon-swap skills.
+
+Фактический canonical order, реализованный в `BLOCK_SORT_RULES['meta-skills']`:
+
+```
+0:   Мета-умения получают увеличенное на #% количество энергии (energy amount)
+1:   #% увеличение максимума энергии вызываемых умений (max energy cap)
+10:  #% усиление положительных эффектов Архонта на вас (Archon buff effect)
+11:  #% увеличение длительности эффекта Архонта (Archon duration)
+20:  Запечатанные умения имеют +1 к максимуму зарядов печати (sealed max charges)
+21:  Запечатанные умения имеют (#)% увеличение частоты получения зарядов печати (sealed frequency)
+```
+
+Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед `'meta-skills':`).
+
+**Корректировки плана** (vs первичной оценки):
+- iter 118 — первый план канонического порядка для meta-skills (раньше не предлагался).
+- Energy FIRST (most universal — powers all meta-skills), затем Archon, затем Sealed skills.
+- Archon: buff effect before duration (same pattern as buff-skills).
+- Sealed skills: max charges before frequency (cap is more fundamental than gain speed).
+- `энергии` в 2 family-keys — distinctive phrases (`Мета-умения получают.*количество энергии` vs `максимума энергии вызываемых умений`).
+- `Архонта` в 2 family-keys — distinctive phrases (`усиление положительных эффектов Архонта` vs `длительности эффекта Архонта`).
+- `зарядов печати` в 2 family-keys — distinctive phrases (`максимуму зарядов печати` vs `частоты получения зарядов печати`).
+
 ---
 
 ## 6. Тестирование
 
 ### 6.1. Unit tests (`tests/shared/block-sort-rules.test.ts`)
 
-- `computeSortKey()` для каждого canonical family-key (277 cases — 12 offence-speed + 9 crit + 7 buff-skills + 24 weapon-specific + 16 flasks + 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
+- `computeSortKey()` для каждого canonical family-key (301 cases — 10 skill-levels + 8 area-duration + 6 meta-skills + 12 offence-speed + 9 crit + 7 buff-skills + 24 weapon-specific + 16 flasks + 29 resources + 28 defence-stats + 47 damage-type + 105 iter 112).
 - `sortGroupsAlphabetically()` использует sortKey когда set.
 - `sortGroupsAlphabetically()` fallback к familyKey когда sortKey отсутствует (backward compat).
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
-- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 117 scope = 12 блоков.
+- Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 118 scope = 15 блоков.
 
 ### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
 
@@ -415,51 +500,50 @@ iter 112 добавил 2 теста для regex-бага:
 
 | Файл | Назначение |
 |------|------------|
-| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (12 блоков) |
+| `src/shared/block-sort-rules.ts` | Per-block ordering rules + `computeSortKey()` (15 блоков) |
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (277 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (12 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (301 case-tests + relationship + E2E) |
+| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (15 блоков) |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
 
 ---
 
-## 8. Точка остановки iter 117 → iter 118
+## 8. Точка остановки iter 118 → iter 119
 
-**Сделано в iter 117:**
-1. ✅ `offence-speed` block — 12 family-keys, 100% coverage. Canonical order: attack → cast (generic→mark) → move → projectile → crossbow-reload → warcry → trap → totem → swap → skill (generic→transformed).
-2. ✅ `crit` block — 9 family-keys, 100% coverage. Canonical order: chance % (generic→attacks→spells) → chance flat (thorns→fire-spells) → damage % (generic→spells) → damage flat (attacks) → ailment-from-crit.
-3. ✅ `buff-skills` block — 7 family-keys, 100% coverage. Canonical order: Ауры → Вестники → Проклятия (strength→activation) → Кличи (effect→reload) → Метки (effect).
-4. ✅ Audit script обновлён — проверяет 12 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills, 277 family-keys total).
-5. ✅ 46 новых unit/relationship/E2E теста — все green (1820/1820 total).
+**Сделано в iter 118:**
+1. ✅ `skill-levels` block — 10 family-keys, 100% coverage. Canonical order: Levels (all→spells→melee→minion→projectile) → Quality (%→max) → Duration (generic→mark) → Cooldown.
+2. ✅ `area-duration` block — 8 family-keys, 100% coverage. Canonical order: Area (generic→spells→curses→banners→presence) → Radius improvement → Duration (curses→banners).
+3. ✅ `meta-skills` block — 6 family-keys, 100% coverage. Canonical order: Energy (amount→max) → Archon (buff-effect→duration) → Sealed skills (max-charges→frequency).
+4. ✅ Audit script обновлён — проверяет 15 блоков (resistances/attributes/minions/ailments/damage-type/defence-stats/resources/weapon-specific/flasks/offence-speed/crit/buff-skills/skill-levels/area-duration/meta-skills, 301 family-keys total).
+5. ✅ 42 новых unit/relationship/E2E теста — все green (1862/1862 total).
 6. ✅ Документация — STATUS.md, AFFIX_ORDERING_PLAN.md (этот файл), worklog.md, AGENT_NAVIGATION.md.
 
-**Корректировки плана в iter 117:**
-- `offence-speed`: 12 family-keys (совпадает с планом §5.3).
-- `offence-speed`: добавлен mark-skill cast speed (order 11) — subset of generic spell cast speed (10). План не упоминал.
-- `offence-speed`: добавлен transformed-conditional skill speed (order 91) — variant of generic skill speed (90). План не упоминал.
-- `crit`: 9 family-keys (совпадает с планом §5.4).
-- `crit`: bucket 50-59 имеет только 1 key (attacks flat) — план говорил "атаками/шипами", но шипы-variant отсутствует в данных.
-- `buff-skills`: 7 family-keys (совпадает с планом §5.6).
-- `buff-skills`: **NO знамёна family-keys в jewellery-scope data** — bucket 30 (план §5.6) left empty.
-- `buff-skills`: warcries имеют "скорость перезарядки" (reload), не "скорость применения" (application) как план.
-- `buff-skills`: marks имеют только "усиление эффекта", не "скорость сотворения" как план. Mark cast speed классифицирован в `offence-speed` (order 11).
+**Корректировки плана в iter 118:**
+- iter 118 — первый план канонических порядков для skill-levels / area-duration / meta-skills (раньше не предлагались).
+- `skill-levels`: 10 family-keys ✓. Levels FIRST (most-impactful — +1 level is huge). Cooldown LAST (timing-related).
+- `skill-levels`: 2 substring conflicts handled via first-match-wins (mark duration + all-skills level — оба с generic variants).
+- `area-duration`: 8 family-keys ✓. Area FIRST (more universal). Radius improvement as special bucket (order 20) between area-% and duration.
+- `area-duration`: `проклятий` и `умений знамён` appear in BOTH area AND duration variants — no conflict, leading phrase differs.
+- `meta-skills`: 6 family-keys ✓. Energy FIRST (most universal — powers all meta-skills). Archon before Sealed skills.
+- `meta-skills`: 3 substring conflicts (`энергии`, `Архонта`, `зарядов печати`) — все resolved via distinctive phrases (no first-match-wins needed actually).
 
-**НЕ сделано (переносится в iter 118+):**
+**НЕ сделано (переносится в iter 119+):**
 
-1. **Добавить правила для 12 functional blocks без правил** (см. §4.2).
-   - Приоритет: `skill-levels` (10), `area-duration` (8), `meta-skills` (6), `rage-charges` (4), `runes-barrier` (4), `penetration` (3).
-   - Канонические порядки пока не предложены — потребуется анализ данных.
+1. **Добавить правила для оставшихся 3 priority-блоков без правил** (см. §4.2):
+   - `rage-charges` (4 family-keys), `runes-barrier` (4), `penetration` (3) — всего 11 family-keys.
+   - Канонические порядки пока не предложены — потребуется анализ данных, но объём небольшой.
+   - Прогноз: iter 119 закроет эти 3 блока одним заходом.
 
 2. **Визуальная верификация пользователем** (из iter 111 — НЕ СДЕЛАНО, переносится дальше):
    - UI в браузере: контрасты, читаемость 12px, рендеринг Noto Sans (Linux).
-   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + **NEW iter 117: offence-speed + crit + buff-skills** — проверить, что канонический порядок выглядит правильно визуально.
+   - Особое внимание: affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + resources + weapon-specific + flasks + offence-speed + crit + buff-skills + **NEW iter 118: skill-levels + area-duration + meta-skills** — проверить, что канонический порядок выглядит правильно визуально.
 
 3. **Опционально (iter 111 leftover):** удалить `--text-faint-val` alias и `--color-faint` из `@theme` после одного release cycle без использования `text-faint` (cleanup).
 
 4. **При недовольстве dim-textом** (iter 111 leftover): опции (a) lift `--text-dim-val` до #8A92A2; (b) расширить `font-medium` на 8 page mod-counters; (c) принять текущее состояние.
 
-**Подсказка следующему агенту:** iter 117 = offence-speed (12) + crit (9) + buff-skills (7) block rules, 100% coverage each. Перед стартом iter 118 прочитай STATUS.md (актуальный статус + Known Issues #4 — 12 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (этот раздел iter 117). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 12 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+**Подсказка следующему агенту:** iter 118 = skill-levels (10) + area-duration (8) + meta-skills (6) block rules, 100% coverage each. Перед стартом iter 119 прочитай STATUS.md (актуальный статус + Known Issues #4 — 9 блоков без правил), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (этот раздел iter 118). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 15 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.

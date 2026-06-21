@@ -5,10 +5,10 @@ Audit script for iter 112+ block sort rules coverage.
 For each block with explicit sort rules (resistances, attributes, minions,
 ailments, damage-type [iter 113], defence-stats [iter 114], resources
 [iter 115], weapon-specific + flasks [iter 116], offence-speed + crit +
-buff-skills [iter 117]), enumerates all production family-keys and checks
-whether the rule set covers them. Reports any family-keys that fall into
-the "900::" fallback bucket (rules exist but none matched) — these need
-new rules.
+buff-skills [iter 117], skill-levels + area-duration + meta-skills [iter 118]),
+enumerates all production family-keys and checks whether the rule set covers
+them. Reports any family-keys that fall into the "900::" fallback bucket
+(rules exist but none matched) — these need new rules.
 
 Usage:
     python3 scripts/audit_block_sort_coverage.py
@@ -402,6 +402,47 @@ BLOCK_SORT_RULES = {
         # Marks (50-59) — effect
         (re.compile(r'усиление эффекта.*умений меток', re.I), 50, 'marks: effect'),
     ],
+    'skill-levels': [
+        # Mark skill duration (subset — listed FIRST before generic)
+        (re.compile(r'умения меток имеют.*длительности эффекта умения', re.I), 31, 'mark-skills: effect duration (subset)'),
+        # Gem levels — generic end-anchored, then specific subsets
+        (re.compile(r'уровню всех камней умений$', re.I), 0, 'all-skills: +level (most universal)'),
+        (re.compile(r'уровню всех камней умений чар', re.I), 10, 'spell-skills: +level'),
+        (re.compile(r'уровню всех камней умений ближнего боя', re.I), 11, 'melee-skills: +level'),
+        (re.compile(r'уровню всех камней умений приспешников', re.I), 12, 'minion-skills: +level'),
+        (re.compile(r'уровню всех камней умений снарядов', re.I), 13, 'projectile-skills: +level'),
+        # Quality
+        (re.compile(r'качеству всех умений', re.I), 20, 'quality: +% (all skills)'),
+        (re.compile(r'максимальному качеству', re.I), 21, 'quality: +% max cap'),
+        # Generic duration (end-anchored to avoid matching mark variant)
+        (re.compile(r'увеличение длительности эффекта умения$', re.I), 30, 'skill-effect-duration: generic'),
+        # Cooldown recovery
+        (re.compile(r'скорости перезарядки умений', re.I), 40, 'skill-cooldown: recovery speed'),
+    ],
+    'area-duration': [
+        # Area — generic end-anchored, then specific subsets
+        (re.compile(r'увеличение области действия$', re.I), 0, 'area: generic'),
+        (re.compile(r'увеличение области действия умений чар', re.I), 10, 'area: spells'),
+        (re.compile(r'увеличение области действия проклятий', re.I), 11, 'area: curses'),
+        (re.compile(r'увеличение области действия умений знамён', re.I), 12, 'area: banners'),
+        (re.compile(r'увеличение области действия присутствия', re.I), 13, 'area: presence'),
+        # Radius improvement (special mod)
+        (re.compile(r'Улучшает радиус до очень большого', re.I), 20, 'area: radius improvement (special)'),
+        # Duration
+        (re.compile(r'увеличение длительности проклятий', re.I), 30, 'duration: curses'),
+        (re.compile(r'увеличение длительности умений знамён', re.I), 31, 'duration: banners'),
+    ],
+    'meta-skills': [
+        # Energy (most universal meta-skill stat)
+        (re.compile(r'Мета-умения получают.*количество энергии', re.I), 0, 'meta-skill: energy amount'),
+        (re.compile(r'максимума энергии вызываемых умений', re.I), 1, 'meta-skill: max energy (triggered skills)'),
+        # Archon (buff effect before duration)
+        (re.compile(r'усиление положительных эффектов Архонта', re.I), 10, 'archon: buff effect strength'),
+        (re.compile(r'длительности эффекта Архонта', re.I), 11, 'archon: effect duration'),
+        # Sealed skills (max charges before frequency)
+        (re.compile(r'максимуму зарядов печати', re.I), 20, 'sealed-skills: max charges (cap)'),
+        (re.compile(r'частоты получения зарядов печати', re.I), 21, 'sealed-skills: charge frequency (speed)'),
+    ],
 }
 
 
@@ -432,7 +473,8 @@ def main() -> int:
     exit_code = 0
     for block in ['resistances', 'attributes', 'minions', 'ailments', 'damage-type',
                   'defence-stats', 'resources', 'weapon-specific', 'flasks',
-                  'offence-speed', 'crit', 'buff-skills']:
+                  'offence-speed', 'crit', 'buff-skills',
+                  'skill-levels', 'area-duration', 'meta-skills']:
         family_keys = sorted(by_cat.get(block, {}).keys())
         print(f'\n=== {block} ({len(family_keys)} family-keys) ===')
         uncovered = []
@@ -449,7 +491,7 @@ def main() -> int:
             print(f'  ✓ All {len(family_keys)} family-keys covered by rules.')
 
     if exit_code == 0:
-        print('\n✓ All 12 blocks fully covered. No gaps.')
+        print('\n✓ All 15 blocks fully covered. No gaps.')
     else:
         print('\n⚠ Some family-keys uncovered — add rules to BLOCK_SORT_RULES.')
     return exit_code
