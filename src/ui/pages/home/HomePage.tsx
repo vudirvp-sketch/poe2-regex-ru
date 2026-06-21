@@ -66,50 +66,38 @@ export function HomePage() {
           stays identical to iter 57. Wrapper uses `isolate` so the backdrop's
           `mix-blend-screen` blends only within this container (not with the body
           bg), and `overflow-hidden` so the side ghosts never cause horizontal
-          scroll. All decorations are `aria-hidden` + `pointer-events-none`. */}
+          scroll. All decorations are `aria-hidden` + `pointer-events-none`.
+          iter 120: backdrop images (hero-bas-relief lg+, news-bg-center mobile)
+          REMOVED — bas-relief visually competed with hero text and was reported
+          as "completely hides text"; news-bg-center was too subtle to be visible
+          ("don't see it anywhere"). Side ghosts REPLACED with full-body portrait
+          images: shaman (left) + ива (right). They use `h-[500px] w-auto` to
+          show the full body, with a CSS mask-image gradient for smooth fade-out
+          of the legs at the bottom. Opacity 0.22 keeps them as silhouettes. */}
       <div className="relative mb-6 isolate overflow-hidden text-center">
-        {/* Backdrop: gothic bas-relief (Gemini image). lg+ only, screen-blended
-            so light bas-relief tones "etch" onto the dark body bg without
-            covering the text. Max-width 640px to stay inside the max-w-4xl
-            content column. */}
+        {/* Side ghost: shaman full-body (iter 120, replaces hero-horned-warrior).
+            xl+ only (≥1280px) — below that, the content column has no room for
+            side decorations without squeezing the text. Portrait aspect ratio
+            (533×800) → at h-[500px], width ≈ 333px. CSS mask-image fades the
+            bottom 40% (legs) smoothly into the background. Opacity 0.22 keeps
+            the shaman as a ghosted silhouette, not a focal point. */}
         <img
-          src={`${import.meta.env.BASE_URL}atmosphere/hero-bas-relief.webp`}
+          src={`${import.meta.env.BASE_URL}atmosphere/hero-shaman.webp`}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 hidden w-2/3 max-w-[640px] -translate-x-1/2 -translate-y-1/2 opacity-[0.18] mix-blend-screen lg:block"
+          className="pointer-events-none absolute left-0 top-1/2 hidden h-[500px] w-auto -translate-y-1/2 opacity-[0.22] xl:block hero-side-ghost"
         />
-        {/* iter 71: mobile-only alternative backdrop — `news-bg-center.webp`
-            (1681×260, gothic wide horizontal scene). On <lg viewports the
-            bas-relief is hidden, leaving the hero texturally flat. This
-            image fills that gap with a subtle wide-stripe backdrop, same
-            `mix-blend-screen` + low-opacity language as the lg+ bas-relief.
-            `lg:hidden` ensures it never shows alongside the bas-relief
-            (avoids double-decoration on desktop). Wider aspect (6.5:1)
-            fits the mobile portrait hero without cropping the text area. */}
+        {/* Side ghost: ива full-body (iter 120, replaces hero-monster-red).
+            Mirrors the left shaman. Symmetry is intentional — two flanking
+            full-body silhouettes frame the centered hero text. Same h-[500px],
+            same mask-image fade, same opacity 0.22. The `--right` modifier
+            flips the horizontal mask gradient so the fade is on the inner edge
+            (facing the hero text) rather than the outer edge. */}
         <img
-          src={`${import.meta.env.BASE_URL}atmosphere/news-bg-center.webp`}
+          src={`${import.meta.env.BASE_URL}atmosphere/hero-iva.webp`}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-[640px] -translate-x-1/2 -translate-y-1/2 opacity-[0.14] mix-blend-screen lg:hidden"
-        />
-        {/* Side ghost: horned warrior (3-Photoroom). xl+ only (≥1280px) — below
-            that, the content column has no room for side decorations without
-            squeezing the text. Opacity 0.28 keeps it as a silhouette, not a
-            focal point. */}
-        <img
-          src={`${import.meta.env.BASE_URL}atmosphere/hero-horned-warrior.webp`}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-1/2 hidden w-44 -translate-y-1/2 opacity-[0.28] xl:block"
-        />
-        {/* Side ghost: red-eyed monster (1-Photoroom). xl+ only, mirrors the
-            left ghost. Symmetry is intentional — two flanking silhouettes
-            frame the centered hero text without competing for attention. */}
-        <img
-          src={`${import.meta.env.BASE_URL}atmosphere/hero-monster-red.webp`}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-1/2 hidden w-44 -translate-y-1/2 opacity-[0.28] xl:block"
+          className="pointer-events-none absolute right-0 top-1/2 hidden h-[500px] w-auto -translate-y-1/2 opacity-[0.22] xl:block hero-side-ghost hero-side-ghost--right"
         />
 
         {/* Original hero text content. `relative` lifts it above the absolutely

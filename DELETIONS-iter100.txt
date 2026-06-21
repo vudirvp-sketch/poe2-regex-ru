@@ -1,0 +1,19 @@
+# Files deleted in iter 100 (cleanup of stale iter*-specific audit scripts).
+# Run from repo root: rm <path> for each, OR apply via git merge of the patch.
+DELETED-FILES-iter92.txt
+scripts/analyze-iter88-other-bucket.ts
+scripts/analyze-iter89-other-bucket.ts
+scripts/simulate-iter86-impact.ts
+scripts/simulate-iter87-impact.ts
+scripts/simulate-iter88-impact.ts
+scripts/simulate-iter89-impact.ts
+scripts/simulate-iter94-impact.ts
+scripts/verify-iter49.ts
+scripts/verify-iter89-deployment.ts
+scripts/verify-iter90-cross-validation.ts
+scripts/verify-iter90-etl-functional-category.ts
+scripts/verify-iter91-discrepancies.ts
+scripts/verify-iter91-strategy0.ts
+scripts/verify-iter92-fixes.ts
+scripts/verify-iter94-fixes.ts
+scripts/verify-iter95-stability.ts

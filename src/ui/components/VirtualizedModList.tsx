@@ -15,10 +15,13 @@
  * exists, a single full-width column is used.
  *
  * Each column's virtualizer uses normal flow positioning (padding-top/
- * padding-bottom spacers) to prevent overlap when FilterChip height
- * changes on selection (range inputs expand the chip).
+ * padding-bottom spacers). Dynamic row measurement is handled by the
+ * `measureElement` ref + ResizeObserver (TanStack Virtual built-in);
+ * no manual `virtualizer.measure()` calls are made (iter 120 — see
+ * STATUS.md Known Issue #6 for the root-cause analysis of the previous
+ * jump-to-top / jitter bugs that manual measure() caused).
  */
-import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter, SortMode } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
@@ -77,12 +80,16 @@ const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence
 /** Order for jewel type sub-headers within origin sections */
 const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 'shared'];
 
-/** Estimated heights for virtualizer (will be dynamically measured) */
+/** Estimated heights for virtualizer (will be dynamically measured).
+ *  iter 120: subgroup lowered from 120 → 60 (closer to actual average for
+ *  typical 1–3 chip subgroups without range inputs). High estimates caused
+ *  jitter during scroll because totalSize shrank when ResizeObserver fired
+ *  with actual sizes much smaller than the estimate. */
 const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
   'column-header': 44,
   'origin-header': 36,
   'jewel-type-header': 30,
-  'subgroup': 120, // varies by chip count; estimated high to reduce jump
+  'subgroup': 60, // typical 1–3 chips: ~40–80px; selected with range: ~100–120px
 };
 
 /**
@@ -339,79 +346,20 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     overscan: 10,
   });
 
-  // Continuously track scroll position so we can restore it accurately
-  // when chips expand/collapse and the virtualizer re-measures.
-  const scrollTopRef = useRef(0);
-  useEffect(() => {
-    const el = scrollElement;
-    if (!el) return;
-    const handleScroll = () => { scrollTopRef.current = el.scrollTop; };
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [scrollElement]);
-
-  // Preserve scroll position when selection or range overrides change.
-  // Strategy: save scroll → let browser layout → measure → restore.
+  // iter 120: removed the entire useLayoutEffect block that called
+  // virtualizer.measure() + restore() on every selection/range change.
+  // That code was the cause of the "jump to top" bug on the jewel page and
+  // jitter during scroll on several tabs. `measure()` invalidated the ENTIRE
+  // measurement cache, so all rows reverted to estimate sizes (120px for
+  // subgroup vs actual 40–80px) → paddingTop/paddingBottom drifted → visible
+  // items shifted → scroll position effectively jumped.
   //
-  // The key insight is that chip expansion (range inputs appearing) changes
-  // row heights AFTER the React commit but BEFORE the browser paint.
-  // ResizeObserver from @tanstack/react-virtual fires asynchronously,
-  // so we need multiple restoration attempts:
-  //   1. Immediate: covers synchronous layout (useLayoutEffect, before paint)
-  //   2. RAF 1: covers first ResizeObserver batch
-  //   3. RAF 2: covers late-settling layouts (e.g., CSS transitions)
-  //   4. setTimeout(0): final safety net for edge cases
-  const prevSelectedSizeRef = useRef(0);
-  const prevRangesSizeRef = useRef(0);
-  const rafIdRef = useRef<number>(0);
-  const timeoutIdRef = useRef<ReturnType<typeof setTimeout>>(0);
-
-  useLayoutEffect(() => {
-    const selSize = selectedIds.size;
-    const rngSize = perTokenRanges ? Object.keys(perTokenRanges).length : 0;
-    // Only act when these values actually changed (selections or ranges toggled)
-    const changed = selSize !== prevSelectedSizeRef.current || rngSize !== prevRangesSizeRef.current;
-    prevSelectedSizeRef.current = selSize;
-    prevRangesSizeRef.current = rngSize;
-    if (!changed) return;
-
-    // Cancel any pending restoration from a previous effect
-    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
-
-    const el = scrollElement;
-    if (!el) return;
-    const savedScrollTop = scrollTopRef.current;
-
-    const restore = () => {
-      if (!el) return;
-      el.scrollTop = savedScrollTop;
-    };
-
-    // Immediate restore (covers synchronous layout changes)
-    virtualizer.measure();
-    restore();
-
-    // Schedule progressive restorations with cleanup
-    rafIdRef.current = requestAnimationFrame(() => {
-      virtualizer.measure();
-      restore();
-      rafIdRef.current = requestAnimationFrame(() => {
-        restore();
-      });
-    });
-
-    // Final safety net: setTimeout(0) runs after all microtasks and RAFs
-    timeoutIdRef.current = setTimeout(() => {
-      virtualizer.measure();
-      restore();
-    }, 0);
-
-    return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
-    };
-  }, [selectedIds, perTokenRanges, virtualizer, scrollElement]);
+  // The correct behaviour is now achieved by relying on `measureElement` ref
+  // + ResizeObserver for dynamic row measurement (TanStack Virtual built-in).
+  // The browser itself preserves `scrollTop` when content above the viewport
+  // doesn't change — no manual restore needed.
+  //
+  // See STATUS.md Known Issue #6 for full root-cause analysis.
 
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
@@ -630,66 +578,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     overscan: 10,
   });
 
-  // Continuously track scroll position for single-column mode
-  const singleScrollTopRef = useRef(0);
-  useEffect(() => {
-    const el = scrollElement;
-    if (!el) return;
-    const handleScroll = () => { singleScrollTopRef.current = el.scrollTop; };
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [scrollElement]);
-
-  // Preserve scroll position when selection or range overrides change (single-column mode).
-  // Same strategy as the two-column version: save → layout → measure → restore.
-  const singlePrevSelRef = useRef(0);
-  const singlePrevRngRef = useRef(0);
-  const singleRafIdRef = useRef<number>(0);
-  const singleTimeoutIdRef = useRef<ReturnType<typeof setTimeout>>(0);
-
-  useLayoutEffect(() => {
-    if (hasBothAffixes) return;
-    const selSize = selectedIds.size;
-    const rngSize = perTokenRanges ? Object.keys(perTokenRanges).length : 0;
-    const changed = selSize !== singlePrevSelRef.current || rngSize !== singlePrevRngRef.current;
-    singlePrevSelRef.current = selSize;
-    singlePrevRngRef.current = rngSize;
-    if (!changed) return;
-
-    // Cancel any pending restoration
-    if (singleRafIdRef.current) cancelAnimationFrame(singleRafIdRef.current);
-    if (singleTimeoutIdRef.current) clearTimeout(singleTimeoutIdRef.current);
-
-    const el = scrollElement;
-    if (!el) return;
-    const savedScrollTop = singleScrollTopRef.current;
-
-    const restore = () => {
-      if (!el) return;
-      el.scrollTop = savedScrollTop;
-    };
-
-    singleVirtualizer.measure();
-    restore();
-
-    singleRafIdRef.current = requestAnimationFrame(() => {
-      singleVirtualizer.measure();
-      restore();
-      singleRafIdRef.current = requestAnimationFrame(() => {
-        restore();
-      });
-    });
-
-    singleTimeoutIdRef.current = setTimeout(() => {
-      singleVirtualizer.measure();
-      restore();
-    }, 0);
-
-    return () => {
-      if (singleRafIdRef.current) cancelAnimationFrame(singleRafIdRef.current);
-      if (singleTimeoutIdRef.current) clearTimeout(singleTimeoutIdRef.current);
-    };
-  }, [selectedIds, perTokenRanges, singleVirtualizer, hasBothAffixes, scrollElement]);
+  // iter 120: removed the single-column useLayoutEffect block (same as
+  // two-column) — see STATUS.md Known Issue #6 for root cause.
+  // `measureElement` ref + ResizeObserver handle dynamic measurement; browser
+  // preserves scrollTop when content above viewport is unchanged.
 
   const singleVirtualItems = singleVirtualizer.getVirtualItems();
   const singleTotalSize = singleVirtualizer.getTotalSize();

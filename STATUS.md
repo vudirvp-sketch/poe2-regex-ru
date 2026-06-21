@@ -2,18 +2,24 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 119
+> **Текущая итерация:** 120
 > **Последний UI-аудит:** 2026-06-21 (v2, см. `docs/UI_AUDIT.md`)
 
 ---
 
 ## Текущее состояние
 
-**iter 119: расширение систематической сортировки на 3 оставшихся priority-блока — `rage-charges` (4 family-keys), `runes-barrier` (4 family-keys), `penetration` (3 family-keys).**
+**iter 120: фикс UI-багов — scroll jump-to-top + jitter в VirtualizedModList (KI#6) и HomePage hero decorations (KI#7).**
 
-### Сортировка аффиксов внутри блоков
+iter 119 закрыл все priority-блоки сортировки (18 блоков, 312 family-keys). iter 120 занялся UI-багами, выявленными пользователем:
 
-iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрывает 3 оставшихся priority-блока. **Все priority-блоки закрыты.**
+1. **Scroll jump-to-top + jitter** — на вкладке самоцветов (и других) при выборе аффикса с прокрученной страницей вниз — резкий jump наверх. В некоторых вкладках при скролле аффиксы "дрожат" и наслаиваются. Причина: `useLayoutEffect` в `VirtualizedModList` вызывал `virtualizer.measure()` (3 раза) при каждом изменении `selectedIds`/`perTokenRanges`. `measure()` инвалидирует ВЕСЬ кэш измерений → все rows возвращаются к estimate (120px для subgroup vs actual 40–80px) → padding дрейфует → "jump to top". Фикс: удалён весь блок `useLayoutEffect` с `measure()` + `restore()`, `measureElement` ref + ResizeObserver обрабатывают dynamic measurement автоматически. `ROW_ESTIMATES.subgroup` снижен 120 → 60.
+
+2. **HomePage hero decorations** — `hero-bas-relief.webp` (lg+) "полностью скрывает текст", `news-bg-center.webp` (mobile) "вообще не вижу нигде". Side ghosts (horned-warrior + monster-red, оба landscape) заменены на full-body portrait images: `hero-shaman.webp` (533×800, "шаманка полный рост") слева + `hero-iva.webp` (501×800, "ива") справа. Высота `h-[500px]` (вместо `w-44`), CSS `mask-image: linear-gradient(to bottom, #000 55%, transparent 100%)` для плавного затухания ног + горизонтальный fade на inner edge. Opacity 0.22 (вместо 0.28). Backdrop'ы удалены.
+
+### Сортировка аффиксов внутри блоков (iter 119 — без изменений в iter 120)
+
+iter 112 внедрил инфраструктуру `sortKey` (поле `FamilyGroup.sortKey` + `computeSortKey()` + интеграция в `sortGroupsAlphabetically()`). iter 113–118 добавили правила для 15 блоков. iter 119 закрыл 3 оставшихся priority-блока. **Все priority-блоки закрыты.** iter 120 не трогал правила сортировки.
 
 **18 блоков с правилами (iter 119 scope):**
 
@@ -42,54 +48,13 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
 
 **Остальные 6 functional blocks:** без правил в `BLOCK_SORT_RULES` → `computeSortKey` возвращает `"999::<familyKey>"` → поведение идентично pre-iter-112 (чистая алфавитная сортировка). Эти блоки либо слишком heterogeneous (`other` — 27 family-keys), либо содержат только 1 family-key (`magic-find`, `breach`, `spirit`), либо пусты (`wisps`, `conversion`).
 
-### rage-charges canonical order (iter 119)
+### Проверки (iter 120)
 
-```
-0:   +# к максимуму свирепости (flat cap — most fundamental)
-10:  Дарует # свирепости при нанесении удара в ближнем бою (active gain)
-11:  Дарует # свирепости при получении удара от врага (passive gain)
-20:  #% повышение скорости накопления славы для умений знамён (glory gain speed)
-```
-
-**Design notes:**
-- Cap FIRST (sets ceiling — without cap, gain is unbounded).
-- Active gain (player-initiated trigger) before passive gain (enemy-initiated) — more controllable.
-- Glory (Слава) gain speed LAST — different resource, used by banner skills only.
-- `свирепости` в 3 family-keys — cap rule end-anchored `$`, gain rules match distinctive action phrase (`в ближнем бою` vs `получении удара`).
-
-### runes-barrier canonical order (iter 119)
-
-```
-0:   +# к максимуму рунического барьера (flat cap)
-1:   #% увеличение максимума рунического барьера (% cap)
-10:  #% повышение скорости регенерации рунического барьера (regen speed)
-20:  Восстанавливает # рунического барьера при использовании оберега (on-ward-use)
-```
-
-**Design notes:**
-- Mirrors `resources` block pattern: flat → % → regen → on-event recovery.
-- `максимуму рунического барьера` в 2 family-keys — flat rule end-anchored `$`, % rule matches `увеличение максимума` distinctive phrase.
-- `оберега` — only in on-ward-use family-key, no conflict.
-
-### penetration canonical order (iter 119)
-
-```
-0:  Урон пробивает #% сопротивления молнии (lightning)
-1:  Урон пробивает #% сопротивления холоду (cold)
-2:  Урон пробивает #% сопротивления огню (fire)
-```
-
-**Design notes:**
-- Element order mirrors `resistances` block (orders 1-3 there): молния → холод → огонь.
-- Renumbered 0-2 since chaos-penetration family-key doesn't exist in jewellery data.
-- No substring conflicts — `пробивает.*сопротивления <element>` is fully distinctive.
-
-### Проверки (iter 119)
-
-- **vitest:** 1890/1890 tests passed (37 test files). +28 vs iter 118 baseline 1862 (4 case + 5 relationship для rage-charges, 4 case + 5 relationship для runes-barrier, 3 case + 4 relationship для penetration, 3 E2E + 1 update structural).
+- **vitest:** 1890/1890 tests passed (37 test files) — без изменений vs iter 119 (тесты сортировки не затронуты).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **audit script:** 18/18 blocks fully covered (312 family-keys).
+- **vite build:** ✅ built successfully (156 modules, 564 KB JS / 49 KB CSS).
 
 ---
 
@@ -103,6 +68,15 @@ iter 112 внедрил инфраструктуру `sortKey` (поле `Family
    - Поведение: `computeSortKey` возвращает `"999::<familyKey>"` → чистая алфавитная сортировка (как pre-iter-112).
    - **План:** `other` heterogeneous — скорее всего останется без правил. `magic-find`/`breach`/`spirit` содержат только 1 family-key каждый — правила не нужны (один элемент сортируется сам с собой). `wisps`/`conversion` пустые — нет данных. Таким образом, **iter 119 завершает систематическую сортировку priority-блоков**.
 5. **Истощения Бездны regex bug** (closed iter 112): `jewel-desecrated.mod_3yl2ru` имел `regexPrefixContext: "(10—20)%"` (literal range) — regex не матчат реальные предметы. Фикс: data patch + ETL algorithm filter + 2 regression tests.
+6. **Scroll jump-to-top + jitter в VirtualizedModList** (iter 120 — fixed):
+   - **Симптом 1:** На вкладке самоцветов (и других) при выборе аффикса с прокрученной страницей вниз — резкий jump наверх.
+   - **Симптом 2:** В некоторых вкладках при скролле аффиксы "дрожат" и наслаиваются друг на друга.
+   - **Причина:** `useLayoutEffect` в `VirtualizedModList` вызывал `virtualizer.measure()` (3 раза: immediate + RAF + setTimeout) при каждом изменении `selectedIds`/`perTokenRanges`. `measure()` инвалидирует ВЕСЬ кэш измерений → все rows возвращаются к estimate-размерам (120px для subgroup, тогда как actual 40–80px) → paddingTop/paddingBottom дрейфуют → visible items смещаются → "jump to top". Jitter при скролле — та же причина: новые rows используют estimate 120px, после ResizeObserver actual размер меньше → totalSize уменьшается → padding дрейфует.
+   - **Фикс (iter 120):** Удалён весь блок `useLayoutEffect` с `measure()` + `restore()` (оба: two-column и single-column). `measureElement` ref + ResizeObserver автоматически обрабатывают dynamic measurement. `ROW_ESTIMATES.subgroup` снижен с 120 → 60 (ближе к среднему actual размеру). Браузер сам сохраняет `scrollTop` когда content выше viewport'а не меняется.
+7. **HomePage hero decorations: text hidden + images not visible** (iter 120 — fixed):
+   - **Симптом 1:** `hero-bas-relief.webp` (lg+, opacity 0.18, mix-blend-screen) — "полностью скрывает текст, мал, странно расположен".
+   - **Симптом 2:** `news-bg-center.webp` (mobile, opacity 0.14, mix-blend-screen) — "вообще не вижу нигде".
+   - **Фикс (iter 120):** Удалены оба backdrop'а. Side ghosts заменены: `hero-horned-warrior.webp` (landscape 640×390) → `hero-shaman.webp` (portrait 800×1200, "шаманка полный рост"); `hero-monster-red.webp` (landscape 640×375) → `hero-iva.webp` (portrait 800×1200, "ива"). Side ghosts теперь `h-[500px] w-auto` (вместо `w-44`), с CSS `mask-image: linear-gradient(to bottom, black 60%, transparent 100%)` для плавного затухания ног. `faf.png` (1672×941, landscape) — пока не пристроено, нет подходящего места.
 
 ---
 

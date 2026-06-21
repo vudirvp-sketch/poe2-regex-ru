@@ -606,6 +606,48 @@ pre,
   flex-shrink: 0;
 }
 
+/* iter 120: .hero-side-ghost — full-body portrait side decorations on the
+   HomePage hero (shaman left, ива right). The portrait images are tall
+   (533×800, aspect ~0.67), so at h-[500px] they're ~333px wide — tall
+   enough to read as "full-body characters" rather than cropped busts.
+
+   The mask-image fades the bottom 40% (legs/feet) smoothly into the
+   background — this is the "плавное затухание по краям или низа изображения
+   (ног)" the user requested. Without this fade, the bottom edge of the
+   image would be a hard horizontal line that breaks the silhouette.
+
+   We also add a subtle horizontal fade on the inner edge (the side facing
+   the hero text) via a second mask layer — this softens the visual
+   transition between the ghosted character and the centered text column.
+   mask-composite: intersect combines both fades (bottom + inner edge).
+
+   WebKit prefix is required for Safari (Chrome/Firefox support unprefixed
+   mask-image since 2018+). */
+.hero-side-ghost {
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 18%, #000 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 18%, #000 100%);
+          mask-composite: intersect;
+}
+
+/* Mirror variant: fade the OPPOSITE horizontal edge (right side ghost
+   fades its left edge toward the text; this variant fades the right edge).
+   Applied by adding `.hero-side-ghost--right` on the right-side img. */
+.hero-side-ghost--right {
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
+    linear-gradient(to left, transparent 0%, #000 18%, #000 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%),
+    linear-gradient(to left, transparent 0%, #000 18%, #000 100%);
+          mask-composite: intersect;
+}
+
 /* .btn-cta — primary CTA (Copy / Share). Dark metallic base with a faint
    crimson radial glow on hover, and a brighter crimson pulse on success
    (just-copied). Replaces `bg-btn-primary` (#2563eb, cold blue) on Copy.

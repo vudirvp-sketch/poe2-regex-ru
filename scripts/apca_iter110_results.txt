@@ -1,0 +1,24 @@
+Pair                                                                Lc  Threshold  Verdict
+----------------------------------------------------------------------------------------------------
+text-primary (#F0E6D2) on --poe-bg (#0D0B09)                    -97.4         75  PASS  [body text / h1-h6]
+text-soft (#d1d5db) on --poe-bg                                 -86.5         75  PASS  [secondary body text]
+text-muted (#9ca3af) on --poe-bg                                -58.6         75  FAIL  [tertiary text]
+text-dim NEW (#7A8494) on --poe-bg                              -42.8         90  FAIL  [small UI labels]
+text-dim OLD (#6b7280) on --poe-bg                              -34.5         90  FAIL  [small UI labels (old)]
+text-faint (#7C8494) on --poe-bg                                -43.0         90  FAIL  [tertiary labels]
+text-primary on --poe-bg-secondary NEW (#1A1510)                -97.4         75  PASS  [panel headers]
+text-dim NEW (#7A8494) on --poe-bg-secondary NEW                -42.8         90  FAIL  [panel small labels]
+text-primary on --input-bg (#1F1812)                            -97.4         75  PASS  [input value text]
+text-dim NEW (#7A8494) on --input-bg                            -42.8         90  FAIL  [range input n/250 count]
+text-dim OLD (#6b7280) on --input-bg                            -34.5         90  FAIL  [range input n/250 count (old)]
+text-faint (#7C8494) on --input-bg                              -43.0         90  FAIL  [input placeholder]
+placeholder-primary (#6b7280) on --input-bg                     -34.5         90  FAIL  [input placeholder (primary)]
+placeholder-secondary (#4b5563) on --input-bg                   -21.3         90  FAIL  [input placeholder (secondary)]
+accent-blue (#60a5fa) on --poe-bg                               -58.5         75  FAIL  [prefix ⚓ indicator]
+accent-emerald (#34d399) on --input-bg                          -71.8         75  FAIL  [regex output (part health green)]
+accent-yellow (#facc15) on --input-bg                           -84.2         75  PASS  [regex output (part health yellow)]
+accent-red (#f87171) on --input-bg                              -54.9         75  FAIL  [regex output (part health red)]
+
+Sign: + = dark text on light bg (BoW), − = light text on dark bg (WoB)
+Reference: |Lc| ≥ 75 = body text (≥16px w400 / ≥14px w500)
+           |Lc| ≥ 90 = small text (≤14px w400 / ≤12px w500)

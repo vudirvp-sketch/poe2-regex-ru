@@ -4,6 +4,10 @@
 > **Основание:** аудит кодовой базы (index.css, компоненты JSX) + актуальные исследования (WCAG 2.2, APCA, Smashing Magazine 2025, Material Design dark-theme spec, исследования зрительной усталости 2024–2025)
 > **Метод:** экспертный анализ с опорой на измеримые метрики (контраст, luminance, размер глифа)
 > **Статус реализации:** Приоритет 1 (5/5) + Приоритет 2 (4/4) + Приоритет 3 (4/4) — ✅ iter 110. Known Issues #3/#4 закрыты, #5 реклассифицирован как accepted tradeoff — ✅ iter 111. Осталась только визуальная верификация пользователем.
+>
+> **iter 120 (вне аудита v2):** исправлены 2 UI-бага, выявленные пользователем:
+> - **KI#6 — Scroll jump-to-top + jitter** в `VirtualizedModList` (на вкладке самоцветов и других). Удалён `useLayoutEffect` с `virtualizer.measure()` (3 вызова), который инвалидирует весь кэш измерений и вызывает дрейф padding → jump to top + jitter при скролле. `ROW_ESTIMATES.subgroup` снижен 120→60. См. `STATUS.md` KI#6.
+> - **KI#7 — HomePage hero decorations.** Удалены backdrop'ы (`hero-bas-relief.webp` lg+ "скрывает текст", `news-bg-center.webp` mobile "не виден"). Side ghosts заменены на portrait full-body: `hero-shaman.webp` (533×800, "шаманка полный рост") слева + `hero-iva.webp` (501×800, "ива") справа. CSS `mask-image` для плавного затухания ног + horizontal fade на inner edge. См. `STATUS.md` KI#7.
 
 ---
 
@@ -358,19 +362,20 @@ font-feature-settings: "tnum";
 
 ## 8) Точка остановки
 
-**iter 115 COMPLETE.** iter 112 внедрил инфраструктуру `sortKey` + правила для 4 функциональных блоков. iter 113 добавил `damage-type` (47 family-keys). iter 114 добавил `defence-stats` (28 family-keys). iter 115 добавил `resources` (29 family-keys, 100% coverage). Все 13 пунктов аудита v2 закрыты с iter 110; APCA Lc<75 для small text — accepted design tradeoff (STATUS.md Known Issue #3).
+**iter 120 COMPLETE.** iter 110 закрыл все 13 пунктов аудита v2 (Приоритет 1+2+3). iter 111 закрыл KI#3/#4 + реклассифицировал KI#5 как accepted tradeoff. iter 112–119 внедрили систематическую сортировку внутри functional blocks (18 блоков, 312 family-keys, 100% coverage — все priority-блоки закрыты). iter 120 исправил 2 UI-бага, выявленные пользователем (KI#6 scroll, KI#7 hero decorations).
 
-**Что сделано (iter 115):**
-- `resources` block rules в `src/shared/block-sort-rules.ts` — 29 family-keys, 100% coverage. Canonical order: Здоровье → Мана → ES → Конверсия → Тотем → Прочее (6 buckets).
-- Audit script `scripts/audit_block_sort_coverage.py` обновлён — проверяет 7 блоков (209 family-keys total).
-- 34 новых unit/relationship/E2E теста в `tests/shared/block-sort-rules.test.ts`.
+**Что сделано (iter 120):**
+- **KI#6 — Scroll jump-to-top + jitter** в `src/ui/components/VirtualizedModList.tsx`: удалены оба `useLayoutEffect` блока (two-column + single-column) с `virtualizer.measure()` (3 вызова в каждом) + `restore()`. `measureElement` ref + ResizeObserver обрабатывают dynamic measurement автоматически. `ROW_ESTIMATES.subgroup` снижен 120→60 (ближе к actual average).
+- **KI#7 — HomePage hero decorations** в `src/ui/pages/home/HomePage.tsx` + `src/index.css`: удалены backdrop'ы (`hero-bas-relief.webp` lg+, `news-bg-center.webp` mobile). Side ghosts заменены: `hero-horned-warrior.webp` (landscape 640×390) → `hero-shaman.webp` (portrait 533×800, "шаманка полный рост"); `hero-monster-red.webp` (landscape 640×375) → `hero-iva.webp` (portrait 501×800, "ива"). Высота `h-[500px]` (вместо `w-44`), CSS `.hero-side-ghost` + `.hero-side-ghost--right` с `mask-image: linear-gradient(to bottom, #000 55%, transparent 100%)` для плавного затухания ног + horizontal fade на inner edge.
 
-**Тесты/типы/lint:** ✅ tsc 0 errors, vitest 1721/1721 (+34 vs iter 114), eslint 0 problems.
+**Тесты/типы/lint/build:** ✅ tsc 0 errors, vitest 1890/1890 (без изменений vs iter 119), eslint 0 problems, vite build OK, audit script 18/18 blocks.
 
-**Следующая итерация (iter 116+) — план:**
-1. **Расширить правила сортировки** на 13 functional blocks без правил. Приоритет: `weapon-specific` (24, jewel-only), `flasks` (16, belt+jewel). Канонические порядки предложены в `docs/AFFIX_ORDERING_PLAN.md` §5.7 и §5.8.
-2. **Визуальная верификация пользователем** (перенос из iter 111) — UI в браузере: контрасты, читаемость 12px, корректность нового affix ordering в resistances/attributes/minions/ailments + damage-type + defence-stats + **NEW iter 115: resources**.
-3. Опционально (iter 111 leftover): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
-4. Полный план и статус — в STATUS.md, docs/AFFIX_ORDERING_PLAN.md и worklog.md.
+**Следующая итерация (iter 121+) — план:**
+1. **Визуальная верификация пользователем** — UI в браузере: (а) scroll на вкладке самоцветов (и других) — не должно быть jump-to-top при выборе аффикса, не должно быть jitter при скролле; (б) HomePage hero — shaman слева, ива справа, оба full-body с плавным затуханием ног, текст не перекрыт backdrop'ами; (в) перенос из iter 111 — контрасты, читаемость 12px, affix ordering в 18 блоках.
+2. Опционально: cleanup неиспользуемых atmosphere images (`hero-horned-warrior.webp`, `hero-monster-red.webp`, `hero-bas-relief.webp`, `news-bg-center.webp`) — удалить с диска если нигде больше не ссылают.
+3. Опционально: пристроить `faf.png` (1672×941, landscape) — если пользователь определит место.
+4. Опционально (перенос из iter 111): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
+5. Опционально: систематизация `other` block (27 family-keys) — LOW priority, heterogeneous.
+6. Полный план и статус — в STATUS.md, docs/AFFIX_ORDERING_PLAN.md и worklog.md.
 
 
