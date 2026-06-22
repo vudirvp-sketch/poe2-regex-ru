@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-19T05:38:59.029Z",
+  "version": "2026-06-22T11:44:48.479Z",
   "category": "jewel-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -1246,7 +1246,10 @@
       "yoficationPositions": [],
       "level": 1,
       "jewelType": "shared",
-      "functionalCategory": "ailments"
+      "functionalCategory": "ailments",
+      "regexPrefixContext": {
+        "ru": "вами истощения"
+      }
     },
     {
       "id": "jewel-desecrated.mod_qs13gh.65nirt",
