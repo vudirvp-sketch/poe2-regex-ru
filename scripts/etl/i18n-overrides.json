@@ -13,11 +13,10 @@
       "source": "регис/Плитки предтеч моды.md"
     },
     "tablet.mod_al1nsy": {
-      "rawText": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации",
-      "rawTextTemplate": "Нестабильные Бездны на карте порождают дополнительного редкого монстра при стабилизации",
-      "source": "estimated — needs in-game verification"
+      "rawText": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации",
+      "rawTextTemplate": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации",
+      "source": "регис/Плитки предтеч моды.md — fix Бездны→Разломы (Breach, not Abyss)"
     },
-
     "amulet.genesistreefirespellbasecriticalchance_breachborn": {
       "rawText": "+(4—5)% к шансу критического удара чар огня",
       "rawTextTemplate": "+(##)% к шансу критического удара чар огня",
@@ -103,7 +102,6 @@
       "rawTextTemplate": "(##)% увеличение скорости сотворения чар во время действия любого флакона",
       "source": "регис/Амулеты моды.md"
     },
-
     "belt.genesistreebeltsealgainfrequency_breachborn": {
       "rawText": "Запечатанные умения имеют (21—35)% увеличение частоты получения зарядов печати",
       "rawTextTemplate": "Запечатанные умения имеют (##)% увеличение частоты получения зарядов печати",
@@ -219,19 +217,16 @@
       "rawTextTemplate": "(##)% увеличение скорости сотворения чар во время действия любого флакона",
       "source": "регис/Пояса моды.md"
     },
-
     "ring.genesistreeringminionpuppetmaster_breachborn": {
       "rawText": "(40—50)% превосходящий шанс получить заряд Кукловода при использовании умения-приказа",
       "rawTextTemplate": "(##)% превосходящий шанс получить заряд Кукловода при использовании умения-приказа",
       "source": "регис/Кольца моды.md"
     },
-
     "jewel-desecrated.mod_3yl2ru": {
       "rawText": "(10—20)% увеличение силы накладываемого вами Истощения Бездны",
       "rawTextTemplate": "(##)% увеличение силы накладываемого вами Истощения Бездны",
       "source": "poe2db.tw typo fix: вамиИстощения → вами Истощения"
     },
-
     "tablet.mod_2pzo3q": {
       "rawText": "Туман Делириума на карте порождает на (12—26)% больше осколков зеркал",
       "rawTextTemplate": "Туман Делириума на карте порождает на (##)% больше осколков зеркал",
@@ -252,11 +247,6 @@
       "rawTextTemplate": "В два раза выше шанс получения наград в провалах Бездны на карте",
       "regex": "в два раза",
       "source": "регис/Плитки предтеч моды.md — fix typo получнения→получения, explicit regex (MIN_REGEX_LEN)"
-    },
-    "tablet.mod_al1nsy": {
-      "rawText": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации",
-      "rawTextTemplate": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации",
-      "source": "регис/Плитки предтеч моды.md — fix Бездны→Разломы (Breach, not Abyss)"
     },
     "tablet.mod_jkqo0p": {
       "rawText": "(30—60)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими",
@@ -294,7 +284,6 @@
       "regex": "вплоть",
       "source": "explicit regex override — optimizer suffix-shorten produced '100%' (4 chars < MIN_REGEX_LEN=5)"
     },
-
     "waystone.implicit.item_rarity": {
       "rawText": "Редкость предметов: +##%",
       "rawTextTemplate": "Редкость предметов: +##%",
@@ -306,6 +295,55 @@
       "rawTextTemplate": "Редкость предметов: +##%",
       "regex": "едкость предметов",
       "source": "iter 126 KI#10 fix — same as waystone.implicit.item_rarity (desecrated variant)"
+    },
+    "relic.sanctummonstersreduceddamage1": {
+      "rawText": "Монстры наносят уменьшенный на 6% урон",
+      "rawTextTemplate": "Монстры наносят уменьшенный на #% урон",
+      "regex": "монстры наносят уменьшенный на ",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'на 6%' (FN for tiers 2-3). Override to tier-agnostic regex matching ## siblings (reduceddamage2/3)."
+    },
+    "relic.sanctummonsterspeed1": {
+      "rawText": "Скорость атаки, сотворения чар и передвижения монстров снижена на 4%",
+      "rawTextTemplate": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%",
+      "regex": "корость атаки, сотворения чар и",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'на 4%' (FN for tiers 2-3). Override to tier-agnostic regex matching ## sibling (monsterspeed3)."
+    },
+    "relic.sanctummonsterspeed2": {
+      "rawText": "Скорость атаки, сотворения чар и передвижения монстров снижена на 5%",
+      "rawTextTemplate": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%",
+      "regex": "корость атаки, сотворения чар и",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'а на 5' (FN for tiers 1,3). Override to tier-agnostic regex matching ## sibling (monsterspeed3)."
+    },
+    "relic.sanctumrevealextraroomeachfloor2": {
+      "rawText": "На карте испытаний раскрывается дополнительных комнат: 2",
+      "rawTextTemplate": "На карте испытаний раскрывается дополнительных комнат: #",
+      "regex": "на карте испытаний раскрывается",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'ат: 2' (FN for other tiers). Override to tier-agnostic regex + exclude (matching ## sibling revealextraroomeachfloorlarge1).",
+      "regexExclude": [
+        "дополнительная"
+      ]
+    },
+    "relic.sanctumrevealextraroomeachfloorlarge2": {
+      "rawText": "На карте испытаний раскрывается дополнительных комнат: 4",
+      "rawTextTemplate": "На карте испытаний раскрывается дополнительных комнат: #",
+      "regex": "на карте испытаний раскрывается",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'ат: 4' (FN for other tiers). Override to tier-agnostic regex + exclude (matching ## sibling revealextraroomeachfloorlarge1).",
+      "regexExclude": [
+        "дополнительная"
+      ]
+    },
+    "relic.sanctumguardsreduceddamage1": {
+      "rawText": "Редкие монстры наносят уменьшенный на 5% урон",
+      "rawTextTemplate": "Редкие монстры наносят уменьшенный на #% урон",
+      "regex": "кие монстры наносят уменьшенный",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'ры наносят уменьшенный на 5' (FN for tiers 2-3). Override to tier-agnostic regex matching ## siblings (guardsreduceddamage2/3)."
+    },
+    "relic.sanctumbossreduceddamage1": {
+      "rawText": "Боссы наносят уменьшенный на 5% урон",
+      "rawTextTemplate": "Боссы наносят уменьшенный на #% урон",
+      "regex": "урон",
+      "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'сы наносят уменьшенный на 5' (FN for tiers 2-3). Override to tier-agnostic regex 'урон' + prefixContext 'Боссы наносят' (matching ## siblings bossreduceddamage2/3).",
+      "regexPrefixContext": "Боссы наносят"
     }
   }
 }
