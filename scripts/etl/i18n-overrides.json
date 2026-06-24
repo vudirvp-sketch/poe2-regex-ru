@@ -1,6 +1,6 @@
 {
   "_comment": "Manual Russian translations for tokens where poe2db.tw has no Russian text. Applied after ETL.",
-  "_updated": "2026-06-06",
+  "_updated": "2026-06-25",
   "overrides": {
     "amulet.genesistreeadditionalmaximumseals_breachborn": {
       "rawText": "Запечатанные умения имеют +1 к максимуму зарядов печати",
@@ -293,6 +293,19 @@
       "rawTextTemplate": "##% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%",
       "regex": "вплоть",
       "source": "explicit regex override — optimizer suffix-shorten produced '100%' (4 chars < MIN_REGEX_LEN=5)"
+    },
+
+    "waystone.implicit.item_rarity": {
+      "rawText": "Редкость предметов: +##%",
+      "rawTextTemplate": "Редкость предметов: +##%",
+      "regex": "едкость предметов",
+      "source": "iter 126 KI#10 fix — disambiguate from potential 'Редкость монстров' implicit (user-reported FP). Old regex 'едкость' was too generic and matched any 'едкость' substring, including hypothetical 'Редкость монстров: +##%' if such implicit exists in-game. New regex 'едкость предметов' (12 chars, literal space) uniquely identifies 'Редкость предметов' within a single block."
+    },
+    "waystone-desecrated.implicit.item_rarity": {
+      "rawText": "Редкость предметов: +##%",
+      "rawTextTemplate": "Редкость предметов: +##%",
+      "regex": "едкость предметов",
+      "source": "iter 126 KI#10 fix — same as waystone.implicit.item_rarity (desecrated variant)"
     }
   }
 }
