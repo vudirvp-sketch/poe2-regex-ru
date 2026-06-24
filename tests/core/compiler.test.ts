@@ -444,8 +444,11 @@ describe('compile', () => {
 
   it('RANGE with threshold=true and reversed compiles correctly', () => {
     // Reversed + threshold: suffix.*≥min
+    // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+    // Distribute via Path D: `suffix.*A|suffix.*B|...` (top-level |).
+    // Each alternative is anchored to `%` via endAnchor.
     const result = compile(range(30, 100, 'золота', undefined, undefined, false, '%', true, undefined, true), { round10: false });
-    expect(result).toBe('"золота.*([3-9][0-9]|\\d{3,})%"');
+    expect(result).toBe('"золота.*[3-9][0-9]%|золота.*\\d{3,}%"');
   });
 
   it('RANGE without threshold uses enumeration for narrow ranges', () => {
@@ -482,8 +485,10 @@ describe('compile', () => {
 
   it('RANGE with signPrefix="+" and reversed adds \\+ before number at end', () => {
     // "Редкость предметов: +##%" → suffix.*\+(≥min)%
+    // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+    // Distribute via Path D: each alternative gets `\+` prefix and `%` suffix.
     const result = compile(range(18, undefined, 'Редкость предметов', undefined, undefined, false, '%', true, undefined, undefined, '+'), { round10: false });
-    expect(result).toBe('"Редкость предметов.*\\+(1[8-9]|[2-9][0-9]|\\d{3,})%"');
+    expect(result).toBe('"Редкость предметов.*\\+1[8-9]%|Редкость предметов.*\\+[2-9][0-9]%|Редкость предметов.*\\+\\d{3,}%"');
   });
 
   it('RANGE with signPrefix="+" and anchorStart adds ^ before \\+', () => {

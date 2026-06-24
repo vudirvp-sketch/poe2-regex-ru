@@ -299,6 +299,96 @@ function normalizeAst(node: ASTNode): ASTNode {
   }
 }
 
+/**
+ * Distribute a prefix and suffix into each alternative of a top-level alternation.
+ *
+ * BACKGROUND (iter 125 fix):
+ * PoE2 in-game regex engine ignores `(A|B|C)` content when `()` appears AFTER
+ * a `.*` bridge + literal prefix — it matches the prefix broadly, causing FP.
+ * Root cause of iter 125 bug: reversed implicit RANGE
+ *   `"едкость.*\+(2[5-9]|[3-9][0-9]|\d{3,})"`
+ * matched +15% in-game because the `(2[5-9]|...)` part was silently ignored,
+ * leaving the broad `едкость.*\+` prefix to match any "+N" after "едкость".
+ *
+ * Verified in-game patterns where `()` WORKS:
+ * - `(A|B|C)` alone (entire quoted group) — ✅
+ * - `(A|B|C)%.*suffix` (`()` at start of quoted group, followed by `%`) — ✅ T2
+ * - `prefix (A|B|C)%.*suffix` (`()` after literal prefix + space) — ✅ iter 15
+ * - `^(A|B|C).*suffix` (`()` after `^` anchor) — ✅ Phase 9b
+ *
+ * Verified in-game pattern where `()` is BROKEN:
+ * - `prefix.*literal(A|B|C)` (`()` at END after `.*` bridge + literal) — ❌ iter 125
+ *
+ * WORKAROUND (this function):
+ * Convert `prefix(A|B|C)suffix` → `prefixAsuffix|prefixBsuffix|prefixCsuffix`
+ * using top-level `|` (Path D — verified in-game up to 9 alternatives).
+ *
+ * Examples:
+ *   distributeAlternation('едкость.*\\+', '(2[5-9]|[3-9][0-9]|\\d{3,})', '')
+ *     → 'едкость.*\\+2[5-9]|едкость.*\\+[3-9][0-9]|едкость.*\\+\\d{3,}'
+ *   distributeAlternation('едкость.*\\+', '(2[5-9]|[3-9][0-9]|\\d{3,})', '%')
+ *     → 'едкость.*\\+2[5-9]%|едкость.*\\+[3-9][0-9]%|едкость.*\\+\\d{3,}%'
+ *   distributeAlternation('prefix', 'simple[0-9]', '')
+ *     → 'prefixsimple[0-9]'  (no alternation, no distribution)
+ *
+ * @param prefix - Text before the alternation (e.g., 'едкость.*\\+')
+ * @param numRegex - The numeric regex, possibly wrapped in (A|B|...)
+ * @param endAnchor - Text after the alternation (e.g., '%' or '')
+ * @returns Distributed regex with top-level | (or unchanged if no alternation)
+ */
+function distributeAlternation(prefix: string, numRegex: string, endAnchor: string): string {
+  // Only distribute if numRegex is wrapped in OUTER parens with top-level |
+  if (!numRegex.startsWith('(') || !numRegex.endsWith(')')) {
+    return `${prefix}${numRegex}${endAnchor}`;
+  }
+
+  // Verify the outer parens wrap the ENTIRE expression (not a sub-group).
+  // Walks the string tracking paren depth — if depth hits 0 before the end,
+  // the outer parens are NOT the wrapper (e.g., "(A)B" or "A(B|C)D").
+  let depth = 0;
+  let isOuter = true;
+  for (let i = 0; i < numRegex.length; i++) {
+    const c = numRegex[i];
+    if (c === '(') depth++;
+    else if (c === ')') {
+      depth--;
+      if (depth === 0 && i !== numRegex.length - 1) {
+        isOuter = false;
+        break;
+      }
+    }
+  }
+  if (!isOuter) {
+    return `${prefix}${numRegex}${endAnchor}`;
+  }
+
+  // Strip outer parens and split by top-level | (depth 0)
+  const inner = numRegex.slice(1, -1);
+  const alternatives: string[] = [];
+  let current = '';
+  depth = 0;
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth--;
+    if (c === '|' && depth === 0) {
+      alternatives.push(current);
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  if (current) alternatives.push(current);
+
+  // No alternatives (shouldn't happen) or single alternative — no distribution
+  if (alternatives.length <= 1) {
+    return `${prefix}${numRegex}${endAnchor}`;
+  }
+
+  // Distribute prefix and endAnchor into each alternative (Path D)
+  return alternatives.map(alt => `${prefix}${alt}${endAnchor}`).join('|');
+}
+
 function compileInner(ast: ASTNode, options: CompileOptions): string {
   const { round10 = true } = options;
 
@@ -372,7 +462,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateEnumeratedRangeRegex(ast.min!, ast.max!);
         if (!numRegex) return ''; // Should not happen after normalizeAst check
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.reversed) {
+            // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+            // Distribute prefix into each alternative (Path D) when numRegex
+            // is wrapped in outer (A|B|...). No-op for plain regexes.
+            const prefixStr = `${compiledSuffix}.*${colonPrefix}${sign}`;
+            return distributeAlternation(prefixStr, numRegex, endAnchor);
+          }
           if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
@@ -386,7 +482,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateNumberRegex(minStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.reversed) {
+            // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+            // Distribute prefix into each alternative (Path D) when numRegex
+            // is wrapped in outer (A|B|...). No-op for plain regexes.
+            const prefixStr = `${compiledSuffix}.*${colonPrefix}${sign}`;
+            return distributeAlternation(prefixStr, numRegex, endAnchor);
+          }
           if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }
@@ -400,7 +502,13 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         const numRegex = generateMaxNumberRegex(maxStr, useRound10);
         if (!numRegex) return '';
         if (compiledSuffix) {
-          if (ast.reversed) return `${compiledSuffix}.*${colonPrefix}${sign}${numRegex}${endAnchor}`;
+          if (ast.reversed) {
+            // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+            // Distribute prefix into each alternative (Path D) when numRegex
+            // is wrapped in outer (A|B|...). No-op for plain regexes.
+            const prefixStr = `${compiledSuffix}.*${colonPrefix}${sign}`;
+            return distributeAlternation(prefixStr, numRegex, endAnchor);
+          }
           if (ast.prefix) return `${ast.prefix} ${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
           return `${anchor}${sign}${numRegex}${endAnchor}.*${compiledSuffix}`;
         }

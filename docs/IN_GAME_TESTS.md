@@ -1,7 +1,48 @@
 # In-Game Regex Verification Results
 
 > Результаты проверки поведения PoE2 regex в игре (RU клиент).
-> **Текущее состояние:** `^(?!…).*Z` bidirectional exclude — IMPLEMENTED + IN-GAME VERIFIED. Фикс в `src/core/compiler.ts` normalizeAst.
+> **Текущее состояние:** iter 125 — `(A|B|C) after .* bridge` FIX (distributeAlternation Path D). `^(?!…).*Z` bidirectional exclude — IMPLEMENTED + IN-GAME VERIFIED (iter 46).
+
+---
+
+## iter 125 — `(A|B|C) after .* bridge` fix (distributeAlternation Path D)
+
+**User-reported FP:** при выборе «И» имплисетов путеводных камней `Редкость предметов: +(0—999)%` и `Эффективность монстров: +(0—999)% ×2` с min=25, генератор выдавал:
+```
+"едкость.*\+(2[5-9]|[3-9][0-9]|\d{3,})" "ивность.*\+(2[5-9]|[3-9][0-9]|\d{3,})"
+```
+В игре подсвечивал карты с `+15%` и `+11%` (значения < 25, FP).
+
+**Root cause:** PoE2 in-game regex engine **игнорирует содержимое `(A|B|C)`, когда `()` стоит ПОСЛЕ `.*` bridge + literal prefix** — движок матчит prefix broadly. Симулятор в `src/core/poe2-regex-matcher.ts` парсит `(A|B|C)` корректно (через `groupOpen`/`groupClose` токены + `alternation` AST node), поэтому юнит-тесты пропускали кейс.
+
+**Verified in-game patterns where `()` WORKS:**
+- `(A|B|C)` alone (entire quoted group) — ✅ (iter 15)
+- `(A|B|C)%.*suffix` (`()` at start of quoted group, followed by `%`) — ✅ T2 (iter 15)
+- `prefix (A|B|C)%.*suffix` (`()` after literal prefix + space) — ✅ iter 15
+- `^(A|B|C).*suffix` (`()` after `^` anchor) — ✅ Phase 9b
+
+**Verified in-game pattern where `()` is BROKEN:**
+- `prefix.*literal(A|B|C)` (`()` at END after `.*` bridge + literal) — ❌ **iter 125 discovery**
+
+**Fix (2 parts):**
+1. **`src/core/compiler.ts`** — `distributeAlternation()` helper converts `prefix(A|B|C)suffix` → `prefixAsuffix|prefixBsuffix|prefixCsuffix` (Path D — top-level `|`, in-game verified up to 9 alts). Applied in 3 places of `compileInner` for reversed `RANGE` (single-placeholder case).
+2. **`src/ui/hooks/category-ast-utils.ts`** — extended `anchorEnd` detection: reversed implicits ending in `...##%` (e.g., "Редкость предметов: +##%") now get `%` as endAnchor → each Path-D alternative anchored to `%` (FP-протекция от range notation like `(15-25)`).
+
+**After fix:**
+```
+"едкость.*\+[2-9][0-9]%|едкость.*\+\d{3,}%" "ивность.*\+[2-9][0-9]%|ивность.*\+\d{3,}%"
+```
+- ✅ Корректно НЕ матчит +15% / +11% (FP fixed)
+- ✅ Корректно матчит ≥20% (round10 от 25 = floor(25/10)*10 = 20)
+- ✅ `%(15-25)` range notation — НЕ матчит (потому что `25` в `(15-25)` не следует `%`)
+- ✅ ≤250 char PoE2 limit
+
+**Awaiting in-game verification (user):**
+- Waystone с `Редкость предметов: +15%` + `Эффективность монстров: +11%` → НЕ должен подсветиться
+- Waystone с `Редкость предметов: +25%` + `Эффективность монстров: +25%` → должен подсветиться
+- Waystone с `Редкость предметов: +(15-25)%` + `Эффективность монстров: +30%` → НЕ должен подсветиться (range notation)
+
+**NOT yet fixed (KI#9):** MULTI_RANGE slot N>0 (multi-placeholder tokens like "Добавляет от X до Y урона") — same problem, but `()` is rare in practice. Regression tests: `tests/core/iter125-alt-after-bridge.test.ts` (25 tests).
 
 ---
 

@@ -127,22 +127,31 @@ describe('Vendor regex: buildAstFromSelections output verification', () => {
   describe('numeric properties — reversed pattern (corrected vs legacy)', () => {
     it('item level ≥50 — produces reversed "suffix.*number"', () => {
       // In PoE2: "Уровень предмета: 50" → text BEFORE number
+      // iter 125 FIX: (A|B|...) after .* bridge is ignored in-game.
+      // Distribute via Path D: `suffix.*A|suffix.*B|...` (top-level |).
       const selectedIds = new Set(['atr-itemlevel']);
       const perTokenRanges = { 'atr-itemlevel': { min: 50, filterSlotIndex: 0 } };
       const result = compileViaAstPipeline(selectedIds, new Set(), perTokenRanges, 'and', true);
 
       expect(result).toContain('уровень предмета');
-      // Reversed: suffix.*number (correct for PoE2 forward-only .*)
-      expect(result).toMatch(/уровень предмета\.\*\(/);
+      // Reversed + Path D distribution: top-level | (no parens after .*)
+      expect(result).toContain('уровень предмета.*[5-9][0-9]');
+      expect(result).toContain('|');
+      expect(result).toContain('уровень предмета.*\\d{3,}');
+      expect(result).not.toMatch(/уровень предмета\.\*\(/);
     });
 
     it('char level ≥30 — produces reversed pattern', () => {
+      // iter 125 FIX: same as item level — Path D distribution.
       const selectedIds = new Set(['atr-charlevel']);
       const perTokenRanges = { 'atr-charlevel': { min: 30, filterSlotIndex: 0 } };
       const result = compileViaAstPipeline(selectedIds, new Set(), perTokenRanges, 'and', true);
 
       expect(result).toContain('требуемый уровень');
-      expect(result).toMatch(/требуемый уровень\.\*\(/);
+      expect(result).toContain('требуемый уровень.*[3-9][0-9]');
+      expect(result).toContain('|');
+      expect(result).toContain('требуемый уровень.*\\d{3,}');
+      expect(result).not.toMatch(/требуемый уровень\.\*\(/);
     });
 
     it('numeric + non-numeric combined (AND mode)', () => {

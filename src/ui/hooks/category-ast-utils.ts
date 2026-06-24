@@ -670,12 +670,6 @@ export function buildAstFromSelections(
           return template && /^[+-]?##/.test(template);
         });
 
-        const numberFollowedByPercent = group.tokens.some(t => {
-          const template = t.rawTextTemplate[locale];
-          return template && /^[+]?##%/.test(template);
-        });
-        const anchorEndValue = (!numberAtStart && numberFollowedByPercent) ? '%' : undefined;
-
         const isImplicit = group.tokens.some(t => t.affix === 'implicit');
 
         const numberAtEnd = !numberAtStart && group.tokens.some(t => {
@@ -683,6 +677,23 @@ export function buildAstFromSelections(
           return template && /##\s*$/.test(template);
         });
         const isReversed = isImplicit || numberAtEnd;
+
+        // iter 125 FIX: extend anchorEnd detection to reversed implicits
+        // ending in `##%` (e.g., "Редкость предметов: +##%"). Previously only
+        // `##%` at START of template was detected (numberFollowedByPercent).
+        // For reversed implicits ending in `##%`, adding `%` as endAnchor:
+        //   1. Anchors each Path-D alternative to `%` (FP prevention)
+        //   2. Prevents matching numbers in range notation (no `%` after them)
+        // Example: `едкость.*\+2[5-9]%` is more precise than `едкость.*\+2[5-9]`.
+        const numberFollowedByPercent = group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /^[+]?##%/.test(template);
+        });
+        const numberEndsWithPercent = group.tokens.some(t => {
+          const template = t.rawTextTemplate[locale];
+          return template && /[+-]?##%\s*$/.test(template);
+        });
+        const anchorEndValue = (!numberAtStart && (numberFollowedByPercent || (isReversed && numberEndsWithPercent))) ? '%' : undefined;
 
         const colonAnchor = !isImplicit && isReversed && !anchorEndValue && group.tokens.some(t => {
           const template = t.rawTextTemplate[locale];
