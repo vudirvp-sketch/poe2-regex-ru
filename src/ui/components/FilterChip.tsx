@@ -43,6 +43,19 @@ interface FilterChipProps {
   /** Set of token IDs whose individual regex was collapsed by the optimizer.
    *  When any member of this chip's group is in this set, show a visual indicator. */
   collapsedTokenIds?: Set<string>;
+  /** Phase 5 (iter 136): Favorited ("pinned") token IDs from filter-store.
+   *  When provided alongside `onTogglePinned`, a ⭐ icon button renders to
+   *  the LEFT of the chip label. Filled (text-accent-amber-soft) when any
+   *  member of this chip's group is in `pinnedIds`; outline (text-muted)
+   *  otherwise. Click → `onTogglePinned(memberIds)` (toggles whole family).
+   *  Backward compat: when omitted OR `onTogglePinned` omitted, the ⭐ icon
+   *  is NOT rendered (pre-Phase-5 behaviour). */
+  pinnedIds?: Set<string>;
+  /** Phase 5 (iter 136): Toggle pinned state for a family group. When the
+   *  user clicks ⭐ on a chip, we toggle ALL member tokens' pinned state at
+   *  once (matches `onToggleTokens` / `onToggleExclude` family-level
+   *  pattern). Pass the member IDs of this family group. */
+  onTogglePinned?: (ids: string[]) => void;
   /**
    * Within-block sort mode (iter 107). Controls whether the chip's left border
    * communicates the priority tier (tier-first mode) or the affix type (alpha mode).
@@ -67,6 +80,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   onSetTokenRange,
   onClearTokenRange,
   collapsedTokenIds,
+  pinnedIds,
+  onTogglePinned,
   sortMode = 'alpha',
 }) => {
   const memberIds = useMemo(
@@ -144,6 +159,26 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     if (!collapsedTokenIds || collapsedTokenIds.size === 0) return false;
     return memberIds.some(id => collapsedTokenIds.has(id));
   }, [memberIds, collapsedTokenIds]);
+
+  // Phase 5 (iter 136): is this family group favorited (pinned)?
+  // A chip is "pinned" when ANY member token is in pinnedIds. We treat the
+  // whole family as pinned/unpinned together — matches the family-level
+  // toggle pattern (onToggleTokens / onToggleExclude).
+  const isPinned = useMemo(() => {
+    if (!pinnedIds || pinnedIds.size === 0) return false;
+    return memberIds.some(id => pinnedIds.has(id));
+  }, [memberIds, pinnedIds]);
+
+  // Phase 5 (iter 136): ⭐ pin toggle handler.
+  // stopPropagation so clicking ⭐ does NOT also trigger the chip's main
+  // onClick (which would toggle selection). The ⭐ is a sibling button, not
+  // a child of the role="switch" div, so technically clicks don't bubble —
+  // but defensive stopPropagation keeps the boundary clean if the DOM
+  // structure changes later.
+  const handlePinClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTogglePinned?.(memberIds);
+  }, [onTogglePinned, memberIds]);
 
   // Get the first ranged member's current per-token range (for display in inputs)
   // All members in a family group share the same range slot structure,
@@ -322,7 +357,32 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
       style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
       title={tooltip}
+      data-family-key={group.familyKey}
     >
+      {/* Phase 5 (iter 136): ⭐ pin/unpin icon button (left of label).
+          Rendered only when BOTH `pinnedIds` AND `onTogglePinned` are provided
+          — backward compat: legacy callers (tests, future use) without
+          wiring render the chip without the ⭐ icon (pre-Phase-5 behaviour).
+          Visual: ★ filled (text-accent-amber-soft) when isPinned;
+          ★ outline (text-muted) when not pinned.
+          SIBLING of the role="switch" div — valid ARIA tree (button + switch
+          are both interactive; they don't nest). */}
+      {pinnedIds && onTogglePinned && (
+        <button
+          type="button"
+          onClick={handlePinClick}
+          className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-[13px] transition-colors ${
+            isPinned
+              ? 'text-accent-amber-soft hover:text-accent-amber'
+              : 'text-muted hover:text-accent-amber-soft'
+          }`}
+          title={isPinned ? t('chip.unpin_tooltip') : t('chip.pin_tooltip')}
+          aria-label={isPinned ? t('chip.unpin_aria') : t('chip.pin_aria')}
+          aria-pressed={isPinned}
+        >
+          {isPinned ? '★' : '☆'}
+        </button>
+      )}
       {/* Switch element: just the label + badges, clickable */}
       <div
         onClick={handleClick}

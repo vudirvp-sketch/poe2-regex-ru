@@ -103,6 +103,8 @@ interface VirtualizedModListProps {
   onToggleChipExpand?: (key: string) => void;
   /** Phase 5 favorites — pinned token IDs (forward-compatible). */
   pinnedIds?: Set<string>;
+  /** Phase 5 (iter 136): forwarded to VirtualizedColumn → FilterChip. */
+  onTogglePinned?: (ids: string[]) => void;
 
   // ─── Phase 3 (iter 135): show-selected-only mode ───────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
@@ -351,7 +353,9 @@ const VirtualRowContent: React.FC<{
   chipExpandState?: Set<string>;
   /** iter 134 (Phase 2.5): pinned token IDs — pinned chips always visible. */
   pinnedIds?: Set<string>;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, onToggleChipExpand, chipExpandState, pinnedIds }) => {
+  /** Phase 5 (iter 136): forwarded to FilterChip ⭐ icon button. */
+  onTogglePinned?: (ids: string[]) => void;
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, onToggleChipExpand, chipExpandState, pinnedIds, onTogglePinned }) => {
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     const headerClass = isImplicit
@@ -502,6 +506,8 @@ const VirtualRowContent: React.FC<{
             onClearTokenRange={onClearTokenRange}
             collapsedTokenIds={collapsedTokenIds}
             sortMode={sortMode}
+            pinnedIds={pinnedIds}
+            onTogglePinned={onTogglePinned}
           />
         ))}
         {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button — same styling
@@ -559,6 +565,8 @@ interface VirtualizedColumnProps {
   chipExpandState?: Set<string>;
   /** iter 134 (Phase 2.5): pinned token IDs — pinned chips always visible. */
   pinnedIds?: Set<string>;
+  /** Phase 5 (iter 136): forwarded to VirtualRowContent → FilterChip. */
+  onTogglePinned?: (ids: string[]) => void;
 }
 
 /** A single virtualized column (prefix or suffix) */
@@ -580,6 +588,7 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   onToggleChipExpand,
   chipExpandState,
   pinnedIds,
+  onTogglePinned,
 }) => {
   // TanStack Virtual's useVirtualizer returns non-memoizable functions
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
@@ -660,6 +669,7 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
                 onToggleChipExpand={onToggleChipExpand}
                 chipExpandState={chipExpandState}
                 pinnedIds={pinnedIds}
+                onTogglePinned={onTogglePinned}
               />
             </div>
           );
@@ -709,6 +719,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   chipExpandState,
   onToggleChipExpand,
   pinnedIds,
+  onTogglePinned,
   // Phase 3 (iter 135): show-selected-only mode
   showSelectedOnly = false,
 }) => {
@@ -1083,6 +1094,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                   onToggleChipExpand={onToggleChipExpand}
                   chipExpandState={chipExpandState}
                   pinnedIds={pinnedIds}
+                onTogglePinned={onTogglePinned}
                 />
               </div>
             );

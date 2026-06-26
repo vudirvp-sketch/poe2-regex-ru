@@ -209,6 +209,33 @@ const translations: Record<Locale, Record<string, string>> = {
     // Right aside collapse toggle (chevron in header) — iter 131 §13.7 #2.
     'basket.collapse_panel': 'Свернуть панель',
     'basket.expand_panel': 'Развернуть панель',
+
+    // Phase 5 (iter 136): Favorites in LEFT panel.
+    // LeftPanelFavorites renders one chip per favorited family group (NOT per
+    // token — same grouping logic as SelectedBasket). Header shows total count
+    // of favorited families, plus «Очистить» link to clear all pinned tokens.
+    // {n} = number of pinned family groups (pinnedIds.size after grouping).
+    'favorites.title': '⭐ Избранные: {n}',
+    // Empty state — shown when pinnedIds is empty.
+    'favorites.empty': 'Нажмите ★ на аффиксе, чтобы добавить в избранное',
+    // «Очистить» link in favorites header → calls clearPinned().
+    'favorites.clear': 'Очистить',
+    // ARIA label for the «Очистить» button.
+    'favorites.clear_aria': 'Очистить все избранные аффиксы',
+    // ARIA label appended after chip's displayText for the ✗ (unpin) button.
+    'favorites.unpin_aria': 'Убрать из избранного',
+    // ARIA label for click-to-scroll on the chip body (label area).
+    // Appended after the chip's displayText.
+    'favorites.scroll_aria': 'Перейти к аффиксу в списке',
+
+    // Phase 5 (iter 136): ⭐ pin/unpin icon button on FilterChip.
+    // Title + aria-label text for the ⭐ icon button (left of label).
+    // Visual: ⭐ filled (text-accent-amber-soft) when family is pinned;
+    // ⭐ outline (text-muted) when not pinned.
+    'chip.pin_tooltip': 'Добавить в избранное',
+    'chip.unpin_tooltip': 'Убрать из избранного',
+    'chip.pin_aria': 'Добавить семейство в избранное',
+    'chip.unpin_aria': 'Убрать семейство из избранного',
   },
 };
 

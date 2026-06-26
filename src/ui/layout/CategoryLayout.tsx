@@ -33,17 +33,29 @@
  * the aside header (per iter 131 §13.7 correction #2 — laptop users can
  * collapse the right panel to gain horizontal space).
  *
- * Usage (Phase 3):
+ * iter 136, Phase 5: Added `favorites` slot rendered ABOVE `controls` in the
+ * left column. Per iter 131 §13.7 correction #1, the LEFT panel visual order
+ * should be Search → Favorites → Filters. Search is currently implemented as
+ * a sticky bar inside ModList/VirtualizedModList (Phase 2, iter 133) and
+ * sticks to the top of the viewport on scroll. Favorites render ABOVE the
+ * Filters (CategoryControlPanel) so on initial page load the visual order
+ * is Header → Favorites → Filters → Search (sticky inside ModList) → ModList.
+ * After the user scrolls past the controls row, Search sticks to the top of
+ * the viewport — becoming the primary visible control — which matches the
+ * spec's intent that Search is the most-used control.
+ *
+ * Usage (Phase 5):
  *   <CategoryLayout
  *     header={...}
+ *     favorites={<LeftPanelFavorites ... />}   // NEW (Phase 5)
  *     controls={<CategoryControlPanel ... />}
- *     basket={<SelectedBasket ... />}          // NEW (Phase 3)
+ *     basket={<SelectedBasket ... />}
  *     regexOutput={<RegexOutput ... />}
  *     status={<StatusPanel ... />}
  *     sidebar={<ProfilePanel ... />}
  *     mobileBar={<MobileRegexBar regexOutput={<RegexOutput ... />} alerts={[...]} />}
- *     rightPanelCollapsed={rightPanelCollapsed} // NEW (Phase 3)
- *     onToggleRightPanel={toggleRightPanel}     // NEW (Phase 3)
+ *     rightPanelCollapsed={rightPanelCollapsed}
+ *     onToggleRightPanel={toggleRightPanel}
  *   >
  *     <ModList ... />
  *   </CategoryLayout>
@@ -54,6 +66,10 @@ import { t } from '@shared/i18n';
 interface CategoryLayoutProps {
   /** Page header content (icon, title, mod count) — full width top */
   header: React.ReactNode;
+  /** Phase 5 (iter 136): Favorites panel rendered in the LEFT column ABOVE
+   *  the `controls` slot. When not provided, the favorites slot is omitted
+   *  (backward compat — pre-Phase-5 pages had no favorites panel). */
+  favorites?: React.ReactNode;
   /** Left column controls. Use <CategoryControlPanel hideRegexOutput /> here. */
   controls: React.ReactNode;
   /** Right column RegexOutput (sticky on desktop via <aside>). */
@@ -84,6 +100,7 @@ const RIGHT_COL_STICKY_CLASS = 'lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(
 
 export function CategoryLayout({
   header,
+  favorites,
   controls,
   regexOutput,
   basket,
@@ -130,8 +147,10 @@ export function CategoryLayout({
           ? 'lg:grid-cols-[1fr_48px]'
           : 'lg:grid-cols-[1fr_320px]'
       }`}>
-        {/* Left column: controls + main content (ModList). Scrolls naturally. */}
+        {/* Left column: favorites (Phase 5) → controls → main content (ModList).
+            Scrolls naturally. */}
         <div className="flex flex-col gap-4 min-w-0">
+          {favorites}
           {controls}
           {children}
         </div>

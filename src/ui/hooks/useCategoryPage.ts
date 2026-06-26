@@ -242,6 +242,21 @@ export interface CategoryPageState {
   showSelectedOnly: boolean;
   /** Toggle show-selected-only mode. Wired to filter-store.setShowSelectedOnly. */
   setShowSelectedOnly: (v: boolean) => void;
+
+  // ─── Phase 5 fields (iter 136, UI Refactor) ───────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 5 for full spec.
+  // Wires `pinnedIds` from filter-store (Phase 1, iter 132) into the UI so
+  // LeftPanelFavorites can render favorited chips in the left panel AND
+  // FilterChip ⭐ icon button can toggle pinned state per family.
+
+  /** Favorited token IDs (Phase 5). Renders in LEFT panel (LeftPanelFavorites). */
+  pinnedIds: Set<string>;
+  /** Toggle a token's pinned (favorite) state. Pass a single token ID — for
+   *  family-level toggle, the page calls this once per member ID (or use
+   *  the wrapper approach in LeftPanelFavorites onTogglePinned). */
+  togglePinned: (id: string) => void;
+  /** Clear all pinned (favorite) tokens. */
+  clearPinned: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -601,6 +616,15 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const showSelectedOnly = useStore(state => state.showSelectedOnly);
   const setShowSelectedOnly = useStore(state => state.setShowSelectedOnly);
 
+  // Phase 5 (iter 136): pinned (favorites) state subscription.
+  // Wires `pinnedIds` Set<string> from filter-store (Phase 1, iter 132) into
+  // the UI. LeftPanelFavorites renders one chip per favorited family group.
+  // FilterChip ⭐ icon button toggles pinned state for a family via
+  // `togglePinned(id)` (called per member ID). `clearPinned()` clears all.
+  const pinnedIds = useStore(state => state.pinnedIds);
+  const togglePinned = useStore(state => state.togglePinned);
+  const clearPinned = useStore(state => state.clearPinned);
+
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
@@ -640,7 +664,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       chipExpandState,
       // Phase 3 (iter 135): showSelectedOnly toggle also persists in URL —
       // add to deps so toggle triggers re-sync.
-      showSelectedOnly]);
+      showSelectedOnly,
+      // Phase 5 (iter 136): pinnedIds (favorites) also persists in URL via
+      // `pn` compact key — add to deps so pin/unpin triggers re-sync.
+      pinnedIds]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
@@ -763,5 +790,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // + CategoryControlPanel «Все / Выбранные» radio group.
     showSelectedOnly,
     setShowSelectedOnly,
+    // Phase 5 (iter 136): pinned (favorites) for LeftPanelFavorites +
+    // FilterChip ⭐ icon button toggle.
+    pinnedIds,
+    togglePinned,
+    clearPinned,
   };
 }

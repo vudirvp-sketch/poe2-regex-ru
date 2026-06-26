@@ -15,7 +15,7 @@
  * (Ritual, Breach, Delirium, Vaal, Expedition, or Generic) within each
  * prefix/suffix column, using text-based heuristics.
  */
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useCategoryPage, useFilterStore } from '@ui/hooks/useCategoryPage';
 import { ModList } from '@ui/components/ModList';
 import { CategoryControlPanel } from '@ui/components/CategoryControlPanel';
@@ -25,6 +25,7 @@ import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { SelectedBasket } from '@ui/components/SelectedBasket';
+import { LeftPanelFavorites } from '@ui/components/LeftPanelFavorites';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
 import { literal, or, range } from '@core/ast';
@@ -115,6 +116,8 @@ export function TabletPage() {
     chipExpandState, toggleChipExpand,
     // Phase 3 (iter 135): show-selected-only toggle
     showSelectedOnly, setShowSelectedOnly,
+    // Phase 5 (iter 136): favorites (pinned) state + actions
+    pinnedIds, togglePinned, clearPinned,
   } = useCategoryPage({
     categoryId: 'tablet',
     extraAstNodes,
@@ -150,6 +153,19 @@ export function TabletPage() {
       return next;
     });
   };
+
+  // Phase 5 (iter 136): Family-level batched pinned toggle.
+  // FilterChip's onTogglePinned expects (ids: string[]) => void,
+  // but the store's togglePinned takes a single id. This wrapper
+  // calls togglePinned(id) for each member ID — since togglePinned
+  // is idempotent (toggle), this works correctly for both pin and
+  // unpin actions on a family group.
+  //
+  // Stable reference via useCallback so React.memo on FilterChip
+  // doesn't re-render on every page render.
+  const handleTogglePinned = useCallback((ids: string[]) => {
+    ids.forEach(id => togglePinned(id));
+  }, [togglePinned]);
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
@@ -247,6 +263,15 @@ export function TabletPage() {
                 }
               />
             }
+            favorites={
+              <LeftPanelFavorites
+                tokens={data.tokens}
+                pinnedIds={pinnedIds}
+                onTogglePinned={handleTogglePinned}
+                onClearPinned={clearPinned}
+                category={categoryId}
+              />
+            }
             basket={
               <SelectedBasket
                 tokens={data.tokens}
@@ -330,6 +355,8 @@ export function TabletPage() {
               chipExpandState={chipExpandState}
               onToggleChipExpand={toggleChipExpand}
               showSelectedOnly={showSelectedOnly}
+              pinnedIds={pinnedIds}
+              onTogglePinned={handleTogglePinned}
             />
           </CategoryLayout>
         );

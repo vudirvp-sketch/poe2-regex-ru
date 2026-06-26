@@ -546,4 +546,166 @@ describe('FilterChip', () => {
       }
     });
   });
+
+  // ─── Phase 5 (iter 136): ⭐ pin/unpin icon button ───
+
+  describe('Phase 5 — ⭐ pin/unpin icon button', () => {
+    it('does NOT render ⭐ button when pinnedIds prop is omitted (backward compat)', () => {
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          onTogglePinned={vi.fn()}  // provided but pinnedIds is NOT.
+        />,
+      );
+      // No ⭐ button (★ or ☆).
+      expect(screen.queryByText('★')).not.toBeInTheDocument();
+      expect(screen.queryByText('☆')).not.toBeInTheDocument();
+    });
+
+    it('does NOT render ⭐ button when onTogglePinned prop is omitted (backward compat)', () => {
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set()}  // provided but onTogglePinned is NOT.
+        />,
+      );
+      expect(screen.queryByText('★')).not.toBeInTheDocument();
+      expect(screen.queryByText('☆')).not.toBeInTheDocument();
+    });
+
+    it('renders ☆ (outline) when family is NOT pinned', () => {
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set()}  // empty set → not pinned.
+          onTogglePinned={vi.fn()}
+        />,
+      );
+      // ☆ (outline star) is rendered.
+      expect(screen.getByText('☆')).toBeInTheDocument();
+      // ★ (filled star) is NOT rendered.
+      expect(screen.queryByText('★')).not.toBeInTheDocument();
+    });
+
+    it('renders ★ (filled) when ANY member of the family is pinned', () => {
+      const group = makeGroup();  // 2 members: t1, t2.
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set(['t1'])}  // only t1 is pinned.
+          onTogglePinned={vi.fn()}
+        />,
+      );
+      // ★ (filled star) is rendered.
+      expect(screen.getByText('★')).toBeInTheDocument();
+      // ☆ (outline star) is NOT rendered.
+      expect(screen.queryByText('☆')).not.toBeInTheDocument();
+    });
+
+    it('calls onTogglePinned with member IDs when ⭐ clicked', () => {
+      const group = makeGroup();  // 2 members: t1, t2.
+      const onTogglePinned = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set()}
+          onTogglePinned={onTogglePinned}
+        />,
+      );
+
+      const pinButton = screen.getByRole('button', { name: /Добавить семейство в избранное/ });
+      fireEvent.click(pinButton);
+
+      expect(onTogglePinned).toHaveBeenCalledTimes(1);
+      // Should be called with all member IDs of the family group.
+      const callArgs = onTogglePinned.mock.calls[0][0];
+      expect(callArgs).toEqual(expect.arrayContaining(['t1', 't2']));
+      expect(callArgs.length).toBe(2);
+    });
+
+    it('does NOT call onToggleTokens when ⭐ clicked (stopPropagation)', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onTogglePinned = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          pinnedIds={new Set()}
+          onTogglePinned={onTogglePinned}
+        />,
+      );
+
+      const pinButton = screen.getByRole('button', { name: /Добавить семейство в избранное/ });
+      fireEvent.click(pinButton);
+
+      // Pin toggle was called.
+      expect(onTogglePinned).toHaveBeenCalledTimes(1);
+      // Selection toggle was NOT called (stopPropagation prevented bubbling).
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('aria-pressed reflects pinned state', () => {
+      const group = makeGroup();
+      const { rerender } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set()}
+          onTogglePinned={vi.fn()}
+        />,
+      );
+
+      // Not pinned → aria-pressed=false.
+      let pinButton = screen.getByRole('button', { name: /Добавить семейство в избранное/ });
+      expect(pinButton.getAttribute('aria-pressed')).toBe('false');
+
+      // Re-render with pinned state.
+      rerender(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set(['t1', 't2'])}
+          onTogglePinned={vi.fn()}
+        />,
+      );
+
+      // Pinned → aria-pressed=true.
+      pinButton = screen.getByRole('button', { name: /Убрать семейство из избранного/ });
+      expect(pinButton.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('renders data-family-key attribute on the wrapping div', () => {
+      const group = makeGroup({ familyKey: 'семейство тест' });
+      const { container } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          pinnedIds={new Set()}
+          onTogglePinned={vi.fn()}
+        />,
+      );
+
+      // The wrapping div has data-family-key attribute.
+      const chipWrapper = container.firstChild as HTMLElement;
+      expect(chipWrapper.getAttribute('data-family-key')).toBe('семейство тест');
+    });
+  });
 });

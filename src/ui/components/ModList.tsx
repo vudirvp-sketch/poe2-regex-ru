@@ -113,6 +113,13 @@ interface ModListProps {
    *  when truncated (forward-compatible; not yet wired by `useCategoryPage`
    *  until Phase 5 lands). */
   pinnedIds?: Set<string>;
+  /** Phase 5 (iter 136): Toggle pinned state for a family group.
+   *  When provided alongside `pinnedIds`, the FilterChip ⭐ icon button
+   *  renders and toggles the whole family's pinned state via
+   *  `onTogglePinned(memberIds)`. Backward compat: when omitted, the ⭐
+   *  icon is NOT rendered (pre-Phase-5 behaviour). */
+  onTogglePinned?: (ids: string[]) => void;
+
 
   // ─── Phase 3 (iter 135): show-selected-only mode ───────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
@@ -233,7 +240,9 @@ const ModSubGroupSection: React.FC<{
    *  when truncated. Forward-compatible with Phase 5 favorites (store field
    *  already exists; UI wiring lands in Phase 5). */
   pinnedIds?: Set<string>;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds }) => {
+  /** Phase 5 (iter 136): forwarded to FilterChip ⭐ icon button. */
+  onTogglePinned?: (ids: string[]) => void;
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds, onTogglePinned }) => {
   // Phase 2 (iter 133): if collapse wiring is present, derive isCollapsed.
   // When `expandedSubGroups` is undefined (legacy callers), we treat the
   // sub-group as expanded (preserve pre-Phase-2 behaviour).
@@ -323,6 +332,8 @@ const ModSubGroupSection: React.FC<{
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
+              pinnedIds={pinnedIds}
+              onTogglePinned={onTogglePinned}
             />
           ))}
           {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button.
@@ -387,7 +398,9 @@ const AffixColumn: React.FC<{
   onToggleChipExpand?: (key: string) => void;
   /** iter 134 (Phase 2.5): pinned token IDs (forwarded to ModSubGroupSection). */
   pinnedIds?: Set<string>;
-}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, categoryId, collapsedGroups, expandedSubGroups, onToggleGroupCollapsed, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds }) => {
+  /** Phase 5 (iter 136): forwarded to ModSubGroupSection → FilterChip. */
+  onTogglePinned?: (ids: string[]) => void;
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, categoryId, collapsedGroups, expandedSubGroups, onToggleGroupCollapsed, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds, onTogglePinned }) => {
   const totalCount = showOriginSubSections
     ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
     : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
@@ -469,6 +482,7 @@ const AffixColumn: React.FC<{
                     chipExpandState={chipExpandState}
                     onToggleChipExpand={onToggleChipExpand}
                     pinnedIds={pinnedIds}
+                    onTogglePinned={onTogglePinned}
                   />
                 ))}
               </div>
@@ -500,6 +514,7 @@ const AffixColumn: React.FC<{
                 chipExpandState={chipExpandState}
                 onToggleChipExpand={onToggleChipExpand}
                 pinnedIds={pinnedIds}
+                onTogglePinned={onTogglePinned}
               />
             ));
           })()
@@ -546,6 +561,7 @@ export const ModList: React.FC<ModListProps> = ({
   chipExpandState,
   onToggleChipExpand,
   pinnedIds,
+  onTogglePinned,
   // Phase 3 (iter 135): show-selected-only mode
   showSelectedOnly = false,
 }) => {
@@ -705,7 +721,7 @@ export const ModList: React.FC<ModListProps> = ({
           )}
           <div className="flex flex-wrap gap-2">
             {sg.groups.map(group => (
-              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
+              <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} pinnedIds={pinnedIds} onTogglePinned={onTogglePinned} />
             ))}
           </div>
         </div>
@@ -855,6 +871,7 @@ export const ModList: React.FC<ModListProps> = ({
               chipExpandState={chipExpandState}
               onToggleChipExpand={onToggleChipExpand}
               pinnedIds={pinnedIds}
+              onTogglePinned={onTogglePinned}
             />
           )}
           {/* Also show implicit when affixFilter is 'implicit' */}
@@ -881,6 +898,7 @@ export const ModList: React.FC<ModListProps> = ({
               chipExpandState={chipExpandState}
               onToggleChipExpand={onToggleChipExpand}
               pinnedIds={pinnedIds}
+              onTogglePinned={onTogglePinned}
             />
           )}
 
@@ -918,7 +936,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originPrefix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originPrefix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} pinnedIds={pinnedIds} onTogglePinned={onTogglePinned} />
                                 ))}
                               </div>
                           }
@@ -931,7 +949,7 @@ export const ModList: React.FC<ModListProps> = ({
                             ? renderJewelTypeSubGroups(originSuffix)
                             : <div className="flex flex-wrap gap-1.5">
                                 {originSuffix.map(group => (
-                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} />
+                                  <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} pinnedIds={pinnedIds} onTogglePinned={onTogglePinned} />
                                 ))}
                               </div>
                           }
@@ -968,6 +986,7 @@ export const ModList: React.FC<ModListProps> = ({
               chipExpandState={chipExpandState}
               onToggleChipExpand={onToggleChipExpand}
               pinnedIds={pinnedIds}
+              onTogglePinned={onTogglePinned}
             />
             <AffixColumn
               affix="suffix"
@@ -991,6 +1010,7 @@ export const ModList: React.FC<ModListProps> = ({
               chipExpandState={chipExpandState}
               onToggleChipExpand={onToggleChipExpand}
               pinnedIds={pinnedIds}
+              onTogglePinned={onTogglePinned}
             />
           </div>
         ) : (
@@ -1019,6 +1039,7 @@ export const ModList: React.FC<ModListProps> = ({
                 chipExpandState={chipExpandState}
                 onToggleChipExpand={onToggleChipExpand}
                 pinnedIds={pinnedIds}
+                onTogglePinned={onTogglePinned}
               />
             )}
             {suffixGroups.length > 0 && (
@@ -1044,6 +1065,7 @@ export const ModList: React.FC<ModListProps> = ({
                 chipExpandState={chipExpandState}
                 onToggleChipExpand={onToggleChipExpand}
                 pinnedIds={pinnedIds}
+                onTogglePinned={onTogglePinned}
               />
             )}
           </div>

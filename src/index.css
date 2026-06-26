@@ -1364,3 +1364,35 @@ input:focus:not(:focus-visible),
 .group-header-btn[aria-expanded="true"] .group-header-chevron {
   transform: rotate(90deg);
 }
+
+/* Phase 5 (iter 136): .favorite-pulse — brief 2s highlight pulse applied to
+   a FilterChip wrapping div when the user clicks the corresponding chip in
+   LeftPanelFavorites. The class is added via JS in
+   LeftPanelFavorites.tsx → handleScrollToChip() and removed after 2000ms
+   via window.setTimeout. The animation runs once (animation-iteration-count:1)
+   so the highlight doesn't loop forever if the user spam-clicks.
+
+   Color: gold/amber outline that matches the PoE2 gold tone (var(--poe-gold))
+   so the pulse is visually consistent with the page header + dividers. */
+@keyframes favorite-pulse-anim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    background-color: transparent;
+  }
+  20% {
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.55);
+    background-color: rgba(212, 175, 55, 0.18);
+  }
+  80% {
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.45);
+    background-color: rgba(212, 175, 55, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    background-color: transparent;
+  }
+}
+.favorite-pulse {
+  animation: favorite-pulse-anim 2s ease-out 1;
+  border-radius: 4px;
+}
