@@ -443,30 +443,13 @@ describe('classifyWaystoneSentiment', () => {
   });
 
   // ─── Bug #2 fix (iter 84): waystone mis-classifications ───
-
-  it('classifies more magic+rarer monsters as positive (Bug #2 fix)', () => {
-    // Was neutral — should be positive (more rare monsters = more loot)
-    const group = makeGroup('На #% больше волшебных и редких монстров');
-    expect(classifyWaystoneSentiment(group)).toBe('positive');
-  });
+  // iter 129 cleanup: 3 of 4 Bug #2 patterns removed (BTS-only, filtered at
+  // ETL iter 128 KI#13). Only the real 'бонус.*крит.*урон.*монстр' pattern
+  // remains — tested below.
 
   it('classifies monster crit damage bonus as negative (Bug #2 fix)', () => {
     // Was neutral — should be negative (monsters do more crit damage)
     const group = makeGroup('+##% к бонусу критического урона монстров');
-    expect(classifyWaystoneSentiment(group)).toBe('negative');
-  });
-
-  it('classifies more rare monster properties as negative (Bug #2 fix)', () => {
-    // Was neutral — should be negative (rare monsters get more properties = harder)
-    const group = makeGroup('На #% больше шанса появления свойств у редких монстров');
-    expect(classifyWaystoneSentiment(group)).toBe('negative');
-  });
-
-  it('classifies more monster effectiveness as negative (Bug #2 fix)', () => {
-    // Was neutral — should be negative (monsters more effective = harder)
-    // Note: "увеличенной эффективности монстров" already in NEGATIVE — this tests
-    // the new "больше эффективности монстров" variant (different phrasing)
-    const group = makeGroup('На #% больше эффективности монстров');
     expect(classifyWaystoneSentiment(group)).toBe('negative');
   });
 
@@ -507,12 +490,6 @@ describe('classifyWaystoneSubBlock', () => {
     // Implicit mod (Шанс выпадения путевого камня) — implicit rule forces positive.
     // Within positive, "путев" pattern routes to loot.
     expect(classifyWaystoneSubBlock(makeGroup('Шанс выпадения путевого камня: +#%', { affix: 'implicit' }))).toBe('positive-loot');
-  });
-
-  it('classifies more magic+rarer monsters as positive-loot', () => {
-    // More rare monsters = more loot. Bug #2 fix put this in positive; iter 104
-    // sub-block routes it to loot (not mechanics or buffs).
-    expect(classifyWaystoneSubBlock(makeGroup('На #% больше волшебных и редких монстров'))).toBe('positive-loot');
   });
 
   it('classifies extra Breaches as positive-mechanics', () => {
@@ -614,8 +591,10 @@ describe('classifyWaystoneSubBlock', () => {
   });
 
   it('classifies rare-monster extra properties as negative-monster-modifiers', () => {
+    // iter 129 cleanup: 2nd assertion (BTS pattern "На #% больше шанса появления
+    // свойств у редких монстров") removed — filtered at ETL (iter 128 KI#13).
+    // 1st assertion (real mod) kept.
     expect(classifyWaystoneSubBlock(makeGroup('Дополнительных свойств у редких монстров: #'))).toBe('negative-monster-modifiers');
-    expect(classifyWaystoneSubBlock(makeGroup('На #% больше шанса появления свойств у редких монстров'))).toBe('negative-monster-modifiers');
   });
 
   it('classifies player max-res penalty as negative-player-penalty', () => {

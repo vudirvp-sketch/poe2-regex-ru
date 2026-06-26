@@ -4,69 +4,77 @@
 
 ---
 
-Task ID: 128
+Task ID: 129
 Agent: main
-Task: Фикс KI#13 — пропущен implicit `Редкость монстров: +##%` + BTS-статы в waystone-аффиксах. Пользователь сообщил: "в суффиксах и префиксах там каша, в аффиксы попало то, что не должно было туда попасть".
+Task: Cleanup + stabilisation — подготовка к UI-рефакторингу. Пользователь: «в этой итерации чисто приведение всего в порядок и устаканивание для дальнейшей работы. пока ничего не реализуем». Также: продумать план UI-улучшений (без реализации) и закрыть KI#7/KI#8.
 
 Work Log:
-- 1: Репозиторий клонирован. Контекст загружен из STATUS.md (iter 127 = current, KI#12 FIXED), worklog.md (iter 127 подробно), AGENT_NAVIGATION.md. Изучены ключевые файлы: `scripts/etl/normalize.ts` (`WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` = 4 ключа + `generateWaystoneImplicitTokens` = 5 implicits), `public/generated/waystone.json` (156 tokens: 5 implicits + 151 affixes включая BTS), `public/generated/waystone-desecrated.json` (32 tokens: 5 implicits + 27 affixes), `регис/Путевые камни моды.md` (эталонный список модов от пользователя), `scripts/etl/i18n-overrides.json` (override mechanism).
-- 2: Парсинг актуальной страницы poe2db.tw/ru/Waystones. Написан `scripts/parse_waystone_page.py` (BeautifulSoup, парсит tab `ПутевыекамниMods` + `DesecratedWaystoneMods`, разбивает `<br>`-сегменты, строит template с `#`/`##`). Анализ показал: 106 rows normal + 17 rows desecrated, каждый row имеет 3-4 `<br>`-сегмента (первый — main effect, остальные — BTS). Составлен полный список BTS-паттернов (10 ключей: 4 существующих + 6 новых).
-- 3: Документация KI#13 в STATUS.md как Known Issue (ПЕРВЫЙ ШАГ per user instruction). Описаны: симптом, root cause (2 части: (a) missing implicit + (b) неполный BTS-фильтр), логика PoE2 (BTS плюсуются за кулисами к имплиситам), план фикса.
-- 4: Реализация фикса в `scripts/etl/normalize.ts`:
-  - `generateWaystoneImplicitTokens()`: добавлен 6-й implicit `Редкость монстров: +##%` (id=`{category}.implicit.monster_rarity`, range=[0,999], regex будет установлен через override).
-  - `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS`: расширена с 4 до 10 ключей. Добавлены: `На #% больше волшебных и редких монстров`, `На #% больше шанса появления свойств у редких монстров`, `На #% больше эффективности монстров`, `#% увеличение количества редких монстров`, `#% увеличение количества волшебных монстров`, `#% увеличение количества путевых камней, находимых в области`. Комментарий обновлён с описанием логики (iter 128 KI#13).
-- 5: Override в `scripts/etl/i18n-overrides.json` для нового implicit: `waystone.implicit.monster_rarity` и `waystone-desecrated.implicit.monster_rarity`. Regex: `'едкость монстров'` (15 chars, literal space) — disambiguate от `'едкость предметов'` (iter 126). Source-comment упоминает iter 128 + KI#13.
-- 6: Patch `public/generated/waystone.json` + `waystone-desecrated.json` через `scripts/apply-ki13-fix.py`:
-  - waystone.json: 156 → 110 tokens (удалено 47 BTS, +1 implicit monster_rarity). BTS tokens: 16× `На #% больше волшебных и редких монстров`, 16× `На #% больше шанса появления свойств у редких монстров`, 13× `На #% больше эффективности монстров`, 1× `#% увеличение количества редких монстров`, 1× `#% увеличение количества путевых камней, находимых в области`.
-  - waystone-desecrated.json: 32 → 28 tokens (удалено 5 BTS, +1 implicit). BTS tokens: 1× `#% увеличение количества волшебных монстров`, 4× `#% увеличение количества редких монстров`.
-  - Скрипт идемпотентен (проверяет наличие monster_rarity перед вставкой), обновляет `version` timestamp, валидирует JSON после записи.
-- 7: Регрессионные тесты в `tests/core/iter128-ki13-monster-rarity.test.ts` (34 теста, 7 секций):
-  - SECTION 1 (5): new implicit `Редкость монстров: +##%` существует в обоих JSON, regex=`'едкость монстров'`, ровно 6 implicits в каждом файле.
-  - SECTION 2 (4): BTS-токены удалены (no familyKey matches + no rawText matches по regex-паттернам).
-  - SECTION 3 (8): `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` содержит все 6 новых ключей + 4 оригинальных, всего ≥10.
-  - SECTION 4 (4): `generateWaystoneImplicitTokens()` возвращает 6 tokens, monster_rarity имеет range=[0,999], работает для waystone-desecrated.
-  - SECTION 5 (8): compile + matcher — disambiguation FP prevention. monster_rarity regex матчит `Редкость монстров: +25%` (TP), НЕ матчит `Редкость предметов: +25%` (FP prevention). Bidirectional: item_rarity regex НЕ матчит `Редкость монстров: +25%`. AND-joined 3 implicits all satisfied. AND-logic partial satisfaction → no match. Range notation FP prevention.
-  - SECTION 6 (3): i18n-overrides.json содержит оба override-entries, source упоминает iter 128 + KI#13.
-  - SECTION 7 (2): audit — no BTS family keys in any waystone JSON (future regression guard).
-- 8: Обновлены существующие тесты:
-  - `tests/etl/normalize.test.ts`: "KI-2 every WAYSTONE key matches source HTML" — теперь проверяет combined normal+desecrated source HTML (некоторые BTS-ключи есть только в desecrated). "KI-2 waystone-desecrated source HTML has no BTS tokens" — REMOVED (premise больше не верна: desecrated source HTML теперь СОДЕРЖИТ BTS). Вместо него: "KI-2 waystone-desecrated.json does NOT contain BTS familyKeys (filter removed them)".
-  - `tests/etl/cross-validation.test.ts`: диапазон waystone token count 140-200 → 100-200 (после BTS removal: 110). Диапазон waystone-desecrated 27-40 → 25-40 (после BTS removal: 28).
-- 9: Верификация: `npx vitest run` → 1992/1992 passed (41 test files, +34 vs iter 127). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems (изначально 16 `any`-errors в новом тесте, исправлены через добавление `TokenLike`/`CategoryData` interfaces).
-- 10: Документация актуализирована:
-  - `STATUS.md` — переписан под iter 128: «Текущее состояние» описывает KI#13 fix. KI#13 → FIXED. Старые iter 126/127 детали сжаты в "Закрытые KI". Таблицы «Подтверждённые ограничения PoE2» (+1 строка: BTS-статы ✅ iter 128) и «Оптимальные стратегии» (+1 строка: BTS-фильтр + новый implicit ✅ iter 128).
-  - `worklog.md` — iter 128 подробно, iter 127 сжат до одной строки (перенесён в "Предыдущие итерации").
-  - `AGENT_NAVIGATION.md` — header summary обновлён под iter 128; Pitfall 39 (BTS-фильтр + missing implicit) добавлен.
+- 1: Репозиторий клонирован. Контекст загружен из STATUS.md (iter 128 = current, KI#13 FIXED, KI#7/KI#8 awaiting user visual verification, KI#9 monitoring), worklog.md (iter 128 подробно), AGENT_NAVIGATION.md (Pitfall 39 = BTS-фильтр + missing implicit). Baseline проверки: vitest 1992/1992, tsc 0 errors, eslint 0 problems — состояние чистое.
+- 2: Cleanup dead patterns в `src/shared/mod-classifier.ts` (теперь обязательно per user instruction "не можно а нужно!"). Цель: удалить BTS-related regex patterns, которые матчат только токены, отфильтрованные на ETL в iter 128 (KI#13). Верификация через Python-скрипт: 0 токенов в `waystone.json` (110 tokens) и `waystone-desecrated.json` (28 tokens) содержат BTS-паттерны — patterns действительно dead. Удалено:
+  - `больше.*волшебн.*редк.*монстр` из `POSITIVE_KEYWORDS` (Bug #2 fix iter 84)
+  - `шанса появления свойств.*редк.*монстр` и `больше.*эффективн.*монстр` из `NEGATIVE_KEYWORDS` (Bug #2 fix iter 84)
+  - `количеств.*редк.*монстр`, `количеств.*волшебн.*монстр`, `больше.*волшебн.*редк.*монстр` из `POSITIVE_LOOT_PATTERNS`
+  - `шанса появления свойств.*редк.*монстр` из `NEGATIVE_MONSTER_MODIFIERS_PATTERNS` (kept `Дополнительных свойств у редких монстр` — REAL mod)
+  - `волшебн.*монстр|редк.*монстр` из `WAYSTONE_A_PREFIX` (kept `опыт|волшебн.*сундук|редк.*сундук`)
+  Comments обновлены с пометкой "iter 129 cleanup: removed ... (BTS, filtered at ETL iter 128 KI#13)". Bug #2 fix comment обновлён: 3 of 4 patterns removed (BTS-only), 1 kept (`бонус.*крит.*урон.*монстр` — REAL mod).
+- 3: Тесты обновлены в `tests/shared/mod-classifier.test.ts`:
+  - Удалён тест "classifies more magic+rarer monsters as positive (Bug #2 fix)" (BTS pattern).
+  - Удалён тест "classifies more rare monster properties as negative (Bug #2 fix)" (BTS pattern).
+  - Удалён тест "classifies more monster effectiveness as negative (Bug #2 fix)" (BTS pattern).
+  - Удалён тест "classifies more magic+rarer monsters as positive-loot" (BTS sub-block test).
+  - Модифицирован тест "classifies rare-monster extra properties as negative-monster-modifiers": оставлена 1-я assertion (REAL mod `Дополнительных свойств у редких монстров: #`), удалена 2-я assertion (BTS `На #% больше шанса появления свойств у редких монстров`).
+  Bug #2 fix header comment обновлён: "iter 129 cleanup: 3 of 4 Bug #2 patterns removed (BTS-only, filtered at ETL iter 128 KI#13). Only the real 'бонус.*крит.*урон.*монстр' pattern remains — tested below."
+- 4: Верификация после cleanup: `npx vitest run` → 1988/1988 passed (41 test files, -4 vs iter 128). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. `npx vite build` → succeeds (472ms, 156 modules, 49.43 kB CSS gzip 10.75 kB) — подтверждает что KI#7 (hero-side-ghost CSS) и KI#8 (home-seo-atmosphere CSS) интактны и компилируются.
+- 5: KI#7 (HomePage hero decorations, iter 121) → VERIFIED. Реализация проверена: `src/ui/pages/home/HomePage.tsx:87-98` рендерит 2 `<img>` (shaman left + iva right) с `hero-side-ghost` / `hero-side-ghost--right` CSS classes. CSS в `src/index.css:609-662` — mask-image gradients (bottom 25% fade + inner-edge 25% fade, `mask-composite: intersect`). Assets exist: `public/atmosphere/hero-shaman.webp` (128 KB), `public/atmosphere/hero-iva.webp` (77 KB). Build verification: vite build succeeds. Закрыто в STATUS.md.
+- 6: KI#8 (SeoBlock atmosphere, iter 122) → VERIFIED. Реализация проверена: `src/ui/pages/home/SeoBlock.tsx:46-63` рендерит 2 `<img>` (`seo-atmosphere.webp` wide backdrop + `hero-demon-blue.webp` right-edge accent) с `home-seo-atmosphere` / `home-seo-demon` CSS classes. CSS в `src/index.css:1077-1126` — opacity 0 → 0.18 (atmosphere) / 0.10 (demon) на `[open]`, `mix-blend-mode: screen`, `mask-image` bottom fade. Assets exist: `public/atmosphere/seo-atmosphere.webp` (146 KB), `public/atmosphere/hero-demon-blue.webp` (61 KB). Build verification: vite build succeeds. Закрыто в STATUS.md.
+- 7: UI Refactor Plan написан в `docs/UI_REFACTOR_PLAN.md` (~530 строк, 12 секций). План:
+  - **Executive summary** — 10 audit recommendations + 6 user priorities decomposed into 5 phases.
+  - **Current state assessment** — что существует (4-level mod list hierarchy, TanStack Virtual, priority tier system, CSS tokens) vs чего нет (collapse, sticky search, basket, show-selected-only, favorites, React Tooltip, TopNav dropdowns).
+  - **Goals & non-goals** — explicit: no new dependencies, no light theme, no re-skin, no backend, no i18n overhaul, no regex engine changes.
+  - **5 phases** (each = 1 iteration):
+    - Phase 1 (foundation): `FilterState` extension (`collapsedGroups`, `showSelectedOnly`, `pinnedIds`) + URL sync backward-compat. No UI yet.
+    - Phase 2 (collapse + sticky search): `GroupHeader` component + chevron toggles + sticky search bar. Both `ModList` + `VirtualizedModList`.
+    - Phase 3 (selected only + basket): `SelectedBasket` component + "Все / Выбранные" toggle + right-aside restructure.
+    - Phase 4 (colors + compact + tooltips): stronger `.affix-header-*` tints + `.filter-chip` class token + `Tooltip` component + compact density (px-2.5 py-1.5 → px-2 py-1, text-[13px] → text-[12px]).
+    - Phase 5 (favorites + topnav): `⭐` pin toggle + "Избранные" section + TopNav dropdowns (3 groups).
+  - **Phase dependencies** — Phase 1 unblocks 2/3/5; Phase 4 independent.
+  - **Risk register** — 8 risks with mitigations (TanStack Virtual scroll position, URL bloat, basket perf, WCAG touch target, etc.).
+  - **Open questions** — 6 decisions for user/next agent (collapse default, mobile basket, favorites scope, tooltip trigger, TopNav click behavior, chip density).
+  - **Test strategy** — per-phase unit + integration + visual regression + manual verification.
+  - **Estimate** — 28 files touched, 5 new files, 52-78 new tests, 5 iterations sequential (3 parallel).
+  - **How to start** — recommended Phase 1 first.
+- 8: Документация актуализирована:
+  - `STATUS.md` — переписан под iter 129: «Текущее состояние» описывает cleanup + KI#7/KI#8 verification + UI plan. KI#7, KI#8 → VERIFIED. "Закрытые KI" сжаты до 6 строк (KI#7/KI#8/KI#10/KI#11/KI#12/KI#13). Добавлен "Next iteration (iter 130)" блок с указанием на `docs/UI_REFACTOR_PLAN.md`.
+  - `worklog.md` — iter 129 подробно (этот раздел), iter 128 сжат до одной строки (перенесён в "Предыдущие итерации").
+  - `AGENT_NAVIGATION.md` — header summary обновлён под iter 129; Pitfall 40 (dead patterns cleanup) добавлен.
 
 Stage Summary:
-- **iter 128 COMPLETE.** Фикс KI#13 — пропущен implicit `Редкость монстров: +##%` + BTS-статы в waystone-аффиксах. Пользователь сообщил: в суффиксах/префиксах "каша", попали "за кулисами"-статы, которые плюсуются к имплиситам и не должны быть searchable.
-- **Изменённые файлы (8):**
-  - `scripts/etl/normalize.ts` — добавлен implicit `monster_rarity` + расширён `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` (+6 ключей, итого 10).
-  - `scripts/etl/i18n-overrides.json` — добавлены 2 override entries (`waystone.implicit.monster_rarity`, `waystone-desecrated.implicit.monster_rarity`) с regex `'едкость монстров'`.
-  - `public/generated/waystone.json` — patch: 156 → 110 tokens (-47 BTS, +1 implicit).
-  - `public/generated/waystone-desecrated.json` — patch: 32 → 28 tokens (-5 BTS, +1 implicit).
-  - `tests/core/iter128-ki13-monster-rarity.test.ts` — NEW файл, 34 регрессионных теста (7 секций).
-  - `tests/etl/normalize.test.ts` — обновлён KI-2 блок (combined source HTML + desecrated filter test).
-  - `tests/etl/cross-validation.test.ts` — расширены диапазоны token count.
-  - `scripts/apply-ki13-fix.py` — NEW patch script (идемпотентный, с верификацией).
+- **iter 129 COMPLETE.** Cleanup + stabilisation — подготовка к UI-рефакторингу.
+- **Изменённые файлы (6):**
+  - `src/shared/mod-classifier.ts` — удалены 6 dead BTS-related patterns из 5 regex констант. Comments обновлены.
+  - `tests/shared/mod-classifier.test.ts` — удалены 4 dead-pattern tests, 1 test модифицирован (вторая assertion удалена).
+  - `docs/UI_REFACTOR_PLAN.md` — NEW файл, ~530 строк, детальный план на 5 фаз.
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
-- **Тесты/типы/lint:** ✅ vitest 1992/1992 (41 test files; +34 vs iter 127), tsc 0 errors, eslint 0 problems.
-- **НЕ сделано (перенос в iter 129+):**
-  1. **In-game verification пользователем:** проверить, что (a) фильтр `Редкость монстров ≥ +25%` подсвечивает путевые камни с `Редкость монстров: +25%` в имплиситах; (b) фильтры для аффиксов, имевших BTS-сегменты (например `Монстры получают (26—30)% уменьшение дополнительного урона от критических ударов`), продолжают работать — игрок увидит только main effect, BTS плюсуется к имплиситам.
-  2. **Cleanup dead patterns в `src/shared/mod-classifier.ts`:** после iter 128 patterns `больше.*волшебн.*редк.*монстр`, `шанса появления свойств.*редк.*монстр`, `больше.*эффективн.*монстр` в POSITIVE/NEGATIVE_KEYWORDS — теперь dead (BTS-токены удалены из данных). Можно удалить для чистоты, но не критично (patterns просто не матчат ничего).
-  3. KI#7 (hero decorations, iter 121), KI#8 (SeoBlock atmosphere, iter 122) — awaiting user visual verification (перенос из iter 127).
-  4. KI#9 (MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`) — monitoring, не фиксировано.
-- **Точка остановки:** iter 128 done. KI#13 fix (новый implicit `Редкость монстров` + расширение BTS-фильтра + удаление 52 BTS-токенов) завершён и верифицирован локально (1992/1992 tests). В iter 129 можно:
-  1. Получить in-game верификацию от пользователя (тестовый сценарий: путевой камень с аффиксом `Монстры получают (26—30)% уменьшение дополнительного урона от критических ударов` — игрок видит только этот аффикс, BTS-бонусы плюсуются к `Редкость монстров`, `Редкость предметов`, `Шанс выпадения` имплиситам).
-  2. Если найден новый FP/FN баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
-  3. Опционально: cleanup dead patterns в mod-classifier.ts.
-- **Подсказка следующему агенту:** iter 128 пофиксил KI#13 (добавлен implicit `Редкость монстров: +##%` с regex `'едкость монстров'`, расширён `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` +6 ключей, удалено 52 BTS-токена из waystone.json + waystone-desecrated.json). Patch script: `scripts/apply-ki13-fix.py` (идемпотентный). Перед стартом iter 129 прочитай STATUS.md (актуальный статус + KI#7/KI#8/KI#9 + KI#10-KI#13 закрыты), worklog.md (этот раздел iter 128), Pitfall 39 (BTS-фильтр + missing implicit) в AGENT_NAVIGATION.md. Regression tests в `tests/core/iter128-ki13-monster-rarity.test.ts` (34 теста, 7 секций). Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Тесты/типы/lint/build:** ✅ vitest 1988/1988 (41 test files; -4 vs iter 128), tsc 0 errors, eslint 0 problems, vite build succeeds (472ms).
+- **KI статус:** KI#7 → VERIFIED (iter 129), KI#8 → VERIFIED (iter 129), KI#9 — monitoring (не фиксировано), KI#10-KI#13 — закрыты.
+- **НЕ сделано (перенос в iter 130+):**
+  1. **In-game verification пользователем KI#13 fix** — проверить, что (a) фильтр `Редкость монстров ≥ +25%` подсвечивает путевые камни с `Редкость монстров: +25%` в имплиситах; (b) фильтры для аффиксов, имевших BTS-сегменты, продолжают работать.
+  2. **UI Refactor implementation** — план в `docs/UI_REFACTOR_PLAN.md`, 5 фаз. Рекомендованный старт — Phase 1 (foundation: filter-store + URL sync).
+  3. **KI#9 (MULTI_RANGE slot N>0)** — monitoring, не фиксировано.
+- **Точка остановки:** iter 129 done. Cleanup завершён, KI#7/KI#8 закрыты, UI план написан. В iter 130:
+  1. Читать `docs/UI_REFACTOR_PLAN.md` end-to-end.
+  2. Стартовать с Phase 1 (foundation: `FilterState` extension + URL sync для `collapsedGroups`, `showSelectedOnly`, `pinnedIds`).
+  3. Получить in-game верификацию KI#13 от пользователя (если возможно).
+  4. Если найден новый FP/FN баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Подсказка следующему агенту:** iter 129 почитал dead patterns (6 BTS-related regex удалены из `src/shared/mod-classifier.ts`, 4 теста удалены). KI#7/KI#8 закрыты (реализация iter 121/122 интактна, build проходит). UI Refactor Plan в `docs/UI_REFACTOR_PLAN.md` — 5 фаз, начать с Phase 1. Перед стартом прочитай STATUS.md (актуальный статус iter 129 + KI#9 monitoring + закрытые KI#7/KI#8/KI#10-KI#13), worklog.md (этот раздел iter 129), Pitfall 40 (dead patterns cleanup) в AGENT_NAVIGATION.md. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
-- **iter 127**: аудит KI#10-pattern в других категориях + фикс KI#12 (tier-hardcoded regex для 7 single-# relic tokens) через explicit override в `i18n-overrides.json`. KI#11 (cross-block .* hypothesis) ОПРОВЕРГНУТА. 1958/1958 tests.
-- **iter 126**: фикс KI#10 — ambiguous suffix FP для `Редкость предметов` (`'едкость'` → `'едкость предметов'`). VERIFIED in-game iter 127. 1939/1939 tests.
+- **iter 128**: фикс KI#13 — пропущен implicit `Редкость монстров: +##%` + BTS-статы в waystone-аффиксах. Расширен `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` с 4 до 10 ключей, patch `waystone.json` (156→110 tokens) + `waystone-desecrated.json` (32→28). 1992/1992 tests.
+- **iter 127**: аудит KI#10-pattern + фикс KI#12 (tier-hardcoded regex для 7 single-# relic tokens). KI#11 ОПРОВЕРГНУТА. 1958/1958 tests.
+- **iter 126**: фикс KI#10 — ambiguous suffix FP для `Редкость предметов`. VERIFIED in-game iter 127. 1939/1939 tests.
 - **iter 125**: фикс in-game FP `(A|B|C) after .* bridge` для reversed RANGE через `distributeAlternation()` (Path D). 1915/1915 tests.
 - **iter 124**: cleanup stale `DELETIONS-iter123.txt`.
 - **iter 123**: cleanup stale `DELETIONS-iter{121,122}.txt`.
