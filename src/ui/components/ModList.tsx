@@ -113,6 +113,16 @@ interface ModListProps {
    *  when truncated (forward-compatible; not yet wired by `useCategoryPage`
    *  until Phase 5 lands). */
   pinnedIds?: Set<string>;
+
+  // ─── Phase 3 (iter 135): show-selected-only mode ───────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
+  // When true, familyGroups are filtered to only those with at least one
+  // selected/excluded/pinned member. Pinned/excluded tokens stay visible so
+  // the user can un-exclude or re-select a favorited mod (per spec §4 Phase 3).
+
+  /** When true, hide non-selected chips in the mod list.
+   *  Pinned/excluded tokens stay visible. Default false. */
+  showSelectedOnly?: boolean;
 }
 
 /** Origin section within an affix column */
@@ -536,6 +546,8 @@ export const ModList: React.FC<ModListProps> = ({
   chipExpandState,
   onToggleChipExpand,
   pinnedIds,
+  // Phase 3 (iter 135): show-selected-only mode
+  showSelectedOnly = false,
 }) => {
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -585,18 +597,39 @@ export const ModList: React.FC<ModListProps> = ({
     });
   }, [familyGroups, priorityFilter]);
 
-  // Separate groups by affix type (after priority filter)
+  // Phase 3 (iter 135): show-selected-only filter.
+  // When `showSelectedOnly` is true, only show family groups with at least one
+  // selected/excluded/pinned member. Pinned/excluded tokens stay visible so
+  // the user can un-exclude or re-select a favorited mod (per spec §4 Phase 3).
+  // When false (default), all familyGroups pass through unchanged (pre-Phase-3).
+  const visibleGroups = useMemo(() => {
+    if (!showSelectedOnly) return priorityFilteredGroups;
+    const effectiveExcluded = excludedIds ?? new Set<string>();
+    const effectivePinned = pinnedIds ?? new Set<string>();
+    return priorityFilteredGroups.filter(g => {
+      for (const m of g.members) {
+        if (selectedIds.has(m.id)) return true;
+        if (effectiveExcluded.has(m.id)) return true;
+        if (effectivePinned.has(m.id)) return true;
+      }
+      return false;
+    });
+  }, [priorityFilteredGroups, showSelectedOnly, selectedIds, excludedIds, pinnedIds]);
+
+  // Separate groups by affix type (after priority + show-selected-only filter).
+  // Phase 3 (iter 135): use `visibleGroups` instead of `priorityFilteredGroups`
+  // so showSelectedOnly toggle hides non-selected chips.
   const implicitGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'implicit'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'implicit'),
+    [visibleGroups]
   );
   const prefixGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'prefix'),
+    [visibleGroups]
   );
   const suffixGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'suffix'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'suffix'),
+    [visibleGroups]
   );
 
   // Classify groups into sub-groups based on mode (iter 106 P4: sortMode-aware)
@@ -788,13 +821,15 @@ export const ModList: React.FC<ModListProps> = ({
         )}
       </div>
 
-      {/* Stats — iter 70: text-dim → text-muted for better contrast */}
+      {/* Stats — iter 70: text-dim → text-muted for better contrast.
+          Phase 3 (iter 135): use `visibleGroups` count so showSelectedOnly
+          toggle updates the «shown» count immediately. */}
       <div className="text-[13px] text-muted">
-        {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
+        {t('filter.stats').replace('{shown}', String(visibleGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
       {/* Mod groups area */}
-      {priorityFilteredGroups.length > 0 ? (
+      {visibleGroups.length > 0 ? (
         <>
           {/* Implicit section: always full width, above prefix/suffix */}
           {hasImplicit && affixFilter !== 'prefix' && affixFilter !== 'suffix' && (
@@ -852,7 +887,7 @@ export const ModList: React.FC<ModListProps> = ({
         {isOriginMode ? (
           /* Origin mode: single column, sub-grouped by origin */
           <div className="flex flex-col gap-2">
-            {classifyGroups(priorityFilteredGroups.filter(g => g.affix !== 'implicit'), 'origin', sortMode).map((sg) => (
+            {classifyGroups(visibleGroups.filter(g => g.affix !== 'implicit'), 'origin', sortMode).map((sg) => (
               <div key={sg.key}>
                 <div className={`block ml-2 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${sg.bgClass} ${sg.borderClass} ${sg.borderLClass} ${sg.colorClass} flex items-center gap-1.5`}>
                   {(() => {

@@ -130,8 +130,8 @@ pnpm etl:fresh         # с нуля (без кеша)
 
 | Файл | Назначение |
 |------|-----------|
-| [`AGENT_NAVIGATION.md`](./AGENT_NAVIGATION.md) | **Entry document для AI-агентов** — где что лежит, path aliases, dependency rules, 44 pitfall-паттерна |
-| [`STATUS.md`](./STATUS.md) | Текущий статус итерации (iter 134), Known Issues, подтверждённые ограничения PoE2 |
+| [`AGENT_NAVIGATION.md`](./AGENT_NAVIGATION.md) | **Entry document для AI-агентов** — где что лежит, path aliases, dependency rules, 45 pitfall-паттернов |
+| [`STATUS.md`](./STATUS.md) | Текущий статус итерации (iter 135), Known Issues, подтверждённые ограничения PoE2 |
 | [`worklog.md`](./worklog.md) | Лог последних итераций |
 | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Архитектура regex-движка и ETL-пайплайна |
 | [`docs/ETL_GUIDE.md`](./docs/ETL_GUIDE.md) | Описание ETL: fetch → parse → normalize → compute → optimize → write |
@@ -139,7 +139,7 @@ pnpm etl:fresh         # с нуля (без кеша)
 | [`docs/IN_GAME_TESTS.md`](./docs/IN_GAME_TESTS.md) | Логи тестов regex-диалекта в реальной игре |
 | [`docs/SEO_PLAN.md`](./docs/SEO_PLAN.md) | SEO-стратегия: sitemap, meta-теги, пререндеринг, верификация в поисковиках |
 | [`docs/UI_AUDIT.md`](./docs/UI_AUDIT.md) | UI-аудит v2 — исходные рекомендации для UI-рефакторинга (§10 TopNav dropdowns SUPERSEDED iter 130) |
-| [`docs/UI_REFACTOR_PLAN.md`](./docs/UI_REFACTOR_PLAN.md) | План UI-рефакторинга на 7 фаз (iter 129 + review iter 130 + user feedback iter 131 + **Phase 1 DONE iter 132** + **Phase 2 DONE iter 133** + **Phase 2.5 DONE iter 134**: collapsible affix groups + sticky search + «+N ещё» chip expander). Phase 1+2+2.5 готовы — 5 полей `FilterState` + 13 actions + URL sync + GroupHeader + sticky search + expand/collapse-all кнопки + per-sub-group chip truncation. |
+| [`docs/UI_REFACTOR_PLAN.md`](./docs/UI_REFACTOR_PLAN.md) | План UI-рефакторинга на 7 фаз (iter 129 + review iter 130 + user feedback iter 131 + **Phase 1 DONE iter 132** + **Phase 2 DONE iter 133** + **Phase 2.5 DONE iter 134** + **Phase 3 DONE iter 135**: collapsible affix groups + sticky search + «+N ещё» chip expander + show-selected-only + SelectedBasket panel). Phase 1+2+2.5+3 готовы — 5 полей `FilterState` + 13 actions + URL sync + GroupHeader + sticky search + expand/collapse-all кнопки + per-sub-group chip truncation + show-selected-only filter + SelectedBasket с cap=20 + collapsible right aside. |
 | [`docs/UI_VISUALIZATION_AUDIT.md`](./docs/UI_VISUALIZATION_AUDIT.md) | Эталон визуализации UI (iter 130 + iter 131 §8 corrections) — layout, element inventory, color coding |
 
 ---

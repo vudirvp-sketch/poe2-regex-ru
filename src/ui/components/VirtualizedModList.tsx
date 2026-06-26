@@ -103,6 +103,15 @@ interface VirtualizedModListProps {
   onToggleChipExpand?: (key: string) => void;
   /** Phase 5 favorites — pinned token IDs (forward-compatible). */
   pinnedIds?: Set<string>;
+
+  // ─── Phase 3 (iter 135): show-selected-only mode ───────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
+  // Same backward-compat pattern — when absent, all familyGroups pass through
+  // unchanged (pre-Phase-3 behaviour).
+
+  /** When true, hide non-selected chips in the mod list.
+   *  Pinned/excluded tokens stay visible. Default false. */
+  showSelectedOnly?: boolean;
 }
 
 /** A flat virtual row for the virtualizer.
@@ -700,6 +709,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   chipExpandState,
   onToggleChipExpand,
   pinnedIds,
+  // Phase 3 (iter 135): show-selected-only mode
+  showSelectedOnly = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -754,17 +765,35 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     });
   }, [familyGroups, priorityFilter]);
 
+  // Phase 3 (iter 135): show-selected-only filter — same logic as ModList.tsx
+  // (kept in sync deliberately). When true, only show family groups with at
+  // least one selected/excluded/pinned member. Pinned/excluded tokens stay
+  // visible so the user can un-exclude or re-select a favorited mod.
+  const visibleGroups = useMemo(() => {
+    if (!showSelectedOnly) return priorityFilteredGroups;
+    const effectiveExcluded = excludedIds ?? new Set<string>();
+    const effectivePinned = pinnedIds ?? new Set<string>();
+    return priorityFilteredGroups.filter(g => {
+      for (const m of g.members) {
+        if (selectedIds.has(m.id)) return true;
+        if (effectiveExcluded.has(m.id)) return true;
+        if (effectivePinned.has(m.id)) return true;
+      }
+      return false;
+    });
+  }, [priorityFilteredGroups, showSelectedOnly, selectedIds, excludedIds, pinnedIds]);
+
   const implicitGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'implicit'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'implicit'),
+    [visibleGroups]
   );
   const prefixGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'prefix'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'prefix'),
+    [visibleGroups]
   );
   const suffixGroups = useMemo(
-    () => priorityFilteredGroups.filter((g) => g.affix === 'suffix'),
-    [priorityFilteredGroups]
+    () => visibleGroups.filter((g) => g.affix === 'suffix'),
+    [visibleGroups]
   );
 
   const implicitSubGroups = useMemo(
@@ -991,9 +1020,11 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         )}
       </div>
 
-      {/* Stats — iter 70: text-dim → text-muted for better contrast */}
+      {/* Stats — iter 70: text-dim → text-muted for better contrast.
+          Phase 3 (iter 135): use `visibleGroups` count so showSelectedOnly
+          toggle updates the «shown» count immediately. */}
       <div className="text-[13px] text-muted">
-        {t('filter.stats').replace('{shown}', String(priorityFilteredGroups.length)).replace('{total}', String(tokens.length))}
+        {t('filter.stats').replace('{shown}', String(visibleGroups.length)).replace('{total}', String(tokens.length))}
       </div>
 
       {/* Implicit section: always full width, above prefix/suffix */}

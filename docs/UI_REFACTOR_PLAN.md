@@ -10,9 +10,9 @@
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phase 2.5 IMPLEMENTED iter 134. Phases 3/4/4.5/5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
-> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2); iter 134 implementation agent (Phase 2.5)
-> **Last updated:** 2026-06-27 (iter 134 — Phase 2.5 implementation)
+> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phase 2.5 IMPLEMENTED iter 134. Phase 3 IMPLEMENTED iter 135. Phases 4/4.5/5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2); iter 134 implementation agent (Phase 2.5); iter 135 implementation agent (Phase 3)
+> **Last updated:** 2026-06-27 (iter 135 — Phase 3 implementation)
 
 ---
 
@@ -736,13 +736,15 @@ Parallel (1 + 4 + 1): 3 iterations wall-clock.
 3. Read `docs/UI_AUDIT.md` for the original audit recommendations (note
    that §10 TopNav dropdowns are SUPERSEDED — see §13).
 4. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
-5. Read `AGENT_NAVIGATION.md` Pitfalls 26-43 (CSS specificity, mobile
+5. Read `AGENT_NAVIGATION.md` Pitfalls 26-45 (CSS specificity, mobile
    media queries, palette consistency, dead-patterns cleanup, Phase 1
-   foundation, Phase 2 wiring).
-6. **Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133).** Pick a phase to
-   work on next — recommend Phase 2.5 (consumes `chipExpandState` already wired
-   in Phase 1). Phases 3/5 also consume Phase 1 fields and can be done in any
-   order; Phase 4 + 4.5 are independent.
+   foundation, Phase 2 wiring, Phase 2.5 chip expander, Phase 3 selected-only
+   + basket).
+6. **Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE
+   (iter 134). Phase 3 is DONE (iter 135).** Pick a phase to work on next —
+   recommend Phase 5 (consumes `pinnedIds` already wired in Phase 1 + props
+   already forwarded to ModList/VirtualizedModList in iter 134). Phases 4 + 4.5
+   are independent of Phase 1 — good warmup work for a new agent.
 7. Create a TODO list with the phase's file changes.
 8. Implement, test, document, ship.
 9. Update this document's §12 Phase Status table with a "Phase N — DONE"
@@ -760,7 +762,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 | 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | ✅ DONE | iter 132 | Implemented in `src/store/filter-store.ts`: +5 FilterState fields, +13 FilterActions (toggle/set/expandAll/collapseAll per level + setShowSelectedOnly + togglePinned/clearPinned + toggleChipExpand/expandAllChips/collapseAllChips), extended serialize (compact keys c/es/so/pn/ce, omitted when default) + deserialize (backward-compat, defensive parsing of malformed/non-array values). New test file `tests/store/filter-store.test.ts` — 46 tests across 9 describe blocks (initial state, asymmetric default, all 5 action families, round-trip, backward-compat, compact serialization, resetFilters, clearSelections scope, store isolation). vitest 1988→2034 (+46), tsc 0 errors, eslint 0 problems. No UI uses the new fields yet — pure infrastructure. |
 | 2 — Collapse + Sticky search | ✅ DONE | iter 133 | Implemented in `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` + new shared `src/ui/components/GroupHeader.tsx` (~95 строк). +8 optional collapse props on each mod-list component (backward compat preserved — legacy callers без wiring рендерят как раньше). `AffixColumn` (ModList) + `column-header` row (VirtualizedModList) render `GroupHeader` (variant='top') with chevron; skip sub-groups when top-level collapsed. `ModSubGroupSection` (ModList) + new `subgroup-header` VirtualRow variant (VirtualizedModList) render `GroupHeader` (variant='sub') with chevron; skip chips when sub-group NOT in `expandedSubGroups`. Asymmetric default per iter 131 §13.7 #4: top EXPANDED + sub COLLAPSED. Search row wrapped in `.sticky-search-bar` CSS class (sticky under TopNav, backdrop-blur). «Развернуть все» / «Свернуть все» buttons (desktop-only, `hidden lg:inline-flex`). `useCategoryPage.ts` extended +8 fields wired to filter-store (Phase 1). URL-sync effect deps array extended — toggle triggers URL re-sync. 7 page files (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) updated — forward 8 new props. VendorPage не тронут (custom FilterChip). `i18n.ts` +4 keys. `index.css` +2 CSS blocks (`.sticky-search-bar`, `.group-header-chevron`). 3 new test files (36 tests): `tests/ui/GroupHeader.test.tsx` (14), `tests/ui/ModList.test.tsx` (11), `tests/ui/VirtualizedModList.test.tsx` (11). vitest 2034→2070 (+36), tsc 0 errors, eslint 0 problems. Edge case: sub-groups WITHOUT labels (e.g. `affix-only` mode) → chips always render (no UI to toggle collapse). |
 | 2.5 — "+N ещё" chip expander | ✅ DONE | iter 134 | Implemented in `src/shared/constants.ts` (`CHIP_PREVIEW_COUNT = 3`) + `src/shared/i18n.ts` (+4 keys: `chip.more`, `chip.more_aria`, `chip.collapse`, `chip.collapse_aria`) + `src/ui/hooks/useCategoryPage.ts` (+2 fields `chipExpandState`/`toggleChipExpand` wired to filter-store, +URL-sync deps) + `src/ui/components/ModList.tsx` (+3 optional props `chipExpandState`/`onToggleChipExpand`/`pinnedIds`, slicing logic in `ModSubGroupSection`: first N + important past-N chips visible, «+N ещё» / «свернуть» buttons) + `src/ui/components/VirtualizedModList.tsx` (same +3 props, identical slicing logic in `VirtualRowContent` subgroup row kept in sync with ModList) + 7 page files (+2 destructure + +2 forwarded props each). `pinnedIds?: Set<string>` prop added to ModList + VirtualizedModList как forward-compat для Phase 5 (favorites) — Phase 5 wiring будет проще. 9 новых тестов: `tests/ui/ModList.test.tsx` (+6 Phase 2.5 chip truncation tests — truncated state, click «+N ещё», expanded state with «свернуть», selected chip ALWAYS visible past preview, backward compat, small sub-group ≤3 chips) + `tests/ui/VirtualizedModList.test.tsx` (+3 chip-expand wiring tests — mounts with wiring, backward compat, accepts `pinnedIds`). vitest 2070→2079 (+9), tsc 0 errors, eslint 0 problems. Edge cases: (a) sub-group with ≤3 chips → no button even when wiring present (matches expanded case but without «свернуть»); (b) sub-group with all-important past-preview chips → hiddenCount=0 → no «+N ещё» button; (c) sub-group with no label (e.g. `affix-only` mode) → chips ALWAYS render (no UI to toggle, same edge case as Phase 2). Backward compat: все 3 new props optional — legacy callers без chip-expand wiring рендерят как раньше (all chips visible, no buttons). |
-| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). Phase 1 `showSelectedOnly` field now ready to consume. |
+| 3 — Selected only + Basket (with affix-type badges) | ✅ DONE | iter 135 | Implemented in `src/shared/constants.ts` (`SELECTED_BASKET_CAP = 20` per iter 131 §13.7 #3) + `src/shared/i18n.ts` (+16 keys: `filter.show_all`/`show_selected`/`show_mode_label`, `basket.*` family — title/empty/clear/more/collapse/unselect_aria, `basket.badge_implicit`/`prefix`/`suffix`, `basket.collapse_panel`/`expand_panel`) + `src/ui/hooks/useCategoryPage.ts` (+2 fields `showSelectedOnly`/`setShowSelectedOnly` wired to filter-store, +URL-sync deps) + NEW `src/ui/components/SelectedBasket.tsx` (~220 строк — renders ONE chip per selected FAMILY via `groupTokensByFamily`, colored affix badges ПРЕФ=blue/СУФ=orange/ИМПЛ=amber per iter 130 visualization gap #4, cap=20 with «+N ещё»/«свернуть» expander, click-to-deselect, empty state, clear-all link, max-height 30vh scroll, `role="button"` + `tabIndex=0` + Enter/Space keydown + aria-label) + `src/ui/components/CategoryControlPanel.tsx` (+3 optional props `showSelectedOnly`/`onSetShowSelectedOnly`/`selectedCount`, toggle radio group «Все / Выбранные ({n})» after sortMode, «Выбранные» button disabled when `selectedCount === 0`, arrow-key navigation via existing `handleRadioKeyDown`) + `src/ui/layout/CategoryLayout.tsx` (full rewrite: +1 optional prop `basket`, local state `rightPanelCollapsed` NOT persisted to URL, grid `1fr_320px` → `1fr_48px` when collapsed per iter 131 §13.7 #2, aside header with ⚙ icon + chevron toggle, aside body collapses to header-only, mobile: basket always visible above status) + `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` (+1 optional prop `showSelectedOnly`, new `visibleGroups` useMemo chains priority filter + show-selected-only filter — kept in sync between ModList + VirtualizedModList, `implicitGroups`/`prefixGroups`/`suffixGroups` + stats line use `visibleGroups`) + 7 page files (+1 import SelectedBasket, +2 destructure, +3 CategoryControlPanel props, +1 CategoryLayout basket prop, +1 VirtualizedModList/ModList prop each). VendorPage не тронут. 20 новых тестов: `tests/ui/SelectedBasket.test.tsx` (NEW, 12 tests — empty state, one chip per family not per token, affix badges ПРЕФ/СУФ/ИМПЛ, clear-all calls onClearSelections, click chip calls onToggleTokens with member IDs, Enter key, cap=20 renders all when ≤ cap, truncates + «+N ещё» when > cap, click «+N ещё» reveals all + «свернуть», click «свернуть» re-truncates, category prop optional) + `tests/ui/ModList.test.tsx` (+6 tests — default all chips, showSelectedOnly=true only selected families, excluded stay visible, pinned stay visible Phase 5 forward-compat, no selections → no chips, stats line shows filtered count) + `tests/ui/VirtualizedModList.test.tsx` (+2 tests — mounts with showSelectedOnly=true via stats line count assertion since jsdom renders 0 virtualized rows, backward compat without prop). vitest 2079→2099 (+20), tsc 0 errors, eslint 0 problems. Edge cases: (a) `selectedCount === 0` → «Выбранные» button disabled (visual cue + cursor-not-allowed + onClick early-return — prevents entering empty selected-only mode); (b) basket cap = 20, NOT 12 (raised per user feedback §13.7 #3); (c) collapsible right panel uses LOCAL state (NOT persisted to URL — transient view-mode toggle; if user feedback wants persistence, add `rpc` boolean field to filter-store); (d) basket renders ONE chip per family group (via `groupTokensByFamily`), NOT per token — matches the FilterChip rendering in ModList so the user sees the same chip identities in both places. Backward compat: все 4 new props optional — legacy callers без wiring рендерят как раньше (all chips visible, no toggle, no basket, no collapse chevron). |
 | 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. Independent of Phase 1. |
 | 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. Independent of Phase 1. |
 | 5 — Favorites in LEFT panel (Search → Favorites → Filters order; TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped. iter 131: order changed to Search→Favorites→Filters (§13.7 #1). Phase 1 `pinnedIds` field now ready to consume. |
@@ -834,9 +836,9 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 135
+### 13.6 Recommendation for iter 136
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134).**
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135).**
 The 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
 `pinnedIds`, `chipExpandState`) are now in `src/store/filter-store.ts` with 13
 actions + URL serialization (backward-compat) + 46 tests in
@@ -845,28 +847,34 @@ actions + URL serialization (backward-compat) + 46 tests in
 + sticky search + «Развернуть все» / «Свернуть все» кнопки. Phase 2.5 wired
 `chipExpandState` into per-sub-group chip truncation: first N chips + «+N ещё»
 button + important (selected/excluded/pinned) chips ALWAYS visible past preview
-window. 7 page files updated (Phase 2: +8 props; Phase 2.5: +2 props each).
-3 new UI test files (Phase 2: 36 tests) + 9 new tests (Phase 2.5: 6 ModList +
-3 VirtualizedModList). `pinnedIds?: Set<string>` prop added to ModList +
-VirtualizedModList as forward-compat for Phase 5 — Phase 5 wiring будет проще.
+window. Phase 3 wired `showSelectedOnly` into a toggle «Все / Выбранные (N)» in
+`CategoryControlPanel` + new `SelectedBasket.tsx` in the right aside (cap=20,
+affix-type badges ПРЕФ/СУФ/ИМПЛ, click-to-deselect, «+N ещё» expander) +
+collapsible right panel via chevron toggle (local state, NOT persisted). 7 page
+files updated (Phase 2: +8 props; Phase 2.5: +2 props each; Phase 3: +5 props +
+basket slot each). 3 new UI test files (Phase 2: 36 tests) + 9 new tests
+(Phase 2.5: 6 ModList + 3 VirtualizedModList) + 20 new tests (Phase 3: 12
+SelectedBasket + 6 ModList + 2 VirtualizedModList). `pinnedIds?: Set<string>`
+prop added to ModList + VirtualizedModList as forward-compat for Phase 5 —
+Phase 5 wiring будет проще.
 
-**Recommended next:** Phase 3 (selected-only + basket panel).
-Phase 3 consumes `showSelectedOnly` (already wired in Phase 1) and includes:
-(1) add toggle «Все / Выбранные» in `CategoryControlPanel.tsx`; (2) create new
-`src/ui/components/SelectedBasket.tsx` (renders selected chips as read-only
-`FilterChip` variants, max-height 30vh, scrollable, cap = 20 chips per §13.7 #3);
-(3) restructure `src/ui/layout/CategoryLayout.tsx` right `<aside>` (basket →
-regex → status → profile) with 3-column 20%/60%/20% layout + collapsible right
-panel per §13.7 #2; (4) wire `showSelectedOnly` to filter `familyGroups` in
-ModList/VirtualizedModList — when true, hide non-selected chips (pinned/excluded
-tokens stay visible per spec).
+**Recommended next:** Phase 5 (favorites in left panel).
+Phase 5 consumes `pinnedIds` (already wired in Phase 1 + props already forwarded
+to ModList/VirtualizedModList in iter 134). Phase 5 will:
+(1) create `src/ui/components/LeftPanelFavorites.tsx` (NEW) in the LEFT panel
+(below search, above filters per §13.7 #1 — final order Search → Favorites →
+Filters); (2) wire `togglePinned(id)` / `clearPinned()` actions from store to
+favorite buttons on each FilterChip + clear-all button in favorites section
+header; (3) add ⭐ pin icon slot to `FilterChip.tsx` (optional `pinnedIds` +
+`onTogglePinned` props — backward compat preserved).
 
-Phase 5 (favorites in left panel) consumes `pinnedIds` (already wired + props
-already forwarded to ModList/VirtualizedModList in iter 134). Phase 5 will:
-(1) create `src/ui/components/LeftPanelFavorites.tsx` in the LEFT panel (below
-search, above filters per §13.7 #1 — final order Search → Favorites → Filters);
-(2) wire `togglePinned(id)` / `clearPinned()` actions from store to favorite
-buttons on each FilterChip + clear-all button in favorites section header.
+**Alternative warmup:** Phase 4 (colors + compact + tooltips) или Phase 4.5
+(«Обозначения» icon legend) — независимы от Phase 1, можно делать в любой
+итерации как warmup work for a new agent. Phase 4 files: `src/index.css`
+(stronger color tints rgba blue/orange/amber), `src/ui/components/FilterChip.tsx`
+(compact density 25% — px-1.5 py-0.5 text-[12px]), new
+`src/ui/components/Tooltip.tsx` (portal-based). Phase 4.5 file: new
+`src/ui/components/IconLegend.tsx` (3 rows: ⭐/—/ⓘ icon meanings).
 
 Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения» legend) are
 INDEPENDENT of Phase 1 — can land in any iteration as "warmup" work for a new
@@ -875,16 +883,23 @@ agent.
 **Do NOT implement TopNav dropdowns** — visualization supersedes that
 recommendation (iter 130 contradiction #1).
 
-**UX verification request for user (iter 133 deliverable):** open the 7
+**UX verification request for user (iter 135 deliverable):** open the 7
 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
-and verify: (1) top-level headers (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) display with
-▶ chevron; (2) sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) display with ▶ chevron;
-(3) chips hidden by default (sub-groups collapsed); click sub-group header
-expands it; state persists in URL after refresh; (4) «Развернуть все» /
-«Свернуть все» buttons in sticky search row (desktop only); (5) search row
-stays visible while scrolling; (6) mobile: chevron works per-group, no
-expand-all button. If you find a bug — document in `STATUS.md` as Known Issue
-FIRST, then fix.
+and verify: (1) toggle «Все / Выбранные (N)» appears in controls row (after
+sortMode); «Выбранные» button disabled (semi-transparent) when nothing selected;
+(2) select 2-3 mods, click «Выбранные (N)» — ModList shows only selected
+families; stats line updates «Показано N семейств из M аффиксов»; (3) excluded
+tokens stay visible in «Выбранные» mode (can un-exclude); (4) click «Все» —
+ModList shows all families again; (5) right aside shows SelectedBasket panel
+above RegexOutput — header «Выбрано: N афф.» + «Очистить все» link; each chip =
+colored badge (ПРЕФ=blue, СУФ=orange, ИМПЛ=amber) + displayText + ✗ cue;
+(6) click basket chip → deselects that family; (7) «Очистить все» → clears all
+selectedIds; (8) select > 20 mods → basket shows first 20 + «+N ещё» expander;
+click → reveals all + «свернуть» button; (9) right aside header: chevron
+toggle — click → aside shrinks to 48px badge bar (⚙ icon + chevron); click
+again → expand back; (10) state persists in URL: `so=1` (showSelectedOnly)
+after refresh; right-aside collapse does NOT persist (local state). If you find
+a bug — document in `STATUS.md` as Known Issue FIRST, then fix.
 
 ### 13.7 User Feedback iter 131 (4 corrections)
 

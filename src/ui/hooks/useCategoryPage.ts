@@ -230,6 +230,18 @@ export interface CategoryPageState {
   chipExpandState: Set<string>;
   /** Toggle a sub-group's chip-expanded state. Key: `${categoryId}:${affix}:${subBlockKey}`. */
   toggleChipExpand: (key: string) => void;
+
+  // ─── Phase 3 fields (iter 135, UI Refactor) ───────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
+  // Wires `showSelectedOnly` from filter-store (Phase 1, iter 132) into the UI
+  // so ModList / VirtualizedModList can hide non-selected chips + the
+  // SelectedBasket panel can render in the right aside.
+
+  /** When true, ModList/VirtualizedModList filter familyGroups to only those
+   *  with at least one selected/excluded/pinned member. Default false. */
+  showSelectedOnly: boolean;
+  /** Toggle show-selected-only mode. Wired to filter-store.setShowSelectedOnly. */
+  setShowSelectedOnly: (v: boolean) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -582,6 +594,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const chipExpandState = useStore(state => state.chipExpandState);
   const toggleChipExpand = useStore(state => state.toggleChipExpand);
 
+  // Phase 3 (iter 135): show-selected-only mode subscription.
+  // Wires `showSelectedOnly` boolean from filter-store (Phase 1) into the UI.
+  // Toggle in CategoryControlPanel flips this → ModList/VirtualizedModList
+  // filter familyGroups to only those with selected/excluded/pinned members.
+  const showSelectedOnly = useStore(state => state.showSelectedOnly);
+  const setShowSelectedOnly = useStore(state => state.setShowSelectedOnly);
+
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
@@ -618,7 +637,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       collapsedGroups, expandedSubGroups,
       // Phase 2.5 (iter 134): chip expand state also persists in URL — add to
       // deps so toggle triggers re-sync.
-      chipExpandState]);
+      chipExpandState,
+      // Phase 3 (iter 135): showSelectedOnly toggle also persists in URL —
+      // add to deps so toggle triggers re-sync.
+      showSelectedOnly]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
@@ -737,5 +759,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // Phase 2.5 (iter 134): chip expand state + action for ModList/VirtualizedModList
     chipExpandState,
     toggleChipExpand,
+    // Phase 3 (iter 135): show-selected-only toggle for ModList/VirtualizedModList
+    // + CategoryControlPanel «Все / Выбранные» radio group.
+    showSelectedOnly,
+    setShowSelectedOnly,
   };
 }

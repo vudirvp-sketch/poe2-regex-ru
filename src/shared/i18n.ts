@@ -171,6 +171,44 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.collapse': 'свернуть',
     // ARIA label for the «свернуть» button — mirrors chip.more_aria pattern.
     'chip.collapse_aria': 'Свернуть оставшиеся аффиксы',
+
+    // Phase 3 (iter 135): «Все / Выбранные» toggle in CategoryControlPanel
+    // + SelectedBasket component in right aside.
+    // Toggle shows ALL chips OR only selected/excluded/pinned ones.
+    'filter.show_all': 'Все',
+    // {n} = selected token count (selectedIds.size). When 0 → button is disabled.
+    'filter.show_selected': 'Выбранные ({n})',
+    // ARIA label for the show-selected-only radio group.
+    'filter.show_mode_label': 'Режим отображения аффиксов',
+    // SelectedBasket header: «Выбрано: N аффиксов»
+    'basket.title': 'Выбрано: {n}',
+    // SelectedBasket header noun suffix
+    'basket.title_suffix': 'афф.',
+    // SelectedBasket empty state — shown when selectedIds is empty.
+    'basket.empty': 'Выберите аффиксы',
+    // SelectedBasket «Очистить все» link → calls clearSelections().
+    'basket.clear': 'Очистить все',
+    // SelectedBasket ARIA label for clear-all button.
+    'basket.clear_aria': 'Очистить все выбранные аффиксы',
+    // SelectedBasket «+N ещё» expander when selectedIds > SELECTED_BASKET_CAP.
+    // {n} = number of chips hidden beyond the cap (always ≥ 1).
+    'basket.more': '+{n} ещё',
+    // SelectedBasket ARIA label for the «+N ещё» expander.
+    'basket.more_aria': 'Развернуть оставшиеся {n} выбранных аффиксов',
+    // SelectedBasket «свернуть» button after expansion.
+    'basket.collapse': 'свернуть',
+    // SelectedBasket ARIA label for the «свернуть» button.
+    'basket.collapse_aria': 'Свернуть оставшиеся выбранные аффиксы',
+    // SelectedBasket ARIA label for clicking a basket chip to deselect.
+    // Appended after the chip's displayText in the aria-label string.
+    'basket.unselect_aria': 'Снять выделение',
+    // Affix-type badge labels prefixed to each basket chip (iter 130 visualization).
+    'basket.badge_implicit': 'ИМПЛ',
+    'basket.badge_prefix': 'ПРЕФ',
+    'basket.badge_suffix': 'СУФ',
+    // Right aside collapse toggle (chevron in header) — iter 131 §13.7 #2.
+    'basket.collapse_panel': 'Свернуть панель',
+    'basket.expand_panel': 'Развернуть панель',
   },
 };
 

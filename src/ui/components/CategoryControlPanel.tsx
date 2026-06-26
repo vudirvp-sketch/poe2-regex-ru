@@ -72,6 +72,21 @@ interface CategoryControlPanelProps {
   /** Number of active (selected + excluded) tokens — for budget-aware warnings.
    *  Used for the active-tokens counter in the controls row. */
   activeTokenCount?: number;
+
+  // ─── Phase 3 (iter 135): show-selected-only toggle ─────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
+  // When true, ModList/VirtualizedModList filter familyGroups to only those
+  // with selected/excluded/pinned members. Toggle is a 2-button radio group
+  // («Все» / «Выбранные (N)») placed next to the priorityFilter group.
+
+  /** Current value of `showSelectedOnly` from filter-store.
+   *  Optional — when omitted, the toggle is NOT rendered (backward compat). */
+  showSelectedOnly?: boolean;
+  /** Set show-selected-only mode. Optional — when omitted, toggle not rendered. */
+  onSetShowSelectedOnly?: (v: boolean) => void;
+  /** Count of selected tokens — for the «Выбранные (N)» label.
+   *  When 0, the «Выбранные» button is disabled. */
+  selectedCount?: number;
 }
 
 /**
@@ -123,6 +138,10 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   showSortMode,
   excludedCount = 0,
   activeTokenCount = 0,
+  // Phase 3 (iter 135): show-selected-only toggle
+  showSelectedOnly = false,
+  onSetShowSelectedOnly,
+  selectedCount = 0,
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
@@ -360,6 +379,55 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
                 }`}
               >
                 {t('sort.tier_first')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 3 (iter 135): show-selected-only toggle «Все / Выбранные (N)».
+            Filters familyGroups to only those with selected/excluded/pinned
+            members. Placed next to priorityFilter + sortMode (related: all
+            three narrow which chips render). «Выбранные (N)» button is
+            disabled when selectedCount === 0 — nothing to show.
+            Backward compat: when onSetShowSelectedOnly is NOT provided
+            (e.g. VendorPage uses custom FilterChip), the toggle is NOT
+            rendered. */}
+        {onSetShowSelectedOnly && (
+          <div className="flex items-center gap-1">
+            <span className="text-[12px] text-muted">{t('filter.show_mode_label')}</span>
+            <div
+              className="flex gap-0.5"
+              role="radiogroup"
+              aria-label={t('filter.show_mode_label')}
+              onKeyDown={(e) => handleRadioKeyDown(
+                e,
+                [
+                  { value: false, action: () => onSetShowSelectedOnly(false) },
+                  { value: true, action: () => onSetShowSelectedOnly(true) },
+                ],
+                showSelectedOnly,
+              )}
+            >
+              <button
+                onClick={() => onSetShowSelectedOnly(false)}
+                role="radio"
+                aria-checked={!showSelectedOnly}
+                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
+                  !showSelectedOnly ? 'bg-raised text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
+                }`}
+              >
+                {t('filter.show_all')}
+              </button>
+              <button
+                onClick={() => selectedCount > 0 && onSetShowSelectedOnly(true)}
+                role="radio"
+                aria-checked={showSelectedOnly}
+                disabled={selectedCount === 0}
+                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
+                  showSelectedOnly ? 'bg-amber-600 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
+                } ${selectedCount === 0 ? 'opacity-50 cursor-not-allowed hover:bg-surface' : ''}`}
+              >
+                {t('filter.show_selected').replace('{n}', String(selectedCount))}
               </button>
             </div>
           </div>

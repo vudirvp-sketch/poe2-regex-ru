@@ -43,6 +43,21 @@ export const CATEGORY_ROUTES: Record<CategoryId, string> = {
  */
 export const CHIP_PREVIEW_COUNT = 3;
 
+/**
+ * Phase 3 (iter 135) — SelectedBasket cap.
+ *
+ * The SelectedBasket component (right aside on category pages) renders one
+ * chip per selected family group. When the user has more selections than this
+ * cap, only the first `SELECTED_BASKET_CAP` chips render with a «+N ещё»
+ * expander at the bottom. Clicking the expander reveals all chips.
+ *
+ * Tuned to 20 per iter 131 §13.7 correction #3 (was 12 in original plan):
+ * «У вас легко собираются regex на 15–30 модов» — user explicitly wants 20-25.
+ *
+ * See `docs/UI_REFACTOR_PLAN.md` §4 Phase 3 + Risk Register (§11).
+ */
+export const SELECTED_BASKET_CAP = 20;
+
 /** Mapping of category ID to display name (Russian) */
 export const CATEGORY_LABELS: Record<CategoryId, string> = {
   waystone: 'Путевые камни',

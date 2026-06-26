@@ -656,3 +656,196 @@ describe('ModList — Phase 2.5 chip truncation (iter 134)', () => {
     expect(screen.queryByRole('button', { name: 'Свернуть оставшиеся аффиксы' })).not.toBeInTheDocument();
   });
 });
+
+// ─── Phase 3 (iter 135): show-selected-only filter ─────────────────────────
+
+describe('ModList — Phase 3 show-selected-only (iter 135)', () => {
+  it('default state (showSelectedOnly=false): all family chips render', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set(['p1'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        // showSelectedOnly NOT provided → defaults to false → all chips render.
+      />,
+    );
+
+    // All 4 family chips render (Резист, Характеристики, Урон, Жизнь).
+    expect(screen.getByText('Резист')).toBeInTheDocument();
+    expect(screen.getByText('Характеристики')).toBeInTheDocument();
+    expect(screen.getByText('Урон')).toBeInTheDocument();
+    expect(screen.getByText('Жизнь')).toBeInTheDocument();
+  });
+
+  it('showSelectedOnly=true: only families with selected members render', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set(['p1', 's1'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+      />,
+    );
+
+    // Only families with selected members (Резист p1, Урон s1) render.
+    expect(screen.getByText('Резист')).toBeInTheDocument();
+    expect(screen.getByText('Урон')).toBeInTheDocument();
+    // Other 2 families hidden.
+    expect(screen.queryByText('Характеристики')).not.toBeInTheDocument();
+    expect(screen.queryByText('Жизнь')).not.toBeInTheDocument();
+  });
+
+  it('showSelectedOnly=true: excluded tokens stay visible (so user can un-exclude)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        excludedIds={new Set(['p3'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onToggleExclude={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+      />,
+    );
+
+    // Характеристики (p3, p4) family is visible because p3 is excluded.
+    expect(screen.getByText('Характеристики')).toBeInTheDocument();
+    // Резист (no selected/excluded) hidden.
+    expect(screen.queryByText('Резист')).not.toBeInTheDocument();
+  });
+
+  it('showSelectedOnly=true: pinned tokens stay visible (Phase 5 forward-compat)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        pinnedIds={new Set(['s3'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+        // Phase 5 forward-compat — pinnedIds is the only "important" filter.
+      />,
+    );
+
+    // Жизнь (s3, s4) family is visible because s3 is pinned.
+    expect(screen.getByText('Жизнь')).toBeInTheDocument();
+    // Other families hidden.
+    expect(screen.queryByText('Резист')).not.toBeInTheDocument();
+    expect(screen.queryByText('Характеристики')).not.toBeInTheDocument();
+    expect(screen.queryByText('Урон')).not.toBeInTheDocument();
+  });
+
+  it('showSelectedOnly=true with no selections: «no results» state (no chips render)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+      />,
+    );
+
+    // No chips render — no family has selected members.
+    expect(screen.queryByText('Резист')).not.toBeInTheDocument();
+    expect(screen.queryByText('Характеристики')).not.toBeInTheDocument();
+    expect(screen.queryByText('Урон')).not.toBeInTheDocument();
+    expect(screen.queryByText('Жизнь')).not.toBeInTheDocument();
+  });
+
+  it('showSelectedOnly=true: stats line shows filtered count', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set(['p1', 'p3'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+      />,
+    );
+
+    // 2 family groups visible (Резист + Характеристики), out of 8 total tokens.
+    // The stats string format is "Показано {shown} семейств из {total} аффиксов".
+    expect(screen.getByText(/Показано 2 семейств из 8 аффиксов/)).toBeInTheDocument();
+  });
+});

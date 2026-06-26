@@ -24,6 +24,7 @@ import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
+import { SelectedBasket } from '@ui/components/SelectedBasket';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
 import { literal, or, range } from '@core/ast';
@@ -112,6 +113,8 @@ export function TabletPage() {
     expandAllGroups, collapseAllGroups,
     expandAllSubGroups, collapseAllSubGroups,
     chipExpandState, toggleChipExpand,
+    // Phase 3 (iter 135): show-selected-only toggle
+    showSelectedOnly, setShowSelectedOnly,
   } = useCategoryPage({
     categoryId: 'tablet',
     extraAstNodes,
@@ -192,6 +195,10 @@ export function TabletPage() {
                 showSortMode
                 excludedCount={excludeTokens.length}
                 activeTokenCount={allActiveTokens.length}
+                // Phase 3 (iter 135): show-selected-only toggle
+                showSelectedOnly={showSelectedOnly}
+                onSetShowSelectedOnly={setShowSelectedOnly}
+                selectedCount={selectedIds.size}
                 extraControls={
                   <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
                     {/* Tablet type buttons */}
@@ -238,6 +245,15 @@ export function TabletPage() {
                     />
                   </div>
                 }
+              />
+            }
+            basket={
+              <SelectedBasket
+                tokens={data.tokens}
+                selectedIds={selectedIds}
+                onToggleTokens={toggleTokens}
+                onClearSelections={clearSelections}
+                category={categoryId}
               />
             }
             regexOutput={
@@ -313,6 +329,7 @@ export function TabletPage() {
               onCollapseAllSubGroups={collapseAllSubGroups}
               chipExpandState={chipExpandState}
               onToggleChipExpand={toggleChipExpand}
+              showSelectedOnly={showSelectedOnly}
             />
           </CategoryLayout>
         );

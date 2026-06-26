@@ -385,3 +385,64 @@ describe('VirtualizedModList — Phase 2.5 chip-expand wiring (iter 134)', () =>
     expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
   });
 });
+
+// ─── Phase 3 (iter 135): show-selected-only wiring ─────────────────────────
+
+describe('VirtualizedModList — Phase 3 show-selected-only (iter 135)', () => {
+  it('mounts with showSelectedOnly=true (component does not crash)', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set(['p1', 's1'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        showSelectedOnly={true}
+      />
+    );
+    // Component mounts without crash.
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+    // Stats line reflects filtered count (2 families selected: Резист + Урон,
+    // out of 4 family groups total in makeBeltTokens, 8 tokens total).
+    // Note: jsdom renders 0 virtualized rows but stats line is always rendered.
+    expect(screen.getByText(/Показано 2 семейств из 8 аффиксов/)).toBeInTheDocument();
+  });
+
+  it('backward compat: without showSelectedOnly prop, all families count', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set(['p1'])}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        // showSelectedOnly NOT provided → defaults to false → all families count.
+      />
+    );
+    // Stats line shows ALL families (4 chips = 4 family groups in makeBeltTokens,
+    // 8 tokens total).
+    expect(screen.getByText(/Показано 4 семейств из 8 аффиксов/)).toBeInTheDocument();
+  });
+});

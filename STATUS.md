@@ -2,75 +2,130 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 134
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5 DONE) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
+> **Текущая итерация:** 135
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5+3 DONE) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
 
 ---
 
 ## Текущее состояние
 
-**iter 134: UI Refactor Phase 2.5 — «+N ещё» per-sub-group chip expander готов.**
+**iter 135: UI Refactor Phase 3 — show-selected-only + SelectedBasket panel готовы.**
 
-Phase 2.5 потребляет `chipExpandState` (уже в store с Phase 1, iter 132).
-Когда sub-group содержит > `CHIP_PREVIEW_COUNT` (=3) chips, UI показывает
-первые 3 + «+N ещё» кнопку. Клик по кнопке toggles `chipExpandState` →
-показываются все chips + «свернуть» кнопка. Selected/excluded/pinned chips
-ВСЕГДА видимы даже в truncated состоянии (важные chips не теряются).
+Phase 3 потребляет `showSelectedOnly` (уже в store с Phase 1, iter 132) и добавляет:
+toggle «Все / Выбранные (N)» в `CategoryControlPanel`, новый `SelectedBasket.tsx`
+компонент в правой панели (renders one chip per selected family group, NOT per
+token — с affix-type badges ПРЕФ/СУФ/ИМПЛ per iter 130 visualization gap #4),
+cap = `SELECTED_BASKET_CAP` (20, iter 131 §13.7 #3 raised 12→20), max-height 30vh
++ internal scroll, click-to-deselect, «Очистить все» link, «+N ещё» expander when
+count > cap. Right aside restructured: basket → regex → status → profile.
+Grid template 1fr/320px (≈20% of 1600px viewport per iter 131 §13.7 #2). Right
+aside collapsible via chevron toggle in header (local state, NOT persisted to
+URL — transient view-mode toggle).
 
-**Сделано в iter 134:**
+`ModList.tsx` + `VirtualizedModList.tsx` extended with `showSelectedOnly?`
+optional prop. When true, new `visibleGroups` useMemo filters
+`priorityFilteredGroups` to only those with at least one selected/excluded/pinned
+member. Pinned/excluded tokens stay visible (per spec §4 Phase 3) so the user
+can un-exclude or re-select a favorited mod. Stats line + mod groups area use
+`visibleGroups.length` so the «shown N» count updates immediately.
 
-1. **`src/shared/constants.ts`** — добавлена `CHIP_PREVIEW_COUNT = 3`
-   константа с подробным JSDoc.
+**Сделано в iter 135:**
 
-2. **`src/shared/i18n.ts`** — +4 keys: `chip.more` («+{n} ещё»),
-   `chip.more_aria` («Развернуть оставшиеся {n} аффиксов»), `chip.collapse`
-   («свернуть»), `chip.collapse_aria` («Свернуть оставшиеся аффиксы»).
+1. **`src/shared/constants.ts`** — `SELECTED_BASKET_CAP = 20` constant с JSDoc
+   (iter 131 §13.7 #3 — user wants 20-25, quote «У вас легко собираются regex
+   на 15–30 модов»).
 
-3. **`src/ui/hooks/useCategoryPage.ts`** расширено — `CategoryPageState`
-   добавлены `chipExpandState: Set<string>` + `toggleChipExpand: (key) => void`.
-   +2 `useStore(state => state.X)` subscriptions. URL-sync effect deps array
-   расширен — toggle chipExpand триггерит re-sync URL hash сразу.
+2. **`src/shared/i18n.ts`** — +16 keys (Phase 3 section): `filter.show_all`
+   («Все»), `filter.show_selected` («Выбранные ({n})»), `filter.show_mode_label`,
+   `basket.title` («Выбрано: {n}»), `basket.title_suffix` («афф.»),
+   `basket.empty` («Выберите аффиксы»), `basket.clear` («Очистить все»),
+   `basket.clear_aria`, `basket.more` («+{n} ещё»), `basket.more_aria`,
+   `basket.collapse` («свернуть»), `basket.collapse_aria`, `basket.unselect_aria`
+   («Снять выделение»), `basket.badge_implicit` («ИМПЛ»), `basket.badge_prefix`
+   («ПРЕФ»), `basket.badge_suffix` («СУФ»), `basket.collapse_panel`,
+   `basket.expand_panel`.
 
-4. **`src/ui/components/ModList.tsx`** расширено — `ModListProps` +3 optional
-   props (`chipExpandState`, `onToggleChipExpand`, `pinnedIds`). All optional —
-   backward compatible. `ModSubGroupSection` реализует slicing logic: когда
-   chip-expand wiring provided AND sub-group NOT in `chipExpandState` AND
-   chips count > `CHIP_PREVIEW_COUNT` → render first N + important chips past N
-   (selected/excluded/pinned) + «+N ещё» button. Когда sub-group IN
-   `chipExpandState` → render all chips + «свернуть» button. Когда wiring
-   absent → render all chips (pre-Phase-2.5 behaviour). `AffixColumn` пробрасывает
-   3 новых props во все 6 callsites `ModSubGroupSection`.
+3. **`src/ui/hooks/useCategoryPage.ts`** расширено — `CategoryPageState` +2
+   fields (`showSelectedOnly`, `setShowSelectedOnly`). +2 `useStore(state =>
+   state.X)` subscriptions. URL-sync effect deps array +`showSelectedOnly`
+   (so toggle triggers URL re-sync). +2 return fields.
 
-5. **`src/ui/components/VirtualizedModList.tsx`** расширено — same +3 optional
-   props. `VirtualRowContent` subgroup row реализует identical slicing logic
-   (kept in sync с ModList). `VirtualizedColumnProps` +3 props forwarded to
-   `VirtualRowContent`. `columnProps` object + 3 fields. Single-column render
-   path also forwards 3 props.
+4. **`src/ui/components/SelectedBasket.tsx`** (NEW, ~220 строк) — renders one
+   chip per selected family group. Each chip = colored affix badge (ПРЕФ=blue,
+   СУФ=orange, ИМПЛ=amber, per iter 130 visualization) + displayText + ✗ cue.
+   Click chip → `onToggleTokens(memberIds)` deselects that family. Cap =
+   `SELECTED_BASKET_CAP` (20). When count > cap → first 20 visible + «+N ещё»
+   expander; click reveals all + «свернуть» button. Empty state → «Выберите
+   аффиксы» placeholder. Max-height 30vh with internal scroll. «Очистить все»
+   link calls `onClearSelections`. Accessible: `role="button"` + `tabIndex=0` +
+   Enter/Space keydown + `aria-label` «{displayText} — Снять выделение».
 
-6. **7 page files** (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — каждый:
-   +2 destructured fields из `useCategoryPage()` (`chipExpandState`,
-   `toggleChipExpand`) + 2 forwarded props to `<ModList>`/`<VirtualizedModList>`.
-   VendorPage не тронут (custom FilterChip).
+5. **`src/ui/components/CategoryControlPanel.tsx`** расширено —
+   `CategoryControlPanelProps` +3 optional props (`showSelectedOnly`,
+   `onSetShowSelectedOnly`, `selectedCount`). Toggle radio group «Все /
+   Выбранные ({n})» placed after sortMode toggle. «Выбранные» button disabled
+   when `selectedCount === 0`. Arrow-key navigation wired via existing
+   `handleRadioKeyDown` helper. Backward compat: when `onSetShowSelectedOnly`
+   not provided → toggle not rendered.
 
-7. **Tests:**
-   - `tests/ui/ModList.test.tsx` — +6 tests (Phase 2.5 chip truncation
-     describe block): truncated state, click «+N ещё» → onToggleChipExpand
-     call, expanded state shows «свернуть», selected chip always visible past
-     preview, backward compat (no wiring → no truncation), small sub-group
-     (≤3 chips) renders all without button.
-   - `tests/ui/VirtualizedModList.test.tsx` — +3 tests (Phase 2.5 chip-expand
-     wiring describe block): mounts with wiring, backward compat (no wiring),
-     accepts `pinnedIds` prop (Phase 5 forward-compat). Note: jsdom virtualizer
-     renders 0 rows, so chip truncation behaviour verified via ModList tests.
+6. **`src/ui/layout/CategoryLayout.tsx`** расширено (full rewrite header) —
+   `CategoryLayoutProps` +1 optional prop (`basket`). Local state
+   `rightPanelCollapsed` (NOT persisted to URL — transient view-mode toggle).
+   Grid template: `lg:grid-cols-[1fr_320px]` (was `lg:grid-cols-[1fr_380px]`).
+   When collapsed: `lg:grid-cols-[1fr_48px]`. Aside header (rendered when
+   `basket` provided) contains ⚙ icon (collapsed) + chevron toggle button with
+   `aria-expanded` + `aria-label` + `title`. Aside body collapses to header-only
+   when `rightPanelCollapsed === true`. Mobile section: basket always visible
+   (above status) — no collapse toggle on mobile.
 
-### Проверки (iter 134)
+7. **`src/ui/components/ModList.tsx`** расширено — `ModListProps` +1 optional
+   prop (`showSelectedOnly`). Main component destructure `+showSelectedOnly =
+   false`. New `visibleGroups` useMemo: when `showSelectedOnly=true` → filter
+   `priorityFilteredGroups` to only those with at least one selected/excluded/
+   pinned member. When false → pass through unchanged (pre-Phase-3 behaviour).
+   `implicitGroups`/`prefixGroups`/`suffixGroups` + stats line + mod groups
+   area + origin mode path: all use `visibleGroups` instead of
+   `priorityFilteredGroups`.
 
-- **vitest:** 2079/2079 tests passed (45 test files). Was 2070 in iter 133 →
-  **+9 new tests** (6 ModList + 3 VirtualizedModList).
+8. **`src/ui/components/VirtualizedModList.tsx`** расширено — same +1 optional
+   prop + `visibleGroups` useMemo with IDENTICAL filter logic (kept in sync с
+   ModList). `implicitGroups`/`prefixGroups`/`suffixGroups` + stats line use
+   `visibleGroups`.
+
+9. **7 page files** (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — каждый:
+   +1 import (`SelectedBasket`), +2 destructured fields из `useCategoryPage()`
+   (`showSelectedOnly`, `setShowSelectedOnly`), +3 props to
+   `<CategoryControlPanel>` (`showSelectedOnly`, `onSetShowSelectedOnly`,
+   `selectedCount`), +1 prop to `<CategoryLayout>` (`basket={<SelectedBasket
+   ... />}`), +1 prop to `<VirtualizedModList>` / `<ModList>`
+   (`showSelectedOnly`). VendorPage не тронут (custom FilterChip).
+
+10. **Tests:**
+    - `tests/ui/SelectedBasket.test.tsx` (NEW, ~360 строк, 12 tests): empty
+      state, renders one chip per selected family (not per token), affix-type
+      badges (ПРЕФ/СУФ/ИМПЛ), «Очистить все» calls onClearSelections, click chip
+      calls onToggleTokens with member IDs, Enter key triggers onToggleTokens,
+      cap=20 renders all when count ≤ cap, truncates to cap + «+N ещё» when
+      count > cap, click «+N ещё» reveals all + «свернуть», click «свернуть»
+      re-truncates, category prop optional.
+    - `tests/ui/ModList.test.tsx` +6 tests (Phase 3 describe block): default
+      state all chips render, showSelectedOnly=true only selected families
+      render, excluded tokens stay visible, pinned tokens stay visible (Phase 5
+      forward-compat), no selections → no chips, stats line shows filtered count.
+    - `tests/ui/VirtualizedModList.test.tsx` +2 tests (Phase 3 describe block):
+      mounts with showSelectedOnly=true (jsdom renders 0 virtualized rows but
+      stats line is always rendered → asserts on stats count), backward compat
+      without prop.
+
+### Проверки (iter 135)
+
+- **vitest:** 2099/2099 tests passed (46 test files). Was 2079 in iter 134 →
+  **+20 new tests** (12 SelectedBasket + 6 ModList + 2 VirtualizedModList).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **Backward compat:** все existing tests проходят без изменений. Legacy callers
-  ModList/VirtualizedModList без chip-expand wiring рендерят как раньше.
+- **Backward compat:** все 4 new props optional — legacy callers (tests, future
+  use) без wiring рендерят как раньше (all chips visible, no toggle, no basket,
+  no collapse chevron).
 
 ---
 
@@ -80,16 +135,19 @@ Phase 2.5 потребляет `chipExpandState` (уже в store с Phase 1, it
 2. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как компенсация.
 3. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
 4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай. Mitigation: расширить `distributeAlternation` при FP.
-5. **Phase 2 UX change: sub-groups default COLLAPSED** (iter 133). Пользователи
-   теперь видят только top-level headers (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) +
-   sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) при первом открытии category page.
-   Chips скрыты до expand. Кнопка «Развернуть все» (desktop) или individual
-   chevron clicks восстанавливают вид. State persistится в URL. In-game
-   verification pending (KI#15 below).
-6. **Phase 2.5 UX change: chips truncated to first 3 + «+N ещё»** (iter 134).
-   Когда sub-group expanded AND содержит > 3 chips, UI показывает только
-   первые 3 + «+N ещё» кнопку (плюс selected/pinned chips past preview window).
+5. **Phase 2 UX change: sub-groups default COLLAPSED** (iter 133). In-game/in-browser verification pending (KI#15 below).
+6. **Phase 2.5 UX change: chips truncated to first 3 + «+N ещё»** (iter 134). In-game/in-browser verification pending (KI#15).
+7. **Phase 3 UX change: show-selected-only filter** (iter 135). When toggle is
+   on («Выбранные»), ModList/VirtualizedModList hide family groups without any
+   selected/excluded/pinned member. Pinned/excluded tokens stay visible per
+   spec §4 Phase 3 so the user can un-exclude or re-select a favorited mod.
    In-game/in-browser verification pending (KI#15).
+8. **Phase 3 UX change: SelectedBasket panel + collapsible right aside**
+   (iter 135). Right aside shows basket (top) → regex → status → profile.
+   Basket cap = 20 (iter 131 §13.7 #3). Right aside collapsible via chevron
+   toggle in header (local state — NOT persisted to URL). Mobile: basket always
+   visible (no collapse toggle on mobile). In-game/in-browser verification
+   pending (KI#15).
 
 ### Закрытые KI (краткая справка)
 
@@ -127,47 +185,75 @@ Phase 2.5 потребляет `chipExpandState` (уже в store с Phase 1, it
 
 ---
 
-## Next iteration (iter 135)
+## Next iteration (iter 136)
 
 Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end, особенно
-§12 (Phase Status — Phase 1+2+2.5 ✅ DONE), §13 (iter 130 visualization audit)
+§12 (Phase Status — Phase 1+2+2.5+3 ✅ DONE), §13 (iter 130 visualization audit)
 AND §13.7 (iter 131 user feedback corrections). Затем
 `docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target (note §8
 iter 131 corrections).
 
-**Рекомендованный старт:** Phase 3 (selected-only + basket panel).
-Phase 3 потребляет `showSelectedOnly` (уже wired в store с Phase 1). UI:
-toggle "Все / Выбранные" в `CategoryControlPanel` (фильтрует `familyGroups`
-до только выбранных). Новый `SelectedBasket.tsx` компонент в правой панели
-(max-height 30vh, scrollable, cap = 20 chips). 3-column layout 20%/60%/20%
-+ collapsible right panel per iter 131 §13.7 #2, #3.
+**Рекомендованный старт:** Phase 5 (favorites in left panel).
+Phase 5 потребляет `pinnedIds` (уже wired в store с Phase 1, iter 132, и props
+уже проброшены в ModList/VirtualizedModList с iter 134). UI:
+create `src/ui/components/LeftPanelFavorites.tsx` (NEW) — renders in the LEFT
+panel, BELOW search, ABOVE filters (per §13.7 correction #1 — final order
+Search → Favorites → Filters). Each favorite chip = pinned family group chip
+with ⭐ icon + click-to-scroll-to-mod-in-list + ✗ to unpin. Header:
+«⭐ Избранные: N» + «Очистить» button (calls `clearPinned()`). Wire
+`togglePinned(id)` action to favorite buttons on each FilterChip (new ⭐ icon
+slot, optional prop).
 
-**Главные ограничения для iter 135:**
+**Альтернативный старт (warmup):** Phase 4 (colors + compact + tooltips) или
+Phase 4.5 («Обозначения» icon legend) — независимы от Phase 1, можно делать в
+любой итерации. Phase 4 files: `src/index.css` (stronger color tints),
+`src/ui/components/FilterChip.tsx` (compact density 25%), new
+`src/ui/components/Tooltip.tsx` (portal-based). Phase 4.5 file: new
+`src/ui/components/IconLegend.tsx` (3 rows: ⭐/—/ⓘ icon meanings).
+
+**Главные ограничения для iter 136:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
-- Phase 3: basket cap = 20 (was 12), 3-column 20%/60%/20% + collapsible right
-  panel (§13.7 #2, #3). `showSelectedOnly` поле уже готово.
 - Phase 5: left panel order Search → Favorites → Filters (§13.7 #1).
-  `pinnedIds` поле уже готово (и `pinnedIds` prop уже проброшен в ModList +
-  VirtualizedModList в iter 134 — Phase 5 wiring будет проще).
-- Phase 4 и Phase 4.5 — независимы от Phase 1, можно делать в любой итерации.
+  `pinnedIds` поле уже готово (и props уже проброшен в ModList/VirtualizedModList
+  в iter 134 — Pitfall 44).
+- Phase 4: chip density 25% (px-1.5 py-0.5 text-[12px]); stronger bg tints
+  (rgba blue/orange/amber per affix type). Phase 4.5: «Обозначения» legend
+  section в right panel (below status, above profile) с 3 icon rows.
+- Если найден новый баг — сначала документируй в STATUS.md как Known Issue,
+  потом фиксий.
 
-**Подсказка:** для Phase 3 — read `AGENT_NAVIGATION.md` Pitfall 44 (Phase 2.5
-wiring pattern as template). Phase 3 wires `showSelectedOnly` analogously.
-Modify `CategoryControlPanel.tsx` (add toggle) + create `SelectedBasket.tsx`
-+ restructure `CategoryLayout.tsx` right `<aside>` (basket → regex → status →
-profile). Phase 1 `showSelectedOnly` поле уже готово к потреблению.
+**Подсказка:** для Phase 5 — read `AGENT_NAVIGATION.md` Pitfall 45 (Phase 3
+wiring pattern as template for «wired» optional props). Phase 5 wires
+`pinnedIds` analogously — but with new `LeftPanelFavorites.tsx` component
+instead of right-aside slot. Add ⭐ pin icon slot to `FilterChip.tsx`
+(optional `pinnedIds` + `onTogglePinned` props — backward compat preserved).
+Modify `src/ui/pages/*/[A-Z]*Page.tsx` (7 pages) to wire `pinnedIds` +
+`togglePinned` + `clearPinned` + render `<LeftPanelFavorites>` slot.
 
-**UX verification request for user (iter 134 deliverable):**
+**UX verification request for user (iter 135 deliverable):**
 Откройте 7 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic)
 на десктопе. Проверьте:
-1. Раскройте sub-group chevron (например ДОБЫЧА в префиксах).
-2. Если sub-group содержит > 3 chips — первые 3 видны + «+N ещё» кнопка.
-3. Клик по «+N ещё» — показываются все chips + «свернуть» кнопка.
-4. Selected/excluded/pinned chips остаются видимыми даже в truncated состоянии
-   (даже если они за пределами первых 3).
-5. State сохраняется в URL после refresh.
-6. Sub-groups с ≤ 3 chips показываются полностью без кнопки.
+1. В controls row появился toggle «Все / Выбранные (N)» (после sortMode).
+   «Выбранные» кнопка disabled (полупрозрачная) пока ничего не выбрано.
+2. Выберите 2-3 мода. Кликните «Выбранные (N)» — ModList показывает только
+   выбранные семейства (другие скрыты). Stats line обновляется: «Показано N
+   семейств из M аффиксов».
+3. Excluded токены остаются видимыми в «Выбранные» режиме (можно un-exclude).
+4. Pinned токены остаются видимыми в «Выбранные» режиме (когда Phase 5
+   приземлится — pinned токены будут favorites).
+5. Кликните «Все» — ModList снова показывает все семейства.
+6. Right aside: над RegexOutput появился SelectedBasket panel. Header
+   «Выбрано: N афф.» + «Очистить все» link. Каждый chip = colored badge
+   (ПРЕФ=синий, СУФ=оранжевый, ИМПЛ=янтарный) + текст + ✗ cue.
+7. Клик по basket chip → снимает выделение с этого семейства.
+8. «Очистить все» → очищает все selectedIds.
+9. Выберите > 20 модов — basket показывает первые 20 + «+N ещё» expander.
+   Клик → раскрывает все + «свернуть» кнопку.
+10. Right aside header: chevron toggle. Клик → aside схлопывается до узкой
+    полоски (48px) с ⚙ иконкой + chevron. Клик снова → разворачивается.
+11. State сохраняется в URL: `so=1` (showSelectedOnly) после refresh.
+    Right-aside collapse НЕ persistится (локальное состояние).
 
 Если замечен баг — сначала документируйте в STATUS.md как Known Issue, потом фиксий.
 
