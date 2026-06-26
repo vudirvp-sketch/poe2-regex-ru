@@ -5,13 +5,14 @@
 > + visualization audit (`docs/UI_VISUALIZATION_AUDIT.md`, iter 130).
 > This iteration (iter 129) **did NOT implement** — it only planned. iter 130
 > reviewed the plan against the user's visualization mockup and corrected
-> 5 gaps + 2 contradictions (see §13). Each phase below is sized for ONE
+> 5 gaps + 2 contradictions (see §13). iter 131 incorporated 4 additional
+> user feedback corrections (see §13.7). Each phase below is sized for ONE
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Plan reviewed iter 130. No code changes yet.
-> **Author:** iter 129 planning agent; iter 130 review agent
-> **Last updated:** 2026-06-27 (iter 130)
+> **Status:** Plan reviewed iter 130 + user feedback iter 131. No code changes yet.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent
+> **Last updated:** 2026-06-27 (iter 131)
 
 ---
 
@@ -36,6 +37,12 @@ must land first.
 
 **No style overhaul.** The PoE2 dark-fantasy palette stays. We're modifying
 layout/density/interaction, not the visual identity.
+
+> **iter 131 user feedback (4 corrections, see §13.7 for full delta):**
+> (1) left panel order **Search → Favorites → Filters** (not Favorites →
+> Search); (2) 3-column layout **20%/60%/20%** + collapsible right panel
+> for laptops; (3) basket cap **12 → 20**; (4) default collapse state =
+> **top-level expanded, sub-groups collapsed** (was ALL EXPANDED).
 
 ---
 
@@ -134,17 +141,23 @@ is independently shippable (no half-states).
 
 ### Phase 1 — Foundation: filter-store + URL sync + collapse state
 
-**Goal:** Add the 4 new `FilterState` fields (`collapsedGroups`,
-`showSelectedOnly`, `pinnedIds`, `chipExpandState`) with URL persistence, no
-UI yet. This unlocks every other phase.
+**Goal:** Add the 5 new `FilterState` fields (`collapsedGroups`,
+`expandedSubGroups`, `showSelectedOnly`, `pinnedIds`, `chipExpandState`) with
+URL persistence, no UI yet. This unlocks every other phase.
 
 > **iter 130 change:** Added `chipExpandState: Set<string>` to support the
 > «+N ещё» per-sub-group chip expander discovered in the visualization
 > (see `docs/UI_VISUALIZATION_AUDIT.md` §2). Without this, Phase 2 cannot
 > implement the progressive-disclosure pattern visible in the mockup.
+>
+> **iter 131 change:** Split `collapsedGroups` into TWO sets to support
+> asymmetric default collapse state per user feedback (§13.7 correction
+> #4): top-level groups default EXPANDED (`collapsedGroups` empty =
+> expanded); sub-groups default COLLAPSED (`expandedSubGroups` empty =
+> collapsed). Field count: 4 → 5.
 
 **Files:**
-- `src/store/filter-store.ts` — add 4 fields + actions + serialization.
+- `src/store/filter-store.ts` — add 5 fields + actions + serialization.
 - `src/shared/types.ts` — extend `FilterState` type.
 - `src/store/url-sync.ts` — extend serialize/deserialize (backward-compat).
 - `tests/store/filter-store.test.ts` (NEW) — round-trip tests for new fields.
@@ -153,23 +166,28 @@ UI yet. This unlocks every other phase.
 ```ts
 interface FilterState {
   // ...existing fields...
-  collapsedGroups: Set<string>      // NEW — `${categoryId}:${affix}` OR `${categoryId}:${affix}:${subBlockKey}`
+  collapsedGroups: Set<string>      // NEW — `${categoryId}:${affix}` top-level keys currently COLLAPSED (default empty = all expanded)
+  expandedSubGroups: Set<string>    // NEW (iter 131) — `${categoryId}:${affix}:${subBlockKey}` sub-group keys currently EXPANDED (default empty = all collapsed, per §13.7 correction #4)
   showSelectedOnly: boolean         // NEW — hide non-selected chips
-  pinnedIds: Set<string>            // NEW — favorited familyKey set (renders in LEFT panel above search — see §13)
+  pinnedIds: Set<string>            // NEW — favorited familyKey set (renders in LEFT panel BELOW search, ABOVE filters — see §13.7 correction #1)
   chipExpandState: Set<string>      // NEW (iter 130) — `${categoryId}:${affix}:${subBlockKey}` keys whose chips are fully expanded (overrides default "+N ещё" truncation)
 }
 ```
 
 **URL serialization (backward-compat):**
 - Existing format: `s=...&e=...&t=...&a=...&o=...&p=...&x=...&r=...`
-- New keys (added only when non-default): `c` (collapsed array), `so=1`
-  (show-selected-only flag), `pn` (pinned array), `ce` (chip-expand array).
+- New keys (added only when non-default): `c` (top-level collapsed array),
+  `es` (sub-group expanded array, iter 131), `so=1` (show-selected-only
+  flag), `pn` (pinned array), `ce` (chip-expand array).
   Old URLs without these keys deserialize to empty defaults.
 
 **Tests:**
-- Round-trip: state → serialize → deserialize → state.
+- Round-trip: state → serialize → deserialize → state (all 5 new fields).
 - Backward-compat: URL without new keys → no crash, defaults applied.
 - Empty-set serialization doesn't bloat URL (omit key when set is empty).
+- iter 131: verify `expandedSubGroups` defaults to empty (sub-groups
+  collapsed); verify `collapsedGroups` defaults to empty (top-level
+  expanded); verify the asymmetric default encodes correctly.
 
 **Definition of Done:** New fields exist in store, persist to URL, all
 existing tests still pass, no UI uses them yet (purely infrastructure).
@@ -201,12 +219,18 @@ search input becomes sticky.
 - `src/shared/i18n.ts` — `group.collapse_all`, `group.expand_all` keys.
 
 **Collapse key strategy:**
-- Affix column level: `${categoryId}:${affix}` (e.g. `waystone:prefix`) —
-  toggles whole column.
+- Affix column level (top-level): `${categoryId}:${affix}` (e.g.
+  `waystone:prefix`) — toggles whole column. Tracked in `collapsedGroups`
+  (default empty = expanded; in set = collapsed).
 - Semantic sub-group level: `${categoryId}:${affix}:${subBlockKey}` (e.g.
-  `waystone:prefix:positive-loot`) — toggles one sub-block.
-- Default state: ALL EXPANDED. (User can collapse to focus, but the default
-  is "see everything" — important for first-time users and SEO.)
+  `waystone:prefix:positive-loot`) — toggles one sub-block. Tracked in
+  `expandedSubGroups` (default empty = collapsed; in set = expanded).
+- **Default state (iter 131 per user feedback, §13.7 correction #4):**
+  TOP-LEVEL EXPANDED (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ open), SUB-GROUPS
+  COLLAPSED (ДОБЫЧА/УСИЛЕНИЯ/... closed). User expands individual
+  sub-groups to focus; state persists in URL via `expandedSubGroups`.
+  Rationale: cleaner first screen; user said «Это даст намного более
+  чистый первый экран».
 
 **Sticky search:**
 - Search input + "expand all / collapse all" buttons row gets
@@ -298,7 +322,11 @@ output.
 - `src/ui/layout/CategoryLayout.tsx` — restructure right `<aside>`:
   `SelectedBasket` (top, max-height 30vh, scrollable) → `RegexOutput`
   (middle) → `StatusPanel` (bottom, now just stats summary) → `ProfilePanel`
-  (bottom, collapsible).
+  (bottom, collapsible). **iter 131 per user feedback (§13.7 correction
+  #2):** 3-column layout proportions 20%/60%/20% (was 25%/50%/25%); right
+  `<aside>` gets a collapse toggle (chevron in its header) for laptop
+  screens (1440×900 and below) — collapses to a chip-count badge that
+  expands on click. See §7 Q#8 for collapse behavior open question.
 - `src/ui/components/StatusPanel.tsx` — slim down: remove the truncated
   rawText list (now in basket), keep just counts + badges + alerts.
 - `src/store/filter-store.ts` — `setShowSelectedOnly(bool)` action.
@@ -321,8 +349,10 @@ output.
   `docs/UI_VISUALIZATION_AUDIT.md` §2. Colors: implicit=amber, prefix=blue,
   suffix=red. Helps user scan which affix slots their selection fills.
 - Header: «Выбрано: N» + «Очистить все» link (calls `clearSelections()`).
-- If > 12 chips, show "N more..." expander at bottom (don't render 200
-  chips in the basket — perf).
+- If > 20 chips, show "N more..." expander at bottom (don't render 200
+  chips in the basket — perf). **iter 131 per user feedback (§13.7
+  correction #3):** cap raised 12 → 20 (user: «У вас легко собираются
+  regex на 15–30 модов»).
 - Mobile: basket collapses into a chip-count summary at the top of
   `MobileRegexBar`. Tap to expand.
 
@@ -333,7 +363,8 @@ output.
   `showSelectedOnly`, persists to URL.
 
 **Risk:** SelectedBasket rendering 100+ chips = perf problem. Mitigation:
-cap at 12 with "show more" expander. Test with belt.json (largest) +
+cap at 20 with "show more" expander (iter 131: was 12, raised per user
+feedback §13.7 correction #3). Test with belt.json (largest) +
 select-all scenario.
 
 **Definition of Done:** Toggle hides non-selected chips. Right panel shows
@@ -439,19 +470,24 @@ LEFT panel above search — NOT in the mod list as originally planned.
 > 1. **TopNav dropdowns REMOVED.** Visualization keeps flat nav (9 items
 >    in a single row). User said «мне визуализация понравилась очень» —
 >    visual preference wins. See `docs/UI_VISUALIZATION_AUDIT.md` §5.
-> 2. **Favorites placement MOVED** from «top of mod list» to «top of LEFT
->    panel, above search». This makes favorites a permanent shortcut,
->    visible without scrolling past filters.
+> 2. **Favorites placement MOVED** from «top of mod list» to «LEFT panel».
+>
+> **iter 131 revision (§13.7 correction #1):** Within the LEFT panel,
+> the order is **Search → Favorites → Filters** (NOT Favorites → Search).
+> User: «Поиск используется в разы чаще». Search at top = max visibility
+> for the most-used control; favorites below as a shortcut; filters at
+> the bottom for power users.
 
 **Files (favorites):**
 - `src/ui/components/FilterChip.tsx` — add `⭐` toggle button (left of
   text, before the label). Persisted to `pinnedIds` set.
 - `src/ui/components/LeftPanelFavorites.tsx` (NEW, replaces the mod-list
-  placement) — renders at the TOP of the left panel (above
-  CategoryControlPanel's search). Shows «⭐ Избранные аффиксы (N)» header
-  + «Очистить» button (calls a new `clearPinned()` action) + chips for
-  each `pinnedIds` entry (read-only `FilterChip` with ⭐ filled; click to
-  jump-scroll to that chip's location in the mod list; ✗ to unpin).
+  placement) — renders in the MIDDLE of the left panel (BELOW search,
+  ABOVE filters, per iter 131 §13.7 correction #1). Shows «⭐ Избранные
+  аффиксы (N)» header + «Очистить» button (calls a new `clearPinned()`
+  action) + chips for each `pinnedIds` entry (read-only `FilterChip` with
+  ⭐ filled; click to jump-scroll to that chip's location in the mod list;
+  ✗ to unpin).
 - `src/ui/layout/CategoryLayout.tsx` — add new `favorites` slot rendered
   above `controls` in the left column.
 - `src/ui/pages/*/Page.tsx` (8 files) — pass `<LeftPanelFavorites />`
@@ -502,7 +538,8 @@ Phase 4.5 ("Обозначения" icon legend)      — INDEPENDENT. [iter 130
 ```
 
 - Phase 1 is the foundation. Must land first. (iter 130: now adds
-  `chipExpandState` for Phase 2.5.)
+  `chipExpandState` for Phase 2.5. iter 131: adds `expandedSubGroups`
+  for asymmetric default collapse state — 5 fields total.)
 - Phase 2.5 depends on Phase 2 (sub-group collapse must exist before
   per-sub-group chip truncation makes sense).
 - Phases 2 and 3 can be done in parallel by different agents (different
@@ -526,7 +563,7 @@ in parallel → then 2.5 → then 5.
 |------|------------|--------|------------|
 | TanStack Virtual row filtering breaks scroll position | Medium | High | Test with belt.json + collapse-above-viewport scenario. Regression test for iter 120 jump-to-top bug. |
 | URL bloat from new state fields | Low | Medium | Omit empty sets from serialization. Cap array lengths. |
-| SelectedBasket perf with 100+ chips | High | Medium | Cap at 12 chips with "show more" expander. Virtualize if needed. |
+| SelectedBasket perf with 100+ chips | High | Medium | Cap at 20 chips with "show more" expander (iter 131: was 12, raised per user feedback §13.7 #3). Virtualize if needed. |
 | Compact chips fail WCAG AA touch target | Medium | Low | Keep mobile bump at 32px. Desktop is mouse-driven. Add `aria-label` for screen readers. |
 | Existing tests break from CSS class renames | High | Low | Run full vitest suite after each phase. Update snapshots in same commit. |
 | Tooltip portal z-index conflicts with sticky elements | Medium | Low | Use `z-50` for tooltip portal (above sticky search `z-20` and TopNav `z-30`). |
@@ -539,11 +576,13 @@ in parallel → then 2.5 → then 5.
 
 ## 7. Open Questions (for user / next agent)
 
-1. **Collapse default state:** Should affix groups start collapsed or
-   expanded? Current plan: ALL EXPANDED (SEO + first-time user friendly).
-   Alternative: collapse all but S-tier by default (power-user friendly).
-   **Recommendation:** All expanded, with a "Collapse all" button for power
-   users.
+1. **~~Collapse default state~~** — **RESOLVED iter 131 (§13.7 correction #4).**
+   Top-level groups (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) EXPANDED by default;
+   sub-groups (ДОБЫЧА/УСИЛЕНИЯ/...) COLLAPSED by default. User: «Это даст
+   намного более чистый первый экран». Implemented via two sets:
+   `collapsedGroups` (default empty = top expanded) + `expandedSubGroups`
+   (default empty = sub collapsed). "Expand all" / "Collapse all" buttons
+   still useful for power users.
 
 2. **Basket position on mobile:** Right `<aside>` becomes
    `MobileRegexBar` on `<lg`. Where does the basket go?
@@ -582,14 +621,27 @@ in parallel → then 2.5 → then 5.
      chip + 2 context chips + "+N ещё" button). Make it a constant
      `CHIP_PREVIEW_COUNT` in `src/shared/constants.ts` so it's tunable.
 
+8. **Right panel collapse behavior (iter 131 new question, §13.7
+   correction #2):** When user collapses the right `<aside>` on laptop
+   screens, what shows in its place?
+   - Option A: Chip-count badge («Выбрано: N») that expands back to full
+     panel on click.
+   - Option B: Slide-out drawer from right edge (overlay, doesn't push
+     center column).
+   - Option C: Move basket to bottom of left panel (3-column → 2-column
+     on laptop).
+   - **Recommendation:** Option A (badge) — minimal chrome, easy to
+     toggle, doesn't shift layout. Defer to user verification in Phase 3.
+
 ---
 
 ## 8. Test Strategy
 
 ### Per-phase unit tests
 - Phase 1: `tests/store/filter-store.test.ts` (NEW) — round-trip +
-  backward-compat for 4 new fields (`collapsedGroups`, `showSelectedOnly`,
-  `pinnedIds`, `chipExpandState`).
+  backward-compat for 5 new fields (`collapsedGroups`, `expandedSubGroups`,
+  `showSelectedOnly`, `pinnedIds`, `chipExpandState`). iter 131: verify
+  default state (top expanded, sub collapsed) is encoded by empty sets.
 - Phase 2: `tests/ui/GroupHeader.test.tsx` (NEW) + extend
   `tests/ui/ModList.test.tsx` + `VirtualizedModList.test.tsx`.
 - Phase 2.5: extend `tests/ui/ModList.test.tsx` + `VirtualizedModList.test.tsx`
@@ -666,21 +718,29 @@ Parallel (1 + 4 + 1): 3 iterations wall-clock.
 > **iter 130 delta vs iter 129 estimate:** +1 phase (2.5), +0.5 phase (4.5),
 > Phase 5 file count up (8 page files now need `favorites` slot wiring).
 > TopNav work removed (saves ~3 files).
+>
+> **iter 131 delta vs iter 130 estimate:** No new phases; +1 state field
+> in Phase 1 (`expandedSubGroups`, 4→5 fields, +2-3 tests for default
+> state verification); Phase 3 +right-panel collapse toggle logic (~1-2
+> files touched, +3-5 tests); basket cap 12→20 (no test count change).
+> Estimate unchanged: 6 iterations, 42 files, 65-96 tests.
 
 ---
 
 ## 11. How to Start (for the next agent)
 
 1. Read this document end-to-end, including §13 (iter 130 visualization
-   audit corrections).
-2. Read `docs/UI_VISUALIZATION_AUDIT.md` — the user-approved visual target.
+   audit corrections) AND §13.7 (iter 131 user feedback corrections).
+2. Read `docs/UI_VISUALIZATION_AUDIT.md` — the user-approved visual target
+   (note §8 iter 131 corrections).
 3. Read `docs/UI_AUDIT.md` for the original audit recommendations (note
    that §10 TopNav dropdowns are SUPERSEDED — see §13).
 4. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
 5. Read `AGENT_NAVIGATION.md` Pitfalls 26-40 (CSS specificity, mobile
    media queries, palette consistency, dead-patterns cleanup).
 6. Pick a phase (recommend Phase 1 first — it unblocks everything,
-   including the new `chipExpandState` for Phase 2.5).
+   including `chipExpandState` for Phase 2.5 AND `expandedSubGroups` for
+   the asymmetric default collapse state per §13.7 correction #4).
 7. Create a TODO list with the phase's file changes.
 8. Implement, test, document, ship.
 9. Update this document's §12 Phase Status table with a "Phase N — DONE"
@@ -695,13 +755,13 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 | Phase | Status | Iteration | Notes |
 |-------|--------|-----------|-------|
-| 1 — Foundation (4 fields incl. `chipExpandState`) | NOT STARTED | — | iter 130: added `chipExpandState` for Phase 2.5 |
-| 2 — Collapse + Sticky search | NOT STARTED | — | — |
-| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2 |
-| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges |
-| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25% |
-| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition |
-| 5 — Favorites in LEFT panel (TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped |
+| 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | NOT STARTED | — | iter 130: added `chipExpandState` for Phase 2.5. iter 131: added `expandedSubGroups` for asymmetric default collapse (§13.7 #4), 4→5 fields. |
+| 2 — Collapse + Sticky search | NOT STARTED | — | iter 131: default state changed to top-expanded/sub-collapsed (§13.7 #4). |
+| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2. |
+| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). |
+| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. |
+| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. |
+| 5 — Favorites in LEFT panel (Search → Favorites → Filters order; TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped. iter 131: order changed to Search→Favorites→Filters (§13.7 #1). |
 
 (Update this table as phases land.)
 
@@ -739,7 +799,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 | # | Plan said | Visualization shows | Resolution |
 |---|-----------|---------------------|------------|
 | 1 | Phase 5: TopNav → 3 dropdown groups (Предметы/Снаряжение/Инструменты) | Flat nav preserved (9 items in single row) | **Plan WRONG.** TopNav dropdowns REMOVED. User said «мне визуализация понравилась очень» — visual preference wins. |
-| 2 | Phase 5: favorites at TOP OF MOD LIST | Favorites at TOP OF LEFT PANEL, ABOVE SEARCH | **Plan WRONG.** Favorites placement MOVED to left panel. Left panel placement is better — visible without scrolling past filters. |
+| 2 | Phase 5: favorites at TOP OF MOD LIST | Favorites in LEFT PANEL (iter 130: above search; iter 131: BELOW search per user feedback §13.7 correction #1) | **Plan WRONG.** Favorites placement MOVED to left panel (iter 130). iter 131 REFINED: search must be ABOVE favorites (user: «Поиск используется в разы чаще»). Final order: Search → Favorites → Filters. |
 
 ### 13.4 Other observations (no plan change needed)
 
@@ -772,13 +832,37 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 131
+### 13.6 Recommendation for iter 132
 
-Start with **Phase 1** (foundation). The new `chipExpandState` field is
-small but unblocks Phase 2.5. Without Phase 1, none of Phases 2/2.5/3/5
-can ship. Phase 4 and Phase 4.5 are independent and can land in any
-iteration — they're good "warmup" work for a new agent.
+Start with **Phase 1** (foundation). The 5 state fields (`collapsedGroups`,
+`expandedSubGroups`, `showSelectedOnly`, `pinnedIds`, `chipExpandState`)
+are small but unlock every other phase. Without Phase 1, none of Phases
+2/2.5/3/5 can ship. Phase 4 and Phase 4.5 are independent and can land in
+any iteration — they're good "warmup" work for a new agent.
 
 **Do NOT attempt Phase 5 before Phase 1** — `pinnedIds` must exist in the
 store first. **Do NOT implement TopNav dropdowns** — visualization
 supersedes that recommendation.
+
+### 13.7 User Feedback iter 131 (4 corrections)
+
+> **Trigger:** User reviewed the iter 130 plan and approved it at 8.5/10
+> with 4 specific corrections. Original user quotes preserved verbatim
+> where relevant. These corrections are now incorporated into Phases 1,
+> 2, 3, 5, §6, §7, §12 above.
+
+| # | User feedback | Plan correction | Affected phases |
+|---|---------------|-----------------|-----------------|
+| 1 | **Избранное над поиском** → user wants **Search → Favorites → Filters** (not Favorites → Search). Quote: «Поиск используется в разы чаще». | Phase 5 `LeftPanelFavorites.tsx` renders BELOW search, ABOVE filters. Final left panel order: Search → Favorites → Filters. | Phase 5 |
+| 2 | **3 колонки могут стать тесными** on laptops (1440×900). User suggests `20% / 60% / 20%` OR collapsible right panel. | Phase 3 `CategoryLayout.tsx` restructure: 3-column proportions 20%/60%/20% (was 25%/50%/25%); right `<aside>` gets a collapse toggle (chevron in header) — collapses to chip-count badge on laptop screens. New §7 Q#8 for collapse behavior. | Phase 3 |
+| 3 | **Basket лимит в 12 элементов** → user wants 20-25. Quote: «У вас легко собираются regex на 15–30 модов». | Phase 3 `SelectedBasket.tsx` cap raised 12 → 20. Risk Register mitigation updated. | Phase 3 |
+| 4 | **Collapse default state** → user wants **top-level expanded, sub-groups collapsed** (was ALL EXPANDED). Quote: «Это даст намного более чистый первый экран». | Phase 1: split `collapsedGroups` into TWO sets — `collapsedGroups` (top-level, default empty = expanded) + `expandedSubGroups` (sub-groups, default empty = collapsed). Phase 2 default state rule updated. §7 Q#1 RESOLVED. | Phase 1, Phase 2 |
+
+**Net effect on plan:** No new phases. Phase 1 field count 4→5
+(+`expandedSubGroups`). Phase 3 adds right-panel collapse toggle logic
+(+1-2 files, +3-5 tests). Basket cap 12→20 (no test count change).
+Estimate unchanged: 6 iterations, 42 files, 65-96 tests.
+
+**User overall verdict:** «Если оценивать как roadmap для репозитория —
+8.5/10. Главное: план уже не выглядит как набор косметических правок. Он
+реально решает проблему перегруженности интерфейса».

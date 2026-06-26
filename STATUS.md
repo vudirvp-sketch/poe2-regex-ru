@@ -2,48 +2,51 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 130
-> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, reviewed iter 130) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130)
+> **Текущая итерация:** 131
+> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, reviewed iter 130 + user feedback iter 131) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
 
 ---
 
 ## Текущее состояние
 
-**iter 130: review плана UI-рефакторинга против визуализации — без реализации.**
+**iter 131: incorporate user feedback (4 corrections) into UI Refactor Plan — без реализации.**
 
-Пользователь дал задачу: «проверь на ошибки и упущения новый план, убедись
-что все сделано качественно и полно» + приложил визуализацию целевого UI.
-Также: «в этой итерации чисто приведение всего в порядок и устаканивание
-для дальнейшей работы. пока ничего не реализуем».
+Пользователь дал feedback на план iter 130 (8.5/10 approval) с 4 конкретными
+корректировками. В этой итерации корректировки внедрены в план и эталон
+визуализации. Код НЕ тронут.
 
-**Сделано в iter 130:**
-1. **VLM-анализ визуализации** через z-ai vision API — полный инвентарь
-   элементов (3-колоночный layout, левая панель с избранным выше поиска,
-   центр с 3 сворачиваемыми категориями + подгруппами + «+N ещё», правая
-   панель с basket + affix-type бейджами + «Обозначения» легендой).
-2. **Создан `docs/UI_VISUALIZATION_AUDIT.md`** (~140 строк) — отдельный
-   артефакт с описанием эталона: layout, element inventory, color coding,
-   UX patterns, конфликты с `UI_AUDIT.md`, файлы-затронутые.
-3. **`docs/UI_REFACTOR_PLAN.md` обновлён** — добавлен §13 «Visualization
-   Audit» с 5 пропусками + 2 противоречиями. Корректировки:
-   - Phase 1: +`chipExpandState: Set<string>` для Phase 2.5.
-   - Phase 2.5 (NEW): «+N ещё» per-sub-group chip expander.
-   - Phase 3: +affix-type badges (ИМПЛИСИТ/ПРЕФИКС/СУФФИКС) на basket chips.
-   - Phase 4: chip density 20%→25% (px-1.5 py-0.5).
-   - Phase 4.5 (NEW): «Обозначения» icon legend.
-   - Phase 5: favorites MOVED to LEFT panel above search;
-     TopNav dropdowns REMOVED (visualization keeps flat nav).
-   - §5 Phase Dependencies: +Phase 2.5, +Phase 4.5.
-   - §6 Risk Register: TopNav risk REMOVED; +2 new risks.
-   - §7 Open Questions: Q#5 REMOVED, Q#6 updated to 25%, +Q#7 (preview count).
-   - §10 Estimate: 5→6 iterations, 28→42 files, 5→6 new files, 52-78→65-96 tests.
-   - §12 Phase Status: all 7 phases marked NOT STARTED with iter 130 notes.
-4. **Документация актуализирована:** STATUS.md (этот файл), worklog.md,
-   AGENT_NAVIGATION.md. Код НЕ тронут.
+**Сделано в iter 131:**
+1. **`docs/UI_REFACTOR_PLAN.md` обновлён** — 4 корректировки пользователя
+   (см. §13.7 NEW):
+   - **Correction #1 (Phase 5):** Left panel order **Search → Favorites →
+     Filters** (was Favorites → Search). User: «Поиск используется в разы
+     чаще». `LeftPanelFavorites.tsx` renders BELOW search, ABOVE filters.
+   - **Correction #2 (Phase 3):** 3-column layout **20%/60%/20%** (was
+     25%/50%/25%) + **collapsible right `<aside>`** for laptop screens
+     (1440×900 и ниже). New §7 Q#8 for collapse behavior.
+   - **Correction #3 (Phase 3):** Basket chip cap **20** (was 12). User:
+     «У вас легко собираются regex на 15–30 модов».
+   - **Correction #4 (Phase 1 + Phase 2):** Default collapse state =
+     **top-level EXPANDED, sub-groups COLLAPSED** (was ALL EXPANDED).
+     Phase 1 split `collapsedGroups` into TWO sets — `collapsedGroups`
+     (top-level, default empty = expanded) + `expandedSubGroups` (sub-groups,
+     default empty = collapsed). Field count 4→5. §7 Q#1 RESOLVED.
+   - Header, §1 Executive Summary, §5 Dependencies, §6 Risk Register, §7 Qs,
+     §8 Test Strategy, §10 Estimate, §11 How to Start, §12 Phase Status,
+     §13.3 contradiction #2, §13.6 (рекомендация → iter 132) — все
+     актуализированы.
+2. **`docs/UI_VISUALIZATION_AUDIT.md` обновлён** — NEW §8 «User Feedback
+   iter 131 (4 corrections)» с таблицей + user quotes; §1 layout diagram
+   обновлён (20%/60%/20% proportions, ▼ top-level / ▶ sub-groups, chevron
+   collapse на right panel, left panel order Search→Favorites→Filters);
+   §2 Left/Right panel inventory актуализирован; §5 conflicts table
+   updated; §7 Next Steps → iter 132+.
+3. **Документация актуализирована:** STATUS.md (этот файл), worklog.md,
+   AGENT_NAVIGATION.md, README.md. Код НЕ тронут.
 
-### Проверки (iter 130)
+### Проверки (iter 131)
 
-- **vitest:** 1988/1988 tests passed (41 test files). Без изменений vs iter 129.
+- **vitest:** 1988/1988 tests passed (41 test files). Без изменений vs iter 130.
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **Код не изменён** — только doc-файлы.
@@ -93,20 +96,31 @@
 
 ---
 
-## Next iteration (iter 131)
+## Next iteration (iter 132)
 
 Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end включая §13
-(iter 130 visualization audit corrections). Затем
-`docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target.
+(iter 130 visualization audit) AND §13.7 (iter 131 user feedback corrections).
+Затем `docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target (note
+§8 iter 131 corrections).
 
 **Рекомендованный старт:** Phase 1 (foundation: `FilterState` extension
-с 4 полями — `collapsedGroups`, `showSelectedOnly`, `pinnedIds`,
-`chipExpandState` + URL sync backward-compat).
+с 5 полями — `collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
+`pinnedIds`, `chipExpandState` + URL sync backward-compat).
 
 Phase 4 и Phase 4.5 — независимы, можно делать в любой итерации как
 «warmup» работу для нового агента.
 
-**НЕ реализовывать:** TopNav dropdowns (visualization keeps flat nav).
+**Главные ограничения для iter 132:**
+
+- НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
+- Phase 5 не стартовать до Phase 1 — `pinnedIds` должны существовать в store.
+- Phase 2.5 зависит от Phase 2 — sub-group collapse должен существовать до
+  per-sub-group chip truncation.
+- Phase 1 теперь 5 полей (was 4) — `expandedSubGroups` добавлено для
+  asymmetric default collapse state (§13.7 #4).
+- Phase 3: basket cap = 20 (was 12), 3-column 20%/60%/20% + collapsible
+  right panel (§13.7 #2, #3).
+- Phase 5: left panel order Search → Favorites → Filters (§13.7 #1).
 
 KI#9 — monitoring, не фиксировано. Если найден новый баг — сначала
 документируй в этом файле как Known Issue, потом фиксий.
