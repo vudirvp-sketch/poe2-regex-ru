@@ -44,6 +44,13 @@
  * the viewport — becoming the primary visible control — which matches the
  * spec's intent that Search is the most-used control.
  *
+ * iter 137, Phase 4.5: Added `legend` slot rendered at the BOTTOM of the
+ * right `<aside>` (below ProfilePanel). Hosts the new <IconLegend />
+ * component which shows a static 3-row legend (★/✗/ⓘ icon meanings).
+ * Companion to Phase 4 tooltips — gives beginners a permanent reference,
+ * not just hover hints. When not provided, the legend slot is omitted
+ * (backward compat — pre-Phase-4.5 pages had no legend).
+ *
  * Usage (Phase 5):
  *   <CategoryLayout
  *     header={...}
@@ -82,6 +89,10 @@ interface CategoryLayoutProps {
   status?: React.ReactNode;
   /** Right column sidebar (ProfilePanel). Below status. */
   sidebar?: React.ReactNode;
+  /** Phase 4.5 (iter 137): IconLegend component rendered at the BOTTOM of
+   *  the right aside, below ProfilePanel. When not provided, the legend slot
+   *  is omitted (backward compat — pre-Phase-4.5 pages had no legend). */
+  legend?: React.ReactNode;
   /** Mobile-only sticky bottom bar (typically <MobileRegexBar>).
    *  When provided, the aside is hidden on mobile and status/sidebar are
    *  rendered in a separate mobile section above the bar. */
@@ -106,6 +117,7 @@ export function CategoryLayout({
   basket,
   status,
   sidebar,
+  legend,
   mobileBar,
   children,
 }: CategoryLayoutProps) {
@@ -206,7 +218,7 @@ export function CategoryLayout({
             </div>
           )}
 
-          {/* When collapsed, hide the basket + regex + status + sidebar —
+          {/* When collapsed, hide the basket + regex + status + sidebar + legend —
               only the header (with chevron) is visible. */}
           {!rightPanelCollapsed && (
             <>
@@ -214,6 +226,10 @@ export function CategoryLayout({
               {regexOutput}
               {status}
               {sidebar}
+              {/* Phase 4.5 (iter 137): IconLegend at the bottom of the aside,
+                  below ProfilePanel. Hosts the static «Обозначения» legend
+                  (★/✗/ⓘ icon meanings). */}
+              {legend}
             </>
           )}
         </aside>
@@ -221,7 +237,7 @@ export function CategoryLayout({
 
       {/* Phase 7: mobile-only section for status + sidebar (kept accessible
           when aside is hidden on mobile). */}
-      {hasMobileBar && (status || sidebar) && (
+      {hasMobileBar && (status || sidebar || legend) && (
         <div className="flex flex-col gap-3 lg:hidden">
           {/* Phase 3 (iter 135): on mobile, the basket is always visible
               (above status) — there's no collapse toggle on mobile because
@@ -229,6 +245,9 @@ export function CategoryLayout({
           {basket}
           {status}
           {sidebar}
+          {/* Phase 4.5 (iter 137): IconLegend also rendered on mobile so the
+              legend reference stays accessible when the aside is hidden. */}
+          {legend}
         </div>
       )}
 

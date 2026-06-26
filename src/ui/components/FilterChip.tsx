@@ -354,7 +354,14 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
+      // Phase 4 (iter 137): compact density — px-2.5 py-1.5 text-[13px] →
+      // px-1.5 py-0.5 text-[12px] (~25% reduction in chip height on desktop).
+      // The `.filter-chip` CSS class token (defined in src/index.css) provides
+      // a min-height floor of 22px on desktop + 32px on mobile (touch target
+      // a11y per UI_REFACTOR_PLAN.md §4 Phase 4 risk register mitigation).
+      // Inline badges (⚡ ⚓ 2x ×N) shrink from text-[12px] → text-[10px] for
+      // proportional visual density.
+      className={`filter-chip inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[12px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
       style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
       title={tooltip}
       data-family-key={group.familyKey}
@@ -395,28 +402,28 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       >
         <span>{displayText}</span>
         {isCollapsed && isSelected && (
-          <span className="text-[12px] text-accent-amber-soft shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
+          <span className="text-[10px] text-accent-amber-soft shrink-0" title={t('chip.optimizer_collapsed')} aria-label={t('chip.optimizer_collapsed')}>
             ⚡
           </span>
         )}
         {hasPrefix && isSelected && (
-          <span className="text-[12px] text-accent-blue-soft shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
+          <span className="text-[10px] text-accent-blue-soft shrink-0" title={`Prefix: "${prefix}" — anchors number to this mod line`} aria-hidden="true">
             ⚓
           </span>
         )}
         {group.hasMultiPlaceholder && (
-          <span className="text-[12px] text-accent-amber-mid shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
+          <span className="text-[10px] text-accent-amber-mid shrink-0 font-semibold" title={t('chip.dual_number_tooltip')} aria-label={t('chip.dual_number')}>
             2x
           </span>
         )}
         {/* iter 70: text-dim → text-muted for better contrast on range & tier counts */}
         {tierCount > 1 && (
-          <span className="text-[12px] text-muted shrink-0" aria-hidden="true">
+          <span className="text-[10px] text-muted shrink-0" aria-hidden="true">
             &times;{tierCount}
           </span>
         )}
         {rangeText && !isSelected && !isExcluded && (
-          <span className="text-[12px] text-muted shrink-0" aria-hidden="true">
+          <span className="text-[10px] text-muted shrink-0" aria-hidden="true">
             ({rangeText})
           </span>
         )}

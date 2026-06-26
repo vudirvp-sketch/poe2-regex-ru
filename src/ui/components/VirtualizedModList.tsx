@@ -375,6 +375,13 @@ const VirtualRowContent: React.FC<{
           onToggle={() => onToggleGroupCollapsed(row.topKey!)}
           variant="top"
           className={headerClass}
+          // Phase 4 (iter 137): show ⓘ tooltip on top-level affix column
+          // headers explaining what each affix type means. Helps beginners.
+          infoTooltip={
+            row.affix === 'prefix' ? t('tooltip.prefix_explanation')
+              : row.affix === 'suffix' ? t('tooltip.suffix_explanation')
+              : t('tooltip.implicit_explanation')
+          }
         />
       );
     }

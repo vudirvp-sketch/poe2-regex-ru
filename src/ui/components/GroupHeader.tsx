@@ -19,14 +19,25 @@
  * callback based on which set the key belongs to. This keeps the component
  * reusable across both group levels and testable in isolation.
  *
+ * Phase 4 (iter 137): Added optional `infoTooltip` prop. When provided
+ * (string or ReactNode), an `ⓘ` glyph renders AFTER the label + count, using
+ * the new Tooltip component (portal-based). Used on top-level affix column
+ * headers (ПРЕФИКСЫ/СУФФИКСЫ/ИМПЛИСЕТ) to give beginners a one-sentence
+ * explanation of what each affix type means. When omitted, no ⓘ renders
+ * (backward compat — pre-Phase-4 behaviour).
+ *
  * Accessibility:
  *   - Renders as a `<button>` with `aria-expanded` and `aria-controls`.
  *   - Chevron is a CSS-rotated `▶` glyph (no inline SVG, no extra deps).
  *   - Count badge is a separate `<span>` so screen readers announce it as
  *     part of the button label.
+ *   - ⓘ info icon is a SIBLING of the button (NOT a child) — clicking it
+ *     must NOT toggle collapse, so it's outside the button's hit area.
+ *     The Tooltip component handles `stopPropagation` on its own trigger.
  */
 import React from 'react';
 import { t } from '@shared/i18n';
+import { Tooltip } from './Tooltip';
 
 export interface GroupHeaderProps {
   /** Human-readable label (e.g. "ПРЕФИКСЫ", "ДОБЫЧА"). Already uppercased
@@ -52,6 +63,12 @@ export interface GroupHeaderProps {
   className?: string;
   /** Optional icon node rendered before the label (e.g. origin section icons). */
   icon?: React.ReactNode;
+  /** Phase 4 (iter 137): Optional tooltip content rendered as an `ⓘ` glyph
+   *  AFTER the label + count. When provided, the Tooltip component wraps
+   *  the glyph and shows the content on hover/focus. Used on top-level affix
+   *  column headers to explain what each affix type means. When omitted,
+   *  no ⓘ renders (backward compat — pre-Phase-4 behaviour). */
+  infoTooltip?: React.ReactNode;
   /** Visual variant — drives the chevron size and padding.
    *  - 'top': Level 1 affix column header (larger, bolder)
    *  - 'sub': Level 3 semantic sub-group header (smaller, subtler)
@@ -80,6 +97,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
   controlsId,
   className = '',
   icon = null,
+  infoTooltip,
   variant = 'top',
 }) => {
   const variantClass = VARIANT_CLASSES[variant];
@@ -88,33 +106,45 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
     : t('group.collapse_btn_label');
 
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-expanded={!isCollapsed}
-      aria-controls={controlsId}
-      aria-label={`${expandLabel}: ${label} (${count})`}
-      className={`group-header-btn ${variantClass} ${className} flex items-center w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-amber`}
-    >
-      {/* Chevron — aria-hidden because it's purely decorative; the button's
-          aria-label already conveys the expand/collapse action in words. */}
-      <span
-        className="group-header-chevron select-none shrink-0"
-        aria-hidden="true"
-        style={{
-          fontSize: variant === 'top' ? '0.85em' : '0.95em',
-          width: '1em',
-          textAlign: 'center',
-          marginRight: '4px',
-        }}
+    <div className="flex items-center gap-1 w-full">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={!isCollapsed}
+        aria-controls={controlsId}
+        aria-label={`${expandLabel}: ${label} (${count})`}
+        className={`group-header-btn ${variantClass} ${className} flex-1 flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-amber`}
       >
-        ▶
-      </span>
-      {icon}
-      <span className="flex-1">
-        {label} ({count})
-      </span>
-    </button>
+        {/* Chevron — aria-hidden because it's purely decorative; the button's
+            aria-label already conveys the expand/collapse action in words. */}
+        <span
+          className="group-header-chevron select-none shrink-0"
+          aria-hidden="true"
+          style={{
+            fontSize: variant === 'top' ? '0.85em' : '0.95em',
+            width: '1em',
+            textAlign: 'center',
+            marginRight: '4px',
+          }}
+        >
+          ▶
+        </span>
+        {icon}
+        <span className="flex-1">
+          {label} ({count})
+        </span>
+      </button>
+      {/* Phase 4 (iter 137): Optional ⓘ info icon — SIBLING of the button
+          so clicking it does NOT toggle collapse. The Tooltip component
+          handles stopPropagation on its own trigger to prevent the click
+          from also bubbling to parent onClick handlers. */}
+      {infoTooltip != null && (
+        <Tooltip
+          content={infoTooltip}
+          ariaLabel={t('tooltip.info_aria')}
+        />
+      )}
+    </div>
   );
 };
 

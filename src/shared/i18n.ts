@@ -236,6 +236,26 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.unpin_tooltip': 'Убрать из избранного',
     'chip.pin_aria': 'Добавить семейство в избранное',
     'chip.unpin_aria': 'Убрать семейство из избранного',
+
+    // Phase 4 (iter 137): Tooltips for affix column headers (ⓘ glyph).
+    // Shown via the new Tooltip component when the user hovers/focuses the
+    // ⓘ icon next to the top-level affix column header (ИМПЛИСЕТ/ПРЕФИКС/СУФФИКС).
+    // Gives beginners a one-sentence explanation of what each affix type means
+    // + how many slots the item has for that type.
+    'tooltip.prefix_explanation': 'Один из основных модификаторов предмета. Максимум 3 префикса.',
+    'tooltip.suffix_explanation': 'Один из основных модификаторов предмета. Максимум 3 суффикса.',
+    'tooltip.implicit_explanation': 'Встроенное свойство предмета, не занимает слот префикса/суффикса.',
+    // ARIA label for the ⓘ info icon button on affix column headers.
+    'tooltip.info_aria': 'Показать пояснение к типу аффикса',
+
+    // Phase 4.5 (iter 137): «Обозначения» icon legend in right panel.
+    // Static 3-row legend rendered below ProfilePanel in the right aside.
+    // Companion to Phase 4 tooltips — gives beginners a permanent reference,
+    // not just hover hints.
+    'legend.title': 'Обозначения',
+    'legend.star': '★ — в избранное',
+    'legend.exclude': '✗ — исключить аффикс (не хочу)',
+    'legend.info': 'ⓘ — наведите для подсказки',
   },
 };
 

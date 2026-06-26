@@ -10,9 +10,9 @@
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phase 2.5 IMPLEMENTED iter 134. Phase 3 IMPLEMENTED iter 135. Phase 5 IMPLEMENTED iter 136. Phases 4/4.5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
-> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2); iter 134 implementation agent (Phase 2.5); iter 135 implementation agent (Phase 3); iter 136 implementation agent (Phase 5)
-> **Last updated:** 2026-06-27 (iter 136 — Phase 5 implementation)
+> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phase 2.5 IMPLEMENTED iter 134. Phase 3 IMPLEMENTED iter 135. Phase 5 IMPLEMENTED iter 136. Phase 4 + 4.5 IMPLEMENTED iter 137. **ВСЕ 7 ФАЗ UI REFACTOR DONE.** Plan reviewed iter 130 + user feedback iter 131.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2); iter 134 implementation agent (Phase 2.5); iter 135 implementation agent (Phase 3); iter 136 implementation agent (Phase 5); iter 137 implementation agent (Phase 4 + 4.5)
+> **Last updated:** 2026-06-27 (iter 137 — Phase 4 + 4.5 implementation)
 
 ---
 
@@ -763,8 +763,8 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 | 2 — Collapse + Sticky search | ✅ DONE | iter 133 | Implemented in `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` + new shared `src/ui/components/GroupHeader.tsx` (~95 строк). +8 optional collapse props on each mod-list component (backward compat preserved — legacy callers без wiring рендерят как раньше). `AffixColumn` (ModList) + `column-header` row (VirtualizedModList) render `GroupHeader` (variant='top') with chevron; skip sub-groups when top-level collapsed. `ModSubGroupSection` (ModList) + new `subgroup-header` VirtualRow variant (VirtualizedModList) render `GroupHeader` (variant='sub') with chevron; skip chips when sub-group NOT in `expandedSubGroups`. Asymmetric default per iter 131 §13.7 #4: top EXPANDED + sub COLLAPSED. Search row wrapped in `.sticky-search-bar` CSS class (sticky under TopNav, backdrop-blur). «Развернуть все» / «Свернуть все» buttons (desktop-only, `hidden lg:inline-flex`). `useCategoryPage.ts` extended +8 fields wired to filter-store (Phase 1). URL-sync effect deps array extended — toggle triggers URL re-sync. 7 page files (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) updated — forward 8 new props. VendorPage не тронут (custom FilterChip). `i18n.ts` +4 keys. `index.css` +2 CSS blocks (`.sticky-search-bar`, `.group-header-chevron`). 3 new test files (36 tests): `tests/ui/GroupHeader.test.tsx` (14), `tests/ui/ModList.test.tsx` (11), `tests/ui/VirtualizedModList.test.tsx` (11). vitest 2034→2070 (+36), tsc 0 errors, eslint 0 problems. Edge case: sub-groups WITHOUT labels (e.g. `affix-only` mode) → chips always render (no UI to toggle collapse). |
 | 2.5 — "+N ещё" chip expander | ✅ DONE | iter 134 | Implemented in `src/shared/constants.ts` (`CHIP_PREVIEW_COUNT = 3`) + `src/shared/i18n.ts` (+4 keys: `chip.more`, `chip.more_aria`, `chip.collapse`, `chip.collapse_aria`) + `src/ui/hooks/useCategoryPage.ts` (+2 fields `chipExpandState`/`toggleChipExpand` wired to filter-store, +URL-sync deps) + `src/ui/components/ModList.tsx` (+3 optional props `chipExpandState`/`onToggleChipExpand`/`pinnedIds`, slicing logic in `ModSubGroupSection`: first N + important past-N chips visible, «+N ещё» / «свернуть» buttons) + `src/ui/components/VirtualizedModList.tsx` (same +3 props, identical slicing logic in `VirtualRowContent` subgroup row kept in sync with ModList) + 7 page files (+2 destructure + +2 forwarded props each). `pinnedIds?: Set<string>` prop added to ModList + VirtualizedModList как forward-compat для Phase 5 (favorites) — Phase 5 wiring будет проще. 9 новых тестов: `tests/ui/ModList.test.tsx` (+6 Phase 2.5 chip truncation tests — truncated state, click «+N ещё», expanded state with «свернуть», selected chip ALWAYS visible past preview, backward compat, small sub-group ≤3 chips) + `tests/ui/VirtualizedModList.test.tsx` (+3 chip-expand wiring tests — mounts with wiring, backward compat, accepts `pinnedIds`). vitest 2070→2079 (+9), tsc 0 errors, eslint 0 problems. Edge cases: (a) sub-group with ≤3 chips → no button even when wiring present (matches expanded case but without «свернуть»); (b) sub-group with all-important past-preview chips → hiddenCount=0 → no «+N ещё» button; (c) sub-group with no label (e.g. `affix-only` mode) → chips ALWAYS render (no UI to toggle, same edge case as Phase 2). Backward compat: все 3 new props optional — legacy callers без chip-expand wiring рендерят как раньше (all chips visible, no buttons). |
 | 3 — Selected only + Basket (with affix-type badges) | ✅ DONE | iter 135 | Implemented in `src/shared/constants.ts` (`SELECTED_BASKET_CAP = 20` per iter 131 §13.7 #3) + `src/shared/i18n.ts` (+16 keys: `filter.show_all`/`show_selected`/`show_mode_label`, `basket.*` family — title/empty/clear/more/collapse/unselect_aria, `basket.badge_implicit`/`prefix`/`suffix`, `basket.collapse_panel`/`expand_panel`) + `src/ui/hooks/useCategoryPage.ts` (+2 fields `showSelectedOnly`/`setShowSelectedOnly` wired to filter-store, +URL-sync deps) + NEW `src/ui/components/SelectedBasket.tsx` (~220 строк — renders ONE chip per selected FAMILY via `groupTokensByFamily`, colored affix badges ПРЕФ=blue/СУФ=orange/ИМПЛ=amber per iter 130 visualization gap #4, cap=20 with «+N ещё»/«свернуть» expander, click-to-deselect, empty state, clear-all link, max-height 30vh scroll, `role="button"` + `tabIndex=0` + Enter/Space keydown + aria-label) + `src/ui/components/CategoryControlPanel.tsx` (+3 optional props `showSelectedOnly`/`onSetShowSelectedOnly`/`selectedCount`, toggle radio group «Все / Выбранные ({n})» after sortMode, «Выбранные» button disabled when `selectedCount === 0`, arrow-key navigation via existing `handleRadioKeyDown`) + `src/ui/layout/CategoryLayout.tsx` (full rewrite: +1 optional prop `basket`, local state `rightPanelCollapsed` NOT persisted to URL, grid `1fr_320px` → `1fr_48px` when collapsed per iter 131 §13.7 #2, aside header with ⚙ icon + chevron toggle, aside body collapses to header-only, mobile: basket always visible above status) + `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` (+1 optional prop `showSelectedOnly`, new `visibleGroups` useMemo chains priority filter + show-selected-only filter — kept in sync between ModList + VirtualizedModList, `implicitGroups`/`prefixGroups`/`suffixGroups` + stats line use `visibleGroups`) + 7 page files (+1 import SelectedBasket, +2 destructure, +3 CategoryControlPanel props, +1 CategoryLayout basket prop, +1 VirtualizedModList/ModList prop each). VendorPage не тронут. 20 новых тестов: `tests/ui/SelectedBasket.test.tsx` (NEW, 12 tests — empty state, one chip per family not per token, affix badges ПРЕФ/СУФ/ИМПЛ, clear-all calls onClearSelections, click chip calls onToggleTokens with member IDs, Enter key, cap=20 renders all when ≤ cap, truncates + «+N ещё» when > cap, click «+N ещё» reveals all + «свернуть», click «свернуть» re-truncates, category prop optional) + `tests/ui/ModList.test.tsx` (+6 tests — default all chips, showSelectedOnly=true only selected families, excluded stay visible, pinned stay visible Phase 5 forward-compat, no selections → no chips, stats line shows filtered count) + `tests/ui/VirtualizedModList.test.tsx` (+2 tests — mounts with showSelectedOnly=true via stats line count assertion since jsdom renders 0 virtualized rows, backward compat without prop). vitest 2079→2099 (+20), tsc 0 errors, eslint 0 problems. Edge cases: (a) `selectedCount === 0` → «Выбранные» button disabled (visual cue + cursor-not-allowed + onClick early-return — prevents entering empty selected-only mode); (b) basket cap = 20, NOT 12 (raised per user feedback §13.7 #3); (c) collapsible right panel uses LOCAL state (NOT persisted to URL — transient view-mode toggle; if user feedback wants persistence, add `rpc` boolean field to filter-store); (d) basket renders ONE chip per family group (via `groupTokensByFamily`), NOT per token — matches the FilterChip rendering in ModList so the user sees the same chip identities in both places. Backward compat: все 4 new props optional — legacy callers без wiring рендерят как раньше (all chips visible, no toggle, no basket, no collapse chevron). |
-| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. Independent of Phase 1. |
-| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. Independent of Phase 1. |
+| 4 — Colors + Compact + Tooltips | ✅ DONE | iter 137 | Implemented in `src/shared/i18n.ts` (+8 keys: tooltip.prefix/suffix/implicit_explanation, tooltip.info_aria, legend.* — wait, legend.* is Phase 4.5; Phase 4 i18n keys: tooltip.prefix/suffix/implicit_explanation + tooltip.info_aria only, 4 keys) + `src/index.css` (stronger bg tints на `.affix-header-prefix/suffix/implicit` — border-left 3px → 4px, bg alpha 0.08/0.03 → 0.14/0.06, border-color alpha 0.15 → 0.20, border-left-color alpha 0.5 → 0.65; NEW `--strong` modifier (`.affix-header-prefix--strong` и т.д.) — deeper bg (alpha 0.22/0.10) + brighter border-left (alpha 0.85) for tier-first mode — CSS ready, wiring deferred; NEW `.filter-chip` CSS class token — min-height 22px desktop / 32px mobile (touch target a11y), future density tweaks CSS-only) + NEW `src/ui/components/Tooltip.tsx` (~280 строк — portal-based via `createPortal(... document.body)`, hover 350ms + focus no-delay triggers, closes on click-outside (global mousedown) + Escape (LOCAL onKeyDown on trigger button — NOT global keydown listener, see Pitfall 47 for critical bug found+fixed during Tooltip tests), ARIA: role="tooltip" + aria-describedby + aria-expanded, viewport-edge clamping + top/bottom flip, max-width 280px, recomputes position on viewport resize) + `src/ui/components/FilterChip.tsx` (Phase 4.3 compact density: container `px-2.5 py-1.5 text-[13px] gap-1.5` → `px-1.5 py-0.5 text-[12px] gap-1` + `.filter-chip` class token; inline badges (⚡ ⚓ 2x ×N range) `text-[12px]` → `text-[10px]`; mobile touch target floor 32px via CSS media query) + `src/ui/components/GroupHeader.tsx` (Phase 4.4 — +1 optional prop `infoTooltip?: React.ReactNode`; when provided → renders `<Tooltip content={infoTooltip} ariaLabel={t('tooltip.info_aria')} />` как SIBLING кнопки (NOT child — click must NOT toggle collapse); component structure: `<div className="flex items-center gap-1 w-full"><button>...</button>{infoTooltip && <Tooltip .../>}</div>`) + `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` (wired `infoTooltip={affix === 'prefix' ? t('tooltip.prefix_explanation') : affix === 'suffix' ? t('tooltip.suffix_explanation') : t('tooltip.implicit_explanation')}` на top-level `<GroupHeader variant="top" />` when top-level collapse wiring is present; legacy static text path не тронут). **Tests:** +24 (16 Tooltip NEW + 4 GroupHeader infoTooltip + 4 FilterChip compact density). vitest 2124→2148, tsc 0, eslint 0. **Critical bug found+fixed during Tooltip tests:** initial Escape implementation used local `onKeyDown` on button + `triggerRef.current?.focus()` после `closeImmediate()` — calling `.focus()` on trigger after closing re-fired `handleFocus` → `openTooltip()` → `setOpen(true)`, re-opening tooltip immediately. Fix: removed `.focus()` call (button already has focus when Escape pressed) + kept local onKeyDown only (no global keydown listener — React 19 + jsdom flushing issues with native listeners). **Backward compat:** все new props optional (`infoTooltip` на GroupHeader) — legacy callers без wiring рендерят как раньше (no ⓘ icon, no .filter-chip class effect beyond min-height). |
+| 4.5 — "Обозначения" icon legend | ✅ DONE | iter 137 | Implemented in `src/shared/i18n.ts` (+4 keys: legend.title «Обозначения», legend.star «★ — в избранное», legend.exclude «✗ — исключить аффикс (не хочу)», legend.info «ⓘ — наведите для подсказки») + `src/index.css` (+`.icon-legend` + `__title` + `__row` + `__icon` CSS classes — margin-top 8px + padding 10px 12px + border-top + bg + border-radius; title 11px font-weight 600 uppercase letter-spacing 0.08em; rows flex gap 6px font-size 12px line-height 1.4; icon inline-block width 1.2em text-align center font-weight 700) + NEW `src/ui/components/IconLegend.tsx` (~75 строк — static 3-row legend, pure presentational, optional `items` prop for testing, semantic `<ul>/<li>` structure, icons `aria-hidden` (decorative — text conveys meaning), section `aria-labelledby` pointing to title element) + `src/ui/layout/CategoryLayout.tsx` (+1 optional prop `legend?: React.ReactNode` — rendered at BOTTOM of right `<aside>` below ProfilePanel; also rendered in mobile section when `hasMobileBar`; when omitted → no legend (backward compat)) + 7 page files (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic — each: +1 import IconLegend, +1 prop to `<CategoryLayout>` `legend={<IconLegend />}` rendered after `sidebar={...}` block, before `mobileBar={...}`; VendorPage не тронут — no CategoryLayout). **Tests:** +10 (NEW `tests/ui/IconLegend.test.tsx` — renders title, 3 default rows, row 1 ★ icon + text, row 2 ✗ icon + text, row 3 ⓘ icon + text, icons aria-hidden, section aria-labelledby pointing to title, semantic ul/li structure, accepts custom items prop, renders 0 rows when items=[] edge case). vitest 2148→2158, tsc 0, eslint 0. **Backward compat:** `legend` prop optional — legacy callers без wiring рендерят как раньше (no legend panel). |
 | 5 — Favorites in LEFT panel (Search → Favorites → Filters order; TopNav dropdowns REMOVED) | ✅ DONE | iter 136 | Implemented in `src/shared/i18n.ts` (+10 keys: `favorites.title`/`empty`/`clear`/`clear_aria`/`unpin_aria`/`scroll_aria`, `chip.pin_tooltip`/`unpin_tooltip`/`pin_aria`/`unpin_aria`) + `src/ui/hooks/useCategoryPage.ts` (+3 fields `pinnedIds`/`togglePinned`/`clearPinned` wired to filter-store Phase 1, +URL-sync deps) + NEW `src/ui/components/LeftPanelFavorites.tsx` (~230 строк — renders ONE chip per favorited FAMILY via `groupTokensByFamily` reused from SelectedBasket, ⭐ filled icon + colored affix badges ПРЕФ=blue/СУФ=orange/ИМПЛ=amber matching SelectedBasket visualization, click chip body → scroll-to-mod via `document.querySelector('[data-family-key="<familyKey>"]')` + `scrollIntoView({behavior:'smooth', block:'center'})` + 2s `.favorite-pulse` gold/amber CSS animation, degrades gracefully when chip virtualized out of DOM, click ✗ → `onTogglePinned(memberIds)` unpins, «Очистить» link → `onClearPinned()`, empty state placeholder, max-height 30vh scroll, `role="button"` + `tabIndex=0` + Enter/Space keydown + aria-label) + `src/ui/components/FilterChip.tsx` (+2 optional props `pinnedIds`/`onTogglePinned`, +`data-family-key={group.familyKey}` attribute on wrapping div, ⭐ icon button left of label — filled `★` (text-accent-amber-soft) when isPinned / outline `☆` (text-muted) when not, `aria-pressed={isPinned}`, `e.stopPropagation()` in handlePinClick prevents selection toggle, sibling of `role="switch"` div — valid ARIA tree) + `src/ui/layout/CategoryLayout.tsx` (+1 optional prop `favorites`, rendered ABOVE `controls` в left column — final spec order Search → Favorites → Filters per iter 131 §13.7 #1; Search is sticky inside ModList from Phase 2, so initial visual order is Header → Favorites → Filters → Search (sticky) → ModList; after scroll Search sticks to top of viewport as primary control) + `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` (+1 optional prop `onTogglePinned`, prop chain ModList → AffixColumn → ModSubGroupSection → FilterChip + direct FilterChip usages, `pinnedIds` prop already existed from iter 134 forward-compat — only `onTogglePinned` is new) + `src/index.css` (+`.favorite-pulse` CSS class — 2s ease-out gold/amber animation, runs once via `animation-iteration-count: 1`, matches PoE2 gold tone `rgba(212, 175, 55, 0.x)`) + 7 page files (+2 imports `LeftPanelFavorites` + `useCallback` from react, +3 destructure `pinnedIds`/`togglePinned`/`clearPinned`, +`handleTogglePinned` useCallback wrapper as signature adapter between FilterChip's `(ids: string[]) => void` and store's `(id: string) => void`, +1 CategoryLayout `favorites` prop, +2 VirtualizedModList/ModList props `pinnedIds` + `onTogglePinned`). VendorPage не тронут (custom FilterChip — no ModList). 25 новых тестов: `tests/ui/LeftPanelFavorites.test.tsx` (NEW, 17 tests — empty state, one chip per family not per token, affix badges, ⭐ filled icon, header count, ✗ unpin calls onTogglePinned with member IDs, «Очистить» calls onClearPinned, «Очистить» NOT rendered in empty state, click-to-scroll calls querySelector with data-family-key selector, scrollIntoView called with smooth/center args, favorite-pulse CSS class added then removed after 2s via classList spy on real HTMLElement, degrades gracefully when chip not in DOM (null return), Enter + Space keys trigger scroll, category prop optional, max-height 30vh + overflow-y-auto layout) + `tests/ui/FilterChip.test.tsx` (+8 tests Phase 5 describe block — ⭐ NOT rendered when pinnedIds omitted backward compat, ⭐ NOT rendered when onTogglePinned omitted backward compat, ☆ outline when not pinned, ★ filled when any member pinned, click ⭐ calls onTogglePinned with member IDs, click ⭐ does NOT call onToggleTokens stopPropagation, aria-pressed reflects state, data-family-key attribute on wrapping div). vitest 2099→2124 (+25), tsc 0 errors, eslint 0 problems. Edge cases: (a) when BOTH `pinnedIds` AND `onTogglePinned` not provided → ⭐ NOT rendered (backward compat — pre-Phase-5 callers render plain FilterChip); (b) click-to-scroll degrades gracefully when chip virtualized out of DOM (mobile / long list) — `querySelector` returns null, `instanceof HTMLElement` check fails, no-op; (c) signature adapter pattern: FilterChip's `onTogglePinned: (ids: string[]) => void` vs store's `togglePinned: (id: string) => void` — wrapped with `useCallback((ids) => ids.forEach(id => togglePinned(id)), [togglePinned])` at page level for stable reference (preserves React.memo on FilterChip); (d) ⭐ icon button is SIBLING of `role="switch"` div (NOT child) — valid ARIA tree; `stopPropagation` defensively prevents click from also toggling selection; (e) `pinnedIds?: Set<string>` prop был добавлен в iter 134 как forward-compat (Pitfall 44) — Phase 5 добавляет только `onTogglePinned` prop + wiring, NO rework needed. Backward compat: все new props optional (`pinnedIds` + `onTogglePinned` на FilterChip/ModList/VirtualizedModList; `favorites` на CategoryLayout) — legacy callers без wiring рендерят как раньше (no ⭐ icon, no favorites panel, no data-family-key attribute, no scroll-to-mod). |
 
 (Update this table as phases land.)
@@ -836,59 +836,73 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 137
+### 13.6 Recommendation for iter 138
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136).**
-The 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
-`pinnedIds`, `chipExpandState`) are now in `src/store/filter-store.ts` with 13
-actions + URL serialization (backward-compat) + 46 tests in
-`tests/store/filter-store.test.ts`. Phase 2 wired `collapsedGroups` (top-level)
-+ `expandedSubGroups` (sub-group) into the UI via new shared `GroupHeader.tsx`
-+ sticky search + «Развернуть все» / «Свернуть все» кнопки. Phase 2.5 wired
-`chipExpandState` into per-sub-group chip truncation. Phase 3 wired
-`showSelectedOnly` into a toggle «Все / Выбранные (N)» in
-`CategoryControlPanel` + new `SelectedBasket.tsx` in the right aside (cap=20,
-affix-type badges ПРЕФ/СУФ/ИМПЛ, click-to-deselect) + collapsible right panel
-via chevron toggle. Phase 5 wired `pinnedIds` into new `LeftPanelFavorites.tsx`
-in the LEFT panel (above filters) + ⭐ pin icon slot on `FilterChip.tsx` (filled
-`★` when pinned, outline `☆` when not) + click-to-scroll from favorites to
-corresponding chip in ModList via `document.querySelector('[data-family-key="..."]')`
-+ 2s `.favorite-pulse` gold/amber CSS animation. 7 page files updated (Phase 2:
-+8 props; Phase 2.5: +2 props; Phase 3: +5 props + basket slot; Phase 5: +3
-destructure + handleTogglePinned useCallback + favorites slot + 2
-VirtualizedModList props each). 25 new tests (Phase 5: 17 LeftPanelFavorites +
-8 FilterChip Phase 5).
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136). Phase 4 + 4.5 are DONE (iter 137). ВСЕ 7 ФАЗ UI REFACTOR DONE.**
 
-**Recommended next:** Phase 4 (colors + compact + tooltips) или Phase 4.5
-(«Обозначения» icon legend) — оба independent of Phase 1, можно делать в любой
-итерации как warmup work для нового агента. Phase 4 files: `src/index.css`
-(stronger color tints rgba blue/orange/amber), `src/ui/components/FilterChip.tsx`
-(compact density 25% — px-1.5 py-0.5 text-[12px]), new
-`src/ui/components/Tooltip.tsx` (portal-based). Phase 4.5 file: new
-`src/ui/components/IconLegend.tsx` (3 rows: ⭐/—/ⓘ icon meanings).
+All 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
+`pinnedIds`, `chipExpandState`) are in `src/store/filter-store.ts` with 13
+actions + URL serialization (backward-compat) + 46 tests. Phase 2 wired
+collapse + sticky search. Phase 2.5 wired per-sub-group chip truncation. Phase 3
+wired show-selected-only toggle + SelectedBasket. Phase 5 wired favorites in
+left panel + ⭐ pin icon + click-to-scroll. Phase 4 wired stronger color tints
++ compact chip density 25% + portal-based tooltips on affix column headers.
+Phase 4.5 wired static «Обозначения» icon legend at the bottom of the right
+aside. 34 new tests in iter 137 (16 Tooltip + 10 IconLegend + 4 GroupHeader
+infoTooltip + 4 FilterChip compact density). Total vitest 2124 → 2158.
 
-Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения» legend) are
-INDEPENDENT of Phase 1 — can land in any iteration as "warmup" work for a new
-agent.
+**Recommended next (iter 138):** UI Refactor полностью завершён — все 7 фаз
+готовы. Следующий шаг — in-game / in-browser UX verification пользователем
+ALL UI phases (Phase 2+2.5+3+4+4.5+5 — перенос с iter 133+). Все UI UX
+changes теперь в одном batch.
+
+**Optional enhancements** (если user запросит):
+- `--strong` modifier wiring на `.affix-header-*` в tier-first mode (CSS ready
+  from iter 137, wiring deferred — applied via caller когда sortMode='tier-first').
+- Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
+  boolean field to filter-store if user requests.
+- VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
+  favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render
+  LeftPanelFavorites. Deferred until user requests.
+- Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades
+  gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced
+  to scroll to sub-group header instead. Deferred.
+- Tooltip `--strong` styling variant — currently single style. Could add
+  variant for tier-first mode if user requests.
+- IconLegend `items` prop — currently hardcoded 3 rows (★/✗/ⓘ). Could be
+  extended to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
+  anchor, 2x dual-number) if user requests.
 
 **Do NOT implement TopNav dropdowns** — visualization supersedes that
 recommendation (iter 130 contradiction #1).
 
-**UX verification request for user (iter 136 deliverable):** open the 7
+**UX verification request for user (iter 137 deliverable):** open the 7
 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
-and verify: (1) «⭐ Избранные: 0» panel appears in left column above filters
-with placeholder «Нажмите ★ на аффиксе, чтобы добавить в избранное»; (2) click
-☆ (outline star) left of any chip in ModList → icon changes to ★ (filled) + new
-chip appears in «⭐ Избранные: N» with ⭐ + colored badge (ПРЕФ=blue, СУФ=orange,
-ИМПЛ=amber) + displayText + ✗; (3) click ★ again → chip removed from favorites,
-icon returns to ☆; (4) click chip body (text) in «⭐ Избранные» → ModList
-scrolls to corresponding chip + 2s gold/amber pulse highlight; (5) click ✗ on
-chip in «⭐ Избранные» → chip removed (unpin); (6) click «Очистить» in favorites
-header → all favorites cleared; (7) state persists in URL: `pn=token1,token2`
-restores favorites after refresh; (8) when > 5-10 families favorited → favorites
-block scrolls internally (max-height 30vh); (9) on mobile → favorites block
-visible above filters, no separate collapse toggle. If you find a bug — document
-in `STATUS.md` as Known Issue FIRST, then fix.
+and verify Phase 4 + 4.5 changes:
+
+**Phase 4 — colors + compact + tooltips:**
+1. `.affix-header-prefix` / `-suffix` / `-implicit` frames are more contrasty
+   (border-left 4px, deeper bg tint).
+2. Chips in ModList are denser (text-[12px] instead of 13px, padding px-1.5
+   py-0.5 instead of px-2.5 py-1.5). Inline badges (⚡ ⚓ 2x ×N range) are
+   text-[10px] instead of 12px.
+3. On mobile, chips retain min-height 32px (touch target a11y).
+4. Hover (or focus via Tab) the ⓘ glyph next to the «ПРЕФИКСЫ» / «СУФФИКСЫ» /
+   «ИМПЛИСЕТ» header — a tooltip appears with a 1-sentence Russian explanation
+   of that affix type.
+5. Tooltip closes on Escape or click-outside.
+6. Clicking ⓘ does NOT collapse/expand the group (sibling button, not child).
+
+**Phase 4.5 — «Обозначения» legend:**
+7. In the right column (below ProfilePanel), a «Обозначения» block appears
+   with 3 rows: ★ — в избранное / ✗ — исключить аффикс (не хочу) / ⓘ — наведите
+   для подсказки.
+8. On mobile (when mobileBar present), the legend is also visible in the
+   mobile section.
+9. When the right panel is collapsed (chevron toggle from Phase 3) — the
+   legend is hidden along with the rest of the aside content.
+
+If you find a bug — document in `STATUS.md` as Known Issue FIRST, then fix.
 
 ### 13.7 User Feedback iter 131 (4 corrections)
 

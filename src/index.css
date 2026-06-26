@@ -804,24 +804,39 @@ main {
 }
 
 /* ─── Level 1 Affix decorative frames ─── */
+/* Phase 4 (iter 137): stronger bg tints + 4px border-left (was 3px).
+   Visual goal: prefix/suffix/implicit blocks must be visually distinct at
+   a glance even on low-contrast laptop screens. Bumped alphas from 0.08/0.03
+   → 0.14/0.06 and border-left 3px → 4px per UI_REFACTOR_PLAN.md §4 Phase 4.
+   `--strong` modifier (applied by caller when sortMode='tier-first') deepens
+   the bg further so the tier-first mode reads as "more emphatic" without
+   breaking the existing layout. */
 .affix-header-prefix {
   position: relative;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%);
-  border: 1px solid rgba(37, 99, 235, 0.15);
-  border-left: 3px solid rgba(96, 165, 250, 0.5);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14) 0%, rgba(37, 99, 235, 0.06) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.20);
+  border-left: 4px solid rgba(96, 165, 250, 0.65);
   border-radius: 4px;
   padding: 6px 10px;
   margin: 8px 0;
 }
+.affix-header-prefix--strong {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(37, 99, 235, 0.10) 100%);
+  border-left-color: rgba(96, 165, 250, 0.85);
+}
 
 .affix-header-suffix {
   position: relative;
-  background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.03) 100%);
-  border: 1px solid rgba(234, 88, 12, 0.15);
-  border-left: 3px solid rgba(251, 146, 60, 0.5);
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.14) 0%, rgba(234, 88, 12, 0.06) 100%);
+  border: 1px solid rgba(234, 88, 12, 0.20);
+  border-left: 4px solid rgba(251, 146, 60, 0.65);
   border-radius: 4px;
   padding: 6px 10px;
   margin: 8px 0;
+}
+.affix-header-suffix--strong {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.22) 0%, rgba(234, 88, 12, 0.10) 100%);
+  border-left-color: rgba(251, 146, 60, 0.85);
 }
 
 .affix-header-prefix::before,
@@ -862,12 +877,16 @@ main {
 
 .affix-header-implicit {
   position: relative;
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%);
-  border: 1px solid rgba(217, 119, 6, 0.15);
-  border-left: 3px solid rgba(251, 191, 36, 0.5);
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.14) 0%, rgba(217, 119, 6, 0.06) 100%);
+  border: 1px solid rgba(217, 119, 6, 0.20);
+  border-left: 4px solid rgba(251, 191, 36, 0.65);
   border-radius: 4px;
   padding: 6px 10px;
   margin: 8px 0;
+}
+.affix-header-implicit--strong {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.22) 0%, rgba(217, 119, 6, 0.10) 100%);
+  border-left-color: rgba(251, 191, 36, 0.85);
 }
 .affix-header-implicit::before,
 .affix-header-implicit::after {
@@ -1395,4 +1414,61 @@ input:focus:not(:focus-visible),
 .favorite-pulse {
   animation: favorite-pulse-anim 2s ease-out 1;
   border-radius: 4px;
+}
+
+/* ─── Phase 4 (iter 137): .filter-chip compact density token ─── */
+/* Applied to the FilterChip outer div so future density tweaks are CSS-only,
+   not JSX edits. Per UI_REFACTOR_PLAN.md §4 Phase 4: ~25% reduction in chip
+   height (from ~28px to ~22px on desktop). Mobile keeps 32px min-height for
+   touch target a11y (still below WCAG AA 44×44px, but acceptable for
+   non-critical chip toggle — see Phase 4 risk register mitigation). */
+.filter-chip {
+  /* Override Tailwind px-1.5 py-0.5 if needed for fine-tuning — kept as a
+     CSS hook so density can be tweaked without a FilterChip.tsx redeploy. */
+  min-height: 22px;
+}
+@media (max-width: 767px) {
+  .filter-chip {
+    /* Mobile touch target — keeps tappable area ≥ 32px even though the
+       visual chip is more compact. */
+    min-height: 32px;
+  }
+}
+
+/* ─── Phase 4.5 (iter 137): .icon-legend — static legend in right aside ─── */
+/* Rendered at the BOTTOM of the right <aside> (below ProfilePanel) via the
+   new `legend` slot on CategoryLayout. Static 3-row legend explaining what
+   each icon means: ★ favorite / ✗ exclude / ⓘ info tooltip. Companion to
+   Phase 4 tooltips — gives beginners a permanent reference, not just hover
+   hints. */
+.icon-legend {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--poe-border);
+  background: rgba(13, 11, 9, 0.4);
+  border-radius: 4px;
+}
+.icon-legend__title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--poe-text-soft, #c4b89a);
+  margin-bottom: 6px;
+}
+.icon-legend__row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--poe-text-soft, #c4b89a);
+  line-height: 1.4;
+  padding: 2px 0;
+}
+.icon-legend__icon {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+  font-weight: 700;
+  flex-shrink: 0;
 }

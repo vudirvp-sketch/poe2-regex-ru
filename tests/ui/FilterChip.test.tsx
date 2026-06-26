@@ -708,4 +708,76 @@ describe('FilterChip', () => {
       expect(chipWrapper.getAttribute('data-family-key')).toBe('семейство тест');
     });
   });
+
+  // ─── Phase 4 (iter 137): compact density ───
+
+  describe('Phase 4 — compact chip density', () => {
+    it('outer div has .filter-chip class token', () => {
+      const { container } = render(
+        <FilterChip
+          group={makeGroup()}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+        />,
+      );
+      const chipWrapper = container.firstChild as HTMLElement;
+      expect(chipWrapper.className).toContain('filter-chip');
+    });
+
+    it('outer div uses text-[12px] (compact text size)', () => {
+      const { container } = render(
+        <FilterChip
+          group={makeGroup()}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+        />,
+      );
+      const chipWrapper = container.firstChild as HTMLElement;
+      expect(chipWrapper.className).toContain('text-[12px]');
+    });
+
+    it('outer div uses px-1.5 py-0.5 (compact padding)', () => {
+      const { container } = render(
+        <FilterChip
+          group={makeGroup()}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+        />,
+      );
+      const chipWrapper = container.firstChild as HTMLElement;
+      expect(chipWrapper.className).toContain('px-1.5');
+      expect(chipWrapper.className).toContain('py-0.5');
+    });
+
+    it('inline badges use text-[10px] (compact badge size)', () => {
+      // Construct a group with multiple members so the ×N badge renders, with
+      // a prefix so ⚓ renders, with multi-placeholder so 2x renders, and
+      // selected so badges actually appear.
+      const group: FamilyGroup = {
+        familyKey: 'семейство тест',
+        affix: 'prefix',
+        displayText: 'Тестовый аффикс',
+        members: [
+          { id: 'a', rawText: { ru: 'A' }, regex: { ru: 'a' }, regexPrefix: { ru: 'p' }, ranges: [[1, 5]], values: [], hasMultiPlaceholder: false } as unknown as FamilyGroup['members'][number],
+          { id: 'b', rawText: { ru: 'B' }, regex: { ru: 'b' }, regexPrefix: { ru: 'p' }, ranges: [[1, 5]], values: [], hasMultiPlaceholder: false } as unknown as FamilyGroup['members'][number],
+        ],
+        rangeSlots: [[1, 5]],
+        globalMin: 1,
+        globalMax: 5,
+        hasMultiPlaceholder: false,
+        priorityTier: 'S',
+        origin: 'normal',
+      };
+      const { container } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set(['a', 'b'])}
+          onToggleTokens={vi.fn()}
+        />,
+      );
+      // At least one of the inline badges (⚓/×N/range) should use text-[10px].
+      const badges = container.querySelectorAll('span.text-\\[10px\\]');
+      expect(badges.length).toBeGreaterThan(0);
+    });
+  });
 });

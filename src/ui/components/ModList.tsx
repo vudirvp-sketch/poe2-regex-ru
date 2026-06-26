@@ -432,6 +432,13 @@ const AffixColumn: React.FC<{
           onToggle={() => onToggleGroupCollapsed!(topLevelKey!)}
           variant="top"
           className={`${headerColor} ${affixHeaderClass}`}
+          // Phase 4 (iter 137): show ⓘ tooltip on top-level affix column
+          // headers explaining what each affix type means. Helps beginners.
+          infoTooltip={
+            affix === 'prefix' ? t('tooltip.prefix_explanation')
+              : affix === 'suffix' ? t('tooltip.suffix_explanation')
+              : t('tooltip.implicit_explanation')
+          }
         />
       ) : (
         <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${affixHeaderClass}`}>

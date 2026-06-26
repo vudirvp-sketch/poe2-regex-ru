@@ -200,4 +200,67 @@ describe('GroupHeader', () => {
     expect(screen.getByText(/ПУСТО/)).toBeInTheDocument();
     expect(screen.getByText(/0/)).toBeInTheDocument();
   });
+
+  // ─── Phase 4 (iter 137): infoTooltip prop ───
+
+  it('does NOT render ⓘ glyph when infoTooltip omitted (backward compat)', () => {
+    render(
+      <GroupHeader label="ПРЕФИКСЫ" count={5} isCollapsed={false} onToggle={vi.fn()} />
+    );
+    // No tooltip trigger button should be present (only the main header button).
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(1);
+    expect(screen.queryByText('ⓘ')).not.toBeInTheDocument();
+  });
+
+  it('renders ⓘ glyph when infoTooltip provided', () => {
+    render(
+      <GroupHeader
+        label="ПРЕФИКСЫ"
+        count={5}
+        isCollapsed={false}
+        onToggle={vi.fn()}
+        infoTooltip="Один из основных модификаторов предмета."
+      />
+    );
+    // Tooltip trigger button (the ⓘ glyph) should be present alongside the
+    // main header button.
+    expect(screen.getByText('ⓘ')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(2);
+  });
+
+  it('ⓘ tooltip trigger is SIBLING of header button (not child)', () => {
+    // The header button is the first button; the ⓘ trigger is the second.
+    // They should share the same parent (siblings), not be nested.
+    render(
+      <GroupHeader
+        label="ПРЕФИКСЫ"
+        count={5}
+        isCollapsed={false}
+        onToggle={vi.fn()}
+        infoTooltip="Подсказка"
+      />
+    );
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(2);
+    // Both buttons should have the same parent element.
+    expect(buttons[0].parentElement).toBe(buttons[1].parentElement);
+  });
+
+  it('click on ⓘ does NOT toggle collapse (stopPropagation)', () => {
+    const onToggle = vi.fn();
+    render(
+      <GroupHeader
+        label="ПРЕФИКСЫ"
+        count={5}
+        isCollapsed={false}
+        onToggle={onToggle}
+        infoTooltip="Подсказка"
+      />
+    );
+    const infoBtn = screen.getByText('ⓘ').closest('button')!;
+    fireEvent.click(infoBtn);
+    expect(onToggle).not.toHaveBeenCalled();
+  });
 });

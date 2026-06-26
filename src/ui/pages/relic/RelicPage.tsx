@@ -23,6 +23,7 @@ import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { SelectedBasket } from '@ui/components/SelectedBasket';
 import { LeftPanelFavorites } from '@ui/components/LeftPanelFavorites';
+import { IconLegend } from '@ui/components/IconLegend';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
 
@@ -146,6 +147,10 @@ export function RelicPage() {
                 onRestore={restoreFilterState}
               />
             }
+            // Phase 4.5 (iter 137): static «Обозначения» legend at the bottom
+            // of the right aside (below ProfilePanel). Companion to Phase 4
+            // tooltips — gives beginners a permanent reference.
+            legend={<IconLegend />}
             mobileBar={
               <MobileRegexBar
                 regexOutput={

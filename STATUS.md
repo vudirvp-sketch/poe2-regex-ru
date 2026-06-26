@@ -2,130 +2,90 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 136
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5+3+5 DONE) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
+> **Текущая итерация:** 137
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5+3+4+4.5+5 DONE — все 7 фаз готовы) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
 
 ---
 
 ## Текущее состояние
 
-**iter 136: UI Refactor Phase 5 — favorites in left panel готовы.**
+**iter 137: UI Refactor Phase 4 + Phase 4.5 готовы — ВСЕ 7 ФАЗ UI REFACTOR DONE.**
 
-Phase 5 потребляет `pinnedIds` (уже в store с Phase 1, iter 132) и добавляет:
-новый `LeftPanelFavorites.tsx` компонент в ЛЕВОЙ колонке (над `CategoryControlPanel`,
-под header — финальный visual order: Header → Favorites → Filters → Search (sticky
-inside ModList) → ModList, с sticky Search становящимся primary control после
-скролла). Каждый chip = ⭐ filled icon + colored affix badge (ПРЕФ=blue, СУФ=orange,
-ИМПЛ=amber per iter 130 visualization) + displayText + ✗ unpin button. Click на
-chip body → scroll-to-mod via `document.querySelector('[data-family-key="..."]')`
-+ 2s `.favorite-pulse` CSS highlight (gold/amber). Click ✗ → `onTogglePinned(memberIds)`
-unpins that family. Header «⭐ Избранные: N» + «Очистить» link → `clearPinned()`.
-Empty state → «Нажмите ★ на аффиксе, чтобы добавить в избранное» placeholder.
-Max-height 30vh + internal scroll (matches SelectedBasket).
+Phase 4 (colors + compact + tooltips) + Phase 4.5 («Обозначения» icon legend)
+— visual-only изменения, никаких state changes, все new props optional.
 
-`FilterChip.tsx` extended with `pinnedIds?: Set<string>` + `onTogglePinned?: (ids:
-string[]) => void` optional props. When BOTH provided → ⭐ icon button renders
-LEFT of label. Filled `★` (text-accent-amber-soft) when any member is pinned;
-outline `☆` (text-muted) otherwise. Click → `onTogglePinned(memberIds)` (toggles
-whole family). `stopPropagation` prevents the click from also toggling selection.
-`aria-pressed` reflects pinned state. `data-family-key={group.familyKey}`
-attribute on the wrapping div enables scroll-to-mod from LeftPanelFavorites.
+**Phase 4 deliverables:**
 
-`CategoryLayout.tsx` extended with `favorites?: React.ReactNode` optional prop —
-rendered ABOVE `controls` in the left column. 7 page files (Belt/Ring/Amulet/
-Jewel/Waystone/Tablet/Relic) wire `favorites={<LeftPanelFavorites .../>}` +
-`pinnedIds` + `handleTogglePinned` (useCallback wrapper around `togglePinned(id)`)
-+ `onTogglePinned={handleTogglePinned}` to `<VirtualizedModList>`/`<ModList>`.
-VendorPage не тронут (custom FilterChip — no ModList).
+1. **`src/index.css`** — stronger bg tints на `.affix-header-*`:
+   border-left 3px → 4px, alphas 0.08/0.03 → 0.14/0.06. NEW `--strong`
+   modifier (`.affix-header-prefix--strong` и т.д.) для tier-first mode
+   (deeper bg + brighter border, applied via caller когда sortMode='tier-first').
+   NEW `.filter-chip` CSS class token — min-height 22px desktop / 32px mobile
+   (touch target a11y per Phase 4 risk register mitigation). Future density
+   tweaks — CSS-only, не JSX edits.
 
-**Сделано в iter 136:**
+2. **`src/ui/components/FilterChip.tsx`** — compact density 25%:
+   container `px-2.5 py-1.5 text-[13px]` → `px-1.5 py-0.5 text-[12px]`,
+   inline badges (⚡ ⚓ 2x ×N range) `text-[12px]` → `text-[10px]`.
+   `.filter-chip` class добавлен к outer div (CSS hook). Mobile touch target
+   floor 32px via CSS media query.
 
-1. **`src/shared/i18n.ts`** — +7 keys (Phase 5 section): `favorites.title`
-   («⭐ Избранные: {n}»), `favorites.empty` («Нажмите ★ на аффиксе, чтобы добавить
-   в избранное»), `favorites.clear` («Очистить»), `favorites.clear_aria`,
-   `favorites.unpin_aria` («Убрать из избранного»), `favorites.scroll_aria`
-   («Перейти к аффиксу в списке»), `chip.pin_tooltip` («Добавить в избранное»),
-   `chip.unpin_tooltip` («Убрать из избранного»), `chip.pin_aria`, `chip.unpin_aria`.
+3. **NEW `src/ui/components/Tooltip.tsx`** (~280 строк) — portal-based tooltip
+   via `createPortal(... document.body)`. Hover (350ms delay) + focus (no
+   delay) triggers. Closes on click-outside (global mousedown listener) +
+   Escape (local onKeyDown on trigger button — NOT global, из-за React 19
+   + jsdom flushing issue, см. Pitfall 47). ARIA: `role="tooltip"` on portal
+   content, `aria-describedby` on trigger pointing to tooltip id,
+   `aria-expanded` reflecting open state. Viewport-edge clamping (left/right
+   + top/bottom flip when near bottom 25%). Max width 280px (wraps long
+   Russian sentences). Recomputes position on viewport resize.
 
-2. **`src/ui/components/LeftPanelFavorites.tsx`** (NEW, ~230 строк) — renders
-   one chip per favorited family group (NOT per token — same `groupTokensByFamily`
-   logic as SelectedBasket). Each chip = ⭐ filled icon + colored affix badge
-   (ПРЕФ=blue, СУФ=orange, ИМПЛ=amber) + displayText + ✗ unpin button. Click
-   chip body → `handleScrollToChip(familyKey)` via `document.querySelector` +
-   `scrollIntoView({behavior:'smooth', block:'center'})` + `classList.add('favorite-pulse')`
-   (CSS 2s gold/amber animation, removed via `window.setTimeout(2000)`). Click ✗
-   → `onTogglePinned(memberIds)` unpins that family. Header «⭐ Избранные: N» +
-   «Очистить» link → `onClearPinned()`. Empty state → placeholder text. Max-height
-   30vh + internal scroll. Accessible: `role="button"` + `tabIndex=0` + Enter/Space
-   keydown + `aria-label` «{displayText} — Перейти к аффиксу в списке».
+4. **`src/ui/components/GroupHeader.tsx`** — NEW optional `infoTooltip?`
+   prop (ReactNode). When provided → renders `ⓘ` glyph via `<Tooltip>` как
+   SIBLING кнопки (NOT child — клик не должен toggle collapse).
+   `stopPropagation` в Tooltip.handleClick prevents parent onClick.
+   When omitted → no ⓘ (backward compat).
 
-3. **`src/ui/components/FilterChip.tsx`** расширено — `FilterChipProps` +2
-   optional props (`pinnedIds`, `onTogglePinned`). `data-family-key={group.familyKey}`
-   attribute on wrapping div. When BOTH props provided → ⭐ icon button renders
-   LEFT of label. `★` filled (text-accent-amber-soft) when any member is pinned;
-   `☆` outline (text-muted) otherwise. Click → `handlePinClick` calls
-   `onTogglePinned(memberIds)` with `e.stopPropagation()`. `aria-pressed={isPinned}`
-   reflects state. Backward compat: when EITHER prop omitted → ⭐ NOT rendered.
+5. **`src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx`**
+   — wire `infoTooltip={t('tooltip.prefix_explanation')}` / `suffix_explanation`
+   / `implicit_explanation` на top-level affix column headers (ПРЕФИКСЫ/СУФФИКСЫ/ИМПЛИСЕТ).
+   Только когда top-level collapse wiring is present (legacy static text path
+   не тронут).
 
-4. **`src/ui/layout/CategoryLayout.tsx`** расширено — `CategoryLayoutProps` +1
-   optional prop (`favorites`). Rendered ABOVE `controls` in left column. Per
-   iter 131 §13.7 #1 — Search is sticky inside ModList (Phase 2), so initial
-   visual order is Header → Favorites → Filters → Search (sticky) → ModList;
-   after scroll, Search sticks to top of viewport as primary control.
+**Phase 4.5 deliverables:**
 
-5. **`src/ui/hooks/useCategoryPage.ts`** расширено — `CategoryPageState` +3
-   fields (`pinnedIds`, `togglePinned`, `clearPinned`). +3 `useStore(state =>
-   state.X)` subscriptions. URL-sync effect deps array +`pinnedIds` (so pin/unpin
-   triggers URL re-sync via `pn` compact key — already in store since iter 132).
-   +3 return fields.
+6. **NEW `src/ui/components/IconLegend.tsx`** (~75 строк) — static 3-row legend:
+   «★ — в избранное» / «✗ — исключить аффикс (не хочу)» / «ⓘ — наведите для
+   подсказки». Pure presentational, optional `items` prop for testing.
+   Semantic `<ul>/<li>`, icons `aria-hidden`, section `aria-labelledby`.
 
-6. **`src/ui/components/ModList.tsx`** + **`src/ui/components/VirtualizedModList.tsx`**
-   — each: +1 optional prop (`onTogglePinned`). Prop chain: ModList → AffixColumn
-   → ModSubGroupSection → FilterChip + ModList → direct FilterChip usages.
-   `pinnedIds` prop already existed (iter 134 forward-compat) — only `onTogglePinned`
-   is new. Pass `pinnedIds={pinnedIds}` + `onTogglePinned={onTogglePinned}` to
-   every FilterChip usage (4 in ModList, 1 in VirtualizedModList).
-
-7. **`src/index.css`** — +`.favorite-pulse` CSS class (2s ease-out animation,
-   gold/amber box-shadow + background-color pulse, runs once via
-   `animation-iteration-count: 1`). Matches PoE2 gold tone (`rgba(212, 175, 55, 0.x)`).
+7. **`src/ui/layout/CategoryLayout.tsx`** — NEW optional `legend?` slot
+   rendered at BOTTOM of right `<aside>` (below ProfilePanel). Also rendered
+   in mobile section when `hasMobileBar`. When omitted → no legend (backward
+   compat — pre-Phase-4.5 pages had no legend).
 
 8. **7 page files** (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — каждый:
-   +1 import (`LeftPanelFavorites`), +1 import (`useCallback` from react), +3
-   destructured fields из `useCategoryPage()` (`pinnedIds`, `togglePinned`,
-   `clearPinned`), +`handleTogglePinned` useCallback wrapper (calls `togglePinned(id)`
-   for each member ID — signature adapter between FilterChip's `(ids: string[])`
-   and store's `(id: string) => void`), +1 prop to `<CategoryLayout>` (`favorites={
-   <LeftPanelFavorites .../>}`), +2 props to `<VirtualizedModList>`/`<ModList>`
-   (`pinnedIds`, `onTogglePinned`). VendorPage не тронут (custom FilterChip).
+   +1 import (`IconLegend`), +1 prop to `<CategoryLayout>` (`legend={<IconLegend />}`).
+   VendorPage не тронут (custom FilterChip, no ModList, no CategoryLayout).
 
-9. **Tests:**
-   - `tests/ui/LeftPanelFavorites.test.tsx` (NEW, ~440 строк, 17 tests): empty
-     state, renders one chip per favorited family (not per token), affix-type
-     badges (ПРЕФ/СУФ/ИМПЛ), ⭐ filled icon on each chip, header count, ✗ unpin
-     button calls onTogglePinned with member IDs, «Очистить» calls onClearPinned,
-     «Очистить» NOT rendered in empty state, click-to-scroll calls
-     document.querySelector with data-family-key selector, scrollIntoView called
-     with smooth/center args, favorite-pulse CSS class added then removed after
-     2s, degrades gracefully when chip not in DOM (virtualized out), Enter key
-     triggers scroll, Space key triggers scroll, category prop optional,
-     max-height 30vh + overflow-y-auto layout.
-   - `tests/ui/FilterChip.test.tsx` +8 tests (Phase 5 describe block): ⭐ NOT
-     rendered when pinnedIds omitted (backward compat), ⭐ NOT rendered when
-     onTogglePinned omitted (backward compat), ☆ outline when not pinned, ★
-     filled when any member pinned, click ⭐ calls onTogglePinned with member
-     IDs, click ⭐ does NOT call onToggleTokens (stopPropagation), aria-pressed
-     reflects state, data-family-key attribute on wrapping div.
+**i18n:** +7 keys (Phase 4 section: `tooltip.prefix_explanation`,
+`tooltip.suffix_explanation`, `tooltip.implicit_explanation`,
+`tooltip.info_aria`; Phase 4.5 section: `legend.title`, `legend.star`,
+`legend.exclude`, `legend.info`).
 
-### Проверки (iter 136)
+**Tests:** +34 (16 Tooltip + 10 IconLegend + 4 GroupHeader infoTooltip + 4
+FilterChip compact density). vitest 2124 → 2158. tsc 0, eslint 0.
 
-- **vitest:** 2124/2124 tests passed (47 test files). Was 2099 in iter 135 →
-  **+25 new tests** (17 LeftPanelFavorites + 8 FilterChip Phase 5).
+### Проверки (iter 137)
+
+- **vitest:** 2158/2158 tests passed (49 test files). Was 2124 in iter 136 →
+  **+34 new tests** (16 Tooltip + 10 IconLegend + 4 GroupHeader infoTooltip +
+  4 FilterChip compact density).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **Backward compat:** все new props optional — legacy callers (tests, future
-  use) без wiring рендерят как раньше (no ⭐ icon, no favorites panel, no
-  data-family-key attribute).
+- **Backward compat:** все new props optional (`infoTooltip` на GroupHeader;
+  `legend` на CategoryLayout) — legacy callers без wiring рендерят как раньше
+  (no ⓘ icon, no legend panel, no .filter-chip class effect beyond min-height).
 
 ---
 
@@ -139,20 +99,12 @@ VendorPage не тронут (custom FilterChip — no ModList).
 6. **Phase 2.5 UX change: chips truncated to first 3 + «+N ещё»** (iter 134). In-game/in-browser verification pending (KI#15).
 7. **Phase 3 UX change: show-selected-only filter** (iter 135). In-game/in-browser verification pending (KI#15).
 8. **Phase 3 UX change: SelectedBasket panel + collapsible right aside** (iter 135). In-game/in-browser verification pending (KI#15).
-9. **Phase 5 UX change: favorites in left panel** (iter 136). LeftPanelFavorites
-   renders ABOVE CategoryControlPanel (filters). Final spec order is Search →
-   Favorites → Filters (§13.7 #1). Search is sticky inside ModList (Phase 2),
-   so initial visual order is Header → Favorites → Filters → Search (sticky)
-   → ModList. After scroll, Search sticks to top of viewport as primary control.
-   In-game/in-browser verification pending (KI#15).
-10. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136). Filled ★
-    when family is pinned, outline ☆ otherwise. Click toggles whole family's
-    pinned state. In-game/in-browser verification pending (KI#15).
-11. **Phase 5 UX change: click-to-scroll from LeftPanelFavorites** (iter 136).
-    Click chip body → `document.querySelector('[data-family-key="..."]')` +
-    `scrollIntoView({behavior:'smooth', block:'center'})` + 2s `.favorite-pulse`
-    gold/amber highlight. Degrades gracefully if chip is virtualized out of DOM
-    (mobile / long list) — no-op. In-game/in-browser verification pending (KI#15).
+9. **Phase 5 UX change: favorites in left panel** (iter 136). In-game/in-browser verification pending (KI#15).
+10. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136). In-game/in-browser verification pending (KI#15).
+11. **Phase 5 UX change: click-to-scroll from LeftPanelFavorites** (iter 136). In-game/in-browser verification pending (KI#15).
+12. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density 25%** (iter 137). Bumped alphas 0.08/0.03 → 0.14/0.06, border-left 3px → 4px, chip `px-1.5 py-0.5 text-[12px]`, badges `text-[10px]`. Mobile touch target floor 32px via CSS. In-game/in-browser verification pending (KI#15).
+13. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). Hover/focus → tooltip with explanation of prefix/suffix/implicit. Tooltip closes on Escape + click-outside. In-game/in-browser verification pending (KI#15).
+14. **Phase 4.5 UX change: «Обозначения» icon legend in right panel** (iter 137). Static 3-row legend below ProfilePanel: ★ favorite / ✗ exclude / ⓘ info. In-game/in-browser verification pending (KI#15).
 
 ### Закрытые KI (краткая справка)
 
@@ -190,58 +142,73 @@ VendorPage не тронут (custom FilterChip — no ModList).
 
 ---
 
-## Next iteration (iter 137)
+## Next iteration (iter 138)
 
-Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end, особенно
-§12 (Phase Status — Phase 1+2+2.5+3+5 ✅ DONE), §13 (iter 130 visualization audit)
-AND §13.7 (iter 131 user feedback corrections).
+**UI Refactor полностью завершён: Phase 1+2+2.5+3+4+4.5+5 ✅ DONE.**
 
-**Рекомендованный старт:** Phase 4 (colors + compact + tooltips) или Phase 4.5
-(«Обозначения» icon legend) — оба independent of Phase 1, можно делать в любой
-итерации как warmup work для нового агента.
+Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status — все 7
+фаз ✅ DONE) + §13 (iter 130 visualization audit) AND §13.7 (iter 131 user
+feedback corrections). Документация актуальна.
 
-**Phase 4 files:**
-- `src/index.css` — stronger bg tints (rgba blue/orange/amber per affix type).
-- `src/ui/components/FilterChip.tsx` — compact density 25% (px-1.5 py-0.5 text-[12px]).
-- NEW `src/ui/components/Tooltip.tsx` (portal-based) — для ⭐ pin icon, exclude
-  button, dual-number slot labels.
+**Приоритеты для iter 138+:**
 
-**Phase 4.5 file:**
-- NEW `src/ui/components/IconLegend.tsx` — 3 rows в right panel (below status,
-  above profile): ⭐ = favorite, — = excluded, ⓘ = tooltip/info. Companion to
-  Phase 4 tooltips.
+1. **In-game / in-browser UX verification** пользователем Phase 2 + Phase 2.5
+   + Phase 3 + Phase 5 + Phase 4 + Phase 4.5 — перенос с iter 133+. Все UI
+   UX changes теперь в одном batch.
 
-**Главные ограничения для iter 137:**
+2. **KI#9** (MULTI_RANGE slot N>0) — monitoring, не фиксировано. Если найден
+   новый in-game FP case — сначала документировать в STATUS.md как
+   Known Issue (расширить KI#9), потом фиксить.
+
+3. **Optional enhancements** (если user запросит):
+   - `--strong` modifier на `.affix-header-*` в tier-first mode (CSS ready,
+     wiring deferred — applied via caller когда sortMode='tier-first').
+   - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
+     boolean field to filter-store if user requests.
+   - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
+     favorites for vendor, need to add ⭐ pin slot to vendor FilterChip +
+     render LeftPanelFavorites. Deferred until user requests.
+   - Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades
+     gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced
+     to scroll to sub-group header instead. Deferred.
+   - Tooltip `--strong` styling variant — currently single style. Could add
+     variant for tier-first mode if user requests.
+   - IconLegend `items` prop — currently hardcoded 3 rows. Could be extended
+     to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
+     anchor, 2x dual-number) if user requests.
+
+**Главные ограничения для iter 138:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
-- Phase 4: chip density 25% (px-1.5 py-0.5 text-[12px]); stronger bg tints
-  (rgba blue/orange/amber per affix type).
-- Phase 4.5: «Обозначения» legend section в right panel (below status, above
-  profile) с 3 icon rows.
 - Если найден новый баг — сначала документируй в STATUS.md как Known Issue,
   потом фиксий.
 
-**Подсказка:** для Phase 4 — read `AGENT_NAVIGATION.md` Pitfall 46 (Phase 5 —
-LeftPanelFavorites + FilterChip ⭐ slot + click-to-scroll). Phase 4 является
-visual-only — никаких state changes, можно приземлить в любой итерации.
+**UX verification request for user (iter 137 deliverable):**
 
-**UX verification request for user (iter 136 deliverable):**
 Откройте 7 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic)
 на десктопе. Проверьте:
-1. В левой колонке над фильтрами появился «⭐ Избранные: 0» блок с placeholder
-   «Нажмите ★ на аффиксе, чтобы добавить в избранное».
-2. Кликните ☆ (outline star) слева от любого chip в ModList — иконка меняется
-   на ★ (filled), и в «⭐ Избранные: N» появляется новый chip с ⭐ + colored
-   badge (ПРЕФ=синий, СУФ=оранжевый, ИМПЛ=янтарный) + displayText + ✗.
-3. Кликните ещё раз на ★ — chip исчезает из избранного, иконка возвращается к ☆.
-4. Кликните на chip body (текст) в «⭐ Избранные» — ModList скроллится к
-   соответствующему chip + 2 секунды подсветки gold/amber пульсом.
-5. Кликните ✗ на chip в «⭐ Избранные» — chip исчезает (unpin).
-6. Кликните «Очистить» в шапке «⭐ Избранные» — все favorites очищаются.
-7. State сохраняется в URL: `pn=token1,token2` после refresh восстанавливает
-   favorites.
-8. Если выбрано > 5-10 семей — favorites блок прокручивается внутри (max-height 30vh).
-9. На мобильных — favorites блок виден над фильтрами, без отдельного collapse toggle.
+
+**Phase 4 — colors + compact + tooltips:**
+1. `.affix-header-prefix` / `-suffix` / `-implicit` рамки стали более
+   контрастными (border-left 4px, bg tint глубже — alpha 0.14/0.06).
+2. Chips в ModList стали плотнее (text-[12px] вместо 13px, padding px-1.5
+   py-0.5 вместо px-2.5 py-1.5). Inline badges (⚡ ⚓ 2x ×N range) — text-[10px]
+   вместо 12px.
+3. На мобильных chips сохраняют min-height 32px (touch target a11y).
+4. Наведите курсор (или сфокусируйте Tab) на ⓘ glyph рядом с заголовком
+   «ПРЕФИКСЫ» / «СУФФИКСЫ» / «ИМПЛИСЕТ» — появляется tooltip с пояснением
+   этого типа аффикса (1 предложение на русском).
+5. Tooltip закрывается по Escape или клику вне него.
+6. Клик на ⓘ НЕ сворачивает/развёртывает группу (sibling button, не child).
+
+**Phase 4.5 — «Обозначения» legend:**
+7. В правой колонке (под ProfilePanel) появился блок «Обозначения» с 3 строками:
+   - ★ — в избранное
+   - ✗ — исключить аффикс (не хочу)
+   - ⓘ — наведите для подсказки
+8. На мобильных (when mobileBar present) legend также виден в мобильной секции.
+9. Когда правая панель свернута (chevron toggle from Phase 3) — legend скрыт
+   вместе с остальным контентом aside.
 
 Если замечен баг — сначала документируйте в STATUS.md как Known Issue, потом фиксий.
 
