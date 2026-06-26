@@ -63,19 +63,24 @@ describe('ETL vs регис cross-validation', () => {
       expect(coverage).toBeGreaterThan(0.7);
     });
 
-    it('waystone token count matches expected range (140-200 after implicit-set removal)', () => {
+    it('waystone token count matches expected range (100-200 after BTS removal)', () => {
       const waystoneData = loadCategoryData('waystone.json');
-      // After removing implicit-set bonus tokens (not searchable as mods)
-      // and adding 5 implicit tokens. Range reflects both OLD-form (~147)
-      // and NEW-form (~156) poe2db wordings — see KI-3 in STATUS.md.
-      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(140);
+      // iter 128 (KI#13): removed additional BTS tokens that were leaking into
+      // affix list (На #% больше волшебных/эффективности/шанса появления свойств;
+      // #% увеличение количества редких/волшебных монстров; #% увеличение
+      // количества путевых камней). Pre-iter-128 was ~156, post-iter-128 is 110.
+      // Range reflects both OLD-form and NEW-form poe2db wordings plus BTS expansion.
+      expect(waystoneData.tokens.length).toBeGreaterThanOrEqual(100);
       expect(waystoneData.tokens.length).toBeLessThanOrEqual(200);
     });
 
-    it('waystone-desecrated has 27-40 tokens', () => {
+    it('waystone-desecrated has 25-40 tokens', () => {
       const data = loadCategoryData('waystone-desecrated.json');
-      // After adding 5 implicit tokens to desecrated
-      expect(data.tokens.length).toBeGreaterThanOrEqual(27);
+      // iter 128 (KI#13): desecrated source HTML now has BTS tokens too
+      // (#% увеличение количества редких/волшебных монстров), which are filtered
+      // out. Pre-iter-128 was 32, post-iter-128 is 28 (after BTS removal + new implicit).
+      // Also +1 new monster_rarity implicit.
+      expect(data.tokens.length).toBeGreaterThanOrEqual(25);
       expect(data.tokens.length).toBeLessThanOrEqual(40);
     });
   });

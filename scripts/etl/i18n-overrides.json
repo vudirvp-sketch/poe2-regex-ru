@@ -1,6 +1,6 @@
 {
   "_comment": "Manual Russian translations for tokens where poe2db.tw has no Russian text. Applied after ETL.",
-  "_updated": "2026-06-25",
+  "_updated": "2026-06-27",
   "overrides": {
     "amulet.genesistreeadditionalmaximumseals_breachborn": {
       "rawText": "Запечатанные умения имеют +1 к максимуму зарядов печати",
@@ -295,6 +295,18 @@
       "rawTextTemplate": "Редкость предметов: +##%",
       "regex": "едкость предметов",
       "source": "iter 126 KI#10 fix — same as waystone.implicit.item_rarity (desecrated variant)"
+    },
+    "waystone.implicit.monster_rarity": {
+      "rawText": "Редкость монстров: +##%",
+      "rawTextTemplate": "Редкость монстров: +##%",
+      "regex": "едкость монстров",
+      "source": "iter 128 KI#13 fix — NEW implicit added. Players see 'Редкость монстров: +X%' as the summed result of BTS affix stats ('На #% больше волшебных и редких монстров', '#% увеличение количества редких монстров'). Regex 'едкость монстров' (15 chars, literal space) uniquely matches 'Редкость монстров' and does NOT match 'Редкость предметов' (KI#10 disambiguation, iter 126)."
+    },
+    "waystone-desecrated.implicit.monster_rarity": {
+      "rawText": "Редкость монстров: +##%",
+      "rawTextTemplate": "Редкость монстров: +##%",
+      "regex": "едкость монстров",
+      "source": "iter 128 KI#13 fix — same as waystone.implicit.monster_rarity (desecrated variant)"
     },
     "relic.sanctummonstersreduceddamage1": {
       "rawText": "Монстры наносят уменьшенный на 6% урон",

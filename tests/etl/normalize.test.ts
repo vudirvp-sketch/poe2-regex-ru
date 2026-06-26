@@ -224,17 +224,26 @@ describe('WAYSTONE_IMPLICIT_SET_FAMILY_KEYS / TABLET_IMPLICIT_SET_FAMILY_KEYS (B
   }
 
   it('KI-2: every WAYSTONE_IMPLICIT_SET_FAMILY_KEYS entry matches source HTML (not stale)', () => {
-    const sourceFamilyKeys = loadFamilyKeysFromSourceHtml(
+    // iter 128 (KI#13): BTS keys now span BOTH normal AND desecrated source HTML.
+    // Some keys (e.g. '#% увеличение количества волшебных монстров') only appear
+    // in desecrated; others (e.g. 'На #% больше волшебных и редких монстров')
+    // only in normal. A key is "not stale" if it appears in EITHER source.
+    const normalFamilyKeys = loadFamilyKeysFromSourceHtml(
       'poe2db_tw_ru_Waystones.html',
       'ПутевыекамниMods',
     );
-    if (sourceFamilyKeys.size === 0) {
+    const desecratedFamilyKeys = loadFamilyKeysFromSourceHtml(
+      'poe2db_tw_ru_Waystones.html',
+      'DesecratedWaystoneMods',
+    );
+    if (normalFamilyKeys.size === 0 && desecratedFamilyKeys.size === 0) {
       // .etl-cache/ not present — skip
       console.warn('  [skip] .etl-cache/poe2db_tw_ru_Waystones.html not found');
       return;
     }
-    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !sourceFamilyKeys.has(normalizeKey(k)));
-    expect(missing, 'hardcoded waystone keys not found in source HTML — keys are stale').toEqual([]);
+    const combinedSourceKeys = new Set([...normalFamilyKeys, ...desecratedFamilyKeys]);
+    const missing = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => !combinedSourceKeys.has(normalizeKey(k)));
+    expect(missing, 'hardcoded waystone keys not found in source HTML (normal OR desecrated) — keys are stale').toEqual([]);
   });
 
   it('KI-2: waystone.json does NOT contain implicit-set bonus familyKeys (filter removed them)', () => {
@@ -243,20 +252,14 @@ describe('WAYSTONE_IMPLICIT_SET_FAMILY_KEYS / TABLET_IMPLICIT_SET_FAMILY_KEYS (B
     expect(present, 'waystone.json still contains implicit-set bonus tokens — filter did not run').toEqual([]);
   });
 
-  it('KI-2: waystone-desecrated source HTML has no mod-form implicit-set bonus tokens (filter is no-op)', () => {
-    // waystone-desecrated parses the same Waystones HTML but uses the
-    // DesecratedWaystoneMods tab. That tab contains only Abyss-themed mods
-    // and no implicit-set bonus tokens, so the filter is a no-op there.
-    const sourceFamilyKeys = loadFamilyKeysFromSourceHtml(
-      'poe2db_tw_ru_Waystones.html',
-      'DesecratedWaystoneMods',
-    );
-    if (sourceFamilyKeys.size === 0) {
-      console.warn('  [skip] .etl-cache/poe2db_tw_ru_Waystones.html not found');
-      return;
-    }
-    const present = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => sourceFamilyKeys.has(normalizeKey(k)));
-    expect(present, 'waystone-desecrated source HTML should not contain implicit-set bonus tokens').toEqual([]);
+  it('KI-2 (iter 128): waystone-desecrated.json does NOT contain implicit-set bonus familyKeys (filter removed them)', () => {
+    // iter 128 (KI#13): desecrated source HTML now DOES contain BTS tokens
+    // (e.g. '#% увеличение количества редких монстров', '#% увеличение количества
+    // волшебных монстров'). Filter is NO LONGER a no-op for desecrated — must
+    // verify that filter removed them from generated JSON.
+    const familyKeys = loadFamilyKeysFromJson('waystone-desecrated.json');
+    const present = WAYSTONE_IMPLICIT_SET_FAMILY_KEYS.filter(k => familyKeys.has(normalizeKey(k)));
+    expect(present, 'waystone-desecrated.json still contains implicit-set bonus tokens — filter did not run').toEqual([]);
   });
 
   it('KI-2: every TABLET_IMPLICIT_SET_FAMILY_KEYS entry matches source HTML (not stale)', () => {

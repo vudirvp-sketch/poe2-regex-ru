@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-22T11:44:46.276Z",
+  "version": "2026-06-26T17:13:50.452Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "tokens": [
@@ -36,81 +36,6 @@
       "yoficationPositions": [
         8,
         26
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_khqk4q.uaugx5",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "25% увеличение количества редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение количества редких монстров"
-      },
-      "regex": {
-        "ru": "количества редких монстров"
-      },
-      "familyKey": {
-        "ru": "#% увеличение количества редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        20,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_khqk4q.9476js",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "10% увеличение количества путевых камней, находимых в области"
-      },
-      "rawTextTemplate": {
-        "ru": "#% увеличение количества путевых камней, находимых в области"
-      },
-      "regex": {
-        "ru": "находимых в области"
-      },
-      "familyKey": {
-        "ru": "#% увеличение количества путевых камней, находимых в области"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        10
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        10,
-        20,
-        29,
-        38
       ],
       "level": 1
     },
@@ -633,80 +558,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_i1gkuy.dkzoww",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_i1gkuy.7bkmne",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_453bd0.l28urr",
       "category": "waystone",
       "origin": "normal",
@@ -741,80 +592,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         15
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_453bd0.dkzoww",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_453bd0.7bkmne",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -857,80 +634,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_9svl5o.dkzoww",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_9svl5o.7bkmne",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_phffvg.ev4djt",
       "category": "waystone",
       "origin": "normal",
@@ -965,80 +668,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         15
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_phffvg.dkzoww",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_phffvg.7bkmne",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 25% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        25
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -1435,80 +1064,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_62dygh.ohnqoy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_62dygh.u5rs9k",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_chnob5.ihp41g",
       "category": "waystone",
       "origin": "normal",
@@ -1543,80 +1098,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_chnob5.ohnqoy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_chnob5.u5rs9k",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -1659,80 +1140,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vkdkr4.ohnqoy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_vkdkr4.u5rs9k",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_k10uf8.j51fup",
       "category": "waystone",
       "origin": "normal",
@@ -1767,80 +1174,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         17
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_k10uf8.ohnqoy",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_k10uf8.u5rs9k",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 23% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        23
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -2025,80 +1358,6 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_wmq5d4.o849vg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_wmq5d4.k7gsc2",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
       "level": 1
     },
     {
@@ -2375,41 +1634,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2xv8m4.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_5j3ahj.8mhogc",
       "category": "waystone",
       "origin": "normal",
@@ -2447,41 +1671,6 @@
         49,
         61,
         63
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_5j3ahj.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -2527,41 +1716,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_2368r0.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_ux3o8n.gmxw9g",
       "category": "waystone",
       "origin": "normal",
@@ -2599,41 +1753,6 @@
         49,
         61,
         63
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_ux3o8n.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -2717,41 +1836,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_kp15r6.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_nx4wv2.d4k3tx",
       "category": "waystone",
       "origin": "normal",
@@ -2831,41 +1915,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_nx4wv2.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_2ht2hu.3pn6w5",
       "category": "waystone",
       "origin": "normal",
@@ -2941,41 +1990,6 @@
         10,
         29,
         46
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2ht2hu.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -3062,80 +2076,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_3700im.irs8zf",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_3700im.1gskvl",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_j4aki5.7fd7l6",
       "category": "waystone",
       "origin": "normal",
@@ -3174,80 +2114,6 @@
         49,
         51,
         63
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_j4aki5.irs8zf",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_j4aki5.1gskvl",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -3294,80 +2160,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_cgdb7m.irs8zf",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_cgdb7m.1gskvl",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_htl5cc.rnhkjb",
       "category": "waystone",
       "origin": "normal",
@@ -3406,80 +2198,6 @@
         49,
         51,
         63
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_htl5cc.irs8zf",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_htl5cc.1gskvl",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 19% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        19
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -3841,41 +2559,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_l7rwtj.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_omospl.wzz77g",
       "category": "waystone",
       "origin": "normal",
@@ -3913,41 +2596,6 @@
         29,
         40,
         56
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_omospl.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -3993,41 +2641,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_goqcn2.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_u6ht6b.fdx9pm",
       "category": "waystone",
       "origin": "normal",
@@ -4065,41 +2678,6 @@
         31,
         42,
         58
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_u6ht6b.x4tupj",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 13% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        13
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -4398,41 +2976,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_vgw675.4fnej8",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 16% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        16
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_vrb77a.s9xmcz",
       "category": "waystone",
       "origin": "normal",
@@ -4527,41 +3070,6 @@
       "hasYofication": true,
       "yoficationPositions": [
         29
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_2195hd.xcp5e3",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 15% больше эффективности монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regex": {
-        "ru": "эффективности монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше эффективности монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        15
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
       ],
       "level": 1
     },
@@ -5352,80 +3860,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_eebmyy.o849vg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_eebmyy.k7gsc2",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_klpqrv.3fnpnc",
       "category": "waystone",
       "origin": "normal",
@@ -5467,80 +3901,6 @@
       "level": 1
     },
     {
-      "id": "waystone.mod_klpqrv.o849vg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_klpqrv.k7gsc2",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
-      ],
-      "level": 1
-    },
-    {
       "id": "waystone.mod_ags7hd.j328n0",
       "category": "waystone",
       "origin": "normal",
@@ -5578,80 +3938,6 @@
         32,
         45,
         68
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_ags7hd.o849vg",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше волшебных и редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regex": {
-        "ru": "и редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше волшебных и редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        18,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "waystone.mod_ags7hd.k7gsc2",
-      "category": "waystone",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На 18% больше шанса появления свойств у редких монстров"
-      },
-      "rawTextTemplate": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regex": {
-        "ru": "появления свойств у редких монстров"
-      },
-      "familyKey": {
-        "ru": "На #% больше шанса появления свойств у редких монстров"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        18
-      ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12,
-        25,
-        41
       ],
       "level": 1
     },
@@ -5826,6 +4112,44 @@
       },
       "familyKey": {
         "ru": "Редкость предметов: +#%"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "implicit",
+      "tags": [],
+      "ranges": [
+        [
+          0,
+          999
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        8
+      ],
+      "level": 1
+    },
+    {
+      "id": "waystone.implicit.monster_rarity",
+      "category": "waystone",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Редкость монстров: +##%"
+      },
+      "rawTextTemplate": {
+        "ru": "Редкость монстров: +##%"
+      },
+      "familyKey": {
+        "ru": "Редкость монстров: +##%"
+      },
+      "regex": {
+        "ru": "едкость монстров"
       },
       "regexPrefix": {
         "ru": ""

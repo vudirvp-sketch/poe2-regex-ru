@@ -387,16 +387,42 @@ function inferAffix(text: string): AffixType {
  * matching the live poe2db source. OLD forms confirmed stable via
  * `curl https://poe2db.tw/ru/Waystones | grep -c "находимых в области"` (= 107).
  *
+ * iter 128 (KI#13 fixed): added 5 new BTS keys. In PoE2, waystone mods have
+ * multiple <br>-segments per row. The FIRST segment is the main effect (visible
+ * in affixes). The remaining segments are "behind the scenes" stats that get
+ * added to implicits — `Шанс выпадения путевого камня`, `Редкость предметов`,
+ * `Размер групп монстров`, `Эффективность монстров`, AND `Редкость монстров`
+ * (new implicit added in iter 128). Players see these stats already summed
+ * into the implicits, so they MUST NOT be searchable as affixes.
+ *
+ * Two wording variants exist for the same underlying stat:
+ * - "На #% больше …" (e.g., `На #% больше находимых в области путевых камней`)
+ * - "#% увеличение количества …" (e.g., `#% увеличение количества путевых камней, находимых в области`)
+ * Both must be filtered.
+ *
  * NOTE on tablet typo: poe2db source HTML has `% увеличение количества находимых
  * на карте путевых камней` (no `#` before `%`). We match the source verbatim —
  * this is NOT a typo we should "fix" in the key, because the key must equal the
  * (normalized) `familyKey.ru` of generated tokens.
  */
 export const WAYSTONE_IMPLICIT_SET_FAMILY_KEYS: string[] = [
+  // ── Шанс выпадения путевого камня (waystone_drop_chance) ──
   'На #% больше находимых в области путевых камней',
-  '#% увеличение эффективности монстров',
+  '#% увеличение количества путевых камней, находимых в области',
+  // ── Редкость предметов (item_rarity) ──
   'На #% больше редкости находимых в этой области предметов',
+  // ── Размер групп монстров (pack_size) ──
   'На #% больше размера групп монстров',
+  // ── Эффективность монстров (monster_effectiveness) — two wordings ──
+  '#% увеличение эффективности монстров',
+  'На #% больше эффективности монстров',
+  // ── Редкость монстров (monster_rarity) — NEW implicit iter 128 ──
+  'На #% больше волшебных и редких монстров',
+  '#% увеличение количества редких монстров',
+  '#% увеличение количества волшебных монстров',
+  // ── "Behind the scenes" stat without a direct implicit mapping ──
+  // (added to monster property chance; no implicit token for it)
+  'На #% больше шанса появления свойств у редких монстров',
 ];
 
 export const TABLET_IMPLICIT_SET_FAMILY_KEYS: string[] = [
@@ -453,6 +479,13 @@ const IMPLICIT_RANGE_UNRESTRICTED = [0, 999] as const;
  * These tokens have `affix: 'implicit'` and reversed regex format
  * (text BEFORE number: `"suffix.*(number)%"` instead of `"(number)%.*suffix"`).
  *
+ * iter 128 (KI#13): added `monster_rarity` implicit (`Редкость монстров: +##%`).
+ * Players see "Редкость монстров: +X%" on waystones — it's the summed result of
+ * BTS affix stats like `На #% больше волшебных и редких монстров` and
+ * `#% увеличение количества редких монстров` (filtered out from affix list).
+ * Regex `'едкость монстров'` (15 chars) uniquely matches `Редкость монстров`
+ * and does NOT match `Редкость предметов` (KI#10 disambiguation, iter 126).
+ *
  * @param category - 'waystone' or 'waystone-desecrated'
  * @param origin - 'normal' or 'desecrated'
  */
@@ -479,6 +512,21 @@ export function generateWaystoneImplicitTokens(category: string, origin: ModOrig
       origin,
       rawText: { ru: 'Редкость предметов: +##%' },
       rawTextTemplate: { ru: 'Редкость предметов: +##%' },
+      genderForms: { ru: {} },
+      affix: 'implicit',
+      tags: [],
+      ranges: [[...IMPLICIT_RANGE_UNRESTRICTED]],
+      values: [],
+      hasYofication: true,
+      yoficationPositions: [8],
+      level: 1,
+    },
+    {
+      id: `${category}.implicit.monster_rarity`,
+      category,
+      origin,
+      rawText: { ru: 'Редкость монстров: +##%' },
+      rawTextTemplate: { ru: 'Редкость монстров: +##%' },
       genderForms: { ru: {} },
       affix: 'implicit',
       tags: [],
