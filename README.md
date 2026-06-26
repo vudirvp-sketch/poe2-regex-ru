@@ -139,7 +139,7 @@ pnpm etl:fresh         # с нуля (без кеша)
 | [`docs/IN_GAME_TESTS.md`](./docs/IN_GAME_TESTS.md) | Логи тестов regex-диалекта в реальной игре |
 | [`docs/SEO_PLAN.md`](./docs/SEO_PLAN.md) | SEO-стратегия: sitemap, meta-теги, пререндеринг, верификация в поисковиках |
 | [`docs/UI_AUDIT.md`](./docs/UI_AUDIT.md) | UI-аудит v2 — исходные рекомендации для UI-рефакторинга (§10 TopNav dropdowns SUPERSEDED iter 130) |
-| [`docs/UI_REFACTOR_PLAN.md`](./docs/UI_REFACTOR_PLAN.md) | План UI-рефакторинга на 7 фаз (iter 129 + review iter 130 + user feedback iter 131: +§13 Visualization Audit, +§13.7 User Feedback 4 corrections, +Phase 2.5/4.5, Phase 5 restructured) |
+| [`docs/UI_REFACTOR_PLAN.md`](./docs/UI_REFACTOR_PLAN.md) | План UI-рефакторинга на 7 фаз (iter 129 + review iter 130 + user feedback iter 131 + **Phase 1 DONE iter 132**: +§13 Visualization Audit, +§13.7 User Feedback 4 corrections, +Phase 2.5/4.5, Phase 5 restructured). Phase 1 готова — 5 полей `FilterState` + 13 actions + URL sync. |
 | [`docs/UI_VISUALIZATION_AUDIT.md`](./docs/UI_VISUALIZATION_AUDIT.md) | Эталон визуализации UI (iter 130 + iter 131 §8 corrections) — layout, element inventory, color coding |
 
 ---

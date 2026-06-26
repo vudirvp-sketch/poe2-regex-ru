@@ -51,6 +51,38 @@ export interface FilterState {
    *  When set, takes priority over global minValue/maxValue for that token.
    *  Stored in extraState for URL sync. */
   perTokenRanges: Record<string, TokenRangeOverride>;
+
+  // ─── Phase 1 fields (iter 132, UI Refactor) ─────────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 1 for full spec.
+
+  /** Top-level group keys currently COLLAPSED.
+   *  Format: `${categoryId}:${affix}` (e.g. `waystone:prefix`).
+   *  Default empty = ALL top-level groups EXPANDED (per iter 131 §13.7 correction #4).
+   *  In set = collapsed. Out of set = expanded. */
+  collapsedGroups: Set<string>;
+
+  /** Sub-group keys currently EXPANDED.
+   *  Format: `${categoryId}:${affix}:${subBlockKey}` (e.g. `waystone:prefix:positive-loot`).
+   *  Default empty = ALL sub-groups COLLAPSED (per iter 131 §13.7 correction #4).
+   *  In set = expanded. Out of set = collapsed.
+   *  Asymmetric default: top-level groups default EXPANDED while sub-groups default
+   *  COLLAPSED — gives a cleaner first screen per user feedback. */
+  expandedSubGroups: Set<string>;
+
+  /** When true, hide non-selected chips in the mod list.
+   *  Pinned/excluded tokens stay visible. Default false. */
+  showSelectedOnly: boolean;
+
+  /** Favorited token IDs (Phase 5 favorites feature).
+   *  Rendered in the LEFT panel BELOW search, ABOVE filters (per iter 131 §13.7
+   *  correction #1 — final order Search → Favorites → Filters). Default empty. */
+  pinnedIds: Set<string>;
+
+  /** Sub-group keys whose chips are fully expanded (Phase 2.5 «+N ещё» feature).
+   *  Format: `${categoryId}:${affix}:${subBlockKey}`. When NOT in the set,
+   *  chips are truncated to CHIP_PREVIEW_COUNT (default 3) with a «+N ещё» button.
+   *  When IN the set, all chips render. Default empty = all sub-groups truncated. */
+  chipExpandState: Set<string>;
 }
 
 /** Actions for the filter store */
@@ -87,6 +119,50 @@ export interface FilterActions {
   serialize: () => Record<string, unknown>;
   /** Restore state from a serialized object */
   deserialize: (data: Record<string, unknown>) => void;
+
+  // ─── Phase 1 actions (iter 132, UI Refactor) ───────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 1 for full spec.
+
+  /** Toggle a top-level group's collapsed state.
+   *  Key format: `${categoryId}:${affix}`. */
+  toggleGroupCollapsed: (key: string) => void;
+  /** Set a top-level group's collapsed state explicitly. */
+  setGroupCollapsed: (key: string, collapsed: boolean) => void;
+  /** Expand ALL top-level groups (empty `collapsedGroups`).
+   *  Default state — top-level groups default EXPANDED per iter 131 §13.7 correction #4. */
+  expandAllGroups: () => void;
+  /** Collapse ALL top-level groups by populating `collapsedGroups` with all keys.
+   *  Caller must pass the full list of known top-level keys. */
+  collapseAllGroups: (keys: string[]) => void;
+
+  /** Toggle a sub-group's expanded state.
+   *  Key format: `${categoryId}:${affix}:${subBlockKey}`.
+   *  Sub-groups default COLLAPSED (out of set); toggling adds to `expandedSubGroups`. */
+  toggleSubGroupExpanded: (key: string) => void;
+  /** Set a sub-group's expanded state explicitly. */
+  setSubGroupExpanded: (key: string, expanded: boolean) => void;
+  /** Expand ALL sub-groups by populating `expandedSubGroups` with all keys. */
+  expandAllSubGroups: (keys: string[]) => void;
+  /** Collapse ALL sub-groups (empty `expandedSubGroups`). */
+  collapseAllSubGroups: () => void;
+
+  /** Toggle show-selected-only mode. */
+  setShowSelectedOnly: (value: boolean) => void;
+
+  /** Toggle a token's pinned (favorite) state. */
+  togglePinned: (id: string) => void;
+  /** Clear all pinned (favorite) tokens. */
+  clearPinned: () => void;
+
+  /** Toggle a sub-group's chip-expanded state (Phase 2.5 «+N ещё» feature).
+   *  Key format: `${categoryId}:${affix}:${subBlockKey}`. */
+  toggleChipExpand: (key: string) => void;
+  /** Set a sub-group's chip-expanded state explicitly. */
+  setChipExpand: (key: string, expanded: boolean) => void;
+  /** Expand ALL sub-groups' chips (populate `chipExpandState` with all keys). */
+  expandAllChips: (keys: string[]) => void;
+  /** Collapse ALL sub-groups' chips (empty `chipExpandState`). */
+  collapseAllChips: () => void;
 }
 
 export type FilterStore = FilterState & FilterActions;
@@ -105,6 +181,13 @@ export function createFilterStore() {
     priorityFilter: 'all' as PriorityFilter,
     extraState: {},
     perTokenRanges: {},
+
+    // Phase 1 fields (iter 132) — defaults per iter 131 §13.7 correction #4
+    collapsedGroups: new Set<string>(),    // empty = all top-level EXPANDED
+    expandedSubGroups: new Set<string>(),  // empty = all sub-groups COLLAPSED
+    showSelectedOnly: false,
+    pinnedIds: new Set<string>(),
+    chipExpandState: new Set<string>(),
 
     toggleToken: (id: string) =>
       set((state) => {
@@ -220,7 +303,84 @@ export function createFilterStore() {
         priorityFilter: 'all' as PriorityFilter,
         extraState: {},
         perTokenRanges: {},
+        // Phase 1 (iter 132): reset new fields to defaults too
+        collapsedGroups: new Set<string>(),
+        expandedSubGroups: new Set<string>(),
+        showSelectedOnly: false,
+        pinnedIds: new Set<string>(),
+        chipExpandState: new Set<string>(),
       }),
+
+    // ─── Phase 1 actions (iter 132) ─────────────────────────────────────────
+    toggleGroupCollapsed: (key: string) =>
+      set((state) => {
+        const newSet = new Set(state.collapsedGroups);
+        if (newSet.has(key)) newSet.delete(key);
+        else newSet.add(key);
+        return { collapsedGroups: newSet };
+      }),
+    setGroupCollapsed: (key: string, collapsed: boolean) =>
+      set((state) => {
+        const newSet = new Set(state.collapsedGroups);
+        if (collapsed) newSet.add(key);
+        else newSet.delete(key);
+        return { collapsedGroups: newSet };
+      }),
+    expandAllGroups: () =>
+      set({ collapsedGroups: new Set<string>() }),
+    collapseAllGroups: (keys: string[]) =>
+      set({ collapsedGroups: new Set<string>(keys) }),
+
+    toggleSubGroupExpanded: (key: string) =>
+      set((state) => {
+        const newSet = new Set(state.expandedSubGroups);
+        if (newSet.has(key)) newSet.delete(key);
+        else newSet.add(key);
+        return { expandedSubGroups: newSet };
+      }),
+    setSubGroupExpanded: (key: string, expanded: boolean) =>
+      set((state) => {
+        const newSet = new Set(state.expandedSubGroups);
+        if (expanded) newSet.add(key);
+        else newSet.delete(key);
+        return { expandedSubGroups: newSet };
+      }),
+    expandAllSubGroups: (keys: string[]) =>
+      set({ expandedSubGroups: new Set<string>(keys) }),
+    collapseAllSubGroups: () =>
+      set({ expandedSubGroups: new Set<string>() }),
+
+    setShowSelectedOnly: (value: boolean) =>
+      set({ showSelectedOnly: value }),
+
+    togglePinned: (id: string) =>
+      set((state) => {
+        const newSet = new Set(state.pinnedIds);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        return { pinnedIds: newSet };
+      }),
+    clearPinned: () =>
+      set({ pinnedIds: new Set<string>() }),
+
+    toggleChipExpand: (key: string) =>
+      set((state) => {
+        const newSet = new Set(state.chipExpandState);
+        if (newSet.has(key)) newSet.delete(key);
+        else newSet.add(key);
+        return { chipExpandState: newSet };
+      }),
+    setChipExpand: (key: string, expanded: boolean) =>
+      set((state) => {
+        const newSet = new Set(state.chipExpandState);
+        if (expanded) newSet.add(key);
+        else newSet.delete(key);
+        return { chipExpandState: newSet };
+      }),
+    expandAllChips: (keys: string[]) =>
+      set({ chipExpandState: new Set<string>(keys) }),
+    collapseAllChips: () =>
+      set({ chipExpandState: new Set<string>() }),
 
     serialize: () => {
       const state = get();
@@ -257,6 +417,22 @@ export function createFilterStore() {
             }
             return base;
           });
+      }
+      // Phase 1 fields (iter 132) — omit keys when empty/default for URL compactness
+      if (state.collapsedGroups.size > 0) {
+        result.c = Array.from(state.collapsedGroups);
+      }
+      if (state.expandedSubGroups.size > 0) {
+        result.es = Array.from(state.expandedSubGroups);
+      }
+      if (state.showSelectedOnly) {
+        result.so = 1;
+      }
+      if (state.pinnedIds.size > 0) {
+        result.pn = Array.from(state.pinnedIds);
+      }
+      if (state.chipExpandState.size > 0) {
+        result.ce = Array.from(state.chipExpandState);
       }
       return result;
     },
@@ -303,6 +479,20 @@ export function createFilterStore() {
           }
         }
       }
+      // Phase 1 fields (iter 132) — backward-compat: missing keys → defaults
+      const collapsedGroups = new Set<string>(
+        Array.isArray(data.c) ? (data.c as string[]).filter((k): k is string => typeof k === 'string') : []
+      );
+      const expandedSubGroups = new Set<string>(
+        Array.isArray(data.es) ? (data.es as string[]).filter((k): k is string => typeof k === 'string') : []
+      );
+      const showSelectedOnly = data.so === 1 || data.so === true;
+      const pinnedIds = new Set<string>(
+        Array.isArray(data.pn) ? (data.pn as string[]).filter((k): k is string => typeof k === 'string') : []
+      );
+      const chipExpandState = new Set<string>(
+        Array.isArray(data.ce) ? (data.ce as string[]).filter((k): k is string => typeof k === 'string') : []
+      );
       set({
         selectedIds,
         excludedIds,
@@ -312,6 +502,11 @@ export function createFilterStore() {
         priorityFilter: (data.p as PriorityFilter) || 'all',
         extraState: (data.x as Record<string, unknown>) || {},
         perTokenRanges,
+        collapsedGroups,
+        expandedSubGroups,
+        showSelectedOnly,
+        pinnedIds,
+        chipExpandState,
       });
     },
   }));

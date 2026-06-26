@@ -10,9 +10,9 @@
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Plan reviewed iter 130 + user feedback iter 131. No code changes yet.
-> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent
-> **Last updated:** 2026-06-27 (iter 131)
+> **Status:** Phase 1 IMPLEMENTED iter 132. Phases 2–5 + 4.5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1)
+> **Last updated:** 2026-06-27 (iter 132 — Phase 1 implementation)
 
 ---
 
@@ -736,11 +736,13 @@ Parallel (1 + 4 + 1): 3 iterations wall-clock.
 3. Read `docs/UI_AUDIT.md` for the original audit recommendations (note
    that §10 TopNav dropdowns are SUPERSEDED — see §13).
 4. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
-5. Read `AGENT_NAVIGATION.md` Pitfalls 26-40 (CSS specificity, mobile
-   media queries, palette consistency, dead-patterns cleanup).
-6. Pick a phase (recommend Phase 1 first — it unblocks everything,
-   including `chipExpandState` for Phase 2.5 AND `expandedSubGroups` for
-   the asymmetric default collapse state per §13.7 correction #4).
+5. Read `AGENT_NAVIGATION.md` Pitfalls 26-42 (CSS specificity, mobile
+   media queries, palette consistency, dead-patterns cleanup, Phase 1
+   foundation).
+6. **Phase 1 is DONE (iter 132).** Pick a phase to work on next —
+   recommend Phase 2 (consumes `collapsedGroups` + `expandedSubGroups`
+   already wired in Phase 1). Phases 2.5/3/5 also consume Phase 1 fields
+   and can be done in any order; Phase 4 + 4.5 are independent.
 7. Create a TODO list with the phase's file changes.
 8. Implement, test, document, ship.
 9. Update this document's §12 Phase Status table with a "Phase N — DONE"
@@ -755,13 +757,13 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 | Phase | Status | Iteration | Notes |
 |-------|--------|-----------|-------|
-| 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | NOT STARTED | — | iter 130: added `chipExpandState` for Phase 2.5. iter 131: added `expandedSubGroups` for asymmetric default collapse (§13.7 #4), 4→5 fields. |
-| 2 — Collapse + Sticky search | NOT STARTED | — | iter 131: default state changed to top-expanded/sub-collapsed (§13.7 #4). |
-| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2. |
-| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). |
-| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. |
-| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. |
-| 5 — Favorites in LEFT panel (Search → Favorites → Filters order; TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped. iter 131: order changed to Search→Favorites→Filters (§13.7 #1). |
+| 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | ✅ DONE | iter 132 | Implemented in `src/store/filter-store.ts`: +5 FilterState fields, +13 FilterActions (toggle/set/expandAll/collapseAll per level + setShowSelectedOnly + togglePinned/clearPinned + toggleChipExpand/expandAllChips/collapseAllChips), extended serialize (compact keys c/es/so/pn/ce, omitted when default) + deserialize (backward-compat, defensive parsing of malformed/non-array values). New test file `tests/store/filter-store.test.ts` — 46 tests across 9 describe blocks (initial state, asymmetric default, all 5 action families, round-trip, backward-compat, compact serialization, resetFilters, clearSelections scope, store isolation). vitest 1988→2034 (+46), tsc 0 errors, eslint 0 problems. No UI uses the new fields yet — pure infrastructure. |
+| 2 — Collapse + Sticky search | NOT STARTED | — | iter 131: default state changed to top-expanded/sub-collapsed (§13.7 #4). Phase 1 fields now ready to consume (`collapsedGroups` + `expandedSubGroups`). |
+| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2. Phase 1 `chipExpandState` field now ready to consume. |
+| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). Phase 1 `showSelectedOnly` field now ready to consume. |
+| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. Independent of Phase 1. |
+| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. Independent of Phase 1. |
+| 5 — Favorites in LEFT panel (Search → Favorites → Filters order; TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped. iter 131: order changed to Search→Favorites→Filters (§13.7 #1). Phase 1 `pinnedIds` field now ready to consume. |
 
 (Update this table as phases land.)
 
@@ -832,17 +834,30 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 132
+### 13.6 Recommendation for iter 133
 
-Start with **Phase 1** (foundation). The 5 state fields (`collapsedGroups`,
+**Phase 1 is DONE (iter 132).** The 5 state fields (`collapsedGroups`,
 `expandedSubGroups`, `showSelectedOnly`, `pinnedIds`, `chipExpandState`)
-are small but unlock every other phase. Without Phase 1, none of Phases
-2/2.5/3/5 can ship. Phase 4 and Phase 4.5 are independent and can land in
-any iteration — they're good "warmup" work for a new agent.
+are now in `src/store/filter-store.ts` with 13 actions + URL serialization
+(backward-compat) + 46 tests in `tests/store/filter-store.test.ts`.
 
-**Do NOT attempt Phase 5 before Phase 1** — `pinnedIds` must exist in the
-store first. **Do NOT implement TopNav dropdowns** — visualization
-supersedes that recommendation.
+**Recommended next:** Phase 2 (collapsible affix groups + sticky search).
+Phase 2 consumes `collapsedGroups` (top-level) + `expandedSubGroups`
+(sub-group) — both already wired with toggle/set/expand-all/collapse-all
+actions. Phase 2 will wire the actual UI in `ModList.tsx` +
+`VirtualizedModList.tsx` + new shared `GroupHeader.tsx` component.
+
+Phase 2.5 («+N ещё» chip expander) can immediately follow Phase 2 —
+consumes `chipExpandState` (already wired). Phase 3 (selected-only +
+basket) consumes `showSelectedOnly`. Phase 5 (favorites in left panel)
+consumes `pinnedIds`.
+
+Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения»
+legend) are INDEPENDENT of Phase 1 — can land in any iteration as
+"warmup" work for a new agent.
+
+**Do NOT implement TopNav dropdowns** — visualization supersedes that
+recommendation (iter 130 contradiction #1).
 
 ### 13.7 User Feedback iter 131 (4 corrections)
 

@@ -2,54 +2,92 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 131
-> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, reviewed iter 130 + user feedback iter 131) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
+> **Текущая итерация:** 132
+> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, Phase 1 DONE iter 132) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
 
 ---
 
 ## Текущее состояние
 
-**iter 131: incorporate user feedback (4 corrections) into UI Refactor Plan — без реализации.**
+**iter 132: UI Refactor Phase 1 implementation — foundation готов.**
 
-Пользователь дал feedback на план iter 130 (8.5/10 approval) с 4 конкретными
-корректировками. В этой итерации корректировки внедрены в план и эталон
-визуализации. Код НЕ тронут.
+Phase 1 — это infrastructure-итерация: 5 новых полей `FilterState` + 13 actions
++ URL-сериализация (backward-compat) + 46 тестов. Код UI НЕ тронут (ModList /
+FilterChip / CategoryLayout — без изменений). Цель — разблокировать Phases
+2/2.5/3/5, которые теперь могут потреблять готовые поля из store.
 
-**Сделано в iter 131:**
-1. **`docs/UI_REFACTOR_PLAN.md` обновлён** — 4 корректировки пользователя
-   (см. §13.7 NEW):
-   - **Correction #1 (Phase 5):** Left panel order **Search → Favorites →
-     Filters** (was Favorites → Search). User: «Поиск используется в разы
-     чаще». `LeftPanelFavorites.tsx` renders BELOW search, ABOVE filters.
-   - **Correction #2 (Phase 3):** 3-column layout **20%/60%/20%** (was
-     25%/50%/25%) + **collapsible right `<aside>`** for laptop screens
-     (1440×900 и ниже). New §7 Q#8 for collapse behavior.
-   - **Correction #3 (Phase 3):** Basket chip cap **20** (was 12). User:
-     «У вас легко собираются regex на 15–30 модов».
-   - **Correction #4 (Phase 1 + Phase 2):** Default collapse state =
-     **top-level EXPANDED, sub-groups COLLAPSED** (was ALL EXPANDED).
-     Phase 1 split `collapsedGroups` into TWO sets — `collapsedGroups`
-     (top-level, default empty = expanded) + `expandedSubGroups` (sub-groups,
-     default empty = collapsed). Field count 4→5. §7 Q#1 RESOLVED.
-   - Header, §1 Executive Summary, §5 Dependencies, §6 Risk Register, §7 Qs,
-     §8 Test Strategy, §10 Estimate, §11 How to Start, §12 Phase Status,
-     §13.3 contradiction #2, §13.6 (рекомендация → iter 132) — все
-     актуализированы.
-2. **`docs/UI_VISUALIZATION_AUDIT.md` обновлён** — NEW §8 «User Feedback
-   iter 131 (4 corrections)» с таблицей + user quotes; §1 layout diagram
-   обновлён (20%/60%/20% proportions, ▼ top-level / ▶ sub-groups, chevron
-   collapse на right panel, left panel order Search→Favorites→Filters);
-   §2 Left/Right panel inventory актуализирован; §5 conflicts table
-   updated; §7 Next Steps → iter 132+.
-3. **Документация актуализирована:** STATUS.md (этот файл), worklog.md,
-   AGENT_NAVIGATION.md, README.md. Код НЕ тронут.
+**Сделано в iter 132:**
 
-### Проверки (iter 131)
+1. **`src/store/filter-store.ts` расширено** — добавлено 5 новых полей в
+   `FilterState` (без удаления/изменения существующих полей):
+   - `collapsedGroups: Set<string>` — top-level group keys currently COLLAPSED.
+     Формат: `${categoryId}:${affix}` (e.g. `waystone:prefix`). Default empty
+     = all top-level groups EXPANDED (per iter 131 §13.7 correction #4).
+   - `expandedSubGroups: Set<string>` — sub-group keys currently EXPANDED.
+     Формат: `${categoryId}:${affix}:${subBlockKey}`. Default empty = all
+     sub-groups COLLAPSED (asymmetric default per §13.7 #4 — «Это даст
+     намного более чистый первый экран»).
+   - `showSelectedOnly: boolean` — hide non-selected chips. Default false.
+   - `pinnedIds: Set<string>` — favorited token IDs (Phase 5 favorites).
+   - `chipExpandState: Set<string>` — sub-group keys with chips fully
+     expanded (Phase 2.5 «+N ещё»). Default empty = all sub-groups show
+     truncated preview.
 
-- **vitest:** 1988/1988 tests passed (41 test files). Без изменений vs iter 130.
+2. **`FilterActions` расширено 13 новыми action'ами:**
+   - Top-level collapse: `toggleGroupCollapsed`, `setGroupCollapsed`,
+     `expandAllGroups`, `collapseAllGroups(keys)`.
+   - Sub-group expand: `toggleSubGroupExpanded`, `setSubGroupExpanded`,
+     `expandAllSubGroups(keys)`, `collapseAllSubGroups`.
+   - Show-selected-only: `setShowSelectedOnly(value)`.
+   - Favorites: `togglePinned(id)`, `clearPinned`.
+   - Chip expand (Phase 2.5): `toggleChipExpand(key)`, `setChipExpand(key, expanded)`,
+     `expandAllChips(keys)`, `collapseAllChips`.
+
+3. **URL-сериализация расширена (backward-compat):**
+   - `serialize()` — добавлены 5 compact keys: `c` (collapsedGroups array),
+     `es` (expandedSubGroups array), `so` (showSelectedOnly flag = 1),
+     `pn` (pinnedIds array), `ce` (chipExpandState array). Каждый key
+     OMITTED когда поле в default-состоянии — URL остаётся компактным.
+   - `deserialize()` — backward-compat: отсутствующие keys → defaults
+     (старые URLs из iter 0-131 работают без изменений). Defensive parsing:
+     malformed/non-array values → empty set (no crash); non-string entries
+     в array отфильтрованы; `so` принимает и `1` (compact), и `true`
+     (verbose) — оба дают `showSelectedOnly=true`.
+   - `resetFilters()` теперь сбрасывает и 5 новых полей к defaults.
+   - `clearSelections()` НЕ трогает новые поля — это разные scope'ы
+     (selections = transient, collapse/pinned/chipExpand = user prefs).
+
+4. **`tests/store/filter-store.test.ts` (NEW, 46 тестов)** — 9 describe blocks:
+   - Initial state (5 полей с correct defaults + smoke test на existing fields).
+   - Asymmetric default state (iter 131 §13.7 #4): top EXPANDED + sub COLLAPSED.
+   - Actions для каждого из 5 полей (toggle/set/expand-all/collapse-all,
+     immutability checks).
+   - Serialize → Deserialize round-trip для каждого поля individually + all 5
+     вместе с existing fields.
+   - Backward-compat: URL только со old keys → defaults (no crash), empty
+     object → defaults, malformed values → defaults (defensive), non-string
+     entries filtered, `so` accepts both `1` and `true`.
+   - Compact serialization: 5 отдельных тестов что каждый key omitted когда
+     default + 1 тест что default state = minimal object (no Phase 1 keys).
+   - `resetFilters()` resets 5 new fields.
+   - `clearSelections()` preserves Phase 1 fields (different scope).
+   - Store isolation: two stores не делят Phase 1 state, deserializing one
+     не влияет на другой.
+
+5. **`docs/UI_REFACTOR_PLAN.md` обновлено** — header status, §11 How to Start,
+   §12 Phase Status (Phase 1 → ✅ DONE iter 132), §13.6 Recommendation → iter 133.
+
+6. **Документация актуализирована:** STATUS.md (этот файл), worklog.md,
+   AGENT_NAVIGATION.md (header summary + Pitfall 42), README.md.
+
+### Проверки (iter 132)
+
+- **vitest:** 2034/2034 tests passed (42 test files). Was 1988 in iter 131 →
+  **+46 new tests** (all in `tests/store/filter-store.test.ts`).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **Код не изменён** — только doc-файлы.
+- **UI код НЕ изменён** — только `src/store/filter-store.ts` (extended, no
+  breaking changes) + 1 new test file.
 
 ---
 
@@ -96,31 +134,39 @@
 
 ---
 
-## Next iteration (iter 132)
+## Next iteration (iter 133)
 
-Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end включая §13
-(iter 130 visualization audit) AND §13.7 (iter 131 user feedback corrections).
-Затем `docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target (note
-§8 iter 131 corrections).
+Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end, особенно
+§12 (Phase Status — Phase 1 ✅ DONE), §13 (iter 130 visualization audit)
+AND §13.7 (iter 131 user feedback corrections). Затем
+`docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target (note §8
+iter 131 corrections).
 
-**Рекомендованный старт:** Phase 1 (foundation: `FilterState` extension
-с 5 полями — `collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
-`pinnedIds`, `chipExpandState` + URL sync backward-compat).
+**Рекомендованный старт:** Phase 2 (collapsible affix groups + sticky
+search). Phase 2 потребляет `collapsedGroups` (top-level) +
+`expandedSubGroups` (sub-group) — оба поля уже в store с toggle/set/
+expand-all/collapse-all actions. Phase 2 wires UI в `ModList.tsx` +
+`VirtualizedModList.tsx` + новый shared `GroupHeader.tsx`.
 
-Phase 4 и Phase 4.5 — независимы, можно делать в любой итерации как
-«warmup» работу для нового агента.
-
-**Главные ограничения для iter 132:**
+**Главные ограничения для iter 133:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
-- Phase 5 не стартовать до Phase 1 — `pinnedIds` должны существовать в store.
-- Phase 2.5 зависит от Phase 2 — sub-group collapse должен существовать до
-  per-sub-group chip truncation.
-- Phase 1 теперь 5 полей (was 4) — `expandedSubGroups` добавлено для
-  asymmetric default collapse state (§13.7 #4).
+- Phase 2.5 зависит от Phase 2 — sub-group collapse должен существовать
+  в UI до per-sub-group chip truncation. Но `chipExpandState` поле уже
+  готово в store — Phase 2.5 не нуждается в дополнительной
+  infrastructure-итерации.
 - Phase 3: basket cap = 20 (was 12), 3-column 20%/60%/20% + collapsible
-  right panel (§13.7 #2, #3).
+  right panel (§13.7 #2, #3). `showSelectedOnly` поле уже готово.
 - Phase 5: left panel order Search → Favorites → Filters (§13.7 #1).
+  `pinnedIds` поле уже готово.
+- Phase 4 и Phase 4.5 — независимы от Phase 1, можно делать в любой
+  итерации как «warmup» работу.
+
+**Подсказка:** для Phase 2 — read `AGENT_NAVIGATION.md` Pitfall 42
+(Phase 1 foundation) для понимания, какие actions доступны в store.
+Затем смотри `ModList.tsx` / `VirtualizedModList.tsx` чтобы понять,
+где рендерятся `AffixColumn` (top-level) и `ModSubGroupSection`
+(sub-group) headers — туда добавится chevron + collapse logic.
 
 KI#9 — monitoring, не фиксировано. Если найден новый баг — сначала
 документируй в этом файле как Known Issue, потом фиксий.
