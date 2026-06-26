@@ -157,6 +157,20 @@ const translations: Record<Locale, Record<string, string>> = {
     'group.collapse_all': 'Свернуть все',
     'group.collapse_btn_label': 'Свернуть группу',
     'group.expand_btn_label': 'Развернуть группу',
+
+    // Phase 2.5 (iter 134): per-sub-group chip expander «+N ещё» / «свернуть».
+    // {n} = number of chips hidden beyond the preview window (always ≥ 1).
+    'chip.more': '+{n} ещё',
+    // ARIA label for the «+N ещё» button — explicitly states the action verb
+    // (Развернуть) + count + noun so screen reader users hear intent, not just
+    // a bare «+10 ещё».
+    'chip.more_aria': 'Развернуть оставшиеся {n} аффиксов',
+    // Visible label for the «свернуть» button (shown when sub-group is expanded
+    // via chipExpandState). Mirrors Phase 2 group.collapse_btn_label wording
+    // but at chip-section granularity.
+    'chip.collapse': 'свернуть',
+    // ARIA label for the «свернуть» button — mirrors chip.more_aria pattern.
+    'chip.collapse_aria': 'Свернуть оставшиеся аффиксы',
   },
 };
 

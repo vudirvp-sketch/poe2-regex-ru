@@ -30,6 +30,7 @@ import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
+import { CHIP_PREVIEW_COUNT } from '@shared/constants';
 import type { TokenRangeOverride } from '@store/filter-store';
 
 interface VirtualizedModListProps {
@@ -90,6 +91,18 @@ interface VirtualizedModListProps {
   onExpandAllSubGroups?: (keys: string[]) => void;
   /** Collapse all sub-groups. */
   onCollapseAllSubGroups?: () => void;
+
+  // ─── Phase 2.5 (iter 134): per-sub-group «+N ещё» chip expander ────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2.5 for full spec.
+  // Same backward-compat pattern as Phase 2 — when absent, all chips render
+  // unconditionally inside an expanded sub-group (pre-Phase-2.5 behaviour).
+
+  /** Sub-group keys whose chips are fully expanded (Phase 2.5). */
+  chipExpandState?: Set<string>;
+  /** Toggle a sub-group's chip-expanded state. */
+  onToggleChipExpand?: (key: string) => void;
+  /** Phase 5 favorites — pinned token IDs (forward-compatible). */
+  pinnedIds?: Set<string>;
 }
 
 /** A flat virtual row for the virtualizer.
@@ -303,6 +316,9 @@ function buildColumnRows(
  * enable chevron clicks on column-header + subgroup-header rows. When the
  * callbacks are absent (legacy callers), headers render as static text —
  * preserving the pre-Phase-2 behaviour.
+ * iter 134 (Phase 2.5): `onToggleChipExpand` + `chipExpandState` + `pinnedIds`
+ * enable «+N ещё» truncation on `subgroup` rows. Same logic as
+ * `ModSubGroupSection` in ModList.tsx — see that component for full comments.
  */
 const VirtualRowContent: React.FC<{
   row: VirtualRow;
@@ -320,7 +336,13 @@ const VirtualRowContent: React.FC<{
   onToggleGroupCollapsed?: (key: string) => void;
   /** iter 133 (Phase 2): toggle a sub-group's expand state. */
   onToggleSubGroupExpanded?: (key: string) => void;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded }) => {
+  /** iter 134 (Phase 2.5): toggle a sub-group's chip-expanded state. */
+  onToggleChipExpand?: (key: string) => void;
+  /** iter 134 (Phase 2.5): set of sub-group keys whose chips are FULLY expanded. */
+  chipExpandState?: Set<string>;
+  /** iter 134 (Phase 2.5): pinned token IDs — pinned chips always visible. */
+  pinnedIds?: Set<string>;
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, onToggleChipExpand, chipExpandState, pinnedIds }) => {
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     const headerClass = isImplicit
@@ -398,8 +420,47 @@ const VirtualRowContent: React.FC<{
     return null;
   }
 
-  // subgroup (expanded) — render header (with collapse toggle when wired) + chips
+  // subgroup (expanded) — render header (with collapse toggle when wired) + chips.
+  // iter 134 (Phase 2.5): apply per-sub-group chip truncation when wiring present.
   const collapseWired = !!(row.subKey && onToggleSubGroupExpanded);
+  const chipExpandWired = !!(row.subKey && chipExpandState && onToggleChipExpand);
+  const isChipExpanded = !chipExpandWired || chipExpandState!.has(row.subKey!);
+
+  // Determine which chips are "important" — selected, excluded, or pinned
+  // members must remain visible even when the sub-group is truncated.
+  const isChipImportant = (group: FamilyGroup): boolean => {
+    for (const m of group.members) {
+      if (selectedIds.has(m.id)) return true;
+      if (excludedIds?.has(m.id)) return true;
+      if (pinnedIds?.has(m.id)) return true;
+    }
+    return false;
+  };
+
+  // Compute visible chips + whether the «+N ещё» / «свернуть» button renders.
+  // Mirrors ModSubGroupSection logic in ModList.tsx — kept in sync deliberately
+  // so both rendering paths (virtualized vs non-virtualized) behave identically.
+  let visibleChips: FamilyGroup[] = row.subGroup.groups;
+  let hiddenCount = 0;
+  let showMoreButton = false;
+  let showCollapseButton = false;
+
+  if (chipExpandWired) {
+    if (isChipExpanded) {
+      visibleChips = row.subGroup.groups;
+      if (row.subGroup.groups.length > CHIP_PREVIEW_COUNT) {
+        showCollapseButton = true;
+      }
+    } else if (row.subGroup.groups.length > CHIP_PREVIEW_COUNT) {
+      const preview = row.subGroup.groups.slice(0, CHIP_PREVIEW_COUNT);
+      const tail = row.subGroup.groups.slice(CHIP_PREVIEW_COUNT);
+      const importantTail = tail.filter(isChipImportant);
+      visibleChips = [...preview, ...importantTail];
+      hiddenCount = row.subGroup.groups.length - visibleChips.length;
+      showMoreButton = hiddenCount > 0;
+    }
+  }
+
   return (
     <div className="mb-2">
       {row.subGroup.label && (
@@ -419,7 +480,7 @@ const VirtualRowContent: React.FC<{
         )
       )}
       <div className="flex flex-wrap gap-2">
-        {row.subGroup.groups.map((group) => (
+        {visibleChips.map((group) => (
           <FilterChip
             key={group.familyKey}
             group={group}
@@ -434,6 +495,28 @@ const VirtualRowContent: React.FC<{
             sortMode={sortMode}
           />
         ))}
+        {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button — same styling
+            as in ModList.tsx (kept in sync). */}
+        {showMoreButton && (
+          <button
+            type="button"
+            onClick={() => onToggleChipExpand!(row.subKey!)}
+            aria-label={t('chip.more_aria').replace('{n}', String(hiddenCount))}
+            className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
+          >
+            {t('chip.more').replace('{n}', String(hiddenCount))}
+          </button>
+        )}
+        {showCollapseButton && (
+          <button
+            type="button"
+            onClick={() => onToggleChipExpand!(row.subKey!)}
+            aria-label={t('chip.collapse_aria')}
+            className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
+          >
+            {t('chip.collapse')}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -461,6 +544,12 @@ interface VirtualizedColumnProps {
   onToggleGroupCollapsed?: (key: string) => void;
   /** iter 133 (Phase 2): toggle a sub-group's expand state. */
   onToggleSubGroupExpanded?: (key: string) => void;
+  /** iter 134 (Phase 2.5): toggle a sub-group's chip-expanded state. */
+  onToggleChipExpand?: (key: string) => void;
+  /** iter 134 (Phase 2.5): set of sub-group keys whose chips are FULLY expanded. */
+  chipExpandState?: Set<string>;
+  /** iter 134 (Phase 2.5): pinned token IDs — pinned chips always visible. */
+  pinnedIds?: Set<string>;
 }
 
 /** A single virtualized column (prefix or suffix) */
@@ -479,6 +568,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   sortMode,
   onToggleGroupCollapsed,
   onToggleSubGroupExpanded,
+  onToggleChipExpand,
+  chipExpandState,
+  pinnedIds,
 }) => {
   // TanStack Virtual's useVirtualizer returns non-memoizable functions
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
@@ -556,6 +648,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
                 sortMode={sortMode}
                 onToggleGroupCollapsed={onToggleGroupCollapsed}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                onToggleChipExpand={onToggleChipExpand}
+                chipExpandState={chipExpandState}
+                pinnedIds={pinnedIds}
               />
             </div>
           );
@@ -601,6 +696,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   onCollapseAllGroups,
   onExpandAllSubGroups,
   onCollapseAllSubGroups,
+  // Phase 2.5 (iter 134): per-sub-group chip expand state
+  chipExpandState,
+  onToggleChipExpand,
+  pinnedIds,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -777,6 +876,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     // iter 133 (Phase 2): forwarded to VirtualRowContent for chevron clicks.
     onToggleGroupCollapsed,
     onToggleSubGroupExpanded,
+    // iter 134 (Phase 2.5): forwarded to VirtualRowContent for chip truncation.
+    onToggleChipExpand,
+    chipExpandState,
+    pinnedIds,
   };
 
   return (
@@ -946,6 +1049,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                   sortMode={sortMode}
                   onToggleGroupCollapsed={onToggleGroupCollapsed}
                   onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                  onToggleChipExpand={onToggleChipExpand}
+                  chipExpandState={chipExpandState}
+                  pinnedIds={pinnedIds}
                 />
               </div>
             );

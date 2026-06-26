@@ -1,0 +1,3 @@
+DELETED in iter 126 (cleanup): DELETIONS-iter124.txt
+This stale file was kept by iter 124/125 but never cleaned up.
+Delete DELETIONS-iter124.txt from your local checkout.

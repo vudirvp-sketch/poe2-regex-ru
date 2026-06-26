@@ -295,3 +295,93 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
     expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
   });
 });
+
+// ─── Phase 2.5 (iter 134): per-sub-group «+N ещё» chip expander ─────────────
+//
+// Note: VirtualizedModList uses TanStack Virtual which renders 0 rows in jsdom
+// (no scroll container dimensions). These tests verify the component MOUNTS
+// without crash when chip-expand wiring is provided/absent, and that the
+// sticky-search row renders. Full chip-truncation behaviour is verified via
+// the ModList tests (non-virtualized variant which DOES render rows).
+
+describe('VirtualizedModList — Phase 2.5 chip-expand wiring (iter 134)', () => {
+  it('mounts without crash when chip-expand wiring is provided', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={vi.fn()}
+      />
+    );
+    // Sticky search row present (component mounted successfully).
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+  });
+
+  it('mounts without crash when chip-expand wiring is absent (legacy backward compat)', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        // Phase 2.5 wiring absent — legacy pre-Phase-2.5 behaviour.
+      />
+    );
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+  });
+
+  it('accepts pinnedIds prop (forward-compatible with Phase 5 favorites)', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={vi.fn()}
+        pinnedIds={new Set<string>(['p1'])}
+      />
+    );
+    // Component mounts without crash even with pinnedIds (Phase 5 forward-compat).
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+  });
+});

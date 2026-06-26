@@ -42,6 +42,7 @@ export function RelicPage() {
     toggleGroupCollapsed, toggleSubGroupExpanded,
     expandAllGroups, collapseAllGroups,
     expandAllSubGroups, collapseAllSubGroups,
+    chipExpandState, toggleChipExpand,
   } = useCategoryPage({ categoryId: 'relic' });
 
   return (
@@ -145,6 +146,8 @@ export function RelicPage() {
               onCollapseAllGroups={collapseAllGroups}
               onExpandAllSubGroups={expandAllSubGroups}
               onCollapseAllSubGroups={collapseAllSubGroups}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={toggleChipExpand}
             />
           </CategoryLayout>
         );

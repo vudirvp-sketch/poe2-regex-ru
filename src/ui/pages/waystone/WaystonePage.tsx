@@ -77,6 +77,7 @@ export function WaystonePage() {
     toggleGroupCollapsed, toggleSubGroupExpanded,
     expandAllGroups, collapseAllGroups,
     expandAllSubGroups, collapseAllSubGroups,
+    chipExpandState, toggleChipExpand,
   } = useCategoryPage({
     categoryId: 'waystone',
     extraAstNodes,
@@ -239,6 +240,8 @@ export function WaystonePage() {
               onCollapseAllGroups={collapseAllGroups}
               onExpandAllSubGroups={expandAllSubGroups}
               onCollapseAllSubGroups={collapseAllSubGroups}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={toggleChipExpand}
             />
           </CategoryLayout>
         );

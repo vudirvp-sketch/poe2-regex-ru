@@ -20,6 +20,7 @@ import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
+import { CHIP_PREVIEW_COUNT } from '@shared/constants';
 import type { TokenRangeOverride } from '@store/filter-store';
 
 interface ModListProps {
@@ -94,6 +95,24 @@ interface ModListProps {
   onExpandAllSubGroups?: (keys: string[]) => void;
   /** Collapse all sub-groups — wired to the "Collapse all" button (sub-level). */
   onCollapseAllSubGroups?: () => void;
+
+  // ─── Phase 2.5 (iter 134): per-sub-group «+N ещё» chip expander ────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2.5 for full spec.
+  // When `chipExpandState` / `onToggleChipExpand` are NOT provided (e.g. tests,
+  // legacy callers), all chips render unconditionally inside an expanded
+  // sub-group (pre-Phase-2.5 behaviour). Backward-compatible.
+
+  /** Sub-group keys whose chips are fully expanded (Phase 2.5).
+   *  Format: `${categoryId}:${affix}:${subBlockKey}`. Default empty = all
+   *  sub-groups truncated to `CHIP_PREVIEW_COUNT` chips + «+N ещё» button. */
+  chipExpandState?: Set<string>;
+  /** Toggle a sub-group's chip-expanded state. Key format:
+   *  `${categoryId}:${affix}:${subBlockKey}`. */
+  onToggleChipExpand?: (key: string) => void;
+  /** Phase 5 favorites — pinned token IDs. Pinned chips ALWAYS visible even
+   *  when truncated (forward-compatible; not yet wired by `useCategoryPage`
+   *  until Phase 5 lands). */
+  pinnedIds?: Set<string>;
 }
 
 /** Origin section within an affix column */
@@ -167,7 +186,13 @@ function splitByOriginThenSemantic(
  *  iter 133 (Phase 2): when `subGroupKey` + `onToggleSubGroupExpanded` +
  *  `expandedSubGroups` are provided, the header becomes a clickable GroupHeader
  *  with chevron. When the sub-group is COLLAPSED (not in `expandedSubGroups`),
- *  chips are NOT rendered — only the header. Asymmetric default per iter 131 §13.7 #4. */
+ *  chips are NOT rendered — only the header. Asymmetric default per iter 131 §13.7 #4.
+ *  iter 134 (Phase 2.5): when `subGroupKey` + `chipExpandState` +
+ *  `onToggleChipExpand` are provided AND the sub-group is expanded, chips are
+ *  sliced to `CHIP_PREVIEW_COUNT` (plus any important chips past the preview
+ *  window — selected/excluded/pinned members) + «+N ещё» button. When the key
+ *  IS in `chipExpandState`, all chips render + «свернуть» button. When wiring
+ *  is absent (legacy callers), all chips render unconditionally (pre-Phase-2.5). */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
@@ -189,7 +214,16 @@ const ModSubGroupSection: React.FC<{
   expandedSubGroups?: Set<string>;
   /** iter 133 (Phase 2): toggle the sub-group's expanded state. */
   onToggleSubGroupExpanded?: (key: string) => void;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded }) => {
+  /** iter 134 (Phase 2.5): set of sub-group keys whose chips are FULLY expanded
+   *  (overrides default `CHIP_PREVIEW_COUNT` truncation). */
+  chipExpandState?: Set<string>;
+  /** iter 134 (Phase 2.5): toggle the sub-group's chip-expanded state. */
+  onToggleChipExpand?: (key: string) => void;
+  /** iter 134 (Phase 2.5): pinned token IDs — pinned chips ALWAYS visible even
+   *  when truncated. Forward-compatible with Phase 5 favorites (store field
+   *  already exists; UI wiring lands in Phase 5). */
+  pinnedIds?: Set<string>;
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds }) => {
   // Phase 2 (iter 133): if collapse wiring is present, derive isCollapsed.
   // When `expandedSubGroups` is undefined (legacy callers), we treat the
   // sub-group as expanded (preserve pre-Phase-2 behaviour).
@@ -197,6 +231,54 @@ const ModSubGroupSection: React.FC<{
   const isExpanded = !collapseWired || expandedSubGroups!.has(subGroupKey!);
   const showHeader = subGroup.label && !hideLabel;
   const showChips = isExpanded || !showHeader;
+
+  // Phase 2.5 (iter 134): per-sub-group chip truncation logic.
+  // Only applies when (a) chips are visible (sub-group expanded or no header)
+  // AND (b) chip-expand wiring is provided. Legacy callers skip truncation.
+  const chipExpandWired = !!(subGroupKey && chipExpandState && onToggleChipExpand);
+  const isChipExpanded = !chipExpandWired || chipExpandState!.has(subGroupKey!);
+
+  // Determine which chips are "important" — selected, excluded, or pinned
+  // members must remain visible even when the sub-group is truncated, so the
+  // user never loses their current selection/favorites in the truncation.
+  const isChipImportant = useCallback((group: FamilyGroup): boolean => {
+    for (const m of group.members) {
+      if (selectedIds.has(m.id)) return true;
+      if (excludedIds?.has(m.id)) return true;
+      if (pinnedIds?.has(m.id)) return true;
+    }
+    return false;
+  }, [selectedIds, excludedIds, pinnedIds]);
+
+  // Compute visible chips + whether the «+N ещё» / «свернуть» button renders.
+  let visibleChips: FamilyGroup[] = subGroup.groups;
+  let hiddenCount = 0;
+  let showMoreButton = false;
+  let showCollapseButton = false;
+
+  if (showChips && chipExpandWired) {
+    if (isChipExpanded) {
+      // Fully expanded → all chips + «свернуть» button (only if the sub-group
+      // has MORE than preview count — otherwise the button is pointless noise).
+      visibleChips = subGroup.groups;
+      if (subGroup.groups.length > CHIP_PREVIEW_COUNT) {
+        showCollapseButton = true;
+      }
+    } else if (subGroup.groups.length > CHIP_PREVIEW_COUNT) {
+      // Truncated mode: first N + important chips past N.
+      const preview = subGroup.groups.slice(0, CHIP_PREVIEW_COUNT);
+      const tail = subGroup.groups.slice(CHIP_PREVIEW_COUNT);
+      const importantTail = tail.filter(isChipImportant);
+      visibleChips = [...preview, ...importantTail];
+      hiddenCount = subGroup.groups.length - visibleChips.length;
+      // «+N ещё» renders only when there ARE hidden chips. Edge case: if all
+      // chips past preview are important, hiddenCount=0 and we don't show the
+      // button — equivalent to fully visible.
+      showMoreButton = hiddenCount > 0;
+    }
+    // else: chipExpandWired but sub-group has ≤ CHIP_PREVIEW_COUNT chips →
+    // show all, no button (matches expanded case but without «свернуть»).
+  }
 
   return (
     <div className="mb-2">
@@ -218,7 +300,7 @@ const ModSubGroupSection: React.FC<{
       )}
       {showChips && (
         <div className="flex flex-wrap gap-2">
-          {subGroup.groups.map((group) => (
+          {visibleChips.map((group) => (
             <FilterChip
               key={group.familyKey}
               group={group}
@@ -233,6 +315,30 @@ const ModSubGroupSection: React.FC<{
               sortMode={sortMode}
             />
           ))}
+          {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button.
+              Rendered as a real <button> for keyboard nav + a11y. Styled as a
+              subtle chip-like element so it visually integrates with the
+              surrounding flex-wrap row. */}
+          {showMoreButton && (
+            <button
+              type="button"
+              onClick={() => onToggleChipExpand!(subGroupKey!)}
+              aria-label={t('chip.more_aria').replace('{n}', String(hiddenCount))}
+              className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
+            >
+              {t('chip.more').replace('{n}', String(hiddenCount))}
+            </button>
+          )}
+          {showCollapseButton && (
+            <button
+              type="button"
+              onClick={() => onToggleChipExpand!(subGroupKey!)}
+              aria-label={t('chip.collapse_aria')}
+              className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
+            >
+              {t('chip.collapse')}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -265,7 +371,13 @@ const AffixColumn: React.FC<{
   onToggleGroupCollapsed?: (key: string) => void;
   /** iter 133 (Phase 2): toggle sub-group expand. */
   onToggleSubGroupExpanded?: (key: string) => void;
-}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, categoryId, collapsedGroups, expandedSubGroups, onToggleGroupCollapsed, onToggleSubGroupExpanded }) => {
+  /** iter 134 (Phase 2.5): chip-expanded set (forwarded to ModSubGroupSection). */
+  chipExpandState?: Set<string>;
+  /** iter 134 (Phase 2.5): toggle chip-expanded (forwarded to ModSubGroupSection). */
+  onToggleChipExpand?: (key: string) => void;
+  /** iter 134 (Phase 2.5): pinned token IDs (forwarded to ModSubGroupSection). */
+  pinnedIds?: Set<string>;
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, categoryId, collapsedGroups, expandedSubGroups, onToggleGroupCollapsed, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds }) => {
   const totalCount = showOriginSubSections
     ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
     : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
@@ -344,6 +456,9 @@ const AffixColumn: React.FC<{
                     subGroupKey={topLevelKey ? `${topLevelKey}:${sg.key}` : undefined}
                     expandedSubGroups={expandedSubGroups}
                     onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                    chipExpandState={chipExpandState}
+                    onToggleChipExpand={onToggleChipExpand}
+                    pinnedIds={pinnedIds}
                   />
                 ))}
               </div>
@@ -372,6 +487,9 @@ const AffixColumn: React.FC<{
                 subGroupKey={topLevelKey ? `${topLevelKey}:${sg.key}` : undefined}
                 expandedSubGroups={expandedSubGroups}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                chipExpandState={chipExpandState}
+                onToggleChipExpand={onToggleChipExpand}
+                pinnedIds={pinnedIds}
               />
             ));
           })()
@@ -414,6 +532,10 @@ export const ModList: React.FC<ModListProps> = ({
   onCollapseAllGroups,
   onExpandAllSubGroups,
   onCollapseAllSubGroups,
+  // Phase 2.5 (iter 134): per-sub-group chip expand state
+  chipExpandState,
+  onToggleChipExpand,
+  pinnedIds,
 }) => {
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -695,6 +817,9 @@ export const ModList: React.FC<ModListProps> = ({
               expandedSubGroups={expandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={onToggleChipExpand}
+              pinnedIds={pinnedIds}
             />
           )}
           {/* Also show implicit when affixFilter is 'implicit' */}
@@ -718,6 +843,9 @@ export const ModList: React.FC<ModListProps> = ({
               expandedSubGroups={expandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={onToggleChipExpand}
+              pinnedIds={pinnedIds}
             />
           )}
 
@@ -802,6 +930,9 @@ export const ModList: React.FC<ModListProps> = ({
               expandedSubGroups={expandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={onToggleChipExpand}
+              pinnedIds={pinnedIds}
             />
             <AffixColumn
               affix="suffix"
@@ -822,6 +953,9 @@ export const ModList: React.FC<ModListProps> = ({
               expandedSubGroups={expandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={onToggleChipExpand}
+              pinnedIds={pinnedIds}
             />
           </div>
         ) : (
@@ -847,6 +981,9 @@ export const ModList: React.FC<ModListProps> = ({
                 expandedSubGroups={expandedSubGroups}
                 onToggleGroupCollapsed={onToggleGroupCollapsed}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                chipExpandState={chipExpandState}
+                onToggleChipExpand={onToggleChipExpand}
+                pinnedIds={pinnedIds}
               />
             )}
             {suffixGroups.length > 0 && (
@@ -869,6 +1006,9 @@ export const ModList: React.FC<ModListProps> = ({
                 expandedSubGroups={expandedSubGroups}
                 onToggleGroupCollapsed={onToggleGroupCollapsed}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                chipExpandState={chipExpandState}
+                onToggleChipExpand={onToggleChipExpand}
+                pinnedIds={pinnedIds}
               />
             )}
           </div>

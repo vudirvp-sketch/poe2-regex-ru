@@ -1,0 +1,45 @@
+iter 133 — UI Refactor Phase 2 implementation
+(collapsible affix groups + sticky search)
+
+Archive contents: 21 files (17 modified + 4 new).
+
+Modified files:
+  - AGENT_NAVIGATION.md
+  - README.md
+  - STATUS.md
+  - docs/UI_REFACTOR_PLAN.md
+  - src/index.css
+  - src/shared/i18n.ts
+  - src/ui/components/ModList.tsx
+  - src/ui/components/VirtualizedModList.tsx
+  - src/ui/hooks/useCategoryPage.ts
+  - src/ui/pages/amulet/AmuletPage.tsx
+  - src/ui/pages/belt/BeltPage.tsx
+  - src/ui/pages/jewel/JewelPage.tsx
+  - src/ui/pages/relic/RelicPage.tsx
+  - src/ui/pages/ring/RingPage.tsx
+  - src/ui/pages/tablet/TabletPage.tsx
+  - src/ui/pages/waystone/WaystonePage.tsx
+  - worklog.md
+
+New files:
+  - src/ui/components/GroupHeader.tsx
+  - tests/ui/GroupHeader.test.tsx
+  - tests/ui/ModList.test.tsx
+  - tests/ui/VirtualizedModList.test.tsx
+
+Verification:
+- vitest: 2070/2070 passed (was 2034 in iter 132, +36 new tests)
+- tsc: 0 errors
+- eslint: 0 problems
+
+To merge with your local repo:
+1. Unzip this archive at the repo root (overwrites existing files).
+2. Run: npm install  (no new deps; just to refresh)
+3. Run: npx vitest run  (verify 2070/2070)
+4. Run: npx tsc -b && npx eslint .  (verify clean)
+5. Run: npm run dev  (manual UX verification — see STATUS.md §"UX verification request")
+
+Next iteration (iter 134):
+- Phase 2.5 («+N ещё» chip expander) — consumes chipExpandState.
+- See docs/UI_REFACTOR_PLAN.md §13.6 for full recommendation.

@@ -59,6 +59,24 @@ function makeBeltTokens(): GameToken[] {
   ];
 }
 
+/** Build a tokens array with 6 prefix families in one sub-group + 2 suffix.
+ *  Used for Phase 2.5 truncation tests — 6 > CHIP_PREVIEW_COUNT (3) so the
+ *  sub-group triggers «+N ещё» truncation by default. With groupMode='affix-only',
+ *  all 6 prefix tokens share sub-group key 'all' → predictable sub-group key
+ *  'belt:prefix:all'. */
+function makeManyChipsTokens(): GameToken[] {
+  return [
+    makeToken('p1', { affix: 'prefix', familyKey: { ru: 'Семейство 1' }, rawText: { ru: 'текст 1' } }),
+    makeToken('p2', { affix: 'prefix', familyKey: { ru: 'Семейство 2' }, rawText: { ru: 'текст 2' } }),
+    makeToken('p3', { affix: 'prefix', familyKey: { ru: 'Семейство 3' }, rawText: { ru: 'текст 3' } }),
+    makeToken('p4', { affix: 'prefix', familyKey: { ru: 'Семейство 4' }, rawText: { ru: 'текст 4' } }),
+    makeToken('p5', { affix: 'prefix', familyKey: { ru: 'Семейство 5' }, rawText: { ru: 'текст 5' } }),
+    makeToken('p6', { affix: 'prefix', familyKey: { ru: 'Семейство 6' }, rawText: { ru: 'текст 6' } }),
+    makeToken('s1', { affix: 'suffix', familyKey: { ru: 'Суффикс 1' }, rawText: { ru: 'суффикс 1' } }),
+    makeToken('s2', { affix: 'suffix', familyKey: { ru: 'Суффикс 2' }, rawText: { ru: 'суффикс 2' } }),
+  ];
+}
+
 describe('ModList — Phase 2 collapse behaviour (iter 133)', () => {
   // ─── Default state (asymmetric per iter 131 §13.7 #4) ───
 
@@ -407,5 +425,234 @@ describe('ModList — Phase 2 collapse behaviour (iter 133)', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Свернуть все' }));
     expect(onCollapseAllSubGroups).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ─── Phase 2.5 (iter 134): per-sub-group «+N ещё» chip expander ─────────────
+
+describe('ModList — Phase 2.5 chip truncation (iter 134)', () => {
+  // CHIP_PREVIEW_COUNT = 3 (src/shared/constants.ts). With 6 prefix chips in
+  // one sub-group (groupMode='affix-only' → sub-group key 'all'), the truncated
+  // state shows first 3 chips + «+3 ещё» button. Clicking toggles to expanded
+  // state showing all 6 + «свернуть» button.
+
+  it('truncated state: sub-group with 6 chips shows first 3 + «+3 ещё» button', () => {
+    const tokens = makeManyChipsTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        // All sub-groups expanded (so chips ARE visible) but chipExpandState empty
+        // (so chips ARE truncated to first 3 + «+N ещё»).
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={vi.fn()}
+      />
+    );
+
+    // First 3 chips visible.
+    expect(screen.getByText('Семейство 1')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 2')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 3')).toBeInTheDocument();
+    // Last 3 chips hidden.
+    expect(screen.queryByText('Семейство 4')).not.toBeInTheDocument();
+    expect(screen.queryByText('Семейство 5')).not.toBeInTheDocument();
+    expect(screen.queryByText('Семейство 6')).not.toBeInTheDocument();
+    // «+3 ещё» button visible.
+    expect(screen.getByRole('button', { name: 'Развернуть оставшиеся 3 аффиксов' })).toBeInTheDocument();
+  });
+
+  it('clicking «+N ещё» button calls onToggleChipExpand with sub-group key', () => {
+    const tokens = makeManyChipsTokens();
+    const onToggleChipExpand = vi.fn();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={onToggleChipExpand}
+      />
+    );
+
+    const moreBtn = screen.getByRole('button', { name: 'Развернуть оставшиеся 3 аффиксов' });
+    fireEvent.click(moreBtn);
+    expect(onToggleChipExpand).toHaveBeenCalledWith('belt:prefix:all');
+  });
+
+  it('expanded state: sub-group in chipExpandState shows all chips + «свернуть» button', () => {
+    const tokens = makeManyChipsTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>(['belt:prefix:all'])}
+        onToggleChipExpand={vi.fn()}
+      />
+    );
+
+    // All 6 prefix chips visible (sub-group is in chipExpandState).
+    expect(screen.getByText('Семейство 1')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 2')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 3')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 4')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 5')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 6')).toBeInTheDocument();
+    // «свернуть» button visible (sub-group has >3 chips).
+    expect(screen.getByRole('button', { name: 'Свернуть оставшиеся аффиксы' })).toBeInTheDocument();
+    // «+N ещё» button NOT visible.
+    expect(screen.queryByRole('button', { name: /Развернуть оставшиеся/ })).not.toBeInTheDocument();
+  });
+
+  it('selected chip is ALWAYS visible even when past CHIP_PREVIEW_COUNT in truncated state', () => {
+    const tokens = makeManyChipsTokens();
+    // Select token p5 (5th chip in sub-group — past CHIP_PREVIEW_COUNT=3).
+    // Important chips must remain visible even when truncated.
+    const selectedIds = new Set<string>(['p5']);
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={selectedIds}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={vi.fn()}
+      />
+    );
+
+    // First 3 chips visible (preview window).
+    expect(screen.getByText('Семейство 1')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 2')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 3')).toBeInTheDocument();
+    // p5's family chip ALSO visible (important — selected).
+    expect(screen.getByText('Семейство 5')).toBeInTheDocument();
+    // p4, p6 still hidden (not selected, past preview).
+    expect(screen.queryByText('Семейство 4')).not.toBeInTheDocument();
+    expect(screen.queryByText('Семейство 6')).not.toBeInTheDocument();
+    // «+N ещё» button reflects hidden count: 6 total - 4 visible (3 preview + 1 selected) = 2 hidden.
+    expect(screen.getByRole('button', { name: 'Развернуть оставшиеся 2 аффиксов' })).toBeInTheDocument();
+  });
+
+  it('backward compat: without chipExpandState wiring, all chips render (no truncation, no button)', () => {
+    const tokens = makeManyChipsTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        // Phase 2.5 wiring absent — legacy pre-Phase-2.5 behaviour.
+      />
+    );
+
+    // All 6 prefix chips visible (no truncation).
+    expect(screen.getByText('Семейство 1')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 2')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 3')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 4')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 5')).toBeInTheDocument();
+    expect(screen.getByText('Семейство 6')).toBeInTheDocument();
+    // No «+N ещё» or «свернуть» buttons.
+    expect(screen.queryByRole('button', { name: /Развернуть оставшиеся/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть оставшиеся аффиксы' })).not.toBeInTheDocument();
+  });
+
+  it('sub-group with ≤ CHIP_PREVIEW_COUNT chips renders all + no button (even when wired)', () => {
+    // Use makeBeltTokens() — 2 prefix chips + 2 suffix chips in sub-group 'all'.
+    // Both ≤ 3, so no truncation, no buttons.
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        chipExpandState={new Set<string>()}
+        onToggleChipExpand={vi.fn()}
+      />
+    );
+
+    // All prefix chips visible (only 2 — below CHIP_PREVIEW_COUNT=3).
+    expect(screen.getByText('Резист')).toBeInTheDocument();
+    expect(screen.getByText('Характеристики')).toBeInTheDocument();
+    // No «+N ещё» / «свернуть» buttons (sub-group too small).
+    expect(screen.queryByRole('button', { name: /Развернуть оставшиеся/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть оставшиеся аффиксы' })).not.toBeInTheDocument();
   });
 });

@@ -42,6 +42,7 @@ export function AmuletPage() {
     toggleGroupCollapsed, toggleSubGroupExpanded,
     expandAllGroups, collapseAllGroups,
     expandAllSubGroups, collapseAllSubGroups,
+    chipExpandState, toggleChipExpand,
   } = useCategoryPage({ categoryId: 'amulet' });
 
   return (
@@ -153,6 +154,8 @@ export function AmuletPage() {
               onCollapseAllGroups={collapseAllGroups}
               onExpandAllSubGroups={expandAllSubGroups}
               onCollapseAllSubGroups={collapseAllSubGroups}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={toggleChipExpand}
             />
           </CategoryLayout>
         );

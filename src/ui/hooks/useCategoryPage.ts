@@ -217,6 +217,19 @@ export interface CategoryPageState {
   expandAllSubGroups: (keys: string[]) => void;
   /** Collapse ALL sub-groups (empty `expandedSubGroups`). */
   collapseAllSubGroups: () => void;
+
+  // ─── Phase 2.5 fields (iter 134, UI Refactor) ─────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2.5 for full spec.
+  // Wires `chipExpandState` from filter-store (Phase 1, iter 132) into the UI
+  // so ModList / VirtualizedModList can render «+N ещё» truncation per sub-group.
+
+  /** Sub-group keys whose chips are fully expanded (Phase 2.5 «+N ещё»).
+   *  Format: `${categoryId}:${affix}:${subBlockKey}`. Default empty = all
+   *  sub-groups show truncated preview (first `CHIP_PREVIEW_COUNT` chips +
+   *  important chips past the preview window). */
+  chipExpandState: Set<string>;
+  /** Toggle a sub-group's chip-expanded state. Key: `${categoryId}:${affix}:${subBlockKey}`. */
+  toggleChipExpand: (key: string) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -563,6 +576,12 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const expandAllSubGroups = useStore(state => state.expandAllSubGroups);
   const collapseAllSubGroups = useStore(state => state.collapseAllSubGroups);
 
+  // Phase 2.5 (iter 134): per-sub-group chip expand state subscription.
+  // Same immutability contract as the other collapse fields above — Zustand
+  // returns a new Set instance only on actual mutation.
+  const chipExpandState = useStore(state => state.chipExpandState);
+  const toggleChipExpand = useStore(state => state.toggleChipExpand);
+
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
@@ -596,7 +615,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, sortMode, useStore,
       // Phase 2 (iter 133): collapse state also triggers URL re-sync so that
       // toggle persistence propagates to the URL hash immediately.
-      collapsedGroups, expandedSubGroups]);
+      collapsedGroups, expandedSubGroups,
+      // Phase 2.5 (iter 134): chip expand state also persists in URL — add to
+      // deps so toggle triggers re-sync.
+      chipExpandState]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
@@ -712,5 +734,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     collapseAllGroups,
     expandAllSubGroups,
     collapseAllSubGroups,
+    // Phase 2.5 (iter 134): chip expand state + action for ModList/VirtualizedModList
+    chipExpandState,
+    toggleChipExpand,
   };
 }

@@ -108,6 +108,7 @@ export function JewelPage() {
     toggleGroupCollapsed, toggleSubGroupExpanded,
     expandAllGroups, collapseAllGroups,
     expandAllSubGroups, collapseAllSubGroups,
+    chipExpandState, toggleChipExpand,
   } = useCategoryPage({
     categoryId: 'jewel',
     mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
@@ -319,6 +320,8 @@ export function JewelPage() {
               onCollapseAllGroups={collapseAllGroups}
               onExpandAllSubGroups={expandAllSubGroups}
               onCollapseAllSubGroups={collapseAllSubGroups}
+              chipExpandState={chipExpandState}
+              onToggleChipExpand={toggleChipExpand}
             />
           </CategoryLayout>
         );

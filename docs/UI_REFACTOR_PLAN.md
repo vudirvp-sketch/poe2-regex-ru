@@ -10,9 +10,9 @@
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phases 2.5/3/4/4.5/5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
-> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2)
-> **Last updated:** 2026-06-27 (iter 133 — Phase 2 implementation)
+> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phase 2.5 IMPLEMENTED iter 134. Phases 3/4/4.5/5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2); iter 134 implementation agent (Phase 2.5)
+> **Last updated:** 2026-06-27 (iter 134 — Phase 2.5 implementation)
 
 ---
 
@@ -759,7 +759,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 |-------|--------|-----------|-------|
 | 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | ✅ DONE | iter 132 | Implemented in `src/store/filter-store.ts`: +5 FilterState fields, +13 FilterActions (toggle/set/expandAll/collapseAll per level + setShowSelectedOnly + togglePinned/clearPinned + toggleChipExpand/expandAllChips/collapseAllChips), extended serialize (compact keys c/es/so/pn/ce, omitted when default) + deserialize (backward-compat, defensive parsing of malformed/non-array values). New test file `tests/store/filter-store.test.ts` — 46 tests across 9 describe blocks (initial state, asymmetric default, all 5 action families, round-trip, backward-compat, compact serialization, resetFilters, clearSelections scope, store isolation). vitest 1988→2034 (+46), tsc 0 errors, eslint 0 problems. No UI uses the new fields yet — pure infrastructure. |
 | 2 — Collapse + Sticky search | ✅ DONE | iter 133 | Implemented in `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` + new shared `src/ui/components/GroupHeader.tsx` (~95 строк). +8 optional collapse props on each mod-list component (backward compat preserved — legacy callers без wiring рендерят как раньше). `AffixColumn` (ModList) + `column-header` row (VirtualizedModList) render `GroupHeader` (variant='top') with chevron; skip sub-groups when top-level collapsed. `ModSubGroupSection` (ModList) + new `subgroup-header` VirtualRow variant (VirtualizedModList) render `GroupHeader` (variant='sub') with chevron; skip chips when sub-group NOT in `expandedSubGroups`. Asymmetric default per iter 131 §13.7 #4: top EXPANDED + sub COLLAPSED. Search row wrapped in `.sticky-search-bar` CSS class (sticky under TopNav, backdrop-blur). «Развернуть все» / «Свернуть все» buttons (desktop-only, `hidden lg:inline-flex`). `useCategoryPage.ts` extended +8 fields wired to filter-store (Phase 1). URL-sync effect deps array extended — toggle triggers URL re-sync. 7 page files (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) updated — forward 8 new props. VendorPage не тронут (custom FilterChip). `i18n.ts` +4 keys. `index.css` +2 CSS blocks (`.sticky-search-bar`, `.group-header-chevron`). 3 new test files (36 tests): `tests/ui/GroupHeader.test.tsx` (14), `tests/ui/ModList.test.tsx` (11), `tests/ui/VirtualizedModList.test.tsx` (11). vitest 2034→2070 (+36), tsc 0 errors, eslint 0 problems. Edge case: sub-groups WITHOUT labels (e.g. `affix-only` mode) → chips always render (no UI to toggle collapse). |
-| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2. Phase 1 `chipExpandState` field now ready to consume. |
+| 2.5 — "+N ещё" chip expander | ✅ DONE | iter 134 | Implemented in `src/shared/constants.ts` (`CHIP_PREVIEW_COUNT = 3`) + `src/shared/i18n.ts` (+4 keys: `chip.more`, `chip.more_aria`, `chip.collapse`, `chip.collapse_aria`) + `src/ui/hooks/useCategoryPage.ts` (+2 fields `chipExpandState`/`toggleChipExpand` wired to filter-store, +URL-sync deps) + `src/ui/components/ModList.tsx` (+3 optional props `chipExpandState`/`onToggleChipExpand`/`pinnedIds`, slicing logic in `ModSubGroupSection`: first N + important past-N chips visible, «+N ещё» / «свернуть» buttons) + `src/ui/components/VirtualizedModList.tsx` (same +3 props, identical slicing logic in `VirtualRowContent` subgroup row kept in sync with ModList) + 7 page files (+2 destructure + +2 forwarded props each). `pinnedIds?: Set<string>` prop added to ModList + VirtualizedModList как forward-compat для Phase 5 (favorites) — Phase 5 wiring будет проще. 9 новых тестов: `tests/ui/ModList.test.tsx` (+6 Phase 2.5 chip truncation tests — truncated state, click «+N ещё», expanded state with «свернуть», selected chip ALWAYS visible past preview, backward compat, small sub-group ≤3 chips) + `tests/ui/VirtualizedModList.test.tsx` (+3 chip-expand wiring tests — mounts with wiring, backward compat, accepts `pinnedIds`). vitest 2070→2079 (+9), tsc 0 errors, eslint 0 problems. Edge cases: (a) sub-group with ≤3 chips → no button even when wiring present (matches expanded case but without «свернуть»); (b) sub-group with all-important past-preview chips → hiddenCount=0 → no «+N ещё» button; (c) sub-group with no label (e.g. `affix-only` mode) → chips ALWAYS render (no UI to toggle, same edge case as Phase 2). Backward compat: все 3 new props optional — legacy callers без chip-expand wiring рендерят как раньше (all chips visible, no buttons). |
 | 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). Phase 1 `showSelectedOnly` field now ready to consume. |
 | 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. Independent of Phase 1. |
 | 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition. Independent of Phase 1. |
@@ -834,29 +834,39 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 134
+### 13.6 Recommendation for iter 135
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133).** The 5 state fields
-(`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`, `pinnedIds`,
-`chipExpandState`) are now in `src/store/filter-store.ts` with 13 actions + URL
-serialization (backward-compat) + 46 tests in `tests/store/filter-store.test.ts`.
-Phase 2 wired `collapsedGroups` (top-level) + `expandedSubGroups` (sub-group)
-into the UI via new shared `GroupHeader.tsx` + sticky search + «Развернуть все»
-/ «Свернуть все» кнопки. 7 page files updated. 3 new UI test files (36 tests).
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134).**
+The 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
+`pinnedIds`, `chipExpandState`) are now in `src/store/filter-store.ts` with 13
+actions + URL serialization (backward-compat) + 46 tests in
+`tests/store/filter-store.test.ts`. Phase 2 wired `collapsedGroups` (top-level)
++ `expandedSubGroups` (sub-group) into the UI via new shared `GroupHeader.tsx`
++ sticky search + «Развернуть все» / «Свернуть все» кнопки. Phase 2.5 wired
+`chipExpandState` into per-sub-group chip truncation: first N chips + «+N ещё»
+button + important (selected/excluded/pinned) chips ALWAYS visible past preview
+window. 7 page files updated (Phase 2: +8 props; Phase 2.5: +2 props each).
+3 new UI test files (Phase 2: 36 tests) + 9 new tests (Phase 2.5: 6 ModList +
+3 VirtualizedModList). `pinnedIds?: Set<string>` prop added to ModList +
+VirtualizedModList as forward-compat for Phase 5 — Phase 5 wiring будет проще.
 
-**Recommended next:** Phase 2.5 («+N ещё» per-sub-group chip expander).
-Phase 2.5 consumes `chipExpandState` (already wired in Phase 1) and DEPENDS on
-Phase 2 (sub-group collapse must exist in UI before per-sub-group chip
-truncation makes sense — Phase 2 ✓ DONE). Phase 2.5 will: (1) add
-`CHIP_PREVIEW_COUNT = 3` constant to `src/shared/constants.ts`; (2) modify
-`ModList` `ModSubGroupSection` chips rendering to slice to preview count when
-`chipExpandState` does NOT contain sub-group key; render «+N ещё» button that
-calls `toggleChipExpand(key)`; (3) same logic in `VirtualizedModList`
-`VirtualRowContent` subgroup row; (4) selected/pinned chips ALWAYS visible
-even when truncated.
+**Recommended next:** Phase 3 (selected-only + basket panel).
+Phase 3 consumes `showSelectedOnly` (already wired in Phase 1) and includes:
+(1) add toggle «Все / Выбранные» in `CategoryControlPanel.tsx`; (2) create new
+`src/ui/components/SelectedBasket.tsx` (renders selected chips as read-only
+`FilterChip` variants, max-height 30vh, scrollable, cap = 20 chips per §13.7 #3);
+(3) restructure `src/ui/layout/CategoryLayout.tsx` right `<aside>` (basket →
+regex → status → profile) with 3-column 20%/60%/20% layout + collapsible right
+panel per §13.7 #2; (4) wire `showSelectedOnly` to filter `familyGroups` in
+ModList/VirtualizedModList — when true, hide non-selected chips (pinned/excluded
+tokens stay visible per spec).
 
-Phase 3 (selected-only + basket) consumes `showSelectedOnly` (already wired).
-Phase 5 (favorites in left panel) consumes `pinnedIds` (already wired).
+Phase 5 (favorites in left panel) consumes `pinnedIds` (already wired + props
+already forwarded to ModList/VirtualizedModList in iter 134). Phase 5 will:
+(1) create `src/ui/components/LeftPanelFavorites.tsx` in the LEFT panel (below
+search, above filters per §13.7 #1 — final order Search → Favorites → Filters);
+(2) wire `togglePinned(id)` / `clearPinned()` actions from store to favorite
+buttons on each FilterChip + clear-all button in favorites section header.
 
 Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения» legend) are
 INDEPENDENT of Phase 1 — can land in any iteration as "warmup" work for a new

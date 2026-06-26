@@ -2,92 +2,75 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 133
-> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2 DONE iter 132-133) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
+> **Текущая итерация:** 134
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5 DONE) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
 
 ---
 
 ## Текущее состояние
 
-**iter 133: UI Refactor Phase 2 implementation — collapsible affix groups + sticky search готовы.**
+**iter 134: UI Refactor Phase 2.5 — «+N ещё» per-sub-group chip expander готов.**
 
-Phase 2 — это UI-итерация: wired `collapsedGroups` (top-level) + `expandedSubGroups`
-(sub-group) в `ModList` + `VirtualizedModList` через новый shared `GroupHeader.tsx`.
-Search row стал sticky (CSS `.sticky-search-bar`), добавлены «Развернуть все» /
-«Свернуть все» кнопки (desktop only). Asymmetric default per iter 131 §13.7 #4:
-top-level EXPANDED, sub-groups COLLAPSED.
+Phase 2.5 потребляет `chipExpandState` (уже в store с Phase 1, iter 132).
+Когда sub-group содержит > `CHIP_PREVIEW_COUNT` (=3) chips, UI показывает
+первые 3 + «+N ещё» кнопку. Клик по кнопке toggles `chipExpandState` →
+показываются все chips + «свернуть» кнопка. Selected/excluded/pinned chips
+ВСЕГДА видимы даже в truncated состоянии (важные chips не теряются).
 
-**Сделано в iter 133:**
+**Сделано в iter 134:**
 
-1. **`src/ui/hooks/useCategoryPage.ts` расширено** — `CategoryPageState` добавлены:
-   - `collapsedGroups`, `expandedSubGroups` (Sets)
-   - `toggleGroupCollapsed`, `toggleSubGroupExpanded`
-   - `expandAllGroups`, `collapseAllGroups(keys)`, `expandAllSubGroups(keys)`, `collapseAllSubGroups`
-   - Все wired к filter-store (Phase 1, iter 132). URL-sync effect расширен —
-     collapse state триггерит re-sync URL hash сразу при toggle.
+1. **`src/shared/constants.ts`** — добавлена `CHIP_PREVIEW_COUNT = 3`
+   константа с подробным JSDoc.
 
-2. **Новый `src/ui/components/GroupHeader.tsx`** — shared collapsible header
-   component. Props: `label`, `count`, `isCollapsed`, `onToggle`, `controlsId?`,
-   `className?`, `icon?`, `variant?` (`'top' | 'sub' | 'origin'`). Renders как
-   `<button>` с `aria-expanded` + `aria-controls`. Chevron — CSS-rotated `▶`
-   glyph (no inline SVG, no extra deps). Variant-driven Tailwind classes.
+2. **`src/shared/i18n.ts`** — +4 keys: `chip.more` («+{n} ещё»),
+   `chip.more_aria` («Развернуть оставшиеся {n} аффиксов»), `chip.collapse`
+   («свернуть»), `chip.collapse_aria` («Свернуть оставшиеся аффиксы»).
 
-3. **`src/ui/components/ModList.tsx` расширено** — новые optional props
-   (`collapsedGroups`, `expandedSubGroups`, `onToggleGroupCollapsed`,
-   `onToggleSubGroupExpanded`, `onExpandAllGroups`, `onCollapseAllGroups`,
-   `onExpandAllSubGroups`, `onCollapseAllSubGroups`). Все optional — backward
-   compatible (legacy callers без collapse wiring рендерят как раньше).
-   `AffixColumn` рендерит `GroupHeader` (top-level) + skip sub-groups когда
-   collapsed. `ModSubGroupSection` рендерит `GroupHeader` (sub-level) + skip
-   chips когда collapsed. Search row обёрнут в `.sticky-search-bar`.
-   «Развернуть все» / «Свернуть все» кнопки (desktop only, `hidden lg:inline-flex`).
+3. **`src/ui/hooks/useCategoryPage.ts`** расширено — `CategoryPageState`
+   добавлены `chipExpandState: Set<string>` + `toggleChipExpand: (key) => void`.
+   +2 `useStore(state => state.X)` subscriptions. URL-sync effect deps array
+   расширен — toggle chipExpand триггерит re-sync URL hash сразу.
 
-4. **`src/ui/components/VirtualizedModList.tsx` расширено** — те же optional props
-   что у ModList. `buildColumnRows()` принимает `topKey`, `collapsedGroups`,
-   `expandedSubGroups` и фильтрует rows: collapsed top-level → только
-   `column-header` row; collapsed sub-group → `subgroup-header` row (header-only,
-   без chips). Новый `VirtualRow` variant `subgroup-header` + `ROW_ESTIMATES`
-   entry (30px). `VirtualRowContent` рендерит `GroupHeader` для `column-header`
-   и `subgroup-header` rows когда collapse wiring provided; legacy path — static
-   text (pre-Phase-2 behaviour). Search row sticky + expand/collapse-all кнопки.
+4. **`src/ui/components/ModList.tsx`** расширено — `ModListProps` +3 optional
+   props (`chipExpandState`, `onToggleChipExpand`, `pinnedIds`). All optional —
+   backward compatible. `ModSubGroupSection` реализует slicing logic: когда
+   chip-expand wiring provided AND sub-group NOT in `chipExpandState` AND
+   chips count > `CHIP_PREVIEW_COUNT` → render first N + important chips past N
+   (selected/excluded/pinned) + «+N ещё» button. Когда sub-group IN
+   `chipExpandState` → render all chips + «свернуть» button. Когда wiring
+   absent → render all chips (pre-Phase-2.5 behaviour). `AffixColumn` пробрасывает
+   3 новых props во все 6 callsites `ModSubGroupSection`.
 
-5. **7 page files обновлены** — BeltPage, RingPage, AmuletPage, JewelPage,
-   WaystonePage, TabletPage, RelicPage. Все forward'ят новые collapse props
-   из `useCategoryPage` → `<ModList>` / `<VirtualizedModList>`. VendorPage
-   использует custom FilterChip rendering (без ModList) — не тронут.
+5. **`src/ui/components/VirtualizedModList.tsx`** расширено — same +3 optional
+   props. `VirtualRowContent` subgroup row реализует identical slicing logic
+   (kept in sync с ModList). `VirtualizedColumnProps` +3 props forwarded to
+   `VirtualRowContent`. `columnProps` object + 3 fields. Single-column render
+   path also forwards 3 props.
 
-6. **CSS** — `src/index.css` +`.sticky-search-bar` (position: sticky, top: 52px
-   mobile / 56px md+, backdrop-blur, z-index: 20) + `.group-header-chevron`
-   (CSS transition + rotate 90deg when `[aria-expanded="true"]`).
+6. **7 page files** (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — каждый:
+   +2 destructured fields из `useCategoryPage()` (`chipExpandState`,
+   `toggleChipExpand`) + 2 forwarded props to `<ModList>`/`<VirtualizedModList>`.
+   VendorPage не тронут (custom FilterChip).
 
-7. **i18n** — `src/shared/i18n.ts` +4 keys: `group.expand_all`, `group.collapse_all`,
-   `group.collapse_btn_label`, `group.expand_btn_label`.
+7. **Tests:**
+   - `tests/ui/ModList.test.tsx` — +6 tests (Phase 2.5 chip truncation
+     describe block): truncated state, click «+N ещё» → onToggleChipExpand
+     call, expanded state shows «свернуть», selected chip always visible past
+     preview, backward compat (no wiring → no truncation), small sub-group
+     (≤3 chips) renders all without button.
+   - `tests/ui/VirtualizedModList.test.tsx` — +3 tests (Phase 2.5 chip-expand
+     wiring describe block): mounts with wiring, backward compat (no wiring),
+     accepts `pinnedIds` prop (Phase 5 forward-compat). Note: jsdom virtualizer
+     renders 0 rows, so chip truncation behaviour verified via ModList tests.
 
-8. **3 новых test files**:
-   - `tests/ui/GroupHeader.test.tsx` (14 tests) — label/count render, click →
-     onToggle, aria-expanded, aria-controls, aria-label (Русский expand/collapse
-     verbs), chevron aria-hidden + glyph, variants ('top'/'sub'/'origin'),
-     custom className merge, icon render order, count=0 edge case.
-   - `tests/ui/ModList.test.tsx` (11 tests) — default state (top expanded),
-     sub-group expand shows chips, top-level collapse hides chips, click top
-     header → onToggleGroupCollapsed, sticky-search-bar class present,
-     expand/collapse-all buttons render only when wiring provided, backward
-     compat (no wiring → no GroupHeader, chips render normally), expand-all /
-     collapse-all button click behaviour.
-   - `tests/ui/VirtualizedModList.test.tsx` (11 tests) — sticky-search-bar,
-     expand/collapse-all buttons rendering + click behaviour, backward compat,
-     GroupHeader rendering when wiring provided, collapsed top-level state
-     (component mounts without crash in jsdom — actual row filtering verified
-     via ModList tests since jsdom virtualizer renders 0 rows).
+### Проверки (iter 134)
 
-### Проверки (iter 133)
-
-- **vitest:** 2070/2070 tests passed (45 test files). Was 2034 in iter 132 →
-  **+36 new tests** (14 GroupHeader + 11 ModList + 11 VirtualizedModList).
+- **vitest:** 2079/2079 tests passed (45 test files). Was 2070 in iter 133 →
+  **+9 new tests** (6 ModList + 3 VirtualizedModList).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
 - **Backward compat:** все existing tests проходят без изменений. Legacy callers
-  ModList/VirtualizedModList без collapse wiring рендерят как раньше.
+  ModList/VirtualizedModList без chip-expand wiring рендерят как раньше.
 
 ---
 
@@ -102,7 +85,11 @@ top-level EXPANDED, sub-groups COLLAPSED.
    sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) при первом открытии category page.
    Chips скрыты до expand. Кнопка «Развернуть все» (desktop) или individual
    chevron clicks восстанавливают вид. State persistится в URL. In-game
-   verification pending (KI#14 below).
+   verification pending (KI#15 below).
+6. **Phase 2.5 UX change: chips truncated to first 3 + «+N ещё»** (iter 134).
+   Когда sub-group expanded AND содержит > 3 chips, UI показывает только
+   первые 3 + «+N ещё» кнопку (плюс selected/pinned chips past preview window).
+   In-game/in-browser verification pending (KI#15).
 
 ### Закрытые KI (краткая справка)
 
@@ -140,45 +127,47 @@ top-level EXPANDED, sub-groups COLLAPSED.
 
 ---
 
-## Next iteration (iter 134)
+## Next iteration (iter 135)
 
 Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end, особенно
-§12 (Phase Status — Phase 1+2 ✅ DONE), §13 (iter 130 visualization audit)
+§12 (Phase Status — Phase 1+2+2.5 ✅ DONE), §13 (iter 130 visualization audit)
 AND §13.7 (iter 131 user feedback corrections). Затем
 `docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target (note §8
 iter 131 corrections).
 
-**Рекомендованный старт:** Phase 2.5 («+N ещё» per-sub-group chip expander).
-Phase 2.5 потребляет `chipExpandState` (уже wired в store с Phase 1). UI: when
-sub-group has >3 chips, show first 3 + «+N ещё» button → click toggles
-`chipExpandState`. Selected/pinned chips ALWAYS visible even when truncated.
+**Рекомендованный старт:** Phase 3 (selected-only + basket panel).
+Phase 3 потребляет `showSelectedOnly` (уже wired в store с Phase 1). UI:
+toggle "Все / Выбранные" в `CategoryControlPanel` (фильтрует `familyGroups`
+до только выбранных). Новый `SelectedBasket.tsx` компонент в правой панели
+(max-height 30vh, scrollable, cap = 20 chips). 3-column layout 20%/60%/20%
++ collapsible right panel per iter 131 §13.7 #2, #3.
 
-**Главные ограничения для iter 134:**
+**Главные ограничения для iter 135:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
 - Phase 3: basket cap = 20 (was 12), 3-column 20%/60%/20% + collapsible right
   panel (§13.7 #2, #3). `showSelectedOnly` поле уже готово.
 - Phase 5: left panel order Search → Favorites → Filters (§13.7 #1).
-  `pinnedIds` поле уже готово.
+  `pinnedIds` поле уже готово (и `pinnedIds` prop уже проброшен в ModList +
+  VirtualizedModList в iter 134 — Phase 5 wiring будет проще).
 - Phase 4 и Phase 4.5 — независимы от Phase 1, можно делать в любой итерации.
 
-**Подсказка:** для Phase 2.5 — read `AGENT_NAVIGATION.md` Pitfall 42 + 43.
-Pitfall 43 describes Phase 2 wiring (collapse state consumption pattern).
-Phase 2.5 wires `chipExpandState` analogously — read `CHIP_PREVIEW_COUNT`
-constant (to be added to `src/shared/constants.ts`). Modify `ModList.tsx` +
-`VirtualizedModList.tsx` to slice chips to preview count + render «+N ещё»
-button. See `docs/UI_REFACTOR_PLAN.md` §4 Phase 2.5 for full spec.
+**Подсказка:** для Phase 3 — read `AGENT_NAVIGATION.md` Pitfall 44 (Phase 2.5
+wiring pattern as template). Phase 3 wires `showSelectedOnly` analogously.
+Modify `CategoryControlPanel.tsx` (add toggle) + create `SelectedBasket.tsx`
++ restructure `CategoryLayout.tsx` right `<aside>` (basket → regex → status →
+profile). Phase 1 `showSelectedOnly` поле уже готово к потреблению.
 
-**UX verification request for user (iter 133 deliverable):**
+**UX verification request for user (iter 134 deliverable):**
 Откройте 7 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic)
 на десктопе. Проверьте:
-1. Top-level headers (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) отображаются с chevron ▶.
-2. Sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) отображаются с chevron ▶.
-3. По умолчанию chips скрыты (sub-groups collapsed). Клик по sub-group header
-   расширяет его. State сохраняется в URL после refresh.
-4. Кнопка «Развернуть все» / «Свернуть все» в sticky search row (desktop).
-5. Search row остаётся видимым при скролле.
-6. Mobile: chevron работает per-group, но без «Развернуть все» кнопки.
+1. Раскройте sub-group chevron (например ДОБЫЧА в префиксах).
+2. Если sub-group содержит > 3 chips — первые 3 видны + «+N ещё» кнопка.
+3. Клик по «+N ещё» — показываются все chips + «свернуть» кнопка.
+4. Selected/excluded/pinned chips остаются видимыми даже в truncated состоянии
+   (даже если они за пределами первых 3).
+5. State сохраняется в URL после refresh.
+6. Sub-groups с ≤ 3 chips показываются полностью без кнопки.
 
 Если замечен баг — сначала документируйте в STATUS.md как Known Issue, потом фиксий.
 
