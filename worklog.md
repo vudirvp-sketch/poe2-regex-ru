@@ -4,74 +4,61 @@
 
 ---
 
-Task ID: 129
+Task ID: 130
 Agent: main
-Task: Cleanup + stabilisation — подготовка к UI-рефакторингу. Пользователь: «в этой итерации чисто приведение всего в порядок и устаканивание для дальнейшей работы. пока ничего не реализуем». Также: продумать план UI-улучшений (без реализации) и закрыть KI#7/KI#8.
+Task: Review плана UI-рефакторинга против пользовательской визуализации — без реализации. Пользователь: «проверь на ошибки и упущения новый план, убедись что все сделано качественно и полно» + приложил mockup. Также: «в этой итерации чисто приведение всего в порядок и устаканивание для дальнейшей работы. пока ничего не реализуем».
 
 Work Log:
-- 1: Репозиторий клонирован. Контекст загружен из STATUS.md (iter 128 = current, KI#13 FIXED, KI#7/KI#8 awaiting user visual verification, KI#9 monitoring), worklog.md (iter 128 подробно), AGENT_NAVIGATION.md (Pitfall 39 = BTS-фильтр + missing implicit). Baseline проверки: vitest 1992/1992, tsc 0 errors, eslint 0 problems — состояние чистое.
-- 2: Cleanup dead patterns в `src/shared/mod-classifier.ts` (теперь обязательно per user instruction "не можно а нужно!"). Цель: удалить BTS-related regex patterns, которые матчат только токены, отфильтрованные на ETL в iter 128 (KI#13). Верификация через Python-скрипт: 0 токенов в `waystone.json` (110 tokens) и `waystone-desecrated.json` (28 tokens) содержат BTS-паттерны — patterns действительно dead. Удалено:
-  - `больше.*волшебн.*редк.*монстр` из `POSITIVE_KEYWORDS` (Bug #2 fix iter 84)
-  - `шанса появления свойств.*редк.*монстр` и `больше.*эффективн.*монстр` из `NEGATIVE_KEYWORDS` (Bug #2 fix iter 84)
-  - `количеств.*редк.*монстр`, `количеств.*волшебн.*монстр`, `больше.*волшебн.*редк.*монстр` из `POSITIVE_LOOT_PATTERNS`
-  - `шанса появления свойств.*редк.*монстр` из `NEGATIVE_MONSTER_MODIFIERS_PATTERNS` (kept `Дополнительных свойств у редких монстр` — REAL mod)
-  - `волшебн.*монстр|редк.*монстр` из `WAYSTONE_A_PREFIX` (kept `опыт|волшебн.*сундук|редк.*сундук`)
-  Comments обновлены с пометкой "iter 129 cleanup: removed ... (BTS, filtered at ETL iter 128 KI#13)". Bug #2 fix comment обновлён: 3 of 4 patterns removed (BTS-only), 1 kept (`бонус.*крит.*урон.*монстр` — REAL mod).
-- 3: Тесты обновлены в `tests/shared/mod-classifier.test.ts`:
-  - Удалён тест "classifies more magic+rarer monsters as positive (Bug #2 fix)" (BTS pattern).
-  - Удалён тест "classifies more rare monster properties as negative (Bug #2 fix)" (BTS pattern).
-  - Удалён тест "classifies more monster effectiveness as negative (Bug #2 fix)" (BTS pattern).
-  - Удалён тест "classifies more magic+rarer monsters as positive-loot" (BTS sub-block test).
-  - Модифицирован тест "classifies rare-monster extra properties as negative-monster-modifiers": оставлена 1-я assertion (REAL mod `Дополнительных свойств у редких монстров: #`), удалена 2-я assertion (BTS `На #% больше шанса появления свойств у редких монстров`).
-  Bug #2 fix header comment обновлён: "iter 129 cleanup: 3 of 4 Bug #2 patterns removed (BTS-only, filtered at ETL iter 128 KI#13). Only the real 'бонус.*крит.*урон.*монстр' pattern remains — tested below."
-- 4: Верификация после cleanup: `npx vitest run` → 1988/1988 passed (41 test files, -4 vs iter 128). `npx tsc -b` → 0 errors. `npx eslint .` → 0 problems. `npx vite build` → succeeds (472ms, 156 modules, 49.43 kB CSS gzip 10.75 kB) — подтверждает что KI#7 (hero-side-ghost CSS) и KI#8 (home-seo-atmosphere CSS) интактны и компилируются.
-- 5: KI#7 (HomePage hero decorations, iter 121) → VERIFIED. Реализация проверена: `src/ui/pages/home/HomePage.tsx:87-98` рендерит 2 `<img>` (shaman left + iva right) с `hero-side-ghost` / `hero-side-ghost--right` CSS classes. CSS в `src/index.css:609-662` — mask-image gradients (bottom 25% fade + inner-edge 25% fade, `mask-composite: intersect`). Assets exist: `public/atmosphere/hero-shaman.webp` (128 KB), `public/atmosphere/hero-iva.webp` (77 KB). Build verification: vite build succeeds. Закрыто в STATUS.md.
-- 6: KI#8 (SeoBlock atmosphere, iter 122) → VERIFIED. Реализация проверена: `src/ui/pages/home/SeoBlock.tsx:46-63` рендерит 2 `<img>` (`seo-atmosphere.webp` wide backdrop + `hero-demon-blue.webp` right-edge accent) с `home-seo-atmosphere` / `home-seo-demon` CSS classes. CSS в `src/index.css:1077-1126` — opacity 0 → 0.18 (atmosphere) / 0.10 (demon) на `[open]`, `mix-blend-mode: screen`, `mask-image` bottom fade. Assets exist: `public/atmosphere/seo-atmosphere.webp` (146 KB), `public/atmosphere/hero-demon-blue.webp` (61 KB). Build verification: vite build succeeds. Закрыто в STATUS.md.
-- 7: UI Refactor Plan написан в `docs/UI_REFACTOR_PLAN.md` (~530 строк, 12 секций). План:
-  - **Executive summary** — 10 audit recommendations + 6 user priorities decomposed into 5 phases.
-  - **Current state assessment** — что существует (4-level mod list hierarchy, TanStack Virtual, priority tier system, CSS tokens) vs чего нет (collapse, sticky search, basket, show-selected-only, favorites, React Tooltip, TopNav dropdowns).
-  - **Goals & non-goals** — explicit: no new dependencies, no light theme, no re-skin, no backend, no i18n overhaul, no regex engine changes.
-  - **5 phases** (each = 1 iteration):
-    - Phase 1 (foundation): `FilterState` extension (`collapsedGroups`, `showSelectedOnly`, `pinnedIds`) + URL sync backward-compat. No UI yet.
-    - Phase 2 (collapse + sticky search): `GroupHeader` component + chevron toggles + sticky search bar. Both `ModList` + `VirtualizedModList`.
-    - Phase 3 (selected only + basket): `SelectedBasket` component + "Все / Выбранные" toggle + right-aside restructure.
-    - Phase 4 (colors + compact + tooltips): stronger `.affix-header-*` tints + `.filter-chip` class token + `Tooltip` component + compact density (px-2.5 py-1.5 → px-2 py-1, text-[13px] → text-[12px]).
-    - Phase 5 (favorites + topnav): `⭐` pin toggle + "Избранные" section + TopNav dropdowns (3 groups).
-  - **Phase dependencies** — Phase 1 unblocks 2/3/5; Phase 4 independent.
-  - **Risk register** — 8 risks with mitigations (TanStack Virtual scroll position, URL bloat, basket perf, WCAG touch target, etc.).
-  - **Open questions** — 6 decisions for user/next agent (collapse default, mobile basket, favorites scope, tooltip trigger, TopNav click behavior, chip density).
-  - **Test strategy** — per-phase unit + integration + visual regression + manual verification.
-  - **Estimate** — 28 files touched, 5 new files, 52-78 new tests, 5 iterations sequential (3 parallel).
-  - **How to start** — recommended Phase 1 first.
-- 8: Документация актуализирована:
-  - `STATUS.md` — переписан под iter 129: «Текущее состояние» описывает cleanup + KI#7/KI#8 verification + UI plan. KI#7, KI#8 → VERIFIED. "Закрытые KI" сжаты до 6 строк (KI#7/KI#8/KI#10/KI#11/KI#12/KI#13). Добавлен "Next iteration (iter 130)" блок с указанием на `docs/UI_REFACTOR_PLAN.md`.
-  - `worklog.md` — iter 129 подробно (этот раздел), iter 128 сжат до одной строки (перенесён в "Предыдущие итерации").
-  - `AGENT_NAVIGATION.md` — header summary обновлён под iter 129; Pitfall 40 (dead patterns cleanup) добавлен.
+- 1: Репозиторий клонирован. Baseline проверки: vitest 1988/1988 (41 test files), tsc 0 errors, eslint 0 problems — состояние чистое, код не трогаем.
+- 2: VLM-анализ визуализации через `z-ai vision` CLI. Получено детальное описание: 3-колоночный layout, левая панель (заголовок + поиск + «Избранные аффиксы (N)» с «Очистить» + фильтры/checkboxes), центр (3 сворачиваемые категории ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ с brown/blue/red фонами + внутри подгруппы ДОБЫЧА/УСИЛЕНИЯ/МЕХАНИКИ/... + chip pattern `⭐ text ⓘ ✗` + «+N ещё» expandable), правая панель («Выбрано: N / Очистить все» + basket с affix-type бейджами + toggle «Все аффиксы / Только выбранные» + Regex «Авто»/«Копировать» + Профиль + «Обозначения» legend). TopNav — FLAT (9 items, no dropdowns).
+- 3: Сравнение визуализации с `docs/UI_REFACTOR_PLAN.md` (iter 129). Найдено:
+  - **5 подтверждений** (plan covers correctly): collapsible category headers, collapsible sub-group headers, SelectedBasket, «Все/Только выбранные» toggle, color tints.
+  - **5 пропусков** (visualization has, plan missed): (1) «+N ещё» per-sub-group chip expander — CRITICAL; (2) «Обозначения» legend section; (3) «Очистить» button в favorites; (4) affix-type badges на basket chips; (5) chip density 25% (не 20%).
+  - **2 противоречия** (plan WRONG): (1) TopNav dropdowns — visualization keeps flat nav; (2) favorites placement — visualization ставит в left panel выше поиска, не в mod list.
+- 4: Создан `docs/UI_VISUALIZATION_AUDIT.md` (~140 строк, 7 секций) — отдельный артефакт с описанием эталона: layout diagram, element inventory (left/center/right), color coding, key UX patterns, конфликты с `UI_AUDIT.md`, files-touched cross-ref, next steps.
+- 5: `docs/UI_REFACTOR_PLAN.md` обновлён (header, §4 Phase 1/2.5/3/4/4.5/5, §5 Dependencies, §6 Risks, §7 Open Qs, §8 Test Strategy, §10 Estimate, §11 How to Start, §12 Phase Status, NEW §13 Visualization Audit):
+  - Header: status → «Plan reviewed iter 130», last updated → 2026-06-27.
+  - Phase 1: +`chipExpandState: Set<string>` field (4 fields total, было 3) для Phase 2.5.
+  - Phase 2.5 (NEW): «+N ещё» per-sub-group chip expander. Files: ModList, VirtualizedModList, filter-store, constants (CHIP_PREVIEW_COUNT=3), i18n. UX rules: default collapsed (3 chips + «+N ещё»), selected/pinned always visible, URL persistence.
+  - Phase 3: +affix-type badges (ИМПЛИСИТ/ПРЕФИКС/СУФФИКС, amber/blue/red) на basket chips. +«Очистить все» link в basket header.
+  - Phase 4: chip density recommendation 20%→25% (px-1.5 py-0.5 text-[12px]).
+  - Phase 4.5 (NEW): «Обозначения» icon legend в right panel ниже ProfilePanel. New file `IconLegend.tsx`. 3 rows: ★/—/ⓘ.
+  - Phase 5: RESTRUCTURED — favorites moved to LEFT panel above search (new component `LeftPanelFavorites.tsx`), TopNav dropdowns REMOVED (files `DropdownMenu.tsx`, `TopNav.tsx` restructure, `nav-items.ts group` field, related tests — all dropped). Click-to-scroll UX с `data-pinned-id`.
+  - §5 Phase Dependencies: +Phase 2.5 (depends on Phase 2), +Phase 4.5 (independent). Recommended sequence: 1 → 2 → 2.5 → 3 → 4 → 4.5 → 5.
+  - §6 Risk Register: TopNav risk REMOVED (visualization keeps flat nav), +2 new risks (truncation hides selected chip — mitigation: always include selected/pinned in preview slice; click-to-scroll fails on virtualized off-screen chips — mitigation: degrade to sub-group header scroll).
+  - §7 Open Questions: Q#5 (TopNav click behavior) REMOVED; Q#6 (chip density) updated to 25%; +Q#7 (preview count, recommendation: 3).
+  - §8 Test Strategy: per-phase tests updated для всех 7 phases. Phase 2.5 extend ModList+VirtualizedModList tests. Phase 4.5 new IconLegend.test.tsx. Phase 5 new LeftPanelFavorites.test.tsx, DropdownMenu/TopNav tests REMOVED.
+  - §10 Estimate: 5→6 iterations, 28→42 files touched, 5→6 new files, 52-78→65-96 new tests. Single-agent sequential: 6 iterations. Parallel (1+4+1): 3 iterations wall-clock.
+  - §11 How to Start: +reference to `docs/UI_VISUALIZATION_AUDIT.md`, +note что UI_AUDIT.md §10 TopNav dropdowns SUPERSEDED.
+  - §12 Phase Status: все 7 phases (1, 2, 2.5, 3, 4, 4.5, 5) marked NOT STARTED с iter 130 notes.
+  - §13 (NEW, ~75 строк): Visualization Audit с 5 под-секциями — 13.1 confirmations (5), 13.2 gaps (5), 13.3 contradictions (2), 13.4 other observations, 13.5 files added/removed delta, 13.6 recommendation for iter 131.
+- 6: Документация актуализирована: STATUS.md (переписан под iter 130), worklog.md (этот раздел), AGENT_NAVIGATION.md (header summary + §13 docs list).
 
 Stage Summary:
-- **iter 129 COMPLETE.** Cleanup + stabilisation — подготовка к UI-рефакторингу.
-- **Изменённые файлы (6):**
-  - `src/shared/mod-classifier.ts` — удалены 6 dead BTS-related patterns из 5 regex констант. Comments обновлены.
-  - `tests/shared/mod-classifier.test.ts` — удалены 4 dead-pattern tests, 1 test модифицирован (вторая assertion удалена).
-  - `docs/UI_REFACTOR_PLAN.md` — NEW файл, ~530 строк, детальный план на 5 фаз.
+- **iter 130 COMPLETE.** Review плана против визуализации — без реализации.
+- **Изменённые файлы (4):**
+  - `docs/UI_VISUALIZATION_AUDIT.md` — NEW, ~140 строк, описание эталона.
+  - `docs/UI_REFACTOR_PLAN.md` — обновлён: +§13 Visualization Audit, +Phase 2.5, +Phase 4.5, Phase 5 restructured (TopNav REMOVED, favorites → left panel), Phase 1 +`chipExpandState`, Phase 3 +badges, Phase 4 density 20→25%, §5/6/7/8/10/11/12 актуализированы.
   - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
-- **Тесты/типы/lint/build:** ✅ vitest 1988/1988 (41 test files; -4 vs iter 128), tsc 0 errors, eslint 0 problems, vite build succeeds (472ms).
-- **KI статус:** KI#7 → VERIFIED (iter 129), KI#8 → VERIFIED (iter 129), KI#9 — monitoring (не фиксировано), KI#10-KI#13 — закрыты.
-- **НЕ сделано (перенос в iter 130+):**
-  1. **In-game verification пользователем KI#13 fix** — проверить, что (a) фильтр `Редкость монстров ≥ +25%` подсвечивает путевые камни с `Редкость монстров: +25%` в имплиситах; (b) фильтры для аффиксов, имевших BTS-сегменты, продолжают работать.
-  2. **UI Refactor implementation** — план в `docs/UI_REFACTOR_PLAN.md`, 5 фаз. Рекомендованный старт — Phase 1 (foundation: filter-store + URL sync).
+- **Тесты/типы/lint:** ✅ vitest 1988/1988 (без изменений vs iter 129 — код не тронут), tsc 0 errors, eslint 0 problems.
+- **KI статус:** без изменений — KI#9 monitoring, KI#7/KI#8/KI#10-KI#13 закрыты.
+- **НЕ сделано (перенос в iter 131+):**
+  1. **UI Refactor implementation** — план reviewed iter 130, готов к реализации. Старт — Phase 1 (foundation: 4 поля `FilterState` + URL sync).
+  2. **In-game verification пользователем KI#13 fix** — перенос с iter 129.
   3. **KI#9 (MULTI_RANGE slot N>0)** — monitoring, не фиксировано.
-- **Точка остановки:** iter 129 done. Cleanup завершён, KI#7/KI#8 закрыты, UI план написан. В iter 130:
-  1. Читать `docs/UI_REFACTOR_PLAN.md` end-to-end.
-  2. Стартовать с Phase 1 (foundation: `FilterState` extension + URL sync для `collapsedGroups`, `showSelectedOnly`, `pinnedIds`).
-  3. Получить in-game верификацию KI#13 от пользователя (если возможно).
-  4. Если найден новый FP/FN баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
-- **Подсказка следующему агенту:** iter 129 почитал dead patterns (6 BTS-related regex удалены из `src/shared/mod-classifier.ts`, 4 теста удалены). KI#7/KI#8 закрыты (реализация iter 121/122 интактна, build проходит). UI Refactor Plan в `docs/UI_REFACTOR_PLAN.md` — 5 фаз, начать с Phase 1. Перед стартом прочитай STATUS.md (актуальный статус iter 129 + KI#9 monitoring + закрытые KI#7/KI#8/KI#10-KI#13), worklog.md (этот раздел iter 129), Pitfall 40 (dead patterns cleanup) в AGENT_NAVIGATION.md. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Точка остановки:** iter 130 done. План отревьюен, 5 пропусков + 2 противоречия задокументированы, корректировки внесены. В iter 131:
+  1. Читать `docs/UI_REFACTOR_PLAN.md` end-to-end включая §13.
+  2. Читать `docs/UI_VISUALIZATION_AUDIT.md` — эталон.
+  3. Стартовать с Phase 1 (foundation: 4 поля `FilterState` включая `chipExpandState`).
+  4. Не реализовывать TopNav dropdowns — visualization keeps flat nav.
+  5. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+- **Подсказка следующему агенту:** iter 130 почитал план против визуализации. Главные изменения: (1) «+N ещё» chip expander добавлен как Phase 2.5 + `chipExpandState` поле в Phase 1; (2) «Обозначения» legend добавлен как Phase 4.5; (3) TopNav dropdowns REMOVED из Phase 5 — visualization keeps flat nav; (4) favorites placement moved из mod list в LEFT panel выше поиска; (5) chip density 20%→25%. Полный разбор — в `docs/UI_REFACTOR_PLAN.md` §13 + `docs/UI_VISUALIZATION_AUDIT.md`.
 
 ---
 
 ## Предыдущие итерации (кратко)
 
+- **iter 129**: cleanup dead BTS-related regex patterns (6 patterns из 5 констант в `mod-classifier.ts`) + KI#7/KI#8 VERIFIED + UI Refactor Plan в `docs/UI_REFACTOR_PLAN.md` (5 фаз, без реализации). 1992→1988 tests.
 - **iter 128**: фикс KI#13 — пропущен implicit `Редкость монстров: +##%` + BTS-статы в waystone-аффиксах. Расширен `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` с 4 до 10 ключей, patch `waystone.json` (156→110 tokens) + `waystone-desecrated.json` (32→28). 1992/1992 tests.
 - **iter 127**: аудит KI#10-pattern + фикс KI#12 (tier-hardcoded regex для 7 single-# relic tokens). KI#11 ОПРОВЕРГНУТА. 1958/1958 tests.
 - **iter 126**: фикс KI#10 — ambiguous suffix FP для `Редкость предметов`. VERIFIED in-game iter 127. 1939/1939 tests.

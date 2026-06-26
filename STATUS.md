@@ -2,51 +2,51 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 129
-> **UI-аудит:** `docs/UI_AUDIT.md` (v2, 2026-06-21) + `docs/UI_REFACTOR_PLAN.md` (iter 129)
+> **Текущая итерация:** 130
+> **UI-документация:** `docs/UI_AUDIT.md` (v2) + `docs/UI_REFACTOR_PLAN.md` (план, reviewed iter 130) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130)
 
 ---
 
 ## Текущее состояние
 
-**iter 129: cleanup + stabilisation — подготовка к UI-рефакторингу.**
+**iter 130: review плана UI-рефакторинга против визуализации — без реализации.**
 
-Пользователь дал задачу: «в этой итерации чисто приведение всего в порядок
-и устаканивание для дальнейшей работы. пока ничего не реализуем» + запросил
-продумать план UI-улучшений.
+Пользователь дал задачу: «проверь на ошибки и упущения новый план, убедись
+что все сделано качественно и полно» + приложил визуализацию целевого UI.
+Также: «в этой итерации чисто приведение всего в порядок и устаканивание
+для дальнейшей работы. пока ничего не реализуем».
 
-**Сделано в iter 129:**
-1. **Cleanup dead patterns** в `src/shared/mod-classifier.ts` (теперь
-   обязательно, было опциональным в iter 128). Удалены 6 BTS-related regex
-   patterns из 4 констант (POSITIVE_KEYWORDS, NEGATIVE_KEYWORDS,
-   POSITIVE_LOOT_PATTERNS, NEGATIVE_MONSTER_MODIFIERS_PATTERNS,
-   WAYSTONE_A_PREFIX) — все они матчили только BTS-токены, отфильтрованные
-   на ETL в iter 128 (KI#13). Удалены 4 соответствующих теста в
-   `tests/shared/mod-classifier.test.ts`. Тесты: 1992 → 1988 (-4), все pass.
-2. **KI#7 (HomePage hero decorations, iter 121) → VERIFIED.** Реализация
-   завершена в iter 121: side-ghost portraits (`hero-shaman.webp` left +
-   `hero-iva.webp` right), anchored to `<main>` edges, `xl:block` only,
-   `h-[80vh] max-h-[720px]`, opacity 0.20, mask-image gradients. CSS
-   `.hero-side-ghost` / `.hero-side-ghost--right` (index.css:609-662).
-   Build verification: vite build succeeds, CSS compiles. Закрыто.
-3. **KI#8 (SeoBlock atmosphere, iter 122) → VERIFIED.** Реализация завершена
-   в iter 122: `seo-atmosphere.webp` (1600×900 landscape backdrop) +
-   `hero-demon-blue.webp` (right-edge accent). Visible только при
-   `<details>[open]`, lg+ only. `mix-blend-screen` + mask-image fade.
-   CSS `.home-seo-atmosphere` (index.css:1090-1126) + `.home-seo-demon`
-   (index.css:1077-1088). Build verification: vite build succeeds. Закрыто.
-4. **UI Refactor Plan** в `docs/UI_REFACTOR_PLAN.md` — детальный план на 5
-   фаз (5 итераций), с архитектурным анализом, спецификациями компонентов,
-   стратегией тестирования, рисками и открытыми вопросами. **Без
-   реализации** — только план.
+**Сделано в iter 130:**
+1. **VLM-анализ визуализации** через z-ai vision API — полный инвентарь
+   элементов (3-колоночный layout, левая панель с избранным выше поиска,
+   центр с 3 сворачиваемыми категориями + подгруппами + «+N ещё», правая
+   панель с basket + affix-type бейджами + «Обозначения» легендой).
+2. **Создан `docs/UI_VISUALIZATION_AUDIT.md`** (~140 строк) — отдельный
+   артефакт с описанием эталона: layout, element inventory, color coding,
+   UX patterns, конфликты с `UI_AUDIT.md`, файлы-затронутые.
+3. **`docs/UI_REFACTOR_PLAN.md` обновлён** — добавлен §13 «Visualization
+   Audit» с 5 пропусками + 2 противоречиями. Корректировки:
+   - Phase 1: +`chipExpandState: Set<string>` для Phase 2.5.
+   - Phase 2.5 (NEW): «+N ещё» per-sub-group chip expander.
+   - Phase 3: +affix-type badges (ИМПЛИСИТ/ПРЕФИКС/СУФФИКС) на basket chips.
+   - Phase 4: chip density 20%→25% (px-1.5 py-0.5).
+   - Phase 4.5 (NEW): «Обозначения» icon legend.
+   - Phase 5: favorites MOVED to LEFT panel above search;
+     TopNav dropdowns REMOVED (visualization keeps flat nav).
+   - §5 Phase Dependencies: +Phase 2.5, +Phase 4.5.
+   - §6 Risk Register: TopNav risk REMOVED; +2 new risks.
+   - §7 Open Questions: Q#5 REMOVED, Q#6 updated to 25%, +Q#7 (preview count).
+   - §10 Estimate: 5→6 iterations, 28→42 files, 5→6 new files, 52-78→65-96 tests.
+   - §12 Phase Status: all 7 phases marked NOT STARTED with iter 130 notes.
+4. **Документация актуализирована:** STATUS.md (этот файл), worklog.md,
+   AGENT_NAVIGATION.md. Код НЕ тронут.
 
-### Проверки (iter 129)
+### Проверки (iter 130)
 
-- **vitest:** 1988/1988 tests passed (41 test files). -4 vs iter 128 (удалены
-  dead-pattern tests).
+- **vitest:** 1988/1988 tests passed (41 test files). Без изменений vs iter 129.
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **vite build:** succeeds (472ms, 156 modules, 49.43 kB CSS gzip 10.75 kB).
+- **Код не изменён** — только doc-файлы.
 
 ---
 
@@ -55,16 +55,16 @@
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
 2. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как компенсация.
 3. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
-4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай (MULTI_RANGE tokens используют простые char-class numRegexes). Mitigation: расширить `distributeAlternation` при FP.
+4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай. Mitigation: расширить `distributeAlternation` при FP.
 
 ### Закрытые KI (краткая справка)
 
 - **KI#7** (iter 121 → VERIFIED iter 129): HomePage hero decorations.
 - **KI#8** (iter 122 → VERIFIED iter 129): SeoBlock atmosphere backdrop.
-- **KI#10** (iter 126 — VERIFIED in-game iter 127): ambiguous suffix FP для `Редкость предметов`.
-- **KI#11** (iter 126 — DISPROVEN iter 127): cross-block `.*` hypothesis.
-- **KI#12** (iter 127 — FIXED): tier-hardcoded regex для 7 single-`#` relic tokens.
-- **KI#13** (iter 128 — FIXED): пропущен implicit `Редкость монстров` + BTS-статы в waystone-аффиксах.
+- **KI#10** (iter 126 → VERIFIED iter 127): ambiguous suffix FP для `Редкость предметов`.
+- **KI#11** (iter 126 → DISPROVEN iter 127): cross-block `.*` hypothesis.
+- **KI#12** (iter 127 → FIXED): tier-hardcoded regex для 7 single-`#` relic tokens.
+- **KI#13** (iter 128 → FIXED): пропущен implicit `Редкость монстров` + BTS-статы в waystone-аффиксах.
 
 ---
 
@@ -93,29 +93,20 @@
 
 ---
 
-## Оптимальные стратегии (итог)
+## Next iteration (iter 131)
 
-| Сценарий | Статегия | Статус |
-|----------|-----------|--------|
-| Token с excludes в OR mode | `^(?!.*X)(?!.*Y).*Z` | ✅ iter 46 |
-| Token с excludes в top-level AND | `"Z" "!X\|Y"` | ✅ |
-| Same-family OR (Path D) | `"prefix.*A\|prefix.*B\|..."` | ✅ |
-| Number-anchored RANGE (≥min) | `^N.*suffix` (Phase 9b) | ✅ |
-| Reversed RANGE (implicits, `suffix.*N`) | `suffix.*A\|suffix.*B\|...` (Path D distribution) | ✅ iter 125 |
-| Reversed RANGE с ambiguous suffix | Уникальный suffix (`едкость предметов` / `едкость монстров`) — explicit ETL override | ✅ iter 126/128 |
-| Single-`#` template token | Explicit override с tier-agnostic regex (как у `##` siblings) | ✅ iter 127 (KI#12) |
-| BTS-статы в waystone-аффиксах | Фильтр через `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` + новый implicit для суммированных статов | ✅ iter 128 (KI#13) |
-| Token с regexPrefixContext + regexExclude в OR | `^(?!.*X).*ctx.*Z` | ✅ iter 49 |
-| Token с regexPrefixContext без regexExclude в OR | `ctx.*Z` (same-block AND) | ✅ iter 108 |
-| Over-limit OR (>250 chars) | Runtime split на 2+ regex parts | ✅ iter 50 |
+Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` end-to-end включая §13
+(iter 130 visualization audit corrections). Затем
+`docs/UI_VISUALIZATION_AUDIT.md` — user-approved visual target.
 
----
+**Рекомендованный старт:** Phase 1 (foundation: `FilterState` extension
+с 4 полями — `collapsedGroups`, `showSelectedOnly`, `pinnedIds`,
+`chipExpandState` + URL sync backward-compat).
 
-## Next iteration (iter 130)
+Phase 4 и Phase 4.5 — независимы, можно делать в любой итерации как
+«warmup» работу для нового агента.
 
-Следующий агент: читай `docs/UI_REFACTOR_PLAN.md` (детальный план на 5 фаз).
-Рекомендованный старт — Phase 1 (foundation: filter-store + URL sync для
-3 новых полей). См. §11 в плане — "How to Start".
+**НЕ реализовывать:** TopNav dropdowns (visualization keeps flat nav).
 
 KI#9 — monitoring, не фиксировано. Если найден новый баг — сначала
 документируй в этом файле как Known Issue, потом фиксий.

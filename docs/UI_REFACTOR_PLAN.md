@@ -1,14 +1,17 @@
 # UI Refactor Plan — iter 129+
 
 > **Document purpose:** Engineering plan for the UI improvements proposed in
-> `docs/UI_AUDIT.md` (v2, 2026-06-21) + user follow-up audit (iter 128 chat).
-> This iteration (iter 129) **does NOT implement** — it only plans. Each phase
-> below is sized for ONE iteration of work, with concrete file changes, state
-> additions, and test strategy.
+> `docs/UI_AUDIT.md` (v2, 2026-06-21) + user follow-up audit (iter 128 chat)
+> + visualization audit (`docs/UI_VISUALIZATION_AUDIT.md`, iter 130).
+> This iteration (iter 129) **did NOT implement** — it only planned. iter 130
+> reviewed the plan against the user's visualization mockup and corrected
+> 5 gaps + 2 contradictions (see §13). Each phase below is sized for ONE
+> iteration of work, with concrete file changes, state additions, and test
+> strategy.
 >
-> **Status:** Draft for review. No code changes yet.
-> **Author:** iter 129 planning agent
-> **Last updated:** 2026-06-26
+> **Status:** Plan reviewed iter 130. No code changes yet.
+> **Author:** iter 129 planning agent; iter 130 review agent
+> **Last updated:** 2026-06-27 (iter 130)
 
 ---
 
@@ -131,12 +134,17 @@ is independently shippable (no half-states).
 
 ### Phase 1 — Foundation: filter-store + URL sync + collapse state
 
-**Goal:** Add the 3 new `FilterState` fields (`collapsedGroups`,
-`showSelectedOnly`, `pinnedIds`) with URL persistence, no UI yet. This unlocks
-every other phase.
+**Goal:** Add the 4 new `FilterState` fields (`collapsedGroups`,
+`showSelectedOnly`, `pinnedIds`, `chipExpandState`) with URL persistence, no
+UI yet. This unlocks every other phase.
+
+> **iter 130 change:** Added `chipExpandState: Set<string>` to support the
+> «+N ещё» per-sub-group chip expander discovered in the visualization
+> (see `docs/UI_VISUALIZATION_AUDIT.md` §2). Without this, Phase 2 cannot
+> implement the progressive-disclosure pattern visible in the mockup.
 
 **Files:**
-- `src/store/filter-store.ts` — add 3 fields + actions + serialization.
+- `src/store/filter-store.ts` — add 4 fields + actions + serialization.
 - `src/shared/types.ts` — extend `FilterState` type.
 - `src/store/url-sync.ts` — extend serialize/deserialize (backward-compat).
 - `tests/store/filter-store.test.ts` (NEW) — round-trip tests for new fields.
@@ -145,17 +153,18 @@ every other phase.
 ```ts
 interface FilterState {
   // ...existing fields...
-  collapsedGroups: Set<string>      // NEW — familyKey OR `${affix}:${groupKey}` identifiers
+  collapsedGroups: Set<string>      // NEW — `${categoryId}:${affix}` OR `${categoryId}:${affix}:${subBlockKey}`
   showSelectedOnly: boolean         // NEW — hide non-selected chips
-  pinnedIds: Set<string>            // NEW — favorited familyKey set
+  pinnedIds: Set<string>            // NEW — favorited familyKey set (renders in LEFT panel above search — see §13)
+  chipExpandState: Set<string>      // NEW (iter 130) — `${categoryId}:${affix}:${subBlockKey}` keys whose chips are fully expanded (overrides default "+N ещё" truncation)
 }
 ```
 
 **URL serialization (backward-compat):**
 - Existing format: `s=...&e=...&t=...&a=...&o=...&p=...&x=...&r=...`
 - New keys (added only when non-default): `c` (collapsed array), `so=1`
-  (show-selected-only flag), `pn` (pinned array). Old URLs without these
-  keys deserialize to empty defaults.
+  (show-selected-only flag), `pn` (pinned array), `ce` (chip-expand array).
+  Old URLs without these keys deserialize to empty defaults.
 
 **Tests:**
 - Round-trip: state → serialize → deserialize → state.
@@ -223,6 +232,55 @@ scrolling. All 8 category pages work. Mobile doesn't break.
 
 ---
 
+### Phase 2.5 — «+N ещё» per-sub-group chip expander (iter 130 addition)
+
+**Goal:** Visualization-driven density feature. When a sub-group has more
+than `CHIP_PREVIEW_COUNT` (default 3) chips, show only the first
+`CHIP_PREVIEW_COUNT` + a «+N ещё» button. Clicking the button expands the
+remaining chips inline (toggles `chipExpandState` from Phase 1).
+
+> **iter 130 addition:** Discovered in
+> `docs/UI_VISUALIZATION_AUDIT.md` §2 (mockup shows «Бездны порождают...»
+> + «+10 ещё»). Without this, even with collapsible groups the user still
+> sees 8–13 chips per sub-group when expanded — defeating the noise-reduction
+> goal.
+
+**Files:**
+- `src/ui/components/ModList.tsx` — when rendering chips inside an expanded
+  sub-group, slice to `CHIP_PREVIEW_COUNT` if `chipExpandState` does NOT
+  contain the sub-group key; render «+N ещё» button that calls
+  `toggleChipExpand(key)`. When `chipExpandState` has the key, render all
+  chips + a «свернуть» button.
+- `src/ui/components/VirtualizedModList.tsx` — same logic on the virtualized
+  `rows` array. Row count changes on toggle → `measureElement` recomputes.
+- `src/store/filter-store.ts` — `toggleChipExpand(key)`,
+  `expandAllChips()`, `collapseAllChips()` actions.
+- `src/shared/constants.ts` — `CHIP_PREVIEW_COUNT = 3` constant.
+- `src/shared/i18n.ts` — `chip.more` («+N ещё»), `chip.collapse` («свернуть»)
+  keys.
+
+**UX rules:**
+- Default: collapsed (show 3 chips + «+N ещё»).
+- Selected/pinned chips ALWAYS visible regardless of expand state (so user
+  never loses their current selection in the truncation).
+- «+N ещё» button shows the count: «+7 ещё», «+10 ещё».
+- Expanded state persists per sub-group in `chipExpandState` → URL.
+
+**Tests:**
+- `tests/ui/ModList.test.tsx` — sub-group with 5 chips renders 3 + «+2 ещё»;
+  click expands to 5 + «свернуть»; selected chip always visible even in
+  truncated state.
+- `tests/ui/VirtualizedModList.test.tsx` — same on virtualized variant;
+  scroll position preserved across toggle (regression check).
+
+**Risk:** TanStack Virtual row-count change on toggle — verify
+`measureElement` doesn't reset scroll. Test with belt.json (largest).
+
+**Definition of Done:** Sub-groups with >3 chips show preview + «+N ещё».
+Toggle works, persists in URL, scroll position preserved.
+
+---
+
 ### Phase 3 — "Show only selected" mode + Selected basket panel
 
 **Goal:** User's #3 + #4 priority. Toggle hides non-selected chips; right
@@ -258,6 +316,11 @@ output.
 - Max-height 30vh with internal scroll. Each chip is read-only
   `FilterChip` (no range inputs, just label + click-to-deselect + ✗ to
   exclude).
+- **iter 130 addition:** Each basket chip is prefixed with a colored
+  affix-type badge («ИМПЛИСИТ» / «ПРЕФИКС» / «СУФФИКС») per
+  `docs/UI_VISUALIZATION_AUDIT.md` §2. Colors: implicit=amber, prefix=blue,
+  suffix=red. Helps user scan which affix slots their selection fills.
+- Header: «Выбрано: N» + «Очистить все» link (calls `clearSelections()`).
 - If > 12 chips, show "N more..." expander at bottom (don't render 200
   chips in the basket — perf).
 - Mobile: basket collapses into a chip-count summary at the top of
@@ -333,49 +396,93 @@ a glance. Chips ~20% smaller. Info icons explain group types to beginners.
 
 ---
 
-### Phase 5 — Favorites/pinned mods + TopNav dropdowns (optional)
+### Phase 4.5 — «Обозначения» icon legend (iter 130 addition)
 
-**Goal:** Audit §3 (favorites) + §10 (TopNav restructure). These are
-lower-priority — can be deferred or done independently.
+**Goal:** Visualization-driven. Right panel gets a static «Обозначения»
+section explaining what each icon means (★ / — / ⓘ). Companion to Phase 4
+tooltips — gives beginners a permanent reference, not just hover hints.
+
+> **iter 130 addition:** Discovered in
+> `docs/UI_VISUALIZATION_AUDIT.md` §2 (right panel shows «Обозначения»
+> with three legend rows: «★ — в избранное» / «— — Добавить в выбранное» /
+> «Наведите на ⓘ для дополнительной информации»).
+
+**Files:**
+- `src/ui/components/IconLegend.tsx` (NEW) — renders the 3-row legend.
+  Pure presentational, no props (or optional `items` prop for testing).
+- `src/ui/layout/CategoryLayout.tsx` — render `<IconLegend />` at the
+  BOTTOM of the right `<aside>` (below ProfilePanel).
+- `src/shared/i18n.ts` — `legend.title`, `legend.star`, `legend.add`,
+  `legend.info` keys.
+- `src/index.css` — `.icon-legend` class for spacing + divider.
+
+**Legend content (Russian):**
+- `★ — в избранное` (gold star)
+- `— — Добавить в выбранное` (or ✗ / ✓ depending on toggle state)
+- `ⓘ — Наведите для дополнительной информации`
+
+**Tests:**
+- `tests/ui/IconLegend.test.tsx` (NEW) — renders 3 rows, correct icons,
+  correct text.
+
+**Definition of Done:** Right panel shows «Обозначения» legend below
+ProfilePanel. All 3 rows rendered with correct icons.
+
+---
+
+### Phase 5 — Favorites/pinned mods (revised iter 130)
+
+**Goal:** Audit §3 (favorites). Visualization places favorites in the
+LEFT panel above search — NOT in the mod list as originally planned.
+
+> **iter 130 revision:** Two changes from the iter 129 plan:
+> 1. **TopNav dropdowns REMOVED.** Visualization keeps flat nav (9 items
+>    in a single row). User said «мне визуализация понравилась очень» —
+>    visual preference wins. See `docs/UI_VISUALIZATION_AUDIT.md` §5.
+> 2. **Favorites placement MOVED** from «top of mod list» to «top of LEFT
+>    panel, above search». This makes favorites a permanent shortcut,
+>    visible without scrolling past filters.
 
 **Files (favorites):**
-- `src/ui/components/FilterChip.tsx` — add `⭐` toggle button (next to
-  exclude `✗`). Persisted to `pinnedIds` set.
-- `src/ui/components/ModList.tsx` + `VirtualizedModList.tsx` — when
-  `pinnedIds` is non-empty, render a "⭐ Избранные" section at the TOP of
-  the list (above all affix columns) showing pinned chips.
-- `src/ui/components/SelectedBasket.tsx` — pinned chips get a star prefix.
-- `src/shared/i18n.ts` — `favorites.title`, `chip.pin_tooltip`,
-  `chip.unpin_tooltip` keys.
+- `src/ui/components/FilterChip.tsx` — add `⭐` toggle button (left of
+  text, before the label). Persisted to `pinnedIds` set.
+- `src/ui/components/LeftPanelFavorites.tsx` (NEW, replaces the mod-list
+  placement) — renders at the TOP of the left panel (above
+  CategoryControlPanel's search). Shows «⭐ Избранные аффиксы (N)» header
+  + «Очистить» button (calls a new `clearPinned()` action) + chips for
+  each `pinnedIds` entry (read-only `FilterChip` with ⭐ filled; click to
+  jump-scroll to that chip's location in the mod list; ✗ to unpin).
+- `src/ui/layout/CategoryLayout.tsx` — add new `favorites` slot rendered
+  above `controls` in the left column.
+- `src/ui/pages/*/Page.tsx` (8 files) — pass `<LeftPanelFavorites />`
+  into the new `favorites` slot.
+- `src/store/filter-store.ts` — add `clearPinned()`, `togglePinned(id)`
+  actions.
+- `src/shared/i18n.ts` — `favorites.title`, `favorites.clear`,
+  `chip.pin_tooltip`, `chip.unpin_tooltip` keys.
 
-**Files (TopNav):**
-- `src/ui/layout/TopNav.tsx` — restructure into 3 dropdown groups:
-  - "Предметы ▼": Путевые камни, Башни, Реликвии, Самоцветы
-  - "Снаряжение ▼": Кольца, Амулеты, Пояса
-  - "Инструменты ▼": Торговец
-- `src/ui/layout/nav-items.ts` — add `group` field to each item.
-- `src/ui/components/DropdownMenu.tsx` (NEW) — accessible dropdown
-  (keyboard nav, focus trap, click-outside close).
-- `src/index.css` — `.topnav-dropdown`, `.topnav-dropdown-trigger`,
-  `.topnav-dropdown-menu` classes.
-- `src/shared/i18n.ts` — `nav.group_items`, `nav.group_gear`,
-  `nav.group_tools` keys.
+**UX rules:**
+- Favorites are a SHORTCUT, not a filter — pinned chips do NOT hide
+  non-pinned chips in the mod list. They appear in both places.
+- Empty state: «Нажмите ★ на аффиксе, чтобы добавить в избранное».
+- Mobile: favorites section stays at top of left panel (which on mobile
+  is the top of the page, above the mod list).
+- Click on a favorited chip in LeftPanelFavorites → scroll mod list to
+  that chip's position + briefly highlight (2s pulse).
 
 **Tests:**
 - `tests/ui/FilterChip.test.tsx` — pin toggle works, persists.
-- `tests/ui/DropdownMenu.test.tsx` (NEW) — keyboard nav, focus trap,
-  click-outside.
-- `tests/ui/TopNav.test.tsx` (NEW) — dropdowns open/close, active state
-  propagates to parent group.
+- `tests/ui/LeftPanelFavorites.test.tsx` (NEW) — renders pinned chips,
+  empty state, click-to-scroll, ✗ to unpin, «Очистить» clears all.
 
-**Risk:** TopNav restructure breaks the muscle memory of existing users.
-Mitigation: dropdowns are additive — clicking the group label could either
-navigate to the first item in the group OR expand the dropdown. Recommend
-"click label = expand dropdown" (matches the `▼` affordance) + the first
-item in each dropdown is the "default" category for that group.
+**Risk:** Click-to-scroll requires finding the chip's DOM node — use
+`data-pinned-id` attribute + `document.querySelector`. Test on mobile
+where virtualization may unmount off-screen chips (degrade gracefully:
+if chip not in DOM, just scroll to its sub-group header).
 
 **Definition of Done:** Users can star favorite mods and see them at the
-top of the list. TopNav groups 9 categories into 3 dropdowns.
+top of the left panel. Clicking a favorited chip scrolls to it. TopNav
+stays flat — no dropdowns.
 
 ---
 
@@ -384,26 +491,32 @@ top of the list. TopNav groups 9 categories into 3 dropdowns.
 ```
 Phase 1 (foundation) ──┬──> Phase 2 (collapse + sticky search)
                        │
+                       ├──> Phase 2.5 ("+N ещё" chip expander)  [iter 130]
+                       │
                        ├──> Phase 3 (selected only + basket)
                        │
-                       └──> Phase 5 (favorites + topnav)
+                       └──> Phase 5 (favorites in left panel)   [iter 130 revision]
 
-Phase 4 (colors + compact + tooltips) — INDEPENDENT, can land any time.
+Phase 4   (colors + compact + tooltips)   — INDEPENDENT.
+Phase 4.5 ("Обозначения" icon legend)      — INDEPENDENT. [iter 130]
 ```
 
-- Phase 1 is the foundation. Must land first.
+- Phase 1 is the foundation. Must land first. (iter 130: now adds
+  `chipExpandState` for Phase 2.5.)
+- Phase 2.5 depends on Phase 2 (sub-group collapse must exist before
+  per-sub-group chip truncation makes sense).
 - Phases 2 and 3 can be done in parallel by different agents (different
   files mostly). They both consume Phase 1's `FilterState` fields.
-- Phase 4 is visual only — no state changes, can land any time after
-  Phase 1 (or even before, but Phase 1 has no UI conflict so order doesn't
-  matter).
-- Phase 5 (favorites) consumes Phase 1's `pinnedIds`. Phase 5 (TopNav) is
-  fully independent.
+- Phase 4 is visual only — no state changes, can land any time.
+- Phase 4.5 is a tiny presentational addition — can land in parallel with
+  any other phase.
+- Phase 5 (favorites) consumes Phase 1's `pinnedIds`. **iter 130: TopNav
+  dropdowns REMOVED from Phase 5** — see §13 contradiction #1.
 
-**Recommended sequence for one agent:** 1 → 2 → 3 → 4 → 5.
+**Recommended sequence for one agent:** 1 → 2 → 2.5 → 3 → 4 → 4.5 → 5.
 
-**Recommended sequence for parallel agents:** 1 alone → then 2, 3, 4 in
-parallel → then 5.
+**Recommended sequence for parallel agents:** 1 alone → then (2+3+4+4.5)
+in parallel → then 2.5 → then 5.
 
 ---
 
@@ -417,8 +530,10 @@ parallel → then 5.
 | Compact chips fail WCAG AA touch target | Medium | Low | Keep mobile bump at 32px. Desktop is mouse-driven. Add `aria-label` for screen readers. |
 | Existing tests break from CSS class renames | High | Low | Run full vitest suite after each phase. Update snapshots in same commit. |
 | Tooltip portal z-index conflicts with sticky elements | Medium | Low | Use `z-50` for tooltip portal (above sticky search `z-20` and TopNav `z-30`). |
-| TopNav dropdowns confuse existing users | Medium | Medium | Keep current paths active. Dropdown is additive navigation, not replacement. |
+| TopNav dropdowns confuse existing users | — | — | **REMOVED iter 130** — visualization keeps flat nav. No TopNav restructure. |
 | i18n keys missing for new strings | Low | Low | Add all keys in same commit as the UI that uses them. |
+| "+N ещё" truncation hides a selected chip | Medium | High | Always include selected/pinned chips in the preview slice, even if they're past index `CHIP_PREVIEW_COUNT`. |
+| Click-to-scroll in LeftPanelFavorites fails on virtualized off-screen chips | Medium | Low | Degrade gracefully: if `data-pinned-id` not in DOM, scroll to sub-group header instead. |
 
 ---
 
@@ -451,15 +566,21 @@ parallel → then 5.
    - **Recommendation:** Hover + focus (a11y). Skip `?` key shortcut
      (undiscoverable, low value).
 
-5. **TopNav dropdown click behavior:** Click label = navigate to first
-   item, or click label = expand dropdown?
-   - **Recommendation:** Click label = expand dropdown. The `▼` glyph
-     signals "click to open". Click an item inside to navigate.
+5. **~~TopNav dropdown click behavior~~** — **REMOVED iter 130.**
+   Visualization keeps flat nav. No dropdowns to click.
 
 6. **Compact chip density:** 20% reduction (px-2 py-1 text-[12px]) or
    25% (px-1.5 py-0.5 text-[12px])?
-   - **Recommendation:** Start with 20% (px-2 py-1). Test with real data.
-     If still too dense, go to 25% in a follow-up.
+   - **iter 130 revision:** Visualization clearly shows denser chips than
+     20% would give (multiple icons `⭐ text ⓘ ✗` in tight single row).
+     **New recommendation: start with 25% (px-1.5 py-0.5 text-[12px])**
+     and relax if mobile touch-target suffers.
+
+7. **"+N ещё" default preview count (iter 130 new question):** Show 3
+   chips by default, or 5, or 1?
+   - **Recommendation:** 3 (matches the visualization pattern: 1 featured
+     chip + 2 context chips + "+N ещё" button). Make it a constant
+     `CHIP_PREVIEW_COUNT` in `src/shared/constants.ts` so it's tunable.
 
 ---
 
@@ -467,15 +588,22 @@ parallel → then 5.
 
 ### Per-phase unit tests
 - Phase 1: `tests/store/filter-store.test.ts` (NEW) — round-trip +
-  backward-compat.
+  backward-compat for 4 new fields (`collapsedGroups`, `showSelectedOnly`,
+  `pinnedIds`, `chipExpandState`).
 - Phase 2: `tests/ui/GroupHeader.test.tsx` (NEW) + extend
   `tests/ui/ModList.test.tsx` + `VirtualizedModList.test.tsx`.
-- Phase 3: `tests/ui/SelectedBasket.test.tsx` (NEW) + extend
-  `tests/ui/CategoryControlPanel.test.tsx`.
+- Phase 2.5: extend `tests/ui/ModList.test.tsx` + `VirtualizedModList.test.tsx`
+  with "+N ещё" scenarios (preview count, selected-chip always visible,
+  toggle, URL persistence).
+- Phase 3: `tests/ui/SelectedBasket.test.tsx` (NEW, includes affix-type
+  badge assertions) + extend `tests/ui/CategoryControlPanel.test.tsx`.
 - Phase 4: `tests/ui/Tooltip.test.tsx` (NEW) + update
   `tests/ui/FilterChip.test.tsx` snapshots.
-- Phase 5: `tests/ui/DropdownMenu.test.tsx` (NEW) +
-  `tests/ui/TopNav.test.tsx` (NEW).
+- Phase 4.5: `tests/ui/IconLegend.test.tsx` (NEW) — 3 rows, correct icons.
+- Phase 5: `tests/ui/FilterChip.test.tsx` (extend for ⭐ pin) +
+  `tests/ui/LeftPanelFavorites.test.tsx` (NEW).
+  **iter 130: `DropdownMenu.test.tsx` + `TopNav.test.tsx` REMOVED —
+  TopNav dropdowns dropped.**
 
 ### Integration tests (per phase)
 - Run `tests/integration/runtime-classification.test.ts` (existing) —
@@ -489,11 +617,18 @@ parallel → then 5.
 ### Manual verification (per phase)
 - Phase 2: Open waystone + belt pages. Collapse random groups. Refresh
   page. Verify state persisted in URL hash.
+- Phase 2.5: Open waystone page. Find sub-group with >3 chips. Verify only
+  3 + "+N ещё" show. Click button — verify all chips appear + "свернуть"
+  button. Select a chip past index 3 — verify it stays visible even when
+  sub-group re-truncated.
 - Phase 3: Select 5 mods. Toggle "selected only". Verify only those 5
-  show. Verify basket shows them.
+  show. Verify basket shows them with correct affix-type badges.
 - Phase 4: Compare side-by-side screenshots before/after on belt.json
   (largest). Count visible chips.
-- Phase 5: Pin 3 mods across 2 categories. Verify they persist.
+- Phase 4.5: Verify "Обозначения" legend appears at bottom of right panel.
+- Phase 5: Pin 3 mods. Verify they appear in left panel "Избранные"
+  section ABOVE search. Click one — verify mod list scrolls to it.
+  Verify "Очистить" button clears all pins.
 
 ---
 
@@ -516,30 +651,40 @@ parallel → then 5.
 
 | Phase | Files touched | New files | New tests | Iterations |
 |-------|---------------|-----------|-----------|------------|
-| 1 | 4 | 1 | 8-12 | 1 |
+| 1 | 4 | 1 | 10-14 | 1 |
 | 2 | 7 | 1 | 12-18 | 1 |
-| 3 | 6 | 1 | 10-15 | 1 |
+| 2.5 (iter 130) | 5 | 0 | 8-12 | 1 (or merged into 2) |
+| 3 | 6 | 1 | 12-17 | 1 |
 | 4 | 5 | 1 | 10-15 | 1 |
-| 5 | 6 | 1 | 12-18 | 1 |
-| **Total** | **28** | **5** | **52-78** | **5** |
+| 4.5 (iter 130) | 3 | 1 | 3-5 | 0.5 (tiny) |
+| 5 (revised iter 130) | 12 | 1 | 10-15 | 1 |
+| **Total** | **42** | **6** | **65-96** | **5.5–6** |
 
-Single-agent sequential: 5 iterations.
-Parallel (1 + 3 + 1): 3 iterations wall-clock.
+Single-agent sequential: 6 iterations (was 5; +1 for Phase 2.5).
+Parallel (1 + 4 + 1): 3 iterations wall-clock.
+
+> **iter 130 delta vs iter 129 estimate:** +1 phase (2.5), +0.5 phase (4.5),
+> Phase 5 file count up (8 page files now need `favorites` slot wiring).
+> TopNav work removed (saves ~3 files).
 
 ---
 
 ## 11. How to Start (for the next agent)
 
-1. Read this document end-to-end.
-2. Read `docs/UI_AUDIT.md` for the original audit recommendations.
-3. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
-4. Read `AGENT_NAVIGATION.md` Pitfalls 26-39 (CSS specificity, mobile
-   media queries, palette consistency).
-5. Pick a phase (recommend Phase 1 first — it unblocks everything).
-6. Create a TODO list with the phase's file changes.
-7. Implement, test, document, ship.
-8. Update this document with a "Phase N — DONE" note + any deviations
-   from the plan.
+1. Read this document end-to-end, including §13 (iter 130 visualization
+   audit corrections).
+2. Read `docs/UI_VISUALIZATION_AUDIT.md` — the user-approved visual target.
+3. Read `docs/UI_AUDIT.md` for the original audit recommendations (note
+   that §10 TopNav dropdowns are SUPERSEDED — see §13).
+4. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
+5. Read `AGENT_NAVIGATION.md` Pitfalls 26-40 (CSS specificity, mobile
+   media queries, palette consistency, dead-patterns cleanup).
+6. Pick a phase (recommend Phase 1 first — it unblocks everything,
+   including the new `chipExpandState` for Phase 2.5).
+7. Create a TODO list with the phase's file changes.
+8. Implement, test, document, ship.
+9. Update this document's §12 Phase Status table with a "Phase N — DONE"
+   note + any deviations from the plan.
 
 **If you find a new bug during implementation:** document in `STATUS.md`
 as Known Issue FIRST, then fix. (Per user's standing instruction.)
@@ -550,10 +695,90 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 | Phase | Status | Iteration | Notes |
 |-------|--------|-----------|-------|
-| 1 — Foundation | NOT STARTED | — | — |
+| 1 — Foundation (4 fields incl. `chipExpandState`) | NOT STARTED | — | iter 130: added `chipExpandState` for Phase 2.5 |
 | 2 — Collapse + Sticky search | NOT STARTED | — | — |
-| 3 — Selected only + Basket | NOT STARTED | — | — |
-| 4 — Colors + Compact + Tooltips | NOT STARTED | — | — |
-| 5 — Favorites + TopNav | NOT STARTED | — | — |
+| 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2 |
+| 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges |
+| 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25% |
+| 4.5 — "Обозначения" icon legend | NOT STARTED | — | iter 130 addition |
+| 5 — Favorites in LEFT panel (TopNav dropdowns REMOVED) | NOT STARTED | — | iter 130: placement moved, TopNav work dropped |
 
 (Update this table as phases land.)
+
+---
+
+## 13. Visualization Audit (iter 130)
+
+> **Trigger:** User provided a visualization mockup and asked to verify the
+> plan against it. Full mockup interpretation: `docs/UI_VISUALIZATION_AUDIT.md`.
+> This section records the delta — what the plan got wrong, what it missed,
+> what it over-engineered.
+
+### 13.1 What the plan got RIGHT (5 confirmations)
+
+| Plan element | Visualization confirms |
+|--------------|------------------------|
+| Phase 2: collapsible category headers (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) | ✅ Brown/blue/red headers with chevron + count |
+| Phase 2: collapsible sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) | ✅ Green text headers with chevron + count |
+| Phase 3: SelectedBasket with «Выбрано: N» + «Очистить все» | ✅ Exact match |
+| Phase 3: toggle «Все аффиксы / Только выбранные (N)» | ✅ Exact match |
+| Phase 4: stronger color tints (rgba blue/orange/amber) | ✅ Brown/blue/red background tints clearly visible |
+
+### 13.2 GAPS — visualization has, plan missed (5)
+
+| # | Gap | Plan correction |
+|---|-----|-----------------|
+| 1 | **«+N ещё» per-sub-group chip expander** — mockup shows `Бездны порождают... +10 ещё`. Plan Phase 2 only had group-level collapse. | NEW Phase 2.5 + `chipExpandState` field in Phase 1. See §4 Phase 2.5. |
+| 2 | **«Обозначения» legend section** in right panel (★/—/ⓘ icon meanings). Plan didn't mention. | NEW Phase 4.5. See §4 Phase 4.5. |
+| 3 | **«Очистить» button** in favorites section header (not just `clearSelections` action). | Added to Phase 5 `LeftPanelFavorites.tsx` spec. |
+| 4 | **Affix-type badges** (ИМПЛИСИТ/ПРЕФИКС/СУФФИКС) on each basket chip. | Added to Phase 3 basket layout. |
+| 5 | **Chip density 25%, not 20%** — mockup clearly shows denser chips with 4 inline icons (⭐ text ⓘ ✗). | Open Q#6 recommendation updated to 25%. |
+
+### 13.3 CONTRADICTIONS — plan vs visualization (2)
+
+| # | Plan said | Visualization shows | Resolution |
+|---|-----------|---------------------|------------|
+| 1 | Phase 5: TopNav → 3 dropdown groups (Предметы/Снаряжение/Инструменты) | Flat nav preserved (9 items in single row) | **Plan WRONG.** TopNav dropdowns REMOVED. User said «мне визуализация понравилась очень» — visual preference wins. |
+| 2 | Phase 5: favorites at TOP OF MOD LIST | Favorites at TOP OF LEFT PANEL, ABOVE SEARCH | **Plan WRONG.** Favorites placement MOVED to left panel. Left panel placement is better — visible without scrolling past filters. |
+
+### 13.4 Other observations (no plan change needed)
+
+- Visualization confirms priority dropdown (Все/S+A/S) already exists —
+  matches plan's note that `priorityFilter` is fully wired.
+- Visualization confirms sort dropdown (По алфавиту/По приоритету) already
+  exists — matches plan's note that `sortMode` is fully wired.
+- Visualization shows «188 аффиксов» total count in left panel header —
+  preserve existing UI.
+- Visualization shows «Профиль» collapsible in right panel — already
+  exists (`ProfilePanel.tsx`).
+- Visualization shows Regex output with «Авто» + «Копировать» — already
+  exists (`RegexOutput.tsx`).
+
+### 13.5 Files added/removed from plan (iter 130 delta)
+
+**Added:**
+- `docs/UI_VISUALIZATION_AUDIT.md` (NEW — this audit's companion).
+- `src/ui/components/LeftPanelFavorites.tsx` (Phase 5, replaces mod-list
+  placement).
+- `src/ui/components/IconLegend.tsx` (Phase 4.5).
+- `src/shared/constants.ts` extension: `CHIP_PREVIEW_COUNT` (Phase 2.5).
+- `src/store/filter-store.ts` extension: `chipExpandState`, `clearPinned()`,
+  `togglePinned()`, `toggleChipExpand()` actions.
+
+**Removed:**
+- `src/ui/components/DropdownMenu.tsx` (was Phase 5 — TopNav dropdowns
+  dropped).
+- `src/ui/layout/TopNav.tsx` restructure (was Phase 5 — kept flat).
+- `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
+- `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
+
+### 13.6 Recommendation for iter 131
+
+Start with **Phase 1** (foundation). The new `chipExpandState` field is
+small but unblocks Phase 2.5. Without Phase 1, none of Phases 2/2.5/3/5
+can ship. Phase 4 and Phase 4.5 are independent and can land in any
+iteration — they're good "warmup" work for a new agent.
+
+**Do NOT attempt Phase 5 before Phase 1** — `pinnedIds` must exist in the
+store first. **Do NOT implement TopNav dropdowns** — visualization
+supersedes that recommendation.
