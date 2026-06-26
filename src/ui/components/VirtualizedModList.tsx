@@ -28,6 +28,7 @@ import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '
 import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
+import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
 import type { TokenRangeOverride } from '@store/filter-store';
 
@@ -66,14 +67,46 @@ interface VirtualizedModListProps {
    * Forwarded to `classifyGroups()` via `buildColumnRows()` → `withSortedGroups()`.
    */
   sortMode?: SortMode;
+
+  // ─── Phase 2 (iter 133): collapsible affix groups + sticky search ─────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2 for full spec.
+  // When `collapsedGroups` / `expandedSubGroups` are NOT provided (e.g. tests,
+  // legacy callers), collapse UI is suppressed and groups render as before
+  // (all expanded). This keeps the component backward-compatible.
+
+  /** Top-level group keys currently COLLAPSED. Format: `${categoryId}:${affix}`. */
+  collapsedGroups?: Set<string>;
+  /** Sub-group keys currently EXPANDED. Format: `${categoryId}:${affix}:${subBlockKey}`. */
+  expandedSubGroups?: Set<string>;
+  /** Toggle a top-level group's collapsed state. */
+  onToggleGroupCollapsed?: (key: string) => void;
+  /** Toggle a sub-group's expanded state. */
+  onToggleSubGroupExpanded?: (key: string) => void;
+  /** Expand all top-level groups. */
+  onExpandAllGroups?: () => void;
+  /** Collapse all top-level groups. */
+  onCollapseAllGroups?: (keys: string[]) => void;
+  /** Expand all sub-groups. */
+  onExpandAllSubGroups?: (keys: string[]) => void;
+  /** Collapse all sub-groups. */
+  onCollapseAllSubGroups?: () => void;
 }
 
-/** A flat virtual row for the virtualizer */
+/** A flat virtual row for the virtualizer.
+ *
+ *  iter 133 (Phase 2): added `topKey` / `subKey` fields on header rows so the
+ *  `VirtualRowContent` can render a GroupHeader with the correct collapse key
+ *  and toggle callback. Rows are filtered in `buildColumnRows` based on
+ *  collapse state: when a top-level group is collapsed, only its `column-header`
+ *  row is emitted (origin/subgroup rows skipped). When a sub-group is collapsed
+ *  (not in `expandedSubGroups`), only its `subgroup-header` row is emitted
+ *  (chips skipped). */
 type VirtualRow =
-  | { type: 'column-header'; affix: AffixType; count: number }
+  | { type: 'column-header'; affix: AffixType; count: number; topKey?: string; isCollapsed?: boolean }
   | { type: 'origin-header'; origin: ModOrigin; label: string; colorClass: string; bgClass: string; borderClass: string; borderLClass: string; count: number; iconPath?: string }
   | { type: 'jewel-type-header'; jewelType: JewelTypeCategory; label: string; colorClass: string; bgClass: string; borderClass: string; count: number }
-  | { type: 'subgroup'; subGroup: ModSubGroup; affix: AffixType };
+  | { type: 'subgroup'; subGroup: ModSubGroup; affix: AffixType; subKey?: string; isSubExpanded?: boolean }
+  | { type: 'subgroup-header'; subGroup: ModSubGroup; affix: AffixType; subKey: string; isSubExpanded: false };
 
 const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
 
@@ -84,12 +117,15 @@ const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 's
  *  iter 120: subgroup lowered from 120 → 60 (closer to actual average for
  *  typical 1–3 chip subgroups without range inputs). High estimates caused
  *  jitter during scroll because totalSize shrank when ResizeObserver fired
- *  with actual sizes much smaller than the estimate. */
+ *  with actual sizes much smaller than the estimate.
+ *  iter 133 (Phase 2): added `subgroup-header` row variant (header-only when
+ *  collapsed — same height as jewel-type-header since visually similar). */
 const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
   'column-header': 44,
   'origin-header': 36,
   'jewel-type-header': 30,
   'subgroup': 60, // typical 1–3 chips: ~40–80px; selected with range: ~100–120px
+  'subgroup-header': 30, // header-only (collapsed sub-group): similar to jewel-type-header
 };
 
 /**
@@ -116,6 +152,18 @@ function findScrollableParent(el: HTMLElement | null): HTMLElement | null {
  * iter 106 (P4): `sortMode` forwarded to every `classifyGroups()` call so the
  * UI toggle propagates through origin-split sub-sections and jewel-type
  * sub-sections as well.
+ *
+ * iter 133 (Phase 2): `topKey` + `collapsedGroups` + `expandedSubGroups`
+ * drive row filtering:
+ *   - When the top-level group is COLLAPSED (topKey in collapsedGroups), only
+ *     the `column-header` row is emitted — origin/subgroup rows are skipped.
+ *     The column-header carries `topKey` + `isCollapsed=true` so VirtualRowContent
+ *     can render a GroupHeader with chevron.
+ *   - When a sub-group is COLLAPSED (subKey NOT in expandedSubGroups), a
+ *     `subgroup-header` row is emitted instead of a full `subgroup` row — chips
+ *     are NOT rendered. The header carries `subKey` + `isSubExpanded=false`.
+ *   - When collapse wiring is absent (legacy callers), all groups render as
+ *     expanded (preserves pre-Phase-2 behaviour).
  */
 function buildColumnRows(
   affix: AffixType,
@@ -125,12 +173,50 @@ function buildColumnRows(
   showOriginSubSections: boolean,
   showJewelTypeSubGroups: boolean,
   sortMode: SortMode = 'alpha',
+  // Phase 2 (iter 133) — all optional, backward-compatible when absent
+  topKey?: string,
+  collapsedGroups?: Set<string>,
+  expandedSubGroups?: Set<string>,
 ): VirtualRow[] {
   const rows: VirtualRow[] = [];
   if (groups.length === 0) return rows;
 
-  // Column header
-  rows.push({ type: 'column-header', affix, count: groups.length });
+  // Phase 2 (iter 133): if top-level group is collapsed, emit ONLY the
+  // column-header row. The chevron in the GroupHeader lets the user expand
+  // back. When collapse wiring is absent (legacy), isTopCollapsed stays false.
+  const isTopCollapsed = !!(topKey && collapsedGroups && collapsedGroups.has(topKey));
+
+  // Column header — always emitted. When collapse wiring is present, carries
+  // `topKey` + `isCollapsed` so VirtualRowContent renders a GroupHeader.
+  rows.push({
+    type: 'column-header',
+    affix,
+    count: groups.length,
+    topKey,
+    isCollapsed: topKey ? isTopCollapsed : undefined,
+  });
+
+  // If the top-level group is collapsed, skip all sub-rows.
+  if (isTopCollapsed) return rows;
+
+  // Helper: emit a sub-group row, choosing between `subgroup` (expanded) or
+  // `subgroup-header` (collapsed, header-only). When collapse wiring is absent,
+  // always emits full `subgroup` (legacy behaviour).
+  const emitSubGroup = (sg: ModSubGroup) => {
+    const subKey = topKey ? `${topKey}:${sg.key}` : undefined;
+    if (subKey && expandedSubGroups) {
+      const isExpanded = expandedSubGroups.has(subKey);
+      if (isExpanded) {
+        rows.push({ type: 'subgroup', subGroup: sg, affix, subKey, isSubExpanded: true });
+      } else {
+        // Collapsed sub-group: emit header-only row (no chips).
+        rows.push({ type: 'subgroup-header', subGroup: sg, affix, subKey, isSubExpanded: false });
+      }
+    } else {
+      // Legacy path (no collapse wiring) — always full row.
+      rows.push({ type: 'subgroup', subGroup: sg, affix });
+    }
+  };
 
   if (showOriginSubSections) {
     const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
@@ -192,18 +278,18 @@ function buildColumnRows(
 
           const jtSubGroups = classifyGroups(jtGroups, groupMode, sortMode);
           for (const sg of jtSubGroups) {
-            rows.push({ type: 'subgroup', subGroup: sg, affix });
+            emitSubGroup(sg);
           }
         }
       } else {
         for (const sg of originSubGroups) {
-          rows.push({ type: 'subgroup', subGroup: sg, affix });
+          emitSubGroup(sg);
         }
       }
     }
   } else {
     for (const sg of subGroups) {
-      rows.push({ type: 'subgroup', subGroup: sg, affix });
+      emitSubGroup(sg);
     }
   }
 
@@ -213,6 +299,10 @@ function buildColumnRows(
 /**
  * Render a single virtual row's content (without positioning wrapper).
  * iter 107: `sortMode` forwarded to FilterChip for tier-aware left border.
+ * iter 133 (Phase 2): `onToggleGroupCollapsed` + `onToggleSubGroupExpanded`
+ * enable chevron clicks on column-header + subgroup-header rows. When the
+ * callbacks are absent (legacy callers), headers render as static text —
+ * preserving the pre-Phase-2 behaviour.
  */
 const VirtualRowContent: React.FC<{
   row: VirtualRow;
@@ -226,7 +316,11 @@ const VirtualRowContent: React.FC<{
   collapsedTokenIds?: Set<string>;
   /** iter 107: forwarded to FilterChip for tier-aware left border. */
   sortMode?: SortMode;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode }) => {
+  /** iter 133 (Phase 2): toggle a top-level group's collapse state. */
+  onToggleGroupCollapsed?: (key: string) => void;
+  /** iter 133 (Phase 2): toggle a sub-group's expand state. */
+  onToggleSubGroupExpanded?: (key: string) => void;
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded }) => {
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     const headerClass = isImplicit
@@ -234,9 +328,26 @@ const VirtualRowContent: React.FC<{
       : row.affix === 'prefix'
         ? 'affix-header-prefix text-accent-blue'
         : 'affix-header-suffix text-accent-orange';
+    const affixLabel = isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + row.affix);
+
+    // Phase 2 (iter 133): render as GroupHeader when collapse wiring is present.
+    if (row.topKey && onToggleGroupCollapsed) {
+      return (
+        <GroupHeader
+          label={affixLabel}
+          count={row.count}
+          isCollapsed={!!row.isCollapsed}
+          onToggle={() => onToggleGroupCollapsed(row.topKey!)}
+          variant="top"
+          className={headerClass}
+        />
+      );
+    }
+
+    // Legacy path: static text.
     return (
       <div className={`text-base font-bold uppercase tracking-wider ${headerClass}`}>
-        {isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + row.affix)} ({row.count})
+        {affixLabel} ({row.count})
       </div>
     );
   }
@@ -266,13 +377,46 @@ const VirtualRowContent: React.FC<{
     );
   }
 
-  // subgroup
+  // Phase 2 (iter 133): subgroup-header row — header only, no chips.
+  // Renders as a GroupHeader with chevron so the user can expand it.
+  if (row.type === 'subgroup-header') {
+    if (row.subGroup.label) {
+      return (
+        <div className="mb-2">
+          <GroupHeader
+            label={row.subGroup.label}
+            count={row.subGroup.groups.length}
+            isCollapsed={!row.isSubExpanded}
+            onToggle={() => onToggleSubGroupExpanded?.(row.subKey)}
+            variant="sub"
+            className={`${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}
+          />
+        </div>
+      );
+    }
+    // No label — render as nothing (collapsed sub-group with no header).
+    return null;
+  }
+
+  // subgroup (expanded) — render header (with collapse toggle when wired) + chips
+  const collapseWired = !!(row.subKey && onToggleSubGroupExpanded);
   return (
     <div className="mb-2">
       {row.subGroup.label && (
-        <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
-          {row.subGroup.label} ({row.subGroup.groups.length})
-        </div>
+        collapseWired ? (
+          <GroupHeader
+            label={row.subGroup.label}
+            count={row.subGroup.groups.length}
+            isCollapsed={false}
+            onToggle={() => onToggleSubGroupExpanded!(row.subKey!)}
+            variant="sub"
+            className={`${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}
+          />
+        ) : (
+          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+            {row.subGroup.label} ({row.subGroup.groups.length})
+          </div>
+        )
       )}
       <div className="flex flex-wrap gap-2">
         {row.subGroup.groups.map((group) => (
@@ -313,6 +457,10 @@ interface VirtualizedColumnProps {
   borderClass: string;
   /** iter 107: forwarded to FilterChip via VirtualRowContent for tier-aware border. */
   sortMode?: SortMode;
+  /** iter 133 (Phase 2): toggle a top-level group's collapse state. */
+  onToggleGroupCollapsed?: (key: string) => void;
+  /** iter 133 (Phase 2): toggle a sub-group's expand state. */
+  onToggleSubGroupExpanded?: (key: string) => void;
 }
 
 /** A single virtualized column (prefix or suffix) */
@@ -329,6 +477,8 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   collapsedTokenIds,
   borderClass,
   sortMode,
+  onToggleGroupCollapsed,
+  onToggleSubGroupExpanded,
 }) => {
   // TanStack Virtual's useVirtualizer returns non-memoizable functions
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
@@ -404,6 +554,8 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
                 sortMode={sortMode}
+                onToggleGroupCollapsed={onToggleGroupCollapsed}
+                onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               />
             </div>
           );
@@ -440,6 +592,15 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   category,
   priorityFilter = 'all',
   sortMode = 'alpha',
+  // Phase 2 (iter 133): collapse state
+  collapsedGroups,
+  expandedSubGroups,
+  onToggleGroupCollapsed,
+  onToggleSubGroupExpanded,
+  onExpandAllGroups,
+  onCollapseAllGroups,
+  onExpandAllSubGroups,
+  onCollapseAllSubGroups,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -520,19 +681,25 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [suffixGroups, groupMode, sortMode]
   );
 
-  // Build separate row lists for each column
+  // Build separate row lists for each column.
   // iter 106 (P4): sortMode forwarded so the UI toggle propagates to all sub-groups.
+  // iter 133 (Phase 2): topKey + collapsedGroups + expandedSubGroups forwarded
+  // so buildColumnRows can filter rows by collapse state.
+  const implicitTopKey = category ? `${category}:implicit` : undefined;
+  const prefixTopKey = category ? `${category}:prefix` : undefined;
+  const suffixTopKey = category ? `${category}:suffix` : undefined;
+
   const implicitRows = useMemo(
-    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
-    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
+    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, collapsedGroups, expandedSubGroups),
+    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, collapsedGroups, expandedSubGroups]
   );
   const prefixRows = useMemo(
-    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
-    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
+    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, collapsedGroups, expandedSubGroups),
+    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, collapsedGroups, expandedSubGroups]
   );
   const suffixRows = useMemo(
-    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode),
-    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode]
+    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, collapsedGroups, expandedSubGroups),
+    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, collapsedGroups, expandedSubGroups]
   );
 
   const hasImplicit = implicitGroups.length > 0;
@@ -607,12 +774,17 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     collapsedTokenIds,
     // iter 107: forwarded to FilterChip via VirtualRowContent for tier-aware border.
     sortMode,
+    // iter 133 (Phase 2): forwarded to VirtualRowContent for chevron clicks.
+    onToggleGroupCollapsed,
+    onToggleSubGroupExpanded,
   };
 
   return (
     <div className="virtualized-mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')} ref={containerRef}>
-      {/* Search + Filters row */}
-      <div className="flex flex-wrap gap-2 items-center">
+      {/* Phase 2 (iter 133): Search + Filters row — sticky under TopNav.
+          The `.sticky-search-bar` class in index.css handles position:sticky +
+          bg + backdrop-blur. `top: 52px` (mobile) / `56px` (md+) matches TopNav height. */}
+      <div className="sticky-search-bar flex flex-wrap gap-2 items-center">
         <input
           type="text"
           value={searchText}
@@ -656,6 +828,62 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
             className="px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
           >
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
+          </button>
+        )}
+
+        {/* Phase 2 (iter 133): Expand all / Collapse all buttons.
+            Desktop-only (`hidden lg:inline-flex`) per spec — on mobile the
+            user relies on per-group chevrons. When collapse wiring is not
+            provided (legacy callers), buttons are not rendered. */}
+        {(onExpandAllGroups || onExpandAllSubGroups) && (
+          <button
+            type="button"
+            onClick={() => {
+              // Build the full list of sub-group keys from current sub-groups.
+              // For top-level keys, we use the visible affixes (implicit/prefix/suffix).
+              if (onExpandAllSubGroups && expandedSubGroups) {
+                const allSubKeys: string[] = [];
+                const allAffixes: AffixType[] = [];
+                if (implicitGroups.length > 0) allAffixes.push('implicit');
+                if (prefixGroups.length > 0) allAffixes.push('prefix');
+                if (suffixGroups.length > 0) allAffixes.push('suffix');
+                for (const aff of allAffixes) {
+                  const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
+                  for (const sg of subs) {
+                    allSubKeys.push(`${category}:${aff}:${sg.key}`);
+                  }
+                }
+                onExpandAllSubGroups(allSubKeys);
+              } else if (onExpandAllGroups) {
+                onExpandAllGroups();
+              }
+            }}
+            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+            aria-label={t('group.expand_all')}
+          >
+            {t('group.expand_all')}
+          </button>
+        )}
+        {(onCollapseAllGroups || onCollapseAllSubGroups) && (
+          <button
+            type="button"
+            onClick={() => {
+              // Collapse all = empty expandedSubGroups (sub-level) OR populate
+              // collapsedGroups with all top-level keys (top-level).
+              if (onCollapseAllSubGroups) {
+                onCollapseAllSubGroups();
+              } else if (onCollapseAllGroups) {
+                const allTopKeys: string[] = [];
+                if (implicitGroups.length > 0) allTopKeys.push(`${category}:implicit`);
+                if (prefixGroups.length > 0) allTopKeys.push(`${category}:prefix`);
+                if (suffixGroups.length > 0) allTopKeys.push(`${category}:suffix`);
+                onCollapseAllGroups(allTopKeys);
+              }
+            }}
+            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+            aria-label={t('group.collapse_all')}
+          >
+            {t('group.collapse_all')}
           </button>
         )}
       </div>
@@ -716,6 +944,8 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                   onClearTokenRange={onClearTokenRange}
                   collapsedTokenIds={collapsedTokenIds}
                   sortMode={sortMode}
+                  onToggleGroupCollapsed={onToggleGroupCollapsed}
+                  onToggleSubGroupExpanded={onToggleSubGroupExpanded}
                 />
               </div>
             );

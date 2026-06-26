@@ -192,6 +192,31 @@ export interface CategoryPageState {
    *  Used to show a visual indicator on chips so the user understands why
    *  clicking the chip doesn't change the regex output. */
   collapsedTokenIds: Set<string>;
+
+  // ─── Phase 2 fields (iter 133, UI Refactor) ───────────────────────────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2 for full spec.
+  // All wired to filter-store (Phase 1, iter 132) — UI consumes them in
+  // ModList / VirtualizedModList via GroupHeader + row filtering.
+
+  /** Top-level group keys currently COLLAPSED (Phase 2).
+   *  Format: `${categoryId}:${affix}`. Default empty = all top-level EXPANDED. */
+  collapsedGroups: Set<string>;
+  /** Sub-group keys currently EXPANDED (Phase 2).
+   *  Format: `${categoryId}:${affix}:${subBlockKey}`.
+   *  Default empty = all sub-groups COLLAPSED (asymmetric default per iter 131 §13.7 #4). */
+  expandedSubGroups: Set<string>;
+  /** Toggle a top-level group's collapsed state. Key: `${categoryId}:${affix}`. */
+  toggleGroupCollapsed: (key: string) => void;
+  /** Toggle a sub-group's expanded state. Key: `${categoryId}:${affix}:${subBlockKey}`. */
+  toggleSubGroupExpanded: (key: string) => void;
+  /** Expand ALL top-level groups (empty `collapsedGroups`). */
+  expandAllGroups: () => void;
+  /** Collapse ALL top-level groups by populating `collapsedGroups` with all keys. */
+  collapseAllGroups: (keys: string[]) => void;
+  /** Expand ALL sub-groups by populating `expandedSubGroups` with all keys. */
+  expandAllSubGroups: (keys: string[]) => void;
+  /** Collapse ALL sub-groups (empty `expandedSubGroups`). */
+  collapseAllSubGroups: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -525,6 +550,19 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const setTokenRange = useStore(state => state.setTokenRange);
   const clearTokenRange = useStore(state => state.clearTokenRange);
 
+  // Phase 2 (iter 133): collapse state subscriptions.
+  // These sets are immutable references from the store — Zustand returns a new
+  // Set instance only when an action mutates the field, so React's reference
+  // equality check correctly triggers re-renders only on actual change.
+  const collapsedGroups = useStore(state => state.collapsedGroups);
+  const expandedSubGroups = useStore(state => state.expandedSubGroups);
+  const toggleGroupCollapsed = useStore(state => state.toggleGroupCollapsed);
+  const toggleSubGroupExpanded = useStore(state => state.toggleSubGroupExpanded);
+  const expandAllGroups = useStore(state => state.expandAllGroups);
+  const collapseAllGroups = useStore(state => state.collapseAllGroups);
+  const expandAllSubGroups = useStore(state => state.expandAllSubGroups);
+  const collapseAllSubGroups = useStore(state => state.collapseAllSubGroups);
+
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
   // Skips the first render to avoid overwriting URL-restored values.
@@ -555,7 +593,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, sortMode, useStore]);
+      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, sortMode, useStore,
+      // Phase 2 (iter 133): collapse state also triggers URL re-sync so that
+      // toggle persistence propagates to the URL hash immediately.
+      collapsedGroups, expandedSubGroups]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
@@ -662,5 +703,14 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     filterStore,
     restoreFilterState,
     collapsedTokenIds,
+    // Phase 2 (iter 133): collapse state + actions for ModList/VirtualizedModList
+    collapsedGroups,
+    expandedSubGroups,
+    toggleGroupCollapsed,
+    toggleSubGroupExpanded,
+    expandAllGroups,
+    collapseAllGroups,
+    expandAllSubGroups,
+    collapseAllSubGroups,
   };
 }

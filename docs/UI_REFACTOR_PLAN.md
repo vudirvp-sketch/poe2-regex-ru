@@ -10,9 +10,9 @@
 > iteration of work, with concrete file changes, state additions, and test
 > strategy.
 >
-> **Status:** Phase 1 IMPLEMENTED iter 132. Phases 2–5 + 4.5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
-> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1)
-> **Last updated:** 2026-06-27 (iter 132 — Phase 1 implementation)
+> **Status:** Phase 1 IMPLEMENTED iter 132. Phase 2 IMPLEMENTED iter 133. Phases 2.5/3/4/4.5/5 NOT STARTED. Plan reviewed iter 130 + user feedback iter 131.
+> **Author:** iter 129 planning agent; iter 130 review agent; iter 131 feedback agent; iter 132 implementation agent (Phase 1); iter 133 implementation agent (Phase 2)
+> **Last updated:** 2026-06-27 (iter 133 — Phase 2 implementation)
 
 ---
 
@@ -736,13 +736,13 @@ Parallel (1 + 4 + 1): 3 iterations wall-clock.
 3. Read `docs/UI_AUDIT.md` for the original audit recommendations (note
    that §10 TopNav dropdowns are SUPERSEDED — see §13).
 4. Read `STATUS.md` for current Known Issues (especially KI#9 monitoring).
-5. Read `AGENT_NAVIGATION.md` Pitfalls 26-42 (CSS specificity, mobile
+5. Read `AGENT_NAVIGATION.md` Pitfalls 26-43 (CSS specificity, mobile
    media queries, palette consistency, dead-patterns cleanup, Phase 1
-   foundation).
-6. **Phase 1 is DONE (iter 132).** Pick a phase to work on next —
-   recommend Phase 2 (consumes `collapsedGroups` + `expandedSubGroups`
-   already wired in Phase 1). Phases 2.5/3/5 also consume Phase 1 fields
-   and can be done in any order; Phase 4 + 4.5 are independent.
+   foundation, Phase 2 wiring).
+6. **Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133).** Pick a phase to
+   work on next — recommend Phase 2.5 (consumes `chipExpandState` already wired
+   in Phase 1). Phases 3/5 also consume Phase 1 fields and can be done in any
+   order; Phase 4 + 4.5 are independent.
 7. Create a TODO list with the phase's file changes.
 8. Implement, test, document, ship.
 9. Update this document's §12 Phase Status table with a "Phase N — DONE"
@@ -758,7 +758,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 | Phase | Status | Iteration | Notes |
 |-------|--------|-----------|-------|
 | 1 — Foundation (5 fields: `collapsedGroups` + `expandedSubGroups` + `showSelectedOnly` + `pinnedIds` + `chipExpandState`) | ✅ DONE | iter 132 | Implemented in `src/store/filter-store.ts`: +5 FilterState fields, +13 FilterActions (toggle/set/expandAll/collapseAll per level + setShowSelectedOnly + togglePinned/clearPinned + toggleChipExpand/expandAllChips/collapseAllChips), extended serialize (compact keys c/es/so/pn/ce, omitted when default) + deserialize (backward-compat, defensive parsing of malformed/non-array values). New test file `tests/store/filter-store.test.ts` — 46 tests across 9 describe blocks (initial state, asymmetric default, all 5 action families, round-trip, backward-compat, compact serialization, resetFilters, clearSelections scope, store isolation). vitest 1988→2034 (+46), tsc 0 errors, eslint 0 problems. No UI uses the new fields yet — pure infrastructure. |
-| 2 — Collapse + Sticky search | NOT STARTED | — | iter 131: default state changed to top-expanded/sub-collapsed (§13.7 #4). Phase 1 fields now ready to consume (`collapsedGroups` + `expandedSubGroups`). |
+| 2 — Collapse + Sticky search | ✅ DONE | iter 133 | Implemented in `src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx` + new shared `src/ui/components/GroupHeader.tsx` (~95 строк). +8 optional collapse props on each mod-list component (backward compat preserved — legacy callers без wiring рендерят как раньше). `AffixColumn` (ModList) + `column-header` row (VirtualizedModList) render `GroupHeader` (variant='top') with chevron; skip sub-groups when top-level collapsed. `ModSubGroupSection` (ModList) + new `subgroup-header` VirtualRow variant (VirtualizedModList) render `GroupHeader` (variant='sub') with chevron; skip chips when sub-group NOT in `expandedSubGroups`. Asymmetric default per iter 131 §13.7 #4: top EXPANDED + sub COLLAPSED. Search row wrapped in `.sticky-search-bar` CSS class (sticky under TopNav, backdrop-blur). «Развернуть все» / «Свернуть все» buttons (desktop-only, `hidden lg:inline-flex`). `useCategoryPage.ts` extended +8 fields wired to filter-store (Phase 1). URL-sync effect deps array extended — toggle triggers URL re-sync. 7 page files (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) updated — forward 8 new props. VendorPage не тронут (custom FilterChip). `i18n.ts` +4 keys. `index.css` +2 CSS blocks (`.sticky-search-bar`, `.group-header-chevron`). 3 new test files (36 tests): `tests/ui/GroupHeader.test.tsx` (14), `tests/ui/ModList.test.tsx` (11), `tests/ui/VirtualizedModList.test.tsx` (11). vitest 2034→2070 (+36), tsc 0 errors, eslint 0 problems. Edge case: sub-groups WITHOUT labels (e.g. `affix-only` mode) → chips always render (no UI to toggle collapse). |
 | 2.5 — "+N ещё" chip expander | NOT STARTED | — | iter 130 addition, depends on Phase 2. Phase 1 `chipExpandState` field now ready to consume. |
 | 3 — Selected only + Basket (with affix-type badges) | NOT STARTED | — | iter 130: added affix-type badges. iter 131: basket cap 12→20 (§13.7 #3); 3-column layout 20%/60%/20% + collapsible right panel (§13.7 #2). Phase 1 `showSelectedOnly` field now ready to consume. |
 | 4 — Colors + Compact + Tooltips | NOT STARTED | — | iter 130: chip density 20%→25%. Independent of Phase 1. |
@@ -834,30 +834,47 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 133
+### 13.6 Recommendation for iter 134
 
-**Phase 1 is DONE (iter 132).** The 5 state fields (`collapsedGroups`,
-`expandedSubGroups`, `showSelectedOnly`, `pinnedIds`, `chipExpandState`)
-are now in `src/store/filter-store.ts` with 13 actions + URL serialization
-(backward-compat) + 46 tests in `tests/store/filter-store.test.ts`.
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133).** The 5 state fields
+(`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`, `pinnedIds`,
+`chipExpandState`) are now in `src/store/filter-store.ts` with 13 actions + URL
+serialization (backward-compat) + 46 tests in `tests/store/filter-store.test.ts`.
+Phase 2 wired `collapsedGroups` (top-level) + `expandedSubGroups` (sub-group)
+into the UI via new shared `GroupHeader.tsx` + sticky search + «Развернуть все»
+/ «Свернуть все» кнопки. 7 page files updated. 3 new UI test files (36 tests).
 
-**Recommended next:** Phase 2 (collapsible affix groups + sticky search).
-Phase 2 consumes `collapsedGroups` (top-level) + `expandedSubGroups`
-(sub-group) — both already wired with toggle/set/expand-all/collapse-all
-actions. Phase 2 will wire the actual UI in `ModList.tsx` +
-`VirtualizedModList.tsx` + new shared `GroupHeader.tsx` component.
+**Recommended next:** Phase 2.5 («+N ещё» per-sub-group chip expander).
+Phase 2.5 consumes `chipExpandState` (already wired in Phase 1) and DEPENDS on
+Phase 2 (sub-group collapse must exist in UI before per-sub-group chip
+truncation makes sense — Phase 2 ✓ DONE). Phase 2.5 will: (1) add
+`CHIP_PREVIEW_COUNT = 3` constant to `src/shared/constants.ts`; (2) modify
+`ModList` `ModSubGroupSection` chips rendering to slice to preview count when
+`chipExpandState` does NOT contain sub-group key; render «+N ещё» button that
+calls `toggleChipExpand(key)`; (3) same logic in `VirtualizedModList`
+`VirtualRowContent` subgroup row; (4) selected/pinned chips ALWAYS visible
+even when truncated.
 
-Phase 2.5 («+N ещё» chip expander) can immediately follow Phase 2 —
-consumes `chipExpandState` (already wired). Phase 3 (selected-only +
-basket) consumes `showSelectedOnly`. Phase 5 (favorites in left panel)
-consumes `pinnedIds`.
+Phase 3 (selected-only + basket) consumes `showSelectedOnly` (already wired).
+Phase 5 (favorites in left panel) consumes `pinnedIds` (already wired).
 
-Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения»
-legend) are INDEPENDENT of Phase 1 — can land in any iteration as
-"warmup" work for a new agent.
+Phase 4 (colors + compact + tooltips) and Phase 4.5 («Обозначения» legend) are
+INDEPENDENT of Phase 1 — can land in any iteration as "warmup" work for a new
+agent.
 
 **Do NOT implement TopNav dropdowns** — visualization supersedes that
 recommendation (iter 130 contradiction #1).
+
+**UX verification request for user (iter 133 deliverable):** open the 7
+category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
+and verify: (1) top-level headers (ИМПЛИСИТЫ/ПРЕФИКСЫ/СУФФИКСЫ) display with
+▶ chevron; (2) sub-group headers (ДОБЫЧА/УСИЛЕНИЯ/...) display with ▶ chevron;
+(3) chips hidden by default (sub-groups collapsed); click sub-group header
+expands it; state persists in URL after refresh; (4) «Развернуть все» /
+«Свернуть все» buttons in sticky search row (desktop only); (5) search row
+stays visible while scrolling; (6) mobile: chevron works per-group, no
+expand-all button. If you find a bug — document in `STATUS.md` as Known Issue
+FIRST, then fix.
 
 ### 13.7 User Feedback iter 131 (4 corrections)
 

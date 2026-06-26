@@ -1323,3 +1323,44 @@ input:focus:not(:focus-visible),
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ─── Phase 2 (iter 133): Sticky search bar + collapsible group headers ─── */
+/* Search input + filter controls stick under the TopNav (which is itself
+   sticky at top:0, height 52px on mobile / 56px on md+). The sticky-search-bar
+   stacks BELOW TopNav by offsetting by TopNav's height. backdrop-blur keeps
+   mod content readable as the user scrolls past.
+
+   ⚠ Same source-order pitfall as .mobile-regex-bar (Pitfall 35): the sticky
+   positioning must apply on ALL viewports — no `max-width` media query wrap,
+   because the rule does NOT set `display` (which would conflict with Tailwind
+   utilities). Only `position` + offsets + bg are set here. */
+.sticky-search-bar {
+  position: sticky;
+  top: 52px;
+  z-index: 20;
+  background: rgba(13, 11, 9, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--poe-border);
+  padding: 6px 0;
+  margin: 0 -4px 8px;
+}
+@media (min-width: 768px) {
+  .sticky-search-bar {
+    top: 56px;
+  }
+}
+
+/* Chevron glyph rotation when the parent group is expanded. The base glyph
+   points right (▶) when collapsed; we rotate it 90deg clockwise (▼) when
+   expanded via the [aria-expanded="true"] selector on the button itself. */
+.group-header-chevron {
+  display: inline-block;
+  transition: transform 160ms ease-out;
+  transform: rotate(0deg);
+  /* Glyph is rendered as "▶" via text content; rotation visually turns it
+     into ▼ when expanded. */
+}
+.group-header-btn[aria-expanded="true"] .group-header-chevron {
+  transform: rotate(90deg);
+}

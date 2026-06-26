@@ -18,6 +18,7 @@ import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '
 import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
+import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
 import type { TokenRangeOverride } from '@store/filter-store';
 
@@ -66,6 +67,33 @@ interface ModListProps {
    * Passed through to `classifyGroups()` via `withSortedGroups()`.
    */
   sortMode?: SortMode;
+
+  // ─── Phase 2 (iter 133): collapsible affix groups + sticky search ─────────
+  // See docs/UI_REFACTOR_PLAN.md §4 Phase 2 for full spec.
+  // When `collapsedGroups` / `expandedSubGroups` are NOT provided (e.g. tests,
+  // legacy callers), collapse UI is suppressed and groups render as before
+  // (all expanded). This keeps the component backward-compatible.
+
+  /** Top-level group keys currently COLLAPSED. Format: `${categoryId}:${affix}`.
+   *  When provided, the matching `AffixColumn` header gets a chevron toggle
+   *  and its sub-groups are hidden while collapsed. */
+  collapsedGroups?: Set<string>;
+  /** Sub-group keys currently EXPANDED. Format: `${categoryId}:${affix}:${subBlockKey}`.
+   *  When provided, the matching `ModSubGroupSection` header gets a chevron
+   *  toggle and its chips are hidden while NOT in the set (collapsed = default). */
+  expandedSubGroups?: Set<string>;
+  /** Toggle a top-level group's collapsed state. */
+  onToggleGroupCollapsed?: (key: string) => void;
+  /** Toggle a sub-group's expanded state. */
+  onToggleSubGroupExpanded?: (key: string) => void;
+  /** Expand all top-level groups — wired to the "Expand all" button. */
+  onExpandAllGroups?: () => void;
+  /** Collapse all top-level groups — wired to the "Collapse all" button. */
+  onCollapseAllGroups?: (keys: string[]) => void;
+  /** Expand all sub-groups — wired to the "Expand all" button (sub-level). */
+  onExpandAllSubGroups?: (keys: string[]) => void;
+  /** Collapse all sub-groups — wired to the "Collapse all" button (sub-level). */
+  onCollapseAllSubGroups?: () => void;
 }
 
 /** Origin section within an affix column */
@@ -135,7 +163,11 @@ function splitByOriginThenSemantic(
  *  Caller sets this when the surrounding affix column / origin section contains
  *  only ONE sub-group — the badge is then pure noise (it repeats context the
  *  parent header already gives).
- *  iter 107: `sortMode` forwarded to FilterChip for tier-aware left border. */
+ *  iter 107: `sortMode` forwarded to FilterChip for tier-aware left border.
+ *  iter 133 (Phase 2): when `subGroupKey` + `onToggleSubGroupExpanded` +
+ *  `expandedSubGroups` are provided, the header becomes a clickable GroupHeader
+ *  with chevron. When the sub-group is COLLAPSED (not in `expandedSubGroups`),
+ *  chips are NOT rendered — only the header. Asymmetric default per iter 131 §13.7 #4. */
 const ModSubGroupSection: React.FC<{
   subGroup: ModSubGroup;
   selectedIds: Set<string>;
@@ -150,31 +182,59 @@ const ModSubGroupSection: React.FC<{
   hideLabel?: boolean;
   /** iter 107: forwarded to FilterChip for tier-aware left border. */
   sortMode?: SortMode;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode }) => {
+  /** iter 133 (Phase 2): composite key `${categoryId}:${affix}:${subBlockKey}`. */
+  subGroupKey?: string;
+  /** iter 133 (Phase 2): set of EXPANDED sub-group keys. When `subGroupKey`
+   *  is NOT in this set, chips are hidden (sub-groups default collapsed). */
+  expandedSubGroups?: Set<string>;
+  /** iter 133 (Phase 2): toggle the sub-group's expanded state. */
+  onToggleSubGroupExpanded?: (key: string) => void;
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded }) => {
+  // Phase 2 (iter 133): if collapse wiring is present, derive isCollapsed.
+  // When `expandedSubGroups` is undefined (legacy callers), we treat the
+  // sub-group as expanded (preserve pre-Phase-2 behaviour).
+  const collapseWired = !!(subGroupKey && expandedSubGroups && onToggleSubGroupExpanded);
+  const isExpanded = !collapseWired || expandedSubGroups!.has(subGroupKey!);
+  const showHeader = subGroup.label && !hideLabel;
+  const showChips = isExpanded || !showHeader;
+
   return (
     <div className="mb-2">
-      {subGroup.label && !hideLabel && (
-        <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
-          {subGroup.label} ({subGroup.groups.length})
+      {showHeader && (
+        collapseWired ? (
+          <GroupHeader
+            label={subGroup.label}
+            count={subGroup.groups.length}
+            isCollapsed={!isExpanded}
+            onToggle={() => onToggleSubGroupExpanded!(subGroupKey!)}
+            variant="sub"
+            className={`${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}
+          />
+        ) : (
+          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
+            {subGroup.label} ({subGroup.groups.length})
+          </div>
+        )
+      )}
+      {showChips && (
+        <div className="flex flex-wrap gap-2">
+          {subGroup.groups.map((group) => (
+            <FilterChip
+              key={group.familyKey}
+              group={group}
+              selectedIds={selectedIds}
+              excludedIds={excludedIds}
+              onToggleTokens={onToggleTokens}
+              onToggleExclude={onToggleExclude}
+              perTokenRanges={perTokenRanges}
+              onSetTokenRange={onSetTokenRange}
+              onClearTokenRange={onClearTokenRange}
+              collapsedTokenIds={collapsedTokenIds}
+              sortMode={sortMode}
+            />
+          ))}
         </div>
       )}
-      <div className="flex flex-wrap gap-2">
-        {subGroup.groups.map((group) => (
-          <FilterChip
-            key={group.familyKey}
-            group={group}
-            selectedIds={selectedIds}
-            excludedIds={excludedIds}
-            onToggleTokens={onToggleTokens}
-            onToggleExclude={onToggleExclude}
-            perTokenRanges={perTokenRanges}
-            onSetTokenRange={onSetTokenRange}
-            onClearTokenRange={onClearTokenRange}
-            collapsedTokenIds={collapsedTokenIds}
-            sortMode={sortMode}
-          />
-        ))}
-      </div>
     </div>
   );
 });
@@ -195,7 +255,17 @@ const AffixColumn: React.FC<{
   collapsedTokenIds?: Set<string>;
   /** iter 107: forwarded to FilterChip via ModSubGroupSection for tier-aware border. */
   sortMode?: SortMode;
-}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode }) => {
+  /** iter 133 (Phase 2): categoryId for composing collapse keys. */
+  categoryId?: string;
+  /** iter 133 (Phase 2): top-level collapsed set. */
+  collapsedGroups?: Set<string>;
+  /** iter 133 (Phase 2): sub-level expanded set. */
+  expandedSubGroups?: Set<string>;
+  /** iter 133 (Phase 2): toggle top-level collapse. */
+  onToggleGroupCollapsed?: (key: string) => void;
+  /** iter 133 (Phase 2): toggle sub-group expand. */
+  onToggleSubGroupExpanded?: (key: string) => void;
+}> = React.memo(({ affix, subGroups, originSections, selectedIds, excludedIds, onToggleTokens, onToggleExclude, showOriginSubSections, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, categoryId, collapsedGroups, expandedSubGroups, onToggleGroupCollapsed, onToggleSubGroupExpanded }) => {
   const totalCount = showOriginSubSections
     ? originSections.reduce((sum, os) => sum + os.subGroups.reduce((s, sg) => s + sg.groups.length, 0), 0)
     : subGroups.reduce((sum, sg) => sum + sg.groups.length, 0);
@@ -207,76 +277,105 @@ const AffixColumn: React.FC<{
   const headerColor = isImplicit ? 'text-accent-amber' : isPrefix ? 'text-accent-blue' : 'text-accent-orange';
   const borderColor = isImplicit ? 'border-cborder-amber' : isPrefix ? 'border-cborder-blue' : 'border-cborder-orange';
 
+  // Phase 2 (iter 133): collapse wiring for top-level group.
+  // When `categoryId` + `collapsedGroups` + `onToggleGroupCollapsed` are all
+  // provided, the header becomes a GroupHeader with chevron. When the group
+  // is COLLAPSED (in `collapsedGroups`), sub-groups are NOT rendered.
+  const topLevelKey = categoryId ? `${categoryId}:${affix}` : undefined;
+  const topCollapseWired = !!(topLevelKey && collapsedGroups && onToggleGroupCollapsed);
+  const isTopCollapsed = topCollapseWired ? collapsedGroups!.has(topLevelKey!) : false;
+  const affixHeaderClass = isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix';
+  const affixLabel = isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + affix);
+
   return (
     <div className={`flex flex-col min-w-0 ${totalCount > 0 ? `border-l-2 pl-3 ${borderColor}` : ''}`}>
-      <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix'}`}>
-        {isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + affix)} ({totalCount})
-      </h4>
-
-      {showOriginSubSections ? (
-        /* Group by origin first, then by semantic category within each origin */
-        originSections.map((section, idx) => {
-          const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
-          /* iter 62 (Phase 8c): when an origin section contains only ONE
-             semantic sub-group, the Level 3 badge just repeats the origin
-             header above it — suppress it. */
-          const hideSubLabel = section.subGroups.length === 1;
-          return (
-            <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
-              <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
-                {section.iconPath && (
-                  <img
-                    src={`${import.meta.env.BASE_URL}${section.iconPath}`}
-                    alt=""
-                    width={17}
-                    height={17}
-                    className="shrink-0 object-contain"
-                  />
-                )}
-                <span>{section.label} ({sectionCount})</span>
-              </div>
-              {section.subGroups.map((sg) => (
-                <ModSubGroupSection
-                  key={sg.key}
-                  subGroup={sg}
-                  selectedIds={selectedIds}
-                  excludedIds={excludedIds}
-                  onToggleTokens={onToggleTokens}
-                  onToggleExclude={onToggleExclude}
-                  perTokenRanges={perTokenRanges}
-                  onSetTokenRange={onSetTokenRange}
-                  onClearTokenRange={onClearTokenRange}
-                  collapsedTokenIds={collapsedTokenIds}
-                  hideLabel={hideSubLabel}
-                  sortMode={sortMode}
-                />
-              ))}
-            </div>
-          );
-        })
+      {topCollapseWired ? (
+        <GroupHeader
+          label={affixLabel}
+          count={totalCount}
+          isCollapsed={isTopCollapsed}
+          onToggle={() => onToggleGroupCollapsed!(topLevelKey!)}
+          variant="top"
+          className={`${headerColor} ${affixHeaderClass}`}
+        />
       ) : (
-        /* Group purely by semantic category.
-           iter 62 (Phase 8c): if the affix column has only ONE semantic
-           sub-group, the Level 3 badge is redundant under the affix header. */
-        (() => {
-          const hideSubLabel = subGroups.length === 1;
-          return subGroups.map((sg) => (
-            <ModSubGroupSection
-              key={sg.key}
-              subGroup={sg}
-              selectedIds={selectedIds}
-              excludedIds={excludedIds}
-              onToggleTokens={onToggleTokens}
-              onToggleExclude={onToggleExclude}
-              perTokenRanges={perTokenRanges}
-              onSetTokenRange={onSetTokenRange}
-              onClearTokenRange={onClearTokenRange}
-              collapsedTokenIds={collapsedTokenIds}
-              hideLabel={hideSubLabel}
-              sortMode={sortMode}
-            />
-          ));
-        })()
+        <h4 className={`text-base font-bold uppercase tracking-wider mb-2 ${headerColor} ${affixHeaderClass}`}>
+          {affixLabel} ({totalCount})
+        </h4>
+      )}
+
+      {!isTopCollapsed && (
+        showOriginSubSections ? (
+          /* Group by origin first, then by semantic category within each origin */
+          originSections.map((section, idx) => {
+            const sectionCount = section.subGroups.reduce((s, sg) => s + sg.groups.length, 0);
+            /* iter 62 (Phase 8c): when an origin section contains only ONE
+               semantic sub-group, the Level 3 badge just repeats the origin
+               header above it — suppress it. */
+            const hideSubLabel = section.subGroups.length === 1;
+            return (
+              <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
+                <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
+                  {section.iconPath && (
+                    <img
+                      src={`${import.meta.env.BASE_URL}${section.iconPath}`}
+                      alt=""
+                      width={17}
+                      height={17}
+                      className="shrink-0 object-contain"
+                    />
+                  )}
+                  <span>{section.label} ({sectionCount})</span>
+                </div>
+                {section.subGroups.map((sg) => (
+                  <ModSubGroupSection
+                    key={sg.key}
+                    subGroup={sg}
+                    selectedIds={selectedIds}
+                    excludedIds={excludedIds}
+                    onToggleTokens={onToggleTokens}
+                    onToggleExclude={onToggleExclude}
+                    perTokenRanges={perTokenRanges}
+                    onSetTokenRange={onSetTokenRange}
+                    onClearTokenRange={onClearTokenRange}
+                    collapsedTokenIds={collapsedTokenIds}
+                    hideLabel={hideSubLabel}
+                    sortMode={sortMode}
+                    subGroupKey={topLevelKey ? `${topLevelKey}:${sg.key}` : undefined}
+                    expandedSubGroups={expandedSubGroups}
+                    onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+                  />
+                ))}
+              </div>
+            );
+          })
+        ) : (
+          /* Group purely by semantic category.
+             iter 62 (Phase 8c): if the affix column has only ONE semantic
+             sub-group, the Level 3 badge is redundant under the affix header. */
+          (() => {
+            const hideSubLabel = subGroups.length === 1;
+            return subGroups.map((sg) => (
+              <ModSubGroupSection
+                key={sg.key}
+                subGroup={sg}
+                selectedIds={selectedIds}
+                excludedIds={excludedIds}
+                onToggleTokens={onToggleTokens}
+                onToggleExclude={onToggleExclude}
+                perTokenRanges={perTokenRanges}
+                onSetTokenRange={onSetTokenRange}
+                onClearTokenRange={onClearTokenRange}
+                collapsedTokenIds={collapsedTokenIds}
+                hideLabel={hideSubLabel}
+                sortMode={sortMode}
+                subGroupKey={topLevelKey ? `${topLevelKey}:${sg.key}` : undefined}
+                expandedSubGroups={expandedSubGroups}
+                onToggleSubGroupExpanded={onToggleSubGroupExpanded}
+              />
+            ));
+          })()
+        )
       )}
     </div>
   );
@@ -306,6 +405,15 @@ export const ModList: React.FC<ModListProps> = ({
   category,
   priorityFilter = 'all',
   sortMode = 'alpha',
+  // Phase 2 (iter 133): collapse state
+  collapsedGroups,
+  expandedSubGroups,
+  onToggleGroupCollapsed,
+  onToggleSubGroupExpanded,
+  onExpandAllGroups,
+  onCollapseAllGroups,
+  onExpandAllSubGroups,
+  onCollapseAllSubGroups,
 }) => {
   const availableOrigins = useMemo(() => {
     const origins = new Set<ModOrigin>();
@@ -451,8 +559,10 @@ export const ModList: React.FC<ModListProps> = ({
 
   return (
     <div className="mod-list flex flex-col gap-3" role="group" aria-label={t('search.placeholder')}>
-      {/* Search + Filters row */}
-      <div className="flex flex-wrap gap-2 items-center">
+      {/* Phase 2 (iter 133): Search + Filters row — sticky under TopNav.
+          The `.sticky-search-bar` class in index.css handles position:sticky +
+          bg + backdrop-blur. `top: 52px` (mobile) / `56px` (md+) matches TopNav height. */}
+      <div className="sticky-search-bar flex flex-wrap gap-2 items-center">
         <input
           type="text"
           value={searchText}
@@ -498,6 +608,62 @@ export const ModList: React.FC<ModListProps> = ({
             {t('filter.clear')} ({countUniqueFamilyKeys(tokens.filter(t => selectedIds.has(t.id)))})
           </button>
         )}
+
+        {/* Phase 2 (iter 133): Expand all / Collapse all buttons.
+            Desktop-only (`hidden lg:inline-flex`) per spec — on mobile the
+            user relies on per-group chevrons. When collapse wiring is not
+            provided (legacy callers), buttons are not rendered. */}
+        {(onExpandAllGroups || onExpandAllSubGroups) && (
+          <button
+            type="button"
+            onClick={() => {
+              // Build the full list of sub-group keys from current sub-groups.
+              // For top-level keys, we use the visible affixes (implicit/prefix/suffix).
+              if (onExpandAllSubGroups && expandedSubGroups) {
+                const allSubKeys: string[] = [];
+                const allAffixes: AffixType[] = [];
+                if (implicitGroups.length > 0) allAffixes.push('implicit');
+                if (prefixGroups.length > 0) allAffixes.push('prefix');
+                if (suffixGroups.length > 0) allAffixes.push('suffix');
+                for (const aff of allAffixes) {
+                  const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
+                  for (const sg of subs) {
+                    allSubKeys.push(`${category}:${aff}:${sg.key}`);
+                  }
+                }
+                onExpandAllSubGroups(allSubKeys);
+              } else if (onExpandAllGroups) {
+                onExpandAllGroups();
+              }
+            }}
+            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+            aria-label={t('group.expand_all')}
+          >
+            {t('group.expand_all')}
+          </button>
+        )}
+        {(onCollapseAllGroups || onCollapseAllSubGroups) && (
+          <button
+            type="button"
+            onClick={() => {
+              // Collapse all = empty expandedSubGroups (sub-level) OR populate
+              // collapsedGroups with all top-level keys (top-level).
+              if (onCollapseAllSubGroups) {
+                onCollapseAllSubGroups();
+              } else if (onCollapseAllGroups) {
+                const allTopKeys: string[] = [];
+                if (implicitGroups.length > 0) allTopKeys.push(`${category}:implicit`);
+                if (prefixGroups.length > 0) allTopKeys.push(`${category}:prefix`);
+                if (suffixGroups.length > 0) allTopKeys.push(`${category}:suffix`);
+                onCollapseAllGroups(allTopKeys);
+              }
+            }}
+            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+            aria-label={t('group.collapse_all')}
+          >
+            {t('group.collapse_all')}
+          </button>
+        )}
       </div>
 
       {/* Stats — iter 70: text-dim → text-muted for better contrast */}
@@ -524,6 +690,11 @@ export const ModList: React.FC<ModListProps> = ({
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
+              categoryId={category}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={onToggleGroupCollapsed}
+              onToggleSubGroupExpanded={onToggleSubGroupExpanded}
             />
           )}
           {/* Also show implicit when affixFilter is 'implicit' */}
@@ -542,6 +713,11 @@ export const ModList: React.FC<ModListProps> = ({
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
+              categoryId={category}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={onToggleGroupCollapsed}
+              onToggleSubGroupExpanded={onToggleSubGroupExpanded}
             />
           )}
 
@@ -621,6 +797,11 @@ export const ModList: React.FC<ModListProps> = ({
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
+              categoryId={category}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={onToggleGroupCollapsed}
+              onToggleSubGroupExpanded={onToggleSubGroupExpanded}
             />
             <AffixColumn
               affix="suffix"
@@ -636,6 +817,11 @@ export const ModList: React.FC<ModListProps> = ({
               onClearTokenRange={onClearTokenRange}
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
+              categoryId={category}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={onToggleGroupCollapsed}
+              onToggleSubGroupExpanded={onToggleSubGroupExpanded}
             />
           </div>
         ) : (
@@ -656,6 +842,11 @@ export const ModList: React.FC<ModListProps> = ({
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
                 sortMode={sortMode}
+                categoryId={category}
+                collapsedGroups={collapsedGroups}
+                expandedSubGroups={expandedSubGroups}
+                onToggleGroupCollapsed={onToggleGroupCollapsed}
+                onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               />
             )}
             {suffixGroups.length > 0 && (
@@ -673,6 +864,11 @@ export const ModList: React.FC<ModListProps> = ({
                 onClearTokenRange={onClearTokenRange}
                 collapsedTokenIds={collapsedTokenIds}
                 sortMode={sortMode}
+                categoryId={category}
+                collapsedGroups={collapsedGroups}
+                expandedSubGroups={expandedSubGroups}
+                onToggleGroupCollapsed={onToggleGroupCollapsed}
+                onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               />
             )}
           </div>

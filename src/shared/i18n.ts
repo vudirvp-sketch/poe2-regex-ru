@@ -151,6 +151,12 @@ const translations: Record<Locale, Record<string, string>> = {
     // Navigation
     'nav.categories': 'Категории',
     'nav.feedback': 'Баги и идеи → Discord: woonderdad',
+
+    // Phase 2 (iter 133): collapsible affix groups + sticky search
+    'group.expand_all': 'Развернуть все',
+    'group.collapse_all': 'Свернуть все',
+    'group.collapse_btn_label': 'Свернуть группу',
+    'group.expand_btn_label': 'Развернуть группу',
   },
 };
 

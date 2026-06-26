@@ -38,6 +38,10 @@ export function RelicPage() {
     searchLogic, setSearchLogic,
     collapsedTokenIds,
     thresholdEnabled, setThresholdEnabled,
+    collapsedGroups, expandedSubGroups,
+    toggleGroupCollapsed, toggleSubGroupExpanded,
+    expandAllGroups, collapseAllGroups,
+    expandAllSubGroups, collapseAllSubGroups,
   } = useCategoryPage({ categoryId: 'relic' });
 
   return (
@@ -133,6 +137,14 @@ export function RelicPage() {
               groupMode="relic-semantic"
               showOriginSubSections
               category="relic"
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={toggleGroupCollapsed}
+              onToggleSubGroupExpanded={toggleSubGroupExpanded}
+              onExpandAllGroups={expandAllGroups}
+              onCollapseAllGroups={collapseAllGroups}
+              onExpandAllSubGroups={expandAllSubGroups}
+              onCollapseAllSubGroups={collapseAllSubGroups}
             />
           </CategoryLayout>
         );

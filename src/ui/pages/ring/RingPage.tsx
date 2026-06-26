@@ -40,6 +40,10 @@ export function RingPage() {
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
     sortMode, setSortMode,
+    collapsedGroups, expandedSubGroups,
+    toggleGroupCollapsed, toggleSubGroupExpanded,
+    expandAllGroups, collapseAllGroups,
+    expandAllSubGroups, collapseAllSubGroups,
   } = useCategoryPage({ categoryId: 'ring' });
 
   return (
@@ -143,6 +147,14 @@ export function RingPage() {
               category="ring"
               priorityFilter={priorityFilter}
               sortMode={sortMode}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={toggleGroupCollapsed}
+              onToggleSubGroupExpanded={toggleSubGroupExpanded}
+              onExpandAllGroups={expandAllGroups}
+              onCollapseAllGroups={collapseAllGroups}
+              onExpandAllSubGroups={expandAllSubGroups}
+              onCollapseAllSubGroups={collapseAllSubGroups}
             />
           </CategoryLayout>
         );

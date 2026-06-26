@@ -73,6 +73,10 @@ export function WaystonePage() {
     priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
     sortMode, setSortMode,
+    collapsedGroups, expandedSubGroups,
+    toggleGroupCollapsed, toggleSubGroupExpanded,
+    expandAllGroups, collapseAllGroups,
+    expandAllSubGroups, collapseAllSubGroups,
   } = useCategoryPage({
     categoryId: 'waystone',
     extraAstNodes,
@@ -227,6 +231,14 @@ export function WaystonePage() {
               category="waystone"
               priorityFilter={priorityFilter}
               sortMode={sortMode}
+              collapsedGroups={collapsedGroups}
+              expandedSubGroups={expandedSubGroups}
+              onToggleGroupCollapsed={toggleGroupCollapsed}
+              onToggleSubGroupExpanded={toggleSubGroupExpanded}
+              onExpandAllGroups={expandAllGroups}
+              onCollapseAllGroups={collapseAllGroups}
+              onExpandAllSubGroups={expandAllSubGroups}
+              onCollapseAllSubGroups={collapseAllSubGroups}
             />
           </CategoryLayout>
         );
