@@ -661,10 +661,12 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   // STATUS.md Known Issue #3 (closed iter 103).
   // iter 145 (KI#34 scroll doubling fix): stable `getItemKey` prevents
   // React from reusing DOM nodes for different row types (which corrupted
-  // the measurement cache). Also `shouldAdjustScrollPositionOnItemSizeChange`
-  // is disabled because two independent virtualizers sharing one scroll
-  // container create a feedback loop — both call scrollTo() on the same
-  // element, causing scrollTop to oscillate and items to visually "double".
+  // the measurement cache).
+  // iter 147 (TS fix): `shouldAdjustScrollPositionOnItemSizeChange` was
+  // removed — it does NOT exist in @tanstack/react-virtual v3 types and
+  // caused 6 TS errors blocking deploy. Two-independent-virtualizers sharing
+  // one scroll container: feedback loop is now mitigated by stable keys +
+  // CSS `contain: layout style paint` (iter 146 KI#38) on virtual rows.
   // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -683,14 +685,13 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
       if (!row) return String(index);
       switch (row.type) {
         case 'column-header': return `ch:${row.affix}`;
-        case 'origin-header': return `oh:${row.affix}:${row.origin}`;
-        case 'jewel-type-header': return `jh:${row.affix}:${row.jewelType}`;
+        case 'origin-header': return `oh:${row.origin}`;
+        case 'jewel-type-header': return `jh:${row.jewelType}`;
         case 'subgroup': return `sg:${row.affix}:${row.subKey ?? row.subGroup.key}`;
         case 'subgroup-header': return `sh:${row.affix}:${row.subKey}`;
         default: return String(index);
       }
     },
-    shouldAdjustScrollPositionOnItemSizeChange: () => false,
   });
 
   // iter 120: removed the entire useLayoutEffect block that called
@@ -959,7 +960,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
 
   // Single-column virtualizer for when affix filter is applied
   // (Same TanStack library limitation as above — see STATUS.md Known Issue #3.)
-  // iter 145 (KI#34): same scroll doubling fixes as two-column virtualizer.
+  // iter 145 (KI#34): stable `getItemKey` (same fix as two-column virtualizer).
+  // iter 147 (TS fix): `shouldAdjustScrollPositionOnItemSizeChange` removed
+  // (not in @tanstack/react-virtual v3 types — was blocking deploy).
   // eslint-disable-next-line react-hooks/incompatible-library
   const singleVirtualizer = useVirtualizer({
     count: mergedRows.length,
@@ -978,14 +981,13 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       if (!row) return String(index);
       switch (row.type) {
         case 'column-header': return `ch:${row.affix}`;
-        case 'origin-header': return `oh:${row.affix}:${row.origin}`;
-        case 'jewel-type-header': return `jh:${row.affix}:${row.jewelType}`;
+        case 'origin-header': return `oh:${row.origin}`;
+        case 'jewel-type-header': return `jh:${row.jewelType}`;
         case 'subgroup': return `sg:${row.affix}:${row.subKey ?? row.subGroup.key}`;
         case 'subgroup-header': return `sh:${row.affix}:${row.subKey}`;
         default: return String(index);
       }
     },
-    shouldAdjustScrollPositionOnItemSizeChange: () => false,
   });
 
   // iter 120: removed the single-column useLayoutEffect block (same as

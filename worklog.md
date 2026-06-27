@@ -4,35 +4,36 @@
 
 ---
 
-Task ID: 146 (KI#36 favorites grouping + KI#37 origin badge + KI#38 jitter CSS)
+Task ID: 147 (deploy fix + TS errors + debt cleanup)
 Agent: main
-Task: iter 146 — исправление 3 user-reported багов: (1) панель избранных не показывает закреплённые аффиксы (особенно non-normal origin), (2) нет бейджа origin в панели, (3) scroll jitter на jewels tab остался после iter 145. Baseline: vitest 2247/2247. Result: vitest 2252/2252 (+5 new tests for KI#36).
+Task: iter 147 — фикс провала деплоя (Actions run 28289025974): 6 пред-существующих TS ошибок в `VirtualizedModList.tsx` блокировали `tsc -b` в `pnpm build:full`. Параллельно — debt cleanup: удалить неиспользуемый `LeftPanelFavorites.tsx` (не импортируется с iter 139 / KI#20). Baseline: vitest 2252/2252. Result: vitest 2235/2235 (−17 после удаления LeftPanelFavorites test).
 
 Work Log:
-- 1: **Baseline + анализ** — клонировал репозиторий, прочитал STATUS.md (iter 145), FavoritesIndicator.tsx, FavoritesQuickSelectPanel.tsx, FilterChip.tsx, useCategoryPage.ts, family-grouper.ts, VirtualizedModList.tsx. Проверил данные: в merged jewel.json (normal + desecrated + corrupted) 29 семей имеют несколько origin-вариантов — это сценарий бага.
-- 2: **Root cause KI#36 (favorites panel grouping bug)** — `FavoritesQuickSelectPanel.tsx` группировал токены по чистому `${affix}:${familyKey.ru}` (без origin-split), тогда как FilterChip рендерится через `splitGroupByOrigin`. Когда user закреплял desecrated/corrupted вариант, `pinnedIds` содержал ID desecrated-токена, но `members[0]` объединённой группы был normal-токен (первый в порядке `data.tokens`). Mismatch → семья не появлялась в панели. Также displayText был `members[0].rawText.ru` (normal-вариант), а не закреплённый origin.
-    - **Fix:** переписан `favoritedFamilies` useMemo — теперь использует canonical `groupTokensByFamily(data.tokens)` + `splitGroupByOrigin(group)` из `@shared/family-grouper`. Проверка pinned: `splitGroup.members.some(m => pinnedIds.has(m.id))` (любой member, не только первый). Возвращает `Array<{ origin: ModOrigin; group: FamilyGroup }>` — каждая запись соответствует конкретному (family, origin) tuple, который user реально закрепил.
-    - **Effect:** панель корректно показывает закреплённый desecrated/corrupted вариант с правильным displayText (substituted familyKey, scoped to origin).
-- 3: **KI#37 (origin badge)** — добавлен `ORIGIN_BADGE: Partial<Record<ModOrigin, ...>>` с короткими лейблами (ОЧЕРН/ОСКВ/СУЩН/РАЗЛ) и цветами. Badge рендерится рядом с affix-бейджем только для non-normal origins (normal implied). Aria-label: `Происхождение: <t('origin.<origin>')>`.
-- 4: **KI#38 (scroll jitter CSS containment)** — добавлен `contain: layout style paint` на `.virtualized-mod-list [data-index]` (виртуальные ряды). Изолирует layout reflow — measurement update одного ряда не форсирует синхронный re-layout соседних. Безопасное подмножество (`strict` добавляет `size` → virtual rows с dynamic height зануляются, нельзя). Browser support: Chrome 52+, Firefox 69+, Safari 15.4+.
-- 5: **Tests** — обновлён `tests/ui/FavoritesIndicator.test.tsx`:
-    - Fixture `makeCategoryData()` переписан с `#` placeholder в familyKey (realistic shape). displayText теперь substituted (e.g., `+(10—50) к сопротивлению огню`).
-    - NEW `makeMultiOriginCategoryData()` — семья `+#% к сопротивлению` с normal + desecrated variants.
-    - 5 новых тестов в `describe('iter 146 (KI#36) multi-origin grouping')`: pinning desecrated показывает в панели (regression guard), origin badge для non-normal, hidden для normal, both variants → 2 entries, «Выбрать» на desecrated → только desecrated member IDs.
-    - Существующие 13 тестов адаптированы под новый displayText (rawText → substituted familyKey).
-- 6: **Verification** — eslint 0 на изменённых файлах, vitest 2252/2252 (56 files), vite build succeeds. Пред-существующие 6 TypeScript errors в `VirtualizedModList.tsx` (от iter 145 — `row.affix` на origin-header/jewel-type-header + `shouldAdjustScrollPositionOnItemSizeChange` не в типе) НЕ тронуты — выходят за рамки задачи.
-- 7: **Documentation** — STATUS.md обновлён под iter 146 (3 KI в таблице + архитектурные изменения + Known Issues + Next iter 147). worklog.md сжат — оставлены только iter 146 (подробно) + iter 145/144/... одной строкой.
+- 1: **Диагностика деплоя** — клонировал репозиторий, проверил `.github/workflows/deploy.yml`: build job = `pnpm install` → `playwright install` → `pnpm test` → `pnpm build:full` (= `tsc -b && vite build && tsx scripts/prerender.ts && tsx scripts/prerender-full.ts`). Stash существующих pending changes → запустил `tsc -b` → 6 ошибок:
+  - `VirtualizedModList.tsx(686,48): Property 'affix' does not exist on type '{ type: "origin-header"; origin: ModOrigin; ... }'`
+  - `VirtualizedModList.tsx(687,52): Property 'affix' does not exist on type '{ type: "jewel-type-header"; jewelType: JewelType; ... }'`
+  - `VirtualizedModList.tsx(693,5): Object literal may only specify known properties, and 'shouldAdjustScrollPositionOnItemSizeChange' does not exist in type 'PartialKeys<ReactVirtualizerOptions<...>>'`
+  - И симметричные 3 ошибки для single-column virtualizer (строки 981/982/988).
+- 2: **TS fix** — в `getItemKey` switch:
+  - `case 'origin-header': return `oh:${row.origin}`;` (убран `row.affix:` — он всегда был `undefined`, ключ был `oh:undefined:${origin}`).
+  - `case 'jewel-type-header': return `jh:${row.jewelType}`;` (аналогично).
+  - Удалён `shouldAdjustScrollPositionOnItemSizeChange: () => false` из обоих virtualizer'ов. Свойство не существует в `@tanstack/react-virtual` v3 API.
+  - **Уникальность ключей сохранена:** `buildColumnRows` эмитит origin-header один раз за `ORIGIN_ORDER` цикл (по `byOrigin` Map), jewel-type-header — один раз за `JEWEL_TYPE_ORDER` цикл внутри одного origin. `showJewelTypeSubGroups` сейчас нигде не передаётся → дубликатов `jh:${jewelType}` не возникает.
+  - Комментарии обновлены: упомянут iter 147 TS fix + объяснено, что feedback loop KI#34 теперь предотвращается stable keys + CSS `contain` (iter 146 KI#38).
+- 3: **Debt cleanup** — удалил `src/ui/components/LeftPanelFavorites.tsx` (240 строк, не импортируется с iter 139) + `tests/ui/LeftPanelFavorites.test.tsx` (483 строки, 17 тестов). Stale comments в `useCategoryPage.ts`, `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `CategoryLayout.tsx` оставлены как исторические (low-risk, на следующую итерацию).
+- 4: **STATUS.md clean-up** — убрана длинная история iter 146, оставлены только ключевые KI. Документирован iter 147 (TS fix + debt cleanup). KI#39 (условный — отключить dynamic measurement если jitter остаётся) помечен как «применить только если browser testing KI#38 покажет остаточный jitter». Next iter 148 приоритеты: browser testing KI#36/37/38 → если нужно KI#39 → mobile layout → stale comments → code-split bundle.
+- 5: **Verification** — `tsc -b` 0 errors / `eslint .` 0 warnings / `vitest` 2235/2235 (55 files, было 56 — удалил LeftPanelFavorites test) / `pnpm build` (= `tsc -b && vite build && tsx scripts/prerender.ts`) succeeds, 9 route HTML files generated. `prerender-full.ts` требует playwright + chromium — в CI ставится через `npx playwright install chromium --with-deps`.
 
 Stage Summary:
-- KI#36 FIXED: панель избранных теперь корректно показывает закреплённые non-normal origin variants (29 multi-origin семей в jewel.json).
-- KI#37 FIXED: origin badge (ОЧЕРН/ОСКВ/СУЩН/РАЗЛ) рядом с affix badge для non-normal origins.
-- KI#38 APPLIED: CSS `contain: layout style paint` для изоляции virtual row layout — низкий риск, browser support широкий.
-- Persistence проверено: pinnedIds → `poe2:favorites:<cat>` localStorage, ranges → `poe2:favorites:<cat>:ranges`, profiles → `poe2-regex-profiles` (zustand persist), multi-tab sync через `storage` event.
-- Изменённые файлы: `src/ui/components/FavoritesQuickSelectPanel.tsx`, `tests/ui/FavoritesIndicator.test.tsx`, `src/index.css`, `STATUS.md`, `worklog.md`
-- vitest 2252/2252 (+5 new tests), eslint 0, vite build OK
-- **Stopping point:** Готово к browser testing. Если jitter остаётся — iter 147 вариант (a) static row heights.
+- Deploy blocker FIXED: 6 TS ошибок устранены, `tsc -b` проходит, `pnpm build` succeeds. CI должен пройти.
+- Debt cleanup DONE: LeftPanelFavorites (component + test, 723 строки) удалены.
+- Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / pnpm build PASS.
+- Изменённые файлы: `src/ui/components/VirtualizedModList.tsx`, `STATUS.md`, `worklog.md`. Удалённые: `src/ui/components/LeftPanelFavorites.tsx`, `tests/ui/LeftPanelFavorites.test.tsx`.
+- **Stopping point:** iter 147 завершён, готов к push. Next iter 148 = browser testing KI#36/37/38 → KI#39 conditional → mobile layout → stale comments cleanup → code-split bundle.
 
 ---
+
+Task ID: 146 — KI#36 favorites grouping (canonical groupTokensByFamily + splitGroupByOrigin) + KI#37 origin badge (ОЧЕРН/ОСКВ/СУЩН/РАЗЛ) + KI#38 CSS `contain: layout style paint` на virtual rows. vitest 2252/2252 (+5 new tests).
 
 Task ID: 145 — KI#34 scroll doubling (shouldAdjustScroll=false + stable getItemKey + overscan 5 + items-start) + KI#35 expand/collapse all keys (origin/jewelType в subKey). Файлы: VirtualizedModList.tsx, ModList.tsx, STATUS.md. vitest 2247/2247.
 
