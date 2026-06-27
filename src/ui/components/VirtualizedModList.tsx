@@ -1013,9 +1013,13 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         />
       )}
 
-      {/* Two-column layout (Prefix | Suffix) */}
+      {/* Two-column layout (Prefix | Suffix) — 50/50 split per iter 141 KI#27.
+          Was `md:grid-cols-[2fr_3fr]` (40/60) — iter 139 KI#17 fix was applied
+          to ModList.tsx but missed here, leaving belt/ring/amulet/jewel with
+          visually unbalanced columns (prefix narrower than suffix). Now matches
+          ModList.tsx parity: 50/50 via `md:grid-cols-2`. */}
       {hasBothAffixes ? (
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <VirtualizedColumn
             rows={prefixRows}
             borderClass="border-cborder-blue"

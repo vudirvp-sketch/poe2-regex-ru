@@ -61,17 +61,22 @@ export function RingPage() {
     pinnedIds, togglePinned,
   } = useCategoryPage({ categoryId: 'ring' });
 
-  // Phase 5 (iter 136): Family-level batched pinned toggle.
+  // Phase 5 (iter 136): Family-level pinned toggle.
   // FilterChip's onTogglePinned expects (ids: string[]) => void,
-  // but the store's togglePinned takes a single id. This wrapper
-  // calls togglePinned(id) for each member ID — since togglePinned
-  // is idempotent (toggle), this works correctly for both pin and
-  // unpin actions on a family group.
+  // but the store's togglePinned takes a single id.
+  //
+  // iter 141 (KI#28): we now toggle ONLY the first member ID per family,
+  // NOT all members. This matches user mental model "1 click = 1 favorite"
+  // — pinnedIds.size now equals the number of favorited families, not the
+  // total count of individual token IDs (which was confusing: pinning a
+  // 5-tier family showed counter = 5 instead of 1). FilterChip's isPinned
+  // check (`memberIds.some(id => pinnedIds.has(id))`) still works because
+  // the first member is in pinnedIds.
   //
   // Stable reference via useCallback so React.memo on FilterChip
   // doesn't re-render on every page render.
   const handleTogglePinned = useCallback((ids: string[]) => {
-    ids.forEach(id => togglePinned(id));
+    if (ids.length > 0) togglePinned(ids[0]);
   }, [togglePinned]);
 
   return (

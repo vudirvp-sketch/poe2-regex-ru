@@ -836,30 +836,39 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 140
+### 13.6 Recommendation for iter 141
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133, sticky search reverted iter 139). Phase 2.5 is DONE (iter 134, chip truncation reverted iter 139). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136, LeftPanelFavorites removed iter 139, restored as compact indicator iter 140). Phase 4 + 4.5 are DONE (iter 137, duplicate icons fix iter 140). iter 138 wired `--strong` modifier. iter 139 fixed 5 UI bugs (KI#16-20). iter 140 fixed 4 UI bugs (KI#21, 22, 24, 25) + KI#23 documented as monitoring. ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT + 2 ITERS OF UX FIXES.**
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133, sticky search reverted iter 139). Phase 2.5 is DONE (iter 134, chip truncation reverted iter 139). Phase 3 is DONE (iter 135, aside header simplified iter 141 KI#29). Phase 5 is DONE (iter 136, LeftPanelFavorites removed iter 139, restored as compact indicator iter 140, counter fixed iter 141 KI#28). Phase 4 + 4.5 are DONE (iter 137, duplicate icons fix iter 140). iter 138 wired `--strong` modifier. iter 139 fixed 5 UI bugs (KI#16-20). iter 140 fixed 4 UI bugs (KI#21, 22, 24, 25) + KI#23 documented as monitoring. iter 141 fixed 4 UI bugs (KI#26, 27, 28, 29) + KI#30/31 documented as monitoring. ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT + 3 ITERS OF UX FIXES.**
 
-**Recommended next (iter 141):** UI Refactor + 2 iterations of UX fixes completed.
-Pending: in-browser UX verification пользователем iter 140 changes (KI#21/22/24/25).
+**Recommended next (iter 142):** UI Refactor + 3 iterations of UX fixes completed.
+Pending: in-browser UX verification пользователем iter 141 changes (KI#26/27/28/29).
 
-**iter 140 deliverables (4 fixes + 1 monitoring):**
+**iter 141 deliverables (4 fixes + 2 monitoring):**
 
-- **KI#21 (FIXED):** Duplicate icons in IconLegend — i18n strings contained icon prefix (`'★ — в избранное'`), IconLegend ALSO rendered icon as styled `<span>`. Fix: removed icon prefix from i18n; IconLegend renders icon separately.
-- **KI#22 (FIXED):** Redundant «Выбрано» block — StatusPanel main summary panel («Выбрано: N аффикс(ов)» + truncated token list) was duplicating SelectedBasket. Fix: StatusPanel rewritten to render ONLY badges + alerts. Legacy props kept as `_`-prefixed for backward compat.
-- **KI#23 (MONITORING — not fixed):** Scroll jitter / «doubling» в virtualized lists на belt/ring/amulet/jewel. Root cause: TanStack Virtual's `measureElement` + `ResizeObserver` estimate/actual size mismatch. Possible solutions: (a) static row heights; (b) improved estimateSize per-row-state; (c) CSS Grid virtualization. Deferred to iter 141+ — requires careful testing.
-- **KI#24 (FIXED):** Favorites block пропал → restored as COMPACT indicator. NEW `FavoritesIndicator` component: `★ N` badge in page header, returns `null` when empty. Added to all 7 category pages.
-- **KI#25 (FIXED):** Show-selected-only toggle непонятен → added `title` + `aria-label` tooltip via native HTML attribute. NEW i18n key `filter.show_mode_hint`.
+- **KI#26 (FIXED):** round10 default off + global settings cross-tab persistence. `defaultRound10` true→false per user explicit request. NEW `src/store/local-settings.ts` (thin localStorage wrapper with JSON serialize + try/catch silent fallback). В `useCategoryPage.ts` 7 useState-backed global settings (`searchLogic`, `round10Enabled`, `minValue`, `maxValue`, `priorityFilter`, `thresholdEnabled`, `sortMode`) теперь читаются из localStorage если URL не задал значение, и пишутся в localStorage при каждом изменении. Precedence: URL > localStorage > default. `restoreFilterState` (ProfilePanel) также fallback на localStorage перед hard-coded default — prevents profile-load from blowing away cross-tab preferences.
+- **KI#27 (FIXED):** VirtualizedModList prefix/suffix 50/50 alignment. iter 139 KI#17 fix (`md:grid-cols-2`) was applied ТОЛЬКО к `ModList.tsx` (relic/tablet/waystone), но НЕ к `VirtualizedModList.tsx` (belt/ring/amulet/jewel) — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка в VirtualizedModList.tsx заменена на `md:grid-cols-2`. **Lesson: при fixed-bug-in-one-place, audit ALL similar components** — ModList and VirtualizedModList rendering logic is duplicated.
+- **KI#28 (FIXED):** Favorites counter — 1 per family, not N per tier. `handleTogglePinned` в 7 pages simplified from `ids.forEach(id => togglePinned(id))` (N toggles per family) to `if (ids.length > 0) togglePinned(ids[0])` (1 toggle per family). `pinnedIds.size` теперь = число favorited семей, что соответствует mental model пользователя «1 клик = 1 избранное». `FilterChip.isPinned` check (`memberIds.some(id => pinnedIds.has(id))`) продолжает работать — first member is in pinnedIds.
+- **KI#29 (FIXED):** Aside collapse header упрощён. CategoryLayout.tsx aside header rewritten — removed `bg-panel border p-2` panel wrapper + empty `<span>` title placeholder. Новая structure: compact `flex items-center justify-end gap-1` row + small chevron button (`p-1 text-[13px] leading-none`). Визуально легче, функция (collapse/expand) сохранена.
+- **KI#30 (MONITORING — not fixed):** Cross-tab persistence favorites (pinnedIds). `pinnedIds` хранятся в per-category Zustand store, который уничтожается при unmount. URL hash shared между вкладками и перезаписывается при переходе. Решения: (a) per-category localStorage keys (`poe2:favorites:belt`, ...); (b) global Zustand store с category-keyed map (вне React tree); (c) IndexedDB. iter 141 уже добавил `local-settings.ts` infrastructure — расширение до per-category favorites требует design decision (format, expiry, migration). Отложено на iter 142+.
+- **KI#31 (MONITORING — not fixed):** Favorites как quick-select feature. Пользователь ожидает: клик на ★ в избранном → аффикс выбирается (added to selectedIds) ИЛИ scroll-to-mod срабатывает. Текущая реализация: ★ только визуальный маркер + фильтр show-selected-only. Feature gap, не bug. Решения: (a) click на ★ в FavoritesIndicator → диалог/панель со списком favorited семей + быстрый select; (b) click на ★ в FilterChip → toggle AND scroll-to-mod (если не в viewport); (c) отдельный «Favorites» tab/drawer. Требует UX design + user feedback. Отложено на iter 142+.
 
-**iter 140 changes:** `src/shared/i18n.ts` (legend.* cleanup, +2 new keys), `src/ui/components/StatusPanel.tsx` (rewrite — badges + alerts only), `src/ui/components/CategoryControlPanel.tsx` (tooltip on radio wrapper), NEW `src/ui/components/FavoritesIndicator.tsx`, 7 category page headers (added FavoritesIndicator), UPDATED `tests/ui/IconLegend.test.tsx`, NEW `tests/ui/StatusPanel.test.tsx`, NEW `tests/ui/FavoritesIndicator.test.tsx`. vitest 2165→2177 (+12 net), tsc 0, eslint 0.
+**iter 141 changes:** NEW `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` (defaultRound10 true→false + 7 useState initializers extended + URL-sync effect extended + restoreFilterState extended), `src/ui/components/VirtualizedModList.tsx` (1-line grid-cols fix), 7 page files (`handleTogglePinned` simplified), `src/ui/layout/CategoryLayout.tsx` (aside header rewrite), NEW `tests/store/local-settings.test.ts` (8 tests), NEW `tests/ui/CategoryLayout.test.tsx` KI#29 describe block (4 tests), NEW `tests/ui/VirtualizedModList.test.tsx` KI#27 describe block (1 test). vitest 2177→2190 (+13 net), tsc 0, eslint 0.
 
 **Remaining optional enhancements** (если user запросит):
 - **KI#23 scroll jitter fix** (HIGHEST PRIORITY if user reports it as blocking) — see STATUS.md Known Issue #13 for root cause + 3 possible solutions. Requires careful testing to avoid breaking virtualization.
+- **KI#30 cross-tab favorites persistence** — extend `local-settings.ts` to per-category keys OR introduce global Zustand store. Requires design decision (format, expiry, migration). See STATUS.md Known Issue #14.
+- **KI#31 favorites как quick-select** — UX design + implementation. Click ★ → select affix OR scroll-to-mod. See STATUS.md Known Issue #15.
 - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc` boolean field to filter-store if user requests.
 - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render FavoritesIndicator (compact version). Deferred until user requests.
 - Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced to scroll to sub-group header instead. Deferred.
 - Tooltip `--strong` styling variant — currently single style. Could add variant for tier-first mode if user requests. (Note: `--strong` modifier pattern was already applied to `.affix-header-*` in iter 138; same pattern can be reused for Tooltip if requested.)
 - IconLegend `items` prop — currently hardcoded 3 rows (★/✗/ⓘ). Could be extended to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix anchor, 2x dual-number) if user requests.
+
+**DONE in iter 141 (removed from optional list):**
+- ~~round10 default off + cross-tab persistence global settings~~ → DONE in iter 141 (KI#26). NEW `local-settings.ts` + 7 useState-backed settings now persist via localStorage.
+- ~~VirtualizedModList prefix/suffix 50/50~~ → DONE in iter 141 (KI#27). One-line grid-cols fix.
+- ~~Favorites counter 1-per-family~~ → DONE in iter 141 (KI#28). `handleTogglePinned` simplified in 7 pages.
+- ~~Aside collapse header too big~~ → DONE in iter 141 (KI#29). CategoryLayout aside header rewritten.
 
 **DONE in iter 140 (removed from optional list):**
 - ~~Show-selected-only toggle clarification~~ → DONE in iter 140 (KI#25). Native `title` attribute tooltip added.
@@ -868,43 +877,57 @@ Pending: in-browser UX verification пользователем iter 140 changes 
 **DONE in iter 139 (removed from optional list):**
 - ~~`--strong` modifier wiring~~ → DONE in iter 138. See Pitfall 48.
 - ~~Right aside overflow~~ → DONE in iter 139 (KI#16).
-- ~~Prefix/Suffix 50/50~~ → DONE in iter 139 (KI#17).
+- ~~Prefix/Suffix 50/50 in ModList~~ → DONE in iter 139 (KI#17). VirtualizedModList parity fixed in iter 141 (KI#27).
 - ~~Chip truncation revert~~ → DONE in iter 139 (KI#18).
 - ~~Sticky search revert~~ → DONE in iter 139 (KI#19).
 - ~~LeftPanelFavorites removed~~ → DONE in iter 139 (KI#20), restored as compact indicator iter 140 (KI#24).
 
 **Do NOT implement TopNav dropdowns** — visualization supersedes that recommendation (iter 130 contradiction #1).
 
-**UX verification request for user (iter 140 deliverable):** open the 7
+**UX verification request for user (iter 141 deliverable):** open the 7
 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
-and verify iter 140 changes:
+and verify iter 141 changes:
 
-**KI#21 — Duplicate icons fix:**
-1. Look at the «Обозначения» legend at the bottom of the right aside.
-2. Each row should show the icon ONCE (★ / ✗ / ⓘ) — NOT twice (was `★ ★ — в избранное`).
+**KI#26 — round10 default off + cross-tab persistence:**
+1. Open Belt page. The «Округлять до 10» checkbox should be UNCHECKED by default (was checked before iter 141).
+2. Check the «Округлять до 10» checkbox. Regex output should change (numbers rounded to nearest 10).
+3. Navigate to Ring page (via TopNav). The «Округлять до 10» checkbox should be CHECKED (persisted from Belt via localStorage).
+4. Navigate back to Belt page. The checkbox should still be CHECKED.
+5. Close the browser tab and reopen the site. The checkbox should still be CHECKED (localStorage survives sessions).
 
-**KI#22 — Redundant «Выбрано» block removed:**
-1. Select 3-5 affixes.
-2. Look at the right aside — there should be ONLY ONE «Выбрано: N афф.» block (the SelectedBasket at the top of the aside, with chips). The OLD «Выбрано: N аффикс(ов)» block with truncated token list (below RegexOutput) should be GONE.
-3. On waystone page: corrupted/uncorrupted/delirious badges should still render (below RegexOutput).
-4. On jewel page: hidden-mods alert should still render (below RegexOutput).
+**KI#27 — VirtualizedModList prefix/suffix 50/50:**
+1. Open Belt page (or Ring / Amulet / Jewel — pages with virtualized lists).
+2. Look at the two-column layout (Prefix | Suffix). The columns should be EQUAL width (50/50). Before iter 141, prefix was 40% and suffix was 60% (visually unbalanced).
+3. Compare with Relic page (uses ModList, was already 50/50 since iter 139) — should look the same proportions.
 
-**KI#24 — FavoritesIndicator:**
-1. Pin 1-3 affixes via the ⭐ button on FilterChip.
-2. Look at the page header (top of the page, next to mod count).
-3. A small `★ Избранные аффиксы: N` badge should appear next to the «N аффиксов» count.
-4. Unpin all affixes → badge disappears (no noise when empty).
+**KI#28 — Favorites counter 1-per-family:**
+1. Open Belt page. Pin an affix family that has multiple tiers (e.g., +(15—40)% к сопротивлению чести — has 5 tiers).
+2. Look at the page header. The `★ Избранные аффиксы: N` badge should show N=1 (not N=5 as before iter 141).
+3. Pin a second affix family. Counter should show N=2.
+4. Unpin the first family (click ⭐ again). Counter should show N=1.
 
-**KI#25 — Show-selected-only tooltip:**
-1. Hover the mouse over the «Режим отображения аффиксов» radio toggle in CategoryControlPanel (top of left column).
-2. After ~500ms, a native browser tooltip should appear: «Показывать все аффиксы или только выбранные, исключённые и избранные».
+**KI#29 — Aside collapse header compact:**
+1. Open any category page with `basket` prop (Belt, Ring, etc.).
+2. Look at the top of the right aside (above SelectedBasket). The collapse toggle should be a SMALL chevron button on the right — NOT a full panel with empty title space.
+3. Click the chevron — aside should collapse (basket + regex + status + sidebar hidden, only chevron + ⚙ badge visible).
+4. Click again — aside should expand back.
 
 **KI#23 — Scroll jitter (monitoring only, not fixed):**
 1. Open Belt page (or Ring / Amulet / Jewel — pages with virtualized lists).
 2. Scroll the mod list up and down.
-3. Note: category names and chips may visibly «jump» / «double» / «jitter» during scroll. This is a known issue (KI#23) — root cause documented in STATUS.md. NOT fixed in iter 140; will be addressed in iter 141+.
+3. Note: category names and chips may visibly «jump» / «double» / «jitter» during scroll. This is a known issue (KI#23) — root cause documented in STATUS.md. NOT fixed in iter 141; will be addressed in iter 142+.
 
-Additionally verify all previous phases (Phase 2+2.5+3+4+4.5+5 + iter 138 `--strong` + iter 139 KI#16-20) — see STATUS.md.
+**KI#30 — Cross-tab favorites persistence (monitoring only, not fixed):**
+1. Open Belt page. Pin 1-2 affixes.
+2. Navigate to Ring page. Pin 1 affix.
+3. Navigate back to Belt page. The Belt favorites should be GONE (per-category store, not persisted across tabs). This is a known issue (KI#30) — root cause + solutions documented in STATUS.md. NOT fixed in iter 141; will be addressed in iter 142+.
+
+**KI#31 — Favorites as quick-select (monitoring only, not fixed):**
+1. Open any category page. Pin 1-2 affixes via ⭐ button.
+2. The `★ Избранные аффиксы: N` badge in the header is just a VISUAL indicator — clicking it does NOTHING.
+3. The user's expected behavior (click ★ → select affix OR scroll-to-mod) is NOT implemented. This is a feature gap (KI#31), not a bug. Deferred to iter 142+ (requires UX design + user feedback).
+
+Additionally verify all previous phases (Phase 2+2.5+3+4+4.5+5 + iter 138 `--strong` + iter 139 KI#16-20 + iter 140 KI#21-25) — see STATUS.md.
 
 If you find a bug — document in `STATUS.md` as Known Issue FIRST, then fix.
 

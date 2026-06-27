@@ -512,3 +512,41 @@ describe('VirtualizedModList — Phase 4 strong modifier wiring (iter 138)', () 
     expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
   });
 });
+
+// ─── iter 141 (KI#27): Prefix/Suffix columns 50/50 ───────────────────────
+
+describe('VirtualizedModList — iter 141 (KI#27): prefix/suffix equal column widths', () => {
+  // Pre-iter-141: VirtualizedModList used `md:grid-cols-[2fr_3fr]` (40/60),
+  // but ModList.tsx was already fixed to `md:grid-cols-2` (50/50) in iter 139
+  // KI#17. The iter 139 fix was missed in VirtualizedModList, leaving
+  // belt/ring/amulet/jewel pages with visually unbalanced columns.
+  // iter 141: VirtualizedModList now matches ModList — 50/50 via md:grid-cols-2.
+  it('two-column layout uses 50/50 grid (md:grid-cols-2) instead of 2fr/3fr', () => {
+    const tokens = makeBeltTokens(); // has both prefix + suffix
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+      />
+    );
+    // Find the grid container that holds the two VirtualizedColumn components.
+    const gridEl = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+    expect(gridEl).not.toBeNull();
+    // Defensive: ensure the OLD 2fr/3fr class is NOT present.
+    const oldGridEl = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-\\[2fr_3fr\\]');
+    expect(oldGridEl).toBeNull();
+  });
+});

@@ -10,9 +10,13 @@
  *   pages do post-iter-139), the left column renders only `controls` + `children`
  *   (no favorites panel above controls). Backward compat: when `favorites`
  *   is provided, it still renders above controls.
+ *
+ * iter 141 (KI#29) coverage:
+ * - Aside collapse header is compact — no full panel wrapper, no empty
+ *   title span. Just a chevron button + optional ⚙ badge when collapsed.
  */
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 
 describe('CategoryLayout — iter 139 (KI#16 + KI#20)', () => {
@@ -89,5 +93,109 @@ describe('CategoryLayout — iter 139 (KI#16 + KI#20)', () => {
     expect(favorites.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_PRECEDING).toBe(0);
     // And controls comes before modlist.
     expect(controls.compareDocumentPosition(modlist) & Node.DOCUMENT_POSITION_PRECEDING).toBe(0);
+  });
+});
+
+describe('CategoryLayout — iter 141 (KI#29): compact aside collapse header', () => {
+  // User feedback: «этот элемент слишком 'большой'» — the old aside header
+  // was a full panel (`bg-panel border p-2`) with an empty `<span>` title
+  // placeholder + chevron button. Visually heavy for just a toggle.
+  // iter 141 KI#29: simplified to a compact flex row with just a chevron
+  // button + optional ⚙ badge when collapsed. No panel wrapper, no empty span.
+
+  it('KI#29: aside header has no `bg-panel` panel wrapper (compact)', () => {
+    render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div>Basket</div>}
+        regexOutput={<div>RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // The collapse button is rendered (basket is provided).
+    const collapseBtn = screen.getByRole('button', { name: /Свернуть панель/ });
+    expect(collapseBtn).toBeInTheDocument();
+    // The PARENT of the button should NOT have the old `bg-panel` panel class.
+    // (Old class was: `flex items-center justify-between bg-panel border border-edge-panel rounded p-2`.)
+    const parent = collapseBtn.parentElement;
+    expect(parent).not.toBeNull();
+    expect(parent?.classList.contains('bg-panel')).toBe(false);
+    expect(parent?.classList.contains('border')).toBe(false);
+    expect(parent?.classList.contains('rounded')).toBe(false);
+    expect(parent?.classList.contains('p-2')).toBe(false);
+  });
+
+  it('KI#29: aside header has no empty `<span>` title placeholder', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div>Basket</div>}
+        regexOutput={<div>RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // The old code rendered `<span class="text-[12px] text-muted font-semibold uppercase tracking-wider"></span>`
+    // (empty span as title spacer). Verify no empty span exists in the aside header.
+    const aside = container.querySelector('aside');
+    expect(aside).not.toBeNull();
+    // Find all spans in the aside that are empty (no text content).
+    const spans = aside?.querySelectorAll('span') ?? [];
+    const emptySpans = Array.from(spans).filter(s => s.textContent?.trim() === '');
+    // Empty spans should be either 0 or only the chevron's child (which has
+    // textContent '▶'). The chevron span has '▶' so it's not empty.
+    // Note: the ⚙ badge span is conditionally rendered — only when collapsed.
+    // In the default (expanded) state, only the chevron span exists with '▶'.
+    expect(emptySpans.length).toBe(0);
+  });
+
+  it('KI#29: clicking chevron toggles collapsed state (functional)', () => {
+    render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div data-testid="basket">Basket</div>}
+        regexOutput={<div data-testid="regex">RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // Initially expanded: basket + regex visible, button says "Свернуть панель".
+    expect(screen.getByTestId('basket')).toBeInTheDocument();
+    expect(screen.getByTestId('regex')).toBeInTheDocument();
+    const collapseBtn = screen.getByRole('button', { name: /Свернуть панель/ });
+    expect(collapseBtn).toHaveAttribute('aria-expanded', 'true');
+
+    // Click to collapse.
+    fireEvent.click(collapseBtn);
+
+    // After collapse: basket + regex hidden, button says "Развернуть панель".
+    expect(screen.queryByTestId('basket')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('regex')).not.toBeInTheDocument();
+    const expandBtn = screen.getByRole('button', { name: /Развернуть панель/ });
+    expect(expandBtn).toHaveAttribute('aria-expanded', 'false');
+
+    // Click again to expand.
+    fireEvent.click(expandBtn);
+    expect(screen.getByTestId('basket')).toBeInTheDocument();
+    expect(screen.getByTestId('regex')).toBeInTheDocument();
+  });
+
+  it('KI#29: no aside header rendered when `basket` prop is omitted (backward compat)', () => {
+    render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        regexOutput={<div>RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // No collapse/expand button should be present when basket is not provided.
+    expect(screen.queryByRole('button', { name: /Свернуть панель/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Развернуть панель/ })).not.toBeInTheDocument();
   });
 });

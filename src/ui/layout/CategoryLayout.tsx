@@ -179,26 +179,25 @@ export function CategoryLayout({
           {/* Phase 3 (iter 135): aside header with chevron toggle.
               Rendered only when `basket` is provided (pre-Phase-3 pages had
               no basket, no header — backward compat). When collapsed, the
-              header still shows the chevron + count badge so the user can
-              expand back. */}
+              header still shows the chevron + ⚙ badge so the user can
+              expand back.
+              iter 141 (KI#29): simplified — removed full panel wrapper
+              (`bg-panel border p-2`) and empty `<span>` title placeholder.
+              User feedback: «этот элемент слишком 'большой'». Now renders
+              as a compact flex row with just a small chevron button +
+              optional ⚙ badge when collapsed. Visually lighter, same
+              function. */}
           {hasAsideHeader && (
-            <div className="flex items-center justify-between bg-panel border border-edge-panel rounded p-2">
-              {rightPanelCollapsed ? (
-                <span className="text-[12px] text-muted font-semibold">
-                  {/* Compact chip-count badge when collapsed.
-                      Per iter 131 §13.7 #2 Option A (badge that expands back). */}
+            <div className="flex items-center justify-end gap-1">
+              {rightPanelCollapsed && (
+                <span className="text-[12px] text-muted font-semibold" aria-hidden="true">
                   ⚙
-                </span>
-              ) : (
-                <span className="text-[12px] text-muted font-semibold uppercase tracking-wider">
-                  {/* Spacer to align chevron right — the title is in the basket
-                      component itself. */}
                 </span>
               )}
               <button
                 type="button"
                 onClick={() => setRightPanelCollapsed(prev => !prev)}
-                className="text-soft hover:text-bright transition-colors p-1 rounded hover:bg-chip-hover"
+                className="text-soft hover:text-bright transition-colors p-1 rounded hover:bg-chip-hover text-[13px] leading-none"
                 aria-label={rightPanelCollapsed
                   ? t('basket.expand_panel')
                   : t('basket.collapse_panel')}

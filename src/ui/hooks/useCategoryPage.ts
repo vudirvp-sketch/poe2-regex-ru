@@ -26,6 +26,11 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
+// iter 141 (KI#26): localStorage-backed persistence for global user settings
+// (round10Enabled, searchLogic, minValue, maxValue, priorityFilter,
+// thresholdEnabled, sortMode). Survives cross-tab navigation — URL hash is
+// per-page and gets overwritten on each mount, so we need a stable store.
+import { readLocalSetting, writeLocalSetting } from '@store/local-settings';
 import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter, SortMode } from '@shared/types';
 import { and } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
@@ -57,7 +62,9 @@ export interface CategoryPageConfig {
   categoryId: string;
   /** Locale for regex compilation */
   locale?: Locale;
-  /** Whether to use round10 for number regex (default: true) */
+  /** Whether to use round10 for number regex (default: false — iter 141 KI#26).
+   *  Was `true` before iter 141; user feedback: most users want exact ranges,
+   *  not rounded-to-10. The user's choice persists across tabs via localStorage. */
   round10?: boolean;
   /** Extra AST nodes to AND into the final regex (e.g., tier, state toggles) */
   extraAstNodes?: ASTNode[];
@@ -507,7 +514,11 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   const {
     categoryId,
     locale = 'ru',
-    round10: defaultRound10 = true,
+    // iter 141 (KI#26): default `round10` flipped from `true` to `false` per
+    // user request — most users want exact ranges, not rounded-to-10. Users
+    // who want round10 can toggle it on; their choice persists across tabs
+    // via localStorage (see useState initializer below).
+    round10: defaultRound10 = false,
     extraAstNodes = [],
     mergeCategories,
     customData: providedData,
@@ -532,41 +543,50 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // so we can unconditionally read from extraState. When the URL had no data,
   // extraState is empty and we fall back to defaults — equivalent to the previous
   // `if (urlRestored) { ... } return default;` pattern.
+  //
+  // iter 141 (KI#26): for the 6 global user-level settings (searchLogic,
+  // round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled,
+  // sortMode), we now ALSO check localStorage as a fallback when neither URL
+  // nor explicit default applies. Precedence: URL (shareable link) > localStorage
+  // (personal cross-tab persistence) > default. The localStorage write happens
+  // in the URL-sync effect below — same effect, one extra line per setting.
   const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
     const val = useStore.getState().getExtraState('searchLogic');
     if (val === 'and' || val === 'or') return val;
-    return 'and';
+    // iter 141 (KI#26): fall back to localStorage for cross-tab persistence.
+    return readLocalSetting<SearchLogic>('searchLogic', 'and');
   });
   const [round10Enabled, setRound10Enabled] = useState(() => {
     const val = useStore.getState().getExtraState('round10Enabled');
     if (typeof val === 'boolean') return val;
-    return defaultRound10;
+    return readLocalSetting<boolean>('round10Enabled', defaultRound10);
   });
   const [minValue, setMinValue] = useState<number | null>(() => {
     const val = useStore.getState().getExtraState('minValue');
     if (typeof val === 'number') return val;
-    return null;
+    return readLocalSetting<number | null>('minValue', null);
   });
   const [maxValue, setMaxValue] = useState<number | null>(() => {
     const val = useStore.getState().getExtraState('maxValue');
     if (typeof val === 'number') return val;
-    return null;
+    return readLocalSetting<number | null>('maxValue', null);
   });
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>(() => {
     const val = useStore.getState().getExtraState('priorityFilter');
     if (val === 'all' || val === 'S+A' || val === 'S') return val;
-    return 'all';
+    return readLocalSetting<PriorityFilter>('priorityFilter', 'all');
   });
   // iter 106 (P4): sortMode toggle (alpha vs tier-first). Persisted via extraState → URL hash.
+  // iter 141 (KI#26): also persisted to localStorage for cross-tab consistency.
   const [sortMode, setSortMode] = useState<SortMode>(() => {
     const val = useStore.getState().getExtraState('sortMode');
     if (val === 'alpha' || val === 'tier-first') return val;
-    return 'alpha';
+    return readLocalSetting<SortMode>('sortMode', 'alpha');
   });
   const [thresholdEnabled, setThresholdEnabled] = useState(() => {
     const val = useStore.getState().getExtraState('thresholdEnabled');
     if (typeof val === 'boolean') return val;
-    return false;
+    return readLocalSetting<boolean>('thresholdEnabled', false);
   });
 
   // Ref to skip the first sync-to-store render cycle, preventing
@@ -652,6 +672,18 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('priorityFilter', priorityFilter);
     useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
     useStore.getState().setExtraState('sortMode', sortMode);
+    // iter 141 (KI#26): also persist these 7 global settings to localStorage
+    // so they survive cross-tab navigation. URL hash gets overwritten on each
+    // page mount (fresh store defaults), but localStorage is stable across
+    // the entire origin. Per-category state (selectedIds, pinnedIds, etc.)
+    // stays URL-only — those SHOULD reset when switching categories.
+    writeLocalSetting('searchLogic', searchLogic);
+    writeLocalSetting('round10Enabled', round10Enabled);
+    writeLocalSetting('minValue', minValue);
+    writeLocalSetting('maxValue', maxValue);
+    writeLocalSetting('priorityFilter', priorityFilter);
+    writeLocalSetting('thresholdEnabled', thresholdEnabled);
+    writeLocalSetting('sortMode', sortMode);
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
@@ -693,34 +725,39 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // so it's automatically restored via deserialize().
     const restored = useStore.getState();
 
+    // iter 141 (KI#26): when the restored data doesn't contain a setting,
+    // fall back to localStorage (cross-tab persistence) before the hard-coded
+    // default. This ensures that loading a profile doesn't blow away the
+    // user's cross-tab preferences for fields the profile didn't specify.
     const restoredLogic = restored.getExtraState('searchLogic');
     if (restoredLogic === 'and' || restoredLogic === 'or') setSearchLogic(restoredLogic);
-    else setSearchLogic('and');
+    else setSearchLogic(readLocalSetting<SearchLogic>('searchLogic', 'and'));
 
     const restoredRound10 = restored.getExtraState('round10Enabled');
     if (typeof restoredRound10 === 'boolean') setRound10Enabled(restoredRound10);
-    else setRound10Enabled(defaultRound10);
+    else setRound10Enabled(readLocalSetting<boolean>('round10Enabled', defaultRound10));
 
     const restoredMin = restored.getExtraState('minValue');
     if (typeof restoredMin === 'number') setMinValue(restoredMin);
-    else setMinValue(null);
+    else setMinValue(readLocalSetting<number | null>('minValue', null));
 
     const restoredMax = restored.getExtraState('maxValue');
     if (typeof restoredMax === 'number') setMaxValue(restoredMax);
-    else setMaxValue(null);
+    else setMaxValue(readLocalSetting<number | null>('maxValue', null));
 
     const restoredPriority = restored.getExtraState('priorityFilter');
     if (restoredPriority === 'all' || restoredPriority === 'S+A' || restoredPriority === 'S') setPriorityFilter(restoredPriority);
-    else setPriorityFilter('all');
+    else setPriorityFilter(readLocalSetting<PriorityFilter>('priorityFilter', 'all'));
 
     // iter 106 (P4): restore sortMode from extraState (defaults to 'alpha' on bad value).
+    // iter 141 (KI#26): fall back to localStorage before hard-coded default.
     const restoredSortMode = restored.getExtraState('sortMode');
     if (restoredSortMode === 'alpha' || restoredSortMode === 'tier-first') setSortMode(restoredSortMode);
-    else setSortMode('alpha');
+    else setSortMode(readLocalSetting<SortMode>('sortMode', 'alpha'));
 
     const restoredThreshold = restored.getExtraState('thresholdEnabled');
     if (typeof restoredThreshold === 'boolean') setThresholdEnabled(restoredThreshold);
-    else setThresholdEnabled(false);
+    else setThresholdEnabled(readLocalSetting<boolean>('thresholdEnabled', false));
   };
 
   // Create a stable FilterStoreApi wrapper that delegates convenience methods
