@@ -2,151 +2,113 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 141
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 138-141 fixes) + `docs/UI_VISUALIZATION_AUDIT.md`
+> **Текущая итерация:** 142
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 138-141 fixes + iter 142 doc cleanup + proposals) + `docs/UI_VISUALIZATION_AUDIT.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 141: 4 UI bug fixes по feedback пользователя (KI#26, KI#27, KI#28, KI#29) + 2 KI documented as monitoring (KI#30, KI#31).**
+**iter 142: documentation cleanup + design proposals для KI#23/30/31. Никаких кодовых изменений.**
 
-Пользователь после iter 140 сообщил о 4 новых UX-проблемах: (1) настройки (round10 и
-прочие) не сохраняются при переключении вкладок + round10 должен быть default off;
-(2) счётчик избранного считает N (по числу tier-ов) вместо 1 на семейство;
-(3) в VirtualizedModList префиксы/суффиксы всё ещё 40/60 вместо 50/50;
-(4) collapse-панель правой колонки слишком громоздкая. Все 4 задокументированы
-как KI#26-29 ДО фикса; 2 более крупных запроса (cross-tab persistence favorites,
-favorites как quick-select) задокументированы как KI#30-31 (monitoring).
+iter 141 завершил 4 UI bug fixes (KI#26/27/28/29) + 2 KI documented as monitoring
+(KI#30/31). Все 4 фикса требуют in-browser UX verification пользователем — это
+главное blocker для закрытия KI#26-29. Остальные 3 KI (KI#23 scroll jitter,
+KI#30 cross-tab favorites persistence, KI#31 favorites как quick-select) требуют
+либо careful browser testing (KI#23), либо UX design решения от user (KI#30/31).
 
-### iter 141 deliverables
+iter 142 выполнен как **documentation-only итерация** — без кодовых изменений,
+чтобы не нарушить правило «лучше недоделать, чем сломать»:
 
-1. **KI#26 (FIXED): round10 default off + global settings cross-tab persistence.**
-   `defaultRound10` было `true` → стало `false` (per user request). Добавлен
-   `src/store/local-settings.ts` — тонкая обёртка над `localStorage` с JSON
-   serialize + try/catch fallback. В `useCategoryPage.ts` 6 useState-backed
-   настроек (`round10Enabled`, `searchLogic`, `minValue`, `maxValue`,
-   `priorityFilter`, `thresholdEnabled`, `sortMode`) теперь читаются из
-   localStorage если URL не задал значение, и пишутся в localStorage при каждом
-   изменении. URL остаётся primary source для shareable links; localStorage
-   заполняет пробел между вкладками.
-2. **KI#27 (FIXED): Prefix/suffix 50/50 alignment в VirtualizedModList.** iter 139
-   KI#17 фикс (`md:grid-cols-2`) был применён ТОЛЬКО к `ModList.tsx` (relic,
-   tablet, waystone), но НЕ к `VirtualizedModList.tsx` (belt, ring, amulet,
-   jewel) — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка
-   в VirtualizedModList.tsx заменена на `md:grid-cols-2`.
-3. **KI#28 (FIXED): Favorites counter — 1 per family, not N per tier.** Раньше
-   `handleTogglePinned(ids)` в каждой странице вызывал `togglePinned(id)` для
-   КАЖДОГО member ID семьи (5 tier-ов → 5 IDs → счётчик показывал 5). Теперь
-   вызывается только для первого member ID — `pinnedIds.size` теперь = число
-   favorited семей, что соответствует mental model пользователя «1 клик = 1
-   избранное». `FilterChip.isPinned` (`memberIds.some(...)`) продолжает работать.
-4. **KI#29 (FIXED): Aside collapse header упрощён.** Раньше это была полная панель
-   (`bg-panel border p-2`) с пустым `<span>` и chevron-кнопкой. Стало: компактный
-   flex-row с маленькой иконкой-кнопкой `p-1`, без panel-wrapper, без пустого
-   span. Визуально легче, но функция (collapse/expand) сохранена.
+1. **STATUS.md / AGENT_NAVIGATION.md / worklog.md / docs/UI_REFACTOR_PLAN.md**
+   сжаты — убрана длинная история итераций, оставлены только ключевые Known
+   Issues и активные контексты. Файлы стали легче для модели/агента.
+2. **NEW `docs/ITER142_PROPOSALS.md`** — design proposals для KI#23/30/31 с 3
+   вариантами каждый, pros/cons, recommendation, тест-планом. Документ
+   подготовлен для review пользователем — после выбора варианта можно
+   реализовывать в iter 143.
+3. **Никаких изменений в `src/`** — baseline проверен: tsc 0, eslint 0, vitest
+   2190/2190 (без изменений относительно iter 141).
 
-### iter 141 changes (files)
+### iter 142 deliverables
 
-- `src/store/local-settings.ts` — NEW file. `readLocalSetting<T>(key, fallback)`
-  + `writeLocalSetting<T>(key, value)`. JSON serialize, try/catch silent fallback.
-- `src/ui/hooks/useCategoryPage.ts` — `defaultRound10` true→false; 6 useState
-  initializers extended с `readLocalSetting` fallback; URL-sync effect extended
-  с `writeLocalSetting` calls.
-- `src/ui/components/VirtualizedModList.tsx` — line ~1018: `md:grid-cols-[2fr_3fr]`
-  → `md:grid-cols-2` (parity with ModList.tsx iter 139 KI#17).
-- `src/ui/pages/{amulet,belt,jewel,relic,ring,tablet,waystone}/*.tsx` —
-  `handleTogglePinned` упрощён: `ids.forEach(id => togglePinned(id))` →
-  `if (ids.length > 0) togglePinned(ids[0])`. Комментарий обновлён.
-- `src/ui/layout/CategoryLayout.tsx` — aside header переписан: удалён пустой
-  `<span>`, panel-wrapper заменён на compact flex-row с маленькой кнопкой.
-- `tests/store/local-settings.test.ts` — NEW file (8 tests).
-- `tests/ui/CategoryLayout.test.tsx` — NEW describe block (4 tests for KI#29:
-  no bg-panel wrapper, no empty span, toggle functional, no header when no basket).
-- `tests/ui/VirtualizedModList.test.tsx` — NEW describe block (1 test for KI#27:
-  md:grid-cols-2 present, 2fr_3fr absent).
+1. Documentation cleanup (4 файла).
+2. NEW `docs/ITER142_PROPOSALS.md` — design proposals для KI#23/30/31.
+3. Baseline проверки подтверждены: tsc 0 / eslint 0 / vitest 2190/2190.
 
-### Проверки (iter 141)
+### iter 141 reference (brief)
 
-- **vitest:** 2190/2190 passed (53 test files). Was 2177 in iter 140 → **+13 net**
-  (8 new local-settings + 4 new CategoryLayout KI#29 + 1 new VirtualizedModList
-  KI#27). Existing tests unchanged.
-- **tsc:** 0 errors.
-- **eslint:** 0 problems 0 warnings.
-- **Backward compat:** `pinnedIds` semantic preserved (Set<string> of token IDs).
-  Only page-level `handleTogglePinned` behavior changed (calls togglePinned once
-  per family instead of once per member). `LeftPanelFavorites` component file
-  unchanged. URL serialization of `pinnedIds` unchanged (`pn` key).
-
-### iter 140 reference (brief)
-
-iter 140: 4 UI bug fixes (KI#21, 22, 24, 25) + KI#23 monitoring — duplicate
-icons fix, StatusPanel rewrite (badges+alerts only), FavoritesIndicator NEW
-component (compact `★ N` badge in 7 page headers), show-selected-only tooltip.
-2177/2177 tests.
+iter 141: 4 UI bug fixes (KI#26-29) + 2 KI monitoring (KI#30/31). round10 default
+off + global settings localStorage persistence; VirtualizedModList 50/50 parity
+with ModList (iter 139 KI#17 missed in VirtualizedModList); favorites counter
+1-per-family (was N-per-tier); aside collapse header compact. NEW
+`src/store/local-settings.ts` infrastructure. vitest 2177→2190 (+13).
 
 ---
 
 ## Known Issues
 
-1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
-2. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
-3. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
-4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай.
-5. **Phase 2 UX change: sub-groups default COLLAPSED** (iter 133). In-game verification pending (KI#15).
-6. **Phase 3 UX change: show-selected-only filter** (iter 135) + **iter 140 (KI#25) tooltip clarification**. In-game verification pending (KI#15).
-7. **Phase 3 UX change: SelectedBasket panel + collapsible right aside** (iter 135) + **iter 141 (KI#29) compact aside header**. In-game verification pending (KI#15).
-8. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136) + **iter 140 (KI#24) FavoritesIndicator в header** + **iter 141 (KI#28) 1-ID-per-family counter fix**. In-game verification pending (KI#15).
-9. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density** (iter 137). In-game verification pending (KI#15).
-10. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). In-game verification pending (KI#15).
-11. **Phase 4.5 UX change: «Обозначения» icon legend** (iter 137) + **iter 140 (KI#21) duplicate icons fix**. In-game verification pending (KI#15).
-12. **Phase 4 iter 138 UX change: `--strong` modifier wiring в tier-first mode**. In-game verification pending (KI#15).
-13. **KI#23 (iter 140 — MONITORING): Scroll jitter / «doubling» в virtualized lists.**
-    На belt/ring/amulet/jewel страницах при скролле видны «дрожащие»/«прыгающие»
-    названия категорий и affix chips. Root cause: TanStack Virtual's dynamic
-    `measureElement` + `ResizeObserver` — estimate sizes (60px для subgroup)
-    отличаются от actual sizes (40–120px), при scroll ResizeObserver fires →
-    totalSize changes → paddingTop/paddingBottom shifted → visible rows jump.
-    Файлы: `src/ui/components/VirtualizedModList.tsx` (VirtualizedColumn, ROW_ESTIMATES).
-    Возможные решения: (a) static row heights (требует измерения всех вариантов
-    chip layouts); (b) improved estimateSize per-row-state (selected+range vs
-    collapsed); (c) CSS Grid virtualization вместо TanStack. Не фиксировано —
-    требует отдельной итерации с careful testing.
-14. **KI#30 (iter 141 — MONITORING): Cross-tab persistence favorites (pinnedIds).**
-    `pinnedIds` хранятся в per-category Zustand store, который уничтожается при
-    unmount. URL hash shared между вкладками и перезаписывается при переходе.
-    Сессия: при reload вкладки favorites теряются (если URL не был сохранён).
-    Решения: (a) per-category localStorage keys (`poe2:favorites:belt`, ...);
-    (b) global Zustand store с category-keyed map (вне React tree); (c) IndexedDB.
-    iter 141 уже добавил `src/store/local-settings.ts` infrastructure для global
-    settings — расширение до per-category favorites требует design decision
-    (format, expiry, migration). Отложено на iter 142+.
-15. **KI#31 (iter 141 — MONITORING): Favorites как quick-select feature.**
-    Пользователь ожидает: клик на ★ в избранном → аффикс выбирается (added to
-    selectedIds) ИЛИ scroll-to-mod срабатывает. Текущая реализация: ★ только
-    визуальный маркер + фильтр show-selected-only. Feature gap, не bug.
-    Решения: (a) click на ★ в FavoritesIndicator → диалог/панель со списком
-    favorited семей + быстрый select; (b) click на ★ в FilterChip → toggle AND
-    scroll-to-mod (если не в viewport); (c) отдельный «Favorites» tab/drawer.
-    Требует UX design + user feedback. Отложено на iter 142+.
+### Активные (требуют действий)
+
+1. **KI#23 (iter 140 — MONITORING): Scroll jitter / «doubling» в virtualized lists.**
+   На belt/ring/amulet/jewel страницах при скролле видны «дрожащие»/«прыгающие»
+   названия категорий и affix chips. Root cause: TanStack Virtual's dynamic
+   `measureElement` + `ResizeObserver` — estimate sizes (60px для subgroup)
+   отличаются от actual sizes (40–120px), при scroll ResizeObserver fires →
+   totalSize changes → paddingTop/paddingBottom shifted → visible rows jump.
+   Файлы: `src/ui/components/VirtualizedModList.tsx` (VirtualizedColumn, ROW_ESTIMATES).
+   Возможные решения: (a) static row heights; (b) improved estimateSize
+   per-row-state; (c) CSS Grid virtualization. **Не фиксировано** — требует
+   careful browser testing, риск сломать virtualization. Design proposal — в
+   `docs/ITER142_PROPOSALS.md` §1.
+
+2. **KI#30 (iter 141 — MONITORING): Cross-tab persistence favorites (pinnedIds).**
+   `pinnedIds` хранятся в per-category Zustand store, который уничтожается при
+   unmount. URL hash shared между вкладками и перезаписывается при переходе.
+   Сессия: при reload вкладки favorites теряются (если URL не был сохранён).
+   Решения: (a) per-category localStorage keys (`poe2:favorites:belt`, ...);
+   (b) global Zustand store с category-keyed map (вне React tree); (c) IndexedDB.
+   iter 141 уже добавил `src/store/local-settings.ts` infrastructure для global
+   settings — расширение до per-category favorites требует design decision
+   (format, expiry, migration). **Не фиксировано** — требует user decision.
+   Design proposal — в `docs/ITER142_PROPOSALS.md` §2.
+
+3. **KI#31 (iter 141 — MONITORING): Favorites как quick-select feature.**
+   Пользователь ожидает: клик на ★ в избранном → аффикс выбирается (added to
+   selectedIds) ИЛИ scroll-to-mod срабатывает. Текущая реализация: ★ только
+   визуальный маркер + фильтр show-selected-only. Feature gap, не bug.
+   Решения: (a) click на ★ в FavoritesIndicator → диалог/панель со списком
+   favorited семей + быстрый select; (b) click на ★ в FilterChip → toggle AND
+   scroll-to-mod (если не в viewport); (c) отдельный «Favorites» tab/drawer.
+   **Не фиксировано** — требует UX design + user feedback. Design proposal —
+   в `docs/ITER142_PROPOSALS.md` §3.
+
+4. **In-browser UX verification iter 141 changes (KI#26/27/28/29).** 4 фикса
+   iter 141 (round10 default off + cross-tab persistence, VirtualizedModList
+   50/50, favorites counter 1-per-family, aside header compact) требуют
+   проверки пользователем в браузере. Шаги — в `docs/UI_REFACTOR_PLAN.md`
+   §13.6 «UX verification request for user». Если найден новый баг — сначала
+   документировать в STATUS.md как Known Issue, потом фиксить.
+
+### Фоновые (low-priority / редкие)
+
+5. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
+6. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
+7. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
+8. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай.
 
 ### Закрытые KI (краткая справка)
 
-- **KI#7** (iter 121 → VERIFIED iter 129): HomePage hero decorations.
-- **KI#8** (iter 122 → VERIFIED iter 129): SeoBlock atmosphere backdrop.
+- **KI#7-8** (iter 121-122 → VERIFIED iter 129): HomePage hero decorations + SeoBlock.
 - **KI#10** (iter 126 → VERIFIED iter 127): ambiguous suffix FP для `Редкость предметов`.
 - **KI#11** (iter 126 → DISPROVEN iter 127): cross-block `.*` hypothesis.
 - **KI#12** (iter 127 → FIXED): tier-hardcoded regex для 7 single-`#` relic tokens.
 - **KI#13** (iter 128 → FIXED): пропущен implicit `Редкость монстров` + BTS-статы.
 - **KI#16-20** (iter 139 → VERIFIED iter 140): aside overflow, prefix/suffix 50/50, chip truncation reverted, non-sticky search, LeftPanelFavorites removed.
-- **KI#21** (iter 140 → FIXED): duplicate icons in legend.
-- **KI#22** (iter 140 → FIXED): redundant "Выбрано" block removed.
-- **KI#24** (iter 140 → FIXED): favorites restored as compact indicator.
-- **KI#25** (iter 140 → FIXED): show-selected-only tooltip clarification.
-- **KI#26** (iter 141 → FIXED): round10 default off + global settings localStorage persistence.
-- **KI#27** (iter 141 → FIXED): VirtualizedModList prefix/suffix 50/50 alignment.
-- **KI#28** (iter 141 → FIXED): favorites counter — 1 per family.
-- **KI#29** (iter 141 → FIXED): aside collapse header simplified.
+- **KI#21-22, 24-25** (iter 140 → FIXED): duplicate icons, redundant «Выбрано» block, favorites restored as compact indicator, show-selected-only tooltip.
+- **KI#23** (iter 140 → MONITORING): scroll jitter — см. Known Issue #1 выше.
+- **KI#26-29** (iter 141 → FIXED, pending browser verification): round10 default off + cross-tab persistence, VirtualizedModList 50/50, favorites counter 1-per-family, aside header compact.
+- **KI#30-31** (iter 141 → MONITORING): cross-tab favorites persistence, favorites как quick-select — см. Known Issues #2-3 выше.
 
 ---
 
@@ -175,31 +137,34 @@ component (compact `★ N` badge in 7 page headers), show-selected-only tooltip.
 
 ---
 
-## Next iteration (iter 142)
+## Next iteration (iter 143)
 
-**iter 141 завершён: 4 UI bug fixes (KI#26, 27, 28, 29) + 2 KI documented (KI#30, 31). Pending: in-browser UX verification пользователем iter 141 changes.**
+**iter 142 завершён: documentation cleanup + design proposals. Никаких кодовых изменений.**
 
-Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status) + §13.7 (Recommendation для iter 142 = UX verification + KI#23/30/31 fixes + remaining optional enhancements).
+Следующий агент: читать `docs/ITER142_PROPOSALS.md` (design proposals для
+KI#23/30/31) + `docs/UI_REFACTOR_PLAN.md` §13.6 (UX verification request для
+iter 141 changes).
 
-**Приоритеты для iter 142+:**
+**Приоритеты для iter 143+:**
 
-1. **In-browser UX verification feedback** пользователем iter 141 changes:
-   - **KI#26**: round10 OFF by default; after toggling ON on Belt, navigating to
-     Ring → round10 still ON (localStorage); coming back to Belt → still ON.
-   - **KI#27**: belt/ring/amulet/jewel pages show 50/50 prefix/suffix (was 40/60).
-   - **KI#28**: clicking ★ on a 5-tier family shows counter = 1 (was 5).
-   - **KI#29**: right aside header is a small chevron button, no big panel.
-   Если найден новый баг — сначала документировать в STATUS.md как Known Issue, потом фиксить.
+1. **In-browser UX verification feedback** пользователем iter 141 changes
+   (KI#26/27/28/29). Шаги — в `docs/UI_REFACTOR_PLAN.md` §13.6. Если найден
+   новый баг — сначала документировать в STATUS.md как Known Issue, потом фиксить.
 
-2. **KI#23 (scroll jitter)** — fix candidate. Изучить virtualization measurement.
-   Возможно: static heights, improved estimateSize, OR shift to CSS Grid virtualization.
+2. **KI#23 (scroll jitter)** — обсудить с user вариант из
+   `docs/ITER142_PROPOSALS.md` §1. Рекомендованный: (b) improved estimateSize
+   per-row-state (минимальный риск, без изменения virtualization machinery).
+   После выбора варианта — careful browser testing обязателен.
 
-3. **KI#30 (cross-tab favorites persistence)** — implement. Расширить
-   `local-settings.ts` до per-category keys (`poe2:favorites:belt`, ...) или
-   ввести global store. Требует careful testing URL sync interaction.
+3. **KI#30 (cross-tab favorites persistence)** — обсудить с user вариант из
+   `docs/ITER142_PROPOSALS.md` §2. Рекомендованный: (a) per-category localStorage
+   keys (простая миграция, переиспользует iter 141 infrastructure).
+   После выбора варианта — careful testing URL sync interaction.
 
-4. **KI#31 (favorites как quick-select)** — UX design + implementation. Click
-   ★ → select affix OR scroll-to-mod.
+4. **KI#31 (favorites как quick-select)** — обсудить с user UX вариант из
+   `docs/ITER142_PROPOSALS.md` §3. Рекомендованный: (b) click на ★ в FilterChip
+   → toggle AND scroll-to-mod (минимальные UI изменения, переиспользует Phase 5
+   scroll-to-mod pattern). После выбора варианта — UX design + implementation.
 
 5. **KI#9** (MULTI_RANGE slot N>0) — monitoring, не фиксировано.
 
@@ -210,13 +175,15 @@ component (compact `★ N` badge in 7 page headers), show-selected-only tooltip.
    - Tooltip `--strong` styling variant.
    - IconLegend `items` prop extension.
 
-**Главные ограничения для iter 142:**
+**Главные ограничения для iter 143:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
 - Если найден новый баг — сначала документируй в STATUS.md как Known Issue,
   потом фиксий.
-- KI#23 fix требует careful testing — лучше недоделать, чем сломать virtualization.
-- KI#30/31 требуют UX design решения — сначала обсудить с user, потом реализовывать.
+- KI#23 fix требует careful browser testing — лучше недоделать, чем сломать
+  virtualization. Прогон vitest недостаточен для проверки virtualization.
+- KI#30/31 требуют UX design решения — сначала обсудить с user (через
+  `docs/ITER142_PROPOSALS.md`), потом реализовывать.
 
 ---
 

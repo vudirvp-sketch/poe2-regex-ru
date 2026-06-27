@@ -836,28 +836,39 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 141
+### 13.6 iter 141 reference (archive)
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133, sticky search reverted iter 139). Phase 2.5 is DONE (iter 134, chip truncation reverted iter 139). Phase 3 is DONE (iter 135, aside header simplified iter 141 KI#29). Phase 5 is DONE (iter 136, LeftPanelFavorites removed iter 139, restored as compact indicator iter 140, counter fixed iter 141 KI#28). Phase 4 + 4.5 are DONE (iter 137, duplicate icons fix iter 140). iter 138 wired `--strong` modifier. iter 139 fixed 5 UI bugs (KI#16-20). iter 140 fixed 4 UI bugs (KI#21, 22, 24, 25) + KI#23 documented as monitoring. iter 141 fixed 4 UI bugs (KI#26, 27, 28, 29) + KI#30/31 documented as monitoring. ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT + 3 ITERS OF UX FIXES.**
-
-**Recommended next (iter 142):** UI Refactor + 3 iterations of UX fixes completed.
-Pending: in-browser UX verification пользователем iter 141 changes (KI#26/27/28/29).
+**ВСЕ 7 ФАЗ UI REFACTOR DONE (iter 132-137) + iter 138 `--strong` + iter 139 KI#16-20 (FIXED+VERIFIED iter 140) + iter 140 KI#21-25 (FIXED) + iter 141 KI#26-29 (FIXED, pending browser verification) + KI#30/31 monitoring + iter 142 documentation cleanup + design proposals.**
 
 **iter 141 deliverables (4 fixes + 2 monitoring):**
 
-- **KI#26 (FIXED):** round10 default off + global settings cross-tab persistence. `defaultRound10` true→false per user explicit request. NEW `src/store/local-settings.ts` (thin localStorage wrapper with JSON serialize + try/catch silent fallback). В `useCategoryPage.ts` 7 useState-backed global settings (`searchLogic`, `round10Enabled`, `minValue`, `maxValue`, `priorityFilter`, `thresholdEnabled`, `sortMode`) теперь читаются из localStorage если URL не задал значение, и пишутся в localStorage при каждом изменении. Precedence: URL > localStorage > default. `restoreFilterState` (ProfilePanel) также fallback на localStorage перед hard-coded default — prevents profile-load from blowing away cross-tab preferences.
-- **KI#27 (FIXED):** VirtualizedModList prefix/suffix 50/50 alignment. iter 139 KI#17 fix (`md:grid-cols-2`) was applied ТОЛЬКО к `ModList.tsx` (relic/tablet/waystone), но НЕ к `VirtualizedModList.tsx` (belt/ring/amulet/jewel) — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка в VirtualizedModList.tsx заменена на `md:grid-cols-2`. **Lesson: при fixed-bug-in-one-place, audit ALL similar components** — ModList and VirtualizedModList rendering logic is duplicated.
-- **KI#28 (FIXED):** Favorites counter — 1 per family, not N per tier. `handleTogglePinned` в 7 pages simplified from `ids.forEach(id => togglePinned(id))` (N toggles per family) to `if (ids.length > 0) togglePinned(ids[0])` (1 toggle per family). `pinnedIds.size` теперь = число favorited семей, что соответствует mental model пользователя «1 клик = 1 избранное». `FilterChip.isPinned` check (`memberIds.some(id => pinnedIds.has(id))`) продолжает работать — first member is in pinnedIds.
-- **KI#29 (FIXED):** Aside collapse header упрощён. CategoryLayout.tsx aside header rewritten — removed `bg-panel border p-2` panel wrapper + empty `<span>` title placeholder. Новая structure: compact `flex items-center justify-end gap-1` row + small chevron button (`p-1 text-[13px] leading-none`). Визуально легче, функция (collapse/expand) сохранена.
-- **KI#30 (MONITORING — not fixed):** Cross-tab persistence favorites (pinnedIds). `pinnedIds` хранятся в per-category Zustand store, который уничтожается при unmount. URL hash shared между вкладками и перезаписывается при переходе. Решения: (a) per-category localStorage keys (`poe2:favorites:belt`, ...); (b) global Zustand store с category-keyed map (вне React tree); (c) IndexedDB. iter 141 уже добавил `local-settings.ts` infrastructure — расширение до per-category favorites требует design decision (format, expiry, migration). Отложено на iter 142+.
-- **KI#31 (MONITORING — not fixed):** Favorites как quick-select feature. Пользователь ожидает: клик на ★ в избранном → аффикс выбирается (added to selectedIds) ИЛИ scroll-to-mod срабатывает. Текущая реализация: ★ только визуальный маркер + фильтр show-selected-only. Feature gap, не bug. Решения: (a) click на ★ в FavoritesIndicator → диалог/панель со списком favorited семей + быстрый select; (b) click на ★ в FilterChip → toggle AND scroll-to-mod (если не в viewport); (c) отдельный «Favorites» tab/drawer. Требует UX design + user feedback. Отложено на iter 142+.
+- **KI#26 (FIXED):** round10 default off + global settings cross-tab persistence. `defaultRound10` true→false per user explicit request. NEW `src/store/local-settings.ts` (thin localStorage wrapper with JSON serialize + try/catch silent fallback). В `useCategoryPage.ts` 7 useState-backed global settings (`searchLogic`, `round10Enabled`, `minValue`, `maxValue`, `priorityFilter`, `thresholdEnabled`, `sortMode`) теперь читаются из localStorage если URL не задал значение, и пишутся в localStorage при каждом изменении. Precedence: URL > localStorage > default.
+- **KI#27 (FIXED):** VirtualizedModList prefix/suffix 50/50 alignment. iter 139 KI#17 fix (`md:grid-cols-2`) был применён ТОЛЬКО к `ModList.tsx`, но НЕ к `VirtualizedModList.tsx` — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка заменена на `md:grid-cols-2`. **Lesson: при fixed-bug-in-one-place, audit ALL similar components.**
+- **KI#28 (FIXED):** Favorites counter — 1 per family, not N per tier. `handleTogglePinned` в 7 pages simplified from `ids.forEach(id => togglePinned(id))` to `if (ids.length > 0) togglePinned(ids[0])`. `pinnedIds.size` теперь = число favorited семей.
+- **KI#29 (FIXED):** Aside collapse header упрощён. CategoryLayout.tsx aside header rewritten — removed `bg-panel border p-2` panel wrapper + empty `<span>` title placeholder. Новая structure: compact `flex items-center justify-end gap-1` row + small chevron button.
+- **KI#30 (MONITORING — not fixed):** Cross-tab persistence favorites (pinnedIds). Design proposal — в `docs/ITER142_PROPOSALS.md` §2. Отложено на iter 143+ (требует user decision).
+- **KI#31 (MONITORING — not fixed):** Favorites как quick-select feature. Design proposal — в `docs/ITER142_PROPOSALS.md` §3. Отложено на iter 143+ (требует UX design + user feedback).
 
-**iter 141 changes:** NEW `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` (defaultRound10 true→false + 7 useState initializers extended + URL-sync effect extended + restoreFilterState extended), `src/ui/components/VirtualizedModList.tsx` (1-line grid-cols fix), 7 page files (`handleTogglePinned` simplified), `src/ui/layout/CategoryLayout.tsx` (aside header rewrite), NEW `tests/store/local-settings.test.ts` (8 tests), NEW `tests/ui/CategoryLayout.test.tsx` KI#29 describe block (4 tests), NEW `tests/ui/VirtualizedModList.test.tsx` KI#27 describe block (1 test). vitest 2177→2190 (+13 net), tsc 0, eslint 0.
+**iter 141 changes:** NEW `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` (defaultRound10 true→false + 7 useState initializers + URL-sync effect + restoreFilterState), `src/ui/components/VirtualizedModList.tsx` (1-line grid-cols fix), 7 page files (`handleTogglePinned` simplified), `src/ui/layout/CategoryLayout.tsx` (aside header rewrite), NEW `tests/store/local-settings.test.ts` (8 tests), NEW `tests/ui/CategoryLayout.test.tsx` KI#29 describe block (4 tests), NEW `tests/ui/VirtualizedModList.test.tsx` KI#27 describe block (1 test). vitest 2177→2190 (+13 net), tsc 0, eslint 0.
+
+### 13.7 Recommendation for iter 142 (DONE — documentation only)
+
+**iter 142 completed as documentation-only iteration** — без кодовых изменений, согласно правилу «лучше недоделать, чем сломать». Все 3 активные KI (KI#23/30/31) требуют либо browser testing (KI#23), либо UX design решения от user (KI#30/31) — реализация без discussion была бы guesswork.
+
+**iter 142 deliverables:**
+
+1. **Documentation cleanup** (4 файла):
+   - `STATUS.md` (224→158 строк, -30%) — сжатие «Закрытые KI», актуализация Known Issues, Next iteration → iter 143.
+   - `AGENT_NAVIGATION.md` (419→339 строк, -19% lines / -29.5% bytes) — header сжат, Pitfalls 20-29 сжаты в 1-2 строки, Pitfalls 41-47 объединены в один Pitfall 41, Pitfalls 49-50 сжаты, §14 OP-1 сжат.
+   - `worklog.md` — iter 141 сжат в 1 строку в «Предыдущие итерации», iter 142 entry добавлен.
+   - `docs/UI_REFACTOR_PLAN.md` §13.6 → iter 141 reference (archive), NEW §13.7 = iter 142 reference.
+2. **NEW `docs/ITER142_PROPOSALS.md`** (~280 строк) — design proposals для KI#23/30/31 с 3 вариантами каждый, pros/cons, recommendation, тест-план, user questions. Подготовлен для user review.
+3. **Baseline проверки подтверждены:** tsc 0 / eslint 0 / vitest 2190/2190 (без изменений — doc cleanup не влияет на тесты).
 
 **Remaining optional enhancements** (если user запросит):
-- **KI#23 scroll jitter fix** (HIGHEST PRIORITY if user reports it as blocking) — see STATUS.md Known Issue #13 for root cause + 3 possible solutions. Requires careful testing to avoid breaking virtualization.
-- **KI#30 cross-tab favorites persistence** — extend `local-settings.ts` to per-category keys OR introduce global Zustand store. Requires design decision (format, expiry, migration). See STATUS.md Known Issue #14.
-- **KI#31 favorites как quick-select** — UX design + implementation. Click ★ → select affix OR scroll-to-mod. See STATUS.md Known Issue #15.
+- **KI#23 scroll jitter fix** — see `docs/ITER142_PROPOSALS.md` §1 for 3 variants + recommendation.
+- **KI#30 cross-tab favorites persistence** — see `docs/ITER142_PROPOSALS.md` §2 for 3 variants + recommendation.
+- **KI#31 favorites как quick-select** — see `docs/ITER142_PROPOSALS.md` §3 for 3 UX variants + recommendation.
 - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc` boolean field to filter-store if user requests.
 - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render FavoritesIndicator (compact version). Deferred until user requests.
 - Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced to scroll to sub-group header instead. Deferred.
