@@ -851,9 +851,11 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 **iter 141 changes:** NEW `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` (defaultRound10 true→false + 7 useState initializers + URL-sync effect + restoreFilterState), `src/ui/components/VirtualizedModList.tsx` (1-line grid-cols fix), 7 page files (`handleTogglePinned` simplified), `src/ui/layout/CategoryLayout.tsx` (aside header rewrite), NEW `tests/store/local-settings.test.ts` (8 tests), NEW `tests/ui/CategoryLayout.test.tsx` KI#29 describe block (4 tests), NEW `tests/ui/VirtualizedModList.test.tsx` KI#27 describe block (1 test). vitest 2177→2190 (+13 net), tsc 0, eslint 0.
 
-### 13.7 Recommendation for iter 142 (DONE — documentation only)
+### 13.7 Recommendation for iter 142 (DONE — documentation only) → iter 143 (awaiting user input)
 
 **iter 142 completed as documentation-only iteration** — без кодовых изменений, согласно правилу «лучше недоделать, чем сломать». Все 3 активные KI (KI#23/30/31) требуют либо browser testing (KI#23), либо UX design решения от user (KI#30/31) — реализация без discussion была бы guesswork.
+
+**iter 143 (current): awaiting user input — no code changes.** Все 3 приоритета iter 143 заблокированы user-dependent решениями: (1) UX verification KI#26/27/28/29 требует user browser testing (агент не имеет доступа к браузеру); (2) KI#23/30/31 variant selection требует user decision (6 questions в `docs/ITER142_PROPOSALS.md` §5 ИЛИ явное «approve recommended b/a/b»); (3) implementation BLOCKED by (2). См. `STATUS.md` «Next iteration (iter 143 → iter 144)» для подробностей.
 
 **iter 142 deliverables:**
 

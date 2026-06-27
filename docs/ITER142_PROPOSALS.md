@@ -1,9 +1,28 @@
-# iter 142 Design Proposals — KI#23 / KI#30 / KI#31
+# iter 142/143 Design Proposals — KI#23 / KI#30 / KI#31 + KI#32 / KI#33
 
-> **Status:** iter 142 — design proposals подготовлены для user review. **Реализация отложена на iter 143+** после выбора варианта.
-> **Источник:** STATUS.md Known Issues #1 (KI#23), #2 (KI#30), #3 (KI#31).
+> **Status:** iter 143 — user feedback получен по 6 вопросам. Все 3 первоначальные KI (23/30/31) готовы к реализации в iter 144. KI#31 variant пересмотрен: вместо (b) scroll-to-mod — NEW variant (d) quick-select с диапазонами (по явному запросу user). Дополнительно задокументированы 2 новых бага: KI#32 (cascade expand) и KI#33 (VendorPage favorites gap).
+> **Источник:** STATUS.md Known Issues #1 (KI#23), #2 (KI#30), #3 (KI#31), #4 (KI#32 NEW), #5 (KI#33 NEW).
 > **Контекст:** AGENT_NAVIGATION.md Pitfall 51 (iter 141 patterns).
-> **Принцип:** «лучше недоделать, чем сломать» — все 3 KI требуют либо careful browser testing (KI#23), либо UX design решения от user (KI#30/31). Реализация без discussion была бы guesswork.
+> **Принцип:** «лучше недоделать, чем сломать» — все KI требуют либо careful browser testing (KI#23), либо UX design решения от user (KI#30/31/33). KI#32 — blocking UX bug, должен быть исправлен первым.
+
+---
+
+## §0. User answers (iter 143 feedback)
+
+| # | Вопрос | User answer | Решение |
+|---|--------|-------------|---------|
+| Q1 | KI#23 partial fix OK (variant b)? | ✅ Да | Variant (b) — improved estimateSize per-row-state |
+| Q2 | Если (b) не хватит — fallback на (a)? | ✅ Сразу нормально сделать | Реализуем (b) с тест-планом; если browser testing покажет что не хватает — добавим (a) в следующей итерации |
+| Q3 | Silent reset старого избранного OK? | ✅ Пофигу | Тихий reset, без миграции |
+| Q4 | Realtime multi-tab sync нужна? | ✅ Только если стабильно и не усложнит код | Пробуем через `storage` event (~20 строк); если нестабильно — выкинем |
+| Q5 | Формат хранения? | ✅ Простой массив ID | `string[]` JSON-serialized |
+| Q6 | ⭐ button 2 функции (toggle + scroll) OK? | ❌ Toggle только, не scroll! | **NEW variant (d)** — quick-select с диапазонами (см. §3 ниже) |
+
+**Дополнительно user сообщил:**
+- 🐛 **NEW KI#32** — cascade expand одинаковых названий sub-групп (раскрытие «Уровень умений» в «обычных» раскрывает все «Уровень умений» в очерненных/оскверненных/разлома).
+- 🐛 **NEW KI#33** — favorites не реализованы на VendorPage (было известно с iter 136, теперь явно в KI).
+- 💡 User видит favorites как «список быстрого доступа» для часто используемых наборов аффиксов — не как «scroll-to-mod». Это меняет дизайн KI#31 полностью.
+- 💡 User хочет: если в избранном уже были значения диапазона — они сохраняются по умолчанию при quick-select.
 
 ---
 
@@ -477,76 +496,264 @@ const handlePinClick = (e: React.MouseEvent) => {
 
 ---
 
+#### Вариант (d) — Quick-select с диапазонами ⭐ RECOMMENDED (NEW, iter 143)
+
+> **NEW variant added iter 143** после user feedback: «не думаю что будет удобно кликать по избранным аффиксам и смотреть как тебя скролит автоматически и кидает к чипу аффикса туда-сюда. То есть, я это видел изначально как список "быстрого доступа", когда ты часто пользуешься одним и тем же набором аффиксов и хочешь просто в несколько кликов выбрать нужные из них (хорошо бы чтобы и если были выбраны какие-либо значения в диапазоне аффикса, то чтобы они по умолчанию сохранялись в избранном).»
+
+**Описание:** Превратить `FavoritesIndicator.tsx` (сейчас pure presentational ★ N badge) в clickable. При click открывается dropdown/panel (через `createPortal` в `document.body`, как `Tooltip.tsx` iter 137) со списком ВСЕХ favorited семей текущей категории. Каждый item в списке:
+- Affix badge (ПРЕФ=blue/СУФ=orange/ИМПЛ=amber) — как SelectedBasket.
+- Display text (familyKey template с подставленными диапазонами).
+- **Quick-select button** — клик → добавляет ВСЕ tier-ы семьи в `selectedIds` (как клик на chip в ModList).
+- **Range inputs** (если у семьи есть `##` placeholder) — два input'а «от» и «до». Если в `perTokenRanges` уже были значения для этой семьи — они **подставляются по умолчанию** (сохраняются в избранном).
+- **Remove from favorites** (✗) — убирает из `pinnedIds`.
+
+**Ключевая фича:** значения диапазона сохраняются в `poe2:favorites:<cat>:ranges` (расширение KI#30 variant a). При quick-select:
+1. Аффикс добавляется в `selectedIds` (как обычный click на chip).
+2. Если у аффикса есть диапазон И в favorites сохранены значения — они применяются к `perTokenRanges`.
+3. Если значений нет — user может ввести их прямо в panel ИЛИ в chip после select.
+
+**Зависимости:**
+- **KI#30 (variant a)** ДОЛЖЕН быть реализован первым — favorites должны persist между сессиями чтобы quick-select имел смысл. Расширение storage format с `string[]` на `Array<{ id, range?: { min, max } }>` — см. §2 update ниже.
+- **KI#32 (cascade expand)** ДОЛЖЕН быть исправлен первым — иначе quick-select на странице с раскрытыми sub-groups будет визуально ломаться.
+
+**Pros:**
+- Соответствует mental model user: «список быстрого доступа для часто используемых наборов аффиксов».
+- Сохранение диапазонов — мощная фича для power users (например, «всегда выбирать +(30-40)% к сопротивлению чести»).
+- Не требует scroll-to-mod (user явно отверг).
+- Можно реализовать как extension `FavoritesIndicator` (минимальные изменения в FilterChip — ⭐ button остаётся как toggle только).
+
+**Cons:**
+- NEW component `FavoritesQuickSelectPanel.tsx` (~150-200 строк) — additional maintenance.
+- Dropdown UI pattern — careful accessibility (focus trap, Escape close, click-outside).
+- Зависит от KI#30 (storage format extension) + KI#32 (cascade fix) — должен быть реализован ПОСЛЕ них.
+- Сохранение диапазонов усложняет storage format (был `string[]`, станет `Array<{ id, range?: { min, max } }>`).
+- `FavoritesIndicator` нужно передать `favoritesList` (FamilyGroup[]) + `onToggleTokens` + `onSetTokenRange` + `onRemoveFavorite` callbacks — prop drilling через 7 page files.
+
+**UX flow:**
+1. User pins affix via ⭐ на FilterChip (existing behavior — toggle только, без scroll).
+2. User click ★ N badge в header → открывается FavoritesQuickSelectPanel.
+3. User видит список favorited семей с affix badge + displayText + range inputs (если есть `##`).
+4. User click «Выбрать» на семье → семья добавляется в `selectedIds` + диапазон (если сохранён) применяется к `perTokenRanges`.
+5. User может изменить диапазон в panel → сохраняется в `poe2:favorites:<cat>:ranges`.
+6. User click ✗ на семье → убирается из favorites.
+7. User click Escape / click-outside → panel закрывается.
+
+**Risk level:** MEDIUM (NEW component + storage format extension, но LOW risk per file).
+
+**Тест-план:**
+1. Vitest: NEW `tests/ui/FavoritesQuickSelectPanel.test.tsx` — 12+ tests (open/close, list rendering, quick-select action, range inputs default values, range inputs persistence, remove from favorites, Escape close, click-outside close, accessibility).
+2. Vitest: `tests/ui/FavoritesIndicator.test.tsx` — +3 tests (clickable, opens panel, panel receives correct props).
+3. Vitest: `tests/store/local-settings.test.ts` — +3 tests для extended format `Array<{ id, range?: { min, max } }>`.
+4. Browser testing: 7 pages × pin 1-2 families with range × click ★ badge → verify panel opens, quick-select works, range inputs default + persistence.
+
+**Files to change (variant d):**
+- NEW `src/ui/components/FavoritesQuickSelectPanel.tsx` (~150-200 строк).
+- `src/ui/components/FavoritesIndicator.tsx` — добавить click handler + state + createPortal.
+- `src/store/local-settings.ts` — extension storage format для ranges (см. §2 update).
+- `src/ui/hooks/useCategoryPage.ts` — wiring `favoritesList` + `onSetTokenRange` + `onRemoveFavorite` callbacks.
+- 7 page files — prop drilling (CategoryLayout `favorites` slot уже существует из Phase 5).
+- `src/index.css` — dropdown styling (если не переиспользуем Tooltip.tsx portal pattern).
+
+---
+
 ### §3 Recommendation
 
-**Вариант (b) — Click ★ в FilterChip → toggle AND scroll-to-mod.**
+**Вариант (d) — Quick-select с диапазонами (NEW, iter 143).**
 
-Обоснование:
-- Минимальный risk — расширяет существующий ⭐ button, без NEW components.
-- Переиспользует Phase 5 infrastructure (`data-family-key` + `scrollIntoView` + `.favorite-pulse`).
-- Не зависит от KI#30 — работает в current session даже без cross-tab persistence.
-- Соответствует mental model «click ★ → chip остается в фокусе».
-- Можно реализовать в одном файле (`FilterChip.tsx`), один handler.
+User явно отверг variant (b) (scroll-to-mod): «не думаю что будет удобно кликать по избранным аффиксам и смотреть как тебя скролит автоматически и кидает к чипу аффикса туда-сюда». Вместо этого user видит favorites как «список быстрого доступа» для часто используемых наборов аффиксов + сохранение диапазонов.
 
-**Implementation order:**
-1. Сначала обсудить с user — устраивает ли что ⭐ button имеет 2 функции (toggle + scroll), или user хочет разделить на 2 кнопки.
-2. Если user OK с 2 функциями — реализовать вариант (b).
-3. Browser testing пользователем — pin family, scroll away, click ⭐ на another family, verify scroll back.
-4. Если user хочет separate «favorites overview» — рассмотреть вариант (a) как future enhancement (после KI#30).
+**Implementation order (iter 144):**
+1. **KI#32 first** — cascade expand fix (blocking UX, ломает sub-groups — favorites panel будет визуально ломаться).
+2. **KI#30 second** (variant a + extension) — per-category localStorage с расширенным format `Array<{ id, range?: { min, max } }>`.
+3. **KI#31 third** (variant d) — FavoritesQuickSelectPanel с range inputs.
+4. **KI#33 fourth** — VendorPage favorites wiring (после KI#31, переиспользует тот же pattern).
+5. **KI#23 fifth** (variant b) — independent, можно в любой момент.
 
-**Files to change (variant b):**
-- `src/ui/components/FilterChip.tsx` — extend `handlePinClick` с scroll-to-mod logic (~15 строк).
-- `tests/ui/FilterChip.test.tsx` — +3 tests в Phase 5 describe block.
-
----
-
-## §4. Implementation order recommendation
-
-Если user approve все 3 recommendations (b/a/b):
-
-1. **KI#23 first** (variant b — improved estimateSize) — independent, lowest risk, можно реализовать и test изолированно.
-2. **KI#30 second** (variant a — per-category localStorage) — расширяет iter 141 infrastructure, independent от KI#23.
-3. **KI#31 third** (variant b — click ★ → toggle + scroll) — формально independent, но semantic лучше если KI#30 уже реализован (favorites persist → quick-select имеет смысл).
-
-Каждое можно реализовать в отдельной итерации (iter 143, 144, 145 соответственно) ИЛИ все три в одной iter 143 если user approve.
+**Files to change (variant d):**
+- NEW `src/ui/components/FavoritesQuickSelectPanel.tsx` (~150-200 строк).
+- `src/ui/components/FavoritesIndicator.tsx` — clickable + createPortal.
+- `src/store/local-settings.ts` — extended storage format.
+- `src/ui/hooks/useCategoryPage.ts` — wiring callbacks.
+- 7 page files — prop drilling.
+- `src/index.css` — dropdown styling.
 
 ---
 
-## §5. User questions for iter 143 planning
+## §4. Implementation order recommendation (iter 144)
 
-Перед реализацией нужно обсудить с user:
+**Updated iter 143** после user feedback:
 
-### KI#23 questions:
-1. **Q1:** Устраивает ли partial fix (уменьшение jitter, не полное устранение) через improved estimateSize? Или обязательно полное устранение (тогда вариант (a) с max-height + overflow:hidden, но теряем гибкость)?
-2. **Q2:** Если jitter останется после варианта (b) — нужно ли добавлять option (a) как fallback (max-height + overflow:hidden на subgroup rows)?
+1. **KI#32 first (NEW, blocking UX)** — cascade expand fix. ~30-50 строк в `src/shared/mod-classifier.ts` (mode `affix-functional`) ИЛИ в `src/ui/components/ModList.tsx` + `VirtualizedModList.tsx` (sub-group key construction). Testing на 7 страницах.
 
-### KI#30 questions:
-3. **Q3:** Silent reset существующих favorites acceptable? Или нужна migration script (старые `pn` URL key → новые per-category localStorage keys)?
-4. **Q4:** Realtime multi-tab sync (через `storage` event listener) нужна? Или достаточно что favorites persist при reload?
-5. **Q5:** Format `string[]` (только token IDs) OK, или нужно rich format `Array<{ id, familyKey, affixType, pinnedAt }>` для future features (например, sort by pinnedAt)?
+2. **KI#30 second (variant a + extension)** — per-category localStorage с расширенным format `Array<{ id, range?: { min, max } }>`. ~40 строк (3 functions в `local-settings.ts` + wiring в `useCategoryPage.ts` + storage event listener для multi-tab sync).
 
-### KI#31 questions:
-6. **Q6:** ⭐ button имеет 2 функции (toggle + scroll) OK? Или нужно разделить на 2 отдельные кнопки (⭐ toggle + ↗ scroll)?
+3. **KI#31 third (variant d, NEW)** — FavoritesQuickSelectPanel с range inputs. ~150-200 строк NEW component + extensions в `FavoritesIndicator.tsx` + `useCategoryPage.ts` + 7 page files prop drilling.
+
+4. **KI#33 fourth** — VendorPage favorites wiring. ~40-50 строк (⭐ pin slot в vendor FilterChip + FavoritesIndicator + KI#30 wiring).
+
+5. **KI#23 fifth (variant b, independent)** — improved estimateSize per-row-state. ~20 строк в `VirtualizedModList.tsx`. Browser testing обязателен.
+
+Каждое можно реализовать в отдельной итерации ИЛИ несколько в одной (если testing проходит). Главное — KI#32 → KI#30 → KI#31 в этом порядке (dependencies).
 
 ---
 
-## §6. Constraints (per STATUS.md «Главные ограничения для iter 143»)
+## §5. User questions — ANSWERED (iter 143)
+
+Все 6 вопросов из iter 142 получили ответы в iter 143 — см. §0 таблицу выше. Краткое резюме:
+
+| # | Вопрос | Answer | Решение |
+|---|--------|--------|---------|
+| Q1 | KI#23 partial fix OK? | ✅ Да | Variant (b) |
+| Q2 | Fallback на (a) если (b) не хватит? | ✅ Сразу нормально | (b) с тест-планом |
+| Q3 | Silent reset старого избранного? | ✅ Пофигу | Без миграции |
+| Q4 | Realtime multi-tab sync? | ✅ Если стабильно | `storage` event, ~20 строк |
+| Q5 | Формат хранения? | ✅ Простой массив | `string[]` (расширен до `Array<{id, range?}>` для KI#31) |
+| Q6 | ⭐ button 2 функции? | ❌ Toggle только | **NEW variant (d)** — quick-select panel |
+
+**Дополнительно user сообщил о 2 новых багах (KI#32, KI#33) — см. §8, §9 ниже.**
+
+---
+
+## §6. Constraints (per STATUS.md «Главные ограничения для iter 144»)
 
 - **НЕ реализовывать TopNav dropdowns** — visualization keeps flat nav (per `docs/UI_AUDIT.md` §10 SUPERSEDED).
 - **Если найден новый баг** — сначала документируй в STATUS.md как Known Issue, потом фиксий.
 - **KI#23 fix требует careful browser testing** — лучше недоделать, чем сломать virtualization. Vitest недостаточен — обязательно user browser testing.
-- **KI#30/31 требуют UX design решения** — сначала обсудить с user (через этот document), потом реализовывать.
+- **KI#32 fix требует testing на всех 7 страницах** — sub-groups могут вести себя по-разному в разных group modes (`affix-functional`, `jewel-functional`, `origin`, и т.д.).
+- **KI#31 variant (d) — сначала реализовать quick-select panel БЕЗ range inputs, потом добавлять диапазоны**. Итеративно, не всё сразу.
+- **KI#30 + KI#31 должны быть реализованы в порядке dependencies**: KI#32 → KI#30 → KI#31 (variant d) → KI#33.
 
 ---
 
 ## §7. References
 
-- `STATUS.md` Known Issues #1 (KI#23), #2 (KI#30), #3 (KI#31).
+- `STATUS.md` Known Issues #1 (KI#23), #2 (KI#30), #3 (KI#31), #4 (KI#32 NEW), #5 (KI#33 NEW).
 - `AGENT_NAVIGATION.md` Pitfall 51 (iter 141 patterns: localStorage for cross-tab persistence, audit ALL similar components, counter semantic should match user mental model, empty placeholder elements are visual noise, monitoring a feature request is a valid outcome).
-- `docs/UI_REFACTOR_PLAN.md` §13.6 (iter 141 reference) + §13.7 (iter 142 reference).
+- `docs/UI_REFACTOR_PLAN.md` §13.6 (iter 141 reference) + §13.7 (iter 142/143 reference).
 - `src/ui/components/VirtualizedModList.tsx` (KI#23 — `ROW_ESTIMATES` lines 149-155, `estimateSize` lines 567-571 + 845-849).
-- `src/store/local-settings.ts` (KI#30 — iter 141 infrastructure, extensible до per-category favorites).
+- `src/store/local-settings.ts` (KI#30 — iter 141 infrastructure, extensible до per-category favorites + ranges).
 - `src/store/filter-store.ts` (KI#30 — `pinnedIds` field, `togglePinned`/`clearPinned` actions, URL serialization через `pn` key).
-- `src/ui/components/FavoritesIndicator.tsx` (KI#31 — pure presentational, click handler NONE).
+- `src/ui/components/FavoritesIndicator.tsx` (KI#31 variant d — нужно сделать clickable + createPortal для quick-select panel).
+- `src/ui/components/FilterChip.tsx` (KI#31 — ⭐ button handlePinClick, остаётся как toggle только).
+- `src/index.css` (KI#31 — `.favorite-pulse` animation из iter 136, переиспользуется для visual feedback).
+- `src/shared/mod-classifier.ts` (KI#32 — mode `affix-functional` line 2090 `key: block`, нужно добавить origin в ключ).
+- `src/ui/components/ModList.tsx` (KI#32 — line 449/481 `${topLevelKey}:${sg.key}`, нужно добавить origin).
+- `src/ui/components/VirtualizedModList.tsx` (KI#32 — line 232 `${topKey}:${sg.key}`, нужно добавить origin).
+- `src/ui/pages/vendor/VendorPage.tsx` (KI#33 — custom FilterChip без ⭐ pin slot, нужно добавить).
+
+---
+
+## §8. KI#32 — Cascade expand одинаковых sub-group ключей (NEW, iter 143)
+
+### Симптом
+
+При раскрытии sub-группы (например, «Уровень умений» в разделе «обычных» аффиксов на странице Ring) раскрываются ВСЕ sub-группы с тем же названием в других разделах (очерненных, оскверненных, разлома). User: «я раскрываю категорию "уровень умений" в разделе "обычных" аффиксов ----> и мне на странице сразу раскрывает все категории "уровней умений" не только в разделе обычных, но и очерненных, оскверненных и разлома».
+
+### Root cause
+
+Sub-group ключ строится как `${categoryId}:${affix}:${sg.key}` где `sg.key` — это название функционального блока (например, `skill-levels`). Когда в одной категории (например, ring) в префиксе есть `skill-levels` в normal/corrupted/desecrated — все получают **одинаковый** ключ `ring:prefix:skill-levels`. Toggle одного → toggle всех (поиск в Set `expandedSubGroups`).
+
+Файлы:
+- `src/shared/mod-classifier.ts` line 2090 (`affix-functional` mode): `key: block` — block это просто название функционального блока без origin.
+- `src/ui/components/ModList.tsx` line 449/481: `subGroupKey={topLevelKey ? \`${topLevelKey}:${sg.key}\` : undefined}` — topLevelKey это `${categoryId}:${affix}`.
+- `src/ui/components/VirtualizedModList.tsx` line 232: `const subKey = topKey ? \`${topKey}:${sg.key}\` : undefined;` — то же самое.
+
+### Варианты решения
+
+#### Вариант (a) — Добавить origin в ключ ⭐ RECOMMENDED
+
+**Описание:** Модифицировать конструктор ключа: `${categoryId}:${affix}:${origin}:${sg.key}`. Origin уже определён для каждого FamilyGroup (через `splitGroupByOrigin`). При `affix-functional` mode — добавить origin-aware sub-grouping.
+
+Реализация:
+1. В `src/shared/mod-classifier.ts` mode `affix-functional` — если группа имеет mixed origins, split по origin first, потом classify по functional block. Каждый получившийся sub-group получает `key: \`${origin}:${block}\`` (например, `normal:skill-levels`, `corrupted:skill-levels`).
+2. В `src/ui/components/ModList.tsx` + `VirtualizedModList.tsx` — sub-group key construction не меняется (всё ещё `${topLevelKey}:${sg.key}`), но `sg.key` теперь уникален.
+
+**Pros:**
+- Уникальные ключи — нет cascade expand.
+- Соответствует mental model: «Уровень умений в обычных» ≠ «Уровень умений в оскверненных».
+- Origin уже есть в данных — не нужно новое API.
+
+**Cons:**
+- Может сломать URL serialization (`es` compact key в filter-store.ts) — старые ссылки с `es=ring:prefix:skill-levels` перестанут работать (тихий reset, acceptable per Q3).
+- Нужно testing на всех 7 страницах — разные group modes (`affix-functional`, `jewel-functional`, `origin`, `affix-sentiment-subblocks`, и т.д.).
+- Может потребовать update FUNCTIONAL_BLOCK_ORDER если origin-split меняет visual order.
+
+**Risk level:** MEDIUM (логика classifier меняется, но UI компоненты не трогаются).
+
+**Тест-план:**
+1. Vitest: `tests/shared/mod-classifier.test.ts` — +5-8 tests для origin-aware sub-grouping в `affix-functional` mode.
+2. Vitest: regression tests — все existing tests с `expandedSubGroups` должны проходить (или обновиться под новый ключ).
+3. Browser testing (user):
+   - 7 страниц × раскрыть sub-group в normal → проверить что в corrupted/desecrated НЕ раскрылось.
+   - 7 страниц × раскрыть sub-group в corrupted → проверить что в normal НЕ раскрылось.
+
+#### Вариант (b) — Использовать unique index из classifyGroups
+
+**Описание:** В `classifyGroups()` возвращать `sg.key` как уникальный index (например, `${block}#${counter}` где counter инкрементируется для каждого уникального origin).
+
+**Pros:**
+- Минимальные изменения в classifier.
+
+**Cons:**
+- Ключи становятся нечитаемыми (`skill-levels#0`, `skill-levels#1`) — плохо для debugging.
+- URL serialization станет нечитаемой.
+- Плохо для SEO если ключи попадают в DOM.
+
+**Risk level:** LOW, но не рекомендуется (bad DX).
+
+#### Вариант (c) — Менять ModSubGroup.key на origin-aware в `affix-functional` mode
+
+**Описание:** Same as (a), но explicit — в `affix-functional` mode всегда prepend origin: `key: \`${origin}:${block}\``.
+
+**Pros/Cons:** Same as (a), но explicit (лучше для readability).
+
+### §8 Recommendation
+
+**Вариант (a) — Добавить origin в ключ.** Реализовать в iter 144 ПЕРВЫМ (до KI#30/31), потому что favorites panel (KI#31 variant d) будет визуально ломаться на странице с раскрытыми sub-groups если cascade expand не исправлен.
+
+**Files to change:**
+- `src/shared/mod-classifier.ts` — mode `affix-functional` (line 2074-2098): origin-aware sub-grouping.
+- `tests/shared/mod-classifier.test.ts` — +5-8 tests.
+- Возможно `src/ui/components/ModList.tsx` + `VirtualizedModList.tsx` — minor adjustments if sub-group key construction breaks.
+
+---
+
+## §9. KI#33 — Favorites не реализованы на VendorPage (NEW, iter 143)
+
+### Симптом
+
+VendorPage использует custom FilterChip без ⭐ pin slot. Известно с iter 136 (Phase 5), deferred. iter 143 user явно отметил: «прямо сейчас возможность выбрать аффикс в избранное не на всех вкладках реализовано».
+
+### Root cause
+
+`src/ui/pages/vendor/VendorPage.tsx` — использует custom FilterChip (не общий `src/ui/components/FilterChip.tsx`), который не имеет ⭐ pin slot. FavoritesIndicator не рендерится. `pinnedIds`/`togglePinned`/`clearPinned` не wired.
+
+### Варианты решения
+
+Только один разумный вариант — расширить vendor FilterChip:
+1. Добавить ⭐ pin slot в vendor FilterChip (по образцу общего FilterChip из Phase 5 iter 136).
+2. Рендерить FavoritesIndicator в VendorPage header.
+3. Wire `pinnedIds`/`togglePinned`/`clearPinned` через `useCategoryPage()`.
+4. После KI#30 — wire per-category localStorage persistence.
+5. После KI#31 variant (d) — добавить clickable FavoritesIndicator → quick-select panel.
+
+**Зависимости:**
+- KI#30 — для cross-tab persistence.
+- KI#31 variant (d) — для quick-select panel (vendor FilterChip должен поддержать тот же UX pattern).
+
+**Risk level:** LOW (расширение existing pattern, не NEW architecture).
+
+**Тест-план:**
+1. Vitest: `tests/ui/VendorPage.test.tsx` (NEW или extension) — +5 tests для favorites wiring.
+2. Browser testing: pin 1-2 affixes на VendorPage → navigate → return → favorites на месте.
+
+### §9 Recommendation
+
+**Реализовать ПОСЛЕ KI#31 variant (d).** ~40-50 строк (⭐ pin slot в vendor FilterChip + FavoritesIndicator + KI#30 localStorage wiring + KI#31 quick-select panel integration).
+
+**Files to change:**
+- `src/ui/pages/vendor/VendorPage.tsx` — wire `pinnedIds`/`togglePinned`/`clearPinned` + FavoritesIndicator.
+- Vendor-specific FilterChip (inline в VendorPage.tsx или отдельный файл) — добавить ⭐ pin slot.
+- `tests/ui/VendorPage.test.tsx` — +5 tests.
 - `src/ui/components/FilterChip.tsx` (KI#31 — ⭐ button handlePinClick, `data-family-key` attribute, `stopPropagation`).
 - `src/index.css` (KI#31 — `.favorite-pulse` animation из iter 136).
