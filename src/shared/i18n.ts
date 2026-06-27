@@ -252,10 +252,24 @@ const translations: Record<Locale, Record<string, string>> = {
     // Static 3-row legend rendered below ProfilePanel in the right aside.
     // Companion to Phase 4 tooltips — gives beginners a permanent reference,
     // not just hover hints.
+    //
+    // iter 140 (KI#21): icon prefix REMOVED from these strings. The IconLegend
+    // component renders the icon separately as `<span class="icon-legend__icon">`
+    // (gold color, fixed width 1.2em). Previously the strings contained the
+    // icon AS WELL, producing double icons: `★ ★ — в избранное`. Now the string
+    // contains ONLY the description text.
     'legend.title': 'Обозначения',
-    'legend.star': '★ — в избранное',
-    'legend.exclude': '✗ — исключить аффикс (не хочу)',
-    'legend.info': 'ⓘ — наведите для подсказки',
+    'legend.star': 'в избранное',
+    'legend.exclude': 'исключить аффикс (не хочу)',
+    'legend.info': 'наведите для подсказки',
+    // iter 140 (KI#25): tooltip text for show-selected-only radio toggle.
+    // User asked: «кнопка режим отображения аффиксов и сама функция для чего
+    // собственно?». Tooltip explains what the toggle does.
+    'filter.show_mode_hint': 'Показывать все аффиксы или только выбранные, исключённые и избранные',
+    // iter 140 (KI#24): FavoritesIndicator labels.
+    // Compact `★ N` badge in page header showing pinned affix count.
+    'favorites.indicator_label': 'Избранные аффиксы: {n}',
+    'favorites.indicator_empty': 'Избранные: 0',
   },
 };
 

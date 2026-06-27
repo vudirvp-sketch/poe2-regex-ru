@@ -836,70 +836,75 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 139
+### 13.6 Recommendation for iter 140
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136). Phase 4 + 4.5 are DONE (iter 137). iter 138 wired `--strong` modifier на `.affix-header-*` в tier-first mode (CSS rules were ready since iter 137, wiring в caller was deferred). ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT.**
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133, sticky search reverted iter 139). Phase 2.5 is DONE (iter 134, chip truncation reverted iter 139). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136, LeftPanelFavorites removed iter 139, restored as compact indicator iter 140). Phase 4 + 4.5 are DONE (iter 137, duplicate icons fix iter 140). iter 138 wired `--strong` modifier. iter 139 fixed 5 UI bugs (KI#16-20). iter 140 fixed 4 UI bugs (KI#21, 22, 24, 25) + KI#23 documented as monitoring. ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT + 2 ITERS OF UX FIXES.**
 
-All 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
-`pinnedIds`, `chipExpandState`) are in `src/store/filter-store.ts` with 13
-actions + URL serialization (backward-compat) + 46 tests. Phase 2 wired
-collapse + sticky search. Phase 2.5 wired per-sub-group chip truncation. Phase 3
-wired show-selected-only toggle + SelectedBasket. Phase 5 wired favorites in
-left panel + ⭐ pin icon + click-to-scroll. Phase 4 wired stronger color tints
-+ compact chip density 25% + portal-based tooltips on affix column headers.
-Phase 4.5 wired static «Обозначения» icon legend at the bottom of the right
-aside. iter 138 wired `--strong` CSS modifier (deeper bg + brighter border-left)
-to be applied to top-level affix column headers when `sortMode='tier-first'`,
-visually reinforcing the chosen sort mode. Total tests 2158 → 2163 (+5 in iter 138).
+**Recommended next (iter 141):** UI Refactor + 2 iterations of UX fixes completed.
+Pending: in-browser UX verification пользователем iter 140 changes (KI#21/22/24/25).
 
-**Recommended next (iter 139):** UI Refactor полностью завершён — все 7 фаз
-готовы + iter 138 optional enhancement. Следующий шаг — in-game / in-browser
-UX verification пользователем ALL UI phases (Phase 2+2.5+3+4+4.5+5 + iter 138
-`--strong` modifier — перенос с iter 133+). Все UI UX changes теперь в одном
-batch.
+**iter 140 deliverables (4 fixes + 1 monitoring):**
+
+- **KI#21 (FIXED):** Duplicate icons in IconLegend — i18n strings contained icon prefix (`'★ — в избранное'`), IconLegend ALSO rendered icon as styled `<span>`. Fix: removed icon prefix from i18n; IconLegend renders icon separately.
+- **KI#22 (FIXED):** Redundant «Выбрано» block — StatusPanel main summary panel («Выбрано: N аффикс(ов)» + truncated token list) was duplicating SelectedBasket. Fix: StatusPanel rewritten to render ONLY badges + alerts. Legacy props kept as `_`-prefixed for backward compat.
+- **KI#23 (MONITORING — not fixed):** Scroll jitter / «doubling» в virtualized lists на belt/ring/amulet/jewel. Root cause: TanStack Virtual's `measureElement` + `ResizeObserver` estimate/actual size mismatch. Possible solutions: (a) static row heights; (b) improved estimateSize per-row-state; (c) CSS Grid virtualization. Deferred to iter 141+ — requires careful testing.
+- **KI#24 (FIXED):** Favorites block пропал → restored as COMPACT indicator. NEW `FavoritesIndicator` component: `★ N` badge in page header, returns `null` when empty. Added to all 7 category pages.
+- **KI#25 (FIXED):** Show-selected-only toggle непонятен → added `title` + `aria-label` tooltip via native HTML attribute. NEW i18n key `filter.show_mode_hint`.
+
+**iter 140 changes:** `src/shared/i18n.ts` (legend.* cleanup, +2 new keys), `src/ui/components/StatusPanel.tsx` (rewrite — badges + alerts only), `src/ui/components/CategoryControlPanel.tsx` (tooltip on radio wrapper), NEW `src/ui/components/FavoritesIndicator.tsx`, 7 category page headers (added FavoritesIndicator), UPDATED `tests/ui/IconLegend.test.tsx`, NEW `tests/ui/StatusPanel.test.tsx`, NEW `tests/ui/FavoritesIndicator.test.tsx`. vitest 2165→2177 (+12 net), tsc 0, eslint 0.
 
 **Remaining optional enhancements** (если user запросит):
-- Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
-  boolean field to filter-store if user requests.
-- VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
-  favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render
-  LeftPanelFavorites. Deferred until user requests.
-- Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades
-  gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced
-  to scroll to sub-group header instead. Deferred.
-- Tooltip `--strong` styling variant — currently single style. Could add
-  variant for tier-first mode if user requests. (Note: `--strong` modifier
-  pattern was already applied to `.affix-header-*` in iter 138 — see Pitfall 48;
-  same pattern can be reused for Tooltip if requested.)
-- IconLegend `items` prop — currently hardcoded 3 rows (★/✗/ⓘ). Could be
-  extended to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
-  anchor, 2x dual-number) if user requests.
+- **KI#23 scroll jitter fix** (HIGHEST PRIORITY if user reports it as blocking) — see STATUS.md Known Issue #13 for root cause + 3 possible solutions. Requires careful testing to avoid breaking virtualization.
+- Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc` boolean field to filter-store if user requests.
+- VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render FavoritesIndicator (compact version). Deferred until user requests.
+- Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced to scroll to sub-group header instead. Deferred.
+- Tooltip `--strong` styling variant — currently single style. Could add variant for tier-first mode if user requests. (Note: `--strong` modifier pattern was already applied to `.affix-header-*` in iter 138; same pattern can be reused for Tooltip if requested.)
+- IconLegend `items` prop — currently hardcoded 3 rows (★/✗/ⓘ). Could be extended to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix anchor, 2x dual-number) if user requests.
 
-**DONE in iter 138 (removed from optional list):**
-- ~~`--strong` modifier wiring на `.affix-header-*` в tier-first mode (CSS ready
-  from iter 137, wiring deferred — applied via caller когда sortMode='tier-first').~~
-  → DONE in iter 138. See `STATUS.md` iter 138 section + `AGENT_NAVIGATION.md`
-  Pitfall 48 for implementation details.
+**DONE in iter 140 (removed from optional list):**
+- ~~Show-selected-only toggle clarification~~ → DONE in iter 140 (KI#25). Native `title` attribute tooltip added.
+- ~~Favorites block restored~~ → DONE in iter 140 (KI#24). Compact `FavoritesIndicator` in page header.
 
-**Do NOT implement TopNav dropdowns** — visualization supersedes that
-recommendation (iter 130 contradiction #1).
+**DONE in iter 139 (removed from optional list):**
+- ~~`--strong` modifier wiring~~ → DONE in iter 138. See Pitfall 48.
+- ~~Right aside overflow~~ → DONE in iter 139 (KI#16).
+- ~~Prefix/Suffix 50/50~~ → DONE in iter 139 (KI#17).
+- ~~Chip truncation revert~~ → DONE in iter 139 (KI#18).
+- ~~Sticky search revert~~ → DONE in iter 139 (KI#19).
+- ~~LeftPanelFavorites removed~~ → DONE in iter 139 (KI#20), restored as compact indicator iter 140 (KI#24).
 
-**UX verification request for user (iter 138 deliverable):** open the 7
+**Do NOT implement TopNav dropdowns** — visualization supersedes that recommendation (iter 130 contradiction #1).
+
+**UX verification request for user (iter 140 deliverable):** open the 7
 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
-and verify iter 138 change:
+and verify iter 140 changes:
 
-**Phase 4 iter 138 — `--strong` modifier wiring:**
-1. Switch sortMode to «По приоритету» (radio toggle in CategoryControlPanel).
-2. The ПРЕФИКСЫ / СУФФИКСЫ / ИМПЛИСЕТ headers should become more saturated:
-   bg alpha 0.14 → 0.22 (deeper tint), border-left-color alpha 0.65 → 0.85
-   (brighter). Visually: frames «glow» stronger, reinforcing the tier-first
-   mode.
-3. Switch sortMode back to «По алфавиту» — frames return to normal state
-   (alpha 0.14/0.06, border-left 0.65).
+**KI#21 — Duplicate icons fix:**
+1. Look at the «Обозначения» legend at the bottom of the right aside.
+2. Each row should show the icon ONCE (★ / ✗ / ⓘ) — NOT twice (was `★ ★ — в избранное`).
 
-Additionally verify all previous phases (Phase 2+2.5+3+4+4.5+5) — see the
-9-point checklist in `STATUS.md` «UX verification request for user (iter 137
-deliverable)» section.
+**KI#22 — Redundant «Выбрано» block removed:**
+1. Select 3-5 affixes.
+2. Look at the right aside — there should be ONLY ONE «Выбрано: N афф.» block (the SelectedBasket at the top of the aside, with chips). The OLD «Выбрано: N аффикс(ов)» block with truncated token list (below RegexOutput) should be GONE.
+3. On waystone page: corrupted/uncorrupted/delirious badges should still render (below RegexOutput).
+4. On jewel page: hidden-mods alert should still render (below RegexOutput).
+
+**KI#24 — FavoritesIndicator:**
+1. Pin 1-3 affixes via the ⭐ button on FilterChip.
+2. Look at the page header (top of the page, next to mod count).
+3. A small `★ Избранные аффиксы: N` badge should appear next to the «N аффиксов» count.
+4. Unpin all affixes → badge disappears (no noise when empty).
+
+**KI#25 — Show-selected-only tooltip:**
+1. Hover the mouse over the «Режим отображения аффиксов» radio toggle in CategoryControlPanel (top of left column).
+2. After ~500ms, a native browser tooltip should appear: «Показывать все аффиксы или только выбранные, исключённые и избранные».
+
+**KI#23 — Scroll jitter (monitoring only, not fixed):**
+1. Open Belt page (or Ring / Amulet / Jewel — pages with virtualized lists).
+2. Scroll the mod list up and down.
+3. Note: category names and chips may visibly «jump» / «double» / «jitter» during scroll. This is a known issue (KI#23) — root cause documented in STATUS.md. NOT fixed in iter 140; will be addressed in iter 141+.
+
+Additionally verify all previous phases (Phase 2+2.5+3+4+4.5+5 + iter 138 `--strong` + iter 139 KI#16-20) — see STATUS.md.
 
 If you find a bug — document in `STATUS.md` as Known Issue FIRST, then fix.
 

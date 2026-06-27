@@ -2,69 +2,103 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 139
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 139 KI#16-20 fixes) + `docs/UI_VISUALIZATION_AUDIT.md`
+> **Текущая итерация:** 140
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 138-140 fixes) + `docs/UI_VISUALIZATION_AUDIT.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 139: 5 UI bug fixes по feedback пользователя (KI#16-20).**
+**iter 140: 4 UI bug fixes по feedback пользователя (KI#21, KI#22, KI#24, KI#25) + KI#23 documented as monitoring.**
 
-Пользователь сообщил о проблемах в UX category pages после iter 138:
-горизонтальный скролл в правой панели, разные ширины колонок prefix/suffix,
-лишние «+N ещё» кнопки, ломаный sticky search, перегруженная левая колонка.
-Все 5 багов задокументированы как KI#16-20 → исправлены в iter 139.
+Пользователь после iter 139 сообщил о 4 новых UX-проблемах: дублирующиеся иконки в
+легенде, старый «Выбрано» блок дублирует SelectedBasket, пропал блок «Избранное»,
+jitter при скролле в виртуализированных списках, непонятный show-selected-only
+toggle. Все 5 задокументированы как KI#21-25 ДО фикса — per project rule.
 
-### iter 139 deliverables
+### iter 140 deliverables
 
-1. **KI#16 (FIXED): Right aside overflow protection.** `<aside>` в `CategoryLayout` получил CSS-класс `category-aside` (`min-width: 0; overflow-x: hidden`). RegexOutput header row теперь `flex-wrap: wrap` + кнопки `flex-shrink: 0` — кнопка «Копировать» больше не уходит за пределы 320px колонки.
-2. **KI#17 (FIXED): Prefix/Suffix 50/50.** ModList grid изменён с `md:grid-cols-[2fr_3fr]` (40/60) на `md:grid-cols-2` (50/50). Колонки равной ширины — соответствует референс-макету.
-3. **KI#18 (FIXED): «+N ещё» truncation reverted.** Phase 2.5 (iter 134) chip truncation logic удалена из `ModSubGroupSection` (ModList.tsx) + `VirtualRowContent` (VirtualizedModList.tsx). Все chips в expanded sub-group рендерятся безусловно. `chipExpandState` / `onToggleChipExpand` props остаются в API для backward compat (no-op). `CHIP_PREVIEW_COUNT` константа stays в `@shared/constants` (no breaking change).
-4. **KI#19 (FIXED): Non-sticky search bar.** `.sticky-search-bar` CSS rule изменена: `position: sticky; top: 52px` → `position: relative`. Search теперь статичен вверху левой колонки (как в референсе), больше не перекрывается прокручивающимися chips. Bg + border-bottom сохранены как визуальный разделитель.
-5. **KI#20 (FIXED): LeftPanelFavorites removed from left column.** Все 7 category pages (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) больше не передают `favorites={...}` prop в `CategoryLayout`. `LeftPanelFavorites` компонент остаётся в коде для backward compat. ★ кнопка на FilterChip остаётся (pinnedIds используются в show-selected-only режиме).
+1. **KI#21 (FIXED): Duplicate icons in IconLegend.** i18n строки `legend.star` /
+   `legend.exclude` / `legend.info` содержали prefix-icon (`'★ — в избранное'`),
+   а компонент рендерил иконку отдельным `<span>`. Результат: `★ ★ — в избранное`.
+   Fix: убрать icon prefix из i18n, оставив только текст.
+2. **KI#22 (FIXED): Redundant "Выбрано" block removed.** StatusPanel ранее рендерил
+   main summary panel («Выбрано: N аффикс(ов)» + truncated token list) — дублировал
+   SelectedBasket. Fix: StatusPanel теперь рендерит ТОЛЬКО `badges` + `alerts`.
+   Props `wantTokens`/`excludeTokens`/`allActiveTokens` остаются в interface для
+   backward compat (ignored when passed).
+3. **KI#23 (MONITORING — not fixed): Scroll jitter в virtualized lists.** На
+   belt/ring/amulet/jewel страницах при скролле видны «дрожащие»/«прыгающие»
+   названия категорий и chips. Root cause: TanStack Virtual's `measureElement` +
+   `ResizeObserver` — estimate sizes (60px) отличаются от actual (40–120px) →
+   totalSize shifts → visible rows jump. Решение требует тщательного тюнинга.
+   Отложено на iter 141+.
+4. **KI#24 (FIXED): Favorites block restored as compact indicator.** iter 139 KI#20
+   полностью убрал LeftPanelFavorites из левой колонки. Decision iter 140: вернуть
+   favorites как COMPACT indicator в page header — `★ N` badge рядом с mod count.
+   NEW `FavoritesIndicator` component.
+5. **KI#25 (FIXED): Show-selected-only toggle clarification.** Добавлен tooltip
+   (`title` + `aria-label`) к radio toggle в CategoryControlPanel с пояснением.
+   NEW i18n key `filter.show_mode_hint`.
 
-### iter 139 changes (files)
+### iter 140 changes (files)
 
-- `src/index.css` — `.sticky-search-bar` non-sticky (KI#19); NEW `.category-aside` + `.regex-output > .flex...` overflow rules (KI#16).
-- `src/ui/layout/CategoryLayout.tsx` — `<aside>` получил `category-aside` класс (KI#16).
-- `src/ui/components/ModList.tsx` — grid `md:grid-cols-2` (KI#17); `ModSubGroupSection` truncation removed (KI#18); `CHIP_PREVIEW_COUNT` import removed.
-- `src/ui/components/VirtualizedModList.tsx` — `VirtualRowContent` truncation removed (KI#18); `CHIP_PREVIEW_COUNT` import removed.
-- `src/ui/pages/{belt,jewel,tablet,waystone,amulet,ring,relic}/*.tsx` — `favorites={...}` prop + `LeftPanelFavorites` import removed (KI#20). `clearPinned` removed from useCategoryPage destructure (unused).
-- `tests/ui/ModList.test.tsx` — Phase 2.5 describe block rewritten as «iter 139 (KI#18): chip truncation reverted» (4 tests вместо 6). NEW «iter 139 (KI#17): prefix/suffix equal column widths» (1 test).
-- `tests/ui/CategoryLayout.test.tsx` — NEW file (3 tests: KI#16 aside class, KI#20 no favorites, KI#20 backward compat with favorites).
+- `src/shared/i18n.ts` — `legend.*` cleanup (no icon prefix); NEW
+  `filter.show_mode_hint`; NEW `favorites.indicator_label` + `favorites.indicator_empty`.
+- `src/ui/components/StatusPanel.tsx` — removed main summary panel; renders badges + alerts only.
+- `src/ui/components/CategoryControlPanel.tsx` — `title` + `aria-label` on show-selected-only radio.
+- `src/ui/components/FavoritesIndicator.tsx` — NEW file. Compact `★ N` badge.
+- `src/ui/pages/{belt,jewel,tablet,waystone,amulet,ring,relic}/*.tsx` — header
+  extended with `<FavoritesIndicator pinnedIds={pinnedIds} />` next to mod count.
+- `tests/ui/IconLegend.test.tsx` — updated text assertions (no icon prefix).
+- `tests/ui/StatusPanel.test.tsx` — updated to verify badges-only behavior.
+- `tests/ui/FavoritesIndicator.test.tsx` — NEW file (5 tests).
 
-### Проверки (iter 139)
+### Проверки (iter 140)
 
-- **vitest:** 2165/2165 tests passed (50 test files). Was 2163 in iter 138 → **+2 net** (4 new KI#18 revert tests + 1 new KI#17 grid test + 3 new CategoryLayout tests − 2 removed Phase 2.5 truncation tests that no longer apply).
+- **vitest:** 2177/2177 tests passed (52 test files). Was 2165 in iter 139 → **+12 net**
+  (5 new FavoritesIndicator + 6 new StatusPanel badges/alerts + 1 new IconLegend
+  no-duplication test).
 - **tsc:** 0 errors.
-- **eslint:** 0 problems.
-- **Backward compat:** `chipExpandState` / `onToggleChipExpand` / `favorites` props remain in API (no-op when passed). `CHIP_PREVIEW_COUNT` / `SELECTED_BASKET_CAP` constants unchanged. `LeftPanelFavorites` component file kept.
+- **eslint:** 0 problems 0 warnings.
+- **Backward compat:** StatusPanel props `wantTokens`/`excludeTokens`/`allActiveTokens`
+  remain in interface (ignored when passed, destructured as `_wantTokens` etc).
+  SelectedBasket unchanged. `LeftPanelFavorites` component file stays for backward
+  compat. `favorites` slot in CategoryLayout stays (optional, no-op when passed).
+
+### iter 139 reference (brief)
+
+iter 139: 5 UI bug fixes (KI#16-20) — right aside overflow (`.category-aside` CSS),
+prefix/suffix 50/50 (`md:grid-cols-2`), «+N ещё» truncation reverted, non-sticky
+search bar, LeftPanelFavorites removed from left column. All verified in iter 140.
 
 ---
 
 ## Known Issues
 
 1. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
-2. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах как компенсация.
+2. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
 3. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
-4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай. Mitigation: расширить `distributeAlternation` при FP.
-5. **Phase 2 UX change: sub-groups default COLLAPSED** (iter 133). In-game/in-browser verification pending (KI#15).
-6. **Phase 3 UX change: show-selected-only filter** (iter 135). In-game/in-browser verification pending (KI#15). **iter 139 note:** user спросил «кнопка режим отображения аффиксов и сама функция для чего собственно?» — нужен tooltip/label explanation в iter 140.
-7. **Phase 3 UX change: SelectedBasket panel + collapsible right aside** (iter 135). In-game/in-browser verification pending (KI#15).
-8. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136). In-game/in-browser verification pending (KI#15).
-9. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density 25%** (iter 137). In-game/in-browser verification pending (KI#15).
-10. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). In-game/in-browser verification pending (KI#15).
-11. **Phase 4.5 UX change: «Обозначения» icon legend in right panel** (iter 137). In-game/in-browser verification pending (KI#15).
-12. **Phase 4 iter 138 UX change: `--strong` modifier wiring на `.affix-header-*` в tier-first mode**. Bg alpha 0.14→0.22, border-left-color alpha 0.65→0.85 when sortMode='tier-first'. In-game/in-browser verification pending (KI#15).
-
-### iter 139 UX changes pending in-browser verification (KI#15)
-
-- **KI#16**: horizontal scrollbar + Copy button cut off → FIXED via `.category-aside` + `.regex-output` header row CSS.
-- **KI#17**: prefix/suffix 40/60 mismatch → FIXED via `md:grid-cols-2`.
-- **KI#18**: «+N ещё» buttons unwanted → FIXED (truncation reverted, all chips render).
-- **KI#19**: sticky search bar overlap → FIXED (non-sticky now).
-- **KI#20**: LeftPanelFavorites cluttering left column → FIXED (favorites prop removed from all 7 pages).
+4. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай.
+5. **Phase 2 UX change: sub-groups default COLLAPSED** (iter 133). In-game verification pending (KI#15).
+6. **Phase 3 UX change: show-selected-only filter** (iter 135) + **iter 140 (KI#25) tooltip clarification**. In-game verification pending (KI#15).
+7. **Phase 3 UX change: SelectedBasket panel + collapsible right aside** (iter 135). In-game verification pending (KI#15).
+8. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136) + **iter 140 (KI#24) FavoritesIndicator в header**. In-game verification pending (KI#15).
+9. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density** (iter 137). In-game verification pending (KI#15).
+10. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). In-game verification pending (KI#15).
+11. **Phase 4.5 UX change: «Обозначения» icon legend** (iter 137) + **iter 140 (KI#21) duplicate icons fix**. In-game verification pending (KI#15).
+12. **Phase 4 iter 138 UX change: `--strong` modifier wiring в tier-first mode**. In-game verification pending (KI#15).
+13. **KI#23 (iter 140 — MONITORING): Scroll jitter / «doubling» в virtualized lists.**
+    На belt/ring/amulet/jewel страницах при скролле видны «дрожащие»/«прыгающие»
+    названия категорий и affix chips. Root cause: TanStack Virtual's dynamic
+    `measureElement` + `ResizeObserver` — estimate sizes (60px для subgroup)
+    отличаются от actual sizes (40–120px), при scroll ResizeObserver fires →
+    totalSize changes → paddingTop/paddingBottom shifted → visible rows jump.
+    Файлы: `src/ui/components/VirtualizedModList.tsx` (VirtualizedColumn, ROW_ESTIMATES).
+    Возможные решения: (a) static row heights (требует измерения всех вариантов
+    chip layouts); (b) improved estimateSize per-row-state (selected+range vs
+    collapsed); (c) CSS Grid virtualization вместо TanStack. Не фиксировано в
+    iter 140 — требует отдельной итерации с careful testing.
 
 ### Закрытые KI (краткая справка)
 
@@ -73,7 +107,12 @@
 - **KI#10** (iter 126 → VERIFIED iter 127): ambiguous suffix FP для `Редкость предметов`.
 - **KI#11** (iter 126 → DISPROVEN iter 127): cross-block `.*` hypothesis.
 - **KI#12** (iter 127 → FIXED): tier-hardcoded regex для 7 single-`#` relic tokens.
-- **KI#13** (iter 128 → FIXED): пропущен implicit `Редкость монстров` + BTS-статы в waystone-аффиксах.
+- **KI#13** (iter 128 → FIXED): пропущен implicit `Редкость монстров` + BTS-статы.
+- **KI#16-20** (iter 139 → VERIFIED iter 140): aside overflow, prefix/suffix 50/50, chip truncation reverted, non-sticky search, LeftPanelFavorites removed.
+- **KI#21** (iter 140 → FIXED): duplicate icons in legend.
+- **KI#22** (iter 140 → FIXED): redundant "Выбрано" block removed.
+- **KI#24** (iter 140 → FIXED): favorites restored as compact indicator.
+- **KI#25** (iter 140 → FIXED): show-selected-only tooltip clarification.
 
 ---
 
@@ -91,94 +130,50 @@
 | `\d`, `\d{N,}` | ✅ | |
 | `?` optional | ❌ | не работает в игре |
 | `(A\|B\|C)` alone (вся quoted group) | ✅ | in-game verified (iter 15) |
-| `prefix (A\|B\|C)%.*suffix` (`()` после literal+space) | ✅ | iter 15 verified |
-| `^(A\|B\|C).*suffix` (`()` после `^`) | ✅ | Phase 9b |
-| `prefix.*literal(A\|B\|C)` (`()` ПОСЛЕ `.*` bridge) | ❌ | iter 125 — игнорируется in-game. Fix: Path D distribution |
-| Ambiguous suffix → multi-implicit FP | ✅ | iter 126 VERIFIED iter 127. Fix: более specific suffix |
+| `prefix (A\|B\|C)%.*suffix` | ✅ | iter 15 verified |
+| `^(A\|B\|C).*suffix` | ✅ | Phase 9b |
+| `prefix.*literal(A\|B\|C)` | ❌ | iter 125 — игнорируется in-game. Fix: Path D |
+| Ambiguous suffix → multi-implicit FP | ✅ | iter 126 VERIFIED iter 127 |
 | `.*` cross-block/line boundaries | ✅ | iter 127 VERIFIED — `.*` НЕ пересекает lines/blocks |
 | Single-`#` template → tier-hardcoded regex (FN) | ✅ | iter 127. Fix: explicit override |
-| BTS-статы в waystone-аффиксах (FP clutter) | ✅ | iter 128. Fix: расширить `WAYSTONE_IMPLICIT_SET_FAMILY_KEYS` + добавить implicit `Редкость монстров` |
+| BTS-статы в waystone-аффиксах (FP clutter) | ✅ | iter 128 |
 | Regex char limit ≈ 250 chars | ✅ | runtime split на 2+ parts |
 
 ---
 
-## Next iteration (iter 140)
+## Next iteration (iter 141)
 
-**iter 139 завершён: 5 UI bug fixes (KI#16-20). UI Refactor Phase 1-5 + iter 138 `--strong` + iter 139 fixes — всё в коде. Pending: in-browser UX verification пользователем.**
+**iter 140 завершён: 4 UI bug fixes (KI#21, 22, 24, 25) + KI#23 documented. Pending: in-browser UX verification пользователем iter 140 changes.**
 
-Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status — все 7 фаз ✅ DONE) + §13.6 (Recommendation для iter 140 = UX verification feedback + remaining optional enhancements).
+Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status) + §13.6 (Recommendation для iter 141 = UX verification + KI#23 virtualization fix + remaining optional enhancements).
 
-**Приоритеты для iter 140+:**
+**Приоритеты для iter 141+:**
 
-1. **In-game / in-browser UX verification feedback** пользователем Phase 2 + Phase 3
-   + Phase 4 + Phase 4.5 + Phase 4 iter 138 `--strong` + iter 139 KI#16-20 fixes —
-   перенос с iter 133+. Все UI UX changes теперь в одном batch. Если найден новый
-   баг — сначала документировать в STATUS.md как Known Issue, потом фиксить.
+1. **In-browser UX verification feedback** пользователем iter 140 changes:
+   - **KI#21**: legend shows each icon ONCE (not twice).
+   - **KI#22**: only ONE «Выбрано» block (the SelectedBasket at top of right aside);
+     StatusPanel no longer renders the old summary panel below RegexOutput.
+   - **KI#24**: page header shows `★ N` favorites counter next to mod count.
+   - **KI#25**: hovering show-selected-only toggle shows tooltip explaining the function.
+   Если найден новый баг — сначала документировать в STATUS.md как Known Issue, потом фиксить.
 
-2. **Show-selected-only toggle clarification** (iter 139 leftover). User спросил:
-   «кнопка режим отображения аффиксов и сама функция для чего собственно?».
-   Нужно добавить tooltip / более понятный label к radio toggle в
-   `CategoryControlPanel.tsx` (currently `t('filter.show_mode_label')` =
-   «Режим:» + «Все» / «Только выбранные: N»). Deferred to iter 140.
+2. **KI#23 (scroll jitter)** — fix candidate. Изучить virtualization measurement.
+   Возможно: static heights, improved estimateSize, OR shift to CSS Grid virtualization.
 
-3. **KI#9** (MULTI_RANGE slot N>0) — monitoring, не фиксировано. Если найден
-   новый in-game FP case — сначала документировать в STATUS.md как
-   Known Issue (расширить KI#9), потом фиксить.
+3. **KI#9** (MULTI_RANGE slot N>0) — monitoring, не фиксировано.
 
 4. **Remaining optional enhancements** (если user запросит):
-   - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
-     boolean field to filter-store if user requests.
-   - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
-     favorites for vendor, need to add ⭐ pin slot to vendor FilterChip +
-     render LeftPanelFavorites. Deferred until user requests.
-   - Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades
-     gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced
-     to scroll to sub-group header instead. Deferred.
-   - Tooltip `--strong` styling variant — currently single style. Could add
-     variant for tier-first mode if user requests.
-   - IconLegend `items` prop — currently hardcoded 3 rows. Could be extended
-     to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
-     anchor, 2x dual-number) if user requests.
+   - Persist `rightPanelCollapsed` to URL.
+   - VendorPage Phase 5 wiring (⭐ pin slot).
+   - Phase 5 scroll-to-mod on mobile / virtualized lists.
+   - Tooltip `--strong` styling variant.
+   - IconLegend `items` prop extension.
 
-**Главные ограничения для iter 140:**
+**Главные ограничения для iter 141:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
 - Если найден новый баг — сначала документируй в STATUS.md как Known Issue,
   потом фиксий.
-
-**UX verification request for user (iter 139 deliverable):**
-
-Откройте 7 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic)
-на десктопе. Проверьте iter 139 изменения:
-
-**KI#16 — Right aside overflow fix:**
-1. Выберите 5-10 аффиксов, дождитесь generation regex > 180 chars.
-2. Правая панель (320px) НЕ должна показывать горизонтальный скроллбар.
-3. Кнопка «Копировать» в RegexOutput всегда видна, не уходит за правый край.
-
-**KI#17 — Prefix/Suffix 50/50:**
-1. Откройте Belt page. Колонки Префикс и Суффикс должны быть ОДИНАКОВОЙ ширины.
-
-**KI#18 — No «+N ещё» buttons:**
-1. Раскройте любой sub-group (например «Награды Ритуала (6)»).
-2. Все 6 chips должны быть видны сразу — без «+3 ещё» кнопки, без «свернуть».
-
-**KI#19 — Non-sticky search:**
-1. Прокрутите ModList вниз.
-2. Search input + фильтры должны прокручиваться ВМЕСТЕ с контентом (не залипать
-   вверху). Не должно быть перекрытия chips поверх search bar.
-
-**KI#20 — No favorites panel in left column:**
-1. Левая колонка должна содержать ТОЛЬКО: CategoryControlPanel + ModList.
-2. Блока «⭐ Избранные: N» над Controls быть НЕ должно.
-
-Дополнительно проверьте все предыдущие фазы (Phase 2+3+4+4.5+5 + iter 138 `--strong`)
-— см. `docs/UI_REFACTOR_PLAN.md` §13.6 «UX verification request for user».
-
-Если замечен баг — сначала документируйте в STATUS.md как Known Issue, потом фиксий.
-
-KI#9 — monitoring, не фиксировано. Если найден новый баг — сначала
-документируй в этом файле как Known Issue, потом фиксий.
 
 ---
 

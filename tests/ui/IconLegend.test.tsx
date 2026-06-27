@@ -2,12 +2,17 @@
 /**
  * React component tests for IconLegend (Phase 4.5, iter 137).
  *
+ * iter 140 (KI#21): i18n strings no longer contain the icon prefix —
+ * IconLegend renders the icon as a separate `<span class="icon-legend__icon">`.
+ * Previously the strings contained `'★ — в избранное'` etc., producing double
+ * icons (`★ ★ — в избранное`). Now strings contain ONLY the description text.
+ *
  * Tests:
  *   - Renders the «Обозначения» title.
  *   - Renders exactly 3 rows by default.
- *   - Row 1: ★ icon + «★ — в избранное» text.
- *   - Row 2: ✗ icon + «✗ — исключить аффикс (не хочу)» text.
- *   - Row 3: ⓘ icon + «ⓘ — наведите для подсказки» text.
+ *   - Row 1: ★ icon + «в избранное» text.
+ *   - Row 2: ✗ icon + «исключить аффикс (не хочу)» text.
+ *   - Row 3: ⓘ icon + «наведите для подсказки» text.
  *   - Icons are aria-hidden (decorative).
  *   - Section has aria-labelledby pointing to the title.
  *   - Uses semantic <ul>/<li> structure.
@@ -34,19 +39,35 @@ describe('IconLegend', () => {
     expect(rows).toHaveLength(3);
   });
 
-  it('row 1: ★ icon + «★ — в избранное» text', () => {
+  it('row 1: ★ icon + «в избранное» text (no icon duplication, iter 140 KI#21)', () => {
     render(<IconLegend />);
-    expect(screen.getByText('★ — в избранное')).toBeInTheDocument();
+    // iter 140 (KI#21): i18n string no longer contains icon prefix.
+    // Text span contains ONLY «в избранное» (no ★ prefix).
+    expect(screen.getByText('в избранное')).toBeInTheDocument();
   });
 
-  it('row 2: ✗ icon + «✗ — исключить аффикс (не хочу)» text', () => {
+  it('row 2: ✗ icon + «исключить аффикс (не хочу)» text (no icon duplication, iter 140 KI#21)', () => {
     render(<IconLegend />);
-    expect(screen.getByText('✗ — исключить аффикс (не хочу)')).toBeInTheDocument();
+    expect(screen.getByText('исключить аффикс (не хочу)')).toBeInTheDocument();
   });
 
-  it('row 3: ⓘ icon + «ⓘ — наведите для подсказки» text', () => {
+  it('row 3: ⓘ icon + «наведите для подсказки» text (no icon duplication, iter 140 KI#21)', () => {
     render(<IconLegend />);
-    expect(screen.getByText('ⓘ — наведите для подсказки')).toBeInTheDocument();
+    expect(screen.getByText('наведите для подсказки')).toBeInTheDocument();
+  });
+
+  it('renders each icon EXACTLY ONCE (no duplication, iter 140 KI#21)', () => {
+    const { container } = render(<IconLegend />);
+    // The icon span contains the icon character. The text span no longer
+    // contains the icon (iter 140 fix). So each icon character should appear
+    // EXACTLY ONCE in the rendered DOM — in the icon span only.
+    const allText = container.textContent || '';
+    const starCount = (allText.match(/★/g) || []).length;
+    const crossCount = (allText.match(/✗/g) || []).length;
+    const infoCount = (allText.match(/ⓘ/g) || []).length;
+    expect(starCount).toBe(1);
+    expect(crossCount).toBe(1);
+    expect(infoCount).toBe(1);
   });
 
   // ─── ARIA ───

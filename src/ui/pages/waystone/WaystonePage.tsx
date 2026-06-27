@@ -29,6 +29,9 @@ import { SelectedBasket } from '@ui/components/SelectedBasket';
 // no longer rendered in the LEFT column per user feedback. SelectedBasket on
 // the RIGHT already shows selected affixes; a separate pinned panel was noise.
 // Component file kept for backward compat.
+// iter 140 (KI#24): FavoritesIndicator added — compact `★ N` badge in the
+// page header (next to mod count).
+import { FavoritesIndicator } from '@ui/components/FavoritesIndicator';
 import { IconLegend } from '@ui/components/IconLegend';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
@@ -138,12 +141,15 @@ export function WaystonePage() {
         return (
           <CategoryLayout
             header={
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <h2 className="poe-panel-header--inline text-xl font-bold flex items-center gap-2" style={{ color: 'var(--poe-gold)' }}>
                   <img src={`${import.meta.env.BASE_URL}icons/waystone.png`} alt="" width={24} height={24} className="object-contain" />
                   {t('waystone.title')}
                 </h2>
-                <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
+                  <FavoritesIndicator pinnedIds={pinnedIds} />
+                </div>
               </div>
             }
             controls={

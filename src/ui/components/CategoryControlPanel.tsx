@@ -391,9 +391,17 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             disabled when selectedCount === 0 — nothing to show.
             Backward compat: when onSetShowSelectedOnly is NOT provided
             (e.g. VendorPage uses custom FilterChip), the toggle is NOT
-            rendered. */}
+            rendered.
+            iter 140 (KI#25): added `title` + `aria-label` tooltip on the
+            outer wrapper to explain what the toggle does — user asked
+            «кнопка режим отображения аффиксов и сама функция для чего
+            собственно?». Tooltip text from i18n key `filter.show_mode_hint`. */}
         {onSetShowSelectedOnly && (
-          <div className="flex items-center gap-1">
+          <div
+            className="flex items-center gap-1"
+            title={t('filter.show_mode_hint')}
+            aria-label={t('filter.show_mode_hint')}
+          >
             <span className="text-[12px] text-muted">{t('filter.show_mode_label')}</span>
             <div
               className="flex gap-0.5"
