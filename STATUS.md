@@ -2,79 +2,86 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 143 (user feedback received — готовимся к iter 144 реализации)
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 138-141 fixes + iter 142 doc cleanup + proposals) + `docs/UI_VISUALIZATION_AUDIT.md`
+> **Текущая итерация:** 144 (5 KI реализованы — KI#23/30/31/32/33)
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE + iter 138-144 fixes) + `docs/UI_VISUALIZATION_AUDIT.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 143: user feedback получен по 6 вопросам + 2 новых бага задокументированы (KI#32, KI#33). Никаких кодовых изменений.**
+**iter 144: реализованы ВСЕ 5 KI из плана iter 143.**
 
-iter 143 получил от user:
-- ✅ Ответы на 6 вопросов из `docs/ITER142_PROPOSALS.md` §5 (KI#23/30/31 variant selection).
-- 🐛 **NEW KI#32** — cascade expand одинаковых названий sub-групп (раскрытие «Уровень умений» в «обычных» раскрывает все «Уровень умений» в очерненных/оскверненных/разлома).
-- 🐛 **NEW KI#33** — favorites не реализованы на VendorPage (известно — VendorPage uses custom FilterChip, нет ⭐ pin slot).
+| KI | Описание | Файлы | Тесты |
+|----|----------|-------|-------|
+| KI#32 | Cascade expand fix — origin в sub-group key | `VirtualizedModList.tsx`, `ModList.tsx` | +5 (cascade isolation) |
+| KI#30 | Per-category localStorage favorites + multi-tab sync | `local-settings.ts`, `useCategoryPage.ts` | +32 (round-trip, sanitization, ranges) |
+| KI#31 variant (d) | Quick-select panel с диапазонами | `FavoritesQuickSelectPanel.tsx` (NEW), `FavoritesIndicator.tsx`, 7 pages | +8 (panel open/close, select, remove) |
+| KI#33 | VendorPage favorites — ⭐ pin slot + FavoritesIndicator | `VendorPage.tsx` | covered by KI#31 tests |
+| KI#23 variant (b) | Improved estimateSize per-row-state | `VirtualizedModList.tsx` | +12 (estimate heuristics) |
 
-Все 5 KI (KI#23, KI#30, KI#31, KI#32, KI#33) теперь готовы к реализации в iter 144. **Baseline: tsc 0 / eslint 0 / vitest 2190/2190 (без изменений).**
+**Baseline: tsc 0 / eslint 0 / vitest 2247/2247 (было 2190 baseline + 57 new tests).**
 
-### User decisions по 6 вопросам (для iter 144)
+### Архитектурные изменения iter 144
 
-| # | Вопрос | User answer | Решение |
-|---|--------|-------------|---------|
-| Q1 | KI#23 partial fix OK? | ✅ Да, вариант (b) — improved estimateSize per-row-state | `VirtualizedModList.tsx` ~20 строк |
-| Q2 | Если (b) не хватит — fallback на (a)? | ✅ Сразу нормально сделать | Реализуем (b) с тест-планом; если browser testing покажет что не хватает — добавим (a) |
-| Q3 | Silent reset старого избранного OK? | ✅ Пофигу | Тихий reset, без миграции |
-| Q4 | Realtime multi-tab sync нужна? | ✅ Только если стабильно и не усложняет код | Пробуем через `storage` event (~20 строк); если нестабильно — выкинем |
-| Q5 | Формат хранения? | ✅ Простой массив ID | `string[]` JSON-serialized |
-| Q6 | ⭐ button 2 функции (toggle + scroll) OK? | ❌ Toggle только, но не scroll-to-mod! | **NEW KI#31 variant (d)** — quick-select с возможностью ввода значений диапазона (см. ниже) |
+1. **Sub-group key format:** `${cat}:${affix}:${origin}:${sg.key}` (раньше без origin — KI#32). Старые URL `es=...` silently reset (per Q3).
 
-### NEW KI#31 variant (d) — Quick-select с диапазонами (пересмотренный)
+2. **localStorage keys (KI#30 + KI#31):**
+   - `poe2:favorites:<cat>` → `string[]` (favorited token IDs, first member per family).
+   - `poe2:favorites:<cat>:ranges` → `Record<tokenId, {min?, max?}>` (per-favorite range overrides).
+   - Multi-tab sync через `storage` event listener в `useCategoryPage`.
 
-User видит favorites как **список быстрого доступа** для часто используемых наборов аффиксов. Клик на ★ в избранном → выбор аффикса (added to selectedIds) + возможность **ввести значения диапазона** прямо из quick-select (если у аффикса есть диапазон). Если в избранном уже были значения диапазона — они **сохраняются по умолчанию**.
+3. **FavoritesIndicator (KI#31):** теперь clickable button → открывает `FavoritesQuickSelectPanel` через `createPortal`. Когда panel props не переданы — backward-compatible presentational mode.
 
-Подробный design — в `docs/ITER142_PROPOSALS.md` §3 variant (d) (новый, добавлен iter 143).
+4. **FavoritesQuickSelectPanel (NEW, KI#31):** portal-based dropdown с:
+   - Affix badge + displayText для каждой favorited family.
+   - «Выбрать» button → `onToggleTokens(allMemberIds)`.
+   - Range inputs (min/max) для семей с `rangeSlots.length > 0` — pre-filled из `perTokenRanges` или saved favorites ranges.
+   - «Убрать» (✗) button → `onTogglePinned(firstMemberId)`.
+   - Escape / click-outside → close.
+
+5. **VendorPage (KI#33):** теперь использует общий `FilterChip` с ⭐ pin slot (раньше был custom chip без pin). FavoritesIndicator рендерится в header. KI#30 localStorage + KI#31 quick-select panel работают.
+
+6. **estimateSubgroupHeight (KI#23 variant b):** per-row-state estimate для virtualizer. Возвращает 60/80/110 вместо статичного 60 — уменьшает jitter при scroll.
 
 ---
 
 ## Known Issues
 
-### Активные (требуют действий в iter 144)
+### Активные (требуют browser testing / user feedback)
 
-1. **KI#23 (iter 140 — MONITORING → iter 144): Scroll jitter в virtualized lists.**
-   На belt/ring/amulet/jewel при скролле видны «дрожащие»/«прыгающие» названия категорий и chips. Root cause: TanStack Virtual's dynamic `measureElement` + `ResizeObserver` — estimate sizes (60px для subgroup) отличаются от actual (40-120px), при scroll ResizeObserver fires → totalSize changes → visible rows jump. **User approved variant (b)** — improved `estimateSize` per-row-state. ~20 строк в `src/ui/components/VirtualizedModList.tsx`. Browser testing обязателен. Design proposal — в `docs/ITER142_PROPOSALS.md` §1.
+1. **KI#23 (iter 144 — variant b IMPLEMENTED, NEEDS BROWSER TESTING):** Scroll jitter в virtualized lists.
+   Variant (b) реализован — improved `estimateSize` per-row-state. Vitest покрывает эвристику (12 tests), но **browser testing обязателен** — записать video scroll before/after на 4 страницах (belt/ring/amulet/jewel). Если jitter всё ещё заметный — рассмотреть variant (a) static row heights как fallback.
 
-2. **KI#30 (iter 141 — MONITORING → iter 144): Cross-tab persistence favorites.**
-   `pinnedIds` хранятся в per-category Zustand store, уничтожается при unmount. URL hash shared между вкладками. **User approved variant (a)** — per-category localStorage keys `poe2:favorites:<cat>`. ~30 строк (3 functions в `src/store/local-settings.ts` + wiring в `src/ui/hooks/useCategoryPage.ts`). Тихий reset старого избранного (без миграции). Realtime multi-tab sync через `storage` event — попробовать, если нестабильно выкинем. Design proposal — в `docs/ITER142_PROPOSALS.md` §2.
+2. **KI#31 variant (d) (iter 144 — IMPLEMENTED, NEEDS UX FEEDBACK):** Quick-select panel.
+   Реализован минимальный MVP: список favorited семей + «Выбрать» + range inputs + «Убрать». **User feedback нужен** по:
+   - Расположение panel (right-anchored ниже trigger).
+   - Range inputs UX (pre-fill из saved ranges работает?).
+   - Accessibility (focus trap, Escape, click-outside).
+   - Mobile layout (panel может быть слишком wide на mobile — 360px max).
 
-3. **KI#31 (iter 141 — MONITORING → iter 144): Favorites как quick-select с диапазонами.**
-   **NEW variant (d)** — user видит favorites как список быстрого доступа для частых наборов аффиксов. Клик на ★ в избранном → выбор аффикса + возможность ввести значения диапазона. Если значения уже были — сохраняются. **НЕ variant (b)** из iter 142 (scroll-to-mod) — user явно сказал: «не думаю что будет удобно кликать по избранным аффиксам и смотреть как тебя скролит». Подробный design — в `docs/ITER142_PROPOSALS.md` §3 variant (d).
+3. **KI#32 (iter 144 — IMPLEMENTED, NEEDS BROWSER TESTING):** Cascade expand fix.
+   Sub-group key теперь включает origin. Vitest покрывает изоляцию (5 tests). **Browser testing на 7 страницах** — раскрыть sub-group в normal → проверить что в corrupted/desecrated НЕ раскрылось. Особое внимание jewel page (showJewelTypeSubGroups — ключ теперь `${cat}:${affix}:${origin}:${jewelType}:${sg.key}`).
 
-4. **KI#32 (iter 143 — NEW BUG): Cascade expand одинаковых sub-group ключей.**
-   При раскрытии sub-группы (например, «Уровень умений» в разделе «обычных» аффиксов) на странице раскрываются ВСЕ sub-группы с тем же названием в других разделах (очерненных, оскверненных, разлома). Root cause: sub-group ключ строится как `${categoryId}:${affix}:${sg.key}` где `sg.key` — это название функционального блока (например, `skill-levels`). Когда в одной категории (например, ring) в префиксе есть `skill-levels` в normal/corrupted/desecrated — все получают **одинаковый** ключ `ring:prefix:skill-levels`. Toggle одного → toggle всех (поиск в Set). Файлы: `src/shared/mod-classifier.ts` (mode `affix-functional`, line 2090: `key: block`), `src/ui/components/ModList.tsx` (line 449/481: `${topLevelKey}:${sg.key}`), `src/ui/components/VirtualizedModList.tsx` (line 232: `${topKey}:${sg.key}`). Возможные решения: (a) добавить origin в ключ: `${categoryId}:${affix}:${origin}:${sg.key}`; (b) использовать уникальный index из classifyGroups; (c) менять ModSubGroup.key на origin-aware в `affix-functional` mode. Требует analysis + testing на всех 7 страницах.
-
-5. **KI#33 (iter 143 — NEW, was known): Favorites не реализованы на VendorPage.**
-   VendorPage использует custom FilterChip без ⭐ pin slot. Известно с iter 136 (Phase 5), deferred. iter 144 должен добавить: ⭐ pin slot в vendor FilterChip + FavoritesIndicator + KI#30 localStorage wiring. ~40-50 строк. Depends on: KI#31 variant (d) design (quick-select с диапазонами) — vendor FilterChip должен поддержать тот же UX pattern.
-
-6. **In-browser UX verification iter 141 changes (KI#26/27/28/29).** 4 фикса iter 141 (round10 default off + cross-tab persistence, VirtualizedModList 50/50, favorites counter 1-per-family, aside header compact) формально прошли, но user не предоставил UX feedback (сказал «по KI#26-29 — вопросов нет, всё работает как ожидалось» по аналогии с предыдущими итерациями). Если найден новый баг — сначала в STATUS.md как KI, потом фиксий.
+4. **In-browser UX verification iter 141 changes (KI#26/27/28/29).** 4 фикса iter 141 формально прошли, но user не предоставил UX feedback. Если найден новый баг — сначала в STATUS.md как KI, потом фиксий.
 
 ### Фоновые (low-priority / редкие)
 
-7. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
-8. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
-9. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
-10. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай.
+5. **2 opt-table entries > 250 chars** в `jewel.json` — runtime split handles at UI level.
+6. **APCA Lc<75 для small text с weight 400** (iter 111): WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
+7. **6 functional blocks без явных правил сортировки** (iter 119): `other`, `magic-find`, `breach`, `spirit`, `wisps`, `conversion`. Fallback: alphabetical.
+8. **KI#9: MULTI_RANGE slot N>0 `(A|B|C) after .* bridge`** (iter 125 — partial fix, MONITORING). Если parts[N>0] в MULTI_RANGE содержит `()` с alternation — паттерн остаётся сломанным in-game. На практике редкий случай.
 
 ### Закрытые KI (краткая справка)
 
 - **KI#7-8** (iter 121-122 → VERIFIED iter 129): HomePage hero decorations + SeoBlock.
 - **KI#10** (iter 126 → VERIFIED iter 127): ambiguous suffix FP для `Редкость предметов`.
-- **KI#11** (iter 126 → DISPROVEN iter 127): cross-block `.*` hypothesis.
+- **KI#11** (iter 127 → DISPROVEN): cross-block `.*` hypothesis.
 - **KI#12** (iter 127 → FIXED): tier-hardcoded regex для 7 single-`#` relic tokens.
 - **KI#13** (iter 128 → FIXED): пропущен implicit `Редкость монстров` + BTS-статы.
 - **KI#16-20** (iter 139 → VERIFIED iter 140): aside overflow, prefix/suffix 50/50, chip truncation reverted, non-sticky search, LeftPanelFavorites removed.
 - **KI#21-22, 24-25** (iter 140 → FIXED): duplicate icons, redundant «Выбрано» block, favorites restored as compact indicator, show-selected-only tooltip.
 - **KI#26-29** (iter 141 → FIXED, pending browser verification): round10 default off + cross-tab persistence, VirtualizedModList 50/50, favorites counter 1-per-family, aside header compact.
+- **KI#23/30/31/32/33** (iter 144 → IMPLEMENTED, pending browser verification): scroll jitter estimate, per-category localStorage favorites, quick-select panel, cascade expand fix, VendorPage favorites.
 
 ---
 
@@ -103,41 +110,36 @@ User видит favorites как **список быстрого доступа*
 
 ---
 
-## Next iteration (iter 143 → iter 144)
+## Next iteration (iter 144 → iter 145)
 
-**iter 143 завершён: user feedback получен + 2 новых бага задокументированы (KI#32, KI#33). Никаких кодовых изменений.**
+**iter 144 завершён: 5 KI реализованы, tsc 0 / eslint 0 / vitest 2247/2247.**
 
-User дал ясные ответы на 6 вопросов — все 3 первоначальные KI (23/30/31) готовы к реализации. KI#31 variant пересмотрен: вместо scroll-to-mod (variant b) — quick-select с диапазонами (variant d) по явному запросу user. Дополнительно найдены 2 новых бага: KI#32 (cascade expand — высокий приоритет, ломает UX) и KI#33 (VendorPage favorites gap — был известен, теперь явно в KI).
+**Приоритеты для iter 145 (по результатам browser testing user'ом):**
 
-**Приоритеты для iter 144** (по оценке risk + dependency):
+1. **Browser testing iter 144 changes (BLOCKING).** User должен протестировать все 5 KI в browser:
+   - KI#32: раскрыть sub-group в normal → проверить что в corrupted/desecrated НЕ раскрылось (7 страниц).
+   - KI#30: pin на belt → navigate to ring → return to belt → favorites на месте. Multi-tab sync (опционально).
+   - KI#31: click ★ N badge → panel открывается → «Выбрать» работает → range inputs persist → ✗ remove работает.
+   - KI#33: pin на vendor page → favorites видны в header → quick-select panel работает.
+   - KI#23: scroll на amulet/ring (large lists) — jitter уменьшился? Если нет — variant (a).
 
-1. **KI#32 (cascade expand) — СРОЧНО, blocking UX.** Этот баг ломает основной сценарий использования — раскрытие категорий. Должен быть исправлен ПЕРВЫМ, до KI#30/31 (favorites), потому что favorites полагаются на корректное поведение sub-groups. Analysis + fix: `src/shared/mod-classifier.ts` mode `affix-functional` — добавить origin в ключ ИЛИ использовать unique index. ~30-50 строк. Тесты на 7 страницах.
+2. **Если найдены баги** — сначала документировать в STATUS.md как NEW KI, потом фиксить.
 
-2. **KI#30 (per-category localStorage favorites) — MEDIUM.** Расширяет `src/store/local-settings.ts` iter 141 infrastructure. ~30 строк. Realtime multi-tab sync — попробовать, если нестабильно выкинем. Тихий reset старого избранного.
+3. **Возможные follow-up задачи (если user запросит):**
+   - KI#31 mobile layout optimization (panel может быть слишком wide).
+   - KI#31 bulk actions («Выбрать все favorites», «Очистить все selections»).
+   - KI#23 variant (a) fallback если (b) недостаточен.
+   - KI#9 (MULTI_RANGE slot N>0) — monitoring, не фиксировано.
+   - Persist `rightPanelCollapsed` to URL.
+   - Phase 5 scroll-to-mod on mobile / virtualized lists.
+   - Tooltip `--strong` styling variant.
+   - IconLegend `items` prop extension.
 
-3. **KI#31 variant (d) — quick-select с диапазонами — MEDIUM, requires design.** User видит favorites как список быстрого доступа: клик → выбор аффикса + ввод значений диапазона + сохранение диапазона в избранном. Зависит от KI#30 (favorites должны persist). Реализация: ~80-120 строк (NEW quick-select panel ИЛИ расширение FavoritesIndicator). Design proposal — в `docs/ITER142_PROPOSALS.md` §3 variant (d).
-
-4. **KI#33 (VendorPage favorites) — LOW, after KI#31.** Зависит от KI#31 variant (d) — vendor FilterChip должен поддержать тот же UX pattern. ~40-50 строк.
-
-5. **KI#23 (scroll jitter — variant b) — LOW, independent.** ~20 строк в `VirtualizedModList.tsx`. Browser testing обязателен.
-
-6. **In-browser UX verification KI#26/27/28/29** — user сказал «всё работает как ожидалось», формально pending browser verification но по факту OK. Если найден новый баг — сначала в STATUS.md как KI, потом фиксий.
-
-**Главные ограничения для iter 144:**
+**Главные ограничения для iter 145:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
 - Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
-- KI#23 fix требует careful browser testing — vitest недостаточен. Лучше недоделать, чем сломать virtualization.
-- KI#32 fix требует testing на всех 7 страницах (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — sub-группы могут вести себя по-разному в разных group modes.
-- KI#31 variant (d) — сначала реализовать quick-select panel, потом добавлять диапазоны. Итеративно.
-
-**Фоновые задачи (если user запросит):**
-
-- KI#9 (MULTI_RANGE slot N>0) — monitoring, не фиксировано.
-- Persist `rightPanelCollapsed` to URL.
-- Phase 5 scroll-to-mod on mobile / virtualized lists.
-- Tooltip `--strong` styling variant.
-- IconLegend `items` prop extension.
+- KI#23 (b) требует careful browser testing — vitest недостаточен. Лучше недоделать, чем сломать virtualization.
 
 ---
 

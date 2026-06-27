@@ -145,7 +145,11 @@ const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 's
  *  jitter during scroll because totalSize shrank when ResizeObserver fired
  *  with actual sizes much smaller than the estimate.
  *  iter 133 (Phase 2): added `subgroup-header` row variant (header-only when
- *  collapsed — same height as jewel-type-header since visually similar). */
+ *  collapsed — same height as jewel-type-header since visually similar).
+ *  iter 144 (KI#23 variant b): `subgroup` estimate is now per-row-state —
+ *  see `estimateSubgroupHeight()` below. The static 60px value is kept as
+ *  a fallback when row state can't be determined (legacy callers without
+ *  selectedIds/perTokenRanges wiring). */
 const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
   'column-header': 44,
   'origin-header': 36,
@@ -153,6 +157,82 @@ const ROW_ESTIMATES: Record<VirtualRow['type'], number> = {
   'subgroup': 60, // typical 1–3 chips: ~40–80px; selected with range: ~100–120px
   'subgroup-header': 30, // header-only (collapsed sub-group): similar to jewel-type-header
 };
+
+/**
+ * iter 144 (KI#23 variant b): per-row-state height estimate for `subgroup`
+ * rows. Reduces scroll jitter by returning an estimate closer to the actual
+ * measured height — TanStack Virtual's ResizeObserver still fires to update
+ * the measurement, but the gap between estimate and actual is smaller, so
+ * the visible rows don't jump as much when totalSize is recomputed.
+ *
+ * Heuristics (matching actual chip rendering behaviour in FilterChip):
+ *   - Selected + range inputs visible (~110px actual): 110
+ *   - Selected (no range inputs visible) (~80px actual): 80
+ *   - 4+ chips (wrap to 2 lines) (~80px actual): 80
+ *   - Default (1–3 chips, none selected) (~60px actual): 60
+ *
+ * The "selected" check looks at ANY member of ANY family in the sub-group
+ * (matches FilterChip's `selectionState === 'full' || 'partial'` logic).
+ * The "range" check looks at perTokenRanges entries for any family's first
+ * ranged member (matches FilterChip's range input rendering condition).
+ *
+ * Note: this is just an ESTIMATE — the actual height is measured by
+ * ResizeObserver. A wrong estimate doesn't break rendering, just causes
+ * minor jitter until the measurement settles.
+ *
+ * Exported for unit testing (tests/ui/KI23EstimateSize.test.ts).
+ *
+ * @param row - The `subgroup` VirtualRow to estimate.
+ * @param selectedIds - Currently selected token IDs (from filter-store).
+ * @param perTokenRanges - Per-token range overrides (from filter-store).
+ * @returns Estimated pixel height for the row.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function estimateSubgroupHeight(
+  row: Extract<VirtualRow, { type: 'subgroup' }>,
+  selectedIds: Set<string>,
+  perTokenRanges: Record<string, TokenRangeOverride>,
+): number {
+  const families = row.subGroup.groups;
+  if (families.length === 0) return ROW_ESTIMATES.subgroup;
+
+  let anySelected = false;
+  let anyRange = false;
+  let totalMembers = 0;
+
+  for (const family of families) {
+    totalMembers += family.members.length;
+    // Check selection: any member in selectedIds?
+    for (const member of family.members) {
+      if (selectedIds.has(member.id)) {
+        anySelected = true;
+        break;
+      }
+    }
+    // Check range inputs: FilterChip renders range inputs when the family
+    // has rangeSlots AND is selected (full or partial). We approximate by
+    // checking if perTokenRanges has an entry for any member — that's the
+    // condition for showing non-empty range inputs.
+    if (!anyRange) {
+      for (const member of family.members) {
+        if (perTokenRanges[member.id] !== undefined) {
+          const override = perTokenRanges[member.id];
+          if (override.min !== undefined || override.max !== undefined) {
+            anyRange = true;
+            break;
+          }
+        }
+      }
+    }
+    // Early exit if both flags are set — no need to scan remaining families.
+    if (anySelected && anyRange) break;
+  }
+
+  if (anySelected && anyRange) return 110;
+  if (anySelected) return 80;
+  if (totalMembers > 3) return 80; // 4+ chips likely wrap to 2 lines
+  return ROW_ESTIMATES.subgroup; // 60 — default 1–3 chips, none selected
+}
 
 /**
  * Find the nearest scrollable ancestor element.
@@ -228,8 +308,25 @@ function buildColumnRows(
   // Helper: emit a sub-group row, choosing between `subgroup` (expanded) or
   // `subgroup-header` (collapsed, header-only). When collapse wiring is absent,
   // always emits full `subgroup` (legacy behaviour).
-  const emitSubGroup = (sg: ModSubGroup) => {
-    const subKey = topKey ? `${topKey}:${sg.key}` : undefined;
+  //
+  // iter 144 (KI#32 — cascade expand fix): `origin` and `jewelType` are now
+  // part of the sub-group key when `showOriginSubSections` (or
+  // `showJewelTypeSubGroups`) is active. Previously the sub-group key was
+  // `${topKey}:${sg.key}` (e.g., `ring:prefix:skill-levels`) — identical
+  // across origin sections (normal/corrupted/desecrated). Toggling one
+  // sub-group expanded ALL sub-groups with the same key in every origin
+  // section. We now build `${topKey}:${origin}:${jewelType}:${sg.key}` so
+  // each (origin, jewel-type, block) tuple gets a unique expand/collapse
+  // state. Old URL `es=ring:prefix:skill-levels` keys silently stop matching
+  // (per Q3 user feedback: silent reset acceptable — no migration).
+  const emitSubGroup = (sg: ModSubGroup, origin?: ModOrigin, jewelType?: JewelTypeCategory) => {
+    const contextSegment = [
+      origin ?? '',
+      jewelType ?? '',
+    ].filter(Boolean).join(':');
+    const subKey = topKey
+      ? (contextSegment ? `${topKey}:${contextSegment}:${sg.key}` : `${topKey}:${sg.key}`)
+      : undefined;
     if (subKey && expandedSubGroups) {
       const isExpanded = expandedSubGroups.has(subKey);
       if (isExpanded) {
@@ -304,12 +401,14 @@ function buildColumnRows(
 
           const jtSubGroups = classifyGroups(jtGroups, groupMode, sortMode);
           for (const sg of jtSubGroups) {
-            emitSubGroup(sg);
+            // iter 144 (KI#32): pass both origin and jewelType so subKey is unique.
+            emitSubGroup(sg, origin, jewelType);
           }
         }
       } else {
         for (const sg of originSubGroups) {
-          emitSubGroup(sg);
+          // iter 144 (KI#32): pass origin so subKey is unique per origin section.
+          emitSubGroup(sg, origin);
         }
       }
     }
@@ -567,6 +666,13 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     estimateSize: (index) => {
       const row = rows[index];
       if (!row) return 40;
+      // iter 144 (KI#23 variant b): per-row-state estimate for `subgroup`
+      // rows. Returns a value closer to the actual measured height, reducing
+      // scroll jitter (ResizeObserver still fires to correct any residual
+      // gap, but the visible "jump" is much smaller).
+      if (row.type === 'subgroup') {
+        return estimateSubgroupHeight(row, selectedIds, perTokenRanges ?? {});
+      }
       return ROW_ESTIMATES[row.type];
     },
     overscan: 10,
@@ -845,6 +951,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     estimateSize: (index) => {
       const row = mergedRows[index];
       if (!row) return 40;
+      // iter 144 (KI#23 variant b): per-row-state estimate for `subgroup`
+      // rows — same logic as the two-column virtualizer above. Reduces
+      // scroll jitter when the user has selected chips with range inputs.
+      if (row.type === 'subgroup') {
+        // selectedIds and perTokenRanges are destructured at the top of the
+        // main VirtualizedModList component — both are in scope here.
+        return estimateSubgroupHeight(row, selectedIds, perTokenRanges ?? {});
+      }
       return ROW_ESTIMATES[row.type];
     },
     overscan: 10,

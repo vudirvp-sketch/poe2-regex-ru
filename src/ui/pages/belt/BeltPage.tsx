@@ -100,7 +100,15 @@ export function BeltPage() {
                 </h2>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-dim">{data.tokens.length} {t('mods_word')}</span>
-                  <FavoritesIndicator pinnedIds={pinnedIds} />
+                  <FavoritesIndicator
+                    pinnedIds={pinnedIds}
+                    data={data}
+                    categoryId={categoryId}
+                    perTokenRanges={perTokenRanges}
+                    onToggleTokens={toggleTokens}
+                    onTogglePinned={togglePinned}
+                    onSetTokenRange={setTokenRange}
+                  />
                 </div>
               </div>
             }

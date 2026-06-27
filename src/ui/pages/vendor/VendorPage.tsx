@@ -20,7 +20,7 @@
  * vendor properties are NOT mod-based and don't come from ETL data.
  * The plan's invariant I4 targets mod strings from ETL, not vendor labels.
  */
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useCategoryPage } from '@ui/hooks/useCategoryPage';
 import { buildVendorCategoryData } from '@data/vendor-adapter';
 import { FilterChip } from '@ui/components/FilterChip';
@@ -29,6 +29,12 @@ import { RegexOutput } from '@ui/components/RegexOutput';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
+// iter 144 (KI#33): FavoritesIndicator + ⭐ pin slot support for vendor page.
+// VendorPage previously used custom FilterChip without ⭐ pin slot — favorites
+// gap was known since iter 136 (Phase 5), deferred. KI#33 closes this gap by
+// reusing the same FavoritesIndicator + KI#30 localStorage wiring as the
+// other 7 category pages.
+import { FavoritesIndicator } from '@ui/components/FavoritesIndicator';
 import { groupTokensByFamily } from '@shared/family-grouper';
 import { t } from '@shared/i18n';
 import type { FamilyGroup } from '@shared/types';
@@ -114,7 +120,21 @@ export function VendorPage() {
     toggleTokens, clearSelections,
     perTokenRanges, setTokenRange, clearTokenRange,
     collapsedTokenIds, filterStore,
+    // iter 144 (KI#33): favorites (pinned) state + actions — same pattern as
+    // other 7 category pages. VendorPage previously didn't wire these — the
+    // custom FilterChip (used inline below) had no ⭐ pin slot.
+    categoryId,
+    pinnedIds, togglePinned,
   } = state;
+
+  // iter 144 (KI#33): Family-level pinned toggle for vendor FilterChip.
+  // Same pattern as other 7 pages — toggle ONLY the first member ID per
+  // family (iter 141 KI#28 convention: 1 click = 1 favorite).
+  // Stable reference via useCallback so React.memo on FilterChip doesn't
+  // re-render on every page render.
+  const handleTogglePinned = useCallback((ids: string[]) => {
+    if (ids.length > 0) togglePinned(ids[0]);
+  }, [togglePinned]);
 
   // Group tokens into FamilyGroups, then sub-group by vendor property group
   // Post-process: for numeric vendor chips, override displayText to avoid
@@ -164,9 +184,26 @@ export function VendorPage() {
             <img src={`${import.meta.env.BASE_URL}icons/vendor.png`} alt="" width={24} height={24} className="object-contain" />
             {t('vendor.title')}
           </h2>
-          <span className="text-xs text-dim">
-            {selectedIds.size} {t('selected')}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-dim">
+              {selectedIds.size} {t('selected')}
+            </span>
+            {/* iter 144 (KI#33): FavoritesIndicator for vendor page — same
+                pattern as other 7 category pages. ⭐ pin slot on vendor
+                FilterChip (below) writes to pinnedIds; this badge opens the
+                FavoritesQuickSelectPanel (KI#31 variant d). */}
+            {data && (
+              <FavoritesIndicator
+                pinnedIds={pinnedIds}
+                data={data}
+                categoryId={categoryId}
+                perTokenRanges={perTokenRanges}
+                onToggleTokens={toggleTokens}
+                onTogglePinned={togglePinned}
+                onSetTokenRange={setTokenRange}
+              />
+            )}
+          </div>
         </div>
       }
       controls={
@@ -264,6 +301,13 @@ export function VendorPage() {
                     onSetTokenRange={setTokenRange}
                     onClearTokenRange={clearTokenRange}
                     collapsedTokenIds={collapsedTokenIds}
+                    // iter 144 (KI#33): ⭐ pin slot — same Phase 5 wiring as
+                    // other 7 category pages. VendorPage previously didn't
+                    // pass these props, so FilterChip rendered WITHOUT the
+                    // ⭐ icon button (Phase 5 backward-compat: omitted props
+                    // = no ⭐ slot).
+                    pinnedIds={pinnedIds}
+                    onTogglePinned={handleTogglePinned}
                   />
                 ))}
               </div>

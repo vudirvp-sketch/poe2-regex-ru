@@ -31,6 +31,16 @@ import { syncFromUrl, syncToUrl } from '@store/url-sync';
 // thresholdEnabled, sortMode). Survives cross-tab navigation — URL hash is
 // per-page and gets overwritten on each mount, so we need a stable store.
 import { readLocalSetting, writeLocalSetting } from '@store/local-settings';
+// iter 144 (KI#30): per-category favorites persistence (pinnedIds) —
+// `poe2:favorites:<categoryId>` stores JSON-serialized `string[]` so favorites
+// survive cross-tab navigation. iter 144 (KI#31 variant d): per-favorite
+// range overrides stored under `poe2:favorites:<categoryId>:ranges`.
+import {
+  readFavorites,
+  writeFavorites,
+  clearFavorites,
+  favoritesStorageKey,
+} from '@store/local-settings';
 import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter, SortMode } from '@shared/types';
 import { and } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
@@ -47,6 +57,30 @@ export {
 
 // Import for internal use.
 import { buildAstFromSelections, applyRuntimeYofication } from './category-ast-utils';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// iter 144 (KI#30): helpers for cross-tab favorites persistence.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Reference-equality check for two `Set<string>` instances.
+ *
+ * Used by the `storage` event listener (KI#30 realtime multi-tab sync) to
+ * skip spurious store updates when the new value matches the current value.
+ * Without this guard, every `storage` event would call `useStore.setState`
+ * with a fresh `Set` instance, triggering a re-render of every component
+ * subscribed to `pinnedIds` — even when nothing actually changed.
+ *
+ * Returns `true` when both sets contain the same string IDs (order-independent).
+ */
+function setsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const id of a) {
+    if (!b.has(id)) return false;
+  }
+  return true;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -641,9 +675,69 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // the UI. LeftPanelFavorites renders one chip per favorited family group.
   // FilterChip ⭐ icon button toggles pinned state for a family via
   // `togglePinned(id)` (called per member ID). `clearPinned()` clears all.
+  //
+  // iter 144 (KI#30): on first mount, after URL restore, if `pinnedIds` is
+  // empty (URL had no `pn` key OR KI#32 cascade-fix invalidated old keys),
+  // restore from per-category localStorage `poe2:favorites:<categoryId>`.
+  // User approved silent reset (Q3) — old `pn` URLs that no longer match
+  // are simply dropped, no migration.
   const pinnedIds = useStore(state => state.pinnedIds);
   const togglePinned = useStore(state => state.togglePinned);
   const clearPinned = useStore(state => state.clearPinned);
+
+  // iter 144 (KI#30): one-shot restore of pinnedIds from per-category
+  // localStorage on mount. Uses useState lazy initializer so it runs BEFORE
+  // the URL-sync effect's first invocation (syncReadyRef guard). When the
+  // URL had pinnedIds (shareable link), those win — we don't overwrite.
+  // When the URL had none, we restore from localStorage so the user's
+  // favorites survive navigation/reload.
+  useState(() => {
+    const current = useStore.getState().pinnedIds;
+    if (current.size > 0) return true; // URL already provided pinnedIds.
+    const stored = readFavorites(categoryId);
+    if (stored.length === 0) return true; // nothing stored — keep empty.
+    // Restore: bulk-set pinnedIds via store.setState (togglePinned would
+    // fire N times, one per ID — wasteful and re-triggers URL sync N times).
+    // Direct set is fine here because we're inside useState initializer
+    // (before any effects run, so no risk of clobbering URL restore).
+    const merged = new Set(stored);
+    useStore.setState({ pinnedIds: merged });
+    return true;
+  });
+
+  // iter 144 (KI#30): realtime multi-tab sync via `storage` event.
+  // User approved (Q4) "if stable and doesn't complicate code". The listener
+  // re-reads favorites from localStorage when ANOTHER tab writes to the same
+  // `poe2:favorites:<categoryId>` key. We guard against self-writes (same
+  // tab doesn't fire `storage` events for its own setItem calls — this is
+  // browser-native behavior, no extra check needed). Effect re-subscribes
+  // whenever categoryId changes (navigation between category pages).
+  useEffect(() => {
+    const storageKey = 'poe2:' + favoritesStorageKey(categoryId);
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== storageKey) return;
+      // Re-read favorites and reconcile with current store state.
+      const stored = readFavorites(categoryId);
+      const storedSet = new Set(stored);
+      const current = useStore.getState().pinnedIds;
+      // Skip if no change (avoids spurious re-renders).
+      if (setsEqual(current, storedSet)) return;
+      useStore.setState({ pinnedIds: storedSet });
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [categoryId, useStore]);
+
+  // iter 144 (KI#30): persist pinnedIds to per-category localStorage
+  // whenever they change (toggle/clear). Runs as a side-effect of the
+  // existing URL-sync effect (below) — that effect already re-runs on
+  // pinnedIds change (added in Phase 5). We piggy-back the localStorage
+  // write here so we don't need a separate effect with the same dep.
+  // Empty pinnedIds → clearFavorites (removes the key entirely, keeping
+  // localStorage clean — matches writeLocalSetting's omit-when-default
+  // pattern for URL serialization).
+  // NOTE: this runs INSIDE the URL-sync effect below (after syncReadyRef
+  // guard), so the initial mount restore (above) doesn't trigger a write.
 
   // Sync searchLogic/minValue/round10Enabled to filter store's extraState
   // AND auto-sync filter state to URL hash.
@@ -684,6 +778,17 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     writeLocalSetting('priorityFilter', priorityFilter);
     writeLocalSetting('thresholdEnabled', thresholdEnabled);
     writeLocalSetting('sortMode', sortMode);
+    // iter 144 (KI#30): persist pinnedIds to per-category localStorage so
+    // favorites survive cross-tab navigation. URL `pn` key gets overwritten
+    // on each page mount (fresh store defaults), but `poe2:favorites:<cat>`
+    // is stable across the entire origin. Empty pinnedIds → clearFavorites
+    // (keeps localStorage clean — matches writeLocalSetting's omit-when-default
+    // pattern for URL serialization).
+    if (pinnedIds.size > 0) {
+      writeFavorites(categoryId, Array.from(pinnedIds));
+    } else {
+      clearFavorites(categoryId);
+    }
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
@@ -699,7 +804,14 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       showSelectedOnly,
       // Phase 5 (iter 136): pinnedIds (favorites) also persists in URL via
       // `pn` compact key — add to deps so pin/unpin triggers re-sync.
-      pinnedIds]);
+      // iter 144 (KI#30): also persists to localStorage inside the effect
+      // body — same dep triggers both URL + localStorage writes.
+      pinnedIds,
+      // iter 144 (KI#30): categoryId in deps so localStorage writes go to
+      // the right key when navigation changes the page. (useStore already
+      // changes per categoryId via useFilterStore's useMemo, but pinnedIds
+      // writes need to know WHICH categoryId to write to.)
+      categoryId]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({

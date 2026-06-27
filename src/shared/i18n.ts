@@ -270,6 +270,28 @@ const translations: Record<Locale, Record<string, string>> = {
     // Compact `★ N` badge in page header showing pinned affix count.
     'favorites.indicator_label': 'Избранные аффиксы: {n}',
     'favorites.indicator_empty': 'Избранные: 0',
+    // iter 144 (KI#31 variant d): quick-select panel — opened by clicking
+    // the ★ N badge in the page header. Panel lists favorited families with
+    // quick-select + range input + remove actions.
+    // Title shown at the top of the panel.
+    'favorites.panel_title': '⭐ Избранные аффиксы',
+    // Empty state — shown when panel is open but pinnedIds is empty.
+    // (User can still open the panel via the badge if it's already visible
+    // — but typically the badge is hidden when empty, so this is a fallback.)
+    'favorites.panel_empty': 'Нажмите ★ на аффиксе, чтобы добавить в избранное',
+    // «Выбрать» button — adds all family member IDs to selectedIds.
+    'favorites.panel_select': 'Выбрать',
+    // «Убрать» button — removes family from favorites (toggles pinned off).
+    'favorites.panel_remove': 'Убрать',
+    // ARIA label for the «Убрать» button — appended after displayText.
+    'favorites.panel_remove_aria': 'Убрать {name} из избранного',
+    // Range input labels (for favorited families with ## placeholder).
+    'favorites.panel_range_min': 'от',
+    'favorites.panel_range_max': 'до',
+    // ARIA label for the panel close (×) button.
+    'favorites.panel_close_aria': 'Закрыть панель избранных аффиксов',
+    // ARIA label for the ★ N badge button — opens the quick-select panel.
+    'favorites.indicator_open_aria': 'Открыть панель избранных аффиксов ({n})',
   },
 };
 

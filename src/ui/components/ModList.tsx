@@ -434,7 +434,7 @@ const AffixColumn: React.FC<{
                 </div>
                 {section.subGroups.map((sg) => (
                   <ModSubGroupSection
-                    key={sg.key}
+                    key={`${section.origin}:${sg.key}`}
                     subGroup={sg}
                     selectedIds={selectedIds}
                     excludedIds={excludedIds}
@@ -446,7 +446,11 @@ const AffixColumn: React.FC<{
                     collapsedTokenIds={collapsedTokenIds}
                     hideLabel={hideSubLabel}
                     sortMode={sortMode}
-                    subGroupKey={topLevelKey ? `${topLevelKey}:${sg.key}` : undefined}
+                    // iter 144 (KI#32 — cascade expand fix): include origin in
+                    // sub-group key so toggling expand in «Обычные» no longer
+                    // also expands «Осквернённые» / «Очернённые» / «Разлома»
+                    // sub-groups with the same `sg.key` (e.g. `skill-levels`).
+                    subGroupKey={topLevelKey ? `${topLevelKey}:${section.origin}:${sg.key}` : undefined}
                     expandedSubGroups={expandedSubGroups}
                     onToggleSubGroupExpanded={onToggleSubGroupExpanded}
                     chipExpandState={chipExpandState}
