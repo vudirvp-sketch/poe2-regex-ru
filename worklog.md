@@ -4,6 +4,31 @@
 
 ---
 
+Task ID: 145 (KI#34 scroll doubling + KI#35 expand/collapse keys)
+Agent: main
+Task: iter 145 — исправление 2 user-reported багов: (1) двоение при скролле во вкладке самоцветов, (2) кнопки «Раскрыть все» / «Свернуть все» не работают. Baseline: tsc 0 / eslint 0 / vitest 2247/2247. Result: tsc 0 / eslint 0 / vitest 2247/2247.
+
+Work Log:
+- 1: **Baseline checks** — клонировал репозиторий, прочитал STATUS.md + исходники. Запустил tsc, eslint, vitest — все pass.
+- 2: **Root cause analysis KI#34 (scroll doubling)** — два независимых virtualizer'а (prefix + suffix колонки) разделяют один scroll container (#main-content). Когда ResizeObserver измеряет items в обеих колонках, оба virtualizer'а вызывают `scrollTo()` на одном элементе через `applyScrollAdjustment` (TanStack Virtual v3). Это создаёт feedback loop: scrollTop колеблется, items визуально «двоятся». На jewels tab заметнее всего из-за `showOriginSubSections` — больше rows = больше measurement events = сильнее feedback loop.
+    - **Fix 1:** `shouldAdjustScrollPositionOnItemSizeChange: () => false` — отключает корректировку scroll. Items выше viewport'а могут слегка сдвигаться, но это менее заметно чем двоение.
+    - **Fix 2:** Stable `getItemKey` — заменяет index-based ключи на уникальные (`ch:prefix`, `oh:prefix:normal`, `sg:prefix:jewel:prefix:normal:skill-levels` etc.). Предотвращает corruption measurement cache.
+    - **Fix 3:** `overscan: 5` (было 10) — меньше rendered items = меньше ResizeObserver callbacks.
+    - **Fix 4:** CSS `items-start` на grid — decouples column heights.
+    - Applied к обоим virtualizer'ам (two-column + single-column).
+- 3: **Root cause analysis KI#35 (expand/collapse buttons)** — кнопки «Раскрыть все» генерировали ключи `${category}:${aff}:${sg.key}` (e.g. `jewel:prefix:skill-levels`), но при `showOriginSubSections=true` buildColumnRows использует ключи с origin: `${category}:${aff}:${origin}:${sg.key}` (e.g. `jewel:prefix:normal:skill-levels`). Ключи не совпадали — expandAllSubGroups добавлял ключи в Set, которые никогда не совпадали с реальными sub-group keys.
+    - **Fix:** переписал логику генерации ключей в обработчике onClick. Теперь при `showOriginSubSections` ключи генерируются с origin (и jewelType при `showJewelTypeSubGroups`), используя ту же логику что и `buildColumnRows/emitSubGroup`.
+    - Applied к `VirtualizedModList.tsx` и `ModList.tsx`.
+- 4: **Verification** — tsc 0 / eslint 0 / vitest 2247/2247. Без регрессий.
+- 5: **Documentation** — обновил STATUS.md (полная переработка под iter 145), worklog.md (этот entry).
+
+Stage Summary:
+- KI#34 FIXED: scroll doubling на jewels tab — 4 fixes (shouldAdjustScroll=false, stable getItemKey, overscan 5→, items-start)
+- KI#35 FIXED: expand/collapse all buttons — ключи теперь включают origin/jewelType
+- Изменённые файлы: `VirtualizedModList.tsx`, `ModList.tsx`, `STATUS.md`
+- tsc 0 / eslint 0 / vitest 2247/2247
+
+---
 Task ID: 144 (5 KI implementation)
 Agent: main
 Task: iter 144 — реализация 5 KI из плана iter 143: KI#32 cascade expand fix (BLOCKING UX), KI#30 per-category localStorage favorites, KI#31 variant (d) quick-select panel с диапазонами, KI#33 VendorPage favorites, KI#23 variant (b) scroll jitter estimate. Главные ограничения: лучше недоделать, чем сломать; если найден новый баг — сначала документируй в STATUS.md; НЕ реализовывать TopNav dropdowns; KI#32 → KI#30 → KI#31 → KI#33 → KI#23 в порядке dependencies. Baseline: tsc 0 / eslint 0 / vitest 2190/2190. Result: tsc 0 / eslint 0 / vitest 2247/2247 (+57 new tests).

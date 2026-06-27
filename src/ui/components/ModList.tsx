@@ -15,7 +15,7 @@
 import React, { useMemo, useCallback } from 'react';
 import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter, SortMode } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
-import { classifyGroups, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
+import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { GroupHeader } from './GroupHeader';
@@ -148,6 +148,7 @@ interface OriginSection {
 }
 
 const ORIGIN_ORDER: ModOrigin[] = ['normal', 'desecrated', 'corrupted', 'essence', 'breachborn'];
+const JEWEL_TYPE_ORDER: JewelTypeCategory[] = ['ruby', 'emerald', 'sapphire', 'shared'];
 
 /**
  * Split family groups by origin, then classify each origin's groups by semantic category.
@@ -757,13 +758,14 @@ export const ModList: React.FC<ModListProps> = ({
         {/* Phase 2 (iter 133): Expand all / Collapse all buttons.
             Desktop-only (`hidden lg:inline-flex`) per spec — on mobile the
             user relies on per-group chevrons. When collapse wiring is not
-            provided (legacy callers), buttons are not rendered. */}
+            provided (legacy callers), buttons are not rendered.
+            iter 145 (KI#35): fixed sub-group key generation — keys must
+            include origin (and jewelType) when showOriginSubSections is
+            active, matching the key format in buildColumnRows/emitSubGroup. */}
         {(onExpandAllGroups || onExpandAllSubGroups) && (
           <button
             type="button"
             onClick={() => {
-              // Build the full list of sub-group keys from current sub-groups.
-              // For top-level keys, we use the visible affixes (implicit/prefix/suffix).
               if (onExpandAllSubGroups && expandedSubGroups) {
                 const allSubKeys: string[] = [];
                 const allAffixes: AffixType[] = [];
@@ -771,9 +773,54 @@ export const ModList: React.FC<ModListProps> = ({
                 if (prefixGroups.length > 0) allAffixes.push('prefix');
                 if (suffixGroups.length > 0) allAffixes.push('suffix');
                 for (const aff of allAffixes) {
+                  const topKey = category ? `${category}:${aff}` : undefined;
                   const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
-                  for (const sg of subs) {
-                    allSubKeys.push(`${category}:${aff}:${sg.key}`);
+                  if (showOriginSubSections && topKey) {
+                    // Must match emitSubGroup key format: topKey:origin[:jewelType]:sg.key
+                    const affGroups = aff === 'implicit' ? implicitGroups : aff === 'prefix' ? prefixGroups : suffixGroups;
+                    const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
+                    for (const group of affGroups) {
+                      const splits = splitGroupByOrigin(group);
+                      for (const { origin, group: splitGroup } of splits) {
+                        const list = byOrigin.get(origin) || [];
+                        list.push(splitGroup);
+                        byOrigin.set(origin, list);
+                      }
+                    }
+                    for (const origin of ORIGIN_ORDER) {
+                      const originGroups = byOrigin.get(origin);
+                      if (!originGroups || originGroups.length === 0) continue;
+                      if (showJewelTypeSubGroups) {
+                        const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
+                        for (const group of originGroups) {
+                          const jt = classifyJewelType(group);
+                          const list = byJewelType.get(jt) || [];
+                          list.push(group);
+                          byJewelType.set(jt, list);
+                        }
+                        for (const jt of JEWEL_TYPE_ORDER) {
+                          const jtGroups = byJewelType.get(jt);
+                          if (!jtGroups || jtGroups.length === 0) continue;
+                          const jtSubs = classifyGroups(jtGroups, groupMode, sortMode);
+                          for (const sg of jtSubs) {
+                            allSubKeys.push(`${topKey}:${origin}:${jt}:${sg.key}`);
+                          }
+                        }
+                      } else {
+                        const originSubs = classifyGroups(originGroups, groupMode, sortMode);
+                        for (const sg of originSubs) {
+                          allSubKeys.push(`${topKey}:${origin}:${sg.key}`);
+                        }
+                      }
+                    }
+                  } else if (topKey) {
+                    for (const sg of subs) {
+                      allSubKeys.push(`${topKey}:${sg.key}`);
+                    }
+                  } else {
+                    for (const sg of subs) {
+                      allSubKeys.push(sg.key);
+                    }
                   }
                 }
                 onExpandAllSubGroups(allSubKeys);

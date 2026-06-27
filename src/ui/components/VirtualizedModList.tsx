@@ -659,6 +659,12 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
   // memoize. This is a known library-level limitation, not our code — see
   // STATUS.md Known Issue #3 (closed iter 103).
+  // iter 145 (KI#34 scroll doubling fix): stable `getItemKey` prevents
+  // React from reusing DOM nodes for different row types (which corrupted
+  // the measurement cache). Also `shouldAdjustScrollPositionOnItemSizeChange`
+  // is disabled because two independent virtualizers sharing one scroll
+  // container create a feedback loop — both call scrollTo() on the same
+  // element, causing scrollTop to oscillate and items to visually "double".
   // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -666,16 +672,25 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
     estimateSize: (index) => {
       const row = rows[index];
       if (!row) return 40;
-      // iter 144 (KI#23 variant b): per-row-state estimate for `subgroup`
-      // rows. Returns a value closer to the actual measured height, reducing
-      // scroll jitter (ResizeObserver still fires to correct any residual
-      // gap, but the visible "jump" is much smaller).
       if (row.type === 'subgroup') {
         return estimateSubgroupHeight(row, selectedIds, perTokenRanges ?? {});
       }
       return ROW_ESTIMATES[row.type];
     },
-    overscan: 10,
+    overscan: 5,
+    getItemKey: (index) => {
+      const row = rows[index];
+      if (!row) return String(index);
+      switch (row.type) {
+        case 'column-header': return `ch:${row.affix}`;
+        case 'origin-header': return `oh:${row.affix}:${row.origin}`;
+        case 'jewel-type-header': return `jh:${row.affix}:${row.jewelType}`;
+        case 'subgroup': return `sg:${row.affix}:${row.subKey ?? row.subGroup.key}`;
+        case 'subgroup-header': return `sh:${row.affix}:${row.subKey}`;
+        default: return String(index);
+      }
+    },
+    shouldAdjustScrollPositionOnItemSizeChange: () => false,
   });
 
   // iter 120: removed the entire useLayoutEffect block that called
@@ -944,6 +959,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
 
   // Single-column virtualizer for when affix filter is applied
   // (Same TanStack library limitation as above — see STATUS.md Known Issue #3.)
+  // iter 145 (KI#34): same scroll doubling fixes as two-column virtualizer.
   // eslint-disable-next-line react-hooks/incompatible-library
   const singleVirtualizer = useVirtualizer({
     count: mergedRows.length,
@@ -951,17 +967,25 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     estimateSize: (index) => {
       const row = mergedRows[index];
       if (!row) return 40;
-      // iter 144 (KI#23 variant b): per-row-state estimate for `subgroup`
-      // rows — same logic as the two-column virtualizer above. Reduces
-      // scroll jitter when the user has selected chips with range inputs.
       if (row.type === 'subgroup') {
-        // selectedIds and perTokenRanges are destructured at the top of the
-        // main VirtualizedModList component — both are in scope here.
         return estimateSubgroupHeight(row, selectedIds, perTokenRanges ?? {});
       }
       return ROW_ESTIMATES[row.type];
     },
-    overscan: 10,
+    overscan: 5,
+    getItemKey: (index) => {
+      const row = mergedRows[index];
+      if (!row) return String(index);
+      switch (row.type) {
+        case 'column-header': return `ch:${row.affix}`;
+        case 'origin-header': return `oh:${row.affix}:${row.origin}`;
+        case 'jewel-type-header': return `jh:${row.affix}:${row.jewelType}`;
+        case 'subgroup': return `sg:${row.affix}:${row.subKey ?? row.subGroup.key}`;
+        case 'subgroup-header': return `sh:${row.affix}:${row.subKey}`;
+        default: return String(index);
+      }
+    },
+    shouldAdjustScrollPositionOnItemSizeChange: () => false,
   });
 
   // iter 120: removed the single-column useLayoutEffect block (same as
@@ -1057,13 +1081,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
         {/* Phase 2 (iter 133): Expand all / Collapse all buttons.
             Desktop-only (`hidden lg:inline-flex`) per spec — on mobile the
             user relies on per-group chevrons. When collapse wiring is not
-            provided (legacy callers), buttons are not rendered. */}
+            provided (legacy callers), buttons are not rendered.
+            iter 145 (KI#35): fixed sub-group key generation — keys must
+            include origin (and jewelType) when showOriginSubSections is
+            active, matching the key format in buildColumnRows/emitSubGroup. */}
         {(onExpandAllGroups || onExpandAllSubGroups) && (
           <button
             type="button"
             onClick={() => {
-              // Build the full list of sub-group keys from current sub-groups.
-              // For top-level keys, we use the visible affixes (implicit/prefix/suffix).
               if (onExpandAllSubGroups && expandedSubGroups) {
                 const allSubKeys: string[] = [];
                 const allAffixes: AffixType[] = [];
@@ -1071,9 +1096,57 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                 if (prefixGroups.length > 0) allAffixes.push('prefix');
                 if (suffixGroups.length > 0) allAffixes.push('suffix');
                 for (const aff of allAffixes) {
+                  const topKey = category ? `${category}:${aff}` : undefined;
                   const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
-                  for (const sg of subs) {
-                    allSubKeys.push(`${category}:${aff}:${sg.key}`);
+                  if (showOriginSubSections && topKey) {
+                    // Must match emitSubGroup key format: topKey:origin[:jewelType]:sg.key
+                    // Rebuild origin-split groups to enumerate all (origin, sg) pairs.
+                    const affGroups = aff === 'implicit' ? implicitGroups : aff === 'prefix' ? prefixGroups : suffixGroups;
+                    const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
+                    for (const group of affGroups) {
+                      const splits = splitGroupByOrigin(group);
+                      for (const { origin, group: splitGroup } of splits) {
+                        const list = byOrigin.get(origin) || [];
+                        list.push(splitGroup);
+                        byOrigin.set(origin, list);
+                      }
+                    }
+                    for (const origin of ORIGIN_ORDER) {
+                      const originGroups = byOrigin.get(origin);
+                      if (!originGroups || originGroups.length === 0) continue;
+                      if (showJewelTypeSubGroups) {
+                        const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
+                        for (const group of originGroups) {
+                          const jt = classifyJewelType(group);
+                          const list = byJewelType.get(jt) || [];
+                          list.push(group);
+                          byJewelType.set(jt, list);
+                        }
+                        for (const jt of JEWEL_TYPE_ORDER) {
+                          const jtGroups = byJewelType.get(jt);
+                          if (!jtGroups || jtGroups.length === 0) continue;
+                          const jtSubs = classifyGroups(jtGroups, groupMode, sortMode);
+                          for (const sg of jtSubs) {
+                            allSubKeys.push(`${topKey}:${origin}:${jt}:${sg.key}`);
+                          }
+                        }
+                      } else {
+                        const originSubs = classifyGroups(originGroups, groupMode, sortMode);
+                        for (const sg of originSubs) {
+                          allSubKeys.push(`${topKey}:${origin}:${sg.key}`);
+                        }
+                      }
+                    }
+                  } else if (topKey) {
+                    // No origin sub-sections — keys are topKey:sg.key
+                    for (const sg of subs) {
+                      allSubKeys.push(`${topKey}:${sg.key}`);
+                    }
+                  } else {
+                    // Legacy path (no category)
+                    for (const sg of subs) {
+                      allSubKeys.push(sg.key);
+                    }
                   }
                 }
                 onExpandAllSubGroups(allSubKeys);
@@ -1133,7 +1206,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
           visually unbalanced columns (prefix narrower than suffix). Now matches
           ModList.tsx parity: 50/50 via `md:grid-cols-2`. */}
       {hasBothAffixes ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          {/* iter 145 (KI#34): `items-start` decouples column heights so
+              measurement updates in one column don't shift the other. */}
           <VirtualizedColumn
             rows={prefixRows}
             borderClass="border-cborder-blue"
