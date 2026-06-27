@@ -2,90 +2,41 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 137
-> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (план, Phase 1+2+2.5+3+4+4.5+5 DONE — все 7 фаз готовы) + `docs/UI_VISUALIZATION_AUDIT.md` (эталон iter 130 + iter 131 corrections)
+> **Текущая итерация:** 138
+> **UI-документация:** `docs/UI_REFACTOR_PLAN.md` (все 7 фаз ✅ DONE) + `docs/UI_VISUALIZATION_AUDIT.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 137: UI Refactor Phase 4 + Phase 4.5 готовы — ВСЕ 7 ФАЗ UI REFACTOR DONE.**
+**iter 138: `--strong` modifier wiring на `.affix-header-*` в tier-first mode — optional enhancement завершён.**
 
-Phase 4 (colors + compact + tooltips) + Phase 4.5 («Обозначения» icon legend)
-— visual-only изменения, никаких state changes, все new props optional.
+Все 7 фаз UI Refactor готовы с iter 137 (Phase 1+2+2.5+3+4+4.5+5). iter 138 добавил
+wiring `--strong` CSS modifier (rules были готовы с iter 137, но не были подключены
+к caller). Теперь при `sortMode='tier-first'` top-level affix column headers
+(ПРЕФИКСЫ/СУФФИКСЫ/ИМПЛИСЕТ) получают дополнительный CSS-класс
+`affix-header-{prefix,suffix,implicit}--strong` — deeper bg (alpha 0.22/0.10)
++ brighter border-left (alpha 0.85), визуально подчёркивая выбранный sort mode.
 
-**Phase 4 deliverables:**
+Wiring: `src/ui/components/ModList.tsx` (`AffixColumn`) + `src/ui/components/VirtualizedModList.tsx` (`VirtualRowContent`).
+При `sortMode='alpha'` (default) или omitted — modifier НЕ добавляется (backward compat).
 
-1. **`src/index.css`** — stronger bg tints на `.affix-header-*`:
-   border-left 3px → 4px, alphas 0.08/0.03 → 0.14/0.06. NEW `--strong`
-   modifier (`.affix-header-prefix--strong` и т.д.) для tier-first mode
-   (deeper bg + brighter border, applied via caller когда sortMode='tier-first').
-   NEW `.filter-chip` CSS class token — min-height 22px desktop / 32px mobile
-   (touch target a11y per Phase 4 risk register mitigation). Future density
-   tweaks — CSS-only, не JSX edits.
+### iter 138 deliverables
 
-2. **`src/ui/components/FilterChip.tsx`** — compact density 25%:
-   container `px-2.5 py-1.5 text-[13px]` → `px-1.5 py-0.5 text-[12px]`,
-   inline badges (⚡ ⚓ 2x ×N range) `text-[12px]` → `text-[10px]`.
-   `.filter-chip` class добавлен к outer div (CSS hook). Mobile touch target
-   floor 32px via CSS media query.
+1. **`src/ui/components/ModList.tsx`** — `affixHeaderClass` extended:
+   ```ts
+   const affixBase = isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix';
+   const affixHeaderClass = sortMode === 'tier-first' ? `${affixBase} ${affixBase}--strong` : affixBase;
+   ```
+2. **`src/ui/components/VirtualizedModList.tsx`** — `headerClass` restructured to compose `${affixBase}--strong` when `sortMode === 'tier-first'`, with `.replace(/\s+/g, ' ').trim()` to normalize whitespace when `strongClass` is empty.
+3. **5 new tests** (3 ModList + 2 VirtualizedModList): alpha mode → no `--strong` (backward compat); tier-first mode → `--strong` applied to prefix + suffix headers; omitted sortMode → no `--strong` (default backward compat); VirtualizedModList mounts without crash in both modes (smoke tests — TanStack Virtual renders 0 rows in jsdom).
 
-3. **NEW `src/ui/components/Tooltip.tsx`** (~280 строк) — portal-based tooltip
-   via `createPortal(... document.body)`. Hover (350ms delay) + focus (no
-   delay) triggers. Closes on click-outside (global mousedown listener) +
-   Escape (local onKeyDown on trigger button — NOT global, из-за React 19
-   + jsdom flushing issue, см. Pitfall 47). ARIA: `role="tooltip"` on portal
-   content, `aria-describedby` on trigger pointing to tooltip id,
-   `aria-expanded` reflecting open state. Viewport-edge clamping (left/right
-   + top/bottom flip when near bottom 25%). Max width 280px (wraps long
-   Russian sentences). Recomputes position on viewport resize.
+### Проверки (iter 138)
 
-4. **`src/ui/components/GroupHeader.tsx`** — NEW optional `infoTooltip?`
-   prop (ReactNode). When provided → renders `ⓘ` glyph via `<Tooltip>` как
-   SIBLING кнопки (NOT child — клик не должен toggle collapse).
-   `stopPropagation` в Tooltip.handleClick prevents parent onClick.
-   When omitted → no ⓘ (backward compat).
-
-5. **`src/ui/components/ModList.tsx` + `src/ui/components/VirtualizedModList.tsx`**
-   — wire `infoTooltip={t('tooltip.prefix_explanation')}` / `suffix_explanation`
-   / `implicit_explanation` на top-level affix column headers (ПРЕФИКСЫ/СУФФИКСЫ/ИМПЛИСЕТ).
-   Только когда top-level collapse wiring is present (legacy static text path
-   не тронут).
-
-**Phase 4.5 deliverables:**
-
-6. **NEW `src/ui/components/IconLegend.tsx`** (~75 строк) — static 3-row legend:
-   «★ — в избранное» / «✗ — исключить аффикс (не хочу)» / «ⓘ — наведите для
-   подсказки». Pure presentational, optional `items` prop for testing.
-   Semantic `<ul>/<li>`, icons `aria-hidden`, section `aria-labelledby`.
-
-7. **`src/ui/layout/CategoryLayout.tsx`** — NEW optional `legend?` slot
-   rendered at BOTTOM of right `<aside>` (below ProfilePanel). Also rendered
-   in mobile section when `hasMobileBar`. When omitted → no legend (backward
-   compat — pre-Phase-4.5 pages had no legend).
-
-8. **7 page files** (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic) — каждый:
-   +1 import (`IconLegend`), +1 prop to `<CategoryLayout>` (`legend={<IconLegend />}`).
-   VendorPage не тронут (custom FilterChip, no ModList, no CategoryLayout).
-
-**i18n:** +7 keys (Phase 4 section: `tooltip.prefix_explanation`,
-`tooltip.suffix_explanation`, `tooltip.implicit_explanation`,
-`tooltip.info_aria`; Phase 4.5 section: `legend.title`, `legend.star`,
-`legend.exclude`, `legend.info`).
-
-**Tests:** +34 (16 Tooltip + 10 IconLegend + 4 GroupHeader infoTooltip + 4
-FilterChip compact density). vitest 2124 → 2158. tsc 0, eslint 0.
-
-### Проверки (iter 137)
-
-- **vitest:** 2158/2158 tests passed (49 test files). Was 2124 in iter 136 →
-  **+34 new tests** (16 Tooltip + 10 IconLegend + 4 GroupHeader infoTooltip +
-  4 FilterChip compact density).
+- **vitest:** 2163/2163 tests passed (49 test files). Was 2158 in iter 137 → **+5 new tests** (3 ModList Phase 4 strong modifier wiring + 2 VirtualizedModList Phase 4 strong modifier wiring).
 - **tsc:** 0 errors.
 - **eslint:** 0 problems.
-- **Backward compat:** все new props optional (`infoTooltip` на GroupHeader;
-  `legend` на CategoryLayout) — legacy callers без wiring рендерят как раньше
-  (no ⓘ icon, no legend panel, no .filter-chip class effect beyond min-height).
+- **Backward compat:** sortMode prop опциональный; при отсутствии → 'alpha' → нет `--strong` modifier class. Legacy callers рендерят идентично pre-iter-138.
 
 ---
 
@@ -102,9 +53,10 @@ FilterChip compact density). vitest 2124 → 2158. tsc 0, eslint 0.
 9. **Phase 5 UX change: favorites in left panel** (iter 136). In-game/in-browser verification pending (KI#15).
 10. **Phase 5 UX change: ⭐ pin/unpin icon on FilterChip** (iter 136). In-game/in-browser verification pending (KI#15).
 11. **Phase 5 UX change: click-to-scroll from LeftPanelFavorites** (iter 136). In-game/in-browser verification pending (KI#15).
-12. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density 25%** (iter 137). Bumped alphas 0.08/0.03 → 0.14/0.06, border-left 3px → 4px, chip `px-1.5 py-0.5 text-[12px]`, badges `text-[10px]`. Mobile touch target floor 32px via CSS. In-game/in-browser verification pending (KI#15).
-13. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). Hover/focus → tooltip with explanation of prefix/suffix/implicit. Tooltip closes on Escape + click-outside. In-game/in-browser verification pending (KI#15).
-14. **Phase 4.5 UX change: «Обозначения» icon legend in right panel** (iter 137). Static 3-row legend below ProfilePanel: ★ favorite / ✗ exclude / ⓘ info. In-game/in-browser verification pending (KI#15).
+12. **Phase 4 UX change: stronger bg tints on `.affix-header-*` + compact chip density 25%** (iter 137). In-game/in-browser verification pending (KI#15).
+13. **Phase 4 UX change: ⓘ tooltip on affix column headers** (iter 137). In-game/in-browser verification pending (KI#15).
+14. **Phase 4.5 UX change: «Обозначения» icon legend in right panel** (iter 137). In-game/in-browser verification pending (KI#15).
+15. **Phase 4 iter 138 UX change: `--strong` modifier wiring на `.affix-header-*` в tier-first mode**. Bg alpha 0.14→0.22, border-left-color alpha 0.65→0.85 when sortMode='tier-first'. In-game/in-browser verification pending (KI#15).
 
 ### Закрытые KI (краткая справка)
 
@@ -142,27 +94,24 @@ FilterChip compact density). vitest 2124 → 2158. tsc 0, eslint 0.
 
 ---
 
-## Next iteration (iter 138)
+## Next iteration (iter 139)
 
-**UI Refactor полностью завершён: Phase 1+2+2.5+3+4+4.5+5 ✅ DONE.**
+**UI Refactor полностью завершён: Phase 1+2+2.5+3+4+4.5+5 ✅ DONE. iter 138 added `--strong` modifier wiring (optional enhancement).**
 
-Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status — все 7
-фаз ✅ DONE) + §13 (iter 130 visualization audit) AND §13.7 (iter 131 user
-feedback corrections). Документация актуальна.
+Следующий агент: читать `docs/UI_REFACTOR_PLAN.md` §12 (Phase Status — все 7 фаз ✅ DONE) + §13.6 (Recommendation для iter 139 = UX verification feedback + remaining optional enhancements).
 
-**Приоритеты для iter 138+:**
+**Приоритеты для iter 139+:**
 
-1. **In-game / in-browser UX verification** пользователем Phase 2 + Phase 2.5
-   + Phase 3 + Phase 5 + Phase 4 + Phase 4.5 — перенос с iter 133+. Все UI
-   UX changes теперь в одном batch.
+1. **In-game / in-browser UX verification feedback** пользователем Phase 2 + Phase 2.5
+   + Phase 3 + Phase 5 + Phase 4 + Phase 4.5 + Phase 4 iter 138 `--strong` — перенос
+   с iter 133+. Все UI UX changes теперь в одном batch. Если найден новый баг —
+   сначала документировать в STATUS.md как Known Issue, потом фиксить.
 
 2. **KI#9** (MULTI_RANGE slot N>0) — monitoring, не фиксировано. Если найден
    новый in-game FP case — сначала документировать в STATUS.md как
    Known Issue (расширить KI#9), потом фиксить.
 
-3. **Optional enhancements** (если user запросит):
-   - `--strong` modifier на `.affix-header-*` в tier-first mode (CSS ready,
-     wiring deferred — applied via caller когда sortMode='tier-first').
+3. **Remaining optional enhancements** (если user запросит):
    - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
      boolean field to filter-store if user requests.
    - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
@@ -177,38 +126,28 @@ feedback corrections). Документация актуальна.
      to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
      anchor, 2x dual-number) if user requests.
 
-**Главные ограничения для iter 138:**
+**Главные ограничения для iter 139:**
 
 - НЕ реализовывать TopNav dropdowns — visualization keeps flat nav.
 - Если найден новый баг — сначала документируй в STATUS.md как Known Issue,
   потом фиксий.
 
-**UX verification request for user (iter 137 deliverable):**
+**UX verification request for user (iter 138 deliverable):**
 
 Откройте 7 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic)
-на десктопе. Проверьте:
+на десктопе. Проверьте iter 138 изменение:
 
-**Phase 4 — colors + compact + tooltips:**
-1. `.affix-header-prefix` / `-suffix` / `-implicit` рамки стали более
-   контрастными (border-left 4px, bg tint глубже — alpha 0.14/0.06).
-2. Chips в ModList стали плотнее (text-[12px] вместо 13px, padding px-1.5
-   py-0.5 вместо px-2.5 py-1.5). Inline badges (⚡ ⚓ 2x ×N range) — text-[10px]
-   вместо 12px.
-3. На мобильных chips сохраняют min-height 32px (touch target a11y).
-4. Наведите курсор (или сфокусируйте Tab) на ⓘ glyph рядом с заголовком
-   «ПРЕФИКСЫ» / «СУФФИКСЫ» / «ИМПЛИСЕТ» — появляется tooltip с пояснением
-   этого типа аффикса (1 предложение на русском).
-5. Tooltip закрывается по Escape или клику вне него.
-6. Клик на ⓘ НЕ сворачивает/развёртывает группу (sibling button, не child).
+**Phase 4 iter 138 — `--strong` modifier wiring:**
+1. Переключите sortMode на «По приоритету» (radio toggle в CategoryControlPanel).
+2. Заголовки ПРЕФИКСЫ / СУФФИКСЫ / ИМПЛИСЕТ должны стать более насыщенными:
+   bg alpha 0.14 → 0.22 (deeper tint), border-left-color alpha 0.65 → 0.85
+   (brighter). Визуально: рамки «горят» сильнее, подчёркивая tier-first mode.
+3. Переключите sortMode обратно на «По алфавиту» — рамки возвращаются к
+   обычному состоянию (alpha 0.14/0.06, border-left 0.65).
 
-**Phase 4.5 — «Обозначения» legend:**
-7. В правой колонке (под ProfilePanel) появился блок «Обозначения» с 3 строками:
-   - ★ — в избранное
-   - ✗ — исключить аффикс (не хочу)
-   - ⓘ — наведите для подсказки
-8. На мобильных (when mobileBar present) legend также виден в мобильной секции.
-9. Когда правая панель свернута (chevron toggle from Phase 3) — legend скрыт
-   вместе с остальным контентом aside.
+Дополнительно проверьте все предыдущие фазы (Phase 2+2.5+3+4+4.5+5) — см.
+`docs/UI_REFACTOR_PLAN.md` §13.6 «UX verification request for user» для
+9-point checklist.
 
 Если замечен баг — сначала документируйте в STATUS.md как Known Issue, потом фиксий.
 

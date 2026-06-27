@@ -836,9 +836,9 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - `src/ui/layout/nav-items.ts` `group` field (was Phase 5 — not needed).
 - `tests/ui/DropdownMenu.test.tsx`, `tests/ui/TopNav.test.tsx` (were Phase 5).
 
-### 13.6 Recommendation for iter 138
+### 13.6 Recommendation for iter 139
 
-**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136). Phase 4 + 4.5 are DONE (iter 137). ВСЕ 7 ФАЗ UI REFACTOR DONE.**
+**Phase 1 is DONE (iter 132). Phase 2 is DONE (iter 133). Phase 2.5 is DONE (iter 134). Phase 3 is DONE (iter 135). Phase 5 is DONE (iter 136). Phase 4 + 4.5 are DONE (iter 137). iter 138 wired `--strong` modifier на `.affix-header-*` в tier-first mode (CSS rules were ready since iter 137, wiring в caller was deferred). ВСЕ 7 ФАЗ UI REFACTOR DONE + 1 OPTIONAL ENHANCEMENT.**
 
 All 5 state fields (`collapsedGroups`, `expandedSubGroups`, `showSelectedOnly`,
 `pinnedIds`, `chipExpandState`) are in `src/store/filter-store.ts` with 13
@@ -848,17 +848,17 @@ wired show-selected-only toggle + SelectedBasket. Phase 5 wired favorites in
 left panel + ⭐ pin icon + click-to-scroll. Phase 4 wired stronger color tints
 + compact chip density 25% + portal-based tooltips on affix column headers.
 Phase 4.5 wired static «Обозначения» icon legend at the bottom of the right
-aside. 34 new tests in iter 137 (16 Tooltip + 10 IconLegend + 4 GroupHeader
-infoTooltip + 4 FilterChip compact density). Total vitest 2124 → 2158.
+aside. iter 138 wired `--strong` CSS modifier (deeper bg + brighter border-left)
+to be applied to top-level affix column headers when `sortMode='tier-first'`,
+visually reinforcing the chosen sort mode. Total tests 2158 → 2163 (+5 in iter 138).
 
-**Recommended next (iter 138):** UI Refactor полностью завершён — все 7 фаз
-готовы. Следующий шаг — in-game / in-browser UX verification пользователем
-ALL UI phases (Phase 2+2.5+3+4+4.5+5 — перенос с iter 133+). Все UI UX
-changes теперь в одном batch.
+**Recommended next (iter 139):** UI Refactor полностью завершён — все 7 фаз
+готовы + iter 138 optional enhancement. Следующий шаг — in-game / in-browser
+UX verification пользователем ALL UI phases (Phase 2+2.5+3+4+4.5+5 + iter 138
+`--strong` modifier — перенос с iter 133+). Все UI UX changes теперь в одном
+batch.
 
-**Optional enhancements** (если user запросит):
-- `--strong` modifier wiring на `.affix-header-*` в tier-first mode (CSS ready
-  from iter 137, wiring deferred — applied via caller когда sortMode='tier-first').
+**Remaining optional enhancements** (если user запросит):
 - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc`
   boolean field to filter-store if user requests.
 - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire
@@ -868,39 +868,38 @@ changes теперь в одном batch.
   gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced
   to scroll to sub-group header instead. Deferred.
 - Tooltip `--strong` styling variant — currently single style. Could add
-  variant for tier-first mode if user requests.
+  variant for tier-first mode if user requests. (Note: `--strong` modifier
+  pattern was already applied to `.affix-header-*` in iter 138 — see Pitfall 48;
+  same pattern can be reused for Tooltip if requested.)
 - IconLegend `items` prop — currently hardcoded 3 rows (★/✗/ⓘ). Could be
   extended to include additional icons (e.g. ⚡ optimizer-collapsed, ⚓ prefix
   anchor, 2x dual-number) if user requests.
 
+**DONE in iter 138 (removed from optional list):**
+- ~~`--strong` modifier wiring на `.affix-header-*` в tier-first mode (CSS ready
+  from iter 137, wiring deferred — applied via caller когда sortMode='tier-first').~~
+  → DONE in iter 138. See `STATUS.md` iter 138 section + `AGENT_NAVIGATION.md`
+  Pitfall 48 for implementation details.
+
 **Do NOT implement TopNav dropdowns** — visualization supersedes that
 recommendation (iter 130 contradiction #1).
 
-**UX verification request for user (iter 137 deliverable):** open the 7
+**UX verification request for user (iter 138 deliverable):** open the 7
 category pages (Belt, Ring, Amulet, Jewel, Waystone, Tablet, Relic) on desktop
-and verify Phase 4 + 4.5 changes:
+and verify iter 138 change:
 
-**Phase 4 — colors + compact + tooltips:**
-1. `.affix-header-prefix` / `-suffix` / `-implicit` frames are more contrasty
-   (border-left 4px, deeper bg tint).
-2. Chips in ModList are denser (text-[12px] instead of 13px, padding px-1.5
-   py-0.5 instead of px-2.5 py-1.5). Inline badges (⚡ ⚓ 2x ×N range) are
-   text-[10px] instead of 12px.
-3. On mobile, chips retain min-height 32px (touch target a11y).
-4. Hover (or focus via Tab) the ⓘ glyph next to the «ПРЕФИКСЫ» / «СУФФИКСЫ» /
-   «ИМПЛИСЕТ» header — a tooltip appears with a 1-sentence Russian explanation
-   of that affix type.
-5. Tooltip closes on Escape or click-outside.
-6. Clicking ⓘ does NOT collapse/expand the group (sibling button, not child).
+**Phase 4 iter 138 — `--strong` modifier wiring:**
+1. Switch sortMode to «По приоритету» (radio toggle in CategoryControlPanel).
+2. The ПРЕФИКСЫ / СУФФИКСЫ / ИМПЛИСЕТ headers should become more saturated:
+   bg alpha 0.14 → 0.22 (deeper tint), border-left-color alpha 0.65 → 0.85
+   (brighter). Visually: frames «glow» stronger, reinforcing the tier-first
+   mode.
+3. Switch sortMode back to «По алфавиту» — frames return to normal state
+   (alpha 0.14/0.06, border-left 0.65).
 
-**Phase 4.5 — «Обозначения» legend:**
-7. In the right column (below ProfilePanel), a «Обозначения» block appears
-   with 3 rows: ★ — в избранное / ✗ — исключить аффикс (не хочу) / ⓘ — наведите
-   для подсказки.
-8. On mobile (when mobileBar present), the legend is also visible in the
-   mobile section.
-9. When the right panel is collapsed (chevron toggle from Phase 3) — the
-   legend is hidden along with the rest of the aside content.
+Additionally verify all previous phases (Phase 2+2.5+3+4+4.5+5) — see the
+9-point checklist in `STATUS.md` «UX verification request for user (iter 137
+deliverable)» section.
 
 If you find a bug — document in `STATUS.md` as Known Issue FIRST, then fix.
 

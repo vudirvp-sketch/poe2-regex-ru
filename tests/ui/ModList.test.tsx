@@ -849,3 +849,113 @@ describe('ModList — Phase 3 show-selected-only (iter 135)', () => {
     expect(screen.getByText(/Показано 2 семейств из 8 аффиксов/)).toBeInTheDocument();
   });
 });
+
+// ─── Phase 4 (iter 138): --strong modifier wiring ───
+//
+// iter 137 added the `.affix-header-{prefix,suffix,implicit}--strong` CSS
+// modifier rules (deeper bg + brighter border-left) but deferred the wiring to
+// callers. iter 138 wires the modifier: when `sortMode='tier-first'`, the
+// top-level affix column header gets the `--strong` modifier class so the
+// chosen sort mode is visually reinforced by the frame. When `sortMode='alpha'`
+// (default) or omitted, no modifier is added (backward compat).
+
+describe('ModList — Phase 4 strong modifier wiring (iter 138)', () => {
+  it('sortMode="alpha": affix column headers do NOT get the --strong modifier (backward compat)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        sortMode="alpha"
+      />,
+    );
+
+    // The «Префикс» column header is rendered as a GroupHeader button.
+    // Its className should contain `affix-header-prefix` but NOT
+    // `affix-header-prefix--strong` when sortMode='alpha'. The button's
+    // accessible name is `${expandLabel}: ${label} (${count})` per GroupHeader
+    // aria-label format (label comes from `t('affix.prefix')` = «Префикс»).
+    const prefixHeader = screen.getByRole('button', { name: /Префикс/ });
+    expect(prefixHeader.className).toContain('affix-header-prefix');
+    expect(prefixHeader.className).not.toContain('affix-header-prefix--strong');
+  });
+
+  it('sortMode="tier-first": affix column headers DO get the --strong modifier', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        sortMode="tier-first"
+      />,
+    );
+
+    // The «Префикс» column header should now have both the base class and
+    // the `--strong` modifier class.
+    const prefixHeader = screen.getByRole('button', { name: /Префикс/ });
+    expect(prefixHeader.className).toContain('affix-header-prefix');
+    expect(prefixHeader.className).toContain('affix-header-prefix--strong');
+
+    // The «Суффикс» column header should also get the suffix --strong variant.
+    const suffixHeader = screen.getByRole('button', { name: /Суффикс/ });
+    expect(suffixHeader.className).toContain('affix-header-suffix');
+    expect(suffixHeader.className).toContain('affix-header-suffix--strong');
+  });
+
+  it('sortMode omitted (default): affix column headers do NOT get the --strong modifier (backward compat)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set<string>()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        // sortMode intentionally omitted — should default to 'alpha'
+      />,
+    );
+
+    const prefixHeader = screen.getByRole('button', { name: /Префикс/ });
+    expect(prefixHeader.className).toContain('affix-header-prefix');
+    expect(prefixHeader.className).not.toContain('affix-header-prefix--strong');
+  });
+});

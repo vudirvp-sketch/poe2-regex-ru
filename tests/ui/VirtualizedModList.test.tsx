@@ -446,3 +446,69 @@ describe('VirtualizedModList — Phase 3 show-selected-only (iter 135)', () => {
     expect(screen.getByText(/Показано 4 семейств из 8 аффиксов/)).toBeInTheDocument();
   });
 });
+
+// ─── Phase 4 (iter 138): --strong modifier wiring ──────────────────────────
+//
+// iter 138 wires the `.affix-header-{prefix,suffix,implicit}--strong` CSS
+// modifier (CSS rules added in iter 137) to be applied when `sortMode='tier-first'`.
+// VirtualizedModList uses TanStack Virtual which renders 0 rows in jsdom (no
+// scroll container dimensions), so we cannot directly assert on the rendered
+// GroupHeader className. Instead, we verify the component MOUNTS without crash
+// when sortMode is provided in either mode. The actual `--strong` modifier
+// application is tested via the ModList tests (non-virtualized variant which
+// DOES render rows).
+
+describe('VirtualizedModList — Phase 4 strong modifier wiring (iter 138)', () => {
+  it('mounts without crash when sortMode="tier-first" (--strong modifier wiring)', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        sortMode="tier-first"
+      />
+    );
+    // Component mounts without crash — `--strong` modifier wiring path works.
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+  });
+
+  it('mounts without crash when sortMode="alpha" (backward compat, no --strong)', () => {
+    const tokens = makeBeltTokens();
+    const { container } = render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        sortMode="alpha"
+      />
+    );
+    // Component mounts without crash — `alpha` mode preserves pre-iter-138
+    // behaviour (no `--strong` modifier class added).
+    expect(container.querySelector('.sticky-search-bar')).not.toBeNull();
+  });
+});

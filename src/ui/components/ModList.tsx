@@ -419,7 +419,15 @@ const AffixColumn: React.FC<{
   const topLevelKey = categoryId ? `${categoryId}:${affix}` : undefined;
   const topCollapseWired = !!(topLevelKey && collapsedGroups && onToggleGroupCollapsed);
   const isTopCollapsed = topCollapseWired ? collapsedGroups!.has(topLevelKey!) : false;
-  const affixHeaderClass = isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix';
+  // Phase 4 (iter 137): `--strong` modifier (CSS ready from iter 137) — applied
+  // via caller when sortMode='tier-first' per docs/UI_REFACTOR_PLAN.md §13.6
+  // optional enhancement. Deeper bg + brighter border-left so the tier-first
+  // mode reads as more emphatic without breaking the existing layout. iter 138
+  // wires the modifier so the affix column headers visually reinforce the
+  // sort-mode the user has chosen. When sortMode='alpha' (default), no
+  // modifier is added — preserves pre-iter-138 behaviour (backward compat).
+  const affixBase = isImplicit ? 'affix-header-implicit' : isPrefix ? 'affix-header-prefix' : 'affix-header-suffix';
+  const affixHeaderClass = sortMode === 'tier-first' ? `${affixBase} ${affixBase}--strong` : affixBase;
   const affixLabel = isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + affix);
 
   return (

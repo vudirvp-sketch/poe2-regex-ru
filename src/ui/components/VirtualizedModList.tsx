@@ -358,11 +358,16 @@ const VirtualRowContent: React.FC<{
 }> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, onToggleChipExpand, chipExpandState, pinnedIds, onTogglePinned }) => {
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
-    const headerClass = isImplicit
-      ? 'affix-header-implicit text-accent-amber'
-      : row.affix === 'prefix'
-        ? 'affix-header-prefix text-accent-blue'
-        : 'affix-header-suffix text-accent-orange';
+    // Phase 4 (iter 137): `--strong` modifier (CSS ready from iter 137) — applied
+    // via caller when sortMode='tier-first' per docs/UI_REFACTOR_PLAN.md §13.6
+    // optional enhancement. iter 138 wires the modifier so the affix column
+    // headers visually reinforce the sort-mode the user has chosen. When
+    // sortMode='alpha' (default) or omitted, no modifier is added — preserves
+    // pre-iter-138 behaviour (backward compat).
+    const affixBase = isImplicit ? 'affix-header-implicit' : row.affix === 'prefix' ? 'affix-header-prefix' : 'affix-header-suffix';
+    const strongClass = sortMode === 'tier-first' ? `${affixBase}--strong` : '';
+    const accentClass = isImplicit ? 'text-accent-amber' : row.affix === 'prefix' ? 'text-accent-blue' : 'text-accent-orange';
+    const headerClass = `${affixBase} ${strongClass} ${accentClass}`.replace(/\s+/g, ' ').trim();
     const affixLabel = isImplicit ? 'ИМПЛИСЕТ' : t('affix.' + row.affix);
 
     // Phase 2 (iter 133): render as GroupHeader when collapse wiring is present.
