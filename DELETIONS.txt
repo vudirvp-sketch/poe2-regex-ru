@@ -1,0 +1,7 @@
+Файлы для удаления локально (debt cleanup iter 147):
+
+src/ui/components/LeftPanelFavorites.tsx
+tests/ui/LeftPanelFavorites.test.tsx
+
+Причина: LeftPanelFavorites не импортируется ни одной страницей с iter 139 (KI#20).
+Component + 17 тестов в тестовом файле больше не нужны.

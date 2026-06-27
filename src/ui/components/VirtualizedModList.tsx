@@ -23,7 +23,7 @@
  */
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { GameToken, AffixType, ModOrigin, FamilyGroup, PriorityFilter, SortMode } from '@shared/types';
+import type { GameToken, AffixType, ModOrigin, FamilyGroup, SortMode } from '@shared/types';
 import { groupTokensByFamily, splitGroupByOrigin, countUniqueFamilyKeys } from '@shared/family-grouper';
 import { classifyGroups, classifyJewelType, type ModGroupMode, type ModSubGroup, type JewelTypeCategory, JEWEL_TYPE_LABELS } from '@shared/mod-classifier';
 import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
@@ -61,8 +61,6 @@ interface VirtualizedModListProps {
   collapsedTokenIds?: Set<string>;
   /** Item category for priority tier classification (e.g., 'ring', 'belt') */
   category?: string;
-  /** Priority tier filter */
-  priorityFilter?: PriorityFilter;
   /**
    * Within-block sort mode (iter 106 P4). Defaults to 'alpha' (iter 99 behaviour).
    *  - 'alpha'      : familyKey primary, priorityTier tiebreaker.
@@ -792,7 +790,6 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   onClearTokenRange,
   collapsedTokenIds,
   category,
-  priorityFilter = 'all',
   sortMode = 'alpha',
   // Phase 2 (iter 133): collapse state
   collapsedGroups,
@@ -854,25 +851,15 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [filteredTokens, category]
   );
 
-  // Filter by priority tier
-  const priorityFilteredGroups = useMemo(() => {
-    if (priorityFilter === 'all') return familyGroups;
-    return familyGroups.filter(g => {
-      if (priorityFilter === 'S') return g.priorityTier === 'S';
-      if (priorityFilter === 'S+A') return g.priorityTier === 'S' || g.priorityTier === 'A';
-      return true;
-    });
-  }, [familyGroups, priorityFilter]);
-
   // Phase 3 (iter 135): show-selected-only filter — same logic as ModList.tsx
   // (kept in sync deliberately). When true, only show family groups with at
   // least one selected/excluded/pinned member. Pinned/excluded tokens stay
   // visible so the user can un-exclude or re-select a favorited mod.
   const visibleGroups = useMemo(() => {
-    if (!showSelectedOnly) return priorityFilteredGroups;
+    if (!showSelectedOnly) return familyGroups;
     const effectiveExcluded = excludedIds ?? new Set<string>();
     const effectivePinned = pinnedIds ?? new Set<string>();
-    return priorityFilteredGroups.filter(g => {
+    return familyGroups.filter(g => {
       for (const m of g.members) {
         if (selectedIds.has(m.id)) return true;
         if (effectiveExcluded.has(m.id)) return true;
@@ -880,7 +867,7 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       }
       return false;
     });
-  }, [priorityFilteredGroups, showSelectedOnly, selectedIds, excludedIds, pinnedIds]);
+  }, [familyGroups, showSelectedOnly, selectedIds, excludedIds, pinnedIds]);
 
   const implicitGroups = useMemo(
     () => visibleGroups.filter((g) => g.affix === 'implicit'),

@@ -125,9 +125,9 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   //  - 'alpha' (default, pre-iter-107 behaviour): S-tier gets amber-soft
   //    (always-on indicator that an S-tier mod is here); A/B/C keep affixColor.
   //  - 'tier-first': ALL four tiers get a distinct tier color, suppressing the
-  //    affix color on the chip border. Hierarchy mirrors the priorityFilter
-  //    buttons (Pitfall 28): S=brightest amber, A=medium amber, B=bronze
-  //    (amber-dim), C=neutral gray. The affix info remains visible via the
+  //    affix color on the chip border. Hierarchy mirrors the sortMode-aware
+  //    tier palette (S=brightest amber, A=medium amber, B=bronze
+  //    (amber-dim), C=neutral gray). The affix info remains visible via the
   //    column header / origin-section structure, so swapping the chip-level
   //    border from affix→tier does not lose information.
   const effectiveBorderClass = sortMode === 'tier-first'

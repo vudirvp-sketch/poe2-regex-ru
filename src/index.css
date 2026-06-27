@@ -215,7 +215,7 @@
   --bl-red-soft: #f87171;   /* red-400 */
   --bl-amber-soft: #fbbf24; /* amber-400 */
   /* iter 107: tier-aware border shades for tier-first sort mode.
-     Hierarchy mirrors priorityFilter buttons (Pitfall 28):
+     Hierarchy (Pitfall 28):
        S = amber-soft (brightest, amber-400)
        A = amber      (medium,    amber-500)
        B = amber-dim  (deeper,    amber-700, bronze)
@@ -1404,10 +1404,11 @@ input:focus:not(:focus-visible),
 
 /* Phase 5 (iter 136): .favorite-pulse — brief 2s highlight pulse applied to
    a FilterChip wrapping div when the user clicks the corresponding chip in
-   LeftPanelFavorites. The class is added via JS in
-   LeftPanelFavorites.tsx → handleScrollToChip() and removed after 2000ms
-   via window.setTimeout. The animation runs once (animation-iteration-count:1)
-   so the highlight doesn't loop forever if the user spam-clicks.
+   FavoritesIndicator. The class is added via JS in FavoritesIndicator.tsx
+   → handleScrollToChip() and removed after 2000ms via window.setTimeout.
+   The animation runs once (animation-iteration-count:1) so the highlight
+   doesn't loop forever if the user spam-clicks. (iter 139: was LeftPanelFavorites —
+   component removed; pulse logic moved to FavoritesIndicator.)
 
    Color: gold/amber outline that matches the PoE2 gold tone (var(--poe-gold))
    so the pulse is visually consistent with the page header + dividers. */

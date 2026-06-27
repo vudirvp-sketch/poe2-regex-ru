@@ -2,7 +2,7 @@
  * Local Settings — iter 141 (KI#26) + iter 144 (KI#30/31).
  *
  * Thin wrapper over `localStorage` for cross-tab persistence of user-level
- * settings (round10Enabled, searchLogic, minValue, maxValue, priorityFilter,
+ * settings (round10Enabled, searchLogic, minValue, maxValue,
  * thresholdEnabled, sortMode). Each setting is stored as a JSON-serialized
  * value under key `poe2:<settingName>`.
  *

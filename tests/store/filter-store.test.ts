@@ -60,7 +60,6 @@ describe('filter-store — Phase 1 initial state (iter 132)', () => {
     expect(s.searchText).toBe('');
     expect(s.affixFilter).toBeNull();
     expect(s.originFilter).toBeNull();
-    expect(s.priorityFilter).toBe('all');
     expect(s.extraState).toEqual({});
     expect(s.perTokenRanges).toEqual({});
   });
@@ -358,7 +357,6 @@ describe('filter-store — Phase 1 serialize/deserialize round-trip', () => {
     store.getState().toggleToken('tok2');
     store.getState().setSearchText('test query');
     store.getState().setAffixFilter('prefix');
-    store.getState().setPriorityFilter('S+A');
     store.getState().setExtraState('sortMode', 'tier-first');
     // Phase 1 fields
     store.getState().setGroupCollapsed('waystone:prefix', true);
@@ -380,7 +378,6 @@ describe('filter-store — Phase 1 serialize/deserialize round-trip', () => {
     expect(serialized.s).toBeDefined();
     expect(serialized.t).toBe('test query');
     expect(serialized.a).toBe('prefix');
-    expect(serialized.p).toBe('S+A');
     expect(serialized.x).toEqual({ sortMode: 'tier-first' });
 
     const store2 = createFilterStore();
@@ -397,21 +394,23 @@ describe('filter-store — Phase 1 serialize/deserialize round-trip', () => {
     expectSetsEqual(restored.selectedIds, ['tok1', 'tok2']);
     expect(restored.searchText).toBe('test query');
     expect(restored.affixFilter).toBe('prefix');
-    expect(restored.priorityFilter).toBe('S+A');
     expect(restored.extraState).toEqual({ sortMode: 'tier-first' });
   });
 });
 
 describe('filter-store — Phase 1 backward-compat (old URLs)', () => {
   it('deserialize of URL with only old keys → new fields get defaults (no crash)', () => {
-    // Simulates an old URL from before iter 132 — only s, e, t, a, o, p, x, r keys.
+    // Simulates an old URL from before iter 132 — only s, e, t, a, o, x, r keys.
+    // iter 149: legacy `p` key (priorityFilter) is silently ignored after
+    // the feature was removed. Old bookmarks with `p=S` or `p=S+A` will just
+    // show all groups (default behaviour) instead of the previously filtered set.
     const oldUrlData: Record<string, unknown> = {
       s: ['token1', 'token2'],
       e: ['excluded1'],
       t: 'old search',
       a: 'suffix',
       o: 'desecrated',
-      p: 'S',
+      p: 'S',  // legacy priorityFilter — silently dropped in iter 149
       x: { customFlag: true },
     };
 
@@ -425,7 +424,6 @@ describe('filter-store — Phase 1 backward-compat (old URLs)', () => {
     expect(s.searchText).toBe('old search');
     expect(s.affixFilter).toBe('suffix');
     expect(s.originFilter).toBe('desecrated');
-    expect(s.priorityFilter).toBe('S');
     expect(s.extraState).toEqual({ customFlag: true });
 
     // Phase 1 fields get DEFAULTS (asymmetric per iter 131 §13.7 correction #4)

@@ -27,7 +27,7 @@ import { loadCategoryData, loadMergedCategoryData } from '@data/loader';
 import { createFilterStore, type FilterState, type FilterActions, type TokenRangeOverride } from '@store/filter-store';
 import { syncFromUrl, syncToUrl } from '@store/url-sync';
 // iter 141 (KI#26): localStorage-backed persistence for global user settings
-// (round10Enabled, searchLogic, minValue, maxValue, priorityFilter,
+// (round10Enabled, searchLogic, minValue, maxValue,
 // thresholdEnabled, sortMode). Survives cross-tab navigation — URL hash is
 // per-page and gets overwritten on each mount, so we need a stable store.
 import { readLocalSetting, writeLocalSetting } from '@store/local-settings';
@@ -41,7 +41,7 @@ import {
   clearFavorites,
   favoritesStorageKey,
 } from '@store/local-settings';
-import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, PriorityFilter, SortMode } from '@shared/types';
+import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, SortMode } from '@shared/types';
 import { and } from '@core/ast';
 import { compile, type CompileOptions } from '@core/compiler';
 import { optimize, collectCollapsedTokenIds } from '@core/optimizer';
@@ -198,10 +198,6 @@ export interface CategoryPageState {
   affixFilter: AffixType | null;
   /** Origin filter */
   originFilter: ModOrigin | null;
-  /** Priority tier filter */
-  priorityFilter: PriorityFilter;
-  /** Set priority tier filter */
-  setPriorityFilter: (v: PriorityFilter) => void;
   /**
    * Within-block sort mode (iter 106 P4).
    *  - 'alpha'      : familyKey primary, priorityTier tiebreaker (iter 99 default)
@@ -287,14 +283,15 @@ export interface CategoryPageState {
   // ─── Phase 5 fields (iter 136, UI Refactor) ───────────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 5 for full spec.
   // Wires `pinnedIds` from filter-store (Phase 1, iter 132) into the UI so
-  // LeftPanelFavorites can render favorited chips in the left panel AND
-  // FilterChip ⭐ icon button can toggle pinned state per family.
+  // FavoritesIndicator can render a compact ★ N badge in the page header
+  // AND FilterChip ⭐ icon button can toggle pinned state per family.
+  // (iter 139 KI#20: was LeftPanelFavorites — component removed.)
 
-  /** Favorited token IDs (Phase 5). Renders in LEFT panel (LeftPanelFavorites). */
+  /** Favorited token IDs (Phase 5). Renders via FavoritesIndicator (★ N badge). */
   pinnedIds: Set<string>;
   /** Toggle a token's pinned (favorite) state. Pass a single token ID — for
-   *  family-level toggle, the page calls this once per member ID (or use
-   *  the wrapper approach in LeftPanelFavorites onTogglePinned). */
+   *  family-level toggle, the page calls this once for the first member ID
+   *  (see KI#28 family-level pin convention). */
   togglePinned: (id: string) => void;
   /** Clear all pinned (favorite) tokens. */
   clearPinned: () => void;
@@ -579,9 +576,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // `if (urlRestored) { ... } return default;` pattern.
   //
   // iter 141 (KI#26): for the 6 global user-level settings (searchLogic,
-  // round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled,
-  // sortMode), we now ALSO check localStorage as a fallback when neither URL
-  // nor explicit default applies. Precedence: URL (shareable link) > localStorage
+  // round10Enabled, minValue, maxValue, thresholdEnabled, sortMode), we now
+  // ALSO check localStorage as a fallback when neither URL nor explicit
+  // default applies. Precedence: URL (shareable link) > localStorage
   // (personal cross-tab persistence) > default. The localStorage write happens
   // in the URL-sync effect below — same effect, one extra line per setting.
   const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
@@ -604,11 +601,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     const val = useStore.getState().getExtraState('maxValue');
     if (typeof val === 'number') return val;
     return readLocalSetting<number | null>('maxValue', null);
-  });
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>(() => {
-    const val = useStore.getState().getExtraState('priorityFilter');
-    if (val === 'all' || val === 'S+A' || val === 'S') return val;
-    return readLocalSetting<PriorityFilter>('priorityFilter', 'all');
   });
   // iter 106 (P4): sortMode toggle (alpha vs tier-first). Persisted via extraState → URL hash.
   // iter 141 (KI#26): also persisted to localStorage for cross-tab consistency.
@@ -672,7 +664,8 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
 
   // Phase 5 (iter 136): pinned (favorites) state subscription.
   // Wires `pinnedIds` Set<string> from filter-store (Phase 1, iter 132) into
-  // the UI. LeftPanelFavorites renders one chip per favorited family group.
+  // the UI. FavoritesIndicator renders a compact ★ N badge in the page header
+  // (iter 139: was LeftPanelFavorites — full chip list removed).
   // FilterChip ⭐ icon button toggles pinned state for a family via
   // `togglePinned(id)` (called per member ID). `clearPinned()` clears all.
   //
@@ -744,15 +737,14 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // Skips the first render to avoid overwriting URL-restored values.
   //
   // iter 81 (Bug "useUrlSync extract" closed as won't-fix): this URL-sync effect
-  // stays inline in useCategoryPage. It's tightly coupled to the 6 useState values
-  // above (searchLogic, round10Enabled, minValue, maxValue, priorityFilter,
-  // thresholdEnabled) + 7 store-side values. Extracting to a separate `useUrlSync`
-  // hook would require passing all 13 values as args — awkward, the lint rule
-  // wouldn't be simpler, and the coupling wouldn't actually decrease. Decision
-  // documented in STATUS.md (debt list cleared iter 81).
+  // stays inline in useCategoryPage. It's tightly coupled to the 5 useState values
+  // above (searchLogic, round10Enabled, minValue, maxValue, thresholdEnabled)
+  // + 7 store-side values. Extracting to a separate `useUrlSync` hook would
+  // require passing all 12 values as args — awkward, the lint rule wouldn't be
+  // simpler, and the coupling wouldn't actually decrease. Decision documented
+  // in STATUS.md (debt list cleared iter 81).
   //
-  // iter 106 (P4): sortMode added to the same sync block — it follows the exact
-  // same extraState pattern as priorityFilter, so no separate effect is needed.
+  // iter 106 (P4): sortMode added to the same sync block.
   useEffect(() => {
     if (!syncReadyRef.current) {
       syncReadyRef.current = true;
@@ -763,10 +755,9 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     useStore.getState().setExtraState('round10Enabled', round10Enabled);
     useStore.getState().setExtraState('minValue', minValue);
     useStore.getState().setExtraState('maxValue', maxValue);
-    useStore.getState().setExtraState('priorityFilter', priorityFilter);
     useStore.getState().setExtraState('thresholdEnabled', thresholdEnabled);
     useStore.getState().setExtraState('sortMode', sortMode);
-    // iter 141 (KI#26): also persist these 7 global settings to localStorage
+    // iter 141 (KI#26): also persist these 6 global settings to localStorage
     // so they survive cross-tab navigation. URL hash gets overwritten on each
     // page mount (fresh store defaults), but localStorage is stable across
     // the entire origin. Per-category state (selectedIds, pinnedIds, etc.)
@@ -775,7 +766,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     writeLocalSetting('round10Enabled', round10Enabled);
     writeLocalSetting('minValue', minValue);
     writeLocalSetting('maxValue', maxValue);
-    writeLocalSetting('priorityFilter', priorityFilter);
     writeLocalSetting('thresholdEnabled', thresholdEnabled);
     writeLocalSetting('sortMode', sortMode);
     // iter 144 (KI#30): persist pinnedIds to per-category localStorage so
@@ -792,7 +782,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
   }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
-      searchLogic, round10Enabled, minValue, maxValue, priorityFilter, thresholdEnabled, sortMode, useStore,
+      searchLogic, round10Enabled, minValue, maxValue, thresholdEnabled, sortMode, useStore,
       // Phase 2 (iter 133): collapse state also triggers URL re-sync so that
       // toggle persistence propagates to the URL hash immediately.
       collapsedGroups, expandedSubGroups,
@@ -857,10 +847,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     if (typeof restoredMax === 'number') setMaxValue(restoredMax);
     else setMaxValue(readLocalSetting<number | null>('maxValue', null));
 
-    const restoredPriority = restored.getExtraState('priorityFilter');
-    if (restoredPriority === 'all' || restoredPriority === 'S+A' || restoredPriority === 'S') setPriorityFilter(restoredPriority);
-    else setPriorityFilter(readLocalSetting<PriorityFilter>('priorityFilter', 'all'));
-
     // iter 106 (P4): restore sortMode from extraState (defaults to 'alpha' on bad value).
     // iter 141 (KI#26): fall back to localStorage before hard-coded default.
     const restoredSortMode = restored.getExtraState('sortMode');
@@ -901,8 +887,6 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     setMinValue,
     maxValue,
     setMaxValue,
-    priorityFilter,
-    setPriorityFilter,
     thresholdEnabled,
     setThresholdEnabled,
     sortMode,
@@ -939,7 +923,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // + CategoryControlPanel «Все / Выбранные» radio group.
     showSelectedOnly,
     setShowSelectedOnly,
-    // Phase 5 (iter 136): pinned (favorites) for LeftPanelFavorites +
+    // Phase 5 (iter 136): pinned (favorites) for FavoritesIndicator badge +
     // FilterChip ⭐ icon button toggle.
     pinnedIds,
     togglePinned,

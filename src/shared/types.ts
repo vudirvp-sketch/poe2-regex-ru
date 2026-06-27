@@ -6,8 +6,6 @@ export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 /** Priority tier based on affix popularity research (S=highest, C=lowest) */
 export type PriorityTier = 'S' | 'A' | 'B' | 'C';
-/** Filter mode for priority tiers in UI */
-export type PriorityFilter = 'all' | 'S+A' | 'S';
 /**
  * Within-block sort mode for family groups inside a sub-group.
  *  - 'alpha'      : familyKey (Russian locale) primary, priorityTier tiebreaker

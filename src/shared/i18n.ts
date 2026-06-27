@@ -137,15 +137,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'threshold.label': '≥Мин',
     'threshold.tooltip': 'Пороговый режим: RANGE(min,max) компилируется как ≥min только. Короче regex, без FP от диапазонной нотации, но без ограничения максимума.',
 
-    // Priority tier filter
-    'priority.all': 'Все',
-    'priority.sa': 'S+A',
-    'priority.s_only': 'S',
-    'priority.label': 'Приоритет:',
-    // iter 148 (toolbar refactor): short label for compact <select> variant.
-    // Used as aria-label + visual prefix on the select trigger.
-    'priority.label_short': 'Приоритет',
-
     // Within-block sort mode (iter 106 P4: alpha vs tier-first toggle)
     'sort.label': 'Сортировка:',
     'sort.alpha': 'По алфавиту',
@@ -220,10 +211,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'basket.collapse_panel': 'Свернуть панель',
     'basket.expand_panel': 'Развернуть панель',
 
-    // Phase 5 (iter 136): Favorites in LEFT panel.
-    // LeftPanelFavorites renders one chip per favorited family group (NOT per
-    // token — same grouping logic as SelectedBasket). Header shows total count
-    // of favorited families, plus «Очистить» link to clear all pinned tokens.
+    // Phase 5 (iter 136): Favorites i18n keys.
+    // iter 139 (KI#20): LeftPanelFavorites component removed (no longer rendered
+    // in left column). Keys kept for backward compat / future favorites UI.
     // {n} = number of pinned family groups (pinnedIds.size after grouping).
     'favorites.title': '⭐ Избранные: {n}',
     // Empty state — shown when pinnedIds is empty.

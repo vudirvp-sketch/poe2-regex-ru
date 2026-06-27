@@ -16,7 +16,8 @@ export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'bre
 export type SearchLogic = 'and' | 'or';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 export type PriorityTier = 'S' | 'A' | 'B' | 'C';
-export type PriorityFilter = 'all' | 'S+A' | 'S';
+// iter 149: PriorityFilter type removed — UI feature deleted entirely.
+// Tier info still surfaces via FilterChip badge + sortMode='tier-first'.
 
 export interface GenderForms {
   ms?: string;  // masculine singular
@@ -247,7 +248,7 @@ All data contracts are also defined as Zod schemas in `src/shared/schemas.ts`. T
 | `GameTokenSchema` | All token fields including optional (regexExclude, regexPrefixContext, jewelType, tradeStatId) |
 | `OptimizationEntrySchema` | ids, regex, weight, count + optional context/exclude |
 | `GenderFormsSchema` | 6 gender form fields, all optional |
-| Enum schemas | Locale, AffixType, ModOrigin, JewelType, PriorityTier, PriorityFilter |
+| Enum schemas | Locale, AffixType, ModOrigin, JewelType, PriorityTier (iter 149: PriorityFilterSchema removed) |
 
 **Usage in loader.ts:**
 

@@ -71,7 +71,7 @@ layout/density/interaction, not the visual identity.
   palette for priority, 3-tier affix palette (blue/orange/amber), brand gold.
 - **FilterState in zustand store** — `filter-store.ts:33-54`. Has
   `selectedIds`, `excludedIds`, `searchText`, `affixFilter`, `originFilter`,
-  `priorityFilter`, `extraState` (for `sortMode` etc.), `perTokenRanges`.
+  `extraState` (for `sortMode` etc.), `perTokenRanges`. (iter 149: `priorityFilter` removed.)
   URL-serialized via compact hash format (`serialize`/`deserialize`,
   lines 225-262).
 - **StatusPanel + RegexOutput + ProfilePanel** stacked in right `<aside>`
@@ -314,7 +314,7 @@ output.
 **Files:**
 - `src/ui/components/CategoryControlPanel.tsx` — add "Все / Выбранные"
   toggle (2-button radio, similar to existing sort mode toggle). Sits next
-  to `priorityFilter` group.
+  to the sortMode `<select>` (iter 149: was `priorityFilter` group — feature removed).
 - `src/ui/components/SelectedBasket.tsx` (NEW) — renders `selectedIds` as
   chips (re-use `FilterChip` in read-only mode, no per-token ranges shown —
   click to deselect). Empty state: "Выберите аффиксы". Header:
@@ -686,8 +686,9 @@ in parallel → then 2.5 → then 5.
 
 ## 9. Out-of-Scope (explicitly deferred)
 
-- **Search by tier** ("show only S-tier") — `priorityFilter` already does
-  this. No new work.
+- **Search by tier** ("show only S-tier") — iter 149: `priorityFilter` was
+  removed; use `sortMode='tier-first'` to surface S-tier mods at top of each
+  block instead of filtering.
 - **Search by family** — `searchText` already does substring match. No
   new work.
 - **Bulk select/deselect** — not in audit, defer.
@@ -807,8 +808,9 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 ### 13.4 Other observations (no plan change needed)
 
-- Visualization confirms priority dropdown (Все/S+A/S) already exists —
-  matches plan's note that `priorityFilter` is fully wired.
+- Visualization confirms priority dropdown (Все/S+A/S) **was** present (iter 148).
+  iter 149 removed it entirely — tier info now surfaces via FilterChip badge +
+  `sortMode='tier-first'` only.
 - Visualization confirms sort dropdown (По алфавиту/По приоритету) already
   exists — matches plan's note that `sortMode` is fully wired.
 - Visualization shows «188 аффиксов» total count in left panel header —
@@ -842,7 +844,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 **iter 141 deliverables (4 fixes + 2 monitoring):**
 
-- **KI#26 (FIXED):** round10 default off + global settings cross-tab persistence. `defaultRound10` true→false per user explicit request. NEW `src/store/local-settings.ts` (thin localStorage wrapper with JSON serialize + try/catch silent fallback). В `useCategoryPage.ts` 7 useState-backed global settings (`searchLogic`, `round10Enabled`, `minValue`, `maxValue`, `priorityFilter`, `thresholdEnabled`, `sortMode`) теперь читаются из localStorage если URL не задал значение, и пишутся в localStorage при каждом изменении. Precedence: URL > localStorage > default.
+- **KI#26 (FIXED):** round10 default off + global settings cross-tab persistence. `defaultRound10` true→false per user explicit request. NEW `src/store/local-settings.ts` (thin localStorage wrapper with JSON serialize + try/catch silent fallback). В `useCategoryPage.ts` 6 useState-backed global settings (`searchLogic`, `round10Enabled`, `minValue`, `maxValue`, `thresholdEnabled`, `sortMode`) теперь читаются из localStorage если URL не задал значение, и пишутся в localStorage при каждом изменении. Precedence: URL > localStorage > default. (iter 149: `priorityFilter` was the 7th — removed entirely.)
 - **KI#27 (FIXED):** VirtualizedModList prefix/suffix 50/50 alignment. iter 139 KI#17 fix (`md:grid-cols-2`) был применён ТОЛЬКО к `ModList.tsx`, но НЕ к `VirtualizedModList.tsx` — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка заменена на `md:grid-cols-2`. **Lesson: при fixed-bug-in-one-place, audit ALL similar components.**
 - **KI#28 (FIXED):** Favorites counter — 1 per family, not N per tier. `handleTogglePinned` в 7 pages simplified from `ids.forEach(id => togglePinned(id))` to `if (ids.length > 0) togglePinned(ids[0])`. `pinnedIds.size` теперь = число favorited семей.
 - **KI#29 (FIXED):** Aside collapse header упрощён. CategoryLayout.tsx aside header rewritten — removed `bg-panel border p-2` panel wrapper + empty `<span>` title placeholder. Новая structure: compact `flex items-center justify-end gap-1` row + small chevron button.

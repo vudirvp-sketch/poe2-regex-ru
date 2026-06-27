@@ -5,7 +5,7 @@
  * for the current category page.
  */
 import { create } from 'zustand';
-import type { AffixType, ModOrigin, PriorityFilter } from '@shared/types';
+import type { AffixType, ModOrigin } from '@shared/types';
 
 /** Per-slot numeric range override */
 export interface SlotRangeOverride {
@@ -43,8 +43,6 @@ export interface FilterState {
   affixFilter: AffixType | null;
   /** Origin filter (null = all) */
   originFilter: ModOrigin | null;
-  /** Priority tier filter: 'all' = show all, 'S+A' = show S and A only, 'S' = show S only */
-  priorityFilter: PriorityFilter;
   /** Extra state for category-specific filters (e.g., waystone toggles, tablet types) */
   extraState: Record<string, unknown>;
   /** Per-token numeric range overrides. Key = token ID, value = {min?, max?}.
@@ -103,8 +101,6 @@ export interface FilterActions {
   setAffixFilter: (filter: AffixType | null) => void;
   /** Set origin filter */
   setOriginFilter: (filter: ModOrigin | null) => void;
-  /** Set priority tier filter */
-  setPriorityFilter: (filter: PriorityFilter) => void;
   /** Set extra state value for category-specific filters */
   setExtraState: (key: string, value: unknown) => void;
   /** Get extra state value */
@@ -178,7 +174,6 @@ export function createFilterStore() {
     searchText: '',
     affixFilter: null,
     originFilter: null,
-    priorityFilter: 'all' as PriorityFilter,
     extraState: {},
     perTokenRanges: {},
 
@@ -274,9 +269,6 @@ export function createFilterStore() {
     setOriginFilter: (filter: ModOrigin | null) =>
       set({ originFilter: filter }),
 
-    setPriorityFilter: (filter: PriorityFilter) =>
-      set({ priorityFilter: filter }),
-
     setExtraState: (key: string, value: unknown) =>
       set((state) => ({ extraState: { ...state.extraState, [key]: value } })),
 
@@ -300,7 +292,6 @@ export function createFilterStore() {
         searchText: '',
         affixFilter: null,
         originFilter: null,
-        priorityFilter: 'all' as PriorityFilter,
         extraState: {},
         perTokenRanges: {},
         // Phase 1 (iter 132): reset new fields to defaults too
@@ -390,7 +381,6 @@ export function createFilterStore() {
         t: state.searchText || undefined,
         a: state.affixFilter || undefined,
         o: state.originFilter || undefined,
-        p: state.priorityFilter !== 'all' ? state.priorityFilter : undefined,
       };
       // Include extraState only if non-empty (for URL sharing)
       if (Object.keys(state.extraState).length > 0) {
@@ -499,7 +489,6 @@ export function createFilterStore() {
         searchText: (data.t as string) || '',
         affixFilter: (data.a as AffixType) || null,
         originFilter: (data.o as ModOrigin) || null,
-        priorityFilter: (data.p as PriorityFilter) || 'all',
         extraState: (data.x as Record<string, unknown>) || {},
         perTokenRanges,
         collapsedGroups,

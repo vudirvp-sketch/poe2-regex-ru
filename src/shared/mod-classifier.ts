@@ -1398,9 +1398,11 @@ export const TIER_SORT_ORDER: Record<PriorityTier, number> = { S: 0, A: 1, B: 2,
  * through `groupTokensByFamily`), the sort falls back to pure alphabetical
  * by familyKey — preserving pre-iter-112 behaviour for those callers.
  *
- * The tier is still rendered as a coloured badge in the UI (priorityFilter
- * still works), so the player retains the popularity signal — they just no
- * longer pay for it with a fragmented alphabetical flow.
+ * The tier is still rendered as a coloured badge in the UI (FilterChip
+ * tier-aware border, sortMode='tier-first'), so the player retains the
+ * popularity signal — they just no longer pay for it with a fragmented
+ * alphabetical flow. iter 149 removed the priorityFilter dropdown, but
+ * tier info remains visible via chip border + sort order.
  *
  * Implementation notes:
  *  - `familyKey` may carry an `::origin` suffix for origin-split groups

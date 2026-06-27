@@ -11,16 +11,20 @@
  *   always visible (used constantly per user scenario).
  * - Range filter (≥ min, ≤ max) — conditional on hasRangedTokens
  * - Round10 toggle — conditional on hasRangedTokens (or showRound10)
- * - Priority tier filter — compact <select> (iter 148: was 3-button radiogroup)
  * - Within-block sort mode — compact <select> (iter 148: was 2-button radiogroup)
  * - Show-selected-only toggle — compact <select> (iter 148: was 2-button radiogroup)
  * - Slot for category-specific controls (waystone state, tablet types, etc.)
  * - Optional clear button slot
  *
- * iter 148 (toolbar refactor): priority/sort/show-mode toggles collapsed
- * from radiogroups into <select>s to reduce visual noise. The И/ИЛИ toggle
+ * iter 148 (toolbar refactor): sort/show-mode toggles collapsed from
+ * radiogroups into <select>s to reduce visual noise. The И/ИЛИ toggle
  * stays as prominent buttons because it changes query semantics (constant
  * usage). See docs/ITER148_TOOLBAR_REFACTOR.md for full rationale.
+ *
+ * iter 149: Priority tier filter (`<select aria-label="Приоритет">`) removed
+ * entirely — the feature was rarely used and added visual clutter. All
+ * `priorityFilter`, `setPriorityFilter`, `showPriorityFilter` props and
+ * `PriorityFilter` type gone. URL `p` key silently ignored for old links.
  *
  * History: iter 52 introduced a non-breaking `hideRegexOutput` prop with two
  * modes (legacy embedded RegexOutput + sticky wrapper, and split controls-only).
@@ -29,7 +33,7 @@
  * hideRegexOutput) since they were never consumed in split mode.
  */
 import React from 'react';
-import type { SearchLogic, PriorityFilter, SortMode } from '@shared/types';
+import type { SearchLogic, SortMode } from '@shared/types';
 import { MAX_ENUMERATE_RANGE } from '@core/number-regex';
 import { t } from '@shared/i18n';
 
@@ -48,13 +52,6 @@ interface CategoryControlPanelProps {
   thresholdEnabled: boolean;
   /** Set threshold mode */
   setThresholdEnabled: (v: boolean) => void;
-  /** Priority tier filter state. Optional — not needed for jewel/relic/vendor pages. */
-  priorityFilter?: PriorityFilter;
-  /** Set priority tier filter. Optional — not needed for jewel/relic/vendor pages. */
-  setPriorityFilter?: (v: PriorityFilter) => void;
-  /** Whether to show priority tier filter toggle. Only shown for categories
-   *   that have priority classification (ring, amulet, belt, waystone, tablet). */
-  showPriorityFilter?: boolean;
   /**
    * Within-block sort mode (iter 106 P4). Optional — only shown when
    * `showSortMode` is true AND the page passes `setSortMode`.
@@ -65,7 +62,7 @@ interface CategoryControlPanelProps {
   /** Set within-block sort mode. Optional — paired with `sortMode` + `showSortMode`. */
   setSortMode?: (v: SortMode) => void;
   /** Whether to show the sort mode toggle. Only shown for categories that have
-   *  priority classification (same set as `showPriorityFilter`). */
+   *  priority classification. */
   showSortMode?: boolean;
   /** Slot for category-specific controls (waystone state, tablet types, etc.) */
   extraControls?: React.ReactNode;
@@ -87,8 +84,7 @@ interface CategoryControlPanelProps {
   // When true, ModList/VirtualizedModList filter familyGroups to only those
   // with selected/excluded/pinned members. iter 148 (toolbar refactor):
   // toggle is a compact <select> («Все» / «Выбранные (N)») placed next to
-  // the priorityFilter and sortMode selects. Was a 2-button radiogroup
-  // before iter 148.
+  // the sortMode select. Was a 2-button radiogroup before iter 148.
 
   /** Current value of `showSelectedOnly` from filter-store.
    *  Optional — when omitted, the toggle is NOT rendered (backward compat). */
@@ -141,9 +137,6 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   extraControls,
   showRound10,
   clearButton,
-  priorityFilter = 'all',
-  setPriorityFilter,
-  showPriorityFilter,
   sortMode = 'alpha',
   setSortMode,
   showSortMode,
@@ -162,12 +155,10 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
     { value: 'or' as SearchLogic, action: () => setSearchLogic('or') },
   ];
 
-  // iter 148 (toolbar refactor): priorityFilter + sortMode moved from
-  // radiogroups to compact <select>s. The previous priorityOptions /
-  // sortOptions arrays + handleRadioKeyDown wiring are no longer needed
-  // — <select> has native arrow-key navigation per ARIA spec.
+  // iter 148 (toolbar refactor): sortMode moved from a radiogroup to a compact
+  // <select>. The previous sortOptions array + handleRadioKeyDown wiring are
+  // no longer needed — <select> has native arrow-key navigation per ARIA spec.
   // Fallback no-op when setter is not provided (backward compat).
-  const onSetPriorityFilter = setPriorityFilter ?? (() => {});
   const onSetSortMode = setSortMode ?? (() => {});
 
   return (
@@ -309,32 +300,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {/* Clear button slot */}
         {clearButton}
 
-        {/* Priority tier filter.
-            iter 148 (toolbar refactor): replaced 3-button radiogroup with
-            compact <select>. The previous 3-button + label layout consumed
-            ~4 horizontal slots and visually competed with И/ИЛИ despite
-            being rarely changed. <select> preserves ARIA semantics (native
-            arrow-key nav + Enter/Space toggle) and shows the current value
-            inside the trigger, so the user always knows the active option.
-            i18n key priority.label_short ("Приоритет") used as aria-label.
-            Old priority.label ("Приоритет:") preserved for backward compat. */}
-        {showPriorityFilter && (
-          <select
-            value={priorityFilter}
-            onChange={(e) => onSetPriorityFilter(e.target.value as PriorityFilter)}
-            aria-label={t('priority.label_short')}
-            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer"
-          >
-            <option value="all">{t('priority.all')}</option>
-            <option value="S+A">{t('priority.sa')}</option>
-            <option value="S">{t('priority.s_only')}</option>
-          </select>
-        )}
-
         {/* iter 106 (P4): within-block sort mode (alpha vs tier-first).
             iter 148 (toolbar refactor): replaced 2-button radiogroup with
-            compact <select>. Same rationale as priorityFilter above — rarely
-            changed, shouldn't compete visually with И/ИЛИ. */}
+            compact <select>. */}
         {showSortMode && setSortMode && (
           <select
             value={sortMode}

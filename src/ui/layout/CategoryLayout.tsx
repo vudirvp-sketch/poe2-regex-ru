@@ -51,10 +51,9 @@
  * not just hover hints. When not provided, the legend slot is omitted
  * (backward compat — pre-Phase-4.5 pages had no legend).
  *
- * Usage (Phase 5):
+ * Usage:
  *   <CategoryLayout
  *     header={...}
- *     favorites={<LeftPanelFavorites ... />}   // NEW (Phase 5)
  *     controls={<CategoryControlPanel ... />}
  *     basket={<SelectedBasket ... />}
  *     regexOutput={<RegexOutput ... />}

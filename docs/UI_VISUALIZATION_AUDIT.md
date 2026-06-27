@@ -70,7 +70,7 @@ for sub-groups, per iter 131 §8 correction #4).
 | **🔍 Search input** | placeholder «Поиск аффиксов...» + 🔍 + «Найдено: N». **iter 131 §8 #1:** renders FIRST (top of left panel) — user: «Поиск используется в разы чаще» |
 | **⭐ Избранные аффиксы (N)** | Section BELOW search, ABOVE filters (iter 131 §8 #1). Chips with ⭐ + ✗; «Очистить» button |
 | Filter type buttons | «Все (N)» / «Любой (ИЛИ)» — already exists |
-| Приоритет dropdown | «Все» / «S+A» / «S» — already exists (`priorityFilter`) |
+| Приоритет dropdown | ~~«Все» / «S+A» / «S»~~ — **removed in iter 149** (entire `priorityFilter` feature deleted; tier info now via FilterChip badge + `sortMode='tier-first'`) |
 | Сортировка dropdown | «По алфавиту» / «По приоритету» — already exists (`sortMode`) |
 | Checkboxes | Осквернён / Неосквернён / Делириум — already exists |
 

@@ -43,9 +43,6 @@ describe('local-settings — iter 141 (KI#26)', () => {
 
     localStorage.setItem('poe2:minValue', '15');
     expect(readLocalSetting('minValue', null)).toBe(15);
-
-    localStorage.setItem('poe2:priorityFilter', '"S+A"');
-    expect(readLocalSetting('priorityFilter', 'all')).toBe('S+A');
   });
 
   it('readLocalSetting returns fallback when stored value is corrupt JSON', () => {

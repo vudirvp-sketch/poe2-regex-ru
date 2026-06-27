@@ -29,8 +29,6 @@ export const JewelTypeSchema = z.enum(['ruby', 'emerald', 'sapphire', 'shared'])
 
 export const PriorityTierSchema = z.enum(['S', 'A', 'B', 'C']);
 
-export const PriorityFilterSchema = z.enum(['all', 'S+A', 'S']);
-
 // ─── Record<Locale, T> helpers ───────────────────────────────────────
 
 /** Record<Locale, string> — currently { ru: string } */

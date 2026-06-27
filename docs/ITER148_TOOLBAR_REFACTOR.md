@@ -1,6 +1,8 @@
 # iter 148 — Toolbar Refactor (UX reorganization)
 
 > **Цель:** уменьшить визуальный перегруз панели управления Waystone (и других категорийных страниц), не ломая существующую state-модель и ARIA-семантику.
+>
+> **iter 149 update:** Priority filter (`<select aria-label="Приоритет">`) полностью удалён «с корнем» — из UI, state-store, URL sync, localStorage, типов, схем, тестов и документации. Tier info остаётся доступен через цветной badge на FilterChip + режим `sortMode='tier-first'`. См. STATUS.md → iter 149.
 
 ---
 

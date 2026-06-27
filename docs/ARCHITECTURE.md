@@ -280,14 +280,14 @@ interface CategoryLabel {
 | Component | Role |
 |-----------|------|
 | `PriorityTier` | `'S' \| 'A' \| 'B' \| 'C'` in `types.ts` |
-| `PriorityFilter` | `'all' \| 'S+A' \| 'S'` — UI filter mode |
 | `classifyPriorityTier(group, category)` | Text-based heuristic for ring/amulet/belt/waystone/tablet. Others return 'C'. |
 | `FamilyGroup.priorityTier` | Set during grouping, used for default sort (S→C) |
-| `CategoryControlPanel` | Toggle: «Все \| S+A \| S» with amber accent |
 | `FilterChip` | S-tier gets amber border-l, C-tier gets opacity-80 dimming |
-| `filter-store.ts` | `priorityFilter` persisted in URL via `p` key |
+| `sortMode='tier-first'` | User toggle in `CategoryControlPanel` — surfaces S-tier mods at the top of every block via tier-coloured chip border |
 
 Categories with priority: ring, amulet, belt, waystone, tablet. Others (jewel, relic, vendor) return 'C' — no toggle.
+
+**iter 149:** The `<select aria-label="Приоритет">` UI filter (Все/S+A/S) has been removed entirely. Tier info is still visible via: (a) coloured badge on each `FilterChip`, (b) `sortMode='tier-first'` option in the Сортировка select. Old URLs with `?p=S` or `?p=S+A` are silently ignored (backward compat — user just sees all groups instead of the previously filtered set).
 
 ## 12. UI Conventions
 

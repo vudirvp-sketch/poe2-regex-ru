@@ -25,9 +25,8 @@ import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { SelectedBasket } from '@ui/components/SelectedBasket';
-// iter 139 (KI#20): LeftPanelFavorites import removed — favorites panel
-// no longer rendered in the LEFT column per user feedback. SelectedBasket on
-// the RIGHT already shows selected affixes; a separate pinned panel was noise.
+// iter 139 (KI#20): favorites now via FavoritesIndicator badge (page header),
+// not a separate left-panel chip list (was noise per user feedback).
 // Component file kept for backward compat.
 // iter 140 (KI#24): FavoritesIndicator added — compact `★ N` badge in the
 // page header (next to mod count).
@@ -113,7 +112,6 @@ export function TabletPage() {
     perTokenRanges, setTokenRange, clearTokenRange,
     searchLogic, setSearchLogic,
     collapsedTokenIds,
-    priorityFilter, setPriorityFilter,
     thresholdEnabled, setThresholdEnabled,
     sortMode, setSortMode,
     collapsedGroups, expandedSubGroups,
@@ -226,9 +224,6 @@ export function TabletPage() {
                 setRound10Enabled={setRound10Enabled}
                 thresholdEnabled={thresholdEnabled}
                 setThresholdEnabled={setThresholdEnabled}
-                priorityFilter={priorityFilter}
-                setPriorityFilter={setPriorityFilter}
-                showPriorityFilter
                 sortMode={sortMode}
                 setSortMode={setSortMode}
                 showSortMode
@@ -360,7 +355,6 @@ export function TabletPage() {
               collapsedTokenIds={collapsedTokenIds}
               groupMode="tablet-type-subblocks"
               category="tablet"
-              priorityFilter={priorityFilter}
               sortMode={sortMode}
               collapsedGroups={collapsedGroups}
               expandedSubGroups={expandedSubGroups}
