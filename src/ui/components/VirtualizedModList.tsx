@@ -1013,6 +1013,14 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     onToggleChipExpand,
     chipExpandState,
     pinnedIds,
+    // iter 150 (KI#40): forwarded to VirtualRowContent → FilterChip ⭐ pin
+    // button. Previously missing — columnProps spread did not include this
+    // callback, so in two-column layout (default for belt/ring/amulet/jewel
+    // when both prefix and suffix are present), FilterChip received
+    // pinnedIds without onTogglePinned and silently skipped rendering the
+    // ⭐ icon. User-visible symptom: favorites feature "missing" on those
+    // 4 category tabs while working on relic/waystone/tablet/vendor.
+    onTogglePinned,
   };
 
   return (

@@ -2,44 +2,34 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 149 (PriorityFilter removal + iter 148 cleanup)
+> **Текущая итерация:** 150 (favorites wiring fix + ⓘ in-box layout)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 149: полное удаление фильтра «Приоритет» (Все / S+A / S).**
+**iter 150: исправлены два бага из user feedback.**
 
-Фича `<select aria-label="Приоритет">` удалена «с корнем» — из UI, state-store, URL sync, localStorage, типов, схем, тестов и документации. Tier info остаётся доступен пользователю через:
-- цветной badge на каждом `FilterChip` (S/A/B/C)
-- режим сортировки `sortMode='tier-first'` (опция в `<select aria-label="Сортировка">`)
+1. **KI#40 — favorites не работал на 4 вкладках.** В `VirtualizedModList.tsx` объект `columnProps` (используется в two-column layout — дефолт для belt/ring/amulet/jewel) не содержал `onTogglePinned`. FilterChip рендерит ⭐ только когда переданы ОБА `pinnedIds` И `onTogglePinned` — поэтому на 4 вкладках ⭐ silently не отображался. На relic/waystone/tablet (используют `ModList`) и vendor (custom rendering) всё работало. Фикс — одной строкой добавить `onTogglePinned` в `columnProps`.
 
-Старые ссылки с `?p=S` или `?p=S+A` работают — ключ `p` молча игнорируется (backward compat).
+2. **KI#41 — ⓘ glyph сдвигал блок аффиксов.** В `GroupHeader.tsx` ⓘ tooltip был flex-sibling'ом toggle-button. Когда tooltip присутствовал, toggle-button сжимался на ~20px — визуально «бокс» сдвигался влево. Фикс — outer-div получает `relative`, ⓘ позиционируется `absolute right-2 top-1/2 -translate-y-1/2 z-10`, toggle-button получает `pr-7` чтобы текст не перекрывал glyph. Toggle-button теперь всегда full-width независимо от наличия ⓘ.
 
-**Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / `pnpm build` PASS (9 prerendered HTML).**
+**Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PASS (9 prerendered HTML). Bundle: 603.60 KB.**
 
-### Что было сделано в iter 149
+### Что было сделано в iter 150
 
 | Изменение | Файлы | Что сделано |
 |-----------|-------|-------------|
-| `PriorityFilter` type удалён | `src/shared/types.ts`, `src/shared/schemas.ts` | Type + Zod schema (`PriorityFilterSchema`) убраны. |
-| State-store почищен | `src/store/filter-store.ts` | `priorityFilter` field, `setPriorityFilter` action, URL `p` key serialization, deserialize — всё удалено. |
-| localStorage почищен | `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` | `priorityFilter` убран из 6 persisting settings (было 7, стало 6). |
-| CategoryControlPanel почищен | `src/ui/components/CategoryControlPanel.tsx` | Весь `<select aria-label="Приоритет">` block + 3 props (`priorityFilter`, `setPriorityFilter`, `showPriorityFilter`) удалены. |
-| ModList / VirtualizedModList почищены | `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx` | Удалены `priorityFilter` prop + `priorityFilteredGroups` memo — `visibleGroups` теперь работает напрямую с `familyGroups`. |
-| 6 категорийных страниц почищены | `BeltPage`, `RingPage`, `AmuletPage`, `WaystonePage`, `TabletPage`, `JewelPage` | Destructure + prop passing (`CategoryControlPanel` + `VirtualizedModList`) — все 3 references на `priorityFilter` удалены. |
-| i18n почищен | `src/shared/i18n.ts` | Удалены `priority.all`, `priority.sa`, `priority.s_only`, `priority.label`, `priority.label_short`. |
-| Тесты обновлены | `tests/store/filter-store.test.ts`, `tests/store/local-settings.test.ts` | Удалены assertions на `priorityFilter` + `p` key. Old URL test сохранён с пометкой `legacy p key — silently dropped in iter 149`. |
-| Документация почищена | `STATUS.md`, `AGENT_NAVIGATION.md`, `ARCHITECTURE.md`, `DATA_CONTRACTS.md`, `UI_REFACTOR_PLAN.md`, `UI_VISUALIZATION_AUDIT.md`, `worklog.md` | Все упоминания `priorityFilter` / `PriorityFilter` актуализированы или удалены. |
+| KI#40 favorites fix | `src/ui/components/VirtualizedModList.tsx` | В объект `columnProps` добавлен `onTogglePinned`. Теперь two-column layout (belt/ring/amulet/jewel) корректно пробрасывает колбэк до FilterChip — ⭐ иконка отображается. |
+| KI#41 ⓘ in-box layout | `src/ui/components/GroupHeader.tsx` | Outer-div получает `relative`. ⓘ позиционируется absolutely (`right-2 top-1/2 -translate-y-1/2 z-10`). Toggle-button получает `pr-7` когда infoTooltip присутствует — text не перекрывает glyph. Toggle-button всегда full-width. |
+| Документация | `STATUS.md`, `worklog.md` | Переписаны под iter 150. Старые KI#36/37/38 (favorites grouping/origin badge/jewels jitter — фиксы iter 146 готовы, ждут browser testing) сохранены в Known Issues. |
 
-### Архитектурные решения iter 149
+### Архитектурные решения iter 150
 
-1. **Backward compat для URL** — старые ссылки вида `?p=S` не падают. В `deserialize()` ключ `p` больше не читается, но и не вызывает ошибку (Zod не валидирует входной объект, только парсит то, что ожидаем). Пользователь просто увидит все группы вместо отфильтрованных.
+1. **KI#40 — почему single-column layout работал, а two-column — нет.** Single-column путь (строка 1244-1245 в `VirtualizedModList.tsx`) явно прописывал `pinnedIds={pinnedIds} onTogglePinned={onTogglePinned}` в JSX. Two-column путь использовал spread `{...columnProps}` — и в этом объекте забыли добавить `onTogglePinned` (только `pinnedIds`). Поэтому две колонки prefix|suffix на belt/ring/amulet/jewel показывали chips без ⭐. На relic/waystone/tablet использовался `ModList` (другой компонент, без этого бага), на vendor — custom rendering. Поэтому user видел «работает на некоторых вкладках».
 
-2. **Tier info сохранён** — `PriorityTier` type ('S' | 'A' | 'B' | 'C') и `PriorityTierSchema` оставлены. Цветные badges на FilterChip продолжают работать. Режим `sortMode='tier-first'` всё ещё выводит S-tier моды на верх каждого блока.
-
-3. **Bundle стал легче** — index-*.js теперь 603.48 KB (было ~605 KB). Экономия ~1.5 KB за счёт удаления кода priorityFilter.
+2. **KI#41 — почему absolute вместо nested button.** Nested `<button>` внутри `<button>` — invalid HTML. Поэтому ⓘ остаётся sibling'ом toggle-button (внутри relative outer-div), но позиционируется absolutely на правом краю — визуально «внутри бокса», но DOM-структура валидна. `pr-7` (28px) на toggle-button резервирует место под 16px glyph + 8px breathing space, чтобы длинный label не заползал под ⓘ.
 
 ---
 
@@ -53,16 +43,18 @@
 4. **KI#39 (условный)** — если KI#38 jitter остаётся: убрать `ref={virtualizer.measureElement}` с virtual row, оставить только `estimateSize`.
 5. **KI#31 (mobile layout для favorites panel)** — фикс iter 144 готов, mobile UX требует user feedback.
 6. **KI#32 (cascade expand)** — фикс iter 144 готов, browser testing на 7 страницах не проведён.
-7. **iter 148 + iter 149 visual check** — на 7 категорийных страницах (belt/ring/amulet/jewel/waystone/tablet/relic):
+7. **iter 148 + iter 149 + iter 150 visual check** — на 7 категорийных страницах (belt/ring/amulet/jewel/waystone/tablet/relic):
    - `<select>` для Сортировка/Показывать должны корректно рендериться.
    - **Приоритет-селект больше не должен присутствовать** (iter 149).
+   - **⭐ pin button должен отображаться на всех 7 категорийных страницах** (iter 150 KI#40 fix).
+   - **ⓘ glyph больше не должен сдвигать toggle-button** (iter 150 KI#41 fix).
    - И/ИЛИ остаются prominent amber.
    - Waystone chip-тоглы (Оскв/Неоскв/Делир) — color-coding при active.
    - Mobile layout не сломан.
 
 ### Фоновые (low-priority)
 
-8. **Bundle > 500 KB** — `index-BRs8clkR.js` 603 KB. Code-split через dynamic import() для категорийных страниц.
+8. **Bundle > 500 KB** — `index-Cmgdpsbl.js` 603.60 KB. Code-split через dynamic import() для категорийных страниц.
 9. **APCA Lc<75 для small text с weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
 10. **Stale comments** — исторические упоминания `LeftPanelFavorites` в `useCategoryPage.ts`, `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `CategoryLayout.tsx`. Low-risk cleanup.
 
@@ -89,15 +81,17 @@
 
 ---
 
-## Next iteration (iter 149 → iter 150)
+## Next iteration (iter 150 → iter 151)
 
-**iter 149 завершён: PriorityFilter удалён полностью. Готов к push.**
+**iter 150 завершён: KI#40 + KI#41 фиксы готовы. Готов к push.**
 
-**Приоритеты для iter 150:**
+**Приоритеты для iter 151:**
 
 1. **Browser testing** на 7 категорийных страницах:
    - iter 148 toolbar refactor — селекты Сортировка/Показывать.
-   - iter 149 priority filter — проверить, что селекта «Приоритет» больше нет на странице, и что старые ссылки `?p=S` не падают.
+   - iter 149 priority filter — проверить, что селекта «Приоритет» больше нет.
+   - **iter 150 KI#40 — ⭐ pin button должен отображаться на ВСЕХ 7 страницах** (раньше не было на belt/ring/amulet/jewel).
+   - **iter 150 KI#41 — ⓘ glyph не должен сдвигать toggle-button sideways** (должен быть внутри правого края «бокса»).
    - KI#36/37/38 (favorites grouping, origin badge, scroll jitter).
 
 2. **Если KI#38 jitter остаётся → применить KI#39**.

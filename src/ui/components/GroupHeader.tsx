@@ -26,13 +26,20 @@
  * explanation of what each affix type means. When omitted, no ⓘ renders
  * (backward compat — pre-Phase-4 behaviour).
  *
+ * iter 150 (KI#41): ⓘ glyph positioned ABSOLUTELY at the right edge of the
+ * toggle button's box (overlaid on the right padding area) instead of being
+ * a flex sibling that shrinks the toggle button. Eliminates the visual
+ * "shift" reported by the user — the toggle button keeps its full width
+ * whether or not the ⓘ is shown. The toggle button gets `pr-7` when ⓘ is
+ * present so the label text doesn't overlap with the glyph.
+ *
  * Accessibility:
  *   - Renders as a `<button>` with `aria-expanded` and `aria-controls`.
  *   - Chevron is a CSS-rotated `▶` glyph (no inline SVG, no extra deps).
  *   - Count badge is a separate `<span>` so screen readers announce it as
  *     part of the button label.
- *   - ⓘ info icon is a SIBLING of the button (NOT a child) — clicking it
- *     must NOT toggle collapse, so it's outside the button's hit area.
+ *   - ⓘ info icon is a SIBLING of the toggle button (NOT a child — nested
+ *     <button> is invalid HTML) — clicking it must NOT toggle collapse.
  *     The Tooltip component handles `stopPropagation` on its own trigger.
  */
 import React from 'react';
@@ -105,15 +112,24 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
     ? t('group.expand_btn_label')
     : t('group.collapse_btn_label');
 
+  // iter 150 (KI#41): when infoTooltip is present, the ⓘ glyph is positioned
+  // ABSOLUTELY at the right edge of the toggle button's box (overlaid on top
+  // of the right padding) instead of being a flex sibling that shrinks the
+  // toggle button. This eliminates the visual "shift" the user reported —
+  // the toggle button keeps its full width whether or not the ⓘ is shown.
+  // The toggle button gets `pr-7` (28px right padding) when infoTooltip is
+  // present so the label text doesn't overlap with the ⓘ glyph.
+  const hasInfo = infoTooltip != null;
+
   return (
-    <div className="flex items-center gap-1 w-full">
+    <div className={`relative flex items-center w-full ${hasInfo ? '' : 'gap-1'}`}>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={!isCollapsed}
         aria-controls={controlsId}
         aria-label={`${expandLabel}: ${label} (${count})`}
-        className={`group-header-btn ${variantClass} ${className} flex-1 flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-amber`}
+        className={`group-header-btn ${variantClass} ${className} flex-1 flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-amber ${hasInfo ? 'pr-7' : ''}`}
       >
         {/* Chevron — aria-hidden because it's purely decorative; the button's
             aria-label already conveys the expand/collapse action in words. */}
@@ -134,14 +150,20 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
           {label} ({count})
         </span>
       </button>
-      {/* Phase 4 (iter 137): Optional ⓘ info icon — SIBLING of the button
-          so clicking it does NOT toggle collapse. The Tooltip component
-          handles stopPropagation on its own trigger to prevent the click
-          from also bubbling to parent onClick handlers. */}
-      {infoTooltip != null && (
+      {/* Phase 4 (iter 137): Optional ⓘ info icon — SIBLING of the toggle
+          button (NOT a child — nested <button> is invalid HTML) so clicking
+          it does NOT toggle collapse. The Tooltip component handles
+          stopPropagation on its own trigger to prevent the click from also
+          bubbling to parent onClick handlers.
+          iter 150 (KI#41): positioned ABSOLUTELY at the right edge of the
+          outer container (overlays the toggle button's pr-7 padding area)
+          so it no longer shifts the toggle button sideways. The outer div
+          has `relative` for this absolute positioning to work. */}
+      {hasInfo && (
         <Tooltip
           content={infoTooltip}
           ariaLabel={t('tooltip.info_aria')}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10"
         />
       )}
     </div>
