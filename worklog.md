@@ -4,28 +4,39 @@
 
 ---
 
-Task ID: 150 (favorites wiring fix + ⓘ in-box layout)
+Task ID: 151 (stale comments + trash files cleanup)
 Agent: main
-Task: iter 150 — два фикса из user feedback: (1) favorites feature не работала на 4 категорийных страницах (belt/ring/amulet/jewel) из-за отсутствующего `onTogglePinned` в `columnProps` объекта VirtualizedModList; (2) ⓘ glyph в GroupHeader сдвигал toggle-button sideways — пользователь просил «засунуть внутрь бокса».
+Task: iter 151 — чистка документации и устаревших комментариев. Без функциональных изменений. Цель: сделать репозиторий «лёгким для модели/агента» — убрать устаревшие patch-notes файлы и исторические упоминания `LeftPanelFavorites` в исходниках.
 
 Work Log:
-- 1: **Audit favorites wiring** — grep по `pinnedIds|onTogglePinned` во всех 8 category pages показал, что все 8 корректно деструктурят и пробрасывают оба значения в `<ModList>` / `<VirtualizedModList>`. Трейс: page → ModList/VirtualizedModList → ModSubGroupSection/VirtualRowContent → FilterChip. ModList правильно пробрасывает оба значения через все пути. VirtualizedModList правильно пробрасывает в single-column пути (строка 1244-1245) и в VirtualizedColumn component (через деструктуру props), НО в `columnProps` объекте (строка 997-1016) забыли добавить `onTogglePinned` — только `pinnedIds`. Two-column layout (дефолт для belt/ring/amulet/jewel) использует `{...columnProps}` spread, поэтому `onTogglePinned` терялся. FilterChip рендерит ⭐ только когда ОБА `pinnedIds` И `onTogglePinned` переданы (backward compat из iter 136) — поэтому ⭐ silently не отображался на 4 вкладках.
-- 2: **Fix KI#40** — одной строкой добавить `onTogglePinned` в объект `columnProps` в `VirtualizedModList.tsx`. Добавлен комментарий с объяснением бага.
-- 3: **Audit ⓘ layout shift** — GroupHeader outer-div имел `flex items-center gap-1 w-full`, toggle-button имел `flex-1` (full width). Когда infoTooltip присутствовал, Tooltip button (w-4 h-4 + gap-1 = 20px total) становился flex-sibling'ом, и toggle-button сжимался на 20px — визуально «бокс» сдвигался влево на 20px. Пользователь: «значок сдвигает в сторону блок с аффиксами, как бы пододвигая "бокс" кнопки. Нельзя ли внутрь бокса в край левый правый засунуть?»
-- 4: **Fix KI#41** — подход: outer-div получает `relative`, Tooltip позиционируется `absolute right-2 top-1/2 -translate-y-1/2 z-10`, toggle-button получает `pr-7` когда infoTooltip присутствует (резервирует 28px место под 16px glyph + 8px breathing space, чтобы длинный label не перекрывал glyph). Tooltip остаётся SIBLING'ом toggle-button (nested `<button>` — invalid HTML), но визуально находится «внутри бокса» — overlays right padding area toggle-button'а. Toggle-button теперь всегда full-width независимо от наличия ⓘ.
-- 5: **Update docstring** — GroupHeader.tsx docstring обновлён под iter 150 KI#41.
-- 6: **Verification** — `tsc -b` 0 errors / `eslint .` 0 warnings / `vitest run` 2235/2235 PASS (без изменений — same count as iter 149) / `vite build` PASS, 9 prerendered HTML. Bundle: index-Cmgdpsbl.js 603.60 KB (было 603.48 KB в iter 149 — практически идентично, +0.12 KB за счёт добавленного комментария и `pr-7` class).
-- 7: **STATUS.md** — переписан под iter 150. KI#40 и KI#41 добавлены в раздел «Что было сделано». Browser testing для iter 148/149/150 visual checks собран в один список known issue #7.
-- 8: **worklog.md** — iter 149 сокращён до одной строки. iter 150 подробно задокументирован.
+- 1: **Verify baseline** — `pnpm exec tsc -b` 0 errors / `pnpm exec eslint .` 0 warnings / `pnpm test` 2235/2235 PASS / `pnpm exec vite build` PASS, 9 prerendered HTML, bundle `index-B4oIacg-.js` 603.60 KB. Совпадает с iter 150 baseline.
+- 2: **Audit stale references** — `grep -r LeftPanelFavorites src/ tests/` нашёл 6 мест: `useCategoryPage.ts:288`, `useCategoryPage.ts:668`, `i18n.ts:215`, `index.css:1410`, `FavoritesIndicator.tsx:6`, `tests/ui/CategoryLayout.test.tsx:55`. Все — исторические комментарии вида «iter 139 KI#20: was LeftPanelFavorites — component removed», не содержат текущей семантики.
+- 3: **Stale comments cleanup (5 src + 1 test)**:
+  - `useCategoryPage.ts:283-288` — убрана строка `(iter 139 KI#20: was LeftPanelFavorites — component removed.)` + строка `See docs/UI_REFACTOR_PLAN.md §4 Phase 5 for full spec.` (спека больше не актуальна — фаза 5 давно сделана). Комментарий стал 4 строки вместо 6.
+  - `useCategoryPage.ts:665-670` — убрана строка `(iter 139: was LeftPanelFavorites — full chip list removed).`.
+  - `i18n.ts:214-217` — упрощен комментарий с 4 строк до 3: убрано `iter 139 (KI#20): LeftPanelFavorites component removed (no longer rendered in left column).`. Оставлено `Keys kept for backward compat / future favorites UI.` — это актуальная информация.
+  - `index.css:1405-1414` — упрощен комментарий: убрано `(iter 139: was LeftPanelFavorites — component removed; pulse logic moved to FavoritesIndicator.)`. Контекст «pulse logic в FavoritesIndicator» и так понятен из первой строки комментария (`applied to a FilterChip wrapping div when the user clicks the corresponding chip in FavoritesIndicator`).
+  - `FavoritesIndicator.tsx:1-36` — упрощен docstring: убрано `Originally pure presentational (iter 140 — restored favorites visibility after iter 139 KI#20 removed the noisy LeftPanelFavorites chip list).`. Оставлено текущее поведение: `Compact ★ N badge`, рендер, click behavior, accessibility, placement.
+  - `tests/ui/CategoryLayout.test.tsx:53-58` — упрощен комментарий: убрано `Per iter 139 KI#20` + упоминание `LeftPanelFavorites`. Оставлено: `the favorites panel was removed from the left column because it added noise the user explicitly rejected`.
+- 4: **Verify cleanup** — `grep -r LeftPanelFavorites src/ tests/` → 0 matches. Все упоминания удалены.
+- 5: **Audit trash top-level files** — `ls *.txt *.patch README-iter*.md README_ITER*.txt MANIFEST.txt DELETIONS*.txt` нашёл 6 устаревших файлов: `README-iter126.md` (iter 126 patch notes), `README_ITER143_FEEDBACK.txt` (iter 143 feedback patch notes), `iter143-feedback.patch` (iter 143 git patch, уже применён), `MANIFEST.txt` (iter 133 patch manifest), `DELETIONS-iter126.txt` (iter 126 deletion notes), `DELETIONS.txt` (iter 147 deletion notes — уже применено). Проверено, что ни один из них не упоминается в `package.json`, `vite.config.ts`, `scripts/` или активных импортах.
+- 6: **Delete trash files** — `git rm` 6 файлов. Все удаления подтверждены.
+- 7: **Replace README.md** — старый README был iter 147 patch notes (описание применённого патча + git-команды). Заменён на минимальный проектный README: ссылки на `STATUS.md` / `AGENT_NAVIGATION.md` / `worklog.md` + стек (React 19 / TS 6 / Vite 8 / Tailwind 4 / Zustand 5 / Zod 4) + команды разработки (`pnpm install/dev/test/build/etl`) + структура директорий (`src/core`, `src/shared`, `src/strategies`, `src/store`, `src/data`, `src/ui`, `public/generated`, `scripts/etl`, `tests`).
+- 8: **Verify after changes** — `pnpm exec tsc -b` 0 errors / `pnpm exec eslint .` 0 warnings / `pnpm test` 2235/2235 PASS (без изменений — все cleanups были в комментариях и README, не в функциональном коде) / `pnpm exec vite build` PASS, 9 prerendered HTML, bundle 603.60 KB (без изменений).
+- 9: **STATUS.md** — переписан под iter 151. Раздел «Что было сделано» обновлён (3 строки: stale comments, trash files, README.md). Раздел «Known Issues» — убран пункт #10 (Stale comments) — теперь сделано. Раздел «Next iteration» переименован в iter 152, убран пункт про Stale comments cleanup (сделано). Bundle hash обновлён с `index-Cmgdpsbl.js` на `index-B4oIacg-.js` (хеш изменился из-за удаления файлов в repo, но сам bundle content идентичен — 603.60 KB).
+- 10: **worklog.md** — iter 150 сокращён до одной строки. iter 151 подробно задокументирован.
 
 Stage Summary:
-- **KI#40 favorites fix DONE** — ⭐ pin button теперь рендерится на ВСЕХ 8 категорийных страницах (раньше только на relic/waystone/tablet/vendor, отсутствовал на belt/ring/amulet/jewel в two-column layout).
-- **KI#41 ⓘ in-box layout DONE** — ⓘ glyph больше не сдвигает toggle-button sideways. Toggle-button всегда full-width, ⓘ overlays на правом краю (28px pr-7 резервация).
-- Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / vite build PASS (9 prerendered HTML).
-- Изменённые файлы: `src/ui/components/VirtualizedModList.tsx`, `src/ui/components/GroupHeader.tsx`, `STATUS.md`, `worklog.md`.
-- **Stopping point:** iter 150 завершён, готов к push. Next iter 151 = browser testing iter 148 + iter 149 + iter 150 visual checks (7 категорийных страниц: проверить что ⭐ отображается везде, что ⓘ не сдвигает блок, что селекта «Приоритет» больше нет, что И/ИЛИ/Sort/Show-mode/Waystone chips работают) + KI#36/37/38 browser testing + KI#39 conditional + mobile layout + code-split bundle.
+- **Stale comments cleanup DONE** — все 6 упоминаний `LeftPanelFavorites` в `src/` и `tests/` упрощены или удалены. Комментарии сохраняют текущую семантику, теряют исторический шум.
+- **Trash files cleanup DONE** — 6 устаревших patch-notes файлов верхнего уровня удалены (`README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`).
+- **README.md replaced** — теперь минимальный проектный README вместо iter 147 patch notes.
+- Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / vite build PASS (9 prerendered HTML). Bundle: 603.60 KB (без изменений).
+- Изменённые файлы: `src/ui/hooks/useCategoryPage.ts`, `src/shared/i18n.ts`, `src/index.css`, `src/ui/components/FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx`, `README.md`, `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` + 6 удалённых файлов.
+- **Stopping point:** iter 151 завершён, готов к push. Next iter 152 = browser testing iter 148 + iter 149 + iter 150 visual checks (7 категорийных страниц) + KI#36/37/38 browser testing + KI#39 conditional + mobile layout + code-split bundle.
 
 ---
+
+Task ID: 150 — favorites wiring fix (⭐ pin button не отображался на belt/ring/amulet/jewel в two-column layout) + ⓘ in-box layout (glyph в GroupHeader позиционировался как flex-sibling → сдвигал toggle-button sideways → теперь absolute right-2 top-1/2 -translate-y-1/2 z-10 + pr-7 на toggle-button). vitest 2235/2235.
 
 Task ID: 149 — PriorityFilter removal (полное удаление фильтра «Приоритет» из UI, state-store, URL sync, localStorage, типов, схем, тестов и документации). vitest 2235/2235.
 

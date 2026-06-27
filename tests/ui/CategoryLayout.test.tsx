@@ -50,11 +50,10 @@ describe('CategoryLayout — iter 139 (KI#16 + KI#20)', () => {
         <div data-testid="modlist">ModList</div>
       </CategoryLayout>
     );
-    // Per iter 139 KI#20, all 7 category pages (Belt/Ring/Amulet/Jewel/
-    // Waystone/Tablet/Relic) no longer pass `favorites={...}` — the
-    // LeftPanelFavorites panel was removed from the left column because it
-    // added noise the user explicitly rejected. SelectedBasket (right aside)
-    // already shows selected affixes.
+    // All 7 category pages (Belt/Ring/Amulet/Jewel/Waystone/Tablet/Relic)
+    // no longer pass `favorites={...}` — the favorites panel was removed
+    // from the left column because it added noise the user explicitly
+    // rejected. SelectedBasket (right aside) already shows selected affixes.
     // The left column should still render controls + children in order.
     const controls = screen.getByTestId('controls');
     const modlist = screen.getByTestId('modlist');

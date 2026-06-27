@@ -212,8 +212,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'basket.expand_panel': 'Развернуть панель',
 
     // Phase 5 (iter 136): Favorites i18n keys.
-    // iter 139 (KI#20): LeftPanelFavorites component removed (no longer rendered
-    // in left column). Keys kept for backward compat / future favorites UI.
+    // Keys kept for backward compat / future favorites UI.
     // {n} = number of pinned family groups (pinnedIds.size after grouping).
     'favorites.title': '⭐ Избранные: {n}',
     // Empty state — shown when pinnedIds is empty.

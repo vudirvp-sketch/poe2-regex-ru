@@ -1,77 +1,53 @@
-# iter 147 patch — deploy fix + TS errors + debt cleanup
+# PoE2 Regex RU
 
-## Что в архиве
+Генератор regex-фильтров для Path of Exile 2 (русский клиент).
 
-- `STATUS.md` — актуализированная документация (чистая, без длинной истории).
-- `worklog.md` — обновлённый worklog (iter 147 подробно, iter ≤146 одной строкой).
-- `src/ui/components/VirtualizedModList.tsx` — фикс 6 TS ошибок:
-  - Удалён `shouldAdjustScrollPositionOnItemSizeChange: () => false` (не существует в @tanstack/react-virtual v3 types).
-  - `getItemKey` для `origin-header` упрощён до `oh:${row.origin}` (вместо `oh:${row.affix}:${row.origin}` — `row.affix` не существует на этом типе).
-  - `getItemKey` для `jewel-type-header` упрощён до `jh:${row.jewelType}` (аналогично).
-  - Обновлены комментарии (упоминания старого свойства).
-- `DELETIONS.txt` — список файлов для удаления локально.
+- **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
+- **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 
-## Файлы для удаления (debt cleanup)
+## Документация
 
-```
-src/ui/components/LeftPanelFavorites.tsx
-tests/ui/LeftPanelFavorites.test.tsx
-```
+| Файл | Назначение |
+|------|-----------|
+| `STATUS.md` | Текущее состояние проекта + Known Issues |
+| `AGENT_NAVIGATION.md` | Entry-документ для AI-агента — структура, pitfalls, итерации |
+| `worklog.md` | История итераций (последняя — подробно, старые — одной строкой) |
+| `docs/ARCHITECTURE.md` | Архитектура core/regex-движка |
+| `docs/UI_REFACTOR_PLAN.md` | Полный план UI-рефакторинга (фазы 1-5) |
+| `docs/ETL_GUIDE.md` | ETL-пайплайн: poe2db.tw → `public/generated/*.json` |
 
-`LeftPanelFavorites` не импортируется ни одной страницей с iter 139 (KI#20).
-
-## Как применить
+## Разработка
 
 ```bash
-# 1. Перейти в локальный клон репозитория
-cd /path/to/poe2-regex-ru
-
-# 2. Распаковать архив поверх локальной копии (tar.gz с .tar расширением на tmpfiles.org)
-tar -xf /path/to/iter147-patch.tar
-
-# 3. Удалить неиспользуемые файлы
-rm -f src/ui/components/LeftPanelFavorites.tsx
-rm -f tests/ui/LeftPanelFavorites.test.tsx
-
-# 4. Проверить, что всё собирается
-pnpm install --frozen-lockfile
-pnpm test      # должно быть 2235/2235 passed
-pnpm build     # должно пройти без ошибок tsc
-
-# 5. Закоммитить и запушить (см. git-команды ниже)
+pnpm install
+pnpm dev          # Vite dev server
+pnpm test         # Vitest (all tests)
+pnpm build        # tsc -b + vite build + prerender
+pnpm etl          # ETL pipeline (poe2db.tw → generated JSON)
 ```
 
-## Git-команды
+## Стек
 
-```bash
-git add STATUS.md worklog.md \
-        src/ui/components/VirtualizedModList.tsx
-git rm src/ui/components/LeftPanelFavorites.tsx \
-       tests/ui/LeftPanelFavorites.test.tsx
-git commit -m "iter 147: deploy fix + TS errors + debt cleanup
+- React 19 + TypeScript 6 + Vite 8
+- Tailwind CSS 4 + Zustand 5 + Zod 4
+- Vitest 4 + Playwright 1.52 (prerender)
+- `@tanstack/react-virtual` для виртуализации
 
-- Fix 6 pre-existing TS errors in VirtualizedModList.tsx that blocked deploy:
-  * Remove shouldAdjustScrollPositionOnItemSizeChange (not in @tanstack/react-virtual v3 API)
-  * Simplify getItemKey for origin-header / jewel-type-header (row.affix was undefined on these types)
-- Delete unused LeftPanelFavorites component + test (not imported since iter 139 / KI#20)
-- Update STATUS.md: clean doc, document KI#39 conditional plan
+## Структура
 
-Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / pnpm build PASS"
-git push origin main
+```
+src/
+├── core/        # Regex engine (ZERO npm deps — pure TS)
+├── shared/      # Types, i18n, schemas, family-grouper
+├── strategies/  # Locale strategy (Russian dialect)
+├── store/       # Zustand stores — filter/profile/url-sync
+├── data/        # Zod-validated JSON loader
+└── ui/          # React — pages, layout, components, hooks
+public/
+└── generated/   # ETL output (belt/ring/amulet/jewel/waystone/tablet/relic JSON)
+scripts/
+└── etl/         # ETL pipeline
+tests/           # Vitest — core/, shared/, etl/, ui/, integration/
 ```
 
-## Точка остановки
-
-**Сделано в iter 147:**
-1. Исправлены 6 TS ошибок в `VirtualizedModList.tsx` → деплой должен пройти.
-2. Удалён неиспользуемый `LeftPanelFavorites.tsx` + тест (debt cleanup).
-3. `STATUS.md` актуализирован (убрана длинная история, оставлены только ключевые KI).
-4. `worklog.md` сжат (iter 147 подробно, iter ≤146 одной строкой).
-5. Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / build PASS.
-
-**НЕ сделано (на следующую итерацию — iter 148):**
-1. Browser testing KI#36/37/38 — проверить на 7 категориях.
-2. KI#39 (условный) — если KI#38 jitter остаётся, отключить `measureElement` (dynamic measurement), оставить только `estimateSize`.
-3. Mobile layout optimization для favorites panel (KI#31 follow-up).
-4. Stale comments cleanup — подчистить упоминания `LeftPanelFavorites` в 5 файлах (`useCategoryPage.ts`, `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `CategoryLayout.tsx`).
-5. Code-split bundle — `index-*.js` > 500 KB warning.
+Контакты: Discord **woonderdad**

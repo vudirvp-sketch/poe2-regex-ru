@@ -2,34 +2,31 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 150 (favorites wiring fix + ⓘ in-box layout)
+> **Текущая итерация:** 151 (stale comments + trash files cleanup)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 150: исправлены два бага из user feedback.**
+**iter 151: чистка документации и устаревших комментариев.**
 
-1. **KI#40 — favorites не работал на 4 вкладках.** В `VirtualizedModList.tsx` объект `columnProps` (используется в two-column layout — дефолт для belt/ring/amulet/jewel) не содержал `onTogglePinned`. FilterChip рендерит ⭐ только когда переданы ОБА `pinnedIds` И `onTogglePinned` — поэтому на 4 вкладках ⭐ silently не отображался. На relic/waystone/tablet (используют `ModList`) и vendor (custom rendering) всё работало. Фикс — одной строкой добавить `onTogglePinned` в `columnProps`.
+1. **Stale comments cleanup** — из `src/` и `tests/` убраны все упоминания `LeftPanelFavorites` (5 мест). Комментарии упрощены до текущего состояния без потери контекста «зачем этот код». Файлы: `useCategoryPage.ts` (2 места), `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx`.
 
-2. **KI#41 — ⓘ glyph сдвигал блок аффиксов.** В `GroupHeader.tsx` ⓘ tooltip был flex-sibling'ом toggle-button. Когда tooltip присутствовал, toggle-button сжимался на ~20px — визуально «бокс» сдвигался влево. Фикс — outer-div получает `relative`, ⓘ позиционируется `absolute right-2 top-1/2 -translate-y-1/2 z-10`, toggle-button получает `pr-7` чтобы текст не перекрывал glyph. Toggle-button теперь всегда full-width независимо от наличия ⓘ.
+2. **Trash files cleanup** — удалены 6 устаревших файлов верхнего уровня: `README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`. Все — patch-notes от прошлых итераций (iter 126/133/143/147), давно применённых.
 
-**Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PASS (9 prerendered HTML). Bundle: 603.60 KB.**
+3. **README.md** — заменён с iter 147 patch notes на минимальный проектный README со ссылками на `STATUS.md` / `AGENT_NAVIGATION.md` / `worklog.md` + стек + команды разработки.
 
-### Что было сделано в iter 150
+**Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PASS (9 prerendered HTML). Bundle: 603.60 KB (без изменений).**
+
+### Что было сделано в iter 151
 
 | Изменение | Файлы | Что сделано |
 |-----------|-------|-------------|
-| KI#40 favorites fix | `src/ui/components/VirtualizedModList.tsx` | В объект `columnProps` добавлен `onTogglePinned`. Теперь two-column layout (belt/ring/amulet/jewel) корректно пробрасывает колбэк до FilterChip — ⭐ иконка отображается. |
-| KI#41 ⓘ in-box layout | `src/ui/components/GroupHeader.tsx` | Outer-div получает `relative`. ⓘ позиционируется absolutely (`right-2 top-1/2 -translate-y-1/2 z-10`). Toggle-button получает `pr-7` когда infoTooltip присутствует — text не перекрывает glyph. Toggle-button всегда full-width. |
-| Документация | `STATUS.md`, `worklog.md` | Переписаны под iter 150. Старые KI#36/37/38 (favorites grouping/origin badge/jewels jitter — фиксы iter 146 готовы, ждут browser testing) сохранены в Known Issues. |
-
-### Архитектурные решения iter 150
-
-1. **KI#40 — почему single-column layout работал, а two-column — нет.** Single-column путь (строка 1244-1245 в `VirtualizedModList.tsx`) явно прописывал `pinnedIds={pinnedIds} onTogglePinned={onTogglePinned}` в JSX. Two-column путь использовал spread `{...columnProps}` — и в этом объекте забыли добавить `onTogglePinned` (только `pinnedIds`). Поэтому две колонки prefix|suffix на belt/ring/amulet/jewel показывали chips без ⭐. На relic/waystone/tablet использовался `ModList` (другой компонент, без этого бага), на vendor — custom rendering. Поэтому user видел «работает на некоторых вкладках».
-
-2. **KI#41 — почему absolute вместо nested button.** Nested `<button>` внутри `<button>` — invalid HTML. Поэтому ⓘ остаётся sibling'ом toggle-button (внутри relative outer-div), но позиционируется absolutely на правом краю — визуально «внутри бокса», но DOM-структура валидна. `pr-7` (28px) на toggle-button резервирует место под 16px glyph + 8px breathing space, чтобы длинный label не заползал под ⓘ.
+| Stale comments | `src/ui/hooks/useCategoryPage.ts`, `src/shared/i18n.ts`, `src/index.css`, `src/ui/components/FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx` | Убраны исторические упоминания `LeftPanelFavorites` (5 мест). Комментарии упрощены до текущего состояния. |
+| Trash files | 6 файлов удалено | `README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`. |
+| README.md | `README.md` | Заменён с iter 147 patch notes на минимальный проектный README. |
+| Документация | `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` | Переписаны под iter 151. |
 
 ---
 
@@ -54,9 +51,8 @@
 
 ### Фоновые (low-priority)
 
-8. **Bundle > 500 KB** — `index-Cmgdpsbl.js` 603.60 KB. Code-split через dynamic import() для категорийных страниц.
+8. **Bundle > 500 KB** — `index-B4oIacg-.js` 603.60 KB. Code-split через dynamic import() для категорийных страниц.
 9. **APCA Lc<75 для small text с weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
-10. **Stale comments** — исторические упоминания `LeftPanelFavorites` в `useCategoryPage.ts`, `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `CategoryLayout.tsx`. Low-risk cleanup.
 
 ---
 
@@ -81,11 +77,11 @@
 
 ---
 
-## Next iteration (iter 150 → iter 151)
+## Next iteration (iter 151 → iter 152)
 
-**iter 150 завершён: KI#40 + KI#41 фиксы готовы. Готов к push.**
+**iter 151 завершён: stale comments + trash files cleanup готовы. Готов к push.**
 
-**Приоритеты для iter 151:**
+**Приоритеты для iter 152:**
 
 1. **Browser testing** на 7 категорийных страницах:
    - iter 148 toolbar refactor — селекты Сортировка/Показывать.
@@ -98,9 +94,7 @@
 
 3. **Mobile layout optimization** для favorites panel (KI#31 follow-up).
 
-4. **Stale comments cleanup** — подчистить упоминания `LeftPanelFavorites` в 5 файлах.
-
-5. **Code-split bundle** — `index-*.js` > 500 KB warning при build.
+4. **Code-split bundle** — `index-*.js` > 500 KB warning при build.
 
 ---
 

@@ -1407,8 +1407,7 @@ input:focus:not(:focus-visible),
    FavoritesIndicator. The class is added via JS in FavoritesIndicator.tsx
    → handleScrollToChip() and removed after 2000ms via window.setTimeout.
    The animation runs once (animation-iteration-count:1) so the highlight
-   doesn't loop forever if the user spam-clicks. (iter 139: was LeftPanelFavorites —
-   component removed; pulse logic moved to FavoritesIndicator.)
+   doesn't loop forever if the user spam-clicks.
 
    Color: gold/amber outline that matches the PoE2 gold tone (var(--poe-gold))
    so the pulse is visually consistent with the page header + dividers. */

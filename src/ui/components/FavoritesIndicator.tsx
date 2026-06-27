@@ -1,20 +1,17 @@
 /**
- * FavoritesIndicator — iter 140 (KI#24) + iter 144 (KI#31 variant d).
+ * FavoritesIndicator — compact `★ N` badge for category page headers.
  *
- * Compact `★ N` badge for category page headers. Originally pure
- * presentational (iter 140 — restored favorites visibility after iter 139
- * KI#20 removed the noisy LeftPanelFavorites chip list).
+ * Renders as a small amber-tinted button with the gold star icon. Hidden
+ * when `pinnedIds.size === 0` (no favorites → no badge → no noise).
  *
- * iter 144 (KI#31 variant d): the badge is now CLICKABLE. Clicking opens a
+ * iter 144 (KI#31 variant d): the badge is CLICKABLE. Clicking opens a
  * portal-based FavoritesQuickSelectPanel that lists all favorited families
  * for the current category page. Per user feedback (iter 143):
  *   «я это видел изначально как список "быстрого доступа", когда ты часто
  *    пользуешься одним и тем же набором аффиксов и хочешь просто в несколько
  *    кликов выбрать нужные из них».
  *
- * Layout: small inline button — ★ icon + label + count. Hidden when
- * `pinnedIds.size === 0` (no favorites → no badge → no noise). When > 0,
- * renders as a small amber-tinted button with the gold star icon.
+ * Layout: small inline button — ★ icon + label + count.
  *
  * Behaviour:
  * - Empty state (`pinnedIds.size === 0`) → returns `null` (renders nothing).
@@ -28,9 +25,7 @@
  * - `aria-haspopup="dialog"` + `aria-expanded` for screen readers.
  * - Panel is a `role="dialog"` with its own aria-label.
  *
- * Reference: per user screenshot (iter 140 brief), the ideal placement is
- * in the page header — next to the mod count, on the right side. The header
- * pattern becomes:
+ * Placement: page header — next to the mod count, on the right side.
  *   [icon] Category Title    N аффиксов  ★ Избранные: M
  */
 import React, { useState, useRef, useCallback, useId } from 'react';

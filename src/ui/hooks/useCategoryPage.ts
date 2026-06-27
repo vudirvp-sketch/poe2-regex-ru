@@ -281,11 +281,9 @@ export interface CategoryPageState {
   setShowSelectedOnly: (v: boolean) => void;
 
   // ─── Phase 5 fields (iter 136, UI Refactor) ───────────────────────────────
-  // See docs/UI_REFACTOR_PLAN.md §4 Phase 5 for full spec.
   // Wires `pinnedIds` from filter-store (Phase 1, iter 132) into the UI so
-  // FavoritesIndicator can render a compact ★ N badge in the page header
+  // FavoritesIndicator renders a compact ★ N badge in the page header
   // AND FilterChip ⭐ icon button can toggle pinned state per family.
-  // (iter 139 KI#20: was LeftPanelFavorites — component removed.)
 
   /** Favorited token IDs (Phase 5). Renders via FavoritesIndicator (★ N badge). */
   pinnedIds: Set<string>;
@@ -664,8 +662,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
 
   // Phase 5 (iter 136): pinned (favorites) state subscription.
   // Wires `pinnedIds` Set<string> from filter-store (Phase 1, iter 132) into
-  // the UI. FavoritesIndicator renders a compact ★ N badge in the page header
-  // (iter 139: was LeftPanelFavorites — full chip list removed).
+  // the UI. FavoritesIndicator renders a compact ★ N badge in the page header.
   // FilterChip ⭐ icon button toggles pinned state for a family via
   // `togglePinned(id)` (called per member ID). `clearPinned()` clears all.
   //
