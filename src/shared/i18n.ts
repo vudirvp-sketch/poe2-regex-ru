@@ -142,11 +142,17 @@ const translations: Record<Locale, Record<string, string>> = {
     'priority.sa': 'S+A',
     'priority.s_only': 'S',
     'priority.label': 'Приоритет:',
+    // iter 148 (toolbar refactor): short label for compact <select> variant.
+    // Used as aria-label + visual prefix on the select trigger.
+    'priority.label_short': 'Приоритет',
 
     // Within-block sort mode (iter 106 P4: alpha vs tier-first toggle)
     'sort.label': 'Сортировка:',
     'sort.alpha': 'По алфавиту',
     'sort.tier_first': 'По приоритету',
+    // iter 148 (toolbar refactor): short label without trailing colon for
+    // compact <select> variant. Used as aria-label on the select trigger.
+    'sort.label_short': 'Сортировка',
 
     // Navigation
     'nav.categories': 'Категории',
@@ -180,6 +186,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'filter.show_selected': 'Выбранные ({n})',
     // ARIA label for the show-selected-only radio group.
     'filter.show_mode_label': 'Режим отображения аффиксов',
+    // iter 148 (toolbar refactor): short label for compact <select> variant.
+    // Replaces the long «Режим отображения аффиксов» in the toolbar to
+    // reduce visual noise. Used as aria-label on the select trigger.
+    'filter.show_mode_label_short': 'Показывать',
     // SelectedBasket header: «Выбрано: N аффиксов»
     'basket.title': 'Выбрано: {n}',
     // SelectedBasket header noun suffix

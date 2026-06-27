@@ -4,39 +4,43 @@
 
 ---
 
-Task ID: 147 (deploy fix + TS errors + debt cleanup)
+Task ID: 148 (toolbar UX refactor)
 Agent: main
-Task: iter 147 — фикс провала деплоя (Actions run 28289025974): 6 пред-существующих TS ошибок в `VirtualizedModList.tsx` блокировали `tsc -b` в `pnpm build:full`. Параллельно — debt cleanup: удалить неиспользуемый `LeftPanelFavorites.tsx` (не импортируется с iter 139 / KI#20). Baseline: vitest 2252/2252. Result: vitest 2235/2235 (−17 после удаления LeftPanelFavorites test).
+Task: iter 148 — реорганизация панели управления на категорийных страницах (Waystone и др.). Пользователь пожаловался на визуальный перегруз: 12+ контролов одновременно на одном визуальном уровне. Цель — уменьшить cognitive load, не ломая state-модель и ARIA-семантику.
 
 Work Log:
-- 1: **Диагностика деплоя** — клонировал репозиторий, проверил `.github/workflows/deploy.yml`: build job = `pnpm install` → `playwright install` → `pnpm test` → `pnpm build:full` (= `tsc -b && vite build && tsx scripts/prerender.ts && tsx scripts/prerender-full.ts`). Stash существующих pending changes → запустил `tsc -b` → 6 ошибок:
-  - `VirtualizedModList.tsx(686,48): Property 'affix' does not exist on type '{ type: "origin-header"; origin: ModOrigin; ... }'`
-  - `VirtualizedModList.tsx(687,52): Property 'affix' does not exist on type '{ type: "jewel-type-header"; jewelType: JewelType; ... }'`
-  - `VirtualizedModList.tsx(693,5): Object literal may only specify known properties, and 'shouldAdjustScrollPositionOnItemSizeChange' does not exist in type 'PartialKeys<ReactVirtualizerOptions<...>>'`
-  - И симметричные 3 ошибки для single-column virtualizer (строки 981/982/988).
-- 2: **TS fix** — в `getItemKey` switch:
-  - `case 'origin-header': return `oh:${row.origin}`;` (убран `row.affix:` — он всегда был `undefined`, ключ был `oh:undefined:${origin}`).
-  - `case 'jewel-type-header': return `jh:${row.jewelType}`;` (аналогично).
-  - Удалён `shouldAdjustScrollPositionOnItemSizeChange: () => false` из обоих virtualizer'ов. Свойство не существует в `@tanstack/react-virtual` v3 API.
-  - **Уникальность ключей сохранена:** `buildColumnRows` эмитит origin-header один раз за `ORIGIN_ORDER` цикл (по `byOrigin` Map), jewel-type-header — один раз за `JEWEL_TYPE_ORDER` цикл внутри одного origin. `showJewelTypeSubGroups` сейчас нигде не передаётся → дубликатов `jh:${jewelType}` не возникает.
-  - Комментарии обновлены: упомянут iter 147 TS fix + объяснено, что feedback loop KI#34 теперь предотвращается stable keys + CSS `contain` (iter 146 KI#38).
-- 3: **Debt cleanup** — удалил `src/ui/components/LeftPanelFavorites.tsx` (240 строк, не импортируется с iter 139) + `tests/ui/LeftPanelFavorites.test.tsx` (483 строки, 17 тестов). Stale comments в `useCategoryPage.ts`, `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `CategoryLayout.tsx` оставлены как исторические (low-risk, на следующую итерацию).
-- 4: **STATUS.md clean-up** — убрана длинная история iter 146, оставлены только ключевые KI. Документирован iter 147 (TS fix + debt cleanup). KI#39 (условный — отключить dynamic measurement если jitter остаётся) помечен как «применить только если browser testing KI#38 покажет остаточный jitter». Next iter 148 приоритеты: browser testing KI#36/37/38 → если нужно KI#39 → mobile layout → stale comments → code-split bundle.
-- 5: **Verification** — `tsc -b` 0 errors / `eslint .` 0 warnings / `vitest` 2235/2235 (55 files, было 56 — удалил LeftPanelFavorites test) / `pnpm build` (= `tsc -b && vite build && tsx scripts/prerender.ts`) succeeds, 9 route HTML files generated. `prerender-full.ts` требует playwright + chromium — в CI ставится через `npx playwright install chromium --with-deps`.
+- 1: **Анализ UI** — изучил текущую структуру: `CategoryControlPanel.tsx` (логика И/ИЛИ + приоритет + сортировка + show-selected + extraControls), `ModList.tsx` sticky-search-bar (поиск + тип + источник + развернуть/свернуть), `WaystonePage.tsx` extraControls (3 чекбокса Оскв/Неоскв/Делир). Идентифицировал 12+ контролов на одном визуальном уровне.
+- 2: **План рефакторинга** — задокументирован в `docs/ITER148_TOOLBAR_REFACTOR.md`. Принципы: (а) доминируют только то, что трогают каждый раз — поиск + И/ИЛИ + Тип + Источник; (б) редко меняемое сворачивается в `<select>`; (в) избыточные подписи сокращаются; (г) map-фильтры становятся цветными chip-тоглами; (д) state-модель и ARIA не меняются. И/ИЛИ НЕ трогаем (используются постоянно).
+- 3: **i18n keys** — добавлены `priority.label_short` ("Приоритет"), `sort.label_short` ("Сортировка"), `filter.show_mode_label_short` ("Показывать"). Старые ключи сохранены для backward compat.
+- 4: **CategoryControlPanel.tsx** — заменил 3 радиогруппы на `<select>`:
+  - Priority filter: 3 кнопки + label → 1 `<select>` с 3 опциями. Экономия 3 слота.
+  - Sort mode: 2 кнопки + label → 1 `<select>` с 2 опциями. Экономия 2 слота.
+  - Show-selected-only: 2 кнопки + длинный label «Режим отображения аффиксов» → 1 `<select>` с коротким aria-label «Показывать». Экономия 3 слотов.
+  - Удалены `priorityOptions` + `sortOptions` arrays (больше не нужны — у `<select>` нативная arrow-key nav). `handleRadioKeyDown` сохранён для И/ИЛИ.
+  - И/ИЛИ остаются prominent amber-кнопками — НЕ ТРОГАЕМ.
+- 5: **WaystonePage.tsx extraControls** — 3 чекбокса с текстом → 3 цветных chip-тогла:
+  - Осквернён → purple border + text (bg-raised when active).
+  - Неосквернён → emerald.
+  - Делириум → blue.
+  - `<input type="checkbox">` сохранён внутри `<label>` (нативная ARIA + Space-toggle), визуально спрятан через `sr-only`. Wrapper `<label>` стилизован как chip с `rounded-full` + border-color. Взаимная исключительность Оскв/Неоскв сохранена.
+- 6: **Verification** — `tsc -b` 0 errors / `eslint .` 0 warnings / `vitest` 2235/2235 (без изменений — presentation layer) / `pnpm build` succeeds, 9 route HTML files generated. Pre-existing bundle >500KB warning сохранён (background KI).
+- 7: **STATUS.md + worklog.md** — обновлены. iter 147 сокращён до одной строки.
 
 Stage Summary:
-- Deploy blocker FIXED: 6 TS ошибок устранены, `tsc -b` проходит, `pnpm build` succeeds. CI должен пройти.
-- Debt cleanup DONE: LeftPanelFavorites (component + test, 723 строки) удалены.
+- Toolbar UX refactor DONE: 3 радиогруппы → 3 `<select>`, 3 чекбокса → 3 цветных chip-тогла. Визуальный overload снижен: ~8 горизонтальных слотов экономии на wide-экранах.
+- State-модель НЕ менялась — `filter-store.ts`, `useCategoryPage.ts`, URL sync, profile persistence без изменений.
 - Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / pnpm build PASS.
-- Изменённые файлы: `src/ui/components/VirtualizedModList.tsx`, `STATUS.md`, `worklog.md`. Удалённые: `src/ui/components/LeftPanelFavorites.tsx`, `tests/ui/LeftPanelFavorites.test.tsx`.
-- **Stopping point:** iter 147 завершён, готов к push. Next iter 148 = browser testing KI#36/37/38 → KI#39 conditional → mobile layout → stale comments cleanup → code-split bundle.
+- Изменённые файлы: `src/ui/components/CategoryControlPanel.tsx`, `src/ui/pages/waystone/WaystonePage.tsx`, `src/shared/i18n.ts`, `STATUS.md`, `worklog.md`. Новый: `docs/ITER148_TOOLBAR_REFACTOR.md`.
+- **Stopping point:** iter 148 завершён, готов к push. Next iter 149 = browser testing iter 148 (7 категорийных страниц) + KI#36/37/38 + KI#39 conditional + mobile layout + stale comments + code-split bundle.
 
 ---
 
-Task ID: 146 — KI#36 favorites grouping (canonical groupTokensByFamily + splitGroupByOrigin) + KI#37 origin badge (ОЧЕРН/ОСКВ/СУЩН/РАЗЛ) + KI#38 CSS `contain: layout style paint` на virtual rows. vitest 2252/2252 (+5 new tests).
+Task ID: 147 — деплой-блокер (6 TS ошибок в VirtualizedModList.tsx) устранён, debt cleanup (LeftPanelFavorites удалён). vitest 2235/2235.
 
-Task ID: 145 — KI#34 scroll doubling (shouldAdjustScroll=false + stable getItemKey + overscan 5 + items-start) + KI#35 expand/collapse all keys (origin/jewelType в subKey). Файлы: VirtualizedModList.tsx, ModList.tsx, STATUS.md. vitest 2247/2247.
+Task ID: 146 — KI#36 favorites grouping + KI#37 origin badge + KI#38 CSS `contain: layout style paint` на virtual rows. vitest 2252/2252.
 
-Task ID: 144 — 5 KI: KI#32 cascade expand fix, KI#30 per-category localStorage favorites, KI#31 variant (d) quick-select panel, KI#33 VendorPage favorites, KI#23 variant (b) scroll jitter estimate. vitest 2247/2247 (+57 new tests).
+Task ID: 145 — KI#34 scroll doubling + KI#35 expand/collapse all keys. vitest 2247/2247.
+
+Task ID: 144 — 5 KI: KI#32 cascade expand, KI#30 per-category localStorage favorites, KI#31 quick-select panel, KI#33 VendorPage favorites, KI#23 scroll jitter estimate. vitest 2247/2247 (+57 new tests).
 
 Task ID: ≤143 — см. git log. Полная история в `git log --oneline`.

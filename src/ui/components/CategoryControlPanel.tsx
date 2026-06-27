@@ -7,11 +7,20 @@
  * (right column, sticky via <aside>).
  *
  * Contains:
- * - Mode toggle (Хочу / Не хочу)
+ * - Search logic toggle (Все И / Любой ИЛИ) — prominent amber buttons,
+ *   always visible (used constantly per user scenario).
  * - Range filter (≥ min, ≤ max) — conditional on hasRangedTokens
  * - Round10 toggle — conditional on hasRangedTokens (or showRound10)
+ * - Priority tier filter — compact <select> (iter 148: was 3-button radiogroup)
+ * - Within-block sort mode — compact <select> (iter 148: was 2-button radiogroup)
+ * - Show-selected-only toggle — compact <select> (iter 148: was 2-button radiogroup)
  * - Slot for category-specific controls (waystone state, tablet types, etc.)
  * - Optional clear button slot
+ *
+ * iter 148 (toolbar refactor): priority/sort/show-mode toggles collapsed
+ * from radiogroups into <select>s to reduce visual noise. The И/ИЛИ toggle
+ * stays as prominent buttons because it changes query semantics (constant
+ * usage). See docs/ITER148_TOOLBAR_REFACTOR.md for full rationale.
  *
  * History: iter 52 introduced a non-breaking `hideRegexOutput` prop with two
  * modes (legacy embedded RegexOutput + sticky wrapper, and split controls-only).
@@ -76,16 +85,18 @@ interface CategoryControlPanelProps {
   // ─── Phase 3 (iter 135): show-selected-only toggle ─────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
   // When true, ModList/VirtualizedModList filter familyGroups to only those
-  // with selected/excluded/pinned members. Toggle is a 2-button radio group
-  // («Все» / «Выбранные (N)») placed next to the priorityFilter group.
+  // with selected/excluded/pinned members. iter 148 (toolbar refactor):
+  // toggle is a compact <select> («Все» / «Выбранные (N)») placed next to
+  // the priorityFilter and sortMode selects. Was a 2-button radiogroup
+  // before iter 148.
 
   /** Current value of `showSelectedOnly` from filter-store.
    *  Optional — when omitted, the toggle is NOT rendered (backward compat). */
   showSelectedOnly?: boolean;
   /** Set show-selected-only mode. Optional — when omitted, toggle not rendered. */
   onSetShowSelectedOnly?: (v: boolean) => void;
-  /** Count of selected tokens — for the «Выбранные (N)» label.
-   *  When 0, the «Выбранные» button is disabled. */
+  /** Count of selected tokens — for the «Выбранные (N)» option label.
+   *  When 0, the «Выбранные» option is disabled. */
   selectedCount?: number;
 }
 
@@ -151,22 +162,13 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
     { value: 'or' as SearchLogic, action: () => setSearchLogic('or') },
   ];
 
-  // Priority filter options for arrow key navigation
+  // iter 148 (toolbar refactor): priorityFilter + sortMode moved from
+  // radiogroups to compact <select>s. The previous priorityOptions /
+  // sortOptions arrays + handleRadioKeyDown wiring are no longer needed
+  // — <select> has native arrow-key navigation per ARIA spec.
+  // Fallback no-op when setter is not provided (backward compat).
   const onSetPriorityFilter = setPriorityFilter ?? (() => {});
-  const priorityOptions = [
-    { value: 'all' as PriorityFilter, action: () => onSetPriorityFilter('all') },
-    { value: 'S+A' as PriorityFilter, action: () => onSetPriorityFilter('S+A') },
-    { value: 'S' as PriorityFilter, action: () => onSetPriorityFilter('S') },
-  ];
-
-  // iter 106 (P4): sort mode toggle options for arrow key navigation.
-  //   'alpha'      : familyKey primary, priorityTier tiebreaker (iter 99 default)
-  //   'tier-first' : priorityTier (S→A→B→C) primary, familyKey tiebreaker (legacy)
   const onSetSortMode = setSortMode ?? (() => {});
-  const sortOptions = [
-    { value: 'alpha' as SortMode, action: () => onSetSortMode('alpha') },
-    { value: 'tier-first' as SortMode, action: () => onSetSortMode('tier-first') },
-  ];
 
   return (
     <div role="toolbar" aria-label={t('control.panel')}>
@@ -307,138 +309,70 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
         {/* Clear button slot */}
         {clearButton}
 
-        {/* Priority tier filter */}
+        {/* Priority tier filter.
+            iter 148 (toolbar refactor): replaced 3-button radiogroup with
+            compact <select>. The previous 3-button + label layout consumed
+            ~4 horizontal slots and visually competed with И/ИЛИ despite
+            being rarely changed. <select> preserves ARIA semantics (native
+            arrow-key nav + Enter/Space toggle) and shows the current value
+            inside the trigger, so the user always knows the active option.
+            i18n key priority.label_short ("Приоритет") used as aria-label.
+            Old priority.label ("Приоритет:") preserved for backward compat. */}
         {showPriorityFilter && (
-          <div className="flex items-center gap-1">
-            {/* iter 70: text-dim → text-muted */}
-            <span className="text-[12px] text-muted">{t('priority.label')}</span>
-            <div className="flex gap-0.5" role="radiogroup" aria-label={t('priority.label')}
-              onKeyDown={(e) => handleRadioKeyDown(e, priorityOptions, priorityFilter)}
-            >
-              <button
-                onClick={() => onSetPriorityFilter('all')}
-                role="radio"
-                aria-checked={priorityFilter === 'all'}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'all' ? 'bg-raised text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('priority.all')}
-              </button>
-              <button
-                onClick={() => onSetPriorityFilter('S+A')}
-                role="radio"
-                aria-checked={priorityFilter === 'S+A'}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'S+A' ? 'bg-amber-700 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('priority.sa')}
-              </button>
-              <button
-                onClick={() => onSetPriorityFilter('S')}
-                role="radio"
-                aria-checked={priorityFilter === 'S'}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  priorityFilter === 'S' ? 'bg-amber-500 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('priority.s_only')}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* iter 106 (P4): within-block sort mode toggle (alpha vs tier-first).
-            Placed next to priorityFilter — they're conceptually related:
-            priorityFilter decides WHICH tiers to show, sortMode decides
-            HOW to order the surviving groups. Only shown when showSortMode
-            is true (same set of pages as showPriorityFilter). */}
-        {showSortMode && setSortMode && (
-          <div className="flex items-center gap-1">
-            <span className="text-[12px] text-muted">{t('sort.label')}</span>
-            <div className="flex gap-0.5" role="radiogroup" aria-label={t('sort.label')}
-              onKeyDown={(e) => handleRadioKeyDown(e, sortOptions, sortMode)}
-            >
-              <button
-                onClick={() => onSetSortMode('alpha')}
-                role="radio"
-                aria-checked={sortMode === 'alpha'}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  sortMode === 'alpha' ? 'bg-raised text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('sort.alpha')}
-              </button>
-              <button
-                onClick={() => onSetSortMode('tier-first')}
-                role="radio"
-                aria-checked={sortMode === 'tier-first'}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  sortMode === 'tier-first' ? 'bg-amber-700 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('sort.tier_first')}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Phase 3 (iter 135): show-selected-only toggle «Все / Выбранные (N)».
-            Filters familyGroups to only those with selected/excluded/pinned
-            members. Placed next to priorityFilter + sortMode (related: all
-            three narrow which chips render). «Выбранные (N)» button is
-            disabled when selectedCount === 0 — nothing to show.
-            Backward compat: when onSetShowSelectedOnly is NOT provided
-            (e.g. VendorPage uses custom FilterChip), the toggle is NOT
-            rendered.
-            iter 140 (KI#25): added `title` + `aria-label` tooltip on the
-            outer wrapper to explain what the toggle does — user asked
-            «кнопка режим отображения аффиксов и сама функция для чего
-            собственно?». Tooltip text from i18n key `filter.show_mode_hint`. */}
-        {onSetShowSelectedOnly && (
-          <div
-            className="flex items-center gap-1"
-            title={t('filter.show_mode_hint')}
-            aria-label={t('filter.show_mode_hint')}
+          <select
+            value={priorityFilter}
+            onChange={(e) => onSetPriorityFilter(e.target.value as PriorityFilter)}
+            aria-label={t('priority.label_short')}
+            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer"
           >
-            <span className="text-[12px] text-muted">{t('filter.show_mode_label')}</span>
-            <div
-              className="flex gap-0.5"
-              role="radiogroup"
-              aria-label={t('filter.show_mode_label')}
-              onKeyDown={(e) => handleRadioKeyDown(
-                e,
-                [
-                  { value: false, action: () => onSetShowSelectedOnly(false) },
-                  { value: true, action: () => onSetShowSelectedOnly(true) },
-                ],
-                showSelectedOnly,
-              )}
-            >
-              <button
-                onClick={() => onSetShowSelectedOnly(false)}
-                role="radio"
-                aria-checked={!showSelectedOnly}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  !showSelectedOnly ? 'bg-raised text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                }`}
-              >
-                {t('filter.show_all')}
-              </button>
-              <button
-                onClick={() => selectedCount > 0 && onSetShowSelectedOnly(true)}
-                role="radio"
-                aria-checked={showSelectedOnly}
-                disabled={selectedCount === 0}
-                className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                  showSelectedOnly ? 'bg-amber-600 text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
-                } ${selectedCount === 0 ? 'opacity-50 cursor-not-allowed hover:bg-surface' : ''}`}
-              >
-                {t('filter.show_selected').replace('{n}', String(selectedCount))}
-              </button>
-            </div>
-          </div>
+            <option value="all">{t('priority.all')}</option>
+            <option value="S+A">{t('priority.sa')}</option>
+            <option value="S">{t('priority.s_only')}</option>
+          </select>
+        )}
+
+        {/* iter 106 (P4): within-block sort mode (alpha vs tier-first).
+            iter 148 (toolbar refactor): replaced 2-button radiogroup with
+            compact <select>. Same rationale as priorityFilter above — rarely
+            changed, shouldn't compete visually with И/ИЛИ. */}
+        {showSortMode && setSortMode && (
+          <select
+            value={sortMode}
+            onChange={(e) => onSetSortMode(e.target.value as SortMode)}
+            aria-label={t('sort.label_short')}
+            className="px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer"
+          >
+            <option value="alpha">{t('sort.alpha')}</option>
+            <option value="tier-first">{t('sort.tier_first')}</option>
+          </select>
+        )}
+
+        {/* Phase 3 (iter 135): show-selected-only toggle.
+            iter 148 (toolbar refactor): replaced 2-button radiogroup with
+            compact <select>. Old long label «Режим отображения аффиксов»
+            replaced with short aria-label «Показывать» (filter.show_mode_label_short)
+            — the user is already in the affix list, no need to re-state
+            context. Selected count surfaced via the option label itself.
+            Backward compat: when onSetShowSelectedOnly is NOT provided
+            (e.g. VendorPage uses custom FilterChip), the select is NOT rendered.
+            iter 140 (KI#25): `title` tooltip preserved on the wrapper to
+            explain what the toggle does when the user hovers. */}
+        {onSetShowSelectedOnly && (
+          <select
+            value={showSelectedOnly ? 'selected' : 'all'}
+            onChange={(e) => onSetShowSelectedOnly(e.target.value === 'selected')}
+            disabled={selectedCount === 0}
+            aria-label={t('filter.show_mode_label_short')}
+            title={t('filter.show_mode_hint')}
+            className={`px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer ${
+              selectedCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <option value="all">{t('filter.show_all')}</option>
+            <option value="selected">
+              {t('filter.show_selected').replace('{n}', String(selectedCount))}
+            </option>
+          </select>
         )}
 
         {/* Category-specific controls slot */}

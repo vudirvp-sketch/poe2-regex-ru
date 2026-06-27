@@ -192,24 +192,54 @@ export function WaystonePage() {
                 onSetShowSelectedOnly={setShowSelectedOnly}
                 selectedCount={selectedIds.size}
                 extraControls={
-                  <div className="flex items-center gap-3 ml-2 pl-2 border-l border-edge-panel">
-                    <label className="flex items-center gap-1 cursor-pointer">
+                  // iter 148 (toolbar refactor): map-state filters restyled
+                  // from bare checkboxes + text labels to colored chip-toggles
+                  // that visually distinguish them as DATA filters (not UI
+                  // settings). Each chip keeps the underlying <input
+                  // type="checkbox"> for native ARIA + keyboard (Space toggle),
+                  // but the wrapper <label> is styled as a chip that
+                  // highlights when active.
+                  //  - Осквернён  → purple (text-accent-purple)
+                  //  - Неосквернён → emerald
+                  //  - Делириум   → blue
+                  // Осквернён + Неосквернён remain mutually exclusive (toggling
+                  // one off inverts the other) — same logic as before iter 148.
+                  <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-edge-panel">
+                    <label
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-medium cursor-pointer transition-colors border ${
+                        corrupted
+                          ? 'bg-raised border-accent-purple text-accent-purple'
+                          : 'bg-surface border-edge text-muted hover:bg-chip-hover'
+                      }`}
+                    >
                       <input type="checkbox" checked={corrupted}
                         onChange={(e) => { setCorrupted(e.target.checked); if (e.target.checked) setUncorrupted(false); }}
-                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-accent-purple" />
-                      <span className="text-[12px] text-soft">{t('waystone.corrupted_label')}</span>
+                        className="sr-only" />
+                      {t('waystone.corrupted_label')}
                     </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-medium cursor-pointer transition-colors border ${
+                        uncorrupted
+                          ? 'bg-raised border-accent-emerald text-accent-emerald'
+                          : 'bg-surface border-edge text-muted hover:bg-chip-hover'
+                      }`}
+                    >
                       <input type="checkbox" checked={uncorrupted}
                         onChange={(e) => { setUncorrupted(e.target.checked); if (e.target.checked) setCorrupted(false); }}
-                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-accent-emerald" />
-                      <span className="text-[12px] text-soft">{t('waystone.uncorrupted_label')}</span>
+                        className="sr-only" />
+                      {t('waystone.uncorrupted_label')}
                     </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-medium cursor-pointer transition-colors border ${
+                        delirious
+                          ? 'bg-raised border-accent-blue text-accent-blue'
+                          : 'bg-surface border-edge text-muted hover:bg-chip-hover'
+                      }`}
+                    >
                       <input type="checkbox" checked={delirious}
                         onChange={(e) => setDelirious(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded bg-raised border-edge text-accent-blue" />
-                      <span className="text-[12px] text-soft">{t('waystone.delirious_label')}</span>
+                        className="sr-only" />
+                      {t('waystone.delirious_label')}
                     </label>
                   </div>
                 }
