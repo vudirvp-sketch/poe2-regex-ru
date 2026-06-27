@@ -30,7 +30,9 @@ import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
-import { CHIP_PREVIEW_COUNT } from '@shared/constants';
+// iter 139 (KI#18): CHIP_PREVIEW_COUNT import removed — Phase 2.5 chip
+// truncation was reverted. The constant stays in `@shared/constants` for
+// backward compat but is no longer consumed by this component.
 import type { TokenRangeOverride } from '@store/filter-store';
 
 interface VirtualizedModListProps {
@@ -355,7 +357,11 @@ const VirtualRowContent: React.FC<{
   pinnedIds?: Set<string>;
   /** Phase 5 (iter 136): forwarded to FilterChip ⭐ icon button. */
   onTogglePinned?: (ids: string[]) => void;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, onToggleChipExpand, chipExpandState, pinnedIds, onTogglePinned }) => {
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, pinnedIds, onTogglePinned }) => {
+  // iter 139 (KI#18): `chipExpandState` / `onToggleChipExpand` props REMOVED
+  // from the destructure list (they remain in the FC interface above for
+  // backward compat with callers that still pass them, but the component no
+  // longer reads them — Phase 2.5 truncation was reverted per user feedback).
   if (row.type === 'column-header') {
     const isImplicit = row.affix === 'implicit';
     // Phase 4 (iter 137): `--strong` modifier (CSS ready from iter 137) — applied
@@ -446,45 +452,13 @@ const VirtualRowContent: React.FC<{
   }
 
   // subgroup (expanded) — render header (with collapse toggle when wired) + chips.
-  // iter 134 (Phase 2.5): apply per-sub-group chip truncation when wiring present.
+  // iter 139 (KI#18): REVERTED Phase 2.5 chip truncation logic. All chips in
+  // an expanded sub-group now render unconditionally (no `+N ещё` button,
+  // no `свернуть` button). `chipExpandState` / `onToggleChipExpand` props
+  // remain in the API for backward compat but are now NO-OP. Mirrors the
+  // same revert in ModList.tsx — both rendering paths stay in sync.
   const collapseWired = !!(row.subKey && onToggleSubGroupExpanded);
-  const chipExpandWired = !!(row.subKey && chipExpandState && onToggleChipExpand);
-  const isChipExpanded = !chipExpandWired || chipExpandState!.has(row.subKey!);
-
-  // Determine which chips are "important" — selected, excluded, or pinned
-  // members must remain visible even when the sub-group is truncated.
-  const isChipImportant = (group: FamilyGroup): boolean => {
-    for (const m of group.members) {
-      if (selectedIds.has(m.id)) return true;
-      if (excludedIds?.has(m.id)) return true;
-      if (pinnedIds?.has(m.id)) return true;
-    }
-    return false;
-  };
-
-  // Compute visible chips + whether the «+N ещё» / «свернуть» button renders.
-  // Mirrors ModSubGroupSection logic in ModList.tsx — kept in sync deliberately
-  // so both rendering paths (virtualized vs non-virtualized) behave identically.
-  let visibleChips: FamilyGroup[] = row.subGroup.groups;
-  let hiddenCount = 0;
-  let showMoreButton = false;
-  let showCollapseButton = false;
-
-  if (chipExpandWired) {
-    if (isChipExpanded) {
-      visibleChips = row.subGroup.groups;
-      if (row.subGroup.groups.length > CHIP_PREVIEW_COUNT) {
-        showCollapseButton = true;
-      }
-    } else if (row.subGroup.groups.length > CHIP_PREVIEW_COUNT) {
-      const preview = row.subGroup.groups.slice(0, CHIP_PREVIEW_COUNT);
-      const tail = row.subGroup.groups.slice(CHIP_PREVIEW_COUNT);
-      const importantTail = tail.filter(isChipImportant);
-      visibleChips = [...preview, ...importantTail];
-      hiddenCount = row.subGroup.groups.length - visibleChips.length;
-      showMoreButton = hiddenCount > 0;
-    }
-  }
+  const visibleChips: FamilyGroup[] = row.subGroup.groups;
 
   return (
     <div className="mb-2">
@@ -522,28 +496,8 @@ const VirtualRowContent: React.FC<{
             onTogglePinned={onTogglePinned}
           />
         ))}
-        {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button — same styling
-            as in ModList.tsx (kept in sync). */}
-        {showMoreButton && (
-          <button
-            type="button"
-            onClick={() => onToggleChipExpand!(row.subKey!)}
-            aria-label={t('chip.more_aria').replace('{n}', String(hiddenCount))}
-            className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
-          >
-            {t('chip.more').replace('{n}', String(hiddenCount))}
-          </button>
-        )}
-        {showCollapseButton && (
-          <button
-            type="button"
-            onClick={() => onToggleChipExpand!(row.subKey!)}
-            aria-label={t('chip.collapse_aria')}
-            className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
-          >
-            {t('chip.collapse')}
-          </button>
-        )}
+        {/* iter 139 (KI#18): «+N ещё» / «свернуть» buttons REMOVED —
+            Phase 2.5 truncation reverted per user feedback. Same as ModList.tsx. */}
       </div>
     </div>
   );

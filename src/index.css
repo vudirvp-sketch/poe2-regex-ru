@@ -1343,31 +1343,24 @@ input:focus:not(:focus-visible),
   border-width: 0;
 }
 
-/* ─── Phase 2 (iter 133): Sticky search bar + collapsible group headers ─── */
-/* Search input + filter controls stick under the TopNav (which is itself
-   sticky at top:0, height 52px on mobile / 56px on md+). The sticky-search-bar
-   stacks BELOW TopNav by offsetting by TopNav's height. backdrop-blur keeps
-   mod content readable as the user scrolls past.
-
-   ⚠ Same source-order pitfall as .mobile-regex-bar (Pitfall 35): the sticky
-   positioning must apply on ALL viewports — no `max-width` media query wrap,
-   because the rule does NOT set `display` (which would conflict with Tailwind
-   utilities). Only `position` + offsets + bg are set here. */
+/* ─── Phase 2 (iter 133 → REVISED iter 139, KI#19): Non-sticky search bar ─── */
+/* Search input + filter controls render as a STATIC block at the top of the
+   left column (above the ModList chips area). iter 133 made this `position:
+   sticky; top: 52px` to keep search visible while scrolling — but iter 139
+   reverted to non-sticky per user feedback: «этот элемент прикреплён к правой
+   панели и двигается при скроле вместе с ним, но над ним прямо видно
+   прокручивающиеся аффиксы, короче бред какой-то». The sticky behavior
+   caused visible overlap with scrolling content (z-index conflict with
+   chips passing "above" the bar). Per reference mockup, search is a simple
+   static block — no sticky, no overlap.
+   Visual styling (bg + border-bottom) is kept as a subtle separator between
+   the search row and the chips area below. */
 .sticky-search-bar {
-  position: sticky;
-  top: 52px;
-  z-index: 20;
-  background: rgba(13, 11, 9, 0.92);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  position: relative;
+  background: rgba(13, 11, 9, 0.55);
   border-bottom: 1px solid var(--poe-border);
   padding: 6px 0;
   margin: 0 -4px 8px;
-}
-@media (min-width: 768px) {
-  .sticky-search-bar {
-    top: 56px;
-  }
 }
 
 /* Chevron glyph rotation when the parent group is expanded. The base glyph
@@ -1470,5 +1463,39 @@ input:focus:not(:focus-visible),
   width: 1.2em;
   text-align: center;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ─── iter 139 (KI#16): Right aside overflow protection ─── */
+/* The right <aside> in CategoryLayout is `lg:grid-cols-[1fr_320px]` — 320px
+   fixed width on desktop. Without `min-width: 0` + `overflow-x: hidden`,
+   long regex strings / chip text inside SelectedBasket / RegexOutput force a
+   horizontal scrollbar that pushes the «Копировать» button off-screen.
+   `min-width: 0` is the standard flex/grid fix — children with long content
+   no longer force the parent to grow horizontally. `overflow-x: hidden` is
+   a defensive belt-and-suspenders.
+   Applied via the `.category-aside` class on the <aside> element in
+   CategoryLayout.tsx (added in iter 139). */
+.category-aside {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* iter 139 (KI#16): RegexOutput header row must also allow shrinking.
+   The header is `flex items-center justify-between` — by default, flex
+   children don't shrink below their content's intrinsic width, so the
+   «Копировать» button + share button + auto-copy checkbox can push the
+   row past 320px. `min-width: 0` on the row + `flex-shrink: 0` on the
+   button group keeps the buttons visible while letting the title shrink. */
+.regex-output > .flex.items-center.justify-between {
+  min-width: 0;
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.regex-output > .flex.items-center.justify-between > h3 {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.regex-output > .flex.items-center.justify-between > .flex.items-center.gap-2 {
   flex-shrink: 0;
 }

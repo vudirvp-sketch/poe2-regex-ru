@@ -20,7 +20,10 @@ import { ORIGIN_SECTION_LABELS } from '@shared/mod-classifier';
 import { FilterChip } from './FilterChip';
 import { GroupHeader } from './GroupHeader';
 import { t } from '@shared/i18n';
-import { CHIP_PREVIEW_COUNT } from '@shared/constants';
+// iter 139 (KI#18): CHIP_PREVIEW_COUNT import removed — Phase 2.5 chip
+// truncation was reverted. The constant stays in `@shared/constants` for
+// backward compat (no breaking change to the public API) but is no longer
+// consumed by this component.
 import type { TokenRangeOverride } from '@store/filter-store';
 
 interface ModListProps {
@@ -242,7 +245,11 @@ const ModSubGroupSection: React.FC<{
   pinnedIds?: Set<string>;
   /** Phase 5 (iter 136): forwarded to FilterChip ⭐ icon button. */
   onTogglePinned?: (ids: string[]) => void;
-}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded, chipExpandState, onToggleChipExpand, pinnedIds, onTogglePinned }) => {
+}> = React.memo(({ subGroup, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, hideLabel, sortMode, subGroupKey, expandedSubGroups, onToggleSubGroupExpanded, pinnedIds, onTogglePinned }) => {
+  // iter 139 (KI#18): `chipExpandState` / `onToggleChipExpand` props REMOVED
+  // from the destructure list (they remain in the FC interface above for
+  // backward compat with callers that still pass them, but the component no
+  // longer reads them — Phase 2.5 truncation was reverted per user feedback).
   // Phase 2 (iter 133): if collapse wiring is present, derive isCollapsed.
   // When `expandedSubGroups` is undefined (legacy callers), we treat the
   // sub-group as expanded (preserve pre-Phase-2 behaviour).
@@ -251,53 +258,21 @@ const ModSubGroupSection: React.FC<{
   const showHeader = subGroup.label && !hideLabel;
   const showChips = isExpanded || !showHeader;
 
-  // Phase 2.5 (iter 134): per-sub-group chip truncation logic.
-  // Only applies when (a) chips are visible (sub-group expanded or no header)
-  // AND (b) chip-expand wiring is provided. Legacy callers skip truncation.
-  const chipExpandWired = !!(subGroupKey && chipExpandState && onToggleChipExpand);
-  const isChipExpanded = !chipExpandWired || chipExpandState!.has(subGroupKey!);
-
-  // Determine which chips are "important" — selected, excluded, or pinned
-  // members must remain visible even when the sub-group is truncated, so the
-  // user never loses their current selection/favorites in the truncation.
-  const isChipImportant = useCallback((group: FamilyGroup): boolean => {
-    for (const m of group.members) {
-      if (selectedIds.has(m.id)) return true;
-      if (excludedIds?.has(m.id)) return true;
-      if (pinnedIds?.has(m.id)) return true;
-    }
-    return false;
-  }, [selectedIds, excludedIds, pinnedIds]);
-
-  // Compute visible chips + whether the «+N ещё» / «свернуть» button renders.
-  let visibleChips: FamilyGroup[] = subGroup.groups;
-  let hiddenCount = 0;
-  let showMoreButton = false;
-  let showCollapseButton = false;
-
-  if (showChips && chipExpandWired) {
-    if (isChipExpanded) {
-      // Fully expanded → all chips + «свернуть» button (only if the sub-group
-      // has MORE than preview count — otherwise the button is pointless noise).
-      visibleChips = subGroup.groups;
-      if (subGroup.groups.length > CHIP_PREVIEW_COUNT) {
-        showCollapseButton = true;
-      }
-    } else if (subGroup.groups.length > CHIP_PREVIEW_COUNT) {
-      // Truncated mode: first N + important chips past N.
-      const preview = subGroup.groups.slice(0, CHIP_PREVIEW_COUNT);
-      const tail = subGroup.groups.slice(CHIP_PREVIEW_COUNT);
-      const importantTail = tail.filter(isChipImportant);
-      visibleChips = [...preview, ...importantTail];
-      hiddenCount = subGroup.groups.length - visibleChips.length;
-      // «+N ещё» renders only when there ARE hidden chips. Edge case: if all
-      // chips past preview are important, hiddenCount=0 and we don't show the
-      // button — equivalent to fully visible.
-      showMoreButton = hiddenCount > 0;
-    }
-    // else: chipExpandWired but sub-group has ≤ CHIP_PREVIEW_COUNT chips →
-    // show all, no button (matches expanded case but without «свернуть»).
-  }
+  // iter 139 (KI#18): REVERTED Phase 2.5 chip truncation.
+  // Phase 2.5 (iter 134) added per-sub-group chip truncation to CHIP_PREVIEW_COUNT
+  // (3) + «+N ещё» / «свернуть» buttons. User explicitly rejected this UX:
+  // «не хочу эти лишние кнопки ещё, зачем дополнительная вложенность и лишние
+  // клики?». Truncation logic, important-chip rescue, and expand/collapse
+  // buttons are all removed. `chipExpandState` / `onToggleChipExpand` props
+  // remain in the API for backward compat (callers can still pass them) but
+  // are now NO-OP — all chips in a sub-group always render when the sub-group
+  // is expanded. The `isChipImportant` callback is also removed since nothing
+  // uses it anymore.
+  //
+  // `CHIP_PREVIEW_COUNT` constant stays in `@shared/constants` for backward
+  // compat (no breaking change to the public API), but is no longer consumed
+  // by this component.
+  const visibleChips: FamilyGroup[] = subGroup.groups;
 
   return (
     <div className="mb-2">
@@ -336,30 +311,10 @@ const ModSubGroupSection: React.FC<{
               onTogglePinned={onTogglePinned}
             />
           ))}
-          {/* Phase 2.5 (iter 134): «+N ещё» / «свернуть» button.
-              Rendered as a real <button> for keyboard nav + a11y. Styled as a
-              subtle chip-like element so it visually integrates with the
-              surrounding flex-wrap row. */}
-          {showMoreButton && (
-            <button
-              type="button"
-              onClick={() => onToggleChipExpand!(subGroupKey!)}
-              aria-label={t('chip.more_aria').replace('{n}', String(hiddenCount))}
-              className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
-            >
-              {t('chip.more').replace('{n}', String(hiddenCount))}
-            </button>
-          )}
-          {showCollapseButton && (
-            <button
-              type="button"
-              onClick={() => onToggleChipExpand!(subGroupKey!)}
-              aria-label={t('chip.collapse_aria')}
-              className="inline-flex items-center px-2.5 py-1 text-[12px] text-soft bg-raised border border-edge rounded hover:bg-chip-hover transition-colors"
-            >
-              {t('chip.collapse')}
-            </button>
-          )}
+          {/* iter 139 (KI#18): «+N ещё» / «свернуть» buttons REMOVED.
+              Phase 2.5 (iter 134) added these to truncate chip preview to 3
+              + expand-on-demand. User explicitly rejected the UX. All chips
+              in an expanded sub-group now render unconditionally. */}
         </div>
       )}
     </div>
@@ -977,8 +932,13 @@ export const ModList: React.FC<ModListProps> = ({
             ))}
           </div>
         ) : hasBothAffixes ? (
-          /* Two-column layout: Prefix | Suffix */
-          <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4">
+          /* Two-column layout: Prefix | Suffix
+             iter 139 (KI#17): was `md:grid-cols-[2fr_3fr]` (40/60) — user
+             reported suffix column barely fills 60% while prefix column was
+             cramped. Equal 50/50 split is what the reference mockup uses and
+             what the user expects («колонки суффиксов и префиксов разные по
+             размеру, почему?»). */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AffixColumn
               affix="prefix"
               subGroups={prefixSubGroups}

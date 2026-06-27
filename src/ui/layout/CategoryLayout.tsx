@@ -172,7 +172,7 @@ export function CategoryLayout({
             header with a chevron toggle for collapse.
             Phase 7: when mobileBar is provided, aside is desktop-only. */}
         <aside
-          className={`flex flex-col gap-3 ${RIGHT_COL_STICKY_CLASS} ${
+          className={`category-aside flex flex-col gap-3 ${RIGHT_COL_STICKY_CLASS} ${
             hasMobileBar ? 'hidden lg:flex' : ''
           }`}
         >

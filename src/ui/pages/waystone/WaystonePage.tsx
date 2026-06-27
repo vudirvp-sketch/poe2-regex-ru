@@ -25,7 +25,10 @@ import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { SelectedBasket } from '@ui/components/SelectedBasket';
-import { LeftPanelFavorites } from '@ui/components/LeftPanelFavorites';
+// iter 139 (KI#20): LeftPanelFavorites import removed — favorites panel
+// no longer rendered in the LEFT column per user feedback. SelectedBasket on
+// the RIGHT already shows selected affixes; a separate pinned panel was noise.
+// Component file kept for backward compat.
 import { IconLegend } from '@ui/components/IconLegend';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { t } from '@shared/i18n';
@@ -84,7 +87,7 @@ export function WaystonePage() {
     // Phase 3 (iter 135): show-selected-only toggle
     showSelectedOnly, setShowSelectedOnly,
     // Phase 5 (iter 136): favorites (pinned) state + actions
-    pinnedIds, togglePinned, clearPinned,
+    pinnedIds, togglePinned,
   } = useCategoryPage({
     categoryId: 'waystone',
     extraAstNodes,
@@ -191,15 +194,6 @@ export function WaystonePage() {
                     </label>
                   </div>
                 }
-              />
-            }
-            favorites={
-              <LeftPanelFavorites
-                tokens={data.tokens}
-                pinnedIds={pinnedIds}
-                onTogglePinned={handleTogglePinned}
-                onClearPinned={clearPinned}
-                category={categoryId}
               />
             }
             basket={
