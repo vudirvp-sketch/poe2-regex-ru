@@ -779,6 +779,31 @@ main {
   overflow: visible;
 }
 
+/* iter 146 (KI#38): isolate virtual row layout to reduce scroll jitter.
+   When TanStack Virtual's ResizeObserver re-measures a row, the new height
+   can trigger a layout reflow that propagates to sibling rows above/below —
+   visible as "header jumps" / "names merging" on the jewels tab (which has
+   250+ tokens with mixed origin sections). `contain: layout style paint`
+   scopes the layout/style/paint calculations to each row's subtree so a
+   measurement update in one row doesn't force synchronous re-layout of
+   its neighbours.
+
+   Why `layout style paint` (not `strict`): `strict` adds `size`, which
+   requires the element to have an explicit size — virtual rows have
+   dynamic heights, so `size` would zero them out. `layout style paint`
+   is the safe subset that isolates reflow without breaking measurement.
+
+   Browser support: Chrome 52+, Firefox 69+, Safari 15.4+ — all current
+   PoE2 regex targets. No graceful-degradation needed; older browsers
+   simply ignore the property and fall back to the previous jitter
+   behaviour (which was already present).
+
+   Applied to the row wrapper divs that carry `data-index` (set by
+   `virtualizer.measureElement` in VirtualizedModList.tsx). */
+.virtualized-mod-list [data-index] {
+  contain: layout style paint;
+}
+
 .mod-list [role="switch"] span:first-child,
 .virtualized-mod-list [role="switch"] span:first-child {
   overflow-wrap: break-word;

@@ -49,13 +49,18 @@
 import React, { useRef, useCallback, useEffect, useId, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { t } from '@shared/i18n';
-import type { CategoryData, FamilyGroup, AffixType } from '@shared/types';
+import type { CategoryData, FamilyGroup, AffixType, ModOrigin } from '@shared/types';
 import type { TokenRangeOverride } from '@store/filter-store';
 import {
   readFavoritesRanges,
   writeFavoritesRanges,
   type FavoriteRangeOverride,
 } from '@store/local-settings';
+// iter 146 (KI#36): use canonical family grouping (matches FilterChip rendering)
+// instead of the previous custom grouping by clean familyKey. This ensures
+// that origin-split families (e.g., desecrated/corrupted variants) are
+// correctly identified as favorited when the user pinned them.
+import { groupTokensByFamily, splitGroupByOrigin } from '@shared/family-grouper';
 
 // ─── Layout constants ──────────────────────────────────────────────────────
 
@@ -70,6 +75,19 @@ const AFFIX_BADGE: Record<AffixType, { label: string; cls: string }> = {
   prefix:   { label: 'ПРЕФ',  cls: 'bg-bl-blue/20 text-accent-blue border-bl-blue/40' },
   suffix:   { label: 'СУФ',   cls: 'bg-bl-orange/20 text-accent-orange border-bl-orange/40' },
   implicit: { label: 'ИМПЛ',  cls: 'bg-bl-amber/20 text-accent-amber-soft border-bl-amber/40' },
+};
+
+// ─── Origin badge (iter 146 KI#37) ─────────────────────────────────────────
+// Compact origin label for non-normal origin variants. Hidden for 'normal'
+// to keep the UI clean in the common case. Labels mirror ORIGIN_SECTION_LABELS
+// but trimmed to short form for inline badge use.
+
+const ORIGIN_BADGE: Partial<Record<ModOrigin, { label: string; cls: string }>> = {
+  desecrated: { label: 'ОЧЕРН',  cls: 'bg-bl-emerald/20 text-accent-emerald border-bl-emerald/40' },
+  corrupted:  { label: 'ОСКВ',   cls: 'bg-bl-red/20 text-accent-red border-bl-red/40' },
+  essence:    { label: 'СУЩН',   cls: 'bg-bl-amber/20 text-accent-amber-soft border-bl-amber/40' },
+  breachborn: { label: 'РАЗЛ',   cls: 'bg-bl-purple/20 text-accent-purple border-bl-purple/40' },
+  // 'normal' intentionally omitted — badge is hidden for normal origin.
 };
 
 // ─── Props ─────────────────────────────────────────────────────────────────
@@ -127,94 +145,45 @@ export const FavoritesQuickSelectPanel: React.FC<FavoritesQuickSelectPanelProps 
 
   // ─── Build the favorited families list ──────────────────────────────────
   //
-  // Filter `data.tokens` to those whose first member ID is in `pinnedIds`,
-  // then group by family (using the same family-grouping logic the rest of
-  // the app uses). This produces one FamilyGroup per favorited family.
+  // iter 146 (KI#36): rewritten to use canonical family grouping from
+  // `@shared/family-grouper` — `groupTokensByFamily` + `splitGroupByOrigin`.
+  // This matches EXACTLY what FilterChip renders in ModList/VirtualizedModList,
+  // so a favorited (family, origin) tuple in the chip list always appears in
+  // the panel.
   //
-  // We use `data.tokens.filter(t => pinnedIds.has(t.id))` to find the
-  // pinned first-members, then re-run groupTokensByFamily on them to get
-  // the full family groups (including all tiers).
+  // Previous bug: the panel grouped tokens by clean `familyKey.ru` without
+  // origin splitting, so the "first member" of the combined group was always
+  // the normal-variant token (first in data.tokens order). When the user
+  // pinned a desecrated/corrupted variant, `pinnedIds` contained the
+  // desecrated token ID, but `members[0].id` was the normal token ID —
+  // mismatch caused the favorited family to silently disappear from the panel.
   //
-  // Wait — that won't work because groupTokensByFamily expects ALL tokens
-  // of a family, not just the first member. We need a different approach:
-  // find which families have their first member in pinnedIds, then return
-  // those families' groups.
+  // New approach: for each canonical FamilyGroup, call `splitGroupByOrigin`
+  // to get per-origin sub-groups. For each sub-group, check if ANY member is
+  // in `pinnedIds` — if so, include this (family, origin) tuple in the list.
   //
-  // Simplest correct approach: build a Set of pinned first-member IDs,
-  // then iterate `data.tokens` and group them by family, but ONLY emit
-  // families whose first member is in pinnedIds.
+  // Returns `Array<{ origin: ModOrigin; group: FamilyGroup }>` so the render
+  // logic can show the origin badge (KI#37) and use the correct origin-scoped
+  // displayText/ranges.
   //
-  // Even simpler: iterate `data.tokens`, build a Map<familyKey, FamilyGroup>
-  // using the same logic as groupTokensByFamily, then filter to those whose
-  // first member is pinned. We avoid re-calling groupTokensByFamily (which
-  // would group ALL tokens, not just pinned ones) — instead we filter
-  // the FULL family list to those with a pinned first member.
-  //
-  // For minimal complexity, we use groupTokensByFamily on ALL data.tokens
-  // and filter to favorited families. This is O(N) where N = total tokens,
-  // fine for the small dataset (< 500 tokens per category).
-  const favoritedFamilies = useMemo<FamilyGroup[]>(() => {
-    // Import is dynamic-style via require to avoid circular imports —
-    // actually we can just import at the top. Let me do that instead.
-    // (Refactored below — see import at top of file.)
+  // Performance: O(N) where N = total tokens in the category. Fine for the
+  // small dataset (< 500 tokens per category).
+  const favoritedFamilies = useMemo<Array<{ origin: ModOrigin; group: FamilyGroup }>>(() => {
     if (pinnedIds.size === 0) return [];
-    // Build a Map<familyKey+affix, FamilyGroup> from data.tokens.
-    // We can't use groupTokensByFamily directly because it might not be
-    // available here (would create a circular import). Instead, do a
-    // simple inline grouping by familyKey + affix.
-    const groups = new Map<string, FamilyGroup>();
-    for (const token of data.tokens) {
-      const key = `${token.affix}:${token.familyKey.ru}`;
-      let group = groups.get(key);
-      if (!group) {
-        // Initialize a new FamilyGroup — we only need displayText,
-        // members, affix, and rangeSlots for the panel.
-        group = {
-          familyKey: token.familyKey.ru,
-          affix: token.affix,
-          members: [],
-          globalMin: Number.POSITIVE_INFINITY,
-          globalMax: Number.NEGATIVE_INFINITY,
-          displayText: token.familyKey.ru, // Will be refined below
-          hasMultiPlaceholder: false,
-          rangeSlots: [],
-          filterSlotIndex: 0,
-          priorityTier: 'C',
-        };
-        groups.set(key, group);
-      }
-      group.members.push(token);
-      // Track min/max across all members' ranges/values
-      for (const r of token.ranges) {
-        if (r[0] < group.globalMin) group.globalMin = r[0];
-        if (r[1] > group.globalMax) group.globalMax = r[1];
-      }
-      for (const v of token.values) {
-        if (v < group.globalMin) group.globalMin = v;
-        if (v > group.globalMax) group.globalMax = v;
-      }
-    }
-    // Filter to favorited families (first member in pinnedIds).
-    const result: FamilyGroup[] = [];
-    for (const group of groups.values()) {
-      if (group.members.length === 0) continue;
-      const firstMemberId = group.members[0].id;
-      if (pinnedIds.has(firstMemberId)) {
-        // Refine displayText: substitute range placeholders if any.
-        // For simplicity, use the first member's rawText (without ranges
-        // substituted — the chip in the panel will show the familyKey).
-        group.displayText = group.members[0].rawText.ru;
-        // Set rangeSlots from first ranged member
-        const firstRanged = group.members.find(m => m.ranges.length > 0 || m.values.length > 0);
-        if (firstRanged) {
-          // Use the first ranged member's ranges as the slot data
-          if (firstRanged.ranges.length > 0) {
-            group.rangeSlots = firstRanged.ranges;
-          } else if (firstRanged.values.length > 0) {
-            group.rangeSlots = [[Math.min(...firstRanged.values), Math.max(...firstRanged.values)]];
-          }
+    const allGroups = groupTokensByFamily(data.tokens);
+    const result: Array<{ origin: ModOrigin; group: FamilyGroup }> = [];
+    for (const group of allGroups) {
+      const splits = splitGroupByOrigin(group);
+      for (const { origin, group: splitGroup } of splits) {
+        if (splitGroup.members.length === 0) continue;
+        // iter 146 (KI#36): check if ANY member is pinned — not just the
+        // first member. This handles the case where the user pinned a
+        // specific origin variant whose first-member ID doesn't match the
+        // combined group's first-member ID.
+        const isPinned = splitGroup.members.some(m => pinnedIds.has(m.id));
+        if (isPinned) {
+          result.push({ origin, group: splitGroup });
         }
-        result.push(group);
       }
     }
     return result;
@@ -232,21 +201,22 @@ export const FavoritesQuickSelectPanel: React.FC<FavoritesQuickSelectPanelProps 
 
   // ─── Persist ranges to localStorage whenever perTokenRanges changes ─────
   //
-  // We only persist ranges for FAVORITED token IDs (first member per family).
-  // This keeps the localStorage entry scoped to favorites — non-favorited
-  // tokens' ranges stay URL-serialized via `r` key (filter-store).
+  // We only persist ranges for FAVORITED token IDs (first member per
+  // origin-split family). This keeps the localStorage entry scoped to
+  // favorites — non-favorited tokens' ranges stay URL-serialized via `r`
+  // key (filter-store).
+  //
+  // iter 146 (KI#36): favoritedFamilies is now `Array<{ origin, group }>`,
+  // so we read `entry.group.members[0].id` for the first-member ID.
   useEffect(() => {
     if (pinnedIds.size === 0) {
       // No favorites → clear the ranges entry too (keep localStorage clean).
-      // But we don't have a clearFavoritesRanges import here — use the
-      // writeFavoritesRanges with empty object instead. Actually, since
-      // we're already importing readFavoritesRanges/writeFavoritesRanges,
-      // let me also import clearFavoritesRanges.
       writeFavoritesRanges(categoryId, {});
       return;
     }
     const rangesToSave: Record<string, FavoriteRangeOverride> = {};
-    for (const family of favoritedFamilies) {
+    for (const entry of favoritedFamilies) {
+      const family = entry.group;
       if (family.members.length === 0) continue;
       const firstMemberId = family.members[0].id;
       const override = perTokenRanges[firstMemberId];
@@ -374,7 +344,11 @@ export const FavoritesQuickSelectPanel: React.FC<FavoritesQuickSelectPanelProps 
           </div>
         ) : (
           <ul className="flex flex-col gap-1.5">
-            {favoritedFamilies.map((family) => {
+            {favoritedFamilies.map((entry) => {
+              // iter 146 (KI#36): each entry is { origin, group } — the
+              // origin-scoped FamilyGroup that the user actually pinned.
+              const family = entry.group;
+              const origin = entry.origin;
               const firstMemberId = family.members[0].id;
               const currentRange = perTokenRanges[firstMemberId];
               const savedRange = savedRanges[firstMemberId];
@@ -382,14 +356,17 @@ export const FavoritesQuickSelectPanel: React.FC<FavoritesQuickSelectPanelProps 
               const maxVal = currentRange?.max ?? savedRange?.max ?? '';
               const hasRanges = family.rangeSlots.length > 0;
               const badge = AFFIX_BADGE[family.affix] ?? AFFIX_BADGE.implicit;
+              // iter 146 (KI#37): origin badge — only for non-normal origins
+              // (normal is implied when no badge shown, keeps UI clean).
+              const originBadge = ORIGIN_BADGE[origin];
               const removeAria = t('favorites.panel_remove_aria').replace('{name}', family.displayText);
 
               return (
                 <li
-                  key={`${family.affix}:${family.familyKey}`}
+                  key={`${family.affix}:${family.familyKey}:${origin}`}
                   className="border border-edge-panel rounded p-2 bg-section"
                 >
-                  {/* Row 1: affix badge + displayText + actions */}
+                  {/* Row 1: affix badge + (optional origin badge) + displayText + actions */}
                   <div className="flex items-start gap-2">
                     <span
                       className={`shrink-0 inline-flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded border ${badge.cls}`}
@@ -397,6 +374,15 @@ export const FavoritesQuickSelectPanel: React.FC<FavoritesQuickSelectPanelProps 
                     >
                       {badge.label}
                     </span>
+                    {originBadge && (
+                      <span
+                        className={`shrink-0 inline-flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded border ${originBadge.cls}`}
+                        aria-label={`Происхождение: ${t('origin.' + origin)}`}
+                        title={t('origin.' + origin)}
+                      >
+                        {originBadge.label}
+                      </span>
+                    )}
                     <span
                       className="flex-1 text-[12px] leading-snug break-words"
                       title={family.members.map(m => m.rawText.ru).join('\n')}

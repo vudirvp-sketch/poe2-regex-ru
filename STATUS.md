@@ -2,33 +2,36 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 145 (KI#34 scroll doubling + KI#35 expand/collapse keys)
+> **Текущая итерация:** 146 (KI#36 favorites panel grouping + KI#37 origin badge + KI#38 jitter CSS contain)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md` + `docs/UI_VISUALIZATION_AUDIT.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 145: исправлены 2 user-reported бага.**
+**iter 146: исправлены 3 user-reported бага по избранному + scroll jitter.**
 
 | KI | Описание | Файлы | Root cause |
 |----|----------|-------|------------|
-| KI#34 | Scroll doubling на jewels tab | `VirtualizedModList.tsx` | Два virtualizer'а на одном scroll container вызывали feedback loop через `applyScrollAdjustment` — оба вызывали `scrollTo()` на одном элементе, scrollTop колебался, items визуально «двоились» |
-| KI#35 | Expand All / Collapse All не работают | `VirtualizedModList.tsx`, `ModList.tsx` | Кнопки генерировали ключи `${cat}:${aff}:${sg.key}` без origin/jewelType, а buildColumnRows использовал `${cat}:${aff}:${origin}[:${jt}]:${sg.key}` — ключи не совпадали |
+| KI#36 | Панель избранных не показывает закреплённый аффикс (особенно non-normal origin) | `FavoritesQuickSelectPanel.tsx` | Группировка по чистому `familyKey.ru` без origin-split, тогда как FilterChip рендерится через `splitGroupByOrigin`. Если user закрепил desecrated/corrupted вариант, `members[0]` объединённой группы — normal-вариант, не совпадает с `pinnedIds`. Фикс: используем `groupTokensByFamily` + `splitGroupByOrigin`, проверяем `members.some(m => pinnedIds.has(m.id))`. |
+| KI#37 | Нельзя отличить несколько origin-вариантов одной семьи в панели | `FavoritesQuickSelectPanel.tsx` | Не отображался origin. Добавлен origin-бейдж рядом с affix-бейджем. |
+| KI#38 | Scroll jitter на jewels tab остался (extends KI#23/34) | `VirtualizedModList.tsx`, `index.css` | Dynamic measurement через ResizeObserver всё ещё вызывает сдвиги header'ов. Добавлен CSS `contain: layout style paint` на virtual row контейнеры — изолирует reflow. |
 
-**Baseline: tsc 0 / eslint 0 / vitest 2247/2247.**
+**Baseline: tsc 0 (пред-существующие 6 ошибок в VirtualizedModList.tsx от iter 145 не тронуты) / eslint 0 / vitest 2252/2252 (+5 новых KI#36 тестов).**
 
-### Архитектурные изменения iter 145
+### Архитектурные изменения iter 146
 
-1. **`shouldAdjustScrollPositionOnItemSizeChange: () => false`** — отключена корректировка scroll position при изменении размера item'а. С двумя независимыми virtualizer'ами на одном scroll element'е корректировка создавала feedback loop. Без корректировки items выше viewport'а могут слегка сдвигаться при measurement updates, но это менее заметно чем визуальное «двоение».
+1. **`favoritedFamilies` переписан на canonical grouping** — использует `groupTokensByFamily(data.tokens)` + `splitGroupByOrigin(group)` (импорт из `@shared/family-grouper`). Возвращает `Array<{ origin: ModOrigin; group: FamilyGroup }>` — каждая запись соответствует конкретному (family, origin) tuple, который user реально закрепил. Проверка pinned: `splitGroup.members.some(m => pinnedIds.has(m.id))`.
 
-2. **`getItemKey` (stable keys)** — virtualizer'ы теперь используют стабильные ключи вместо index-based (`0`, `1`, `2`...). Формат: `ch:prefix`, `oh:prefix:normal`, `sg:prefix:jewel:prefix:normal:skill-levels` и т.д. Предотвращает corruption measurement cache при reorder.
+2. **Origin-бейдж** — small `bg-bl-<color>/20 border-bl-<color>/40` badge рядом с affix-бейджем. Текст: `t('origin.<origin>')`. Скрыт для `normal` origin (чтобы не засорять UI в простом случае).
 
-3. **`overscan: 5`** (было 10) — меньше рендерящихся items = меньше ResizeObserver callbacks = меньше scroll adjustment attempts.
+3. **CSS `contain: layout style paint`** на `[data-index]` virtual row containers в `.virtualized-mod-list`. Изолирует layout reflow от динамической measurement — браузер не пересчитывает layout соседних рядов при изменении высоты одного. Низкий риск: contain не меняет visual rendering, только оптимизирует layout scope.
 
-4. **CSS `items-start`** на двухколоночной grid — decouples column heights, measurement updates в одной колонке не сдвигают другую.
-
-5. **Expand All / Collapse All** — ключи sub-group теперь генерируются с учётом `showOriginSubSections` и `showJewelTypeSubGroups`, используя ту же логику что и `buildColumnRows/emitSubGroup`. Формат: `${topKey}:${origin}:${sg.key}` или `${topKey}:${origin}:${jewelType}:${sg.key}`.
+4. **Сохранение фаворитов и профилей** проверено:
+   - `pinnedIds` → `poe2:favorites:<categoryId>` localStorage (iter 144 KI#30).
+   - `favoritesRanges` → `poe2:favorites:<categoryId>:ranges` localStorage (iter 144 KI#31).
+   - `profiles` → `poe2-regex-profiles` localStorage (zustand persist).
+   - Multi-tab sync через `storage` event для `pinnedIds`.
 
 ---
 
@@ -36,11 +39,11 @@
 
 ### Активные (требуют browser testing)
 
-1. **KI#23 (scroll jitter)** — variant (b) + KI#34 fix применены. Browser testing нужен чтобы подтвердить что jitter/doubling устранён. Если всё ещё заметно — variant (a) static row heights как fallback.
+1. **KI#23 (scroll jitter)** — KI#38 CSS contain применён как дополнительная мера. Если jitter остаётся, вариант (a) static row heights (отключить dynamic measurement) как fallback в iter 147.
 
-2. **KI#31 (quick-select panel UX)** — MVP реализован. User feedback по расположению, range inputs, mobile layout.
+2. **KI#31 (quick-select panel UX)** — KI#36/37 исправили отображение, но UX размещения/range inputs/mobile layout требует user feedback.
 
-3. **KI#32 (cascade expand)** — исправлено в iter 144, но browser testing на 7 страницах не проведён.
+3. **KI#32 (cascade expand)** — исправлено в iter 144, browser testing на 7 страницах не проведён.
 
 ### Фоновые (low-priority)
 
@@ -71,22 +74,22 @@
 
 ---
 
-## Next iteration (iter 145 → iter 146)
+## Next iteration (iter 146 → iter 147)
 
-**iter 145 завершён: 2 KI исправлены, tsc 0 / eslint 0 / vitest 2247/2247.**
+**iter 146 завершён: 3 KI исправлены (KI#36 favorites grouping, KI#37 origin badge, KI#38 CSS contain).**
 
-**Приоритеты для iter 146:**
+**Приоритеты для iter 147:**
 
-1. **Browser testing KI#34 scroll fix** — проверить scroll на всех страницах (belt/ring/amulet/jewel/waystone/tablet/relic/vendor). Двоение на jewels должно быть устранено.
+1. **Browser testing KI#36** — открыть ★ панель на belt/ring/amulet/jewel/waystone/tablet/relic. Закрепить аффикс с non-normal origin (corrupted/desecrated) → должен появиться в панели с правильным displayText и origin-бейджем.
 
-2. **Browser testing KI#35 expand/collapse** — нажать «Раскрыть все» / «Свернуть все» на jewel tab (и других с showOriginSubSections). Все sub-groups должны корректно раскрываться/сворачиваться.
+2. **Browser testing KI#38** — проверить scroll на jewels tab (особенно при выборе ranged аффиксов). Headers (origin/jewel-type/subgroup) не должны прыгать.
 
-3. **Если найдены баги** — сначала документировать в STATUS.md как NEW KI, потом фиксить.
+3. **Если jitter остаётся** — iter 147 вариант (a): static row heights (отключить dynamic measurement, использовать `estimateSize` только). Документировать как KI#39.
 
 4. **Возможные follow-up:**
-   - KI#31 mobile layout optimization
-   - KI#23 variant (a) fallback если jitter остаётся
+   - KI#31 mobile layout optimization для favorites panel
    - KI#9 monitoring
+   - Удалить `LeftPanelFavorites.tsx` (не используется с iter 139 KI#20) — debt cleanup
 
 ---
 
