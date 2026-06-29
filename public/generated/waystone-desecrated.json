@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-26T17:13:50.461Z",
+  "version": "2026-06-29T10:47:42.681Z",
   "category": "waystone-desecrated",
   "source": "poe2db.tw",
   "tokens": [
@@ -971,7 +971,7 @@
         "ru": "Редкость предметов: +##%"
       },
       "regex": {
-        "ru": "едкость предметов"
+        "ru": "предметов"
       },
       "familyKey": {
         "ru": "Редкость предметов: +#%"
@@ -992,10 +992,8 @@
         ]
       ],
       "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8
-      ],
+      "hasYofication": false,
+      "yoficationPositions": [],
       "level": 1
     },
     {
@@ -1008,11 +1006,11 @@
       "rawTextTemplate": {
         "ru": "Редкость монстров: +##%"
       },
-      "familyKey": {
-        "ru": "Редкость монстров: +##%"
-      },
       "regex": {
         "ru": "едкость монстров"
+      },
+      "familyKey": {
+        "ru": "Редкость монстров: +#%"
       },
       "regexPrefix": {
         "ru": ""
@@ -1030,10 +1028,8 @@
         ]
       ],
       "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        8
-      ],
+      "hasYofication": false,
+      "yoficationPositions": [],
       "level": 1
     },
     {
@@ -1162,62 +1158,27 @@
       "weight": 23,
       "count": 2
     },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t": {
+    "waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
       "ids": [
-        "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_c3hgc1.y3rptt",
-        "waystone-desecrated.mod_cmq708.tx448t",
-        "waystone-desecrated.mod_dceifh.tx448t"
-      ],
-      "regex": {
-        "ru": "количества редких мон"
-      },
-      "weight": 21,
-      "count": 4
-    },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.73v083:waystone-desecrated.mod_cmq708.fu78h3:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz": {
-      "ids": [
-        "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_c3hgc1.y3rptt",
-        "waystone-desecrated.mod_cmq708.73v083",
-        "waystone-desecrated.mod_cmq708.fu78h3",
-        "waystone-desecrated.mod_cmq708.rl8it4",
-        "waystone-desecrated.mod_cmq708.tx448t",
-        "waystone-desecrated.mod_dceifh.tx448t",
-        "waystone-desecrated.mod_jdkriz"
-      ],
-      "regex": {
-        "ru": "количеств.*о.*монстров|количеств.*а.*волшебны.*х.*монстров|количеств.*а.*редки.*х.*монстров|шансом могут породить как минимум волшебных.*монстров"
-      },
-      "weight": 145,
-      "count": 8
-    },
-    "waystone-desecrated.mod_c3hgc1:waystone-desecrated.mod_c3hgc1.y3rptt:waystone-desecrated.mod_cmq708.rl8it4:waystone-desecrated.mod_cmq708.tx448t:waystone-desecrated.mod_dceifh.tx448t:waystone-desecrated.mod_jdkriz:waystone-desecrated.mod_tmrm3c": {
-      "ids": [
-        "waystone-desecrated.mod_c3hgc1",
-        "waystone-desecrated.mod_c3hgc1.y3rptt",
-        "waystone-desecrated.mod_cmq708.rl8it4",
-        "waystone-desecrated.mod_cmq708.tx448t",
-        "waystone-desecrated.mod_dceifh.tx448t",
         "waystone-desecrated.mod_jdkriz",
         "waystone-desecrated.mod_tmrm3c"
       ],
       "regex": {
-        "ru": "количеств.*о опыта|количеств.*о монстров|количеств.*а.*волшебны.*х монстров|количеств.*а.*редки.*х монстров"
+        "ru": "количество.*опыта|количество.*монстров"
       },
-      "weight": 107,
-      "count": 7
+      "weight": 38,
+      "count": 2
     },
-    "waystone-desecrated.implicit.item_rarity:waystone-desecrated.implicit.monster_effectiveness:waystone-desecrated.mod_9crcta": {
+    "waystone-desecrated.mod_cmq708.73v083:waystone-desecrated.mod_cmq708.fu78h3:waystone-desecrated.mod_jdkriz": {
       "ids": [
-        "waystone-desecrated.implicit.item_rarity",
-        "waystone-desecrated.implicit.monster_effectiveness",
-        "waystone-desecrated.mod_9crcta"
+        "waystone-desecrated.mod_cmq708.73v083",
+        "waystone-desecrated.mod_cmq708.fu78h3",
+        "waystone-desecrated.mod_jdkriz"
       ],
       "regex": {
-        "ru": "едк.*ость|ожн.*ость|ивн.*ость"
+        "ru": "количество.*монстров|шансом могут породить как минимум волшебных.*монстров"
       },
-      "weight": 29,
+      "weight": 74,
       "count": 3
     },
     "waystone-desecrated.mod_34v9ul:waystone-desecrated.mod_cmq708.mhmuy1": {
@@ -1263,6 +1224,19 @@
       },
       "weight": 19,
       "count": 2
+    },
+    "waystone-desecrated.implicit.monster_rarity:waystone-desecrated.mod_cmq708.73v083:waystone-desecrated.mod_cmq708.fu78h3:waystone-desecrated.mod_jdkriz": {
+      "ids": [
+        "waystone-desecrated.implicit.monster_rarity",
+        "waystone-desecrated.mod_cmq708.73v083",
+        "waystone-desecrated.mod_cmq708.fu78h3",
+        "waystone-desecrated.mod_jdkriz"
+      ],
+      "regex": {
+        "ru": "количество.*монстров|шансом могут породить как минимум волшебных.*монстров|едкость.*монстров"
+      },
+      "weight": 92,
+      "count": 4
     }
   }
 }
