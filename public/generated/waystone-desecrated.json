@@ -971,7 +971,7 @@
         "ru": "Редкость предметов: +##%"
       },
       "regex": {
-        "ru": "предметов"
+        "ru": "едкость предметов"
       },
       "familyKey": {
         "ru": "Редкость предметов: +#%"
@@ -994,7 +994,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "waystone-desecrated.implicit.monster_rarity",
@@ -1030,7 +1031,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "waystone-desecrated.implicit.pack_size",

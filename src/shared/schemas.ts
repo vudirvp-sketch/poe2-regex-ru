@@ -77,6 +77,9 @@ export const GameTokenSchema = z.object({
   yoficationPositions: z.array(z.number()),
   level: z.number(),
   tradeStatId: z.string().optional(),
+  // iter 153 KI#10/KI#12 hardening: marks tokens whose regex was set by an
+  // explicit i18n-overrides.json entry. Iterative optimizer must skip them.
+  manualOverride: z.boolean().optional(),
 });
 
 // ─── OptimizationEntry ──────────────────────────────────────────────

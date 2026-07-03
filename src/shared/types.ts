@@ -80,6 +80,11 @@ export interface GameToken {
   yoficationPositions: number[];
   level: number;
   tradeStatId?: string;
+  /** iter 153 (KI#10/KI#12 hardening): set to true by ETL applyI18nOverrides
+   *  when an explicit `regex` override was applied. Iterative optimizer MUST
+   *  skip these tokens (no FN-repair, no suffix-shortening, no dialect) so
+   *  the manual override survives subsequent ETL runs. Absent = false. */
+  manualOverride?: boolean;
 }
 
 export interface OptimizationEntry {

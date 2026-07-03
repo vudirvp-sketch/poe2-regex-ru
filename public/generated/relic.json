@@ -353,7 +353,8 @@
         "ru": [
           "дополнительная"
         ]
-      }
+      },
+      "manualOverride": true
     },
     {
       "id": "relic.sanctumavoidafflictionchance1",
@@ -657,7 +658,7 @@
         "ru": "Монстры наносят уменьшенный на #% урон"
       },
       "regex": {
-        "ru": "уменьшенный на 6"
+        "ru": "монстры наносят уменьшенный на "
       },
       "familyKey": {
         "ru": "Монстры наносят уменьшенный на #% урон"
@@ -684,7 +685,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "relic.sanctummonstersreduceddamage2",
@@ -1156,7 +1158,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "relic.sanctummonsterspeed2",
@@ -1196,7 +1199,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 60
+      "level": 60,
+      "manualOverride": true
     },
     {
       "id": "relic.sanctummonsterspeed3",
@@ -2606,7 +2610,8 @@
         "ru": [
           "дополнительная"
         ]
-      }
+      },
+      "manualOverride": true
     },
     {
       "id": "relic.sanctumguardsincreaseddamagetaken1",
@@ -2978,7 +2983,8 @@
       ],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "relic.sanctumguardsreduceddamage2",
@@ -3116,9 +3122,7 @@
       "regexPrefixContext": {
         "ru": "Боссы наносят"
       },
-      "regexExclude": {
-        "ru": []
-      }
+      "manualOverride": true
     },
     {
       "id": "relic.sanctumbossreduceddamage2",
@@ -3495,7 +3499,7 @@
         "relic.sanctummonstersreduceddamage3"
       ],
       "regex": {
-        "ru": "на 6%"
+        "ru": "монстры наносят уменьшенный на "
       },
       "weight": 5,
       "count": 3
@@ -3533,7 +3537,7 @@
         "relic.sanctummonsterspeed3"
       ],
       "regex": {
-        "ru": "на 4%"
+        "ru": "корость атаки, сотворения чар и"
       },
       "weight": 5,
       "count": 3
@@ -3674,7 +3678,7 @@
         "relic.sanctumguardsreduceddamage3"
       ],
       "regex": {
-        "ru": "ры наносят уменьшенный на 5"
+        "ru": "кие монстры наносят уменьшенный"
       },
       "weight": 27,
       "count": 3
@@ -3686,7 +3690,7 @@
         "relic.sanctumbossreduceddamage3"
       ],
       "regex": {
-        "ru": "сы наносят уменьшенный на 5"
+        "ru": "урон"
       },
       "weight": 27,
       "count": 3,
@@ -3707,17 +3711,6 @@
       },
       "weight": 19,
       "count": 5
-    },
-    "relic.sanctumbossreduceddamage1:relic.sanctumguardsreduceddamage1": {
-      "ids": [
-        "relic.sanctumbossreduceddamage1",
-        "relic.sanctumguardsreduceddamage1"
-      ],
-      "regex": {
-        "ru": "р.*ы наносят уменьшенный на 5|с.*ы наносят уменьшенный на 5"
-      },
-      "weight": 59,
-      "count": 2
     },
     "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistancemedium1:relic.sanctumhonourresistancemedium2:relic.sanctumhonourresistancemedium3:relic.sanctumhonourresistancemedium4:relic.sanctumhonourresistancemedium5:relic.sanctummaximumhonourmedium1:relic.sanctummaximumhonourmedium2:relic.sanctummaximumhonourmedium3:relic.sanctummaximumhonourmedium4:relic.sanctummaximumhonourmedium5:relic.sanctummaximumhonourresistance1:relic.sanctummaximumhonourresistance2:relic.sanctumresolverecovery1:relic.sanctumresolverecovery2:relic.sanctumresolverecovery3:relic.sanctumresolverecovery4:relic.sanctumresolverecovery5": {
       "ids": [
@@ -3778,18 +3771,6 @@
       "weight": 55,
       "count": 7
     },
-    "relic.sanctumbossreduceddamage1:relic.sanctumguardsreduceddamage1:relic.sanctummonsterspeed2": {
-      "ids": [
-        "relic.sanctumbossreduceddamage1",
-        "relic.sanctumguardsreduceddamage1",
-        "relic.sanctummonsterspeed2"
-      ],
-      "regex": {
-        "ru": "а.*на 5|ры наносят уменьшенный.*на 5|сы наносят уменьшенный.*на 5"
-      },
-      "weight": 65,
-      "count": 3
-    },
     "relic.sanctummonstersincreaseddamagetaken1:relic.sanctummonstersincreaseddamagetaken2:relic.sanctummonstersincreaseddamagetaken3:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3": {
       "ids": [
         "relic.sanctummonstersincreaseddamagetaken1",
@@ -3804,18 +3785,6 @@
       "weight": 65,
       "count": 5
     },
-    "relic.sanctummonsterspeed1:relic.sanctummonstersreduceddamage1:relic.sanctumrevealextraroomeachfloorlarge1": {
-      "ids": [
-        "relic.sanctummonsterspeed1",
-        "relic.sanctummonstersreduceddamage1",
-        "relic.sanctumrevealextraroomeachfloorlarge1"
-      ],
-      "regex": {
-        "ru": "на.*карте испытаний раскрывается|на.*6%|на.*4%"
-      },
-      "weight": 46,
-      "count": 3
-    },
     "relic.sanctumguardsincreaseddamagetaken1:relic.sanctumguardsincreaseddamagetaken2:relic.sanctumguardsincreaseddamagetaken3:relic.sanctumguardsreduceddamage2:relic.sanctumguardsreduceddamage3": {
       "ids": [
         "relic.sanctumguardsincreaseddamagetaken1",
@@ -3829,22 +3798,6 @@
       },
       "weight": 67,
       "count": 5
-    },
-    "relic.sanctumrevealextraroomeachfloor2:relic.sanctumrevealextraroomeachfloorlarge2": {
-      "ids": [
-        "relic.sanctumrevealextraroomeachfloor2",
-        "relic.sanctumrevealextraroomeachfloorlarge2"
-      ],
-      "regex": {
-        "ru": "ат:.*4|ат:.*2"
-      },
-      "weight": 13,
-      "count": 2,
-      "regexExclude": {
-        "ru": [
-          "дополнительная"
-        ]
-      }
     },
     "relic.sanctummonstersincreaseddamagetaken1:relic.sanctummonstersincreaseddamagetaken2:relic.sanctummonstersincreaseddamagetaken3:relic.sanctummonstersreduceddamage1:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3": {
       "ids": [

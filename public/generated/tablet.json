@@ -1648,7 +1648,8 @@
       "values": [],
       "hasYofication": false,
       "yoficationPositions": [],
-      "level": 1
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_m17m7u",
@@ -1764,7 +1765,8 @@
       "level": 1,
       "regexPrefixContext": {
         "ru": "провал,"
-      }
+      },
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_7jrajl",

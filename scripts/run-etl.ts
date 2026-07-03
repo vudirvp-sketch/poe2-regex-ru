@@ -292,9 +292,15 @@ function applyI18nOverrides() {
         token.regex.ru = override.regex;
         token.hasYofication = false;
         token.yoficationPositions = [];
+        // iter 153 (KI#10/KI#12 hardening): mark this token as manually
+        // overridden so the iterative optimizer (Step 10) skips it.
+        // Without this flag, trySuffixShortening/tryFixFN would clobber
+        // the explicit override (regressing KI#10 'едкость предметов' and
+        // KI#12 tier-agnostic relic regexes) on every fresh ETL run.
+        token.manualOverride = true;
         totalPatched++;
         totalPatchedInFile++;
-        console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 50)}..." (regex: "${token.regex.ru}" [explicit])`);
+        console.log(`  Patched: ${token.id} -> "${override.rawText.slice(0, 50)}..." (regex: "${token.regex.ru}" [explicit, manualOverride])`);
         continue;
       }
 

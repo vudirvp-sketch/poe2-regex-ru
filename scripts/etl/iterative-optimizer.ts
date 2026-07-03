@@ -478,6 +478,18 @@ function runIteration(
       const rawText = token.rawText.ru;
       if (!regex || !rawText) continue;
 
+      // iter 153 (KI#10/KI#12 hardening): skip tokens whose regex was set
+      // explicitly via i18n-overrides.json. The override regex is the
+      // authoritative value — strategies below (FN-repair, dialect,
+      // suffix-shortening, short-regex-context) would clobber it. This
+      // fixes the regression where fresh ETL runs after iter 151 replaced
+      // 'едкость предметов' with 'предметов' (KI#10) and tier-agnostic
+      // 'монстры наносят уменьшенный на ' with tier-hardcoded 'уменьшенный на 6' (KI#12).
+      if (token.manualOverride) {
+        totalRegexLen += regex.length;
+        continue;
+      }
+
       // Bug #13 (closed iter 80): Removed skip for .* [0-9] [1-9] patterns.
       // token.regex.ru is always a literal suffix (no number patterns, no .* bridges).
       // Number patterns are generated at runtime by the compiler from RANGE AST nodes.
