@@ -36,8 +36,9 @@ import path from 'path';
  * disprove.
  *
  * AUDIT (iter 127):
- * Audit script `scripts/audit-tier-hardcoded-regex.py` scans ALL generated
- * JSONs for KI#12-pattern bugs. After fix: 0 tokens found.
+ * iter 154: standalone audit script `scripts/audit-tier-hardcoded-regex.py`
+ * was removed — the audit logic is inlined below in SECTION 6 of this test
+ * file (function `auditAllCategories`). After fix: 0 tokens found.
  */
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -399,7 +400,8 @@ describe('iter 127 — KI#12 audit: no tier-hardcoded regex in any generated/*.j
   const GEN_DIR = path.resolve(__dirname, '../../public/generated');
 
   /**
-   * Audit logic — same as scripts/audit-tier-hardcoded-regex.py:
+   * Audit logic — same as the removed `scripts/audit-tier-hardcoded-regex.py`
+   * (iter 154: script deleted, logic inlined here):
    * For each token with single-# template (no ##), check if its regex
    * contains the digit value from its rawText. If yes, it's a tier-hardcoded
    * regex (KI#12-pattern bug).

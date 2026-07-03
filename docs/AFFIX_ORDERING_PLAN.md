@@ -151,7 +151,7 @@ export function computeSortKey(block, familyKey): string {
 | `penetration` | 3 | 3 | 100% |
 | **Итого** | **312** | **312** | **100%** |
 
-Скрипт аудита: `python3 scripts/audit_block_sort_coverage.py`
+Скрипт аудита: iter 154 — `scripts/audit_block_sort_coverage.py` удалён (OP-1 закрыт iter 119, coverage 100%). Logic inlined в `tests/shared/block-sort-rules.test.ts` (312 case-tests + E2E) для regression protection.
 
 ### 4.2. Блоки БЕЗ правил (6 из 24 functional blocks)
 
@@ -166,7 +166,7 @@ export function computeSortKey(block, familyKey): string {
 | `wisps` | 0 | N/A (пусто) |
 | `conversion` | 0 | N/A (пусто) |
 
-**Примечание:** counts приведены для jewellery-only scope (6 файлов: amulet/ring/belt/jewel/jewel-desecrated/jewel-corrupted) — это scope скрипта `audit_block_sort_coverage.py`. Для full-scope (10 файлов, с relic/tablet/waystone) блок `other` содержит 201 family-key, остальные блоки не меняются.
+**Примечание:** counts приведены для jewellery-only scope (6 файлов: amulet/ring/belt/jewel/jewel-desecrated/jewel-corrupted) — это scope используемый для аудита (iter 154: standalone script удалён, logic в `tests/shared/block-sort-rules.test.ts`). Для full-scope (10 файлов, с relic/tablet/waystone) блок `other` содержит 201 family-key, остальные блоки не меняются.
 
 **Статус priority-блоков:** iter 119 закрыл все 3 priority-блока (`rage-charges` / `runes-barrier` / `penetration`). Оставшиеся 6 блоков не требуют правил: 4 содержат 0-1 family-key (правила избыточны для одного элемента), `other` heterogeneous и отложен. **Систематическая сортировка priority-блоков завершена в iter 119.**
 
@@ -545,15 +545,9 @@ Design notes см. в `src/shared/block-sort-rules.ts` (comment block перед
 - End-to-end: `groupTokensByFamily()` → `classifyGroups()` → `sortGroupsAlphabetically()` — проверяет канонический порядок.
 - Structural integrity: все regex case-insensitive, все orders в диапазоне 0-999, iter 119 scope = 18 блоков.
 
-### 6.2. Audit script (`scripts/audit_block_sort_coverage.py`)
+### 6.2. Audit (iter 154: standalone script удалён — logic в `tests/shared/block-sort-rules.test.ts`)
 
-Запускать после каждого изменения `BLOCK_SORT_RULES`:
-
-```bash
-python3 scripts/audit_block_sort_coverage.py
-```
-
-Выводит список family-keys, которые попадают в `900::` bucket (rules exist but no match). Цель — 0 uncovered family-keys в каждом блоке с правилами.
+Раньше использовался `scripts/audit_block_sort_coverage.py` (iter 154: удалён, OP-1 закрыт iter 119). Regression protection теперь обеспечивается unit-тестом `tests/shared/block-sort-rules.test.ts` (312 case-tests + E2E). При изменении `BLOCK_SORT_RULES` — запусти `pnpm test tests/shared/block-sort-rules.test.ts` для верификации coverage.
 
 ### 6.3. Regression tests (`tests/etl/cross-validation.test.ts`)
 
@@ -571,8 +565,7 @@ iter 112 добавил 2 теста для regex-бага:
 | `src/shared/types.ts` | `FamilyGroup.sortKey?: string` |
 | `src/shared/family-grouper.ts` | `buildFamilyGroup()` вычисляет sortKey |
 | `src/shared/mod-classifier.ts` | `sortGroupsAlphabetically()` использует sortKey |
-| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (312 case-tests + relationship + E2E) |
-| `scripts/audit_block_sort_coverage.py` | Audit script для coverage (18 блоков) |
+| `tests/shared/block-sort-rules.test.ts` | unit + e2e тесты (312 case-tests + relationship + E2E). iter 154: также заменяет удалённый `scripts/audit_block_sort_coverage.py` для coverage audit |
 | `scripts/etl/iterative-optimizer.ts` | iter 112 fix: `tryAddContextForShortRegex` filter (≥3 letters) |
 | `public/generated/jewel-desecrated.json` | iter 112 fix: `mod_3yl2ru` regexPrefixContext удалён |
 | `tests/etl/cross-validation.test.ts` | iter 112 regression tests (2 новых) |
@@ -611,4 +604,4 @@ iter 112 добавил 2 теста для regex-бага:
 
 4. **При желании дополнительно систематизировать `other` block** (27 family-keys): heterogeneous — потребует анализа группировки. LOW priority.
 
-**Подсказка следующему агенту:** iter 119 = rage-charges (4) + runes-barrier (4) + penetration (3) block rules, 100% coverage each. **Все priority-блоки закрыты.** Перед стартом iter 120 прочитай STATUS.md (актуальный статус + Known Issues #4 — 6 блоков без правил, все low-priority/empty), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (раздел iter 119). Audit script: `python3 scripts/audit_block_sort_coverage.py` — показывает coverage правил для 18 активных блоков. Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.
+**Подсказка следующему агенту:** iter 119 = rage-charges (4) + runes-barrier (4) + penetration (3) block rules, 100% coverage each. **Все priority-блоки закрыты.** OP-1 closed. Перед стартом следующей итерации прочитай STATUS.md (актуальный статус), docs/AFFIX_ORDERING_PLAN.md (полный план, §4.2 — оставшиеся блоки без правил), worklog.md (последняя итерация). Audit: `pnpm test tests/shared/block-sort-rules.test.ts` (iter 154: standalone script удалён, logic в тестах). Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксий.

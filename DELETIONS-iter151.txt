@@ -1,0 +1,20 @@
+Files deleted in iter 151 (stale patch-notes / archives — safe to remove):
+
+DELETIONS-iter126.txt
+DELETIONS.txt
+MANIFEST.txt
+README-iter126.md
+README_ITER143_FEEDBACK.txt
+iter143-feedback.patch
+
+All were patch-notes / manifests from iter 126/133/143/147 — already applied
+to the repo. None are referenced by package.json, vite.config.ts, scripts/,
+or active imports.
+
+To apply locally (from repo root):
+  rm -f DELETIONS-iter126.txt DELETIONS.txt MANIFEST.txt \
+        README-iter126.md README_ITER143_FEEDBACK.txt iter143-feedback.patch
+
+Or via git (preferred — these files are git-tracked):
+  git rm DELETIONS-iter126.txt DELETIONS.txt MANIFEST.txt \
+         README-iter126.md README_ITER143_FEEDBACK.txt iter143-feedback.patch

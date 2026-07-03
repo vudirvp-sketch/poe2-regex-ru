@@ -353,7 +353,7 @@ font-feature-settings: "tnum";
 |---|----------|------|-------------|--------|
 | 10 | `font-feature-settings: "tnum"` для числовых элементов | index.css (body global) | Tabular stability — нет jitter в counts/ranges | ✅ iter 110 |
 | 11 | Noto Sans Mono для regex display | index.css `@theme` `--font-mono` | Визуальная согласованность — системный Noto Sans Mono первым (Linux), без self-host overhead | ✅ iter 110 |
-| 12 | APCA-валидация контрастов | `scripts/apca_validate_iter110.py` | 18 пар проверено. PASS: text-primary/soft/accent-yellow. text-dim NEW улучшился на +8.3 Lc, но не достигает Lc≥90 для small text — см. STATUS.md Known Issue #5 | ✅ iter 110 |
+| 12 | APCA-валидация контрастов | iter 154: `scripts/apca_validate_iter110.py` удалён — валидация завершена iter 110/111, результаты в этой таблице | 18 пар проверено. PASS: text-primary/soft/accent-yellow. text-dim NEW улучшился на +8.3 Lc, но не достигает Lc≥90 для small text — см. STATUS.md (low-priority background task) | ✅ iter 110 |
 | 13 | `--text-dim-val` осветлить до `#7A8494` | index.css | WCAG AA на `--input-bg` (4.2→5.2:1), APCA Lc +8.3 | ✅ iter 110 |
 
 ---
