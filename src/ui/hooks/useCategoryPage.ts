@@ -364,6 +364,17 @@ export function useCategoryData(args: UseCategoryDataArgs): UseCategoryDataResul
   const [loading, setLoading] = useState(!providedData);
   const [error, setError] = useState<string | null>(null);
 
+  // iter 152 (KI#42): ref mirror of `data` so the load effect can decide
+  // whether to flip `loading` back to true without re-subscribing to `data`
+  // (which would put `data` in the dep array and re-trigger the effect on
+  // every successful load). When data is already loaded for this category,
+  // a re-run of the effect (e.g. because a parent passed an unstable
+  // `mergeCategories` reference) keeps the existing data mounted instead of
+  // flashing the PageStateWrapper loading spinner — which was unmounting the
+  // search <input> on every keystroke and losing focus.
+  const dataRef = useRef(data);
+  useEffect(() => { dataRef.current = data; }, [data]);
+
   useEffect(() => {
     if (providedData) return;
 
@@ -371,7 +382,10 @@ export function useCategoryData(args: UseCategoryDataArgs): UseCategoryDataResul
 
     async function load() {
       try {
-        setLoading(true);
+        // iter 152 (KI#42): only show the loading spinner on the FIRST load.
+        // On subsequent effect re-runs (e.g. unstable dep references), keep
+        // the existing data mounted to avoid unmounting the search <input>.
+        if (!dataRef.current) setLoading(true);
         setError(null);
         let categoryData: CategoryData;
         if (mergeCategories && mergeCategories.length > 0) {

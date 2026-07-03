@@ -4,37 +4,33 @@
 
 ---
 
-Task ID: 151 (stale comments + trash files cleanup)
+Task ID: 152 (KI#42 — search focus loss fix on jewel/waystone)
 Agent: main
-Task: iter 151 — чистка документации и устаревших комментариев. Без функциональных изменений. Цель: сделать репозиторий «лёгким для модели/агента» — убрать устаревшие patch-notes файлы и исторические упоминания `LeftPanelFavorites` в исходниках.
+Task: Пользовательский баг — на вкладке «Самоцветы» (и в меньшей степени на «Путевые камни») при вводе/удалении текста в строке поиска инпут терял фокус после 1–2 символов. Нужно разобраться в причине, исправить и проверить, что на других вкладках подобной проблемы нет.
 
 Work Log:
-- 1: **Verify baseline** — `pnpm exec tsc -b` 0 errors / `pnpm exec eslint .` 0 warnings / `pnpm test` 2235/2235 PASS / `pnpm exec vite build` PASS, 9 prerendered HTML, bundle `index-B4oIacg-.js` 603.60 KB. Совпадает с iter 150 baseline.
-- 2: **Audit stale references** — `grep -r LeftPanelFavorites src/ tests/` нашёл 6 мест: `useCategoryPage.ts:288`, `useCategoryPage.ts:668`, `i18n.ts:215`, `index.css:1410`, `FavoritesIndicator.tsx:6`, `tests/ui/CategoryLayout.test.tsx:55`. Все — исторические комментарии вида «iter 139 KI#20: was LeftPanelFavorites — component removed», не содержат текущей семантики.
-- 3: **Stale comments cleanup (5 src + 1 test)**:
-  - `useCategoryPage.ts:283-288` — убрана строка `(iter 139 KI#20: was LeftPanelFavorites — component removed.)` + строка `See docs/UI_REFACTOR_PLAN.md §4 Phase 5 for full spec.` (спека больше не актуальна — фаза 5 давно сделана). Комментарий стал 4 строки вместо 6.
-  - `useCategoryPage.ts:665-670` — убрана строка `(iter 139: was LeftPanelFavorites — full chip list removed).`.
-  - `i18n.ts:214-217` — упрощен комментарий с 4 строк до 3: убрано `iter 139 (KI#20): LeftPanelFavorites component removed (no longer rendered in left column).`. Оставлено `Keys kept for backward compat / future favorites UI.` — это актуальная информация.
-  - `index.css:1405-1414` — упрощен комментарий: убрано `(iter 139: was LeftPanelFavorites — component removed; pulse logic moved to FavoritesIndicator.)`. Контекст «pulse logic в FavoritesIndicator» и так понятен из первой строки комментария (`applied to a FilterChip wrapping div when the user clicks the corresponding chip in FavoritesIndicator`).
-  - `FavoritesIndicator.tsx:1-36` — упрощен docstring: убрано `Originally pure presentational (iter 140 — restored favorites visibility after iter 139 KI#20 removed the noisy LeftPanelFavorites chip list).`. Оставлено текущее поведение: `Compact ★ N badge`, рендер, click behavior, accessibility, placement.
-  - `tests/ui/CategoryLayout.test.tsx:53-58` — упрощен комментарий: убрано `Per iter 139 KI#20` + упоминание `LeftPanelFavorites`. Оставлено: `the favorites panel was removed from the left column because it added noise the user explicitly rejected`.
-- 4: **Verify cleanup** — `grep -r LeftPanelFavorites src/ tests/` → 0 matches. Все упоминания удалены.
-- 5: **Audit trash top-level files** — `ls *.txt *.patch README-iter*.md README_ITER*.txt MANIFEST.txt DELETIONS*.txt` нашёл 6 устаревших файлов: `README-iter126.md` (iter 126 patch notes), `README_ITER143_FEEDBACK.txt` (iter 143 feedback patch notes), `iter143-feedback.patch` (iter 143 git patch, уже применён), `MANIFEST.txt` (iter 133 patch manifest), `DELETIONS-iter126.txt` (iter 126 deletion notes), `DELETIONS.txt` (iter 147 deletion notes — уже применено). Проверено, что ни один из них не упоминается в `package.json`, `vite.config.ts`, `scripts/` или активных импортах.
-- 6: **Delete trash files** — `git rm` 6 файлов. Все удаления подтверждены.
-- 7: **Replace README.md** — старый README был iter 147 patch notes (описание применённого патча + git-команды). Заменён на минимальный проектный README: ссылки на `STATUS.md` / `AGENT_NAVIGATION.md` / `worklog.md` + стек (React 19 / TS 6 / Vite 8 / Tailwind 4 / Zustand 5 / Zod 4) + команды разработки (`pnpm install/dev/test/build/etl`) + структура директорий (`src/core`, `src/shared`, `src/strategies`, `src/store`, `src/data`, `src/ui`, `public/generated`, `scripts/etl`, `tests`).
-- 8: **Verify after changes** — `pnpm exec tsc -b` 0 errors / `pnpm exec eslint .` 0 warnings / `pnpm test` 2235/2235 PASS (без изменений — все cleanups были в комментариях и README, не в функциональном коде) / `pnpm exec vite build` PASS, 9 prerendered HTML, bundle 603.60 KB (без изменений).
-- 9: **STATUS.md** — переписан под iter 151. Раздел «Что было сделано» обновлён (3 строки: stale comments, trash files, README.md). Раздел «Known Issues» — убран пункт #10 (Stale comments) — теперь сделано. Раздел «Next iteration» переименован в iter 152, убран пункт про Stale comments cleanup (сделано). Bundle hash обновлён с `index-Cmgdpsbl.js` на `index-B4oIacg-.js` (хеш изменился из-за удаления файлов в repo, но сам bundle content идентичен — 603.60 KB).
-- 10: **worklog.md** — iter 150 сокращён до одной строки. iter 151 подробно задокументирован.
+- 1: **Reproduce bug** — `npm run dev` + `agent-browser` на вкладке «Самоцветы». Type "тест" → val="те", focus=BODY (lost). Backspace на значении "абвг" → после 2-го backspace val="аб" + BLUR event. На waystone — blur+refocus на каждый keystroke (видно в event log). На belt/ring/amulet — фокус сохраняется.
+- 2: **Root cause analysis** — через `MutationObserver` отследил DOM-мутации вокруг blur-события. На jewel после BLUR добавлялся `DIV.flex.items-center.justify-center.h-64` (PageStateWrapper loading-spinner) + `DIV.flex.flex-col.gap-4` (CategoryLayout root). Вывод: весь CategoryLayout unmount'ится и re-mount'ится. Причина: `mergeCategories: ['jewel-desecrated', 'jewel-corrupted']` (JewelPage) и `mergeCategories: ['waystone-desecrated']` (WaystonePage) — inline array literals в render body → новый array-reference на каждый ререндер → `useCategoryData`'s `useEffect` dep-array включает `mergeCategories` → effect re-ran на каждый keystroke (searchText change → re-render → new array ref → effect re-run → `setLoading(true)` → PageStateWrapper unmount'ит детей включая `<input>` → blur). На jewel loading-state успевал отрисоваться (3 JSON-файла, большой dataset); на waystone (2 файла) — unmount был слишком кратким чтобы потерять фокус, но blur+refocus происходил на каждый символ.
+- 3: **Document as KI#42 in STATUS.md** — добавлен пункт 0 в «Активные (требуют browser testing)» с симптомом, root cause и планом фикса.
+- 4: **Fix 1 — JewelPage memoize** — вынес `mergeCategories` в module-level constant `JEWEL_MERGE_CATEGORIES` (const at top of file). Комментарий объясняет причину (inline array literal → новый reference → effect re-run). Файл: `src/ui/pages/jewel/JewelPage.tsx`.
+- 5: **Fix 2 — WaystonePage memoize** — аналогично, `WAYSTONE_MERGE_CATEGORIES` module-level constant. Файл: `src/ui/pages/waystone/WaystonePage.tsx`.
+- 6: **Fix 3 — Defensive guard в useCategoryData** — добавлен `dataRef` (ref mirror of `data`) + `setLoading(true)` только если `!dataRef.current`. Это предотвращает unmount детей даже если effect re-run'ится по любой причине (не только mergeCategories). Файл: `src/ui/hooks/useCategoryPage.ts`.
+- 7: **Browser verify (8 tabs)** — `agent-browser` на waystone, tablet, relic, jewel, vendor, belt, ring, amulet. На каждой вкладке: type "тест" + 4 backspace'а. Результат: 0 blur events после каждого keystroke, focus=INPUT, val корректный. Vendor — без search input (другой layout), N/A. Все остальные — PASS.
+- 8: **Verify baseline** — `npx tsc -b` 0 errors / `npx eslint .` 0 warnings / `npx vitest run` 2228/2235 PASS (7 pre-existing data-test failures в `iter126-ki10-rarity-disambiguation` (2) и `iter127-ki12-tier-hardcoded-regex` (5) — не связаны с моими изменениями, проверено через `git stash` + rerun). `vite build` PASS.
+- 9: **Document pre-existing failures** — добавлен KI#10 в «Фоновые (low-priority)» в STATUS.md с описанием: данные были перегенерированы ETL после iter 151 (commit `chore: update generated data from ETL [skip ci]`), regex-ожидания в тестах разъехались с JSON. Не блокирует UI-фиксы.
+- 10: **STATUS.md rewrite** — «Текущее состояние» переписан под iter 152 (KI#42 фикс). «Next iteration» переименован в iter 153, добавлен пункт 5 (pre-existing data-test failures). Bundle/baseline обновлены.
+- 11: **worklog.md** — iter 151 сокращён до одной строки. iter 152 подробно задокументирован.
 
 Stage Summary:
-- **Stale comments cleanup DONE** — все 6 упоминаний `LeftPanelFavorites` в `src/` и `tests/` упрощены или удалены. Комментарии сохраняют текущую семантику, теряют исторический шум.
-- **Trash files cleanup DONE** — 6 устаревших patch-notes файлов верхнего уровня удалены (`README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`).
-- **README.md replaced** — теперь минимальный проектный README вместо iter 147 patch notes.
-- Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / vite build PASS (9 prerendered HTML). Bundle: 603.60 KB (без изменений).
-- Изменённые файлы: `src/ui/hooks/useCategoryPage.ts`, `src/shared/i18n.ts`, `src/index.css`, `src/ui/components/FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx`, `README.md`, `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` + 6 удалённых файлов.
-- **Stopping point:** iter 151 завершён, готов к push. Next iter 152 = browser testing iter 148 + iter 149 + iter 150 visual checks (7 категорийных страниц) + KI#36/37/38 browser testing + KI#39 conditional + mobile layout + code-split bundle.
+- **KI#42 FIXED** — search input на вкладках «Самоцветы» и «Путевые камни» больше не теряет фокус при вводе/удалении текста. 2 слоя фикса: (1) module-level constants для `mergeCategories` в JewelPage/WaystonePage, (2) defensive `dataRef` guard в `useCategoryData` (setLoading только если data === null).
+- **All 8 tabs verified** — type+backspace работают корректно на waystone, tablet, relic, jewel, vendor, belt, ring, amulet.
+- Baseline: tsc 0 / eslint 0 / vitest 2228/2235 (7 pre-existing data-test failures — KI#10) / vite build PASS.
+- Изменённые файлы: `src/ui/pages/jewel/JewelPage.tsx`, `src/ui/pages/waystone/WaystonePage.tsx`, `src/ui/hooks/useCategoryPage.ts`, `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`.
+- **Stopping point:** iter 152 завершён, готов к push. Next iter 153 = browser testing iter 148 + iter 149 + iter 150 visual checks (7 категорийных страниц) + KI#36/37/38 browser testing + KI#39 conditional + mobile layout + code-split bundle + KI#10 (pre-existing data-test failures).
 
 ---
+
+Task ID: 151 — stale comments + trash files cleanup (Pure documentation/cleanup pass — 6 упоминаний `LeftPanelFavorites` упрощены, 6 устаревших patch-notes файлов удалено, README заменён на минимальный). vitest 2235/2235.
 
 Task ID: 150 — favorites wiring fix (⭐ pin button не отображался на belt/ring/amulet/jewel в two-column layout) + ⓘ in-box layout (glyph в GroupHeader позиционировался как flex-sibling → сдвигал toggle-button sideways → теперь absolute right-2 top-1/2 -translate-y-1/2 z-10 + pr-7 на toggle-button). vitest 2235/2235.
 

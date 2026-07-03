@@ -58,6 +58,17 @@ const JEWEL_TYPE_OPTIONS: { id: JewelTypeCategory | 'all'; labelKey: string; col
   { id: 'sapphire', labelKey: 'jewel.type_sapphire', colorClass: JEWEL_TYPE_LABELS.sapphire.colorClass },
 ];
 
+// iter 152 (KI#42): module-level constant for mergeCategories.
+// Previously this was an inline array literal inside JewelPage's render body,
+// which created a NEW array reference on every render. useCategoryData's
+// useEffect dep array included `mergeCategories`, so the effect re-ran on
+// every keystroke in the search box (searchText change → re-render → new
+// array ref → effect re-run → setLoading(true) → PageStateWrapper unmounted
+// children including the <input> → blur → user lost cursor).
+// Hoisting to module level makes the reference stable for the lifetime of
+// the module, so useCategoryData's effect runs only once per categoryId.
+const JEWEL_MERGE_CATEGORIES = ['jewel-desecrated', 'jewel-corrupted'];
+
 /**
  * Filter tokens by jewel type using heuristics.
  * When jewelType is 'all', returns all tokens.
@@ -122,7 +133,8 @@ export function JewelPage() {
     pinnedIds, togglePinned,
   } = useCategoryPage({
     categoryId: 'jewel',
-    mergeCategories: ['jewel-desecrated', 'jewel-corrupted'],
+    // iter 152 (KI#42): use stable module-level constant — see comment above.
+    mergeCategories: JEWEL_MERGE_CATEGORIES,
     filterStore: useStore,
   });
 

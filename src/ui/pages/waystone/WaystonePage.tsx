@@ -37,6 +37,19 @@ import { t } from '@shared/i18n';
 import { literal, exclude } from '@core/ast';
 import type { ASTNode } from '@shared/types';
 
+// iter 152 (KI#42): module-level constant for mergeCategories.
+// Previously this was an inline array literal inside WaystonePage's render
+// body, which created a NEW array reference on every render.
+// useCategoryData's useEffect dep array included `mergeCategories`, so the
+// effect re-ran on every keystroke in the search box (searchText change →
+// re-render → new array ref → effect re-run → setLoading(true) →
+// PageStateWrapper unmounted children including the <input> → blur).
+// On waystone the unmount was too brief to fully lose focus, but every
+// keystroke still fired a blur+refocus cycle (visible in event logs).
+// Hoisting to module level makes the reference stable for the lifetime of
+// the module, so useCategoryData's effect runs only once per categoryId.
+const WAYSTONE_MERGE_CATEGORIES = ['waystone-desecrated'];
+
 export function WaystonePage() {
   // iter 79 (Bug #8 Phase 2): call useFilterStore BEFORE local useState so we
   // can lazy-init corrupted/uncorrupted/delirious from the URL-restored extraState.
@@ -92,7 +105,8 @@ export function WaystonePage() {
   } = useCategoryPage({
     categoryId: 'waystone',
     extraAstNodes,
-    mergeCategories: ['waystone-desecrated'],
+    // iter 152 (KI#42): use stable module-level constant — see comment above.
+    mergeCategories: WAYSTONE_MERGE_CATEGORIES,
     filterStore: useStore,
   });
 

@@ -2,31 +2,35 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 151 (stale comments + trash files cleanup)
+> **Текущая итерация:** 152 (KI#42 — фикс потери фокуса в поиске на jewel/waystone)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 151: чистка документации и устаревших комментариев.**
+**iter 152: фикс KI#42 — поиск на вкладках «Самоцветы» и «Путевые камни» терял фокус при вводе/удалении текста.**
 
-1. **Stale comments cleanup** — из `src/` и `tests/` убраны все упоминания `LeftPanelFavorites` (5 мест). Комментарии упрощены до текущего состояния без потери контекста «зачем этот код». Файлы: `useCategoryPage.ts` (2 места), `i18n.ts`, `index.css`, `FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx`.
+Симптом: при вводе или удалении текста в строке поиска на вкладке «Самоцветы» (и в меньшей степени на «Путевые камни») инпут терял фокус после 1–2 символов. Пользователю приходилось кликать на инпут заново. На waystone курсор не терялся, но каждый keystroke вызывал blur+refocus (видно в event log).
 
-2. **Trash files cleanup** — удалены 6 устаревших файлов верхнего уровня: `README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`. Все — patch-notes от прошлых итераций (iter 126/133/143/147), давно применённых.
+**Root cause:** inline-arrays `mergeCategories: ['jewel-desecrated', 'jewel-corrupted']` (JewelPage) и `mergeCategories: ['waystone-desecrated']` (WaystonePage) создавали новый array-reference на каждом ререндере. `useCategoryData`'s `useEffect` dep-array включал `mergeCategories` → effect re-ran на каждый keystroke (searchText change → re-render → new array ref → effect re-run). В effect'е вызывалось `setLoading(true)` → `PageStateWrapper` показывал loading-spinner вместо children → unmount `<input>` → blur. На jewel (3 JSON-файла, большой dataset) loading-state успевал отрисоваться; на waystone (2 файла, меньше) — unmount был слишком кратким чтобы потерять фокус, но blur+refocus происходил на каждый символ.
 
-3. **README.md** — заменён с iter 147 patch notes на минимальный проектный README со ссылками на `STATUS.md` / `AGENT_NAVIGATION.md` / `worklog.md` + стек + команды разработки.
+**Fix (2 слоя):**
+1. **Memoize at call site** — `JEWEL_MERGE_CATEGORIES` и `WAYSTONE_MERGE_CATEGORIES` вынесены в module-level constants → стабильный reference → effect не re-ran.
+2. **Defensive guard в `useCategoryData`** — `setLoading(true)` только если `data === null` (через `dataRef`). Даже если effect re-ran по любой причине, существующие данные не unmount'ятся.
 
-**Baseline: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PASS (9 prerendered HTML). Bundle: 603.60 KB (без изменений).**
+**Проверка (browser):** на всех 8 вкладках (waystone, tablet, relic, jewel, vendor, belt, ring, amulet) ввод+backspace работают без потери фокуса. 0 blur events после каждого keystroke. Vendor — без search input (другой layout).
 
-### Что было сделано в iter 151
+**Baseline: tsc 0 / eslint 0 / vitest 2228/2235 (7 pre-existing data-test failures — см. KI#10 ниже) / `vite build` PASS.**
+
+### Что было сделано в iter 152
 
 | Изменение | Файлы | Что сделано |
 |-----------|-------|-------------|
-| Stale comments | `src/ui/hooks/useCategoryPage.ts`, `src/shared/i18n.ts`, `src/index.css`, `src/ui/components/FavoritesIndicator.tsx`, `tests/ui/CategoryLayout.test.tsx` | Убраны исторические упоминания `LeftPanelFavorites` (5 мест). Комментарии упрощены до текущего состояния. |
-| Trash files | 6 файлов удалено | `README-iter126.md`, `README_ITER143_FEEDBACK.txt`, `iter143-feedback.patch`, `MANIFEST.txt`, `DELETIONS-iter126.txt`, `DELETIONS.txt`. |
-| README.md | `README.md` | Заменён с iter 147 patch notes на минимальный проектный README. |
-| Документация | `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` | Переписаны под iter 151. |
+| KI#42 fix (JewelPage) | `src/ui/pages/jewel/JewelPage.tsx` | `mergeCategories` вынесен в module-level constant `JEWEL_MERGE_CATEGORIES`. |
+| KI#42 fix (WaystonePage) | `src/ui/pages/waystone/WaystonePage.tsx` | `mergeCategories` вынесен в module-level constant `WAYSTONE_MERGE_CATEGORIES`. |
+| KI#42 defensive guard | `src/ui/hooks/useCategoryPage.ts` | В `useCategoryData`: `dataRef` mirror + `setLoading(true)` только если `data === null`. Предотвращает unmount детей при re-run effect'а. |
+| Документация | `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` | Переписаны под iter 152. |
 
 ---
 
@@ -34,6 +38,7 @@
 
 ### Активные (требуют browser testing)
 
+0. **KI#42 (search input loses focus on jewel/waystone)** — **FIXED iter 152**. Симптом: при вводе/удалении текста в строке поиска на вкладках «Самоцветы» и «Путевые камни» инпут терял фокус после 1–2 символов, курсор «сбрасывался» — приходилось кликать заново. **Root cause:** `mergeCategories: ['jewel-desecrated', 'jewel-corrupted']` (JewelPage) и `mergeCategories: ['waystone-desecrated']` (WaystonePage) создавались inline в render → новый array-reference на каждый ререндер → `useCategoryData` effect re-ran → `setLoading(true)` → `PageStateWrapper` unmount'ил детей (включая `<input>`) → blur. На jewel (3 JSON-файла, большой dataset) loading-state успевал отрисоваться; на waystone (2 файла, меньше) — unmount был слишком кратким чтобы потерять фокус, но blur всё равно происходил на каждый символ (см. лог). **Fix:** (1) `useMemo` для `mergeCategories` в JewelPage/WaystonePage (стабильный reference); (2) defensive guard в `useCategoryData` — `setLoading(true)` только если `data === null` (через `dataRef`). Файлы: `JewelPage.tsx`, `WaystonePage.tsx`, `useCategoryPage.ts`.
 1. **KI#36 (favorites panel grouping)** — фикс iter 146 готов, нужен browser test.
 2. **KI#37 (origin badge)** — фикс iter 146 готов, нужен browser test.
 3. **KI#38 (scroll jitter CSS contain)** — фикс iter 146 готов, нужен browser test на jewels tab.
@@ -53,6 +58,7 @@
 
 8. **Bundle > 500 KB** — `index-B4oIacg-.js` 603.60 KB. Code-split через dynamic import() для категорийных страниц.
 9. **APCA Lc<75 для small text с weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
+10. **Pre-existing data tests failing (7 tests)** — `tests/core/iter126-ki10-rarity-disambiguation.test.ts` (2) и `tests/core/iter127-ki12-tier-hardcoded-regex.test.ts` (5). Тесты валидируют содержимое `public/generated/*.json` — данные были перегенерированы ETL после iter 151 (commit `chore: update generated data from ETL [skip ci]`), и регулярки в JSON разъехались с hardcoded-ожиданиями в тестах. **Не блокирует UI-фиксы** — это data-content тесты, не функциональные. Фикс требует либо ETL-override для соответствующих токенов, либо обновления ожиданий в тестах.
 
 ---
 
@@ -77,13 +83,13 @@
 
 ---
 
-## Next iteration (iter 151 → iter 152)
+## Next iteration (iter 152 → iter 153)
 
-**iter 151 завершён: stale comments + trash files cleanup готовы. Готов к push.**
+**iter 152 завершён: KI#42 фикс (search focus loss на jewel/waystone) готов. Готов к push.**
 
-**Приоритеты для iter 152:**
+**Приоритеты для iter 153:**
 
-1. **Browser testing** на 7 категорийных страницах:
+1. **Browser testing** на 7 категорийных страницах (всё ещё не проведено):
    - iter 148 toolbar refactor — селекты Сортировка/Показывать.
    - iter 149 priority filter — проверить, что селекта «Приоритет» больше нет.
    - **iter 150 KI#40 — ⭐ pin button должен отображаться на ВСЕХ 7 страницах** (раньше не было на belt/ring/amulet/jewel).
@@ -95,6 +101,8 @@
 3. **Mobile layout optimization** для favorites panel (KI#31 follow-up).
 
 4. **Code-split bundle** — `index-*.js` > 500 KB warning при build.
+
+5. **Pre-existing data-test failures (KI#10)** — 7 тестов в `iter126-ki10-rarity-disambiguation` (2) и `iter127-ki12-tier-hardcoded-regex` (5) failing из-за устаревших regex-ожиданий после ETL-регенерации `public/generated/*.json`. Нужно либо обновить i18n-overrides, либо обновить ожидания в тестах.
 
 ---
 
