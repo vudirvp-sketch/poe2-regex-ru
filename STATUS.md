@@ -2,33 +2,14 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 154 (user visual verification закрыл KI#38/31/41 + repo cleanup)
+> **Текущая итерация:** 155 (KI#43 deploy retry fix)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 154: закрыты 3 user-verification KI + проведён repo cleanup.**
-
-### 1. User visual verification — все 3 KI закрыты
-
-| KI | Проверка | Результат | Действие |
-|----|----------|-----------|----------|
-| KI#38 | Scroll jitter на вкладке «Самоцветы» (250+ токенов) | Плавно, без «дёрганья» header'ов/имён | ✅ CLOSED. Фикс iter 146 (`contain: layout style paint` + `estimateSize` per-row-state) работает. KI#39 (убрать `measureElement`) НЕ нужен. |
-| KI#31 | Mobile UX (favorites panel + общая эргономика на 8 страницах) | Нормально на реальном mobile-устройстве | ✅ CLOSED. Favorites quick-select panel + mobile layout работают. |
-| iter 150 KI#41 | ⓘ glyph visual side-shift | Glyph внутри правого края «бокса», не сдвигает toggle-button sideways | ✅ CLOSED. DOM-структура (`absolute right-2 top-1/2 -translate-y-1/2 z-10` + `pr-7` на toggle-button) корректна. |
-
-### 2. Repo cleanup (iter 154)
-
-Удалены устаревшие файлы из репозитория (подробности — в `CLEANUP_ITER154.txt` внутри архива iter 154):
-
-- **Root:** `DELETIONS.txt`, `DELETIONS-iter126.txt`, `MANIFEST.txt`, `README_ITER143_FEEDBACK.txt`, `README-iter126.md`, `iter143-feedback.patch` — старые archive-manifests и instructions из iter 126/133/143.
-- **`.etl-cache/*.html` (11 files, ~4.3 MB)** — untrack из git (файлы уже в `.gitignore`, но попали в индекс раньше).
-- **One-shot scripts (iter 99–128, всё уже применено к данным):** `scripts/apply-ki12-fix.py`, `scripts/apply-ki13-fix.py`, `scripts/audit-ambiguous-suffixes.py`, `scripts/audit-tier-hardcoded-regex.py`, `scripts/audit_block_sort_coverage.py`, `scripts/verify-iter99-alpha-sort.ts`, `scripts/audit/audit-iter108-compliance.ts`, `scripts/apca_iter110_results.txt`, `scripts/apca_iter111_results.txt`, `scripts/apca_validate_iter110.py`, `scripts/apca_validate_iter111.py`. Логика audit'ов либо inlined в `tests/` (iter 127), либо больше не актуальна (iter 99/108/110/111/119/126/128). Папка `scripts/audit/` удалена за пустотой.
-- **Документация:** обновлены `AGENT_NAVIGATION.md` (header + Pitfalls 38/39/54 + Section 1), `tests/core/iter127-ki12-tier-hardcoded-regex.test.ts` (комментарий про удалённый audit script), `docs/AFFIX_ORDERING_PLAN.md` (refs к удалённому `audit_block_sort_coverage.py`), `docs/UI_AUDIT.md` (refs к удалённым `apca_validate_iter110/111.py`).
-
-Baseline сохранён: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PASS.
+**iter 155: KI#43 deploy retry fix.** Build + Deploy workflow теперь оборачивает `actions/deploy-pages@v4` в `Wandalen/wretry.action@v3` (3 attempts, 30s delay) для автоматического retry при transient Pages API failures. Build artifact успешен — fallback только на deploy step.
 
 ---
 
@@ -36,30 +17,33 @@ Baseline сохранён: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PA
 
 ### Активные
 
-**Нет активных KI.** Все user-verification KI закрыты iter 154.
+**KI#43 — Transient `actions/deploy-pages` failures (iter 155).**
+
+**Симптом:** `Build + Deploy` workflow завершается `failure` при `Deploy to Pages` step (~6s), хотя `Build` и `Upload Pages artifact` steps — `success`.
+
+**Incident:** Run [28677715718](https://github.com/vudirvp-sketch/poe2-regex-ru/actions/runs/28677715718) от iter 154 (commit `7dc558d`). Два push'а iter 154 подряд (`fad413f` success → `7dc558d` failure, ~90s apart). Build upload прошел за 1s, deploy step стартовал в 18:35:06 и упал в 18:35:12 — слишком быстро для real failure, GitHub Pages API вернул ошибку без подробностей (admin-only logs).
+
+**Root cause (предположение):** Transient GitHub Pages API error. Pages deployments sometimes fail when triggered shortly after another deploy finished — internal state machine GitHub Pages ещё не released предыдущий deployment.
+
+**Fix (iter 155):** `deploy.yml` → deploy step обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay между попытками). Все inputs/outputs `actions/deploy-pages@v4` пробрасываются прозрачно (включая `steps.deployment.outputs.page_url`).
+
+**Recovery для существующего failed run:** User может manually re-run failed workflow из GitHub Actions UI (`...` → `Re-run failed jobs`) — Pages API к этому моменту уже свободен.
 
 ### Фоновые (low-priority, опциональные)
 
 1. **APCA Lc<75 для small text с weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
 2. **MobileRegexBar chunk 158 KB** — отдельный chunk для mobile-only компонента. Можно ещё больше раздробить, но это не критично (загружается только на mobile, не влияет на desktop LCP).
 3. **`scripts/patch-ki10-ki12-overrides.ts` (iter 153 one-shot)** — оставлен в repo до следующего ETL refresh. После подтверждения, что `manualOverride` flag корректно защищает future ETL runs, можно удалить.
+4. **`_local-tools/browser-test-iter153.sh`** — iter 153 one-shot browser-testing script с hardcoded `/tmp/` paths. Можно удалить или перенести в `docs/` как reference.
 
-### Закрытые в iter 154
+### Закрытые
 
-- ✅ **KI#38 (scroll jitter CSS contain)** — user-verified на «Самоцветы» (250+ токенов), плавно.
-- ✅ **KI#31 (mobile layout для favorites panel)** — user-verified на реальном mobile-устройстве, 8 страниц.
-- ✅ **iter 150 KI#41 (ⓘ glyph visual side-shift)** — user-verified, glyph внутри бокса.
-
-### Закрытые в iter 153
-
-- ✅ **KI#10 (rarity disambiguation override regression)** — fixed via `manualOverride` flag.
-- ✅ **KI#12 (tier-hardcoded regex regression)** — fixed via `manualOverride` flag.
-- ✅ **iter 148 visual check (toolbar selects)** — browser-verified на 7 страницах.
-- ✅ **iter 149 visual check (Priority filter removed)** — browser-verified на 7 страницах.
-- ✅ **iter 150 KI#40 (⭐ pin button on all 7 pages)** — browser-verified.
-- ✅ **KI#37 (origin badge)** — browser-verified на jewel/waystone.
-- ✅ **KI#42 (search focus retention)** — browser-verified на 7 страницах.
-- ✅ **Bundle > 500 KB** — fixed via React.lazy + Suspense code-split.
+- ✅ **iter 154:** KI#38 scroll jitter (user-verified на «Самоцветы» 250+ токенов), KI#31 mobile UX (user-verified на 8 страницах), iter 150 KI#41 ⓘ glyph visual (user-verified). Repo cleanup: 17 stale files deleted + 11 `.etl-cache/*.html` untracked.
+- ✅ **iter 153:** KI#10 (rarity disambiguation override regression), KI#12 (tier-hardcoded regex regression) — fixed via `manualOverride` flag. Bundle 603→342 KB via `React.lazy + Suspense` code-split.
+- ✅ **iter 152:** KI#42 search focus loss fix на jewel/waystone.
+- ✅ **iter 150:** KI#40 ⭐ pin button on all 7 pages, KI#41 ⓘ in-box layout.
+- ✅ **iter 149:** PriorityFilter feature complete removal.
+- ✅ **iter 148:** toolbar UX refactor (radiogroups → `<select>`).
 
 ---
 
@@ -84,11 +68,11 @@ Baseline сохранён: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PA
 
 ---
 
-## Next iteration (iter 154 → iter 155)
+## Next iteration (iter 155 → iter 156)
 
-**iter 154 завершён: user visual verification закрыл KI#38/31/41 + repo cleanup. Готов к push.**
+**iter 155 завершён: KI#43 deploy retry fix. Готов к push.**
 
-**Приоритеты для iter 155:**
+**Приоритеты для iter 156:**
 
 1. **Новые баги** (если найдены) — сначала документировать в STATUS.md как Known Issue, потом фиксить.
 
@@ -96,6 +80,7 @@ Baseline сохранён: tsc 0 / eslint 0 / vitest 2235/2235 / `vite build` PA
    - **APCA Lc<75 для small text weight 400** — weight 500 на критичных лейблах.
    - **MobileRegexBar chunk 158 KB** — дальнейший code-split, если user заметит медленную загрузку на mobile.
    - **`scripts/patch-ki10-ki12-overrides.ts` (iter 153 one-shot)** — удалить после подтверждения, что `manualOverride` flag защищает future ETL runs.
+   - **`_local-tools/browser-test-iter153.sh`** — удалить или перенести в `docs/` как reference.
 
 3. **Новые фичи / UX-импрувменты** — по запросу user.
 

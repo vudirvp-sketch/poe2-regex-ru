@@ -93,9 +93,18 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: Deploy to Pages
-        uses: actions/deploy-pages@v4
+      # KI#43 (iter 155): actions/deploy-pages intermittently fails with a
+      # transient Pages API error (race between two consecutive pushes, internal
+      # GitHub error). Build artifact is fine — only the deploy step fails (~6s).
+      # Wrap with wretry.action: 3 attempts, 30s delay between attempts.
+      # See STATUS.md → KI#43 for incident details.
+      - name: Deploy to Pages (with retry — KI#43)
+        uses: Wandalen/wretry.action@v3
         id: deployment
+        with:
+          action: actions/deploy-pages@v4
+          attempt_limit: 3
+          attempt_delay: 30
 
   indexnow:
     name: Notify IndexNow
