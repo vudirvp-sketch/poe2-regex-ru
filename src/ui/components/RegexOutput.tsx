@@ -122,6 +122,16 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  // iter 164 (REDESIGN_CONCEPT_v3 §3 P3): pulse-on-change — when the compiled
+  // regex string changes (user selected/deselected an affix), toggle the
+  // `regex-output--pulse` CSS modifier for ~600ms. This gives instant visual
+  // feedback «selected → result» and makes the RegexOutput block read as the
+  // central, alive element of the right panel (vs the static SelectedBasket
+  // above and StatusPanel below). The animation respects
+  // `prefers-reduced-motion` (CSS-side no-op). Skipped on first render so the
+  // pulse doesn't fire when the page just mounted with an empty regex.
+  const [isPulsing, setIsPulsing] = useState(false);
+  const prevRegexForPulseRef = useRef<string | null>(null);
   const [autoCopy, setAutoCopy] = useState(() => {
     try {
       return localStorage.getItem('poe2-regex-auto-copy') === 'true';
@@ -153,6 +163,32 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
       // silently ignore clipboard errors
     });
   }, [regex, autoCopy, isOverflow]);
+
+  // iter 164 (P3): pulse-on-change effect. Fire whenever `regex` actually
+  // changes value (not on mount). The CSS animation self-resets after 600ms
+  // via `animation: regex-output-pulse 0.6s ease-out`. We re-trigger the
+  // animation by toggling the class off→on (React removes/adds the class
+  // on the next paint, which restarts the CSS animation).
+  useEffect(() => {
+    if (prevRegexForPulseRef.current === null) {
+      // First render — record and skip.
+      prevRegexForPulseRef.current = regex;
+      return;
+    }
+    if (prevRegexForPulseRef.current === regex) return;
+    prevRegexForPulseRef.current = regex;
+    setIsPulsing(false);
+    // requestAnimationFrame ensures the class is removed before re-adding,
+    // otherwise React may batch both updates and the animation won't restart.
+    const rafId = requestAnimationFrame(() => {
+      setIsPulsing(true);
+    });
+    const timeoutId = window.setTimeout(() => setIsPulsing(false), 700);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [regex]);
 
   const handleCopy = useCallback(async () => {
     if (!regex || isOverflow) return;
@@ -199,7 +235,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const healthPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
 
   return (
-    <div className="regex-output"
+    <div className={`regex-output${isPulsing ? ' regex-output--pulse' : ''}`}
       role="region"
       aria-label={t('regex.title')}
       aria-live="off"

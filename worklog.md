@@ -83,3 +83,59 @@ Stage Summary:
   - `docs/UI_REFACTOR_PLAN.md` — §15.7 iter 162–163 updates.
 - **Удалённые файлы (4):** `scripts/patch-ki10-ki12-overrides.ts`, `_local-tools/browser-test-iter153.sh`, `iter162.diff`, `ITER162_README.md`.
 - **Stopping point:** iter 163 завершён. KI#48 и KI#49 закрыты. От пользователя нужно ТОЛЬКО визуальная проверка ⓘ glyph (30 секунд). Next iter 164 — UX polish по результатам (если glyph мешает) + фоновые задачи (APCA, MobileRegexBar split, KI#47).
+
+---
+
+Task ID: iter-164
+Agent: main
+Task: (1) Проанализировать внешний UX-аудит (предоставлен пользователем) — согласия/разногласия с обоснованием. (2) Создать единую концепт-спецификацию для редизайна. (3) Реализовать небольшой редизайн (P1/P2/P3) по спецификации.
+
+Work Log:
+- 0: **Прочитал внешний UX-аудит** — 7 проблем: слабая визуальная иерархия L1→L2→L3, цветовая система, Regex-блок недооценён, визуальный шум, TopNav (не центрировать), активная вкладка, косметика меню.
+- 1: **Сверил с существующей документацией** — `docs/UI_AUDIT.md` (v2, iter 110) уже закрыл 13 пунктов (палитра, типографика, размеры, контрасты, APCA). `docs/UI_REFACTOR_PLAN.md` (iter 137) уже закрыл 7 фаз (collapsible groups, SelectedBasket, tooltips, favorites). Текущий UI — зрелая система, а не черновик.
+- 2: **Анализ согласий/разногласий:**
+  - ✅ СОГЛАСЕН: «TopNav — не топ-3 проблема» (подтверждено UI_AUDIT v2).
+  - ⚠️ ЧАСТИЧНО: «Слабая иерархия L1→L2→L3» — иерархия существует, но L2 (origin) слишком близко к L3 (sub-group). Усилить L2.
+  - ❌ НЕ СОГЛАСЕН: «Цвета не несут информации» — текущая система семантически нагружена (affix type colors). Симптом шума — от слабой дифференциации L2/L3, не от избытка цветов.
+  - ❌ НЕ СОГЛАСЕН: «Red=Str/Green=Dex/Blue=Int для категорий» — смешивает доменные оси, создаст больше путаницы.
+  - ✅ СОГЛАСЕН: «Regex блок должен быть визуальным центром правой панели».
+  - ⚠️ ЧАСТИЧНО: «Compact/Extended режимы» — уже частично есть через collapse; полный toggle откладывается.
+  - ✅ СОГЛАСЕН: «Активная вкладка должна выделяться сильнее».
+  - ❌ НЕ СОГЛАСЕН: «Сделать навигацию цельной панелью» — текущие chip-tabs лучше для touch + horizontal scroll.
+- 3: **Создал `docs/REDESIGN_CONCEPT_v3.md`** — единая концепт-спецификация: контекст, анализ аудита, приоритеты P1/P2/P3, что НЕ делаем и почему, план валидации, точка остановки.
+- 4: **P1 — L2 origin header frame (CSS + 2 TSX):**
+  - `src/index.css` — новый класс `.affix-origin-header` (gradient overlay + 3px border-l + small corner accents via ::before/::after). Стилистика — мини-L1, явно отличается от L3 sub-group.
+  - `src/ui/components/ModList.tsx` — origin-header div: убран inline `border-l-2`, добавлен класс `affix-origin-header`.
+  - `src/ui/components/VirtualizedModList.tsx` — то же изменение для virtualized версии.
+- 5: **P2 — усиление `.nav-mode-active` (CSS):**
+  - alpha gradient 0.14 → 0.20 / 0.04 → 0.06.
+  - box-shadow 0.10 → 0.16 (outer ring) / 0.10 → 0.18 (glow).
+  - Добавлен `text-shadow: 0 0 8px rgba(200, 154, 74, 0.35)` для active label.
+  - `::after` border-b: `var(--poe-gold)` → `var(--poe-gold-bright)`, glow 0.45 → 0.55.
+- 6: **P3 — усиление `.regex-output` + pulse-on-change (CSS + TSX):**
+  - `src/index.css` — border alpha 0.35 → 0.48, bg gradient alpha 0.08 → 0.10, box-shadow 0.06 → 0.10 / 0.10 → 0.18, добавлен `transition` для smooth-состояний. Новый `@keyframes regex-output-pulse` (600ms ease-out, brighter glow → baseline). Класс `.regex-output--pulse` применяет анимацию. `@media (prefers-reduced-motion: reduce)` отключает анимацию.
+  - `src/ui/components/RegexOutput.tsx` — новое состояние `isPulsing` + `prevRegexForPulseRef`. useEffect на `[regex]`: пропускает first render (mount), при изменении regex — `setIsPulsing(false)` → rAF → `setIsPulsing(true)` → 700ms timeout → `setIsPulsing(false)`. Класс `regex-output--pulse` toggling перезапускает CSS-анимацию.
+- 7: **Документация:**
+  - `STATUS.md` — переписан полностью. iter 164 как текущая. Концепт-спецификация указана. KI#43/45/46/47 — активные (кратко). Фоновые — APCA, MobileRegexBar, pre-existing act() warnings. PoE2 limitations — краткая таблица. Next iter 165 — от пользователя 3 визуальные проверки (опционально).
+  - `worklog.md` — эта запись.
+  - `AGENT_NAVIGATION.md` — header обновлён на iter 164.
+- 8: **Проверки:**
+  - `npx tsc -b` — 0 ошибок.
+  - `npx eslint .` — 0 ошибок.
+  - `npx vitest run` — 2319/2319 PASS (без изменений vs iter 163).
+  - `npx vite build` — PASS. CSS 60 → 61 KB (+1 KB на новый L2 frame + pulse keyframes + усиление nav-active/regex-output). Main bundle 343 KB без изменений.
+
+Stage Summary:
+- **Концепт-спецификация создана.** `docs/REDESIGN_CONCEPT_v3.md` — обоснованный анализ внешнего UX-аудита (согласия/разногласия с обоснованием), приоритизированный план P1/P2/P3, явный список того что НЕ делаем и почему, план валидации, точка остановки.
+- **P1 — L2 origin header frame.** Новый CSS-класс `.affix-origin-header` (gradient + 3px border-l + corner accents). Применён в `ModList.tsx` и `VirtualizedModList.tsx`. Создаёт чёткую 3-ступенчатую иерархию L1 → L2 → L3.
+- **P2 — усиление `.nav-mode-active`.** Alpha gradient 0.14 → 0.20, box-shadow усилен, добавлен text-shadow. Активная вкладка читается мгновенно.
+- **P3 — усиление `.regex-output` + pulse-on-change.** Border/glow усилены. CSS-анимация `regex-output-pulse` (600ms) срабатывает при изменении regex string. `prefers-reduced-motion` уважается.
+- **Все проверки PASS:** tsc 0, eslint 0, 2319/2319 tests PASS, vite build PASS.
+- **Изменённые файлы (iter 164):**
+  - `docs/REDESIGN_CONCEPT_v3.md` — новый.
+  - `src/index.css` — `.affix-origin-header`, `.regex-output` усиление + pulse keyframes, `.nav-mode-active` усиление.
+  - `src/ui/components/ModList.tsx` — L2 origin header использует `.affix-origin-header`.
+  - `src/ui/components/VirtualizedModList.tsx` — то же.
+  - `src/ui/components/RegexOutput.tsx` — pulse-on-change effect.
+  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
+- **Stopping point:** iter 164 завершён. Все 3 пункта P1/P2/P3 реализованы. От пользователя — опциональная визуальная проверка (30 секунд). Next iter 165 — по запросу (Compact/Extended toggle, ревизия functional colors, visual link SelectedBasket↔RegexOutput, фоновые задачи).

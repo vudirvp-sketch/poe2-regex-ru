@@ -519,7 +519,7 @@ const VirtualRowContent: React.FC<{
 
   if (row.type === 'origin-header') {
     return (
-      <div className={`block ml-2 mt-4 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
+      <div className={`affix-origin-header block ml-2 mt-4 mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm ${row.bgClass} ${row.borderClass} ${row.borderLClass} ${row.colorClass} flex items-center gap-1.5`}>
         {row.iconPath && (
           <img
             src={`${import.meta.env.BASE_URL}${row.iconPath}`}

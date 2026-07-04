@@ -13,7 +13,9 @@
 | `AGENT_NAVIGATION.md` | Entry-документ для AI-агента — структура, pitfalls, итерации |
 | `worklog.md` | История итераций (последняя — подробно, старые — одной строкой) |
 | `docs/ARCHITECTURE.md` | Архитектура core/regex-движка |
+| `docs/UI_AUDIT.md` | Полный UI-аудит v2 (палитра, типографика, контрасты) |
 | `docs/UI_REFACTOR_PLAN.md` | Полный план UI-рефакторинга (фазы 1-5) |
+| `docs/REDESIGN_CONCEPT_v3.md` | Концепт-спецификация редизайна v3 (iter 164) |
 | `docs/ETL_GUIDE.md` | ETL-пайплайн: poe2db.tw → `public/generated/*.json` |
 
 ## Разработка

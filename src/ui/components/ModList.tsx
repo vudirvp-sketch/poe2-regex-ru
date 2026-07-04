@@ -443,7 +443,7 @@ const AffixColumn: React.FC<{
             const hideSubLabel = section.subGroups.length === 1;
             return (
               <div key={section.origin} className={idx > 0 ? 'mt-3' : ''}>
-                <div className={`block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm border-l-2 ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
+                <div className={`affix-origin-header block ml-2 ${idx > 0 ? 'mt-4' : 'mt-1'} mb-2 text-[14px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm ${section.bgClass} ${section.borderClass} ${section.borderLClass} ${section.colorClass} flex items-center gap-1.5`}>
                   {section.iconPath && (
                     <img
                       src={`${import.meta.env.BASE_URL}${section.iconPath}`}
