@@ -1245,13 +1245,60 @@ main {
   font-size: 12px;
 }
 
-/* Tab row: horizontally scrollable on small screens, fits on md+. */
+/* Tab row: horizontally scrollable on small screens, fits on md+.
+   iter 173 (KI#51): `.topnav-tabs` is now wrapped by `.topnav-tabs-wrap`
+   (relative, `flex:1`, `overflow:hidden`) which hosts `::before` /
+   `::after` fade overlays. The wrapper takes the `flex: 1` role that
+   `.topnav-tabs` previously had; `.topnav-tabs` itself becomes
+   `display: flex` + `width: 100%` + `overflow-x: auto` so it scrolls
+   inside the wrapper. The scrollbar remains hidden — fades now provide
+   the discoverability cue that was missing. */
+.topnav-tabs-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.topnav-tabs-wrap::before,
+.topnav-tabs-wrap::after {
+  /* Edge fade overlays. 24px wide gradient from solid --poe-bg to
+     transparent, anchored to the left/right edge of the wrapper.
+     `pointer-events: none` so they never block clicks on partially-
+     visible tabs at the edge. `z-index: 1` puts them above the tabs
+     (which have no explicit z-index → default 0 / auto). `opacity: 0`
+     by default; toggled by `--can-left` / `--can-right` modifier
+     classes that JS applies based on scroll position. */
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.topnav-tabs-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, var(--poe-bg), transparent);
+}
+.topnav-tabs-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, var(--poe-bg), transparent);
+}
+.topnav-tabs-wrap--can-left::before {
+  opacity: 1;
+}
+.topnav-tabs-wrap--can-right::after {
+  opacity: 1;
+}
+
 .topnav-tabs {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   height: 100%;
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
@@ -1318,6 +1365,25 @@ main {
   background: var(--poe-gold-bright);
   box-shadow: 0 0 8px rgba(224, 181, 112, 0.55);
   pointer-events: none;
+}
+
+/* iter 173: GitHub link inside `.topnav-feedback`. Inherits the parent's
+   `color: var(--poe-text)` and `opacity: 0.45` from inline style, but on
+   hover the link lifts its own opacity to 0.85 (without affecting the
+   sibling Discord text) so the user knows it's interactive. `text-underline`
+   on hover only — keeps the rest state visually identical to the Discord
+   hint text, so the link doesn't read as "different from the rest of the
+   feedback area" until the user shows intent. */
+.topnav-feedback-link {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.15s ease;
+}
+.topnav-feedback-link:hover,
+.topnav-feedback-link:focus-visible {
+  opacity: 0.85;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ─── Home SEO <details> (iter 57, UI Phase 5) ─── */

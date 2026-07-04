@@ -1,4 +1,5 @@
 import { NavLink, Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { t } from '@shared/i18n'
 import { navItems } from './nav-items'
 
@@ -30,8 +31,8 @@ import { navItems } from './nav-items'
  *   - Center: horizontal tabs (icon + label), `flex-1` + `overflow-x-auto`.
  *             On md+ the 9 tabs fit naturally; on < md they scroll.
  *             Scrollbar hidden visually (touch + wheel + keyboard still work).
- *   - Right:  feedback hint (Discord), `hidden lg:block`. Compact on the
- *             right edge so it never pushes tabs off-screen.
+ *   - Right:  feedback hint (Discord + GitHub link), `hidden lg:block`.
+ *             Compact on the right edge so it never pushes tabs off-screen.
  *
  * Active state: `.nav-mode-active` class — `border-bottom: 3px` gold accent
  * via `::after` pseudo-element (overlaps the TopNav's bottom border), plus
@@ -39,14 +40,63 @@ import { navItems } from './nav-items'
  * frame pattern (`.regex-output`) so the active route reads as a "mode"
  * rather than a generic highlighted link.
  *
+ * iter 173 (KI#51 fix): scroll-aware fade indicators on `.topnav-tabs-wrap`.
+ * When viewport is too narrow for all 9 tabs to fit, `.topnav-tabs` scrolls
+ * horizontally (existing behavior). Previously `scrollbar-width: none` hid
+ * the scrollbar, so users had no cue that more tabs existed beyond the
+ * visible area — categories like Rings/Amulets would silently disappear.
+ * Now JS tracks `scrollLeft` / `clientWidth` / `scrollWidth` and toggles
+ * `topnav-tabs-wrap--can-left` / `topnav-tabs-wrap--can-right` classes,
+ * which drive `::before` (left fade) and `::after` (right fade) gradient
+ * overlays. Fades use `var(--poe-bg)` so they read as "edge of viewport"
+ * rather than as a separate UI element.
+ *
  * a11y:
  *   - `role="banner"` on the header element.
  *   - `role="navigation"` + `aria-label` on the inner `<nav>`.
  *   - Each NavLink is a focusable anchor (keyboard reachable via Tab).
  *   - `aria-current="page"` is applied automatically by React Router's
  *     `<NavLink>` when active.
+ *   - GitHub link: `target="_blank" rel="noopener noreferrer"` + descriptive
+ *     `aria-label` so screen readers announce "GitHub repository (opens in
+ *     new tab)".
  */
 export function TopNav() {
+  // iter 173 (KI#51): scroll-position tracking for fade indicators.
+  // tabsRef is the actual scroll container (.topnav-tabs). We read
+  // scrollLeft + clientWidth + scrollWidth on mount, on scroll (passive),
+  // and on window resize — then toggle the `--can-left` / `--can-right`
+  // classes on the wrapper so CSS can fade the edge gradients in/out.
+  const tabsRef = useRef<HTMLDivElement>(null)
+  const [canLeft, setCanLeft] = useState(false)
+  const [canRight, setCanRight] = useState(false)
+
+  useEffect(() => {
+    const el = tabsRef.current
+    if (!el) return
+
+    const update = () => {
+      // 4px tolerance — avoids flicker when scrollLeft is at the exact edge
+      // but sub-pixel rendering nudges it by 1-2px.
+      setCanLeft(el.scrollLeft > 4)
+      setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+    }
+
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      el.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  const wrapClass = [
+    'topnav-tabs-wrap',
+    canLeft && 'topnav-tabs-wrap--can-left',
+    canRight && 'topnav-tabs-wrap--can-right',
+  ].filter(Boolean).join(' ')
+
   return (
     <header
       className="topnav poe-panel-header"
@@ -86,45 +136,68 @@ export function TopNav() {
           </span>
         </Link>
 
-        {/* Tabs: horizontal scrollable list of all 9 routes. */}
-        <nav
-          className="topnav-tabs"
-          role="navigation"
-          aria-label={t('nav.categories')}
-        >
-          {navItems.map(item => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) =>
-                `topnav-tab flex items-center gap-1.5 rounded px-2.5 py-1.5 text-[14px] whitespace-nowrap transition-colors ${
-                  isActive ? 'nav-mode-active' : 'hover:opacity-80'
-                }`
-              }
-              style={({ isActive }) => ({
-                color: isActive ? 'var(--poe-gold-bright)' : 'var(--poe-text)',
-              })}
-            >
-              <img
-                src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
-                alt=""
-                width={22}
-                height={22}
-                className="shrink-0 object-contain"
-                style={{ imageRendering: 'auto', maxHeight: '22px', maxWidth: '22px' }}
-              />
-              <span>{t(item.label)}</span>
-            </NavLink>
-          ))}
-        </nav>
+        {/* iter 173 (KI#51): `.topnav-tabs-wrap` is a relative wrapper that
+            hosts `::before` / `::after` fade overlays. The actual scroll
+            container (`.topnav-tabs`) lives inside. The wrapper takes
+            `flex: 1` + `min-width: 0` so it shrinks correctly inside the
+            flex row, and `overflow: hidden` so the fade gradients clip the
+            tab edges cleanly. */}
+        <div className={wrapClass}>
+          <nav
+            ref={tabsRef}
+            className="topnav-tabs"
+            role="navigation"
+            aria-label={t('nav.categories')}
+          >
+            {navItems.map(item => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                  `topnav-tab flex items-center gap-1.5 rounded px-2.5 py-1.5 text-[14px] whitespace-nowrap transition-colors ${
+                    isActive ? 'nav-mode-active' : 'hover:opacity-80'
+                  }`
+                }
+                style={({ isActive }) => ({
+                  color: isActive ? 'var(--poe-gold-bright)' : 'var(--poe-text)',
+                })}
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}icons/${item.icon}.png`}
+                  alt=""
+                  width={22}
+                  height={22}
+                  className="shrink-0 object-contain"
+                  style={{ imageRendering: 'auto', maxHeight: '22px', maxWidth: '22px' }}
+                />
+                <span>{t(item.label)}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
-        {/* Feedback hint — desktop only (lg+), doesn't push tabs. */}
+        {/* Feedback hint — desktop only (lg+), doesn't push tabs.
+            iter 173: GitHub link added next to Discord hint per user
+            request («ссылку на гитхаб репозиторий оставить рядом с
+            дискордом»). Both items styled identically; GitHub is an
+            external link, opens in new tab with `noopener` to prevent
+            tab-nabbing. */}
         <div
-          className="topnav-feedback hidden lg:block shrink-0 text-[12px] leading-snug"
+          className="topnav-feedback hidden lg:flex shrink-0 items-center gap-2 text-[12px] leading-snug"
           style={{ color: 'var(--poe-text)', opacity: 0.45 }}
         >
-          {t('nav.feedback')}
+          <span>{t('nav.feedback')}</span>
+          <span style={{ opacity: 0.5 }}>·</span>
+          <a
+            href="https://github.com/vudirvp-sketch/poe2-regex-ru"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="topnav-feedback-link"
+            aria-label="GitHub repository (opens in new tab)"
+          >
+            {t('nav.github')} ↗
+          </a>
         </div>
       </div>
     </header>

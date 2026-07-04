@@ -2,50 +2,43 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 172 (fix `act()` warnings в `tests/ui/RegexOutput.test.tsx`). iter 170 (A4) DONE, ожидает визуальной валидации.
+> **Текущая итерация:** 173 (KI#51 fix — scroll affordance для TopNav tabs + GitHub link в TopNav).
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 172)
+## Текущее состояние (iter 173)
 
-**iter 172: устранение `act()` warnings в `tests/ui/RegexOutput.test.tsx`.** Background issue закрыт. Применён паттерн `vi.useFakeTimers()` / `vi.useRealTimers()` (как в `tests/ui/Tooltip.test.tsx`) — pending fake timers автоматически discard'ся при переключении на real timers в `afterEach`, что предотвращает fire `setTimeout(() => setCopied(false), 2000)` после teardown. Тест `copies regex to clipboard when copy button clicked` переработан: вместо `vi.waitFor` (не работает с fake timers) microtasks flush'ятся внутри `act(async () => { ... await Promise.resolve(); })`, что обёртывает и `setCopied(true)` state update. 0 warnings, 21/21 PASS.
+**iter 173: KI#51 fix + GitHub link.** Пользователь подтвердил: при сжатии окна браузера часть кнопок категорий (Кольца, Амулеты и т.д.) не отображается, и пользователь не знает, что они есть — горизонтальный скролл `.topnav-tabs` визуально невидим (`scrollbar-width: none`). Зафиксирован как KI#51, по правилу «сначала документируй, потом фиксись».
 
-**Изменённые файлы (iter 172):**
-- `tests/ui/RegexOutput.test.tsx` — `beforeEach`/`afterEach` setup + import `act`/`afterEach` + 1 test rewrite.
+**Fix KI#51:** Добавлены scroll-aware fade-индикаторы по краям `.topnav-tabs`:
+- Новый wrapper `.topnav-tabs-wrap` (relative, `flex:1`, `min-width:0`) оборачивает существующий `.topnav-tabs` scroll-container.
+- `::before` (левый fade) и `::after` (правый fade) — `linear-gradient` от `var(--poe-bg)` к transparent, ширина 24px.
+- JS в `TopNav.tsx` через `useRef`/`useEffect`/`useState` трекает `scrollLeft` + `clientWidth` vs `scrollWidth`, выставляет классы `topnav-tabs-wrap--can-left` / `topnav-tabs-wrap--can-right`. Fade появляется только когда есть куда скроллить в эту сторону. Слушатели `scroll` (passive) + `resize`, cleanup в unmount.
+- CSS `transition: opacity 0.2s ease` — плавное появление/исчезновение.
 
-**Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (без изменений — 0 регрессий), `act()` warnings = 0.
+**GitHub link:** В `.topnav-feedback` (правый край TopNav, lg+) добавлена ссылка на репозиторий рядом с Discord-хинтом: `Баги и идеи → Discord: woonderdad · GitHub ↗`. GitHub — внешняя ссылка (`target="_blank" rel="noopener noreferrer"`), стилизована под existing feedback-text, hover lifts opacity 0.45 → 0.85. Новый i18n ключ `nav.github`: `GitHub`.
 
-**iter 171: cleanup репозитория.** Удалены 2 stale delivery-артефакта от iter 163: `ITER163_README.md` и `DELETED.txt` (root).
+**Изменённые файлы (iter 173):**
+- `src/ui/layout/TopNav.tsx` — `useRef`/`useEffect`/`useState` для scroll-position tracking, wrapper div вокруг `.topnav-tabs`, GitHub link в feedback area.
+- `src/index.css` — `.topnav-tabs-wrap` + `::before`/`::after` fade gradients + `.topnav-feedback-link` styles.
+- `src/shared/i18n.ts` — ключ `nav.github`.
 
-**iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории».** Реализован conditional rendering для existing expand-all/collapse-all кнопок в `ModList.tsx` и `VirtualizedModList.tsx` per A4 spec (`docs/REDESIGN_CONCEPT_v4.md` §A4). Раньше кнопки всегда рендерились когда переданы колбэки. Теперь в L3-режиме они появляются только когда их действие применимо.
-
-| Аспект | До (iter 169) | После (iter 170) |
-|--------|---------------|------------------|
-| Expand-all в L3-режиме | ✅ Всегда виден | ✅ Виден только когда ≥1 sub-group COLLAPSED |
-| Collapse-all в L3-режиме | ✅ Всегда виден | ✅ Виден только когда ≥1 sub-group EXPANDED |
-| Лейблы в L3-режиме | «Развернуть/Свернуть все» (generic) | «Развернуть/Свернуть все подкатегории» (specific) |
-| L1 state (top-level affix columns) | ✅ Не трогается | ✅ Не трогается (criterion 3) |
-| Legacy L1-only mode (no sub-group wiring) | ✅ Кнопки всегда видны, generic лейблы | ✅ Без изменений (backward compat) |
-
-**Критерий приёмки iter 170:**
-- ✅ tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (2359 baseline + 7 новых).
-- ✅ vite build PASS. CSS 61.17 KB (без изменений — CSS не трогал). ModList chunk 15.94 KB, VirtualizedModList 37.67 KB.
-- ⏳ Визуальная валидация: открыть категорию с L3 sub-groups → кнопка «Развернуть все подкатегории» видна (ничего не раскрыто) → раскрыть одну подгруппу → обе кнопки видны → раскрыть все → только «Свернуть» видна.
+**Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (0 регрессий — изменения UI не покрыты unit-тестами, scroll tracking тестируется визуально). vite build PASS — CSS 61.17 → 62.37 KB (+1.20 KB raw / +0.05 KB gzip — большая часть комментариями, вырежутся в prod при необходимости).
 
 ---
 
-## Решения пользователя по аудиту v4 (iter 165 → iter 170)
+## Решения пользователя по аудиту v4 (iter 165 → iter 173)
 
 | Аспект | Решение | Приоритет | Статус |
 |--------|---------|-----------|--------|
-| **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | **iter 168 DONE** |
-| **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
-| **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
-| **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | **iter 170 DONE** |
-| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 173+ (по фидбеку) |
+| **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | **iter 168 DONE** ✅ валидировано |
+| **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** ✅ валидировано |
+| **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** ✅ валидировано |
+| **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | **iter 170 DONE** ✅ валидировано |
+| **A5** — активная вкладка | iter 164 уже достаточен — не усиливать дальше | low | **CLOSED iter 173** (по фидбеку: «вариант a5-1 короче» = оставить как есть) |
 | **A6** — цельная панель навигации | **Отклонено** — плохо работает при horizontal scroll на мобильном | — | не делаем |
-| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 173+ |
+| **A7** — косметика меню | Частично закрыт KI#51 (scroll affordance). Остальное — по конкретике. | — | partial iter 173 |
 
 ### Явно отклонённые пользователем направления
 
@@ -54,6 +47,7 @@
 - Str/Dex/Int палитра для категорий
 - Цельный navbar
 - Toggle Compact/Extended как в аудите (вместо этого — кнопки «Свернуть/Развернуть все»)
+- Дальнейшее усиление active tab (A5 — iter 164 достаточно)
 
 ### Новые идеи пользователя (D1-D3) — отложены
 
@@ -85,7 +79,6 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 1. APCA Lc<75 для small text weight 400 — WCAG AA PASS, APCA FAIL.
 2. MobileRegexBar chunk 168.37 KB (gzip 39.42 KB) — отдельный chunk для mobile-only. Содержит transitive imports из RegexOutput (`@core/limits`, `@store/url-sync`, `@shared/i18n`).
-3. ~~`act()` warnings в `tests/ui/RegexOutput.test.tsx`~~ — **FIXED iter 172** (паттерн `vi.useFakeTimers()` + flush microtasks within `act()`).
 
 ---
 
@@ -110,21 +103,19 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 172 → iter 173)
+## Next iteration (iter 173 → iter 174)
 
-**iter 172 завершён.** Background issue closed: `act()` warnings в RegexOutput.test.tsx устранены через fake timers + act() microtask flush. 0 warnings, 0 регрессий.
+**iter 173 завершён.** KI#51 (hidden categories on narrow viewports) — fix применён, ждёт визуальной валидации. GitHub link добавлен.
 
-**План iter 173+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
-- **A5** (активная вкладка) — усиливать или нет iter 164. iter 164 уже усилил active (alpha 0.14→0.20, box-shadow, text-shadow). Решение пользователя: «Максимум: усилить active, spacing, hover». Без конкретики не делаем.
-- **A7** (косметика меню) — ждать конкретику.
-- **D1-D3** — отдельный трек после закрытия A-оси.
+**Ожидается от пользователя:**
+1. Визуальная валидация iter 173: сжать окно браузера до ширины, где табы не помещаются → должны появиться fade-индикаторы справа (и слева после скролла) → табы можно проскроллить → Кольца/Амулеты видны.
+2. Визуальная валидация GitHub link: правый край TopNav на десктопе (lg+) → «Discord: woonderdad · GitHub ↗».
+3. Конкретика по A7 — что ещё в меню требует косметики (после KI#51 fix)?
 
-**Оставшиеся фоновые issues (без новых KI):**
-- APCA Lc<75 (accessibility) — требует visual validation tradeoffs.
-- MobileRegexBar 168 KB (perf) — refactor risk vs mobile-only benefit.
+**План iter 174+:** по фидбеку пользователя. Активные KI без изменений: KI#45, KI#46, KI#47, KI#43. Оставшиеся фоновые issues: APCA Lc<75, MobileRegexBar 168 KB.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 
 ---
 
-Контакты: Discord **woonderdad**
+Контакты: Discord **woonderdad** · GitHub: https://github.com/vudirvp-sketch/poe2-regex-ru

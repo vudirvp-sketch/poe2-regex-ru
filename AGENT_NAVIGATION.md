@@ -1,9 +1,9 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 172 (fix `act()` warnings в `tests/ui/RegexOutput.test.tsx` — background issue closed). iter 170 (A4 — кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) DONE, ожидает визуальной валидации. iter 169 (KI#50 — фикс потери expand/collapse состояния при смене вкладок), iter 168 (A1), iter 167 (A3) и iter 166 (A2) также DONE. Все 2366 тестов PASS, 0 `act()` warnings.
+> **Текущее состояние:** iter 173 (KI#51 fix — scroll-aware fade indicators для `.topnav-tabs` + GitHub link в TopNav feedback area). iter 170 (A4 — кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) — валидировано пользователем ✅. iter 169 (KI#50 — фикс потери expand/collapse состояния), iter 168 (A1), iter 167 (A3), iter 166 (A2) — все валидированы пользователем ✅. iter 172 (act() warnings fix) — DONE. Все 2366 тестов PASS, 0 `act()` warnings.
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная) — детальный анализ 7 аспектов + зафиксированные решения пользователя в §9.
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). KI#50 (expand state persistence) — FIXED в iter 169.
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). KI#50 (expand state persistence) — FIXED в iter 169. KI#51 (hidden categories on narrow viewports) — FIXED в iter 173.
 > **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2366/2366 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
@@ -20,7 +20,7 @@
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `src/ui/hooks/category-ast-utils.ts` | Pure AST helpers (`buildAstFromSelections`, `pushLiteralsWithFamilyLogic`, `applyRuntimeYofication`, `getEffectiveRange*`). All PURE (no React). Re-exported from `useCategoryPage.ts` для backward compat с tests. | All PURE |
 | `src/ui/hooks/useCategoryPage.ts` | Main hook для category pages. Compose-хук из 3 sub-hooks: `useFilterStore` / `useCategoryData` / `useRegexBuilder`. Accepts optional `config.filterStore: FilterStoreHook` для pages с extraAstNodes-from-local-state (Waystone/Jewel/Tablet). | Backward compat: `useCategoryPage({ categoryId: 'belt' })` still works |
-| `src/ui/layout/TopNav.tsx` | Unified horizontal top navigation (iter 64). Single sticky bar: brand (logo + title) \| tabs (scrollable) \| feedback hint (lg+). | `role="banner"` on `<header>`, `role="navigation"` on `<nav>`. Active state: `.nav-mode-active` class. |
+| `src/ui/layout/TopNav.tsx` | Unified horizontal top navigation (iter 64). Single sticky bar: brand (logo + title) \| tabs (scrollable) \| feedback hint (lg+) + GitHub link (lg+, iter 173). iter 173 (KI#51 fix): `.topnav-tabs` обёрнут в `.topnav-tabs-wrap` (relative, `flex:1`, `overflow:hidden`) с `::before`/`::after` fade-градиентами; JS через `useRef`/`useEffect`/`useState` трекает scroll-position и toggles `--can-left`/`--can-right` классы — fades появляются только когда есть куда скроллить в эту сторону. | `role="banner"` on `<header>`, `role="navigation"` on `<nav>`. Active state: `.nav-mode-active` class. GitHub link: `target="_blank" rel="noopener noreferrer"`. |
 | `src/ui/components/StatusPanel.tsx` | Badges + alerts panel. iter 140 KI#22 rewrite — main summary panel REMOVED (redundant with SelectedBasket). Props: `badges` (ReactNode[]) + `alerts` (ReactNode[]). Backward compat: `wantTokens`/`excludeTokens`/`allActiveTokens` still in interface but ignored. | Renders null when no badges AND no alerts |
 | `src/ui/components/SelectedBasket.tsx` | 3-section basket (want/opt/exclude) above RegexOutput. iter 161. Cap=20 per section. Affix badges ПРЕФ=blue/СУФ=orange/ИМПЛ=amber. | Family-group counters via `countUniqueFamilyKeys` |
 | `src/ui/components/RegexOutput.tsx` | Main output. Health bar (green/yellow/red) + overflow + split. iter 164: `.regex-output` (gold border + glow + corner accents) + pulse-on-change animation. iter 167: enhanced empty-state (`.regex-output__empty` dashed border + ↑ arrow + hint). | `prefers-reduced-motion` уважается |
@@ -144,7 +144,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 12. **Palette consistency (iter 63):** NEVER use raw cold Tailwind colors (`indigo-*`, `gray-600/500`, `blue-500`, `purple-500`, `green-500`). Use semantic tokens (`bg-raised`, `bg-chip-hover`, `text-accent-amber`, `text-accent-emerald`, etc.). See `src/index.css` `:root` for full token list.
 13. **Level 1 visual frames (iter 55):** `.affix-header-{prefix,suffix,implicit}` (blue/orange/amber) + `.regex-output` (gold) + `.affix-origin-header` (iter 164, gold mini-frame for L2 origin). Do NOT re-add inline `style={{ background: ... }}` — CSS owns the background.
 14. **CSS specificity vs Tailwind responsive utilities (iter 60):** When custom CSS targets a class ALSO used as a Tailwind responsive utility — wrap custom CSS rules for mobile-only elements inside `@media (max-width: 1023px)`. Do NOT use `!important`.
-15. **TopNav as "modes" (iter 64):** 3-piece chrome (Sidebar + Header + MobileNavTabs) consolidated into single `TopNav.tsx`. Deleted files: `Sidebar.tsx`, `MobileNavTabs.tsx`, `Header.tsx`. Do NOT re-add them. Active state via `.nav-mode-active` CSS class.
+15. **TopNav as "modes" (iter 64):** 3-piece chrome (Sidebar + Header + MobileNavTabs) consolidated into single `TopNav.tsx`. Deleted files: `Sidebar.tsx`, `MobileNavTabs.tsx`, `Header.tsx`. Do NOT re-add them. Active state via `.nav-mode-active` CSS class. **iter 173 (KI#51):** `.topnav-tabs` теперь обёрнут в `.topnav-tabs-wrap` (relative, `flex:1`, `overflow:hidden`) с `::before`/`::after` fade-градиентами для scroll affordance. JS трекает scroll-position (`useRef`/`useEffect`/`useState`) и toggles `--can-left`/`--can-right` классы. НЕ возвращать `flex: 1` / `min-width: 0` обратно на `.topnav-tabs` — это сломает wrapper layout. Прямо сейчас `.topnav-tabs` имеет `width: 100%` и скроллится внутри wrap.
 16. **StatusPanel iter 140 KI#22 rewrite:** Main summary panel REMOVED (redundant with SelectedBasket). Component accepts `badges` + `alerts` only. `wantTokens`/`excludeTokens`/`allActiveTokens` props kept but ignored.
 17. **MobileRegexBar (iter 59):** On mobile (< lg), `RegexOutput` moves to sticky-bottom bar. Desktop unchanged. Double-render tradeoff: `RegexOutput` mounted in BOTH desktop aside AND mobile bar.
 18. **ModList L3 auto-suppression (iter 62 Phase 8c):** When a scope has ONLY ONE sub-group, the L3 badge is redundant. `hideLabel?: boolean` prop. Auto-derived from data, not manual flag.
@@ -201,6 +201,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `home.features_summary` | Возможности генератора… | `<summary>` of Features `<details>` |
 | `home.seo_summary` | Подробнее о регексах PoE2… | `<summary>` of SeoBlock `<details>` |
 | `nav.feedback` | Баги и идеи → Discord: woonderdad | TopNav right-side hint (lg+). |
+| `nav.github` | GitHub | TopNav right-side link to repository (lg+, iter 173). |
 | `nav.categories` | Категории | TopNav `<nav>` `aria-label`. |
 
 **Design principle:** Each UI zone has its own i18n key — no text duplication across zones.

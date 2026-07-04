@@ -179,6 +179,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // Navigation
     'nav.categories': 'Категории',
     'nav.feedback': 'Баги и идеи → Discord: woonderdad',
+    // iter 173: GitHub repository link, rendered in TopNav feedback area
+    // next to the Discord hint. The ` ↗` arrow glyph is appended in JSX
+    // (TopNav.tsx) — kept out of the i18n string so it can be swapped
+    // (e.g. to an SVG icon) without touching translations.
+    'nav.github': 'GitHub',
 
     // Phase 2 (iter 133): collapsible affix groups + sticky search
     'group.expand_all': 'Развернуть все',
