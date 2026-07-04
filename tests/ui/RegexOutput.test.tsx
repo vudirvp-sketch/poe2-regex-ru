@@ -129,6 +129,35 @@ describe('RegexOutput', () => {
     expect(screen.getByText(/выберите аффиксы/i)).toBeInTheDocument();
   });
 
+  // ─── iter 167 (A3 Variant C): enhanced empty-state placeholder ───
+
+  it('iter 167: empty state has the .regex-output__empty CSS class', () => {
+    const { container } = render(<RegexOutput regex="" isOverflow={false} />);
+    // The empty-state div is the direct child of `.regex-output` with the
+    // `regex-output__empty` modifier class on it (alongside Tailwind utilities).
+    const emptyBlock = container.querySelector('.regex-output__empty');
+    expect(emptyBlock).not.toBeNull();
+  });
+
+  it('iter 167: empty state renders the ↑ arrow glyph', () => {
+    const { container } = render(<RegexOutput regex="" isOverflow={false} />);
+    // The arrow is a `<span class="regex-output__empty-arrow">↑</span>`.
+    const arrow = container.querySelector('.regex-output__empty-arrow');
+    expect(arrow).not.toBeNull();
+    expect(arrow?.textContent).toBe('↑');
+  });
+
+  it('iter 167: empty state shows the secondary hint text under the placeholder', () => {
+    render(<RegexOutput regex="" isOverflow={false} />);
+    // The hint text comes from `regex.empty_hint` i18n key.
+    expect(screen.getByText(/построит строку здесь/i)).toBeInTheDocument();
+  });
+
+  it('iter 167: populated regex does NOT have the .regex-output__empty class', () => {
+    const { container } = render(<RegexOutput regex="test regex" isOverflow={false} />);
+    expect(container.querySelector('.regex-output__empty')).toBeNull();
+  });
+
   // ─── Character count display ───
 
   it('displays character count as N/250', () => {

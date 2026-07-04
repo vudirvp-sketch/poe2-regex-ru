@@ -79,3 +79,62 @@ Stage Summary:
 - **Проверки:** tsc 0, eslint 0, vitest 2319/2319 PASS, vite build PASS, CSS +0.14 KB.
 - **Stopping point:** iter 166 завершён. L3 sub-group теперь визуально отделён от L2 origin (нейтральный контейнер + цветной текст vs цветной фрейм + bg-tint). Ожидается визуальная валидация пользователя. Следующая iter 167 = A3 (placeholder + связь SelectedBasket → RegexOutput).
 - **Что от пользователя нужно (опционально):** визуальная проверка на amulet/ring/belt/jewel страницах — L2 (Осквернённые/Очернённые/Сущность/Разлом) должны выглядеть как цветные фреймы, L3 (ДОБЫЧА/ЗАЩИТА/УРОН) как нейтральные контейнеры с цветным текстом. Если одобряет — продолжаем iter 167 (A3).
+
+---
+
+Task ID: iter-167
+Agent: main
+Task: Реализовать iter 167 = A3 (Вариант C — placeholder для пустого RegexOutput + визуальная связь SelectedBasket → RegexOutput). Согласно v4 §9.3, iter 167 — второй по приоритету аспект после A2. Принцип: «лучше недоделать, чем сломать» — ровно столько, чтобы не терять качество. Упаковать архив, git-команды, точка остановки.
+
+Work Log:
+- 0: **Прочитал точку остановки iter 166 и план iter 167 из v4 §9.3:**
+  - iter 167: A3 — Вариант C — placeholder + visual connection. ~80-120 строк TSX+CSS, средний риск.
+  - Критерий приёмки из v4 §A3: при пустом RegexOutput пользователь видит ↑ подсказку; при выборе первого аффикса появляется ↓ коннектор.
+- 1: **Клонировал репозиторий** `https://github.com/vudirvp-sketch/poe2-regex-ru.git`, `pnpm install --frozen-lockfile`.
+- 2: **Изучил ключевые файлы для реализации A3:**
+  - `src/ui/components/RegexOutput.tsx` — empty-state рендерится как plain text `{regex || t('regex.placeholder')}` в div с `bg-panel border border-edge-panel text-dim`. Тест `tests/ui/RegexOutput.test.tsx` проверяет `/выберите аффиксы/i` — текст нужно сохранить.
+  - `src/ui/layout/CategoryLayout.tsx` — `<aside>` рендерит basket → regexOutput → status → sidebar → legend. Между basket и regexOutput нет визуального перехода.
+  - `src/ui/components/SelectedBasket.tsx` — complex component с 3-section layout (want/opt/exclude). Не требует изменений для A3.
+  - `src/shared/i18n.ts` — `regex.placeholder` = «Выберите аффиксы для генерации поисковой строки» (нужно сохранить).
+  - `src/index.css` — `.regex-output` уже имеет gold border + glow + corner accents (iter 55+164). Empty-state не имеет отдельного стиля.
+  - 7 category pages (amulet/belt/jewel/relic/ring/tablet/waystone) — все передают `basket={<SelectedBasket .../>}`. VendorPage не имеет basket slot.
+- 3: **Спроектировал реализацию:**
+  - **Placeholder (Variant B):** В RegexOutput.tsx пустое состояние рендерится как structured block — ↑ arrow + существующий placeholder text + вторичная подсказка. CSS-класс `.regex-output__empty` для пунктирной золотистой рамки.
+  - **Visual connection (Variant A):** Новый компонент `BasketToRegexFlow.tsx` с prop `hasContent: boolean`. При true рендерит thin vertical gold-gradient line + ↓ arrow. CategoryLayout получает optional prop `basketHasContent` и рендерит connector между basket и regexOutput.
+  - Mobile не получает connector — там regex в sticky bottom bar, не смежный с basket.
+- 4: **Внедрил изменения:**
+  - `src/shared/i18n.ts` — 2 новых ключа: `regex.empty_hint`, `basket.to_regex_flow_aria`.
+  - `src/ui/components/RegexOutput.tsx` — empty-state branch переписан как structured block (CSS class + ↑ arrow span + placeholder text + hint text). Populated state не тронут.
+  - `src/ui/components/BasketToRegexFlow.tsx` — НОВЫЙ компонент (~30 строк TSX).
+  - `src/ui/layout/CategoryLayout.tsx` — добавлен optional prop `basketHasContent?: boolean`, рендерит `<BasketToRegexFlow hasContent={true} />` между basket и regexOutput когда `basket && basketHasContent && !rightPanelCollapsed`.
+  - `src/index.css` — 3 новых CSS-класса (`.regex-output__empty`, `.regex-output__empty-arrow`, `.basket-to-regex-flow` + `__line` + `__arrow`) + keyframe `basket-to-regex-flow-fade-in` + `prefers-reduced-motion` override.
+  - 7 category pages — каждая получила `basketHasContent={selectedIds.size > 0 || (excludedIds?.size ?? 0) > 0 || (optionalIds?.size ?? 0) > 0}`.
+- 5: **Добавил тесты:**
+  - `tests/ui/RegexOutput.test.tsx` — +4 теста: empty state имеет `.regex-output__empty` class, рендерит ↑ arrow glyph, показывает hint text, populated state не имеет empty class.
+  - `tests/ui/CategoryLayout.test.tsx` — +5 тестов: connector рендерится при `basketHasContent=true`, не рендерится при false/omitted (backward compat), DOM order между basket и regex, скрытие при collapse.
+- 6: **Запустил проверки — ВСЕ PASS:**
+  - `npx tsc -b` — 0 errors.
+  - `npx eslint .` — 0 errors.
+  - `pnpm test` — 2328/2328 PASS (2319 baseline + 9 new, 57 test files).
+  - `npx vite build` — PASS. CSS 60.14→61.17 KB (+1.03 KB raw / +0.21 KB gzip). Чуть выше целевого 1 KB/iter из-за новой визуальной функции — принято как reasonable trade-off.
+- 7: **Обновил документацию:**
+  - `STATUS.md` — переписан: iter 167 как текущая, A3 отмечен DONE.
+  - `docs/REDESIGN_CONCEPT_v4.md` — обновлён header (iter 167 добавлен), §9.3 таблица (iter 167 DONE), новый §9.5 с деталями реализации iter 167, прежний §9.5/§9.6 перенумерованы в §9.6/§9.7.
+  - `worklog.md` — iter 166 сохранён, добавлена iter 167 запись (эта).
+
+Stage Summary:
+- **iter 167 завершён.** A3 (Вариант C — placeholder + visual connection) реализован и протестирован.
+- **Изменённые файлы:**
+  - `src/shared/i18n.ts` — 2 новых ключа.
+  - `src/ui/components/RegexOutput.tsx` — empty-state переписан.
+  - `src/ui/components/BasketToRegexFlow.tsx` — НОВЫЙ компонент.
+  - `src/ui/layout/CategoryLayout.tsx` — optional prop `basketHasContent`.
+  - `src/index.css` — 3 новых CSS-класса + keyframe + reduced-motion override.
+  - 7 category pages (amulet/belt/jewel/relic/ring/tablet/waystone) — каждая передает `basketHasContent`.
+  - `tests/ui/RegexOutput.test.tsx` — +4 теста.
+  - `tests/ui/CategoryLayout.test.tsx` — +5 тестов.
+  - `STATUS.md` — переписан с iter 167 как текущая.
+  - `docs/REDESIGN_CONCEPT_v4.md` — header + §9.3 таблица + новый §9.5.
+- **Проверки:** tsc 0, eslint 0, vitest 2328/2328 PASS, vite build PASS, CSS +1.03 KB.
+- **Stopping point:** iter 167 завершён. Empty RegexOutput теперь показывает ↑ стрелку + placeholder + подсказку (фокус внимания удержан). При выборе первого аффикса появляется ↓ коннектор между basket и regexOutput (явная «выбор → результат» связь). Ожидается визуальная валидация пользователя. Следующая iter 168 = A1 (усиление контраста L1/L2 по opacity/size corner accents, ~10 строк CSS, минимальный риск).
+- **Что от пользователя нужно (опционально):** визуальная проверка на любой category page — открыть amulet/ring/belt/jewel/relic/waystone/tablet страницу. 1) До выбора аффиксов: правая панель RegexOutput должна показывать ↑ стрелку + текст «Выберите аффиксы для генерации поисковой строки» + подсказку «Выбор аффиксов выше построит строку здесь», рамка пунктирная золотистая. 2) После выбора первого чипа: между SelectedBasket и RegexOutput появляется тонкая золотистая вертикальная линия со стрелкой ↓. Если одобряет — продолжаем iter 168 (A1).

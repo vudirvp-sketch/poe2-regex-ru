@@ -22,6 +22,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'regex.part_label': 'Часть {n} из {total}',
     'regex.split_hint': 'Регулярка >250 символов — разбита на части. Копируйте каждую отдельно и ищите по очереди.',
     'regex.placeholder': 'Выберите аффиксы для генерации поисковой строки',
+    // iter 167 (A3 Variant C): hint shown under the placeholder when regex
+    // is empty — directs the user's attention back to the SelectedBasket /
+    // ModList above. Pairs with the ↑ arrow icon rendered next to the
+    // placeholder text.
+    'regex.empty_hint': 'Выбор аффиксов выше построит строку здесь',
     'regex.copy_shortcut': 'Копировать (Ctrl+Shift+X)',
     'regex.share_title': 'Скопировать ссылку для обмена',
     'logic.label': 'Логика поиска',
@@ -245,6 +250,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // Right aside collapse toggle (chevron in header) — iter 131 §13.7 #2.
     'basket.collapse_panel': 'Свернуть панель',
     'basket.expand_panel': 'Развернуть панель',
+    // iter 167 (A3 Variant C): aria-label for the visual connector between
+    // SelectedBasket and RegexOutput. Rendered as a thin gold-gradient line
+    // + ↓ arrow when the basket has at least one chip. Communicates the
+    // «selection → result» flow to screen reader users.
+    'basket.to_regex_flow_aria': 'Выбранные аффиксы передаются в регулярное выражение ниже',
 
     // Phase 5 (iter 136): Favorites i18n keys.
     // Keys kept for backward compat / future favorites UI.

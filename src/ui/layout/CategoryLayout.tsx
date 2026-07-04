@@ -68,6 +68,7 @@
  */
 import React, { useState } from 'react';
 import { t } from '@shared/i18n';
+import { BasketToRegexFlow } from '@ui/components/BasketToRegexFlow';
 
 interface CategoryLayoutProps {
   /** Page header content (icon, title, mod count) — full width top */
@@ -84,6 +85,13 @@ interface CategoryLayoutProps {
    *  right aside, above RegexOutput. When not provided, the basket slot is
    *  omitted (backward compat — pre-Phase-3 pages had no basket). */
   basket?: React.ReactNode;
+  /** iter 167 (A3 Variant C): whether the SelectedBasket has at least one
+   *  chip (selected / optional / excluded). When true, a thin gold-gradient
+   *  connector with a ↓ arrow is rendered between `basket` and `regexOutput`
+   *  in the desktop aside — gives the user an explicit «selection → result»
+   *  visual cue. Optional — when omitted or false, no connector renders
+   *  (backward compat with pre-iter-167 callers). */
+  basketHasContent?: boolean;
   /** Right column status block (selected/excluded summary). Below RegexOutput. */
   status?: React.ReactNode;
   /** Right column sidebar (ProfilePanel). Below status. */
@@ -114,6 +122,7 @@ export function CategoryLayout({
   controls,
   regexOutput,
   basket,
+  basketHasContent = false,
   status,
   sidebar,
   legend,
@@ -138,6 +147,17 @@ export function CategoryLayout({
   // a chevron toggle. When no basket is passed (legacy callers / tests), the
   // aside renders without a header — preserving pre-Phase-3 behaviour.
   const hasAsideHeader = Boolean(basket);
+
+  // iter 167 (A3 Variant C): render the BasketToRegexFlow connector only
+  // when ALL of the following hold:
+  //   1. `basket` slot is provided (otherwise no basket to connect from).
+  //   2. `basketHasContent` is true (basket has at least one chip).
+  //   3. The right aside is not collapsed (when collapsed, the basket is
+  //      hidden anyway, so the connector would float disconnected).
+  // The connector renders ONLY in the desktop aside — on mobile, the basket
+  // and regexOutput are not adjacent (regex is in a sticky bottom bar), so
+  // a connector between them would be misleading.
+  const showBasketToRegexFlow = Boolean(basket) && basketHasContent && !rightPanelCollapsed;
 
   return (
     <div className="flex flex-col gap-4">
@@ -221,6 +241,13 @@ export function CategoryLayout({
           {!rightPanelCollapsed && (
             <>
               {basket}
+              {/* iter 167 (A3 Variant C): visual connector between
+                  SelectedBasket and RegexOutput. Renders a thin gold-gradient
+                  line + ↓ arrow when `basketHasContent` is true and `basket`
+                  is provided. Skipped on mobile (the mobile section below
+                  renders basket + status without an adjacent RegexOutput, so
+                  a connector would be misleading). */}
+              {showBasketToRegexFlow && <BasketToRegexFlow hasContent={true} />}
               {regexOutput}
               {status}
               {sidebar}

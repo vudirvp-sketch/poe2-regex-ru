@@ -346,11 +346,28 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
               ? 'bg-indicator-red-deep border border-danger-strong text-accent-red-soft'
               : regex
                 ? 'bg-surface border border-edge text-accent-green-soft'
-                : 'bg-panel border border-edge-panel text-dim'
+                : 'regex-output__empty bg-panel border border-edge-panel text-dim'
           }`}
           aria-label={regex || t('regex.title')}
         >
-          {regex || t('regex.placeholder')}
+          {regex ? (
+            regex
+          ) : (
+            // iter 167 (A3 Variant C): enhanced empty-state placeholder.
+            // Replaces the plain `t('regex.placeholder')` text with a
+            // structured block: ↑ arrow (points back to SelectedBasket
+            // above) + the existing placeholder text (kept verbatim for
+            // test backward-compat: tests/ui/RegexOutput.test.tsx asserts
+            // /выберите аффиксы/i matches) + a smaller hint line clarifying
+            // that selections will populate this area.
+            <div className="flex flex-col items-center justify-center gap-1.5 py-2" role="note">
+              <span className="regex-output__empty-arrow" aria-hidden="true">↑</span>
+              <span className="italic text-center">{t('regex.placeholder')}</span>
+              <span className="text-[11px] text-muted text-center font-sans not-italic">
+                {t('regex.empty_hint')}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

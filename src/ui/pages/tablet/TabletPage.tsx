@@ -315,6 +315,13 @@ export function TabletPage() {
                 mixedMode={searchLogic === 'mixed'}
               />
             }
+            // iter 167 (A3 Variant C): basket-has-content flag drives the
+            // visual connector between SelectedBasket and RegexOutput.
+            basketHasContent={
+              selectedIds.size > 0 ||
+              (excludedIds?.size ?? 0) > 0 ||
+              (optionalIds?.size ?? 0) > 0
+            }
             regexOutput={
               <RegexOutput
                 regex={regex}

@@ -2,32 +2,48 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 166 (реализация A2 — разделение визуальных палитр L2/L3)
+> **Текущая итерация:** 167 (реализация A3 — placeholder + визуальная связь SelectedBasket → RegexOutput)
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 166)
+## Текущее состояние (iter 167)
 
-**iter 166: A2 — разделение визуальных палитр L2 (origin) / L3 (functional).**
+**iter 167: A3 — Вариант C — placeholder для пустого RegexOutput + визуальная связь SelectedBasket → RegexOutput.**
 
-Решение пользователя по A2 → **Вариант A** (разделить визуально происхождение и функциональность). Реализация через **display-layer override** (минимальный риск): в `ModList.tsx` + `VirtualizedModList.tsx` L3 sub-group рендерится с нейтральными `bg-panel/15 border border-edge/15` вместо цветного `bg-section-*`. `colorClass` (цветной текст) остаётся — это и есть «тонкий цветовой акцент только на тексте».
+Реализованы обе части Variant C:
 
-L2 (origin) не тронут — сохраняет цветной bg-tint (`bg-section-*`). Таким образом B-ось (происхождение) и C-ось (функция) теперь на разных визуальных языках: L2 = фрейм с цветным bg, L3 = нейтральный контейнер с цветным текстом.
+1. **Placeholder (Variant B)** — в `RegexOutput.tsx` пустое состояние теперь рендерится как структурированный блок: золотистая стрелка ↑ (указывает вверх на SelectedBasket) + существующий текст `t('regex.placeholder')` (сохранён для обратной совместимости с тестами) + вторичная подсказка `t('regex.empty_hint')`. CSS-класс `.regex-output__empty` добавляет пунктирную золотистую рамку — визуально «область ожидает ввод».
 
-`mod-classifier.ts` НЕ изменён — `bgClass`/`borderClass` поля сохранены для обратной совместимости (тесты проверяют `length > 0`), но в L3-рендере больше не применяются. Это сознательное решение: избежать модификации 50+ category map entries и потенциальных regressions в других usage-ах.
+2. **Визуальная связь (Variant A)** — новый компонент `BasketToRegexFlow.tsx` (~30 строк TSX) рендерится между `basket` и `regexOutput` в правом `<aside>`. Тонкая вертикальная линия с золотистым градиентом + центрированная стрелка ↓. Появляется только когда `basketHasContent=true` (в корзине есть хотя бы один чип). CSS-анимация fade-in (200ms, уважает `prefers-reduced-motion`).
+
+**Изменённые файлы:**
+- `src/ui/components/RegexOutput.tsx` — empty-state branch переписан (структурированный блок вместо plain text).
+- `src/ui/components/BasketToRegexFlow.tsx` — НОВЫЙ компонент.
+- `src/ui/layout/CategoryLayout.tsx` — добавлен optional prop `basketHasContent?: boolean`, рендерит `<BasketToRegexFlow>` между basket и regexOutput.
+- `src/shared/i18n.ts` — 2 новых ключа: `regex.empty_hint`, `basket.to_regex_flow_aria`.
+- `src/index.css` — 3 новых CSS-класса: `.regex-output__empty`, `.basket-to-regex-flow`, `.basket-to-regex-flow__{line,arrow}` + keyframe `basket-to-regex-flow-fade-in`.
+- 7 category pages (`amulet/belt/jewel/relic/ring/tablet/waystone`) — каждая передает `basketHasContent={selectedIds.size > 0 || (excludedIds?.size ?? 0) > 0 || (optionalIds?.size ?? 0) > 0}`. VendorPage не имеет basket slot — пропущена.
+- `tests/ui/RegexOutput.test.tsx` — +4 теста на empty-state.
+- `tests/ui/CategoryLayout.test.tsx` — +5 тестов на connector (рендер, backward compat, DOM order, collapse).
+
+**Критерий приёмки:**
+- ✅ При пустом RegexOutput пользователь видит ↑ стрелку + placeholder + подсказку — фокус внимания удержан.
+- ✅ При выборе первого аффикса появляется ↓ коннектор между basket и regex — явная «выбор → результат» связь.
+- ✅ tsc 0 errors, eslint 0 errors, vitest 2328/2328 PASS (2319 baseline + 9 new).
+- ✅ vite build PASS, CSS 60.14 → 61.17 KB (+1.03 KB raw / +0.21 KB gzip).
 
 ---
 
-## Решения пользователя по аудиту v4 (iter 165 → iter 166+)
+## Решения пользователя по аудиту v4 (iter 165 → iter 167)
 
 | Аспект | Решение | Приоритет | Статус |
 |--------|---------|-----------|--------|
 | **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | iter 168 (план) |
-| **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 (текущая)** |
-| **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | iter 167 (план) |
+| **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
+| **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
 | **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | iter 169 (план) |
-| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. Ждёт визуальной валидации iter 164 | low | iter 170+ |
+| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 170+ |
 | **A6** — цельная панель навигации | **Отклонено** — плохо работает при horizontal scroll на мобильном | — | не делаем |
 | **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 170+ |
 
@@ -46,10 +62,6 @@ L2 (origin) не тронут — сохраняет цветной bg-tint (`bg
 | **D1** | Проверка новичком — дать новому пользователю задачу «найди мод на макс resistance хаоса», замерить время | Отложено — методология, не код |
 | **D2** | Аналитика кликов — что пользователи раскрывают чаще всего | Отложено — требует backend/privacy review |
 | **D3** | Поиск недооценён — поиск важнее вкладок сверху, заслуживает больше внимания | Отложено — отдельный трек после A1-A4 |
-
-### Подтверждение iter 164 (P1/P2/P3)
-
-Пользователь не сообщил о регрессиях после iter 164. Считаем P1/P2/P3 «работает», корректировок не требуется. iter 166 не зависит от этого подтверждения.
 
 ---
 
@@ -98,14 +110,13 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 166 → iter 167)
+## Next iteration (iter 167 → iter 168)
 
-**iter 166 завершён.** A2 (разделение палитр L2/L3) реализован через display-layer override.
+**iter 167 завершён.** A3 (Вариант C — placeholder + визуальная связь) реализован и протестирован.
 
-**План iter 167:** **A3 — Вариант C** — placeholder для пустого RegexOutput + визуальная связь SelectedBasket → RegexOutput. ~80-120 строк TSX + CSS + тесты. Средний риск.
+**План iter 168:** **A1 — Вариант B** — усиление контраста L1/L2 по opacity/size corner accents. ~10 строк CSS, минимальный риск.
 
-**Дальнейший план (по приоритетам пользователя):**
-- iter 168: **A1 — Вариант B** — усиление контраста L1/L2 по opacity/size corner accents (~10 строк CSS, минимальный риск).
+**Дальнейший план:**
 - iter 169: **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
 - iter 170+: по фидбеку на A5 (активная вкладка) и A7 (косметика меню). D1-D3 — отдельный трек.
 

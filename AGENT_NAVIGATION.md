@@ -1,10 +1,10 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 166 — реализован A2 (разделение визуальных палитр L2/L3) через display-layer override в `ModList.tsx` + `VirtualizedModList.tsx`. Все 2319 тестов PASS.
+> **Текущее состояние:** iter 167 — реализован A3 (placeholder для пустого RegexOutput + визуальная связь SelectedBasket → RegexOutput). iter 166 — A2 (разделение визуальных палитр L2/L3) также DONE. Все 2328 тестов PASS.
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная) — детальный анализ 7 аспектов + зафиксированные решения пользователя в §9.
 > **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка).
-> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2319/2319 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2328/2328 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -23,10 +23,10 @@
 | `src/ui/layout/TopNav.tsx` | Unified horizontal top navigation (iter 64). Single sticky bar: brand (logo + title) \| tabs (scrollable) \| feedback hint (lg+). | `role="banner"` on `<header>`, `role="navigation"` on `<nav>`. Active state: `.nav-mode-active` class. |
 | `src/ui/components/StatusPanel.tsx` | Badges + alerts panel. iter 140 KI#22 rewrite — main summary panel REMOVED (redundant with SelectedBasket). Props: `badges` (ReactNode[]) + `alerts` (ReactNode[]). Backward compat: `wantTokens`/`excludeTokens`/`allActiveTokens` still in interface but ignored. | Renders null when no badges AND no alerts |
 | `src/ui/components/SelectedBasket.tsx` | 3-section basket (want/opt/exclude) above RegexOutput. iter 161. Cap=20 per section. Affix badges ПРЕФ=blue/СУФ=orange/ИМПЛ=amber. | Family-group counters via `countUniqueFamilyKeys` |
-| `src/ui/components/RegexOutput.tsx` | Main output. Health bar (green/yellow/red) + overflow + split. iter 164: `.regex-output` (gold border + glow + corner accents) + pulse-on-change animation. | `prefers-reduced-motion` уважается |
+| `src/ui/components/RegexOutput.tsx` | Main output. Health bar (green/yellow/red) + overflow + split. iter 164: `.regex-output` (gold border + glow + corner accents) + pulse-on-change animation. iter 167: enhanced empty-state (`.regex-output__empty` dashed border + ↑ arrow + hint). | `prefers-reduced-motion` уважается |
 | `src/ui/components/GroupHeader.tsx` | Shared collapsible header. `variant='top'` (L1 affix column) / `'origin'` (L2) / `'sub'` (L3 functional). Chevron via `.group-header-chevron` CSS. | Phase 4: optional `infoTooltip` prop — `ⓘ` glyph as SIBLING (NOT child) of toggle button |
 | `src/ui/components/ModList.tsx` + `VirtualizedModList.tsx` | 2-column affix list with L1/L2/L3 hierarchy. L1 collapsed via `collapsedGroups`, L3 via `expandedSubGroups`. L3 default COLLAPSED, L1 default EXPANDED. | `hideLabel` for L3 when scope has only 1 sub-group (Phase 8c) |
-| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell. Slots: `header`, `controls`, `basket?`, `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. | Adopted by ALL 8 category pages |
+| `src/ui/layout/CategoryLayout.tsx` | 2-col desktop / 1-col mobile shell. Slots: `header`, `controls`, `basket?`, `basketHasContent?` (iter 167 — renders BasketToRegexFlow connector), `regexOutput`, `status?`, `sidebar?`, `mobileBar?`, `children`. | Adopted by ALL 8 category pages |
 | `src/ui/components/MobileRegexBar.tsx` | Mobile-only sticky bottom bar. `lg:hidden`. | `.mobile-regex-bar*` CSS rules MUST live inside `@media (max-width: 1023px)` (Pitfall 26) |
 | `src/shared/mod-classifier.ts` | 4-level classification: Affix (L1) → Origin (L2) → Semantic (L3) → chip (L4). 11 modes (`affix-semantic`, `affix-functional`, `jewel-functional`, `affix-sentiment-subblocks`, `tablet-type-subblocks`, `relic-semantic`, etc.). `classifyGroups()` + `sortGroupsByMode()` + `ORIGIN_SECTION_LABELS`. | iter 101 CRITICAL: `functionalCategory` field now survives Zod schema (was stripped before) |
 | `src/shared/block-sort-rules.ts` | `BLOCK_SORT_RULES` — 18 blocks, 312 family-keys, 100% coverage. `computeSortKey(block, familyKey)`. | iter 112 |
@@ -34,7 +34,7 @@
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner, generated JSONs | Served as-is by GitHub Pages |
 | `public/atmosphere/` | PoE2-themed textures: `bg.webp` (body bg), `bg-2x.webp` (divider ornate), hero portraits (`hero-shaman.webp` left, `hero-iva.webp` right), `seo-atmosphere.webp` (SeoBlock backdrop, lg+ only). | All assets actively referenced from JSX or CSS |
 | `scripts/` | ETL pipeline (`scripts/etl/`) + prerender (`prerender.ts` / `prerender-full.ts`) + analysis. **НЕ добавлять новые verify-iter*-*.ts** — покрывать через `tests/` (vitest). | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
-| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2319 passing) |
+| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2328 passing) |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan, UI audits, redesign concepts | See §13 |
 | `регис/` | User-provided in-game test data (Russian source mod lists + test items) | Reference only — do not modify |
 

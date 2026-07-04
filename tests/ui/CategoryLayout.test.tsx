@@ -198,3 +198,112 @@ describe('CategoryLayout — iter 141 (KI#29): compact aside collapse header', (
     expect(screen.queryByRole('button', { name: /Развернуть панель/ })).not.toBeInTheDocument();
   });
 });
+
+describe('CategoryLayout — iter 167 (A3 Variant C): BasketToRegexFlow connector', () => {
+  // The connector renders between `basket` and `regexOutput` in the desktop
+  // aside when BOTH conditions hold:
+  //   1. `basket` slot is provided.
+  //   2. `basketHasContent` prop is true.
+  // When either is false (or omitted — default), the connector is absent.
+
+  it('iter 167: renders connector when basket is provided AND basketHasContent=true', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div data-testid="basket">Basket</div>}
+        basketHasContent={true}
+        regexOutput={<div data-testid="regex">RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // The connector is rendered as `<div class="basket-to-regex-flow">`.
+    const flow = container.querySelector('.basket-to-regex-flow');
+    expect(flow).not.toBeNull();
+    // Visual children: line + arrow.
+    expect(flow?.querySelector('.basket-to-regex-flow__line')).not.toBeNull();
+    const arrow = flow?.querySelector('.basket-to-regex-flow__arrow');
+    expect(arrow).not.toBeNull();
+    expect(arrow?.textContent).toBe('↓');
+  });
+
+  it('iter 167: does NOT render connector when basketHasContent is false', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div>Basket</div>}
+        basketHasContent={false}
+        regexOutput={<div>RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    expect(container.querySelector('.basket-to-regex-flow')).toBeNull();
+  });
+
+  it('iter 167: does NOT render connector when basketHasContent is omitted (backward compat)', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div>Basket</div>}
+        regexOutput={<div>RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // Pre-iter-167 callers don't pass `basketHasContent` — default false.
+    expect(container.querySelector('.basket-to-regex-flow')).toBeNull();
+  });
+
+  it('iter 167: connector sits BETWEEN basket and regexOutput in DOM order', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div data-testid="basket">Basket</div>}
+        basketHasContent={true}
+        regexOutput={<div data-testid="regex">RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    const basket = screen.getByTestId('basket');
+    const regex = screen.getByTestId('regex');
+    const flow = container.querySelector('.basket-to-regex-flow');
+    expect(flow).not.toBeNull();
+    // basket precedes flow, flow precedes regex in DOM order.
+    // compareDocumentPosition returns bitmask; PRECEDING (=2) means the
+    // argument node comes BEFORE the receiver in document order.
+    // So `basket.compareDocumentPosition(flow) & 2 === 2` → flow is before basket? NO.
+    // Actually: `a.compareDocumentPosition(b)` — if b PRECEDES a, bit 2 is set.
+    // We want: basket BEFORE flow BEFORE regex. So:
+    //   flow.compareDocumentPosition(basket) & 2 === 2 (basket precedes flow)
+    //   regex.compareDocumentPosition(flow) & 2 === 2 (flow precedes regex)
+    expect(flow!.compareDocumentPosition(basket) & Node.DOCUMENT_POSITION_PRECEDING).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+    expect(regex.compareDocumentPosition(flow!) & Node.DOCUMENT_POSITION_PRECEDING).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+  });
+
+  it('iter 167: connector hidden when aside is collapsed', () => {
+    const { container } = render(
+      <CategoryLayout
+        header={<div>Header</div>}
+        controls={<div>Controls</div>}
+        basket={<div data-testid="basket">Basket</div>}
+        basketHasContent={true}
+        regexOutput={<div data-testid="regex">RegexOutput</div>}
+      >
+        <div>ModList</div>
+      </CategoryLayout>
+    );
+    // Initially expanded: connector visible.
+    expect(container.querySelector('.basket-to-regex-flow')).not.toBeNull();
+    // Collapse the aside.
+    fireEvent.click(screen.getByRole('button', { name: /Свернуть панель/ }));
+    // After collapse: basket + regex hidden, connector should also be hidden
+    // (it lives inside the same `{!rightPanelCollapsed && (...)}` block).
+    expect(container.querySelector('.basket-to-regex-flow')).toBeNull();
+  });
+});

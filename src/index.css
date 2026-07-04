@@ -1063,6 +1063,109 @@ main {
   border-radius: 0 0 0 6px;
 }
 
+/* ─── iter 167 (REDESIGN_CONCEPT_v4 §A3, Variant C) ─── */
+/* Empty-state enhancement for RegexOutput + visual connector between
+   SelectedBasket and RegexOutput. The two pieces together give the user
+   an explicit «selection → result» flow cue:
+
+   1. When regex is empty, RegexOutput's placeholder area gets a subtle
+      dashed inner border + ↑ arrow + secondary hint line. The arrow
+      points UP toward SelectedBasket above, telling the user where to
+      start. The existing `t('regex.placeholder')` text is preserved
+      verbatim (test backward-compat).
+   2. When the basket has at least one chip, a thin gold-gradient
+      vertical line + ↓ arrow appears between the basket and RegexOutput.
+      The arrow points DOWN to where the regex will appear. Purely
+      decorative — `aria-hidden` on the visual children, with the
+      wrapper carrying an `aria-label` describing the relationship.
+
+   Both pieces respect `prefers-reduced-motion`: the connector fade-in
+   animation is disabled, and the arrow glyph stays static. */
+
+.regex-output__empty {
+  /* Subtle dashed inner border to mark the area as "waiting for input",
+     distinguishing it from a populated regex (solid border) and from
+     overflow (red border). The dashed style is a deliberate "incomplete"
+     cue — borrowed from common empty-state patterns in design systems. */
+  border-style: dashed !important;
+  border-color: rgba(200, 154, 74, 0.35) !important;
+}
+
+.regex-output__empty-arrow {
+  /* Gold-tinted ↑ glyph, slightly larger than the placeholder text.
+     `text-muted` baseline + gold accent overrides via the brand color.
+     `opacity 0.7` keeps it visible but not aggressive — the user's eye
+     should land on the placeholder text first, then follow the arrow up. */
+  font-size: 18px;
+  line-height: 1;
+  color: var(--poe-gold);
+  opacity: 0.7;
+  font-family: var(--poe-font-sans, inherit);
+  font-weight: 600;
+}
+
+.basket-to-regex-flow {
+  /* Decorative connector rendered between SelectedBasket and RegexOutput
+     in the right `<aside>`. 14px tall — small enough to not steal visual
+     weight from the panels it connects, large enough for the ↓ glyph to
+     be readable. Centered horizontally to align with the panel center
+     axis. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 14px;
+  margin: -2px 0;
+  /* Fade-in when the basket gains its first chip. Short enough to feel
+     responsive, long enough to be noticeable. */
+  animation: basket-to-regex-flow-fade-in 0.2s ease-out;
+}
+
+.basket-to-regex-flow__line {
+  /* 2px-wide vertical line behind the arrow. Gold gradient fading from
+     the basket's edge (top, brighter) toward the regex area (bottom,
+     dimmer) — visualizes the "flow" direction. The arrow glyph sits on
+     top of this line. */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(200, 154, 74, 0.55) 0%,
+    rgba(200, 154, 74, 0.18) 100%
+  );
+  border-radius: 1px;
+}
+
+.basket-to-regex-flow__arrow {
+  /* Centered ↓ glyph sitting on top of the line. Same gold accent as
+     the line + the RegexOutput corner accents, so the three pieces
+     (basket border, connector, regex frame) read as one visual system. */
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--poe-gold);
+  background: var(--poe-bg);
+  padding: 0 3px;
+  font-weight: 600;
+}
+
+@keyframes basket-to-regex-flow-fade-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .basket-to-regex-flow {
+    animation: none;
+  }
+}
+
 /* ─── TopNav (iter 64, UI Phase 10) ─── */
 /* Unified horizontal top navigation. Replaces the previous Sidebar /
    Header / MobileNavTabs trio. Single row at the top of the viewport:
