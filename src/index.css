@@ -835,7 +835,10 @@ main {
    → 0.14/0.06 and border-left 3px → 4px per UI_REFACTOR_PLAN.md §4 Phase 4.
    `--strong` modifier (applied by caller when sortMode='tier-first') deepens
    the bg further so the tier-first mode reads as "more emphatic" without
-   breaking the existing layout. */
+   breaking the existing layout.
+   iter 168 (A1 — Вариант B): corner accent geometry widened from 6×6/0.4 →
+   8×8/0.55 so the L1 frame dominates L2 (`.affix-origin-header` 4×4/0.30)
+   by a ~25% delta instead of the previous ~12%. */
 .affix-header-prefix {
   position: relative;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.14) 0%, rgba(37, 99, 235, 0.06) 100%);
@@ -870,9 +873,14 @@ main {
 .affix-header-suffix::after {
   content: '';
   position: absolute;
-  width: 6px;
-  height: 6px;
-  opacity: 0.4;
+  /* iter 168 (A1 — Вариант B): bumped 6×6 → 8×8, opacity 0.4 → 0.55 to widen
+     the contrast vs L2 corner accents (5×5/0.35 → 4×4/0.30). The previous
+     0.05 opacity delta (0.40 vs 0.35) was on the edge of perception on
+     bright OLED screens — the new ~0.25 delta makes L1 read as the dominant
+     frame at a glance. */
+  width: 8px;
+  height: 8px;
+  opacity: 0.55;
 }
 
 .affix-header-prefix::before {
@@ -917,9 +925,10 @@ main {
 .affix-header-implicit::after {
   content: '';
   position: absolute;
-  width: 6px;
-  height: 6px;
-  opacity: 0.4;
+  /* iter 168 (A1 — Вариант B): 6×6/0.4 → 8×8/0.55 — matches .affix-header-{prefix,suffix}. */
+  width: 8px;
+  height: 8px;
+  opacity: 0.55;
 }
 .affix-header-implicit::before {
   top: -1px; right: -1px;
@@ -942,9 +951,13 @@ main {
    Per the v3 redesign concept, L2 now gets its own "mini-L1" frame: a subtle
    gradient overlay + 3px border-l (was 2px) + small corner accents. This
    creates a clear three-step visual hierarchy:
-     L1 (affix column)  — large gradient frame + 4px border + big corner accents
-     L2 (origin)        — medium gradient frame + 3px border + small corner accents
+     L1 (affix column)  — large gradient frame + 4px border + big corner accents (8×8 / 0.55 since iter 168)
+     L2 (origin)        — medium gradient frame + 3px border + small corner accents (4×4 / 0.30 since iter 168)
      L3 (sub-group)     — flat bg-tint badge, no frame
+
+   iter 168 (A1 — Вариант B): corner accent geometry tightened from 5×5/0.35
+   → 4×4/0.30 — widens the L1↔L2 contrast from ~12% to ~25% so L2 reads as
+   a softer "mini-frame" underneath the dominant L1 affix-column frame.
 
    The existing per-origin tint classes (`bgClass` / `borderClass` /
    `borderLClass` / `colorClass` from `mod-classifier.ts`) still apply — they
@@ -968,9 +981,13 @@ main {
 .affix-origin-header::after {
   content: '';
   position: absolute;
-  width: 5px;
-  height: 5px;
-  opacity: 0.35;
+  /* iter 168 (A1 — Вариант B): 5×5/0.35 → 4×4/0.30. Smaller and slightly more
+     transparent than L1 corner accents so the L1 vs L2 contrast widens from
+     ~12% to ~25% — the origin section reads as a softer "mini-frame"
+     underneath the dominant affix-column frame. */
+  width: 4px;
+  height: 4px;
+  opacity: 0.30;
   pointer-events: none;
 }
 .affix-origin-header::before {

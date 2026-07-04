@@ -2,44 +2,41 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 167 (реализация A3 — placeholder + визуальная связь SelectedBasket → RegexOutput)
+> **Текущая итерация:** 168 (A1 — Вариант B — усиление контраста L1/L2 corner accents)
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 167)
+## Текущее состояние (iter 168)
 
-**iter 167: A3 — Вариант C — placeholder для пустого RegexOutput + визуальная связь SelectedBasket → RegexOutput.**
+**iter 168: A1 — Вариант B — усиление контраста L1/L2 по opacity/size corner accents.**
 
-Реализованы обе части Variant C:
+Изменены только CSS-значения в существующих правилах — без новых классов, без новых компонентов, без новых тестов. Цель: увеличить контраст между corner accents у L1 (`.affix-header-{prefix,suffix,implicit}`) и L2 (`.affix-origin-header`) с ~12% до ~25%.
 
-1. **Placeholder (Variant B)** — в `RegexOutput.tsx` пустое состояние теперь рендерится как структурированный блок: золотистая стрелка ↑ (указывает вверх на SelectedBasket) + существующий текст `t('regex.placeholder')` (сохранён для обратной совместимости с тестами) + вторичная подсказка `t('regex.empty_hint')`. CSS-класс `.regex-output__empty` добавляет пунктирную золотистую рамку — визуально «область ожидает ввод».
+| Селектор | До (iter 164) | После (iter 168) |
+|----------|---------------|------------------|
+| `.affix-header-{prefix,suffix}::before/::after` | 6×6, opacity 0.4 | **8×8, opacity 0.55** |
+| `.affix-header-implicit::before/::after` | 6×6, opacity 0.4 | **8×8, opacity 0.55** |
+| `.affix-origin-header::before/::after` | 5×5, opacity 0.35 | **4×4, opacity 0.30** |
 
-2. **Визуальная связь (Variant A)** — новый компонент `BasketToRegexFlow.tsx` (~30 строк TSX) рендерится между `basket` и `regexOutput` в правом `<aside>`. Тонкая вертикальная линия с золотистым градиентом + центрированная стрелка ↓. Появляется только когда `basketHasContent=true` (в корзине есть хотя бы один чип). CSS-анимация fade-in (200ms, уважает `prefers-reduced-motion`).
+Border widths НЕ тронуты: L1=4px, L2=3px, L3=0 (как и планировалось в v4 §A1 Вариант B).
 
 **Изменённые файлы:**
-- `src/ui/components/RegexOutput.tsx` — empty-state branch переписан (структурированный блок вместо plain text).
-- `src/ui/components/BasketToRegexFlow.tsx` — НОВЫЙ компонент.
-- `src/ui/layout/CategoryLayout.tsx` — добавлен optional prop `basketHasContent?: boolean`, рендерит `<BasketToRegexFlow>` между basket и regexOutput.
-- `src/shared/i18n.ts` — 2 новых ключа: `regex.empty_hint`, `basket.to_regex_flow_aria`.
-- `src/index.css` — 3 новых CSS-класса: `.regex-output__empty`, `.basket-to-regex-flow`, `.basket-to-regex-flow__{line,arrow}` + keyframe `basket-to-regex-flow-fade-in`.
-- 7 category pages (`amulet/belt/jewel/relic/ring/tablet/waystone`) — каждая передает `basketHasContent={selectedIds.size > 0 || (excludedIds?.size ?? 0) > 0 || (optionalIds?.size ?? 0) > 0}`. VendorPage не имеет basket slot — пропущена.
-- `tests/ui/RegexOutput.test.tsx` — +4 теста на empty-state.
-- `tests/ui/CategoryLayout.test.tsx` — +5 тестов на connector (рендер, backward compat, DOM order, collapse).
+- `src/index.css` — 3 блока corner accent правил обновлены + расширенные комментарии в шапке L1 / L2 секций, объясняющие новое состояние.
 
 **Критерий приёмки:**
-- ✅ При пустом RegexOutput пользователь видит ↑ стрелку + placeholder + подсказку — фокус внимания удержан.
-- ✅ При выборе первого аффикса появляется ↓ коннектор между basket и regex — явная «выбор → результат» связь.
-- ✅ tsc 0 errors, eslint 0 errors, vitest 2328/2328 PASS (2319 baseline + 9 new).
-- ✅ vite build PASS, CSS 60.14 → 61.17 KB (+1.03 KB raw / +0.21 KB gzip).
+- ✅ Все тесты `tests/ui/GroupHeader.test.tsx`, `tests/ui/ModList.test.tsx`, `tests/ui/VirtualizedModList.test.tsx` — PASS (они проверяют className presence, не CSS-значения).
+- ✅ tsc 0 errors, eslint 0 errors, vitest 2328/2328 PASS (базовая линия сохранена).
+- ✅ vite build PASS. CSS **61.17 → 61.17 KB** (+0 KB raw / +0 KB gzip — только значения в существующих правилах изменены, новые правила не добавлены, комментарии вырезаются из prod-сборки).
+- ⏳ Визуальная валидация: на скриншоте amulet/ring/belt/jewel-страницы при раскрытых L1+L2+L3 пользователь за < 1 секунды отвечает на вопрос «какой это уровень?» для любого блока.
 
 ---
 
-## Решения пользователя по аудиту v4 (iter 165 → iter 167)
+## Решения пользователя по аудиту v4 (iter 165 → iter 168)
 
 | Аспект | Решение | Приоритет | Статус |
 |--------|---------|-----------|--------|
-| **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | iter 168 (план) |
+| **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | **iter 168 DONE** |
 | **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
 | **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
 | **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | iter 169 (план) |
@@ -110,14 +107,13 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 167 → iter 168)
+## Next iteration (iter 168 → iter 169)
 
-**iter 167 завершён.** A3 (Вариант C — placeholder + визуальная связь) реализован и протестирован.
+**iter 168 завершён.** A1 (Вариант B — усиление контраста L1/L2 corner accents) реализован и протестирован.
 
-**План iter 168:** **A1 — Вариант B** — усиление контраста L1/L2 по opacity/size corner accents. ~10 строк CSS, минимальный риск.
+**План iter 169:** **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
 
 **Дальнейший план:**
-- iter 169: **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
 - iter 170+: по фидбеку на A5 (активная вкладка) и A7 (косметика меню). D1-D3 — отдельный трек.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
