@@ -32,11 +32,21 @@ export interface TokenRangeOverride {
 
 /** A single filter state for a category */
 export interface FilterState {
-  /** Set of selected token IDs ("want" mods) */
+  /** Set of selected token IDs ("want" mods).
+   *  In MIXED mode these are MUST tokens (each becomes its own quoted group,
+   *  AND across blocks). */
   selectedIds: Set<string>;
   /** Set of excluded token IDs ("don't want" mods).
    *  Mutually exclusive with selectedIds — a token can be either wanted or excluded, not both. */
   excludedIds: Set<string>;
+  /** iter 159: Set of optional token IDs ("opt" mods).
+   *  Only meaningful in MIXED search-logic mode. In 'and' / 'or' modes this
+   *  set is ignored (no MUST/OPT split — all selections behave as before).
+   *  Mutually exclusive with selectedIds AND excludedIds (3-state chip:
+   *  want / opt / exclude). Toggling a chip cycles through these states.
+   *  Serialized to URL hash under key `opt` (avoid clashing with `o` =
+   *  originFilter). */
+  optionalIds: Set<string>;
   /** Text search filter */
   searchText: string;
   /** Affix type filter (null = all) */
@@ -85,15 +95,23 @@ export interface FilterState {
 
 /** Actions for the filter store */
 export interface FilterActions {
-  /** Toggle a token's selection ("want"). Removes from excludedIds if present. */
+  /** Toggle a token's selection ("want"). Removes from excludedIds and
+   *  optionalIds if present (3-state mutual exclusion). */
   toggleToken: (id: string) => void;
-  /** Toggle multiple tokens at once (for FamilyGroup batch toggle). Removes from excludedIds if present. */
+  /** Toggle multiple tokens at once (for FamilyGroup batch toggle). Removes
+   *  from excludedIds and optionalIds if present (3-state mutual exclusion). */
   toggleTokens: (ids: string[]) => void;
-  /** Toggle a token's exclude state ("don't want"). Removes from selectedIds if present. */
+  /** Toggle a token's exclude state ("don't want"). Removes from selectedIds
+   *  and optionalIds if present (3-state mutual exclusion). */
   toggleExclude: (ids: string[]) => void;
+  /** iter 159: Toggle a token's optional state ("opt"). Removes from
+   *  selectedIds and excludedIds if present (3-state mutual exclusion).
+   *  Only meaningful in MIXED mode — in 'and'/'or' modes the UI typically
+   *  doesn't expose this toggle, but the store accepts it regardless. */
+  toggleOptional: (ids: string[]) => void;
   /** Set multiple tokens as selected */
   setSelectedIds: (ids: Set<string>) => void;
-  /** Clear all selections (both want and exclude) */
+  /** Clear all selections (want + opt + exclude) */
   clearSelections: () => void;
   /** Set search text */
   setSearchText: (text: string) => void;
@@ -171,6 +189,7 @@ export function createFilterStore() {
   return create<FilterStore>((set, get) => ({
     selectedIds: new Set<string>(),
     excludedIds: new Set<string>(),
+    optionalIds: new Set<string>(),
     searchText: '',
     affixFilter: null,
     originFilter: null,
@@ -188,26 +207,29 @@ export function createFilterStore() {
       set((state) => {
         const newSet = new Set(state.selectedIds);
         const newExcluded = new Set(state.excludedIds);
+        const newOptional = new Set(state.optionalIds);
         const wasSelected = newSet.has(id);
         if (wasSelected) {
           newSet.delete(id);
           // Clean up perTokenRanges for deselected token to avoid ghost values
           if (id in state.perTokenRanges) {
             const { [id]: _, ...rest } = state.perTokenRanges;
-            return { selectedIds: newSet, excludedIds: newExcluded, perTokenRanges: rest };
+            return { selectedIds: newSet, excludedIds: newExcluded, optionalIds: newOptional, perTokenRanges: rest };
           }
         } else {
           newSet.add(id);
-          // Remove from excludedIds — mutually exclusive
+          // Remove from excludedIds AND optionalIds — 3-state mutual exclusion
           newExcluded.delete(id);
+          newOptional.delete(id);
         }
-        return { selectedIds: newSet, excludedIds: newExcluded };
+        return { selectedIds: newSet, excludedIds: newExcluded, optionalIds: newOptional };
       }),
 
     toggleTokens: (ids: string[]) =>
       set((state) => {
         const newSet = new Set(state.selectedIds);
         const newExcluded = new Set(state.excludedIds);
+        const newOptional = new Set(state.optionalIds);
         // If ALL ids are selected → deselect all; otherwise → select all
         const allSelected = ids.every((id) => newSet.has(id));
         let newRanges = state.perTokenRanges;
@@ -227,17 +249,19 @@ export function createFilterStore() {
         } else {
           for (const id of ids) {
             newSet.add(id);
-            // Remove from excludedIds — mutually exclusive
+            // Remove from excludedIds AND optionalIds — 3-state mutual exclusion
             newExcluded.delete(id);
+            newOptional.delete(id);
           }
         }
-        return { selectedIds: newSet, excludedIds: newExcluded, perTokenRanges: newRanges };
+        return { selectedIds: newSet, excludedIds: newExcluded, optionalIds: newOptional, perTokenRanges: newRanges };
       }),
 
     toggleExclude: (ids: string[]) =>
       set((state) => {
         const newSet = new Set(state.selectedIds);
         const newExcluded = new Set(state.excludedIds);
+        const newOptional = new Set(state.optionalIds);
         // If ALL ids are excluded → un-exclude all; otherwise → exclude all
         const allExcluded = ids.every((id) => newExcluded.has(id));
         if (allExcluded) {
@@ -247,18 +271,41 @@ export function createFilterStore() {
         } else {
           for (const id of ids) {
             newExcluded.add(id);
-            // Remove from selectedIds — mutually exclusive
+            // Remove from selectedIds AND optionalIds — 3-state mutual exclusion
             newSet.delete(id);
+            newOptional.delete(id);
           }
         }
-        return { selectedIds: newSet, excludedIds: newExcluded };
+        return { selectedIds: newSet, excludedIds: newExcluded, optionalIds: newOptional };
+      }),
+
+    toggleOptional: (ids: string[]) =>
+      set((state) => {
+        const newSet = new Set(state.selectedIds);
+        const newExcluded = new Set(state.excludedIds);
+        const newOptional = new Set(state.optionalIds);
+        // If ALL ids are optional → un-optional all; otherwise → set all as optional
+        const allOptional = ids.every((id) => newOptional.has(id));
+        if (allOptional) {
+          for (const id of ids) {
+            newOptional.delete(id);
+          }
+        } else {
+          for (const id of ids) {
+            newOptional.add(id);
+            // Remove from selectedIds AND excludedIds — 3-state mutual exclusion
+            newSet.delete(id);
+            newExcluded.delete(id);
+          }
+        }
+        return { selectedIds: newSet, excludedIds: newExcluded, optionalIds: newOptional };
       }),
 
     setSelectedIds: (ids: Set<string>) =>
       set({ selectedIds: ids }),
 
     clearSelections: () =>
-      set({ selectedIds: new Set<string>(), excludedIds: new Set<string>(), perTokenRanges: {} }),
+      set({ selectedIds: new Set<string>(), excludedIds: new Set<string>(), optionalIds: new Set<string>(), perTokenRanges: {} }),
 
     setSearchText: (text: string) =>
       set({ searchText: text }),
@@ -289,6 +336,7 @@ export function createFilterStore() {
       set({
         selectedIds: new Set<string>(),
         excludedIds: new Set<string>(),
+        optionalIds: new Set<string>(),
         searchText: '',
         affixFilter: null,
         originFilter: null,
@@ -378,6 +426,9 @@ export function createFilterStore() {
       const result: Record<string, unknown> = {
         s: Array.from(state.selectedIds),
         e: state.excludedIds.size > 0 ? Array.from(state.excludedIds) : undefined,
+        // iter 159: optionalIds (MIXED-mode OPT tokens). Serialized under `opt`
+        // (avoid clashing with existing `o` = originFilter).
+        opt: state.optionalIds.size > 0 ? Array.from(state.optionalIds) : undefined,
         t: state.searchText || undefined,
         a: state.affixFilter || undefined,
         o: state.originFilter || undefined,
@@ -434,6 +485,19 @@ export function createFilterStore() {
       const excludedIds = new Set<string>(
         Array.isArray(data.e) ? data.e as string[] : []
       );
+      // iter 159: optionalIds (MIXED-mode OPT tokens). Backward-compat:
+      // missing `opt` key → empty set (pre-iter-159 URLs).
+      // Defensive: filter out any IDs that ended up duplicated across sets
+      // (could happen if a buggy old URL had the same ID in `s` and `opt`).
+      // Precedence: selectedIds > excludedIds > optionalIds (matches the
+      // 3-state chip's last-write-wins semantics).
+      const optionalIds = new Set<string>(
+        Array.isArray(data.opt) ? (data.opt as string[]).filter((k): k is string => typeof k === 'string') : []
+      );
+      // Strip any ID from optionalIds that's already in selectedIds or excludedIds
+      // (defensive — preserves the 3-state invariant even on malformed URLs).
+      for (const id of selectedIds) optionalIds.delete(id);
+      for (const id of excludedIds) optionalIds.delete(id);
       // Deserialize perTokenRanges from compact array format
       const perTokenRanges: Record<string, TokenRangeOverride> = {};
       if (Array.isArray(data.r)) {
@@ -486,6 +550,7 @@ export function createFilterStore() {
       set({
         selectedIds,
         excludedIds,
+        optionalIds,
         searchText: (data.t as string) || '',
         affixFilter: (data.a as AffixType) || null,
         originFilter: (data.o as ModOrigin) || null,

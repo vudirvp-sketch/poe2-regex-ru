@@ -709,6 +709,214 @@ describe('FilterChip', () => {
     });
   });
 
+  // ─── iter 159: MIXED-mode 3-state chip (want / opt / exclude) ──────────────
+
+  describe('iter 159 — MIXED-mode 3-state chip', () => {
+    it('does NOT enter OPT state when mixedMode is false (backward compat)', () => {
+      // Even if optionalIds has members, mixedMode=false means the chip
+      // should ignore them and behave as a 2-state chip (pre-iter-159).
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={new Set(['t1', 't2'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          // mixedMode defaults to false
+        />,
+      );
+
+      // aria-checked should be 'false' (not in OPT state).
+      const switchEl = screen.getByRole('switch');
+      expect(switchEl).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('enters full-optional state when mixedMode is true and all members are optional', () => {
+      const group = makeGroup(); // 2 members: t1, t2
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={new Set(['t1', 't2'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      // OPT (full) state → aria-checked='true' (treated as "active")
+      expect(switchEl).toHaveAttribute('aria-checked', 'true');
+      // ARIA label should mention "опционально"
+      expect(switchEl.getAttribute('aria-label')).toContain('опционально');
+    });
+
+    it('enters partial-optional state when mixedMode is true and some members are optional', () => {
+      const group = makeGroup(); // 2 members: t1, t2
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={new Set(['t1'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      // OPT (partial) state → aria-checked='mixed'
+      expect(switchEl).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('shift+click calls onToggleOptional (not onToggleTokens)', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.click(switchEl, { shiftKey: true });
+
+      expect(onToggleOptional).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('plain click still calls onToggleTokens when mixedMode is true', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.click(switchEl); // no shiftKey
+
+      expect(onToggleTokens).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleOptional).not.toHaveBeenCalled();
+    });
+
+    it('shift+click is a no-op when mixedMode is false (backward compat)', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          // mixedMode defaults to false
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.click(switchEl, { shiftKey: true });
+
+      // Without mixedMode, shift+click should fall through to plain click.
+      expect(onToggleTokens).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleOptional).not.toHaveBeenCalled();
+    });
+
+    it('right-click calls onToggleExclude when mixedMode is true', () => {
+      const group = makeGroup();
+      const onToggleExclude = vi.fn();
+      const { container } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          onToggleExclude={onToggleExclude}
+          mixedMode
+        />,
+      );
+
+      const chipWrapper = container.firstChild as HTMLElement;
+      fireEvent.contextMenu(chipWrapper);
+
+      expect(onToggleExclude).toHaveBeenCalledWith(['t1', 't2']);
+    });
+
+    it('right-click does NOT call onToggleExclude when mixedMode is false (browser context menu)', () => {
+      const group = makeGroup();
+      const onToggleExclude = vi.fn();
+      const { container } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          onToggleExclude={onToggleExclude}
+          // mixedMode defaults to false
+        />,
+      );
+
+      const chipWrapper = container.firstChild as HTMLElement;
+      fireEvent.contextMenu(chipWrapper);
+
+      // Without mixedMode, right-click should NOT trigger exclude.
+      expect(onToggleExclude).not.toHaveBeenCalled();
+    });
+
+    it('shift+Enter calls onToggleOptional (keyboard parity with shift+click)', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.keyDown(switchEl, { key: 'Enter', shiftKey: true });
+
+      expect(onToggleOptional).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('OPT state shows range inputs when chip has ranges (isSelectedForRanges)', () => {
+      const group = makeGroup(); // has rangeSlots: [[10, 35]]
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={new Set(['t1', 't2'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          onSetTokenRange={vi.fn()}
+          mixedMode
+        />,
+      );
+
+      // Range inputs should render because OPT chips also support per-token
+      // range overrides (just like WANT chips).
+      const minInput = screen.getByLabelText('Минимальное значение');
+      const maxInput = screen.getByLabelText('Максимальное значение');
+      expect(minInput).toBeInTheDocument();
+      expect(maxInput).toBeInTheDocument();
+    });
+  });
+
   // ─── Phase 4 (iter 137): compact density ───
 
   describe('Phase 4 — compact chip density', () => {

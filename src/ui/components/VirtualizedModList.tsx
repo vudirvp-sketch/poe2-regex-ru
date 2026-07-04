@@ -106,6 +106,17 @@ interface VirtualizedModListProps {
   /** Phase 5 (iter 136): forwarded to VirtualizedColumn → FilterChip. */
   onTogglePinned?: (ids: string[]) => void;
 
+  // ─── iter 159: MIXED-mode 3-state chip (want / opt / exclude) ────────────────
+  // Forwarded to FilterChip via VirtualRowContent / VirtualizedColumn.
+  // When `mixedMode` is true, FilterChip enables shift+click=opt,
+  // right-click=exclude. When false (default), chip behaves as before.
+  /** Optional ("opt") token IDs — only meaningful in MIXED mode. */
+  optionalIds?: Set<string>;
+  /** Toggle a family group to optional state (MIXED mode shift+click). */
+  onToggleOptional?: (ids: string[]) => void;
+  /** When true, enables 3-state chip behaviour (MIXED search-logic mode). */
+  mixedMode?: boolean;
+
   // ─── Phase 3 (iter 135): show-selected-only mode ───────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
   // Same backward-compat pattern — when absent, all familyGroups pass through
@@ -454,7 +465,11 @@ const VirtualRowContent: React.FC<{
   pinnedIds?: Set<string>;
   /** Phase 5 (iter 136): forwarded to FilterChip ⭐ icon button. */
   onTogglePinned?: (ids: string[]) => void;
-}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, pinnedIds, onTogglePinned }) => {
+  /** iter 159: MIXED-mode 3-state chip props — forwarded to FilterChip. */
+  optionalIds?: Set<string>;
+  onToggleOptional?: (ids: string[]) => void;
+  mixedMode?: boolean;
+}> = React.memo(({ row, selectedIds, excludedIds, onToggleTokens, onToggleExclude, perTokenRanges, onSetTokenRange, onClearTokenRange, collapsedTokenIds, sortMode, onToggleGroupCollapsed, onToggleSubGroupExpanded, pinnedIds, onTogglePinned, optionalIds, onToggleOptional, mixedMode }) => {
   // iter 139 (KI#18): `chipExpandState` / `onToggleChipExpand` props REMOVED
   // from the destructure list (they remain in the FC interface above for
   // backward compat with callers that still pass them, but the component no
@@ -591,6 +606,9 @@ const VirtualRowContent: React.FC<{
             sortMode={sortMode}
             pinnedIds={pinnedIds}
             onTogglePinned={onTogglePinned}
+            optionalIds={optionalIds}
+            onToggleOptional={onToggleOptional}
+            mixedMode={mixedMode}
           />
         ))}
         {/* iter 139 (KI#18): «+N ещё» / «свернуть» buttons REMOVED —
@@ -630,6 +648,10 @@ interface VirtualizedColumnProps {
   pinnedIds?: Set<string>;
   /** Phase 5 (iter 136): forwarded to VirtualRowContent → FilterChip. */
   onTogglePinned?: (ids: string[]) => void;
+  /** iter 159: MIXED-mode 3-state chip props — forwarded to VirtualRowContent. */
+  optionalIds?: Set<string>;
+  onToggleOptional?: (ids: string[]) => void;
+  mixedMode?: boolean;
 }
 
 /** A single virtualized column (prefix or suffix) */
@@ -652,6 +674,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
   chipExpandState,
   pinnedIds,
   onTogglePinned,
+  optionalIds,
+  onToggleOptional,
+  mixedMode,
 }) => {
   // TanStack Virtual's useVirtualizer returns non-memoizable functions
   // (getVirtualItems, scrollToIndex, etc.) which React Compiler cannot safely
@@ -756,6 +781,9 @@ const VirtualizedColumn: React.FC<VirtualizedColumnProps> = ({
                 chipExpandState={chipExpandState}
                 pinnedIds={pinnedIds}
                 onTogglePinned={onTogglePinned}
+                optionalIds={optionalIds}
+                onToggleOptional={onToggleOptional}
+                mixedMode={mixedMode}
               />
             </div>
           );
@@ -805,6 +833,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
   onToggleChipExpand,
   pinnedIds,
   onTogglePinned,
+  // iter 159: MIXED-mode 3-state chip props (forwarded to VirtualizedColumn).
+  optionalIds,
+  onToggleOptional,
+  mixedMode = false,
   // Phase 3 (iter 135): show-selected-only mode
   showSelectedOnly = false,
 }) => {
@@ -1021,6 +1053,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     // ⭐ icon. User-visible symptom: favorites feature "missing" on those
     // 4 category tabs while working on relic/waystone/tablet/vendor.
     onTogglePinned,
+    // iter 159: MIXED-mode 3-state chip props — forwarded to VirtualRowContent.
+    optionalIds,
+    onToggleOptional,
+    mixedMode,
   };
 
   return (
@@ -1251,6 +1287,9 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
                   chipExpandState={chipExpandState}
                   pinnedIds={pinnedIds}
                 onTogglePinned={onTogglePinned}
+                optionalIds={optionalIds}
+                onToggleOptional={onToggleOptional}
+                mixedMode={mixedMode}
                 />
               </div>
             );

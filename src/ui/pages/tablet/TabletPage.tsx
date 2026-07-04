@@ -123,6 +123,8 @@ export function TabletPage() {
     showSelectedOnly, setShowSelectedOnly,
     // Phase 5 (iter 136): favorites (pinned) state + actions
     pinnedIds, togglePinned,
+    // iter 159: MIXED-mode 3-state chip (want / opt / exclude)
+    optionalIds, toggleOptional,
   } = useCategoryPage({
     categoryId: 'tablet',
     extraAstNodes,
@@ -176,6 +178,15 @@ export function TabletPage() {
   const handleTogglePinned = useCallback((ids: string[]) => {
     if (ids.length > 0) togglePinned(ids[0]);
   }, [togglePinned]);
+
+  // iter 159: Family-level optional toggle for MIXED mode.
+  // Same family-level pattern as handleTogglePinned - the store's
+  // toggleOptional takes ids[], so we pass the whole array (it handles
+  // bulk toggle internally). No first-id-only restriction like pinned
+  // because optionalIds is meant to track individual OPT picks per family.
+  const handleToggleOptional = useCallback((ids: string[]) => {
+    toggleOptional(ids);
+  }, [toggleOptional]);
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
@@ -369,6 +380,9 @@ export function TabletPage() {
               showSelectedOnly={showSelectedOnly}
               pinnedIds={pinnedIds}
               onTogglePinned={handleTogglePinned}
+              optionalIds={optionalIds}
+              onToggleOptional={handleToggleOptional}
+              mixedMode={searchLogic === 'mixed'}
             />
           </CategoryLayout>
         );

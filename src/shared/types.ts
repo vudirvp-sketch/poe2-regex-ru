@@ -2,7 +2,19 @@ export type Locale = 'ru';  // Future: | 'en'
 // 'implicit' = item implicit properties (waystone implicits, tablet charges, etc.)
 export type AffixType = 'prefix' | 'suffix' | 'implicit';
 export type ModOrigin = 'normal' | 'desecrated' | 'corrupted' | 'essence' | 'breachborn';
-export type SearchLogic = 'and' | 'or';
+/**
+ * Search logic mode for category pages.
+ *  - 'and'   : ALL selected mods must appear on the item (each in own quoted group).
+ *  - 'or'    : ANY of the selected mods may appear (all share a single quoted OR-group).
+ *  - 'mixed' : iter 159 — combined AND+OR pattern (in-game verified iter 157, KI#44).
+ *              selectedIds → MUST tokens (each in own quoted group, AND across blocks).
+ *              optionalIds → OPT tokens (collected into a single MIXED_OR quoted group).
+ *              excludedIds → `!BAD` item-wide negation as the FIRST AND child.
+ *              Output: `"!BAD" "MUST1" "MUST2" "OPT1|OPT2|OPT3"`.
+ *              Core layer (AST + compiler + builder + tests) landed in iter 158.
+ *              UI integration lands in iter 159.
+ */
+export type SearchLogic = 'and' | 'or' | 'mixed';
 export type JewelType = 'ruby' | 'emerald' | 'sapphire' | 'shared';
 /** Priority tier based on affix popularity research (S=highest, C=lowest) */
 export type PriorityTier = 'S' | 'A' | 'B' | 'C';

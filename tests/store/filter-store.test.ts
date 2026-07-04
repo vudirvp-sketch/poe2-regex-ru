@@ -629,3 +629,197 @@ describe('filter-store — Phase 1 isolation between store instances', () => {
     expectSetsEqual(store2.getState().collapsedGroups, ['waystone:prefix']);
   });
 });
+
+// ─── iter 159: MIXED-mode 3-state chip tests (want / opt / exclude) ─────────
+//
+// Covers the new `optionalIds` Set<string> field + `toggleOptional` action,
+// plus the 3-state mutual exclusion invariant: a token can be in EXACTLY
+// ONE of {selectedIds, excludedIds, optionalIds} at any time.
+//
+// Also covers serialize/deserialize round-trip for the new `opt` URL key
+// (parallel to existing `s` and `e` keys), and backward-compat for URLs
+// that don't have `opt` (pre-iter-159 links).
+
+describe('filter-store — iter 159 optionalIds (MIXED-mode 3-state chip)', () => {
+  it('initializes optionalIds as empty Set', () => {
+    const store = createFilterStore();
+    const s = stateOf(store);
+    expect(s.optionalIds).toBeInstanceOf(Set);
+    expect(s.optionalIds.size).toBe(0);
+  });
+
+  it('toggleOptional adds IDs to optionalIds', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    expectSetsEqual(store.getState().optionalIds, ['t1', 't2']);
+  });
+
+  it('toggleOptional on already-optional IDs removes them (toggle off)', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    expect(store.getState().optionalIds.size).toBe(2);
+    // Toggle again → removes all
+    store.getState().toggleOptional(['t1', 't2']);
+    expect(store.getState().optionalIds.size).toBe(0);
+  });
+
+  it('toggleOptional on subset of optional IDs only toggles those', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2', 't3']);
+    // Toggle a subset (all are optional → removes them)
+    store.getState().toggleOptional(['t1', 't3']);
+    expectSetsEqual(store.getState().optionalIds, ['t2']);
+  });
+
+  // ─── 3-state mutual exclusion ───
+
+  it('toggleToken removes from optionalIds (3-state mutual exclusion)', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1']);
+    expect(store.getState().optionalIds.has('t1')).toBe(true);
+    // Now toggle the same ID as want → should remove from optionalIds
+    store.getState().toggleToken('t1');
+    expectSetsEqual(store.getState().selectedIds, ['t1']);
+    expect(store.getState().optionalIds.has('t1')).toBe(false);
+  });
+
+  it('toggleTokens (batch) removes from optionalIds (3-state mutual exclusion)', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    // Batch-select → both should move from optionalIds to selectedIds
+    store.getState().toggleTokens(['t1', 't2']);
+    expectSetsEqual(store.getState().selectedIds, ['t1', 't2']);
+    expect(store.getState().optionalIds.size).toBe(0);
+  });
+
+  it('toggleExclude removes from optionalIds (3-state mutual exclusion)', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    // Exclude → both should move from optionalIds to excludedIds
+    store.getState().toggleExclude(['t1', 't2']);
+    expectSetsEqual(store.getState().excludedIds, ['t1', 't2']);
+    expect(store.getState().optionalIds.size).toBe(0);
+  });
+
+  it('toggleOptional removes from selectedIds (3-state mutual exclusion)', () => {
+    const store = createFilterStore();
+    store.getState().toggleTokens(['t1', 't2']);
+    expect(store.getState().selectedIds.size).toBe(2);
+    // Move to optional → should remove from selectedIds
+    store.getState().toggleOptional(['t1', 't2']);
+    expectSetsEqual(store.getState().optionalIds, ['t1', 't2']);
+    expect(store.getState().selectedIds.size).toBe(0);
+  });
+
+  it('toggleOptional removes from excludedIds (3-state mutual exclusion)', () => {
+    const store = createFilterStore();
+    store.getState().toggleExclude(['t1', 't2']);
+    expect(store.getState().excludedIds.size).toBe(2);
+    // Move to optional → should remove from excludedIds
+    store.getState().toggleOptional(['t1', 't2']);
+    expectSetsEqual(store.getState().optionalIds, ['t1', 't2']);
+    expect(store.getState().excludedIds.size).toBe(0);
+  });
+
+  // ─── clearSelections + resetFilters ───
+
+  it('clearSelections() resets optionalIds along with selected/excluded', () => {
+    const store = createFilterStore();
+    store.getState().toggleTokens(['t1']);
+    store.getState().toggleOptional(['t2', 't3']);
+    store.getState().toggleExclude(['t4']);
+
+    store.getState().clearSelections();
+
+    const s = stateOf(store);
+    expect(s.selectedIds.size).toBe(0);
+    expect(s.excludedIds.size).toBe(0);
+    expect(s.optionalIds.size).toBe(0);
+  });
+
+  it('resetFilters() resets optionalIds along with all other state', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    store.getState().setSearchText('text');
+
+    store.getState().resetFilters();
+
+    const s = stateOf(store);
+    expect(s.optionalIds.size).toBe(0);
+    expect(s.searchText).toBe('');
+  });
+
+  // ─── Serialize / Deserialize round-trip ───
+
+  it('serialize() includes `opt` key when optionalIds is non-empty', () => {
+    const store = createFilterStore();
+    store.getState().toggleOptional(['t1', 't2']);
+    const serialized = store.getState().serialize();
+    expect(Array.isArray(serialized.opt)).toBe(true);
+    expect(serialized.opt).toEqual(expect.arrayContaining(['t1', 't2']));
+  });
+
+  it('serialize() omits `opt` key when optionalIds is empty (URL compactness)', () => {
+    const store = createFilterStore();
+    const serialized = store.getState().serialize();
+    expect(serialized.opt).toBeUndefined();
+  });
+
+  it('deserialize() restores optionalIds from `opt` key', () => {
+    const store = createFilterStore();
+    const data = { opt: ['a', 'b', 'c'] };
+    store.getState().deserialize(data);
+    expectSetsEqual(store.getState().optionalIds, ['a', 'b', 'c']);
+  });
+
+  it('deserialize() without `opt` key → empty optionalIds (backward compat)', () => {
+    const store = createFilterStore();
+    // Pre-iter-159 URLs don't have `opt` — should not crash, should default
+    // to empty set.
+    const data = { s: ['x'], e: ['y'] };
+    store.getState().deserialize(data);
+    expect(store.getState().optionalIds.size).toBe(0);
+    // Other fields restored normally
+    expectSetsEqual(store.getState().selectedIds, ['x']);
+    expectSetsEqual(store.getState().excludedIds, ['y']);
+  });
+
+  it('serialize → deserialize round-trip preserves optionalIds', () => {
+    const store1 = createFilterStore();
+    store1.getState().toggleOptional(['opt1', 'opt2']);
+    store1.getState().toggleTokens(['want1']);
+    store1.getState().toggleExclude(['bad1']);
+
+    const serialized = store1.getState().serialize();
+
+    const store2 = createFilterStore();
+    store2.getState().deserialize(serialized);
+
+    expectSetsEqual(store2.getState().optionalIds, ['opt1', 'opt2']);
+    expectSetsEqual(store2.getState().selectedIds, ['want1']);
+    expectSetsEqual(store2.getState().excludedIds, ['bad1']);
+  });
+
+  // ─── Defensive: malformed URLs with overlapping sets ───
+
+  it('deserialize() strips IDs from optionalIds that are also in selectedIds (defensive)', () => {
+    // A buggy old URL might have the same ID in both `s` and `opt` (shouldn't
+    // happen with the store's mutual exclusion, but could happen with manual
+    // URL editing). Precedence: selectedIds > excludedIds > optionalIds.
+    const store = createFilterStore();
+    const data = { s: ['shared', 'only_want'], opt: ['shared', 'only_opt'] };
+    store.getState().deserialize(data);
+    expectSetsEqual(store.getState().selectedIds, ['shared', 'only_want']);
+    // 'shared' should be stripped from optionalIds (precedence: selectedIds wins)
+    expectSetsEqual(store.getState().optionalIds, ['only_opt']);
+  });
+
+  it('deserialize() strips IDs from optionalIds that are also in excludedIds (defensive)', () => {
+    const store = createFilterStore();
+    const data = { e: ['shared', 'only_exclude'], opt: ['shared', 'only_opt'] };
+    store.getState().deserialize(data);
+    expectSetsEqual(store.getState().excludedIds, ['shared', 'only_exclude']);
+    // 'shared' should be stripped from optionalIds (precedence: excludedIds wins)
+    expectSetsEqual(store.getState().optionalIds, ['only_opt']);
+  });
+});

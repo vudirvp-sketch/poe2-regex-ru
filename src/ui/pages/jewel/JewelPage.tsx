@@ -131,6 +131,8 @@ export function JewelPage() {
     showSelectedOnly, setShowSelectedOnly,
     // Phase 5 (iter 136): favorites (pinned) state + actions
     pinnedIds, togglePinned,
+    // iter 159: MIXED-mode 3-state chip (want / opt / exclude)
+    optionalIds, toggleOptional,
   } = useCategoryPage({
     categoryId: 'jewel',
     // iter 152 (KI#42): use stable module-level constant — see comment above.
@@ -204,6 +206,15 @@ export function JewelPage() {
   const handleTogglePinned = useCallback((ids: string[]) => {
     if (ids.length > 0) togglePinned(ids[0]);
   }, [togglePinned]);
+
+  // iter 159: Family-level optional toggle for MIXED mode.
+  // Same family-level pattern as handleTogglePinned - the store's
+  // toggleOptional takes ids[], so we pass the whole array (it handles
+  // bulk toggle internally). No first-id-only restriction like pinned
+  // because optionalIds is meant to track individual OPT picks per family.
+  const handleToggleOptional = useCallback((ids: string[]) => {
+    toggleOptional(ids);
+  }, [toggleOptional]);
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
@@ -390,6 +401,9 @@ export function JewelPage() {
               showSelectedOnly={showSelectedOnly}
               pinnedIds={pinnedIds}
               onTogglePinned={handleTogglePinned}
+              optionalIds={optionalIds}
+              onToggleOptional={handleToggleOptional}
+              mixedMode={searchLogic === 'mixed'}
             />
           </CategoryLayout>
         );

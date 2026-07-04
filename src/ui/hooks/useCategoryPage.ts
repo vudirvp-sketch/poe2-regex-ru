@@ -60,7 +60,15 @@ export {
 } from './category-ast-utils';
 
 // Import for internal use.
-import { buildAstFromSelections, applyRuntimeYofication } from './category-ast-utils';
+// iter 159: also import buildMixedAstFromSelections + truncateMixedOrLiterals
+// for MIXED search-logic mode (combined AND+OR pattern with KI#45/KI#46
+// mitigations, verified in-game iter 157).
+import {
+  buildAstFromSelections,
+  applyRuntimeYofication,
+  buildMixedAstFromSelections,
+  truncateMixedOrLiterals,
+} from './category-ast-utils';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // iter 144 (KI#30): helpers for cross-tab favorites persistence.
@@ -167,8 +175,13 @@ export interface CategoryPageState {
   selectedIds: Set<string>;
   /** Excluded (\"don't want\") token IDs — per-mod exclude */
   excludedIds: Set<string>;
+  /** iter 159: Optional ("opt") token IDs — only meaningful in MIXED mode.
+   *  Treated as OPT tokens (collected into a single MIXED_OR quoted group). */
+  optionalIds: Set<string>;
   /** Toggle a family group to excluded state */
   toggleExclude: (ids: string[]) => void;
+  /** iter 159: Toggle a family group to optional state (MIXED mode). */
+  toggleOptional: (ids: string[]) => void;
   /** Search logic: 'and' = all conditions, 'or' = any condition */
   searchLogic: SearchLogic;
   /** Set search logic */
@@ -430,6 +443,10 @@ export interface UseRegexBuilderArgs {
   data: CategoryData | null;
   selectedIds: Set<string>;
   excludedIds: Set<string>;
+  /** iter 159: optional token IDs for MIXED search-logic mode. When
+   *  `searchLogic === 'mixed'`, these are treated as OPT tokens (collected
+   *  into a single MIXED_OR quoted group). Ignored in 'and'/'or' modes. */
+  optionalIds: Set<string>;
   extraAstNodes: ASTNode[];
   searchLogic: SearchLogic;
   minValue: number | null;
@@ -451,19 +468,29 @@ export interface UseRegexBuilderResult {
 /**
  * useRegexBuilder — build AST from selections + extraAstNodes, optimize,
  * compile, apply yofication, split over-limit. Pure computation, no side effects.
+ *
+ * iter 159: when `searchLogic === 'mixed'`, uses `buildMixedAstFromSelections`
+ * instead of `buildAstFromSelections`. MUST = selectedIds, OPT = optionalIds,
+ * EXCLUDE = excludedIds. After compile, if regex > 240 chars AND we're in
+ * MIXED mode, applies `truncateMixedOrLiterals` (KI#46 mitigation) and
+ * re-compiles. This is the in-game-verified truncation path from iter 157 T8.
  */
 export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResult {
   const {
-    data, selectedIds, excludedIds, extraAstNodes,
+    data, selectedIds, excludedIds, optionalIds, extraAstNodes,
     searchLogic, minValue, maxValue, round10Enabled,
     locale, perTokenRanges, thresholdEnabled,
   } = args;
 
-  // Build selected tokens list (includes both want + exclude tokens)
+  // Build selected tokens list (includes want + opt + exclude tokens).
+  // iter 159: optionalIds added — MIXED mode needs OPT tokens in the list
+  // so they're available for buildMixedAstFromSelections.
   const selectedTokens = useMemo(() => {
     if (!data) return [];
-    return data.tokens.filter(t => selectedIds.has(t.id) || excludedIds.has(t.id));
-  }, [data, selectedIds, excludedIds]);
+    return data.tokens.filter(t =>
+      selectedIds.has(t.id) || excludedIds.has(t.id) || optionalIds.has(t.id)
+    );
+  }, [data, selectedIds, excludedIds, optionalIds]);
 
   // Build AST, optimize, compile
   return useMemo(() => {
@@ -477,19 +504,41 @@ export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResul
 
     const andChildren: ASTNode[] = [];
 
-    // 1. Build AST from mod selections (if any)
+    // 1. Build AST from mod selections (if any).
+    //    iter 159: in MIXED mode, split tokens into MUST (selectedIds) and
+    //    OPT (optionalIds) and use the dedicated MIXED-mode builder.
     if (hasModSelections) {
-      const modAst = buildAstFromSelections(
-        selectedTokens,
-        excludedIds,
-        minValue,
-        maxValue,
-        round10Enabled,
-        locale,
-        perTokenRanges,
-        searchLogic,
-        thresholdEnabled
-      );
+      let modAst: ASTNode | null;
+      if (searchLogic === 'mixed') {
+        // MIXED mode: MUST = selectedIds, OPT = optionalIds, EXCLUDE = excludedIds.
+        // buildMixedAstFromSelections handles all three sets internally.
+        const mustTokens = selectedTokens.filter(t => selectedIds.has(t.id));
+        const optTokens = selectedTokens.filter(t => optionalIds.has(t.id));
+        modAst = buildMixedAstFromSelections(
+          mustTokens,
+          optTokens,
+          excludedIds,
+          minValue,
+          maxValue,
+          round10Enabled,
+          locale,
+          perTokenRanges,
+          thresholdEnabled
+        );
+      } else {
+        // AND / OR mode: existing behaviour (selectedIds ∪ excludedIds).
+        modAst = buildAstFromSelections(
+          selectedTokens,
+          excludedIds,
+          minValue,
+          maxValue,
+          round10Enabled,
+          locale,
+          perTokenRanges,
+          searchLogic,
+          thresholdEnabled
+        );
+      }
       if (modAst) {
         andChildren.push(modAst);
       }
@@ -517,6 +566,22 @@ export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResul
     };
     let compiledRegex = compile(optimizedAst, compileOptions);
 
+    // 4b. iter 159: KI#46 mitigation — if MIXED mode AND compiled regex > 240
+    // chars, truncate LITERAL values in MIXED_OR nodes and re-compile. This is
+    // the in-game-verified truncation path (iter 157 T8). The threshold of 240
+    // (not 250) gives a 10-char safety margin for the optimizer's quoted-group
+    // wrapper characters that get added between compile and final string.
+    if (searchLogic === 'mixed' && compiledRegex.length > 240) {
+      const truncatedAst = truncateMixedOrLiterals(optimizedAst, 12);
+      const reoptimizedAst = optimize(truncatedAst, data?.optimizationTable ?? {}, locale);
+      const retried = compile(reoptimizedAst, compileOptions);
+      // Only accept the truncated version if it actually shortened the regex
+      // AND still fits within the 250-char hard limit (or at least came closer).
+      if (retried.length < compiledRegex.length) {
+        compiledRegex = retried;
+      }
+    }
+
     // 5. Apply runtime yofication if character budget allows
     if (selectedTokens.length > 0) {
       compiledRegex = applyRuntimeYofication(compiledRegex, selectedTokens, locale);
@@ -539,7 +604,7 @@ export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResul
       regexParts,
       collapsedTokenIds: optimizedAst ? collectCollapsedTokenIds(optimizedAst, data?.optimizationTable ?? {}) : new Set<string>(),
     };
-  }, [data, selectedTokens, excludedIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges, thresholdEnabled]);
+  }, [data, selectedTokens, selectedIds, excludedIds, optionalIds, searchLogic, minValue, maxValue, round10Enabled, locale, extraAstNodes, perTokenRanges, thresholdEnabled]);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -599,9 +664,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
   // in the URL-sync effect below — same effect, one extra line per setting.
   const [searchLogic, setSearchLogic] = useState<SearchLogic>(() => {
     const val = useStore.getState().getExtraState('searchLogic');
-    if (val === 'and' || val === 'or') return val;
+    if (val === 'and' || val === 'or' || val === 'mixed') return val;
     // iter 141 (KI#26): fall back to localStorage for cross-tab persistence.
-    return readLocalSetting<SearchLogic>('searchLogic', 'and');
+    // iter 159: extended to accept 'mixed' from localStorage (older saved
+    // values without 'mixed' fall through to the default 'and').
+    const stored = readLocalSetting<SearchLogic>('searchLogic', 'and');
+    if (stored === 'and' || stored === 'or' || stored === 'mixed') return stored;
+    return 'and';
   });
   const [round10Enabled, setRound10Enabled] = useState(() => {
     const val = useStore.getState().getExtraState('round10Enabled');
@@ -638,12 +707,19 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
 
   const selectedIds = useStore(state => state.selectedIds);
   const excludedIds = useStore(state => state.excludedIds);
+  // iter 159: optionalIds (MIXED-mode OPT tokens). Always subscribed — the
+  // store always has the field, even when searchLogic is 'and'/'or' (in
+  // which case the set is ignored by useRegexBuilder but stays in sync with
+  // the URL hash so the user can toggle modes without losing their OPT picks).
+  const optionalIds = useStore(state => state.optionalIds);
   const searchText = useStore(state => state.searchText);
   const affixFilter = useStore(state => state.affixFilter);
   const originFilter = useStore(state => state.originFilter);
   const toggleToken = useStore(state => state.toggleToken);
   const toggleTokens = useStore(state => state.toggleTokens);
   const toggleExclude = useStore(state => state.toggleExclude);
+  // iter 159: toggleOptional — exposed for FilterChip shift+click in MIXED mode.
+  const toggleOptional = useStore(state => state.toggleOptional);
   const setSearchText = useStore(state => state.setSearchText);
   const setAffixFilter = useStore(state => state.setAffixFilter);
   const setOriginFilter = useStore(state => state.setOriginFilter);
@@ -796,7 +872,7 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     }
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
-  }, [selectedIds, excludedIds, searchText, affixFilter, originFilter, perTokenRanges,
+  }, [selectedIds, excludedIds, optionalIds, searchText, affixFilter, originFilter, perTokenRanges,
       searchLogic, round10Enabled, minValue, maxValue, thresholdEnabled, sortMode, useStore,
       // Phase 2 (iter 133): collapse state also triggers URL re-sync so that
       // toggle persistence propagates to the URL hash immediately.
@@ -819,10 +895,12 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       categoryId]);
 
   // Regex building (extracted to useRegexBuilder in iter 79).
+  // iter 159: optionalIds passed for MIXED-mode OPT tokens.
   const { regex, isRegexOverflow, regexParts, collapsedTokenIds } = useRegexBuilder({
     data,
     selectedIds,
     excludedIds,
+    optionalIds,
     extraAstNodes,
     searchLogic,
     minValue,
@@ -846,9 +924,13 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     // fall back to localStorage (cross-tab persistence) before the hard-coded
     // default. This ensures that loading a profile doesn't blow away the
     // user's cross-tab preferences for fields the profile didn't specify.
+    // iter 159: 'mixed' is now a valid searchLogic value (MIXED-mode UI).
     const restoredLogic = restored.getExtraState('searchLogic');
-    if (restoredLogic === 'and' || restoredLogic === 'or') setSearchLogic(restoredLogic);
-    else setSearchLogic(readLocalSetting<SearchLogic>('searchLogic', 'and'));
+    if (restoredLogic === 'and' || restoredLogic === 'or' || restoredLogic === 'mixed') setSearchLogic(restoredLogic);
+    else {
+      const stored = readLocalSetting<SearchLogic>('searchLogic', 'and');
+      setSearchLogic(stored === 'and' || stored === 'or' || stored === 'mixed' ? stored : 'and');
+    }
 
     const restoredRound10 = restored.getExtraState('round10Enabled');
     if (typeof restoredRound10 === 'boolean') setRound10Enabled(restoredRound10);
@@ -893,7 +975,10 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     regexParts,
     selectedIds,
     excludedIds,
+    // iter 159: optionalIds (MIXED-mode OPT tokens) + toggleOptional.
+    optionalIds,
     toggleExclude,
+    toggleOptional,
     searchLogic,
     setSearchLogic,
     round10Enabled,

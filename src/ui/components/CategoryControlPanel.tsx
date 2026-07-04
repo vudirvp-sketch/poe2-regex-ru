@@ -149,10 +149,15 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
-  // Logic toggle options for arrow key navigation
+  // Logic toggle options for arrow key navigation.
+  // iter 159: added 'mixed' for combined AND+OR mode (MIXED_OR pattern).
+  // Arrow keys cycle AND → OR → MIXED → AND (wraps). The 3rd button gets
+  // a distinct amber-soft active style so the user can tell at a glance
+  // that MIXED mode is on (chip behavior changes: shift+click = opt).
   const logicOptions = [
     { value: 'and' as SearchLogic, action: () => setSearchLogic('and') },
     { value: 'or' as SearchLogic, action: () => setSearchLogic('or') },
+    { value: 'mixed' as SearchLogic, action: () => setSearchLogic('mixed') },
   ];
 
   // iter 148 (toolbar refactor): sortMode moved from a radiogroup to a compact
@@ -164,7 +169,11 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   return (
     <div role="toolbar" aria-label={t('control.panel')}>
       <div className="flex flex-wrap gap-2.5 items-center">
-        {/* Search logic toggle: AND/OR */}
+        {/* Search logic toggle: AND/OR/MIXED.
+            iter 159: added MIXED button (combined AND+OR pattern).
+            AND/OR keep the existing amber-600 active style; MIXED gets
+            amber-soft (amber-400) so the user can tell at a glance that
+            chip behavior has changed (shift+click = opt, right-click = exclude). */}
         <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}
           onKeyDown={(e) => handleRadioKeyDown(e, logicOptions, searchLogic)}
         >
@@ -187,6 +196,17 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             }`}
           >
             {t('logic.or')}
+          </button>
+          <button
+            onClick={() => setSearchLogic('mixed')}
+            role="radio"
+            aria-checked={searchLogic === 'mixed'}
+            title={t('logic.mixed_tooltip')}
+            className={`px-2.5 py-1.5 rounded text-[13px] font-medium transition-colors ${
+              searchLogic === 'mixed' ? 'bg-accent-amber-soft text-bright' : 'bg-surface text-muted hover:bg-chip-hover'
+            }`}
+          >
+            {t('logic.mixed')}
           </button>
         </div>
 

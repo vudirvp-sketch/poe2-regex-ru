@@ -27,6 +27,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'logic.label': 'Логика поиска',
     'logic.and': 'Все (И)',
     'logic.or': 'Любой (ИЛИ)',
+    // iter 159: MIXED-mode toggle label. Combined AND+OR pattern:
+    // MUST tokens (selectedIds) + OPT tokens (optionalIds) + !BAD (excludedIds).
+    // Verified in-game iter 157 (KI#44 closed). Short label for the radio
+    // button — full tooltip explains the semantics.
+    'logic.mixed': 'Смешанный',
+    // Tooltip / aria-description for the MIXED toggle button.
+    'logic.mixed_tooltip': 'Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по чипу — хочу, Shift+клик — опционально, правый клик — исключить.',
     'search.placeholder': 'Поиск аффиксов...',
     'filter.all_types': 'Все типы',
     'filter.all_origins': 'Все источники',
@@ -71,6 +78,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.excluded': 'исключено',
     'chip.partial_excluded': 'частично исключено',
     'chip.unselected': 'не выбрано',
+    // iter 159: OPT state labels for MIXED-mode 3-state chip.
+    // 'optional' = full-optional (all members in optionalIds).
+    // 'partial_optional' = some members in optionalIds.
+    'chip.optional': 'опционально',
+    'chip.partial_optional': 'частично опционально',
     'chip.levels': 'уровней',
     'chip.range': 'диапазон',
     'chip.dual_number': 'Двухчисловой аффикс',

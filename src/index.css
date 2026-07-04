@@ -1453,6 +1453,23 @@ input:focus:not(:focus-visible),
   }
 }
 
+/* ─── iter 159: .chip-opt — MIXED-mode OPT state visual marker ─── */
+/* Applied to FilterChip outer div when ANY member of the chip's family group
+   is in `optionalIds` (MIXED search-logic mode only). The dashed border-left
+   distinguishes OPT from MUST (solid border) and EXCLUDE (solid red border)
+   at a glance — the user can scan a category page and immediately see which
+   chips are "I want this OR something else" vs "I strictly need this".
+   Border-left color is set via Tailwind class `border-l-bl-amber-dim` on the
+   chip div; this CSS rule adds the dashed style + a subtle outline glow so
+   OPT chips read as "soft / negotiable" rather than "selected but a different
+   color". */
+.chip-opt {
+  border-left-style: dashed !important;
+  /* 2px dashed reads better at 12px text size than 1px (which can be mistaken
+     for a rendering artefact on low-DPI displays). */
+  border-left-width: 2px;
+}
+
 /* ─── Phase 4.5 (iter 137): .icon-legend — static legend in right aside ─── */
 /* Rendered at the BOTTOM of the right <aside> (below ProfilePanel) via the
    new `legend` slot on CategoryLayout. Static 3-row legend explaining what

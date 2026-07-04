@@ -4,60 +4,95 @@
 
 ---
 
-Task ID: 158 (MIXED-mode core layer)
+## iter 158 (MIXED-mode core layer) — одной строкой
+
+Реализован core layer для MIXED mode: AST extension (`MIXED_OR` нода + `MixedOrOptions`), compiler support (KI#45 `anchorFirstAltOnly` mitigation), builder utility (`buildMixedAstFromSelections` + `truncateMixedOrLiterals` для KI#46), 43 юнит-теста. UI-интеграция отложена на iter 159. Все проверки PASS (2278/2278 tests, tsc 0, eslint 0, vite build PASS).
+
+---
+
+Task ID: 159 (MIXED-mode UI integration)
 Agent: main
-Task: Реализовать core layer для UI-режима «MIXED» — расширение AST (MIXED_OR нода), compiler support, builder utility (`buildMixedAstFromSelections`), KI#45/KI#46 mitigations, юнит-тесты. UI-интеграцию отложить на iter 159.
+Task: Реализовать UI-интеграцию MIXED mode: расширить SearchLogic тип, добавить `optionalIds: Set<string>` в filter-store (3-state chip), обновить FilterChip (click=want / shift+click=opt / right-click=exclude), добавить MIXED toggle в CategoryControlPanel, обновить useCategoryPage для MIXED-mode builder + auto-truncation, пробросить props через ModList/VirtualizedModList во все 7 page components. In-game verification отложить на iter 160.
 
 Work Log:
-- 1: **План и scope decision:**
-  - Изучил STATUS.md (iter 157), AGENT_NAVIGATION.md, существующие AST (`src/shared/types.ts`, `src/core/ast.ts`), compiler (`src/core/compiler.ts`), `category-ast-utils.ts`.
-  - Решил добавить **новый `MIXED_OR` тип ноды** вместо расширения OR — семантически distinct (combined AND+OR mode с mitigations), не ломает существующие OR тесты.
-  - UI-интеграцию (FilterChip 3-state, optionalIds в filter-store, MIXED toggle в CategoryControlPanel) **отложил на iter 159** — рискует сломать 8 category pages. Согласовано с правилом «лучше недоделать, чем сломать».
-- 2: **AST extension** (`src/shared/types.ts` + `src/core/ast.ts`):
-  - Добавил `MixedOrOptions` interface с `anchorFirstAltOnly?: boolean` (KI#45 mitigation).
-  - Добавил `MIXED_OR` к `ASTNode` union.
-  - Добавил builder `mixedOr(children, options?)` в `ast.ts`.
-  - Обновил `collectTokenIds` — добавил `MIXED_OR` case.
-- 3: **Compiler extension** (`src/core/compiler.ts`):
-  - `normalizeAst`: добавил `MIXED_OR` case — переиспользует OR normalization (AND-in-OR transforms iter 49/108) через временный OR node, сохраняет `options`.
-  - `compileInner`: добавил `MIXED_OR` case — компилирует как OR (children → `|`-joined), post-process: если `anchorFirstAltOnly=true`, strip'ит leading `^` с non-first альтернатив. Покрывает 3 источника `^`: LITERAL value, RANGE anchorStart, iter 49 transform output.
-  - `compile()`: MIXED_OR оборачивается в outer quotes (как OR).
-- 4: **Builder utility** (`src/ui/hooks/category-ast-utils.ts`):
-  - `truncateMixedOrLiterals(ast, maxLen=12)` — KI#46 mitigation. PURE function, walk'ает AST, находит MIXED_OR, truncate'ит LITERAL children values до `maxLen` chars. Сохраняет tokenId и options. Не трогает RANGE/MULTI_RANGE (нельзя безопасно сократить).
-  - `buildMixedAstFromSelections(mustTokens, optTokens, excludedIds, ...)` — main entry. Строит `AND([!BAD?, ...musts, MIXED_OR([...opts], {anchorFirstAltOnly: true})])`. Делегирует MUST/OPT в `buildAstFromSelections` (переиспользует reversed-RANGE логику MUST → T9 reversed работает в OPT).
-  - Re-export'ы добавлены в `useCategoryPage.ts`.
-- 5: **Юнит-тесты** (43 tests total, все PASS):
-  - `tests/core/compiler-mixed.test.ts` — 21 test: MIXED_OR compilation, KI#45 mitigation (strip `^` с non-first LITERAL/RANGE/iter-49-transform), T6 multiple MIXED_OR groups, T9 direct + reversed RANGE, EXCLUDE inside MIXED_OR.
-  - `tests/ui/buildMixedAst.test.ts` — 22 test: canonical `"MUST1" "MUST2" "OPT1|OPT2"`, T7 `!BAD` pattern, T6 multiple groups, T9 reversed RANGE, exclude filtering, `truncateMixedOrLiterals` (default maxLen, tokenId preservation, PURE, integration с compile).
-- 6: **Fix test expectations** (7 initially failing → 0):
-  - Compact decade form: `(27|28|29|30)` → `(2[7-9]|30)` per `number-regex.ts`.
-  - `distributeAlternation` (iter 125 Path D): reversed RANGE с alternation → top-level `|` distribution: `pробивает.*[6-9]%|pробивает.*1[0-6]%`.
-  - `colonAnchor` requires `!isImplicit` — implicit mods не получают `: ` prefix.
-  - String length: `сопротивлений` = 13 chars → truncated to 12 = `сопротивлени`.
-- 7: **Verification:**
-  - `npx vitest run` — 2278/2278 PASS (было 2235 + 43 новых).
-  - `npx tsc -b` — 0 errors.
-  - `npx eslint .` — 0 errors (после удаления unused `or` import).
-  - `npx vite build` — PASS, main bundle 342 KB (без изменений).
-- 8: **Документация:**
-  - STATUS.md — переписан чисто: iter 158 как текущее состояние, KI#47 задокументирован (cross-suppression edge case), iter 159 plan с конкретными шагами UI-интеграции.
-  - worklog.md — эта запись (старая iter 157 удалена по правилу «только последняя итерация подробно»).
+- 1: **План и анализ:**
+  - Изучил STATUS.md (iter 158 — core layer готов), `src/shared/types.ts`, `src/store/filter-store.ts`, `src/ui/components/FilterChip.tsx`, `src/ui/components/CategoryControlPanel.tsx`, `src/ui/hooks/useCategoryPage.ts`, `src/ui/hooks/category-ast-utils.ts`, существующие тесты.
+  - Решил сделать `mixedMode` prop опциональным (default=false) — backward compat для tests + VendorPage + pre-iter-159 callers.
+  - Решил использовать ключ `opt` для URL hash (а не `o`, который уже занят под originFilter).
+- 2: **`SearchLogic` extended** (`src/shared/types.ts`):
+  - Добавлен `'mixed'` к union `'and' | 'or'` с подробным JSDoc (MUST = selectedIds, OPT = optionalIds, EXCLUDE = excludedIds → `"!BAD" "MUST1" "MUST2" "OPT1|OPT2|OPT3"`).
+- 3: **`optionalIds` в filter-store** (`src/store/filter-store.ts`):
+  - Новый field `optionalIds: Set<string>` в `FilterState`.
+  - Новый action `toggleOptional(ids: string[])` — toggle on/off.
+  - 3-state mutual exclusion: `toggleToken`/`toggleTokens`/`toggleExclude`/`toggleOptional` все чистят остальные множества при добавлении.
+  - `clearSelections()` + `resetFilters()` сбрасывают `optionalIds`.
+  - `serialize()`: ключ `opt` только если non-empty (URL compactness).
+  - `deserialize()`: backward-compat (missing `opt` → empty set), defensive strip IDs из optionalIds если они уже в selectedIds/excludedIds (precedence: selected > excluded > optional).
+- 4: **FilterChip 3-state** (`src/ui/components/FilterChip.tsx`):
+  - Новые props: `optionalIds?: Set<string>`, `onToggleOptional?: (ids[]) => void`, `mixedMode?: boolean` (default false).
+  - `selectionState` extended: 'full-optional' / 'partial-optional' (skip когда mixedMode=false — 2-state behaviour preserved even with stale optionalIds).
+  - `handleClick(e)`: shift+click → opt (mixedMode + onToggleOptional), иначе want.
+  - `handleKeyDown(e)`: shift+Enter / shift+Space → opt (keyboard parity).
+  - `handleContextMenu(e)`: right-click → exclude (mixedMode + onToggleExclude), preventDefault suppresses browser menu.
+  - `bgClass`: OPT state = `bg-amber-900/30 border-l-bl-amber-dim chip-opt` (amber dashed border, visually distinct from MUST/EXCLUDE).
+  - `isSelectedForRanges` = isSelected || isOptional → range inputs render для OPT chips too.
+  - ARIA: `aria-checked` extended (true/mixed для full-optional/partial-optional), `aria-label` включает «опционально»/«частично опционально».
+- 5: **i18n keys** (`src/shared/i18n.ts`):
+  - `logic.mixed` = «Смешанный», `logic.mixed_tooltip` — описание shift+click/right-click UX.
+  - `chip.optional` = «опционально», `chip.partial_optional` = «частично опционально».
+- 6: **CSS .chip-opt** (`src/index.css`):
+  - `border-left-style: dashed !important` + `border-left-width: 2px` — отличает OPT от MUST (solid) и EXCLUDE (solid red).
+- 7: **CategoryControlPanel MIXED toggle** (`src/ui/components/CategoryControlPanel.tsx`):
+  - Третий radio button «Смешанный» в logicOptions для arrow-key navigation.
+  - Active style: `bg-accent-amber-soft` (отличается от amber-600 у AND/OR).
+  - `title={t('logic.mixed_tooltip')}` для tooltip.
+- 8: **useCategoryPage MIXED mode** (`src/ui/hooks/useCategoryPage.ts`):
+  - `UseRegexBuilderArgs`: добавлен `optionalIds: Set<string>`.
+  - `useRegexBuilder`: при `searchLogic === 'mixed'` делит selectedTokens на mustTokens (selectedIds) и optTokens (optionalIds), вызывает `buildMixedAstFromSelections` (iter 158) вместо `buildAstFromSelections`.
+  - **KI#46 auto-mitigation:** если compiled regex > 240 chars → `truncateMixedOrLiterals(optimizedAst, 12)` + re-optimize + re-compile. Accept truncated version только если он короче.
+  - `CategoryPageState`: добавлены `optionalIds`, `toggleOptional`.
+  - `useState(searchLogic)`: принимает `'mixed'` из extraState / localStorage.
+  - URL-sync deps: `optionalIds` добавлен (toggle → re-sync).
+  - `restoreFilterState`: принимает `'mixed'` из restored data.
+  - Return object: `optionalIds`, `toggleOptional` экспортированы.
+- 9: **Проброс props через ModList + VirtualizedModList:**
+  - `ModList`: новый props `optionalIds`, `onToggleOptional`, `mixedMode` в interface + деструктуризация + propagation в `ModSubGroupSection`, `AffixColumn`, и все 4 `<FilterChip>` render sites + все 6 `<AffixColumn>` calls.
+  - `VirtualizedModList`: те же props в interface + деструктуризация + propagation в `VirtualRowContent` + `VirtualizedColumn` + `columnProps` spread + single-column `VirtualRowContent` render.
+- 10: **Page components (7 штук):**
+  - `BeltPage`, `RingPage`, `AmuletPage`, `WaystonePage`, `TabletPage`, `RelicPage`, `JewelPage` — каждый патчен:
+    - Деструктуризация `useCategoryPage`: добавлены `optionalIds, toggleOptional`.
+    - `handleToggleOptional = useCallback((ids) => toggleOptional(ids), [toggleOptional])` — stable reference для React.memo.
+    - `<VirtualizedModList>`/`<ModList>`: `optionalIds={optionalIds} onToggleOptional={handleToggleOptional} mixedMode={searchLogic === 'mixed'}`.
+  - VendorPage НЕ затронут — использует custom FilterChip без mixedMode wiring (backward compat).
+- 11: **Тесты (28 новых, всего 2306):**
+  - `tests/store/filter-store.test.ts`: 18 тестов на optionalIds + 3-state mutual exclusion + serialize round-trip + defensive malformed URLs.
+  - `tests/ui/FilterChip.test.tsx`: 10 тестов на 3-state click/shift+click/right-click + ARIA + range inputs для OPT + keyboard parity (shift+Enter) + backward compat (mixedMode=false).
+- 12: **Verification:**
+  - `pnpm exec tsc --noEmit -p tsconfig.app.json` — 0 errors.
+  - `pnpm lint` — 0 errors, 0 warnings (после добавления `selectedIds` в useRegexBuilder useMemo deps).
+  - `pnpm exec vite build` — PASS, bundle sizes без изменений (342 KB main, 162 KB MobileRegexBar).
+  - `pnpm test` — 2306/2306 PASS (было 2278 + 28 новых).
+- 13: **Документация:**
+  - `STATUS.md` — переписан чисто: iter 159 как текущее состояние, KI#48 (in-game verification) добавлен, iter 160 plan с конкретными T1–T10.
+  - `worklog.md` — эта запись (iter 158 сжат до одной строки).
 
 Stage Summary:
-- **MIXED-mode core layer ГОТОВ.** AST + compiler + builder + 43 tests. Все проверки PASS.
-- **Изменённые файлы:**
-  - `src/shared/types.ts` — `MixedOrOptions` interface + `MIXED_OR` AST node type.
-  - `src/core/ast.ts` — `mixedOr()` builder + `collectTokenIds` update.
-  - `src/core/compiler.ts` — `MIXED_OR` case в `normalizeAst` + `compileInner` + `compile()`.
-  - `src/ui/hooks/category-ast-utils.ts` — `buildMixedAstFromSelections()` + `truncateMixedOrLiterals()`.
-  - `src/ui/hooks/useCategoryPage.ts` — re-export новых функций.
-  - `tests/core/compiler-mixed.test.ts` — 21 new test.
-  - `tests/ui/buildMixedAst.test.ts` — 22 new test.
-  - `STATUS.md` — переписан.
-  - `worklog.md` — эта запись.
-- **KI#45 mitigation (core):** `anchorFirstAltOnly: true` в MIXED_OR — compiler strip'ит `^` с non-first alt. Builder включает по умолчанию.
-- **KI#46 mitigation (core):** `truncateMixedOrLiterals(ast, maxLen=12)` — caller вызывает при overflow > 240.
-- **T9 reversed в OPT:** работает через переиспользование reversed-RANGE логики MUST.
-- **Stopping point:** iter 158 завершён. Next iter 159 — UI-интеграция (FilterChip 3-state, optionalIds в filter-store, MIXED toggle в CategoryControlPanel, useCategoryPage wiring, in-game verification).
+- **MIXED-mode UI integration ГОТОВ.** Все 5 пунктов из плана iter 159 выполнены: SearchLogic extended, optionalIds в filter-store, FilterChip 3-state, CategoryControlPanel MIXED toggle, useRegexBuilder MIXED mode + auto-truncation. Props проброшены во все 7 page components.
+- **Изменённые файлы (24):**
+  - `src/shared/types.ts` — `SearchLogic` extended с `'mixed'`.
+  - `src/store/filter-store.ts` — `optionalIds` field + `toggleOptional` action + 3-state mutual exclusion + serialize/deserialize (URL key `opt`).
+  - `src/ui/components/FilterChip.tsx` — 3-state chip (click/shift+click/right-click) + OPT visual state (amber dashed) + ARIA.
+  - `src/ui/components/CategoryControlPanel.tsx` — MIXED radio button + tooltip.
+  - `src/ui/components/ModList.tsx` — `optionalIds`/`onToggleOptional`/`mixedMode` props propagated.
+  - `src/ui/components/VirtualizedModList.tsx` — те же props propagated.
+  - `src/ui/hooks/useCategoryPage.ts` — MIXED-mode builder + auto-truncation + `optionalIds`/`toggleOptional` exports.
+  - `src/ui/pages/{belt,ring,amulet,waystone,tablet,relic,jewel}/*Page.tsx` — 7 page components патчены.
+  - `src/shared/i18n.ts` — `logic.mixed`, `logic.mixed_tooltip`, `chip.optional`, `chip.partial_optional`.
+  - `src/index.css` — `.chip-opt` CSS class (dashed amber border).
+  - `tests/store/filter-store.test.ts` — 18 новых тестов.
+  - `tests/ui/FilterChip.test.tsx` — 10 новых тестов.
+  - `STATUS.md`, `worklog.md` — актуализированы.
+- **Backward compat:** `mixedMode` prop default=false → VendorPage + pre-iter-159 tests не затронуты. URL `opt` key отсутствует в старых ссылках → deserialize как empty set (no crash).
+- **Stopping point:** iter 159 завершён. Next iter 160 — in-game verification MIXED-mode UI (KI#48): 5–10 тестов T1–T10 с реальным UI на разных категориях. UX feedback по визуальной отличимости OPT state (amber dashed) и интуитивности shift+click/right-click.
 
 ---

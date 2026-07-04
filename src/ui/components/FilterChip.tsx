@@ -29,11 +29,32 @@ import type { TokenRangeOverride, SlotRangeOverride } from '@store/filter-store'
 interface FilterChipProps {
   group: FamilyGroup;
   selectedIds: Set<string>;
-  /** Set of excluded (\"don't want\") token IDs — per-mod exclude */
+  /** Set of excluded ("don't want") token IDs — per-mod exclude */
   excludedIds?: Set<string>;
+  /** iter 159: Set of optional ("opt") token IDs — only meaningful in MIXED
+   *  search-logic mode. When `mixedMode` is true and any member of this
+   *  chip's group is in `optionalIds`, the chip renders in the OPT state
+   *  (amber dashed border). Backward compat: when omitted OR `mixedMode`
+   *  is false, the OPT state is NOT rendered (pre-iter-159 behaviour). */
+  optionalIds?: Set<string>;
   onToggleTokens: (ids: string[]) => void;
   /** Toggle a family group to excluded state */
   onToggleExclude?: (ids: string[]) => void;
+  /** iter 159: Toggle a family group to optional state. Only called when
+   *  `mixedMode` is true and the user shift+clicks (or shift+Enter) the chip.
+   *  Backward compat: when omitted OR `mixedMode` is false, shift+click is
+   *  a no-op (no OPT toggle). */
+  onToggleOptional?: (ids: string[]) => void;
+  /** iter 159: When true, enables 3-state chip behaviour (want / opt / exclude).
+   *  - click          → want    (onToggleTokens)
+   *  - shift+click    → opt     (onToggleOptional)
+   *  - right-click    → exclude (onToggleExclude) — preventDefault on contextmenu
+   *  - Enter/Space    → want
+   *  - shift+Enter    → opt
+   *  When false (default), chip behaves as before: click = want, exclude via
+   *  the ✗ button. Backward compat for tests + VendorPage + pre-iter-159
+   *  callers that don't pass `mixedMode`. */
+  mixedMode?: boolean;
   /** Per-token numeric range overrides from filter store */
   perTokenRanges?: Record<string, TokenRangeOverride>;
   /** Set per-token numeric range override */
@@ -74,8 +95,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   group,
   selectedIds,
   excludedIds,
+  optionalIds,
   onToggleTokens,
   onToggleExclude,
+  onToggleOptional,
+  mixedMode = false,
   perTokenRanges,
   onSetTokenRange,
   onClearTokenRange,
@@ -89,21 +113,35 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     [group.members]
   );
 
-  // Determine selection state: want / exclude / none
+  // Determine selection state: want / opt / exclude / none
+  // iter 159: extended to support 'full-optional' / 'partial-optional' states
+  // for MIXED-mode 3-state chip. Pre-iter-159 callers (mixedMode=false)
+  // never see the optional states because we skip the optionalCount check
+  // when mixedMode is false — this preserves 2-state behaviour even if the
+  // store has stale optionalIds from a previous MIXED session (e.g. user
+  // toggled MIXED → AND without clearing optionalIds first).
   const selectionState = useMemo(() => {
     const effectiveExcluded = excludedIds ?? new Set<string>();
+    const effectiveOptional = mixedMode ? (optionalIds ?? new Set<string>()) : new Set<string>();
     let selectedCount = 0;
     let excludedCount = 0;
+    let optionalCount = 0;
     for (const id of memberIds) {
       if (selectedIds.has(id)) selectedCount++;
       if (effectiveExcluded.has(id)) excludedCount++;
+      if (effectiveOptional.has(id)) optionalCount++;
     }
+    // Priority: selected > excluded > optional (matches store's mutual exclusion —
+    // a token can only be in ONE of the three sets, so this ordering is purely
+    // defensive in case a buggy caller passes overlapping sets).
     if (selectedCount === memberIds.length) return 'full' as const;
     if (selectedCount > 0) return 'partial' as const;
     if (excludedCount === memberIds.length) return 'excluded' as const;
     if (excludedCount > 0) return 'partial-excluded' as const;
+    if (optionalCount === memberIds.length) return 'full-optional' as const;
+    if (optionalCount > 0) return 'partial-optional' as const;
     return 'none' as const;
-  }, [memberIds, selectedIds, excludedIds]);
+  }, [memberIds, selectedIds, excludedIds, optionalIds, mixedMode]);
 
   // Display text: show full text for flex-wrap (no truncation — chip wraps)
   const displayText = group.displayText;
@@ -137,8 +175,44 @@ export const FilterChip: React.FC<FilterChipProps> = ({
        : 'border-l-bl-gray')  // 'C' or unknown
     : (group.priorityTier === 'S' ? 'border-l-bl-amber-soft' : affixColor);
 
-  const handleClick = () => {
+  // iter 159: 3-state click handler for MIXED mode.
+  //  - shift+click → opt (onToggleOptional) — only when mixedMode + onToggleOptional.
+  //  - plain click → want (onToggleTokens) — default behaviour.
+  // Backward compat: when mixedMode is false, shift+click is treated as a
+  // plain click (no OPT toggle), preserving pre-iter-159 behaviour for tests
+  // and VendorPage.
+  const handleClick = (e: React.MouseEvent) => {
+    if (mixedMode && e.shiftKey && onToggleOptional) {
+      e.stopPropagation();
+      onToggleOptional(memberIds);
+      return;
+    }
     onToggleTokens(memberIds);
+  };
+
+  // iter 159: 3-state keyboard handler for MIXED mode.
+  //  - shift+Enter / shift+Space → opt (onToggleOptional).
+  //  - plain Enter / plain Space → want (onToggleTokens).
+  // Matches handleClick semantics for keyboard users (WCAG-compliant parity).
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    if (mixedMode && e.shiftKey && onToggleOptional) {
+      onToggleOptional(memberIds);
+      return;
+    }
+    onToggleTokens(memberIds);
+  };
+
+  // iter 159: right-click → exclude (only in MIXED mode + when onToggleExclude is wired).
+  // preventDefault suppresses the browser's context menu so the chip owns the
+  // right-click gesture. In non-MIXED mode, right-click falls through to the
+  // browser context menu (no behaviour change for pre-iter-159 callers).
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (!mixedMode || !onToggleExclude) return;
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleExclude(memberIds);
   };
 
   // Whether this group has ranged tokens (supports per-chip min/max)
@@ -153,6 +227,13 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   const hasPrefix = prefix.length > 0;
   const isSelected = selectionState === 'full' || selectionState === 'partial';
   const isExcluded = selectionState === 'excluded' || selectionState === 'partial-excluded';
+  // iter 159: OPT state — only meaningful when mixedMode is true. Used by
+  // downstream range-input rendering logic to also show inputs for OPT chips
+  // (so the user can adjust thresholds for optional tokens, same as MUST).
+  const isOptional = mixedMode && (selectionState === 'full-optional' || selectionState === 'partial-optional');
+  // Effective "selected" for range-input rendering: WANT or OPT (both have
+  // user-defined numeric constraints). Excluded chips don't show range inputs.
+  const isSelectedForRanges = isSelected || isOptional;
 
   // Check if any member token was collapsed by the optimizer
   const isCollapsed = useMemo(() => {
@@ -308,6 +389,12 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // Priority tier affects visual brightness:
   // - S-tier: slightly brighter background when selected
   // - C-tier: slightly more muted/transparent
+  // iter 159: added 'full-optional' / 'partial-optional' states for MIXED-mode
+  // 3-state chip. OPT state is visually distinct: amber-tinted bg + amber-dim
+  // left border (bronze) so the user can scan MUST vs OPT vs EXCLUDE at a
+  // glance. The dashed border style is applied via the `chip-opt` CSS class
+  // (defined in src/index.css) — keeps the JSX clean and lets future visual
+  // tweaks be CSS-only.
   let bgClass: string;
   const tierOpacity = group.priorityTier === 'S' ? '' : group.priorityTier === 'C' ? 'opacity-80' : '';
   if (selectionState === 'full') {
@@ -318,6 +405,12 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     bgClass = `bg-indicator-red border-l-bl-red text-bright ${tierOpacity}`;
   } else if (selectionState === 'partial-excluded') {
     bgClass = `bg-section-blue border-l-bl-red text-soft ${tierOpacity}`;
+  } else if (selectionState === 'full-optional') {
+    // OPT (full): amber-tinted bg + amber-dim dashed border + brighter text
+    bgClass = `bg-amber-900/30 border-l-bl-amber-dim text-bright chip-opt ${tierOpacity}`;
+  } else if (selectionState === 'partial-optional') {
+    // OPT (partial): same family, dimmer text
+    bgClass = `bg-amber-900/20 border-l-bl-amber-dim text-soft chip-opt ${tierOpacity}`;
   } else {
     bgClass = `bg-chip ${effectiveBorderClass} text-soft hover:bg-chip-hover ${tierOpacity}`;
   }
@@ -344,8 +437,16 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   }, [onToggleExclude, memberIds]);
 
   // ARIA label for screen readers: include full text, selection state, and tier count
+  // iter 159: extended to surface OPT state ('chip.optional' / 'chip.partial_optional').
   const ariaLabel = useMemo(() => {
-    const stateText = selectionState === 'full' ? t('chip.selected') : selectionState === 'partial' ? t('chip.partial') : selectionState === 'excluded' ? t('chip.excluded') : selectionState === 'partial-excluded' ? t('chip.partial_excluded') : t('chip.unselected');
+    const stateText =
+      selectionState === 'full' ? t('chip.selected')
+      : selectionState === 'partial' ? t('chip.partial')
+      : selectionState === 'excluded' ? t('chip.excluded')
+      : selectionState === 'partial-excluded' ? t('chip.partial_excluded')
+      : selectionState === 'full-optional' ? t('chip.optional')
+      : selectionState === 'partial-optional' ? t('chip.partial_optional')
+      : t('chip.unselected');
     const parts = [displayText, stateText];
     if (tierCount > 1) parts.push(`${tierCount} ${t('chip.levels')}`);
     if (rangeText) parts.push(`${t('chip.range')} ${rangeText}`);
@@ -361,10 +462,12 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       // a11y per UI_REFACTOR_PLAN.md §4 Phase 4 risk register mitigation).
       // Inline badges (⚡ ⚓ 2x ×N) shrink from text-[12px] → text-[10px] for
       // proportional visual density.
-      className={`filter-chip inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[12px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelected ? ' chip-with-range' : ''}`}
+      // iter 159: in MIXED mode, right-click on this outer div toggles exclude.
+      className={`filter-chip inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[12px] border-l-2 transition-[background-color,border-color,color,opacity] duration-150 ease-in-out ${bgClass}${hasRanges && isSelectedForRanges ? ' chip-with-range' : ''}`}
       style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
       title={tooltip}
       data-family-key={group.familyKey}
+      onContextMenu={handleContextMenu}
     >
       {/* Phase 5 (iter 136): ⭐ pin/unpin icon button (left of label).
           Rendered only when BOTH `pinnedIds` AND `onTogglePinned` are provided
@@ -394,10 +497,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       <div
         onClick={handleClick}
         role="switch"
-        aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : selectionState === 'excluded' ? 'true' : selectionState === 'partial-excluded' ? 'mixed' : 'false'}
+        aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : selectionState === 'excluded' ? 'true' : selectionState === 'partial-excluded' ? 'mixed' : selectionState === 'full-optional' ? 'true' : selectionState === 'partial-optional' ? 'mixed' : 'false'}
         aria-label={ariaLabel}
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+        onKeyDown={handleKeyDown}
         className="flex items-center gap-1 cursor-pointer leading-tight min-w-0 overflow-hidden"
       >
         <span>{displayText}</span>
@@ -443,8 +546,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           {isExcluded ? '✓' : '✗'}
         </button>
       )}
-      {/* Per-chip numeric range inputs — SIBLINGS of switch, not children — valid ARIA tree */}
-      {hasRanges && isSelected && onSetTokenRange && !group.hasMultiPlaceholder && (
+      {/* Per-chip numeric range inputs — SIBLINGS of switch, not children — valid ARIA tree.
+          iter 159: shown for both WANT (isSelected) and OPT (isOptional) chips
+          so the user can adjust thresholds for optional tokens too. */}
+      {hasRanges && isSelectedForRanges && onSetTokenRange && !group.hasMultiPlaceholder && (
         <div className="flex items-center gap-1 text-[13px]" onClick={stopPropagation}>
           <span className="text-dim">&ge;</span>
           <input
@@ -496,8 +601,9 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           />
         </div>
       )}
-      {/* Dual-number: separate range inputs for each slot — SIBLINGS of switch */}
-      {hasRanges && isSelected && onSetTokenRange && group.hasMultiPlaceholder && (
+      {/* Dual-number: separate range inputs for each slot — SIBLINGS of switch.
+          iter 159: shown for both WANT (isSelected) and OPT (isOptional) chips. */}
+      {hasRanges && isSelectedForRanges && onSetTokenRange && group.hasMultiPlaceholder && (
         <div className="flex flex-col gap-0.5 text-[13px]" onClick={stopPropagation}>
           {/* Slot 0 row */}
           <div className="flex items-center gap-1">
