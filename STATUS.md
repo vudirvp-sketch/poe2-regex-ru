@@ -2,33 +2,34 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 168 (A1 — Вариант B — усиление контраста L1/L2 corner accents)
+> **Текущая итерация:** 169 (KI#50 — фикс потери expand/collapse состояния при переключении вкладок)
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 168)
+## Текущее состояние (iter 169)
 
-**iter 168: A1 — Вариант B — усиление контраста L1/L2 по opacity/size corner accents.**
+**iter 169: KI#50 — фикс потери expand/collapse состояния при смене вкладок.**
 
-Изменены только CSS-значения в существующих правилах — без новых классов, без новых компонентов, без новых тестов. Цель: увеличить контраст между corner accents у L1 (`.affix-header-{prefix,suffix,implicit}`) и L2 (`.affix-origin-header`) с ~12% до ~25%.
+Пользователь сообщал: «При смене вкладок постоянно приходится заново кликать на 'развернуть все' — состояние и выбор не сохраняется». Корневая причина: каждый categoryId создаёт новый Zustand store с пустыми defaults (`expandedSubGroups = new Set()` = все COLLAPSED), а URL hash шарится между категориями. При переходе amulet→ring в store ring попадают amulet-ключи (`amulet:prefix:...`), которые не матчятся с ring-подгруппами → подгруппы ring остаются COLLAPSED.
 
-| Селектор | До (iter 164) | После (iter 168) |
-|----------|---------------|------------------|
-| `.affix-header-{prefix,suffix}::before/::after` | 6×6, opacity 0.4 | **8×8, opacity 0.55** |
-| `.affix-header-implicit::before/::after` | 6×6, opacity 0.4 | **8×8, opacity 0.55** |
-| `.affix-origin-header::before/::after` | 5×5, opacity 0.35 | **4×4, opacity 0.30** |
+Фикс: per-category localStorage для `expandedSubGroups` / `collapsedGroups` / `chipExpandState` (pattern mirrors KI#30 favorites). На mount: фильтруем cross-category leak из URL, если in-category ключей нет — восстанавливаем из localStorage. На каждое изменение — пишем в localStorage.
 
-Border widths НЕ тронуты: L1=4px, L2=3px, L3=0 (как и планировалось в v4 §A1 Вариант B).
+| Аспект | До (iter 168) | После (iter 169) |
+|--------|---------------|------------------|
+| Expand state при смене вкладок | ❌ Теряется (новый store, URL shared) | ✅ Сохраняется per-category в localStorage |
+| Cross-category URL leak | ❌ amulet-ключи загрязняют ring store | ✅ Фильтруются через `filterInCategoryKeys` |
+| Shareable links с expand state | ✅ Работали через URL | ✅ Продолжают работать (URL wins если есть in-category ключи) |
 
 **Изменённые файлы:**
-- `src/index.css` — 3 блока corner accent правил обновлены + расширенные комментарии в шапке L1 / L2 секций, объясняющие новое состояние.
+- `src/store/local-settings.ts` — +4 helper'а (`readUiState`, `writeUiState`, `clearUiState`, `filterInCategoryKeys`, `uiStateStorageKey`) под ключом `poe2:uistate:<categoryId>`.
+- `src/ui/hooks/useCategoryPage.ts` — useState initializer после favorites restore (фильтр + restore) + persist block внутри URL sync effect.
+- `tests/store/KI50UiState.test.ts` — +N тестов (mirror KI30Favorites pattern).
 
 **Критерий приёмки:**
-- ✅ Все тесты `tests/ui/GroupHeader.test.tsx`, `tests/ui/ModList.test.tsx`, `tests/ui/VirtualizedModList.test.tsx` — PASS (они проверяют className presence, не CSS-значения).
-- ✅ tsc 0 errors, eslint 0 errors, vitest 2328/2328 PASS (базовая линия сохранена).
-- ✅ vite build PASS. CSS **61.17 → 61.17 KB** (+0 KB raw / +0 KB gzip — только значения в существующих правилах изменены, новые правила не добавлены, комментарии вырезаются из prod-сборки).
-- ⏳ Визуальная валидация: на скриншоте amulet/ring/belt/jewel-страницы при раскрытых L1+L2+L3 пользователь за < 1 секунды отвечает на вопрос «какой это уровень?» для любого блока.
+- ✅ tsc 0 errors, eslint 0 errors, vitest (2328 + новые) PASS.
+- ✅ vite build PASS.
+- ⏳ Визуальная валидация: раскрыть подгруппы на amulet → перейти на ring → вернуться на amulet → подгруппы amulet остаются раскрытыми.
 
 ---
 
@@ -107,14 +108,14 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 168 → iter 169)
+## Next iteration (iter 169 → iter 170)
 
-**iter 168 завершён.** A1 (Вариант B — усиление контраста L1/L2 corner accents) реализован и протестирован.
+**iter 169 в работе.** KI#50 (фикс потери expand/collapse состояния при смене вкладок) — пользователь сообщал о баге, фикс приоритетнее A4.
 
-**План iter 169:** **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
+**План iter 170:** **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
 
 **Дальнейший план:**
-- iter 170+: по фидбеку на A5 (активная вкладка) и A7 (косметика меню). D1-D3 — отдельный трек.
+- iter 171+: по фидбеку на A5 (активная вкладка) и A7 (косметика меню). D1-D3 — отдельный трек.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 

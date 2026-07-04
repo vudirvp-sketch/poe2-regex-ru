@@ -40,6 +40,14 @@ import {
   writeFavorites,
   clearFavorites,
   favoritesStorageKey,
+  // iter 169 (KI#50): per-category UI state (expand/collapse) persistence.
+  // Same pattern as favorites — localStorage-backed so expand/collapse state
+  // survives cross-tab navigation (each categoryId creates a fresh Zustand
+  // store; URL hash is shared across categories and leaks wrong-category keys).
+  readUiState,
+  writeUiState,
+  clearUiState,
+  filterInCategoryKeys,
 } from '@store/local-settings';
 import type { CategoryData, ASTNode, Locale, AffixType, ModOrigin, SearchLogic, SortMode } from '@shared/types';
 import { and } from '@core/ast';
@@ -795,6 +803,71 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
     return true;
   });
 
+  // iter 169 (KI#50): one-shot restore of expand/collapse UI state from
+  // per-category localStorage on mount. Uses useState lazy initializer so it
+  // runs BEFORE the URL-sync effect's first invocation (syncReadyRef guard).
+  //
+  // The URL hash serializes `expandedSubGroups` / `collapsedGroups` /
+  // `chipExpandState` (under keys `es` / `c` / `ce` respectively), but the
+  // hash is SHARED across category pages. When the user navigates from
+  // amulet to ring, ring's fresh store gets polluted with amulet's
+  // category-prefixed keys (e.g., `amulet:prefix:positive-loot`) via
+  // `syncFromUrl`. Those keys don't match any ring subgroups, so ring's
+  // subgroups stay collapsed (default) — forcing the user to re-click
+  // "Expand All" on every category switch (the bug user reported).
+  //
+  // Fix has two parts (both run inside this initializer, before any effects):
+  //  1. Filter cross-category leak from URL-restored Sets (drop keys not
+  //     starting with `${categoryId}:`). This prevents amulet's keys from
+  //     polluting ring's store AND prevents them from being written back to
+  //     localStorage under the wrong category key.
+  //  2. If after filtering no in-category URL keys remain (i.e., URL had
+  //     only cross-category leak OR was empty), restore from per-category
+  //     localStorage `poe2:uistate:<categoryId>`. This is the "personal
+  //     cross-tab persistence" path — matches the favorites pattern (KI#30).
+  //
+  // Shareable-link semantics: if URL has in-category keys (e.g., user opens
+  // a link shared by another user with explicit expand state), URL wins —
+  // we keep the filtered URL keys and DON'T overwrite with localStorage.
+  // The URL-sync effect below will then write the URL state to localStorage
+  // on the next state change, so future visits will use it.
+  //
+  // `showSelectedOnly` is intentionally NOT touched here (see KI#50 doc in
+  // STATUS.md) — it has no category prefix, so URL-only persistence is
+  // preserved (existing behavior). Can be added later if user reports it.
+  useState(() => {
+    const state = useStore.getState();
+    const filteredExpanded = filterInCategoryKeys(state.expandedSubGroups, categoryId);
+    const filteredCollapsed = filterInCategoryKeys(state.collapsedGroups, categoryId);
+    const filteredChipExpand = filterInCategoryKeys(state.chipExpandState, categoryId);
+    const hasUrlInCategoryState =
+      filteredExpanded.size > 0 ||
+      filteredCollapsed.size > 0 ||
+      filteredChipExpand.size > 0;
+    if (hasUrlInCategoryState) {
+      // URL had in-category state (shareable link) — keep it, but drop
+      // any cross-category leak from previous tab navigation.
+      useStore.setState({
+        expandedSubGroups: filteredExpanded,
+        collapsedGroups: filteredCollapsed,
+        chipExpandState: filteredChipExpand,
+      });
+    } else {
+      // URL had no in-category state — restore from per-category localStorage.
+      const stored = readUiState(categoryId);
+      if (stored) {
+        useStore.setState({
+          expandedSubGroups: new Set(stored.expandedSubGroups ?? []),
+          collapsedGroups: new Set(stored.collapsedGroups ?? []),
+          chipExpandState: new Set(stored.chipExpandState ?? []),
+        });
+      }
+      // If stored is null (no prior visit OR corrupt data), keep the
+      // filtered (empty) Sets — equivalent to the fresh-store defaults.
+    }
+    return true;
+  });
+
   // iter 144 (KI#30): realtime multi-tab sync via `storage` event.
   // User approved (Q4) "if stable and doesn't complicate code". The listener
   // re-reads favorites from localStorage when ANOTHER tab writes to the same
@@ -875,6 +948,33 @@ export function useCategoryPage(config: CategoryPageConfig): CategoryPageState {
       writeFavorites(categoryId, Array.from(pinnedIds));
     } else {
       clearFavorites(categoryId);
+    }
+    // iter 169 (KI#50): persist expand/collapse UI state to per-category
+    // localStorage so it survives cross-tab navigation. URL `es`/`c`/`ce`
+    // keys get overwritten on each page mount with cross-category leak
+    // (filtered out by the useState initializer above), but
+    // `poe2:uistate:<categoryId>` is stable across the entire origin and
+    // scoped to ONE category. All-empty Sets → clearUiState (keeps
+    // localStorage clean — same omit-when-default pattern as favorites).
+    // NOTE: only in-category keys are written — the initializer already
+    // filtered cross-category leak, so by the time we get here the Sets
+    // contain only `${categoryId}:...` keys. But we filter again here as
+    // a defensive measure (no-op in the normal case, ~0 cost).
+    const uiExpanded = filterInCategoryKeys(expandedSubGroups, categoryId);
+    const uiCollapsed = filterInCategoryKeys(collapsedGroups, categoryId);
+    const uiChipExpand = filterInCategoryKeys(chipExpandState, categoryId);
+    if (
+      uiExpanded.size > 0 ||
+      uiCollapsed.size > 0 ||
+      uiChipExpand.size > 0
+    ) {
+      writeUiState(categoryId, {
+        expandedSubGroups: Array.from(uiExpanded),
+        collapsedGroups: Array.from(uiCollapsed),
+        chipExpandState: Array.from(uiChipExpand),
+      });
+    } else {
+      clearUiState(categoryId);
     }
     // 2. Auto-sync store state to URL hash
     syncToUrl(useStore.getState());
