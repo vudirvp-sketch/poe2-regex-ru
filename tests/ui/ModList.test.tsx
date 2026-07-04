@@ -1039,3 +1039,104 @@ describe('ModList — Phase 4 strong modifier wiring (iter 138)', () => {
     expect(prefixHeader.className).not.toContain('affix-header-prefix--strong');
   });
 });
+
+// ─── iter 174 (KI#52): Search auto-expand ──────────────────────────────────
+// When `searchText` is non-empty, ModList force-expands all top-level (L1)
+// groups AND all sub-groups (L3) containing matching chips, so the user sees
+// matches immediately without manually expanding each parent category.
+// Local derivation — store's `collapsedGroups` / `expandedSubGroups` are NOT
+// mutated, so when search clears the user's manual state takes over again.
+
+describe('ModList — KI#52 search auto-expand (iter 174)', () => {
+  it('when searchText is non-empty, sub-group chips render even if expandedSubGroups is empty', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText="сопротивлению"  // matches p1, p2 (prefix family 'Резист')
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        // expandedSubGroups is EMPTY — pre-KI#52 this would hide all chips
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+      />,
+    );
+
+    // KI#52 fix: even though expandedSubGroups is empty, the search-active
+    // state force-expands sub-groups containing matching chips.
+    // FilterChip displays familyKey ('Резист') — should be visible.
+    expect(screen.getByText('Резист')).toBeInTheDocument();
+    // Suffix family 'Урон' has no matches for 'сопротивлению' → not rendered.
+    expect(screen.queryByText('Урон')).not.toBeInTheDocument();
+  });
+
+  it('when searchText is non-empty, top-level collapsed group is force-expanded', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText="сопротивлению"  // matches prefix family 'Резист'
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        // prefix is COLLAPSED at store level — pre-KI#52 this would hide ALL prefix chips
+        collapsedGroups={new Set<string>(['belt:prefix'])}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+      />,
+    );
+
+    // KI#52 fix: even though prefix is collapsed at store level, the
+    // search-active state force-expands L1 too, so chips render.
+    expect(screen.getByText('Резист')).toBeInTheDocument();
+  });
+
+  it('when searchText is non-empty, expand-all/collapse-all buttons are hidden', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <ModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText="сопротивлению"
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllSubGroups={vi.fn()}
+        onCollapseAllSubGroups={vi.fn()}
+      />,
+    );
+
+    // iter 170 (A4) without search: these buttons would be visible.
+    // iter 174 (KI#52) with search: hidden because they have no visible effect.
+    expect(screen.queryByRole('button', { name: /Развернуть все подкатегории/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Свернуть все подкатегории/i })).not.toBeInTheDocument();
+  });
+});

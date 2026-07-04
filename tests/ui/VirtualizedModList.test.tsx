@@ -695,3 +695,45 @@ describe('VirtualizedModList — iter 141 (KI#27): prefix/suffix equal column wi
     expect(oldGridEl).toBeNull();
   });
 });
+
+// ─── iter 174 (KI#52): Search auto-expand ──────────────────────────────────
+// When `searchText` is non-empty, VirtualizedModList force-expands all
+// top-level (L1) groups AND all sub-groups (L3) containing matching chips.
+// Local derivation — store's `collapsedGroups` / `expandedSubGroups` are NOT
+// mutated, so when search clears the user's manual state takes over again.
+
+describe('VirtualizedModList — KI#52 search auto-expand (iter 174)', () => {
+  it('when searchText is non-empty, expand-all/collapse-all buttons are hidden', () => {
+    // Even with full sub-group wiring and a partial expanded set (which would
+    // normally show BOTH buttons per iter 170 A4 conditional rendering),
+    // KI#52 hides them during search because they have no visible effect.
+    const tokens = makeBeltTokens();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText="сопротивлению"
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        // Partial expanded set — without search, BOTH buttons would render.
+        expandedSubGroups={new Set<string>(['belt:prefix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllSubGroups={vi.fn()}
+        onCollapseAllSubGroups={vi.fn()}
+      />
+    );
+
+    // KI#52: during search, buttons are hidden (no visible effect).
+    expect(screen.queryByRole('button', { name: 'Развернуть все подкатегории' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть все подкатегории' })).not.toBeInTheDocument();
+  });
+});

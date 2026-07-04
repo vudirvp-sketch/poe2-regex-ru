@@ -754,6 +754,37 @@ export const ModList: React.FC<ModListProps> = ({
       implicitSubGroups, prefixSubGroups, suffixSubGroups,
       showOriginSubSections, showJewelTypeSubGroups, groupMode, sortMode]);
 
+  // iter 174 (KI#52): Search auto-expand.
+  // When `searchText` is non-empty, force-expand all top-level groups (L1)
+  // and all sub-groups (L3) containing matching chips so the user immediately
+  // sees results without manually expanding each parent category.
+  //
+  // These are LOCAL derivations — we do NOT mutate the store. When the user
+  // clears the search, their manual expand/collapse state (preserved in
+  // `collapsedGroups` / `expandedSubGroups`) takes over again.
+  //
+  // Why force-expand ALL visible sub-groups (not just matching ones): the
+  // `allSubKeys` array is derived from `filteredTokens` (which already excludes
+  // non-matching tokens), so it ALREADY contains only sub-groups with at least
+  // one matching family. Sub-groups with zero matches don't appear in
+  // `allSubKeys` at all — they have no rows to render. Force-expanding all
+  // entries in `allSubKeys` therefore expands exactly the matching sub-groups.
+  //
+  // Trade-off: chevron clicks during search DO mutate the store via
+  // `onToggleSubGroupExpanded`, but the effective Set overrides the visual
+  // outcome (clicks appear no-op). This is acceptable: the user's primary
+  // goal during search is to SEE matches, not to curate collapse state.
+  // Manual state is preserved for when the search is cleared.
+  const isSearchActive = !!(searchText && searchText.trim().length > 0);
+  const effectiveCollapsedGroups = useMemo<Set<string>>(
+    () => (isSearchActive ? new Set<string>() : (collapsedGroups ?? new Set<string>())),
+    [isSearchActive, collapsedGroups],
+  );
+  const effectiveExpandedSubGroups = useMemo<Set<string>>(
+    () => (isSearchActive ? new Set<string>(allSubKeys) : (expandedSubGroups ?? new Set<string>())),
+    [isSearchActive, allSubKeys, expandedSubGroups],
+  );
+
   const handleAffixFilter = useCallback(
     (value: string) => {
       onAffixFilterChange(value === 'all' ? null : (value as AffixType));
@@ -876,6 +907,10 @@ export const ModList: React.FC<ModListProps> = ({
               legacy callers): always visible. Labels: «Развернуть/Свернуть все».
               Affects L1 top-level groups only. */}
         {(() => {
+          // iter 174 (KI#52): hide expand/collapse-all buttons during search.
+          // Search auto-expands all visible sub-groups, so the buttons have no
+          // visible effect — hiding them keeps the toolbar clean.
+          if (isSearchActive) return null;
           // Resolve which mode + visibility applies for THIS render.
           const subMode = !!onExpandAllSubGroups || !!onCollapseAllSubGroups;
           // L3 expand-all: visible when sub-mode AND ≥1 sub-group collapsed.
@@ -960,8 +995,8 @@ export const ModList: React.FC<ModListProps> = ({
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
               categoryId={category}
-              collapsedGroups={collapsedGroups}
-              expandedSubGroups={expandedSubGroups}
+              collapsedGroups={effectiveCollapsedGroups}
+              expandedSubGroups={effectiveExpandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               chipExpandState={chipExpandState}
@@ -990,8 +1025,8 @@ export const ModList: React.FC<ModListProps> = ({
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
               categoryId={category}
-              collapsedGroups={collapsedGroups}
-              expandedSubGroups={expandedSubGroups}
+              collapsedGroups={effectiveCollapsedGroups}
+              expandedSubGroups={effectiveExpandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               chipExpandState={chipExpandState}
@@ -1086,8 +1121,8 @@ export const ModList: React.FC<ModListProps> = ({
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
               categoryId={category}
-              collapsedGroups={collapsedGroups}
-              expandedSubGroups={expandedSubGroups}
+              collapsedGroups={effectiveCollapsedGroups}
+              expandedSubGroups={effectiveExpandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               chipExpandState={chipExpandState}
@@ -1113,8 +1148,8 @@ export const ModList: React.FC<ModListProps> = ({
               collapsedTokenIds={collapsedTokenIds}
               sortMode={sortMode}
               categoryId={category}
-              collapsedGroups={collapsedGroups}
-              expandedSubGroups={expandedSubGroups}
+              collapsedGroups={effectiveCollapsedGroups}
+              expandedSubGroups={effectiveExpandedSubGroups}
               onToggleGroupCollapsed={onToggleGroupCollapsed}
               onToggleSubGroupExpanded={onToggleSubGroupExpanded}
               chipExpandState={chipExpandState}
@@ -1145,8 +1180,8 @@ export const ModList: React.FC<ModListProps> = ({
                 collapsedTokenIds={collapsedTokenIds}
                 sortMode={sortMode}
                 categoryId={category}
-                collapsedGroups={collapsedGroups}
-                expandedSubGroups={expandedSubGroups}
+                collapsedGroups={effectiveCollapsedGroups}
+                expandedSubGroups={effectiveExpandedSubGroups}
                 onToggleGroupCollapsed={onToggleGroupCollapsed}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
                 chipExpandState={chipExpandState}
@@ -1171,8 +1206,8 @@ export const ModList: React.FC<ModListProps> = ({
                 collapsedTokenIds={collapsedTokenIds}
                 sortMode={sortMode}
                 categoryId={category}
-                collapsedGroups={collapsedGroups}
-                expandedSubGroups={expandedSubGroups}
+                collapsedGroups={effectiveCollapsedGroups}
+                expandedSubGroups={effectiveExpandedSubGroups}
                 onToggleGroupCollapsed={onToggleGroupCollapsed}
                 onToggleSubGroupExpanded={onToggleSubGroupExpanded}
                 chipExpandState={chipExpandState}

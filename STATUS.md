@@ -2,29 +2,37 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 173 (KI#51 fix — scroll affordance для TopNav tabs + GitHub link в TopNav).
+> **Текущая итерация:** 174 (KI#52 fix — search auto-expand подкатегорий; FAQ про `regexExclude` / `"!100%"`).
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 173)
+## Текущее состояние (iter 174)
 
-**iter 173: KI#51 fix + GitHub link.** Пользователь подтвердил: при сжатии окна браузера часть кнопок категорий (Кольца, Амулеты и т.д.) не отображается, и пользователь не знает, что они есть — горизонтальный скролл `.topnav-tabs` визуально невидим (`scrollbar-width: none`). Зафиксирован как KI#51, по правилу «сначала документируй, потом фиксись».
+**iter 174: KI#52 fix + FAQ regexExclude.** Пользователь сообщил: при вводе в строку поиска отображаются только заголовки закрытых категорий, а найденные чипы спрятаны внутри — приходится вручную раскрывать каждую. Зафиксирован как KI#52, по правилу «сначала документируй, потом фиксись».
 
-**Fix KI#51:** Добавлены scroll-aware fade-индикаторы по краям `.topnav-tabs`:
-- Новый wrapper `.topnav-tabs-wrap` (relative, `flex:1`, `min-width:0`) оборачивает существующий `.topnav-tabs` scroll-container.
-- `::before` (левый fade) и `::after` (правый fade) — `linear-gradient` от `var(--poe-bg)` к transparent, ширина 24px.
-- JS в `TopNav.tsx` через `useRef`/`useEffect`/`useState` трекает `scrollLeft` + `clientWidth` vs `scrollWidth`, выставляет классы `topnav-tabs-wrap--can-left` / `topnav-tabs-wrap--can-right`. Fade появляется только когда есть куда скроллить в эту сторону. Слушатели `scroll` (passive) + `resize`, cleanup в unmount.
-- CSS `transition: opacity 0.2s ease` — плавное появление/исчезновение.
+**Fix KI#52:** При непустом `searchText` ModList/VirtualizedModList вычисляют локальные «effective» Set'ы:
+- `effectiveCollapsedGroups` = `new Set()` (force все L1 expanded — иначе подкатегории внутри_COLLAPSED L1 вообще не рендерятся).
+- `effectiveExpandedSubGroups` = `new Set(allSubKeys)` (force все видимые подкатегории expanded — `allSubKeys` уже выведен из `filteredTokens`, поэтому содержит только sub-groups с матчами).
+- Эти Set'ы — **локальные производные**, store не мутируется → ручное expand/collapse состояние пользователя сохраняется при очистке поиска.
+- Кнопки «Развернуть/Свернуть все подкатегории» скрываются во время поиска (не имеют эффекта).
+- chevron-клики во время поиска мутируют store, но визуально игнорируются (effective set перекрывает) — это сознательный trade-off: главная цель пользователя при поиске — видеть матчи, не коллекционировать collapse-state.
 
-**GitHub link:** В `.topnav-feedback` (правый край TopNav, lg+) добавлена ссылка на репозиторий рядом с Discord-хинтом: `Баги и идеи → Discord: woonderdad · GitHub ↗`. GitHub — внешняя ссылка (`target="_blank" rel="noopener noreferrer"`), стилизована под existing feedback-text, hover lifts opacity 0.45 → 0.85. Новый i18n ключ `nav.github`: `GitHub`.
+**FAQ regexExclude (ответ на вопрос пользователя про `"!100%"`):** Не баг. Мод `(10—15)% увеличение эффективности монстров` имеет `regexExclude: ["100%"]` в ETL-данных (`public/generated/tablet.json`). Это намеренная защита от ложных срабатываний (FP): конфликтующий мод `(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%` содержит ту же подстроку `увеличение эффективности монстров`. Без `"!100%"` regex `"увеличение эффективности монстров"` матчит ОБА мода → FP. Token `"!100%"` = NOT 100%, отсекает конфликтующий. Поле `regexExclude` определено в `src/shared/types.ts` (GameToken + OptimizationEntry) и работает на уровне ETL + AST builder + compiler.
 
-**Изменённые файлы (iter 173):**
-- `src/ui/layout/TopNav.tsx` — `useRef`/`useEffect`/`useState` для scroll-position tracking, wrapper div вокруг `.topnav-tabs`, GitHub link в feedback area.
-- `src/index.css` — `.topnav-tabs-wrap` + `::before`/`::after` fade gradients + `.topnav-feedback-link` styles.
-- `src/shared/i18n.ts` — ключ `nav.github`.
+**Изменённые файлы (iter 174):**
+- `src/ui/components/ModList.tsx` — `effectiveCollapsedGroups` / `effectiveExpandedSubGroups` useMemo + замена всех downstream usages; conditional rendering expand/collapse-all buttons.
+- `src/ui/components/VirtualizedModList.tsx` — то же самое (parity с ModList).
+- `tests/ui/ModList.test.tsx` — +2 теста на search-auto-expand (L3 chips видны при поиске; L1 force-expand).
+- `tests/ui/VirtualizedModList.test.tsx` — +1 тест на search-auto-expand.
 
-**Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (0 регрессий — изменения UI не покрыты unit-тестами, scroll tracking тестируется визуально). vite build PASS — CSS 61.17 → 62.37 KB (+1.20 KB raw / +0.05 KB gzip — большая часть комментариями, вырежутся в prod при необходимости).
+**Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366+3/2366+3 PASS (0 регрессий). vite build PASS.
+
+---
+
+## История (iter 173 — одной строкой)
+
+**iter 173:** KI#51 fix (scroll-aware fade indicators для `.topnav-tabs` + GitHub link в TopNav feedback area). A5 CLOSED (iter 164 sufficient). 2366/2366 PASS.
 
 ---
 
@@ -75,10 +83,25 @@ Mitigation: `truncateMixedOrLiterals(ast, maxLen=12)` автоматически
 **KI#43 — Transient `actions/deploy-pages` failures.**
 Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивная проверка.
 
+### Недавно закрытые
+
+**KI#52 — Search не авто-раскрывает подкатегории (FIXED iter 174).**
+При непустом `searchText` ModList/VirtualizedModList вычисляют локальные effective Set'ы: `effectiveCollapsedGroups = new Set()` (force L1 expanded), `effectiveExpandedSubGroups = new Set(allSubKeys)` (force L3 expanded). Store не мутируется → ручное состояние сохраняется при очистке поиска.
+
+**KI#51 — Hidden categories on narrow viewports (FIXED iter 173).**
+`.topnav-tabs-wrap` (relative, `flex:1`, `overflow:hidden`) вокруг `.topnav-tabs` с `::before`/`::after` fade-градиентами. JS scroll-position tracking через `useRef`/`useEffect`/`useState` toggles `--can-left`/`--can-right` классы.
+
 ### Фоновые (low-priority)
 
 1. APCA Lc<75 для small text weight 400 — WCAG AA PASS, APCA FAIL.
 2. MobileRegexBar chunk 168.37 KB (gzip 39.42 KB) — отдельный chunk для mobile-only. Содержит transitive imports из RegexOutput (`@core/limits`, `@store/url-sync`, `@shared/i18n`).
+
+---
+
+## FAQ (частые вопросы)
+
+**Q: Почему в регексе появился `"!100%"` (или другой `"!..."` токен)? Это баг?**
+A: Не баг. Это **намеренная защита от ложных срабатываний (FP)** через поле `regexExclude` в ETL-данных (`public/generated/*.json`). Когда два мода разделяют общую подстроку (например, `(10—15)% увеличение эффективности монстров` и `(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%`), простое `"увеличение эффективности монстров"` матчит оба. ETL добавляет `regexExclude: ["100%"]` к простому моду → компилятор генерирует `"suffix" !"100%"`, что отсекает конфликтующий мод. Поле определено в `src/shared/types.ts` (GameToken + OptimizationEntry). ETL-логика — в `scripts/etl/`. AST-потребление — в `src/ui/hooks/category-ast-utils.ts` (function `pushLiteralsWithFamilyLogic`) и `src/core/optimization-strategies.ts`.
 
 ---
 
@@ -103,16 +126,17 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 173 → iter 174)
+## Next iteration (iter 174 → iter 175)
 
-**iter 173 завершён.** KI#51 (hidden categories on narrow viewports) — fix применён, ждёт визуальной валидации. GitHub link добавлен.
+**iter 174 завершён.** KI#52 (search auto-expand) — fix применён + 3 новых теста. FAQ regexExclude задокументирован.
 
 **Ожидается от пользователя:**
-1. Визуальная валидация iter 173: сжать окно браузера до ширины, где табы не помещаются → должны появиться fade-индикаторы справа (и слева после скролла) → табы можно проскроллить → Кольца/Амулеты видны.
-2. Визуальная валидация GitHub link: правый край TopNav на десктопе (lg+) → «Discord: woonderdad · GitHub ↗».
-3. Конкретика по A7 — что ещё в меню требует косметики (после KI#51 fix)?
+1. Визуальная валидация KI#52 fix: ввести аффикс в поиск на любой странице категории → чипы с матчами видны сразу, без ручного раскрытия категорий. После очистки поиска — ручное expand/collapse состояние сохраняется.
+2. Визуальная валидация iter 173 (если ещё не сделана): сжать окно → fade-индикаторы на табах; GitHub link в TopNav.
+3. Конкретика по A7 — что ещё в меню требует косметики.
+4. Понял ли пользователь объяснение про `"!100%"` (FAQ regexExclude)? Если нужны дополнительные пояснения — задать вопросы.
 
-**План iter 174+:** по фидбеку пользователя. Активные KI без изменений: KI#45, KI#46, KI#47, KI#43. Оставшиеся фоновые issues: APCA Lc<75, MobileRegexBar 168 KB.
+**План iter 175+:** по фидбеку пользователя. Активные KI без изменений: KI#45, KI#46, KI#47, KI#43. Оставшиеся фоновые issues: APCA Lc<75, MobileRegexBar 168 KB.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 

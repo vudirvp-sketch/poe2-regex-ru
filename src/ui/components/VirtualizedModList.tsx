@@ -931,57 +931,16 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
     [suffixGroups, groupMode, sortMode]
   );
 
-  // Build separate row lists for each column.
-  // iter 106 (P4): sortMode forwarded so the UI toggle propagates to all sub-groups.
-  // iter 133 (Phase 2): topKey + collapsedGroups + expandedSubGroups forwarded
-  // so buildColumnRows can filter rows by collapse state.
-  const implicitTopKey = category ? `${category}:implicit` : undefined;
-  const prefixTopKey = category ? `${category}:prefix` : undefined;
-  const suffixTopKey = category ? `${category}:suffix` : undefined;
-
-  const implicitRows = useMemo(
-    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, collapsedGroups, expandedSubGroups),
-    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, collapsedGroups, expandedSubGroups]
-  );
-  const prefixRows = useMemo(
-    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, collapsedGroups, expandedSubGroups),
-    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, collapsedGroups, expandedSubGroups]
-  );
-  const suffixRows = useMemo(
-    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, collapsedGroups, expandedSubGroups),
-    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, collapsedGroups, expandedSubGroups]
-  );
-
-  const hasImplicit = implicitGroups.length > 0;
-  // Determine layout: two columns when both affixes exist and no affix filter
-  const hasBothAffixes = prefixRows.length > 0 && suffixRows.length > 0 && !affixFilter;
-
-  const handleAffixFilter = useCallback(
-    (value: string) => {
-      onAffixFilterChange(value === 'all' ? null : (value as AffixType));
-    },
-    [onAffixFilterChange]
-  );
-
-  const handleOriginFilter = useCallback(
-    (value: string) => {
-      onOriginFilterChange(value === 'all' ? null : (value as ModOrigin));
-    },
-    [onOriginFilterChange]
-  );
-
+  // iter 174 (KI#52): Compute `allSubKeys` BEFORE `buildColumnRows` so the
+  // effective Sets (force-expand during search) are available at row-build
+  // time. Previously `allSubKeys` was computed later — only used by the
+  // expand-all buttons conditional rendering. Moving it up is a no-op for
+  // existing behaviour (useMemo evaluates lazily, deps unchanged).
+  //
   // iter 170 (A4): Compute the full list of sub-group keys once via useMemo so
   // both the conditional rendering of the «Развернуть/Свернуть все подкатегории»
   // buttons AND the click handler can use it without re-computing.
   //
-  // Why memoize: previously this exact logic was inlined inside the expand-all
-  // button's onClick (so it ran only on click). With A4 conditional rendering
-  // we also need the count for the visibility check on every render. Wrapping
-  // in useMemo ensures we only re-compute when the underlying data changes
-  // (groups/sortMode/showOriginSubSections/showJewelTypeSubGroups/category).
-  //
-  // Returns an empty array when no sub-group wiring is provided (legacy L1-only
-  // callers) — the buttons then fall back to the always-visible L1 path.
   // iter 145 (KI#35): keys must include origin (and jewelType) when
   // showOriginSubSections is active, matching the key format in buildColumnRows/emitSubGroup.
   const allSubKeys = useMemo<string[]>(() => {
@@ -1050,6 +1009,71 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
       implicitGroups, prefixGroups, suffixGroups,
       implicitSubGroups, prefixSubGroups, suffixSubGroups,
       showOriginSubSections, showJewelTypeSubGroups, groupMode, sortMode]);
+
+  // iter 174 (KI#52): Search auto-expand.
+  // When `searchText` is non-empty, force-expand all top-level groups (L1)
+  // and all sub-groups (L3) containing matching chips so the user immediately
+  // sees results without manually expanding each parent category.
+  //
+  // LOCAL derivations — store is NOT mutated. When search clears, the user's
+  // manual expand/collapse state (preserved in `collapsedGroups` /
+  // `expandedSubGroups`) takes over again. `allSubKeys` is derived from
+  // `filteredTokens` so it already contains only sub-groups with matches —
+  // force-expanding all of them expands exactly the matching sub-groups.
+  //
+  // Trade-off: chevron clicks during search DO mutate the store via
+  // `onToggleSubGroupExpanded`, but the effective Set overrides the visual
+  // outcome. Acceptable: user's primary goal during search is to SEE matches.
+  const isSearchActive = !!(searchText && searchText.trim().length > 0);
+  const effectiveCollapsedGroups = useMemo<Set<string>>(
+    () => (isSearchActive ? new Set<string>() : (collapsedGroups ?? new Set<string>())),
+    [isSearchActive, collapsedGroups],
+  );
+  const effectiveExpandedSubGroups = useMemo<Set<string>>(
+    () => (isSearchActive ? new Set<string>(allSubKeys) : (expandedSubGroups ?? new Set<string>())),
+    [isSearchActive, allSubKeys, expandedSubGroups],
+  );
+
+  // Build separate row lists for each column.
+  // iter 106 (P4): sortMode forwarded so the UI toggle propagates to all sub-groups.
+  // iter 133 (Phase 2): topKey + collapsedGroups + expandedSubGroups forwarded
+  // so buildColumnRows can filter rows by collapse state.
+  // iter 174 (KI#52): effective Sets used instead of raw props so search
+  // auto-expands all visible sub-groups.
+  const implicitTopKey = category ? `${category}:implicit` : undefined;
+  const prefixTopKey = category ? `${category}:prefix` : undefined;
+  const suffixTopKey = category ? `${category}:suffix` : undefined;
+
+  const implicitRows = useMemo(
+    () => buildColumnRows('implicit', implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups),
+    [implicitGroups, implicitSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, implicitTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups]
+  );
+  const prefixRows = useMemo(
+    () => buildColumnRows('prefix', prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups),
+    [prefixGroups, prefixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, prefixTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups]
+  );
+  const suffixRows = useMemo(
+    () => buildColumnRows('suffix', suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups),
+    [suffixGroups, suffixSubGroups, groupMode, showOriginSubSections, showJewelTypeSubGroups, sortMode, suffixTopKey, effectiveCollapsedGroups, effectiveExpandedSubGroups]
+  );
+
+  const hasImplicit = implicitGroups.length > 0;
+  // Determine layout: two columns when both affixes exist and no affix filter
+  const hasBothAffixes = prefixRows.length > 0 && suffixRows.length > 0 && !affixFilter;
+
+  const handleAffixFilter = useCallback(
+    (value: string) => {
+      onAffixFilterChange(value === 'all' ? null : (value as AffixType));
+    },
+    [onAffixFilterChange]
+  );
+
+  const handleOriginFilter = useCallback(
+    (value: string) => {
+      onOriginFilterChange(value === 'all' ? null : (value as ModOrigin));
+    },
+    [onOriginFilterChange]
+  );
 
   // For single-column mode (affix filter applied or only one affix type),
   // merge all row lists and use a single virtualizer
@@ -1215,6 +1239,10 @@ export const VirtualizedModList: React.FC<VirtualizedModListProps> = ({
               legacy callers): always visible. Labels: «Развернуть/Свернуть все».
               Affects L1 top-level groups only. */}
         {(() => {
+          // iter 174 (KI#52): hide expand/collapse-all buttons during search.
+          // Search auto-expands all visible sub-groups, so the buttons have no
+          // visible effect — hiding them keeps the toolbar clean.
+          if (isSearchActive) return null;
           const subMode = !!onExpandAllSubGroups || !!onCollapseAllSubGroups;
           const expandedCount = expandedSubGroups?.size ?? 0;
           const showExpandAll = subMode
