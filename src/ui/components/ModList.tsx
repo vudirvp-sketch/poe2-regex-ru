@@ -300,10 +300,13 @@ const ModSubGroupSection: React.FC<{
             isCollapsed={!isExpanded}
             onToggle={() => onToggleSubGroupExpanded!(subGroupKey!)}
             variant="sub"
-            className={`${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}
+            // iter 166 (A2): L3 functional sub-group uses NEUTRAL bg + colored
+            // text only. L2 origin keeps bg-section-* (B-axis). This separates
+            // the two visual axes — see docs/REDESIGN_CONCEPT_v4.md §9 (A2-A).
+            className={`bg-panel/15 border border-edge/15 ${subGroup.colorClass}`}
           />
         ) : (
-          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${subGroup.bgClass} border ${subGroup.borderClass} ${subGroup.colorClass}`}>
+          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-panel/15 border border-edge/15 ${subGroup.colorClass}`}>
             {subGroup.label} ({subGroup.groups.length})
           </div>
         )
@@ -711,7 +714,7 @@ export const ModList: React.FC<ModListProps> = ({
       .map(sg => (
         <div key={sg.key} className="mb-1.5">
           {!hideLabel && (
-            <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${sg.bgClass} border ${sg.borderClass} ${sg.colorClass}`}>
+            <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-panel/15 border border-edge/15 ${sg.colorClass}`}>
               {sg.label} ({sg.groups.length})
             </div>
           )}

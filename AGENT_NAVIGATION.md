@@ -1,8 +1,8 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 165 — концепт-спецификация v4 готова к согласованию с пользователем. **Код не изменялся в iter 165.**
-> **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная) — детальный анализ 7 аспектов внешнего UX-аудита с вариантами решений.
+> **Текущее состояние:** iter 166 — реализован A2 (разделение визуальных палитр L2/L3) через display-layer override в `ModList.tsx` + `VirtualizedModList.tsx`. Все 2319 тестов PASS.
+> **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная) — детальный анализ 7 аспектов + зафиксированные решения пользователя в §9.
 > **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка).
 > **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2319/2319 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
@@ -149,7 +149,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 17. **MobileRegexBar (iter 59):** On mobile (< lg), `RegexOutput` moves to sticky-bottom bar. Desktop unchanged. Double-render tradeoff: `RegexOutput` mounted in BOTH desktop aside AND mobile bar.
 18. **ModList L3 auto-suppression (iter 62 Phase 8c):** When a scope has ONLY ONE sub-group, the L3 badge is redundant. `hideLabel?: boolean` prop. Auto-derived from data, not manual flag.
 19. **`useCategoryPage` hook architecture:** 3 sub-hooks (`useFilterStore` / `useCategoryData` / `useRegexBuilder`). For pages with extraAstNodes-from-local-state (Waystone/Jewel/Tablet): pass `config.filterStore` + write-back via `useEffect` without `setState`.
-20. **4-level hierarchy (актуально для OP-1):** `Affix (L1) → Origin (L2, only when showOriginSubSections=true) → Semantic (L3) → chips (L4)`. iter 164 усилил L2 через `.affix-origin-header`. iter 165 (CONCEPT v4) — планирует усиление контраста L1/L2/L3 (см. `docs/REDESIGN_CONCEPT_v4.md` §2 A1).
+20. **4-level hierarchy (актуально для OP-1):** `Affix (L1) → Origin (L2, only when showOriginSubSections=true) → Semantic (L3) → chips (L4)`. iter 164 усилил L2 через `.affix-origin-header`. iter 166 реализовал A2: L3 sub-group рендерится с нейтральными `bg-panel/15 border border-edge/15` + цветным `colorClass` (text-only), а L2 origin сохраняет цветной bg-tint. См. `docs/REDESIGN_CONCEPT_v4.md` §9 (зафиксированные решения пользователя).
 21. **MIXED mode (iter 158-163):** `searchLogic: 'and' | 'or' | 'mixed'`. 3-state chip (click=want / shift+click=opt / right-click=exclude). `MIXED_OR` AST node + `anchorFirstAltOnly` mitigation (KI#45). `truncateMixedOrLiterals(ast, maxLen=12)` auto-applied when compiled regex > 240 chars (KI#46).
 22. **Sort modes (iter 99 + iter 106):** `SortMode = 'alpha' | 'tier-first'`. URL-persistent через `extraState.sortMode`. UI-toggle: `<select>` «Сортировка» в `CategoryControlPanel`. tier-first mode: 4-way tier color dispatch (S=amber-soft / A=amber / B=amber-dim bronze / C=gray). `--bl-amber-dim: #b45309` для B-tier.
 23. **Atmospheric CSS primitives:** `.poe-panel-header` (gold filigree rim via `box-shadow: inset`, NOT `border`). `.poe-divider` (1px fading horizontal line, NO vertical margin by default). `.poe-divider--ornate` (8px variant with `bg-2x.webp` texture). `.btn-cta` + success/error/disabled — reserved for primary Copy buttons in `RegexOutput.tsx` only.

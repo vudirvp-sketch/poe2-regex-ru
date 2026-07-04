@@ -535,8 +535,10 @@ const VirtualRowContent: React.FC<{
   }
 
   if (row.type === 'jewel-type-header') {
+    // iter 166 (A2): L3 jewel-type header uses NEUTRAL bg + colored text
+    // only — see docs/REDESIGN_CONCEPT_v4.md §9 (A2-A).
     return (
-      <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.bgClass} border ${row.borderClass} ${row.colorClass}`}>
+      <div className={`block ml-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-panel/15 border border-edge/15 ${row.colorClass}`}>
         {row.label} ({row.count})
       </div>
     );
@@ -554,7 +556,8 @@ const VirtualRowContent: React.FC<{
             isCollapsed={!row.isSubExpanded}
             onToggle={() => onToggleSubGroupExpanded?.(row.subKey)}
             variant="sub"
-            className={`${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}
+            // iter 166 (A2): L3 sub-group — NEUTRAL bg + colored text only.
+            className={`bg-panel/15 border border-edge/15 ${row.subGroup.colorClass}`}
           />
         </div>
       );
@@ -582,10 +585,11 @@ const VirtualRowContent: React.FC<{
             isCollapsed={false}
             onToggle={() => onToggleSubGroupExpanded!(row.subKey!)}
             variant="sub"
-            className={`${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}
+            // iter 166 (A2): L3 sub-group — NEUTRAL bg + colored text only.
+            className={`bg-panel/15 border border-edge/15 ${row.subGroup.colorClass}`}
           />
         ) : (
-          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${row.subGroup.bgClass} border ${row.subGroup.borderClass} ${row.subGroup.colorClass}`}>
+          <div className={`block ml-4 mb-1 text-[12px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-panel/15 border border-edge/15 ${row.subGroup.colorClass}`}>
             {row.subGroup.label} ({row.subGroup.groups.length})
           </div>
         )
