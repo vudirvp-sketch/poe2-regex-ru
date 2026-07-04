@@ -186,6 +186,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'group.collapse_btn_label': 'Свернуть группу',
     'group.expand_btn_label': 'Развернуть группу',
 
+    // iter 170 (A4): L3-specific labels for the expand/collapse-all buttons.
+    // Used when the page wires `onExpandAllSubGroups` / `onCollapseAllSubGroups`
+    // (sub-group mode). The generic 'Развернуть все' / 'Свернуть все' labels
+    // remain for legacy callers with only `onExpandAllGroups` (top-level L1).
+    // Conditional rendering per A4 spec: expand-all-subgroups visible only when
+    // ≥1 L3 collapsed; collapse-all-subgroups visible only when ≥1 L3 expanded.
+    'group.expand_all_subgroups': 'Развернуть все подкатегории',
+    'group.collapse_all_subgroups': 'Свернуть все подкатегории',
+
     // Phase 2.5 (iter 134): per-sub-group chip expander «+N ещё» / «свернуть».
     // {n} = number of chips hidden beyond the preview window (always ≥ 1).
     'chip.more': '+{n} ещё',

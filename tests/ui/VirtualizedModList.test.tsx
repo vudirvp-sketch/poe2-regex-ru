@@ -95,6 +95,9 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
   // ─── Expand all / Collapse all buttons ───
 
   it('renders "Expand all" / "Collapse all" buttons when collapse wiring is provided', () => {
+    // iter 170 (A4): with sub-group wiring (L3 mode) and empty expandedSubGroups,
+    // only the expand-all-subcategories button is visible (collapse hidden —
+    // nothing to collapse). Both buttons visible requires a partial expanded set.
     const tokens = makeBeltTokens();
     render(
       <VirtualizedModList
@@ -110,7 +113,7 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
         onClearSelections={vi.fn()}
         category="belt"
         collapsedGroups={new Set<string>()}
-        expandedSubGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all'])}
         onToggleGroupCollapsed={vi.fn()}
         onToggleSubGroupExpanded={vi.fn()}
         onExpandAllGroups={vi.fn()}
@@ -120,8 +123,8 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: 'Развернуть все' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Свернуть все' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Развернуть все подкатегории' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Свернуть все подкатегории' })).toBeInTheDocument();
   });
 
   it('omits "Expand all" / "Collapse all" buttons when collapse wiring is absent (legacy)', () => {
@@ -142,13 +145,19 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
       />
     );
 
+    // Neither old generic labels nor new «подкатегории» labels should be present.
     expect(screen.queryByRole('button', { name: 'Развернуть все' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Свернуть все' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Развернуть все подкатегории' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть все подкатегории' })).not.toBeInTheDocument();
   });
 
   // ─── Expand all / Collapse all button click behaviour ───
 
-  it('"Expand all" button calls onExpandAllSubGroups with all sub-group keys', () => {
+  it('"Expand all subcategories" button calls onExpandAllSubGroups with all sub-group keys', () => {
+    // iter 170 (A4): label changed to "Развернуть все подкатегории" (specific
+    // to L3 sub-groups). Button is visible when ≥1 sub-group is COLLAPSED —
+    // empty expandedSubGroups satisfies this (0 < 2).
     const tokens = makeBeltTokens();
     const onExpandAllSubGroups = vi.fn();
     render(
@@ -174,15 +183,52 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Развернуть все' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Развернуть все подкатегории' }));
     expect(onExpandAllSubGroups).toHaveBeenCalledTimes(1);
     const arg = onExpandAllSubGroups.mock.calls[0][0] as string[];
     expect(arg).toEqual(expect.arrayContaining(['belt:prefix:all', 'belt:suffix:all']));
   });
 
-  it('"Collapse all" button calls onCollapseAllSubGroups', () => {
+  it('"Collapse all subcategories" button calls onCollapseAllSubGroups', () => {
+    // iter 170 (A4): label changed to "Свернуть все подкатегории" (specific
+    // to L3 sub-groups). Button is visible only when ≥1 sub-group is EXPANDED —
+    // we provide one expanded sub-group to satisfy this.
     const tokens = makeBeltTokens();
     const onCollapseAllSubGroups = vi.fn();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllSubGroups={vi.fn()}
+        onCollapseAllSubGroups={onCollapseAllSubGroups}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Свернуть все подкатегории' }));
+    expect(onCollapseAllSubGroups).toHaveBeenCalledTimes(1);
+  });
+
+  // ─── iter 170 (A4): conditional rendering per A4 spec ───
+  // Spec: collapse-all-subgroups visible only when ≥1 L3 EXPANDED.
+  //       expand-all-subgroups visible only when ≥1 L3 COLLAPSED.
+  //       L1 (top-level affix columns) state is NOT touched.
+
+  it('A4: when no sub-groups expanded — only expand-all-subcategories button visible (collapse hidden)', () => {
+    const tokens = makeBeltTokens();
     render(
       <VirtualizedModList
         tokens={tokens}
@@ -201,13 +247,112 @@ describe('VirtualizedModList — Phase 2 collapse behaviour (iter 133)', () => {
         expandedSubGroups={new Set<string>()}
         onToggleGroupCollapsed={vi.fn()}
         onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllGroups={vi.fn()}
+        onCollapseAllGroups={vi.fn()}
         onExpandAllSubGroups={vi.fn()}
-        onCollapseAllSubGroups={onCollapseAllSubGroups}
+        onCollapseAllSubGroups={vi.fn()}
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Свернуть все' }));
-    expect(onCollapseAllSubGroups).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Развернуть все подкатегории' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть все подкатегории' })).not.toBeInTheDocument();
+  });
+
+  it('A4: when some sub-groups expanded — both buttons visible', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllGroups={vi.fn()}
+        onCollapseAllGroups={vi.fn()}
+        onExpandAllSubGroups={vi.fn()}
+        onCollapseAllSubGroups={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Развернуть все подкатегории' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Свернуть все подкатегории' })).toBeInTheDocument();
+  });
+
+  it('A4: when all sub-groups expanded — only collapse-all-subcategories button visible (expand hidden)', () => {
+    const tokens = makeBeltTokens();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>(['belt:prefix:all', 'belt:suffix:all'])}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllGroups={vi.fn()}
+        onCollapseAllGroups={vi.fn()}
+        onExpandAllSubGroups={vi.fn()}
+        onCollapseAllSubGroups={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: 'Развернуть все подкатегории' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Свернуть все подкатегории' })).toBeInTheDocument();
+  });
+
+  it('A4: legacy L1 mode (only top-level callbacks) — both buttons always visible with old labels', () => {
+    // Backward compat: callers without sub-group wiring (legacy mode) get the
+    // old always-visible buttons with generic «Развернуть/Свернуть все» labels.
+    // The buttons affect L1 top-level groups only in this mode.
+    const tokens = makeBeltTokens();
+    render(
+      <VirtualizedModList
+        tokens={tokens}
+        selectedIds={new Set()}
+        searchText=""
+        affixFilter={null}
+        originFilter={null}
+        onToggleTokens={vi.fn()}
+        onSearchChange={vi.fn()}
+        onAffixFilterChange={vi.fn()}
+        onOriginFilterChange={vi.fn()}
+        onClearSelections={vi.fn()}
+        category="belt"
+        groupMode="affix-only"
+        collapsedGroups={new Set<string>()}
+        expandedSubGroups={new Set<string>()}
+        onToggleGroupCollapsed={vi.fn()}
+        onToggleSubGroupExpanded={vi.fn()}
+        onExpandAllGroups={vi.fn()}
+        onCollapseAllGroups={vi.fn()}
+        // NO onExpandAllSubGroups / onCollapseAllSubGroups → L1 mode
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Развернуть все' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Свернуть все' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Развернуть все подкатегории' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Свернуть все подкатегории' })).not.toBeInTheDocument();
   });
 
   // ─── Backward compat ───

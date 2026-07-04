@@ -676,6 +676,84 @@ export const ModList: React.FC<ModListProps> = ({
     [suffixGroups, groupMode, sortMode, showOriginSubSections]
   );
 
+  // iter 170 (A4): Compute the full list of sub-group keys once via useMemo so
+  // both the conditional rendering of the «Развернуть/Свернуть все подкатегории»
+  // buttons AND the click handler can use it without re-computing.
+  //
+  // Why memoize: previously this exact logic was inlined inside the expand-all
+  // button's onClick (so it ran only on click). With A4 conditional rendering
+  // we also need the count for the visibility check on every render. Wrapping
+  // in useMemo ensures we only re-compute when the underlying data changes
+  // (groups/sortMode/showOriginSubSections/showJewelTypeSubGroups/category).
+  //
+  // Returns an empty array when no sub-group wiring is provided (legacy L1-only
+  // callers) — the buttons then fall back to the always-visible L1 path.
+  // iter 145 (KI#35): keys must include origin (and jewelType) when
+  // showOriginSubSections is active, matching the key format in buildColumnRows/emitSubGroup.
+  const allSubKeys = useMemo<string[]>(() => {
+    if (!onExpandAllSubGroups && !onCollapseAllSubGroups) return [];
+    const keys: string[] = [];
+    const allAffixes: AffixType[] = [];
+    if (implicitGroups.length > 0) allAffixes.push('implicit');
+    if (prefixGroups.length > 0) allAffixes.push('prefix');
+    if (suffixGroups.length > 0) allAffixes.push('suffix');
+    for (const aff of allAffixes) {
+      const topKey = category ? `${category}:${aff}` : undefined;
+      const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
+      if (showOriginSubSections && topKey) {
+        // Must match emitSubGroup key format: topKey:origin[:jewelType]:sg.key
+        const affGroups = aff === 'implicit' ? implicitGroups : aff === 'prefix' ? prefixGroups : suffixGroups;
+        const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
+        for (const group of affGroups) {
+          const splits = splitGroupByOrigin(group);
+          for (const { origin, group: splitGroup } of splits) {
+            const list = byOrigin.get(origin) || [];
+            list.push(splitGroup);
+            byOrigin.set(origin, list);
+          }
+        }
+        for (const origin of ORIGIN_ORDER) {
+          const originGroups = byOrigin.get(origin);
+          if (!originGroups || originGroups.length === 0) continue;
+          if (showJewelTypeSubGroups) {
+            const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
+            for (const group of originGroups) {
+              const jt = classifyJewelType(group);
+              const list = byJewelType.get(jt) || [];
+              list.push(group);
+              byJewelType.set(jt, list);
+            }
+            for (const jt of JEWEL_TYPE_ORDER) {
+              const jtGroups = byJewelType.get(jt);
+              if (!jtGroups || jtGroups.length === 0) continue;
+              const jtSubs = classifyGroups(jtGroups, groupMode, sortMode);
+              for (const sg of jtSubs) {
+                keys.push(`${topKey}:${origin}:${jt}:${sg.key}`);
+              }
+            }
+          } else {
+            const originSubs = classifyGroups(originGroups, groupMode, sortMode);
+            for (const sg of originSubs) {
+              keys.push(`${topKey}:${origin}:${sg.key}`);
+            }
+          }
+        }
+      } else if (topKey) {
+        for (const sg of subs) {
+          keys.push(`${topKey}:${sg.key}`);
+        }
+      } else {
+        for (const sg of subs) {
+          keys.push(sg.key);
+        }
+      }
+    }
+    return keys;
+  }, [onExpandAllSubGroups, onCollapseAllSubGroups, category,
+      implicitGroups, prefixGroups, suffixGroups,
+      implicitSubGroups, prefixSubGroups, suffixSubGroups,
+      showOriginSubSections, showJewelTypeSubGroups, groupMode, sortMode]);
+
   const handleAffixFilter = useCallback(
     (value: string) => {
       onAffixFilterChange(value === 'all' ? null : (value as AffixType));
@@ -785,101 +863,74 @@ export const ModList: React.FC<ModListProps> = ({
             provided (legacy callers), buttons are not rendered.
             iter 145 (KI#35): fixed sub-group key generation — keys must
             include origin (and jewelType) when showOriginSubSections is
-            active, matching the key format in buildColumnRows/emitSubGroup. */}
-        {(onExpandAllGroups || onExpandAllSubGroups) && (
-          <button
-            type="button"
-            onClick={() => {
-              if (onExpandAllSubGroups && expandedSubGroups) {
-                const allSubKeys: string[] = [];
-                const allAffixes: AffixType[] = [];
-                if (implicitGroups.length > 0) allAffixes.push('implicit');
-                if (prefixGroups.length > 0) allAffixes.push('prefix');
-                if (suffixGroups.length > 0) allAffixes.push('suffix');
-                for (const aff of allAffixes) {
-                  const topKey = category ? `${category}:${aff}` : undefined;
-                  const subs = aff === 'implicit' ? implicitSubGroups : aff === 'prefix' ? prefixSubGroups : suffixSubGroups;
-                  if (showOriginSubSections && topKey) {
-                    // Must match emitSubGroup key format: topKey:origin[:jewelType]:sg.key
-                    const affGroups = aff === 'implicit' ? implicitGroups : aff === 'prefix' ? prefixGroups : suffixGroups;
-                    const byOrigin = new Map<ModOrigin, FamilyGroup[]>();
-                    for (const group of affGroups) {
-                      const splits = splitGroupByOrigin(group);
-                      for (const { origin, group: splitGroup } of splits) {
-                        const list = byOrigin.get(origin) || [];
-                        list.push(splitGroup);
-                        byOrigin.set(origin, list);
-                      }
+            active, matching the key format in buildColumnRows/emitSubGroup.
+            iter 170 (A4): conditional rendering per A4 spec:
+            - L3 mode (onExpandAllSubGroups / onCollapseAllSubGroups provided):
+              * Expand-all-subgroups button visible only when ≥1 sub-group is
+                COLLAPSED (expandedSubGroups.size < allSubKeys.length).
+              * Collapse-all-subgroups button visible only when ≥1 sub-group is
+                EXPANDED (expandedSubGroups.size > 0).
+              * Labels: «Развернуть/Свернуть все подкатегории» (specific).
+              * L1 (top-level affix columns) state is NOT touched.
+            - L1 mode (only onExpandAllGroups / onCollapseAllGroups provided,
+              legacy callers): always visible. Labels: «Развернуть/Свернуть все».
+              Affects L1 top-level groups only. */}
+        {(() => {
+          // Resolve which mode + visibility applies for THIS render.
+          const subMode = !!onExpandAllSubGroups || !!onCollapseAllSubGroups;
+          // L3 expand-all: visible when sub-mode AND ≥1 sub-group collapsed.
+          // L1 expand-all (fallback): visible when no sub-mode AND onExpandAllGroups.
+          const expandedCount = expandedSubGroups?.size ?? 0;
+          const showExpandAll = subMode
+            ? !!onExpandAllSubGroups && expandedCount < allSubKeys.length
+            : !!onExpandAllGroups;
+          const showCollapseAll = subMode
+            ? !!onCollapseAllSubGroups && expandedCount > 0
+            : !!onCollapseAllGroups;
+          if (!showExpandAll && !showCollapseAll) return null;
+          const expandLabel = subMode ? t('group.expand_all_subgroups') : t('group.expand_all');
+          const collapseLabel = subMode ? t('group.collapse_all_subgroups') : t('group.collapse_all');
+          return (
+            <>
+              {showExpandAll && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (subMode && onExpandAllSubGroups) {
+                      onExpandAllSubGroups(allSubKeys);
+                    } else if (onExpandAllGroups) {
+                      onExpandAllGroups();
                     }
-                    for (const origin of ORIGIN_ORDER) {
-                      const originGroups = byOrigin.get(origin);
-                      if (!originGroups || originGroups.length === 0) continue;
-                      if (showJewelTypeSubGroups) {
-                        const byJewelType = new Map<JewelTypeCategory, FamilyGroup[]>();
-                        for (const group of originGroups) {
-                          const jt = classifyJewelType(group);
-                          const list = byJewelType.get(jt) || [];
-                          list.push(group);
-                          byJewelType.set(jt, list);
-                        }
-                        for (const jt of JEWEL_TYPE_ORDER) {
-                          const jtGroups = byJewelType.get(jt);
-                          if (!jtGroups || jtGroups.length === 0) continue;
-                          const jtSubs = classifyGroups(jtGroups, groupMode, sortMode);
-                          for (const sg of jtSubs) {
-                            allSubKeys.push(`${topKey}:${origin}:${jt}:${sg.key}`);
-                          }
-                        }
-                      } else {
-                        const originSubs = classifyGroups(originGroups, groupMode, sortMode);
-                        for (const sg of originSubs) {
-                          allSubKeys.push(`${topKey}:${origin}:${sg.key}`);
-                        }
-                      }
+                  }}
+                  className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+                  aria-label={expandLabel}
+                >
+                  {expandLabel}
+                </button>
+              )}
+              {showCollapseAll && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (subMode && onCollapseAllSubGroups) {
+                      onCollapseAllSubGroups();
+                    } else if (onCollapseAllGroups) {
+                      const allTopKeys: string[] = [];
+                      if (implicitGroups.length > 0) allTopKeys.push(`${category}:implicit`);
+                      if (prefixGroups.length > 0) allTopKeys.push(`${category}:prefix`);
+                      if (suffixGroups.length > 0) allTopKeys.push(`${category}:suffix`);
+                      onCollapseAllGroups(allTopKeys);
                     }
-                  } else if (topKey) {
-                    for (const sg of subs) {
-                      allSubKeys.push(`${topKey}:${sg.key}`);
-                    }
-                  } else {
-                    for (const sg of subs) {
-                      allSubKeys.push(sg.key);
-                    }
-                  }
-                }
-                onExpandAllSubGroups(allSubKeys);
-              } else if (onExpandAllGroups) {
-                onExpandAllGroups();
-              }
-            }}
-            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
-            aria-label={t('group.expand_all')}
-          >
-            {t('group.expand_all')}
-          </button>
-        )}
-        {(onCollapseAllGroups || onCollapseAllSubGroups) && (
-          <button
-            type="button"
-            onClick={() => {
-              // Collapse all = empty expandedSubGroups (sub-level) OR populate
-              // collapsedGroups with all top-level keys (top-level).
-              if (onCollapseAllSubGroups) {
-                onCollapseAllSubGroups();
-              } else if (onCollapseAllGroups) {
-                const allTopKeys: string[] = [];
-                if (implicitGroups.length > 0) allTopKeys.push(`${category}:implicit`);
-                if (prefixGroups.length > 0) allTopKeys.push(`${category}:prefix`);
-                if (suffixGroups.length > 0) allTopKeys.push(`${category}:suffix`);
-                onCollapseAllGroups(allTopKeys);
-              }
-            }}
-            className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
-            aria-label={t('group.collapse_all')}
-          >
-            {t('group.collapse_all')}
-          </button>
-        )}
+                  }}
+                  className="hidden lg:inline-flex px-2.5 py-1.5 bg-raised border border-edge rounded text-[13px] text-soft hover:bg-chip-hover transition-colors"
+                  aria-label={collapseLabel}
+                >
+                  {collapseLabel}
+                </button>
+              )}
+            </>
+          );
+        })()}
       </div>
 
       {/* Stats — iter 70: text-dim → text-muted for better contrast.

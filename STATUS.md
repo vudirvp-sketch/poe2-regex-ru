@@ -2,48 +2,50 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 169 (KI#50 — фикс потери expand/collapse состояния при переключении вкладок)
+> **Текущая итерация:** 170 (A4 — кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering)
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 169)
+## Текущее состояние (iter 170)
 
-**iter 169: KI#50 — фикс потери expand/collapse состояния при смене вкладок.**
+**iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории».**
 
-Пользователь сообщал: «При смене вкладок постоянно приходится заново кликать на 'развернуть все' — состояние и выбор не сохраняется». Корневая причина: каждый categoryId создаёт новый Zustand store с пустыми defaults (`expandedSubGroups = new Set()` = все COLLAPSED), а URL hash шарится между категориями. При переходе amulet→ring в store ring попадают amulet-ключи (`amulet:prefix:...`), которые не матчятся с ring-подгруппами → подгруппы ring остаются COLLAPSED.
+Реализован conditional rendering для existing expand-all/collapse-all кнопок в `ModList.tsx` и `VirtualizedModList.tsx` per A4 spec (см. `docs/REDESIGN_CONCEPT_v4.md` §A4). Раньше кнопки `Развернуть все` / `Свернуть все` всегда рендерились когда переданы колбэки. Теперь в L3-режиме (sub-group wiring) они появляются только когда их действие применимо.
 
-Фикс: per-category localStorage для `expandedSubGroups` / `collapsedGroups` / `chipExpandState` (pattern mirrors KI#30 favorites). На mount: фильтруем cross-category leak из URL, если in-category ключей нет — восстанавливаем из localStorage. На каждое изменение — пишем в localStorage.
-
-| Аспект | До (iter 168) | После (iter 169) |
+| Аспект | До (iter 169) | После (iter 170) |
 |--------|---------------|------------------|
-| Expand state при смене вкладок | ❌ Теряется (новый store, URL shared) | ✅ Сохраняется per-category в localStorage |
-| Cross-category URL leak | ❌ amulet-ключи загрязняют ring store | ✅ Фильтруются через `filterInCategoryKeys` |
-| Shareable links с expand state | ✅ Работали через URL | ✅ Продолжают работать (URL wins если есть in-category ключи) |
+| Expand-all в L3-режиме | ✅ Всегда виден | ✅ Виден только когда ≥1 sub-group COLLAPSED |
+| Collapse-all в L3-режиме | ✅ Всегда виден | ✅ Виден только когда ≥1 sub-group EXPANDED |
+| Лейблы в L3-режиме | «Развернуть/Свернуть все» (generic) | «Развернуть/Свернуть все подкатегории» (specific) |
+| L1 state (top-level affix columns) | ✅ Не трогается | ✅ Не трогается (criterion 3) |
+| Legacy L1-only mode (no sub-group wiring) | ✅ Кнопки всегда видны, generic лейблы | ✅ Без изменений (backward compat) |
 
 **Изменённые файлы:**
-- `src/store/local-settings.ts` — +4 helper'а (`readUiState`, `writeUiState`, `clearUiState`, `filterInCategoryKeys`, `uiStateStorageKey`) под ключом `poe2:uistate:<categoryId>`.
-- `src/ui/hooks/useCategoryPage.ts` — useState initializer после favorites restore (фильтр + restore) + persist block внутри URL sync effect.
-- `tests/store/KI50UiState.test.ts` — +N тестов (mirror KI30Favorites pattern).
+- `src/shared/i18n.ts` — +2 i18n ключа: `group.expand_all_subgroups` / `group.collapse_all_subgroups`.
+- `src/ui/components/ModList.tsx` — `allSubKeys` useMemo (extracted из inline click handler) + conditional rendering IIFE.
+- `src/ui/components/VirtualizedModList.tsx` — same changes.
+- `tests/ui/ModList.test.tsx` — 3 existing tests updated (новые лейблы) + 4 новых A4 conditional rendering теста.
+- `tests/ui/VirtualizedModList.test.tsx` — same updates.
 
 **Критерий приёмки:**
-- ✅ tsc 0 errors, eslint 0 errors, vitest (2328 + новые) PASS.
-- ✅ vite build PASS.
-- ⏳ Визуальная валидация: раскрыть подгруппы на amulet → перейти на ring → вернуться на amulet → подгруппы amulet остаются раскрытыми.
+- ✅ tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (2359 baseline + 7 новых).
+- ✅ vite build PASS. CSS 61.17 KB (без изменений — CSS не трогал). ModList chunk 15.94 KB, VirtualizedModList 37.67 KB.
+- ⏳ Визуальная валидация: открыть категорию с L3 sub-groups → кнопка «Развернуть все подкатегории» видна (ничего не раскрыто) → раскрыть одну подгруппу → обе кнопки видны → раскрыть все → только «Свернуть» видна.
 
 ---
 
-## Решения пользователя по аудиту v4 (iter 165 → iter 168)
+## Решения пользователя по аудиту v4 (iter 165 → iter 170)
 
 | Аспект | Решение | Приоритет | Статус |
 |--------|---------|-----------|--------|
 | **A1** — иерархия L1/L2/L3 | **Вариант B** — усиление контраста L1/L2 по opacity/size corner accents | №3 | **iter 168 DONE** |
 | **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
 | **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
-| **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | iter 169 (план) |
-| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 170+ |
+| **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | **iter 170 DONE** |
+| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 171+ |
 | **A6** — цельная панель навигации | **Отклонено** — плохо работает при horizontal scroll на мобильном | — | не делаем |
-| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 170+ |
+| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 171+ |
 
 ### Явно отклонённые пользователем направления
 
@@ -108,14 +110,14 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 169 → iter 170)
+## Next iteration (iter 170 → iter 171)
 
-**iter 169 в работе.** KI#50 (фикс потери expand/collapse состояния при смене вкладок) — пользователь сообщал о баге, фикс приоритетнее A4.
+**iter 170 завершён.** A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) реализован и протестирован. Все 2366 тестов PASS.
 
-**План iter 170:** **A4 — Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
-
-**Дальнейший план:**
-- iter 171+: по фидбеку на A5 (активная вкладка) и A7 (косметика меню). D1-D3 — отдельный трек.
+**План iter 171+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
+- **A5** (активная вкладка) — усиливать или нет iter 164.
+- **A7** (косметика меню) — ждать конкретику.
+- **D1-D3** — отдельный трек после закрытия A-оси.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 
