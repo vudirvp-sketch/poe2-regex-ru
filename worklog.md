@@ -4,7 +4,7 @@
 
 ---
 
-## iter 158–170 — одной строкой
+## iter 158–172 — одной строкой
 
 **iter 158:** core MIXED mode (`MIXED_OR` AST + `anchorFirstAltOnly` mitigation для KI#45 + `truncateMixedOrLiterals` для KI#46, 43 теста).
 **iter 159:** UI MIXED integration (`optionalIds`, FilterChip 3-state, MIXED toggle, 28 новых тестов).
@@ -19,32 +19,33 @@
 **iter 168 (A1 Вариант B):** Усиление контраста L1/L2 corner accents: L1 6×6/0.4 → 8×8/0.55, L2 5×5/0.35 → 4×4/0.30 (контраст ~12% → ~25%). 4 правки в `src/index.css`. 2328/2328 PASS.
 **iter 169 (KI#50):** Фикс потери expand/collapse состояния при смене вкладок. Helpers `readUiState`/`writeUiState`/`clearUiState`/`filterInCategoryKeys` в `src/store/local-settings.ts`. useState initializer + persist block в `useCategoryPage.ts`. +31 тест (2359/2359). Per-category `poe2:uistate:<categoryId>` localStorage, pattern mirrors KI#30 favorites.
 **iter 170 (A4):** Conditional rendering кнопок «Развернуть/Свернуть все подкатегории» в `ModList.tsx` + `VirtualizedModList.tsx`. `allSubKeys` extracted в `useMemo`. +2 i18n ключа. +6 новых A4 тестов, 7 existing обновлены. 2366/2366 PASS. CSS без изменений (61.17 KB).
+**iter 171:** Cleanup — удалены `ITER163_README.md` + `DELETED.txt` (stale delivery-артефакты iter 163). Только docs.
+**iter 172:** Fix `act()` warnings в `tests/ui/RegexOutput.test.tsx` (background issue closed). Паттерн `vi.useFakeTimers()`/`vi.useRealTimers()` (как в `Tooltip.test.tsx`) + flush microtasks внутри `act()` вместо `vi.waitFor`. 0 warnings, 2366/2366 PASS, 0 регрессий.
 
 ---
 
-Task ID: iter-171
+Task ID: iter-172
 Agent: main
-Task: Cleanup репозитория — удаление устаревших delivery-артефактов (iter 163). Подготовка архива и git-команд для iter 170 + cleanup. Принцип: «лучше недоделать, чем сломать».
+Task: Закрыть background issue — `act()` warnings в `tests/ui/RegexOutput.test.tsx`. Принцип: «лучше недоделать, чем сломать». Test-only change, zero risk to user-facing site.
 
 Work Log:
-- 0: **Контекст из чата:** iter 170 завершён, A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) реализован, 2366/2366 PASS, коммит `59beb87` уже в `origin/main`. Задача: актуализировать документацию, упаковать архив, git-команды, точка остановки.
-- 1: **Клонировал репозиторий** `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. `npm install` (pnpm недоступен в окружении). `npx vitest run` — 2366/2366 PASS (58 files). Baseline подтверждена.
-- 2: **Проверил состояние git:** `git status` — clean. `git log origin/main..HEAD` — пусто (iter 170 уже запушен). Файлы iter 170 (8 шт.): `src/shared/i18n.ts`, `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx`, `tests/ui/ModList.test.tsx`, `tests/ui/VirtualizedModList.test.tsx`, `STATUS.md`, `AGENT_NAVIGATION.md`, `worklog.md`.
-- 3: **Анализ мусора (per требование «Убирай длинную историю изменений, мусор, устаревшие секции»):**
-  - `ITER163_README.md` (root) — delivery-note от iter 163 (7 итераций назад). Не referenced ни из кода, ни из docs. Только self-reference. ** candidates на удаление.**
-  - `DELETED.txt` (root) — список файлов, удалённых в iter 163. Не referenced ниоткуда. **candidate на удаление.**
-  - `docs/ITER142_PROPOSALS.md`, `docs/ITER148_TOOLBAR_REFACTOR.md`, `docs/REDESIGN_CONCEPT_v3.md`, `docs/UI_AUDIT.md`, `docs/UI_REFACTOR_PLAN.md`, `docs/UI_VISUALIZATION_AUDIT.md` — referenced из `src/` и других docs. **ОСТАВЛЯЕМ.**
-- 4: **Удалил 2 stale delivery-артефакта:** `git rm ITER163_README.md DELETED.txt`. Никаких ссылок не сломано (verified via grep).
-- 5: **Сжал iter 170 в worklog.md** в одну строку в секции «iter 158–170 — одной строкой» (была «iter 158–169»). Подробная запись iter 170 удалена — полная история в git commit `59beb87`.
-- 6: **Обновил STATUS.md** — секция «Next iteration» переписана: iter 171 cleanup указан, план iter 172+ по фидбеку пользователя.
-- 7: **Обновил AGENT_NAVIGATION.md** — header (current state) iter 170 → iter 171 cleanup. §13 без изменений (ссылок на удалённые файлы не было).
-- 8: **Финальные проверки:** `npx vitest run` — 2366/2366 PASS (cleanup не влияет на тесты, только docs удалялись).
+- 0: **Контекст из чата:** iter 171 cleanup завершён. Ожидается визуальная валидация пользователя iter 170 (A4). План iter 172+ по фидбеку: A5/A7/D1-D3. Активные KI без новых: KI#45/46/47/43. Фоновые: APCA Lc<75, MobileRegexBar 168 KB, act() warnings.
+- 1: **Анализ кандидатов iter 172:** A5 (active tab) — требует конкретики от пользователя (iter 164 уже усилил active). APCA Lc<75 — требует visual validation tradeoffs. MobileRegexBar 168 KB — refactor risk. `act()` warnings — test-only, безопасно. Решение: фикс `act()` warnings как единственный safe candidate.
+- 2: **Клонировал репозиторий.** `npm install`, `npx vitest run` — 2366/2366 PASS (baseline).
+- 3: **Локализовал `act()` warnings:** `npx vitest run tests/ui/RegexOutput.test.tsx` → 2 warnings, оба от теста `copies regex to clipboard when copy button clicked`. Первая — `setCopied(true)` вне act() (async continuation handleCopy не обёрнут). Вторая — `setCopied(false)` от `setTimeout(..., 2000)` в handleCopy, fires после teardown компонента.
+- 4: **Изучил паттерн fake timers:** `tests/ui/Tooltip.test.tsx` уже использует `vi.useFakeTimers()`/`vi.useRealTimers()` — взял за образец. Под fake timers pending timers автоматически discard'ся при переключении на real.
+- 5: **Применил fix:** (a) import `afterEach` + `act` from testing-library; (b) `beforeEach` — `vi.useFakeTimers()`; (c) `afterEach` — `vi.useRealTimers()`; (d) rewrite теста `copies regex to clipboard when copy button clicked`: вместо `vi.waitFor` (не работает с fake timers — polling использует faked setTimeout) → flush microtasks внутри `act(async () => { fireEvent.click(copyButton); await Promise.resolve(); })`. Это обёртывает и `setCopied(true)` (state update в async continuation), и не даёт 2000ms таймеру fire'нуть после teardown.
+- 6: **Проверки:** `npx vitest run tests/ui/RegexOutput.test.tsx` — 21/21 PASS, **0 act() warnings** (grep по output пусто). `npx vitest run` (full) — 2366/2366 PASS, 0 регрессий. `npx tsc -b` — 0 errors. `npx eslint tests/ui/RegexOutput.test.tsx` — 0 errors.
+- 7: **Заодно пофиксил doc inconsistency:** STATUS.md говорил "MobileRegexBar chunk 165 KB", фактически 168.37 KB (подтверждено `npx vite build`). Обновил с пометкой gzip 39.42 KB и описанием transitive imports.
+- 8: **Документация актуализирована:** STATUS.md (header iter 171→172, секция "Текущее состояние" переписана, фоновые issues — act() зачёркнут как FIXED, MobileRegexBar размер уточнён, Next iteration iter 172→173). worklog.md (iter 171 сжат в одну строку, iter 172 добавлен в shared-секцию и как Task ID section). AGENT_NAVIGATION.md — header iter 171→172, фоновые issues обновлены.
 
 Stage Summary:
-- **iter 171 завершён.** Cleanup: удалены 2 stale delivery-артефакта (`ITER163_README.md`, `DELETED.txt`). Документация актуализирована.
-- **Изменённые файлы (iter 171):**
-  - Удалено: `ITER163_README.md`, `DELETED.txt`.
-  - Обновлено: `worklog.md` (iter 170 сжат, iter 171 добавлен), `STATUS.md` (Next iteration), `AGENT_NAVIGATION.md` (header).
-- **Проверки:** vitest 2366/2366 PASS. tsc/eslint не запускались — изменения только в docs (no code touched).
-- **Stopping point:** iter 171 cleanup завершён. Ожидается визуальная валидация пользователя iter 170 (A4 conditional rendering кнопок). Следующая iter 172+ — по фидбеку: A5 (активная вкладка), A7 (косметика меню), D1-D3 (отдельный трек).
-- **Что от пользователя нужно (опционально):** (1) Визуальная проверка iter 170 — открыть категорию с L3 sub-groups → проверить conditional rendering кнопок (collapse-all виден только когда ≥1 L3 expanded; expand-all — только когда ≥1 L3 collapsed). (2) Ретро-валидация iter 169 (KI#50 — persist expand state через смену вкладок), iter 168 (L1 corner accents), iter 166 (L2/L3 palette split), iter 167 (placeholder + ↓ коннектор) — если ещё не проверены. Если всё одобряет — продолжаем iter 172+ по фидбеку (A5/A7/D1-D3).
+- **iter 172 завершён.** Background issue closed: `act()` warnings в `tests/ui/RegexOutput.test.tsx` → 0. Паттерн `vi.useFakeTimers()` + `vi.useRealTimers()` + flush microtasks внутри `act()`.
+- **Изменённые файлы (iter 172):**
+  - `tests/ui/RegexOutput.test.tsx` — beforeEach/afterEach setup + import `act`/`afterEach` + 1 test rewrite.
+  - `STATUS.md` — header iter 171→172, секция "Текущее состояние" переписана, MobileRegexBar 165→168.37 KB, act() warnings зачёркнуты как FIXED.
+  - `worklog.md` — iter 171 сжат, iter 172 добавлен.
+  - `AGENT_NAVIGATION.md` — header iter 171→172, фоновые issues обновлены.
+- **Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (0 регрессий), act() warnings = 0.
+- **Stopping point:** iter 172 завершён. Ожидается визуальная валидация пользователя iter 170 (A4 conditional rendering кнопок). Следующая iter 173+ — по фидбеку: A5 (активная вкладка — нужна конкретика), A7 (косметика меню — нужна конкретика), D1-D3 (отдельный трек). Оставшиеся фоновые issues: APCA Lc<75, MobileRegexBar 168 KB.
+- **Что от пользователя нужно (опционально):** (1) Визуальная проверка iter 170 — открыть категорию с L3 sub-groups → проверить conditional rendering кнопок. (2) Ретро-валидация iter 169 (KI#50), iter 168 (L1 corner accents), iter 166 (L2/L3 palette split), iter 167 (placeholder + ↓ коннектор) — если ещё не проверены. (3) Конкретика по A5: усиливать spacing между табами? усиливать hover state? ИЛИ оставить как есть (iter 164 уже усилил active). (4) Конкретика по A7: что именно в меню требует косметики?

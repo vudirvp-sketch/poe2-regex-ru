@@ -9,8 +9,8 @@
  * - Character count display
  * - Auto-copy checkbox state
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { RegexOutput } from '@ui/components/RegexOutput';
 
 // Mock clipboard API
@@ -35,8 +35,20 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 describe('RegexOutput', () => {
   beforeEach(() => {
+    // iter 172: use fake timers to prevent the `setTimeout(() => setCopied(false), 2000)`
+    // in `handleCopy` (and the pulse-on-change `setTimeout(..., 700)` in the
+    // regex-change effect) from firing AFTER the test ends — those async state
+    // updates on an about-to-unmount component were the source of the
+    // `act()` warnings documented as a background issue. Same pattern as
+    // `tests/ui/Tooltip.test.tsx`. `vi.useRealTimers()` in `afterEach`
+    // discards any pending fake timers, so they never fire.
+    vi.useFakeTimers();
     mockWriteText.mockClear();
     localStorageMock.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   // ─── Health bar thresholds ───
@@ -98,12 +110,22 @@ describe('RegexOutput', () => {
     const copyButton = screen.getByRole('button', { name: /копировать/i });
     expect(copyButton).not.toBeDisabled();
 
-    fireEvent.click(copyButton);
-
-    // Wait for async clipboard
-    await vi.waitFor(() => {
-      expect(mockWriteText).toHaveBeenCalledWith(regex);
+    // iter 172: under `vi.useFakeTimers()` the `vi.waitFor` polling cannot
+    // advance (its internal setTimeout is faked). Flush the clipboard
+    // Promise microtask within `act()` instead — this also wraps the
+    // `setCopied(true)` state update that fires synchronously after the
+    // awaited `navigator.clipboard.writeText(regex)` resolves, which was
+    // the FIRST of the two `act()` warnings. The SECOND warning came from
+    // the 2000ms `setCopied(false)` timer firing after test teardown —
+    // that one is now prevented by `vi.useFakeTimers()` + `vi.useRealTimers()`
+    // in beforeEach/afterEach (pending fake timers are discarded).
+    await act(async () => {
+      fireEvent.click(copyButton);
+      // Flush the microtask queue so the awaited `clipboard.writeText`
+      // continuation (setCopied(true), setTimeout(...)) runs inside act().
+      await Promise.resolve();
     });
+    expect(mockWriteText).toHaveBeenCalledWith(regex);
   });
 
   it('does not copy when overflow', async () => {

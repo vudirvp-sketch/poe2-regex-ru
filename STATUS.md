@@ -2,14 +2,21 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 171 (cleanup — удаление stale delivery-артефактов iter 163). iter 170 (A4) DONE, ожидает визуальной валидации.
+> **Текущая итерация:** 172 (fix `act()` warnings в `tests/ui/RegexOutput.test.tsx`). iter 170 (A4) DONE, ожидает визуальной валидации.
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 171)
+## Текущее состояние (iter 172)
 
-**iter 171: cleanup репозитория.** Удалены 2 stale delivery-артефакта от iter 163: `ITER163_README.md` и `DELETED.txt` (root). Эти файлы были one-shot delivery notes (не referenced ни из кода, ни из docs) и засоряли корень репозитория. Документация (worklog/STATUS/AGENT_NAVIGATION) актуализирована.
+**iter 172: устранение `act()` warnings в `tests/ui/RegexOutput.test.tsx`.** Background issue закрыт. Применён паттерн `vi.useFakeTimers()` / `vi.useRealTimers()` (как в `tests/ui/Tooltip.test.tsx`) — pending fake timers автоматически discard'ся при переключении на real timers в `afterEach`, что предотвращает fire `setTimeout(() => setCopied(false), 2000)` после teardown. Тест `copies regex to clipboard when copy button clicked` переработан: вместо `vi.waitFor` (не работает с fake timers) microtasks flush'ятся внутри `act(async () => { ... await Promise.resolve(); })`, что обёртывает и `setCopied(true)` state update. 0 warnings, 21/21 PASS.
+
+**Изменённые файлы (iter 172):**
+- `tests/ui/RegexOutput.test.tsx` — `beforeEach`/`afterEach` setup + import `act`/`afterEach` + 1 test rewrite.
+
+**Проверки:** tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (без изменений — 0 регрессий), `act()` warnings = 0.
+
+**iter 171: cleanup репозитория.** Удалены 2 stale delivery-артефакта от iter 163: `ITER163_README.md` и `DELETED.txt` (root).
 
 **iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории».** Реализован conditional rendering для existing expand-all/collapse-all кнопок в `ModList.tsx` и `VirtualizedModList.tsx` per A4 spec (`docs/REDESIGN_CONCEPT_v4.md` §A4). Раньше кнопки всегда рендерились когда переданы колбэки. Теперь в L3-режиме они появляются только когда их действие применимо.
 
@@ -20,13 +27,6 @@
 | Лейблы в L3-режиме | «Развернуть/Свернуть все» (generic) | «Развернуть/Свернуть все подкатегории» (specific) |
 | L1 state (top-level affix columns) | ✅ Не трогается | ✅ Не трогается (criterion 3) |
 | Legacy L1-only mode (no sub-group wiring) | ✅ Кнопки всегда видны, generic лейблы | ✅ Без изменений (backward compat) |
-
-**Изменённые файлы (iter 170, commit `59beb87`):**
-- `src/shared/i18n.ts` — +2 i18n ключа: `group.expand_all_subgroups` / `group.collapse_all_subgroups`.
-- `src/ui/components/ModList.tsx` — `allSubKeys` useMemo (extracted из inline click handler) + conditional rendering IIFE.
-- `src/ui/components/VirtualizedModList.tsx` — same changes.
-- `tests/ui/ModList.test.tsx` — 3 existing tests updated (новые лейблы) + 4 новых A4 conditional rendering теста.
-- `tests/ui/VirtualizedModList.test.tsx` — same updates.
 
 **Критерий приёмки iter 170:**
 - ✅ tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (2359 baseline + 7 новых).
@@ -43,9 +43,9 @@
 | **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
 | **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
 | **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | **iter 170 DONE** |
-| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 172+ |
+| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 173+ (по фидбеку) |
 | **A6** — цельная панель навигации | **Отклонено** — плохо работает при horizontal scroll на мобильном | — | не делаем |
-| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 172+ |
+| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 173+ |
 
 ### Явно отклонённые пользователем направления
 
@@ -84,8 +84,8 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 ### Фоновые (low-priority)
 
 1. APCA Lc<75 для small text weight 400 — WCAG AA PASS, APCA FAIL.
-2. MobileRegexBar chunk 165 KB — отдельный chunk для mobile-only.
-3. Пред-существующие `act()` warnings в `tests/ui/RegexOutput.test.tsx` — от `setCopied(false)` в 2000ms setTimeout.
+2. MobileRegexBar chunk 168.37 KB (gzip 39.42 KB) — отдельный chunk для mobile-only. Содержит transitive imports из RegexOutput (`@core/limits`, `@store/url-sync`, `@shared/i18n`).
+3. ~~`act()` warnings в `tests/ui/RegexOutput.test.tsx`~~ — **FIXED iter 172** (паттерн `vi.useFakeTimers()` + flush microtasks within `act()`).
 
 ---
 
@@ -110,14 +110,18 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 171 → iter 172)
+## Next iteration (iter 172 → iter 173)
 
-**iter 171 завершён.** Cleanup: удалены `ITER163_README.md` + `DELETED.txt`. iter 170 (A4) уже в `origin/main` (commit `59beb87`), ожидает визуальной валидации пользователя.
+**iter 172 завершён.** Background issue closed: `act()` warnings в RegexOutput.test.tsx устранены через fake timers + act() microtask flush. 0 warnings, 0 регрессий.
 
-**План iter 172+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
-- **A5** (активная вкладка) — усиливать или нет iter 164.
+**План iter 173+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
+- **A5** (активная вкладка) — усиливать или нет iter 164. iter 164 уже усилил active (alpha 0.14→0.20, box-shadow, text-shadow). Решение пользователя: «Максимум: усилить active, spacing, hover». Без конкретики не делаем.
 - **A7** (косметика меню) — ждать конкретику.
 - **D1-D3** — отдельный трек после закрытия A-оси.
+
+**Оставшиеся фоновые issues (без новых KI):**
+- APCA Lc<75 (accessibility) — требует visual validation tradeoffs.
+- MobileRegexBar 168 KB (perf) — refactor risk vs mobile-only benefit.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 
