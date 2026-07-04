@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 170 — A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering). iter 169 (KI#50 — фикс потери expand/collapse состояния при смене вкладок), iter 168 (A1), iter 167 (A3) и iter 166 (A2) также DONE. Все 2366 тестов PASS.
+> **Текущее состояние:** iter 171 (cleanup — удаление stale delivery-артефактов iter 163). iter 170 (A4 — кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) DONE, ожидает визуальной валидации. iter 169 (KI#50 — фикс потери expand/collapse состояния при смене вкладок), iter 168 (A1), iter 167 (A3) и iter 166 (A2) также DONE. Все 2366 тестов PASS.
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная) — детальный анализ 7 аспектов + зафиксированные решения пользователя в §9.
 > **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). KI#50 (expand state persistence) — FIXED в iter 169.
 > **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2366/2366 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.

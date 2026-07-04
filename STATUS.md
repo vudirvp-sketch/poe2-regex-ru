@@ -2,16 +2,16 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 170 (A4 — кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering)
+> **Текущая итерация:** 171 (cleanup — удаление stale delivery-артефактов iter 163). iter 170 (A4) DONE, ожидает визуальной валидации.
 > **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная, решения пользователя зафиксированы в §9)
 
 ---
 
-## Текущее состояние (iter 170)
+## Текущее состояние (iter 171)
 
-**iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории».**
+**iter 171: cleanup репозитория.** Удалены 2 stale delivery-артефакта от iter 163: `ITER163_README.md` и `DELETED.txt` (root). Эти файлы были one-shot delivery notes (не referenced ни из кода, ни из docs) и засоряли корень репозитория. Документация (worklog/STATUS/AGENT_NAVIGATION) актуализирована.
 
-Реализован conditional rendering для existing expand-all/collapse-all кнопок в `ModList.tsx` и `VirtualizedModList.tsx` per A4 spec (см. `docs/REDESIGN_CONCEPT_v4.md` §A4). Раньше кнопки `Развернуть все` / `Свернуть все` всегда рендерились когда переданы колбэки. Теперь в L3-режиме (sub-group wiring) они появляются только когда их действие применимо.
+**iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории».** Реализован conditional rendering для existing expand-all/collapse-all кнопок в `ModList.tsx` и `VirtualizedModList.tsx` per A4 spec (`docs/REDESIGN_CONCEPT_v4.md` §A4). Раньше кнопки всегда рендерились когда переданы колбэки. Теперь в L3-режиме они появляются только когда их действие применимо.
 
 | Аспект | До (iter 169) | После (iter 170) |
 |--------|---------------|------------------|
@@ -21,14 +21,14 @@
 | L1 state (top-level affix columns) | ✅ Не трогается | ✅ Не трогается (criterion 3) |
 | Legacy L1-only mode (no sub-group wiring) | ✅ Кнопки всегда видны, generic лейблы | ✅ Без изменений (backward compat) |
 
-**Изменённые файлы:**
+**Изменённые файлы (iter 170, commit `59beb87`):**
 - `src/shared/i18n.ts` — +2 i18n ключа: `group.expand_all_subgroups` / `group.collapse_all_subgroups`.
 - `src/ui/components/ModList.tsx` — `allSubKeys` useMemo (extracted из inline click handler) + conditional rendering IIFE.
 - `src/ui/components/VirtualizedModList.tsx` — same changes.
 - `tests/ui/ModList.test.tsx` — 3 existing tests updated (новые лейблы) + 4 новых A4 conditional rendering теста.
 - `tests/ui/VirtualizedModList.test.tsx` — same updates.
 
-**Критерий приёмки:**
+**Критерий приёмки iter 170:**
 - ✅ tsc 0 errors, eslint 0 errors, vitest 2366/2366 PASS (2359 baseline + 7 новых).
 - ✅ vite build PASS. CSS 61.17 KB (без изменений — CSS не трогал). ModList chunk 15.94 KB, VirtualizedModList 37.67 KB.
 - ⏳ Визуальная валидация: открыть категорию с L3 sub-groups → кнопка «Развернуть все подкатегории» видна (ничего не раскрыто) → раскрыть одну подгруппу → обе кнопки видны → раскрыть все → только «Свернуть» видна.
@@ -43,9 +43,9 @@
 | **A2** — цветовая система | **Вариант A** — разделить визуальный язык L2 (фрейм+bg-tint) и L3 (нейтральный+текст-only) | №1 | **iter 166 DONE** |
 | **A3** — Regex как визуальный центр | **Вариант C** — placeholder + визуальная связь SelectedBasket → RegexOutput | №2 | **iter 167 DONE** |
 | **A4** — визуальный шум | **Вариант A+B** — кнопки «Свернуть/Развернуть все подкатегории» (НЕ toggle Compact/Extended) | №4 | **iter 170 DONE** |
-| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 171+ |
+| **A5** — активная вкладка | НЕ трогать структуру меню. Максимум: усилить active, spacing, hover. | low | iter 172+ |
 | **A6** — цельная панель навигации | **Отклонено** — плохо работает при horizontal scroll на мобильном | — | не делаем |
-| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 171+ |
+| **A7** — косметика меню | Отложено — требуется конкретика от пользователя | — | iter 172+ |
 
 ### Явно отклонённые пользователем направления
 
@@ -110,11 +110,11 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 170 → iter 171)
+## Next iteration (iter 171 → iter 172)
 
-**iter 170 завершён.** A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) реализован и протестирован. Все 2366 тестов PASS.
+**iter 171 завершён.** Cleanup: удалены `ITER163_README.md` + `DELETED.txt`. iter 170 (A4) уже в `origin/main` (commit `59beb87`), ожидает визуальной валидации пользователя.
 
-**План iter 171+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
+**План iter 172+:** по фидбеку пользователя на A4 (визуальная валидация). Если одобряет — следующий трек:
 - **A5** (активная вкладка) — усиливать или нет iter 164.
 - **A7** (косметика меню) — ждать конкретику.
 - **D1-D3** — отдельный трек после закрытия A-оси.

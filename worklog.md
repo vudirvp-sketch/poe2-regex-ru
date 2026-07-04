@@ -4,7 +4,7 @@
 
 ---
 
-## iter 158–169 — одной строкой
+## iter 158–170 — одной строкой
 
 **iter 158:** core MIXED mode (`MIXED_OR` AST + `anchorFirstAltOnly` mitigation для KI#45 + `truncateMixedOrLiterals` для KI#46, 43 теста).
 **iter 159:** UI MIXED integration (`optionalIds`, FilterChip 3-state, MIXED toggle, 28 новых тестов).
@@ -18,87 +18,33 @@
 **iter 167 (A3):** Empty-state RegexOutput переписан (`.regex-output__empty` dashed gold border + ↑ arrow + hint). Новый компонент `BasketToRegexFlow.tsx`. +9 тестов (2328/2328). CSS +1.03 KB.
 **iter 168 (A1 Вариант B):** Усиление контраста L1/L2 corner accents: L1 6×6/0.4 → 8×8/0.55, L2 5×5/0.35 → 4×4/0.30 (контраст ~12% → ~25%). 4 правки в `src/index.css`. 2328/2328 PASS.
 **iter 169 (KI#50):** Фикс потери expand/collapse состояния при смене вкладок. Helpers `readUiState`/`writeUiState`/`clearUiState`/`filterInCategoryKeys` в `src/store/local-settings.ts`. useState initializer + persist block в `useCategoryPage.ts`. +31 тест (2359/2359). Per-category `poe2:uistate:<categoryId>` localStorage, pattern mirrors KI#30 favorites.
+**iter 170 (A4):** Conditional rendering кнопок «Развернуть/Свернуть все подкатегории» в `ModList.tsx` + `VirtualizedModList.tsx`. `allSubKeys` extracted в `useMemo`. +2 i18n ключа. +6 новых A4 тестов, 7 existing обновлены. 2366/2366 PASS. CSS без изменений (61.17 KB).
 
 ---
 
-Task ID: iter-170
+Task ID: iter-171
 Agent: main
-Task: Реализовать A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск) — отложенный план из iter 169. Принцип: «лучше недоделать, чем сломать». Упаковать архив, git-команды, точка остановки.
+Task: Cleanup репозитория — удаление устаревших delivery-артефактов (iter 163). Подготовка архива и git-команд для iter 170 + cleanup. Принцип: «лучше недоделать, чем сломать».
 
 Work Log:
-- 0: **Прочитал контекст из чата:**
-  - iter 169 завершён (KI#50 — фикс потери expand/collapse состояния при смене вкладок). 2359/2359 PASS.
-  - План iter 170: A4 — Вариант A+B — кнопки «Свернуть/Развернуть все подкатегории» (~60-80 строк, низкий риск).
-  - A4 spec из `docs/REDESIGN_CONCEPT_v4.md` §A4 (lines 236-294): conditional rendering per 4 criteria:
-    1. Кнопка «Свернуть подкатегории» появляется только когда есть хотя бы один раскрытый L3.
-    2. Кнопка «Развернуть подкатегории» появляется только когда есть хотя бы один свёрнутый L3.
-    3. Действие не влияет на L1 (affix columns) состояние.
-    4. Все тесты `tests/ui/CategoryLayout.test.tsx`, `tests/store/filter-store.test.ts` — PASS.
-- 1: **Клонировал репозиторий** `https://github.com/vudirvp-sketch/poe2-regex-ru.git`, `pnpm install --frozen-lockfile`. Запустил `pnpm test` — 2359/2359 PASS (baseline подтверждена).
-- 2: **Изучил существующую реализацию expand/collapse-all кнопок:**
-  - `src/store/filter-store.ts` уже имеет actions `expandAllSubGroups(keys: string[])` и `collapseAllSubGroups()` — НОВЫх actions не нужно.
-  - `src/ui/components/ModList.tsx` (lines 782-882) и `src/ui/components/VirtualizedModList.tsx` (lines 1118-1221) уже рендерят «Развернуть все» / «Свернуть все» кнопки.
-  - Кнопки dual-purpose: когда переданы `onExpandAllSubGroups` / `onCollapseAllSubGroups` — affect L3 sub-groups; else fallback to L1 top-level groups (legacy).
-  - Все 8 category pages (amulet/belt/jewel/relic/ring/tablet/waystone + home) передают ВСЕ 4 callbacks (sub-group + top-level) — фактически работают в L3-режиме.
-  - AllSubKeys computation (iter 145 KI#35) была inlined внутри onClick handler — на каждый клик перевычислялась.
-  - Кнопки всегда рендерятся когда callbacks переданы — НЕ соответствует A4 spec (conditional rendering).
-- 3: **Спроектировал минимальное изменение:**
-  - Добавить 2 i18n ключа: `group.expand_all_subgroups` / `group.collapse_all_subgroups` (specific L3 labels).
-  - Extract `allSubKeys` computation в `useMemo` (используется и в conditional rendering, и в click handler — без дублирования).
-  - Заменить existing button JSX на conditional rendering IIFE:
-    - L3 mode (`onExpandAllSubGroups` / `onCollapseAllSubGroups` provided):
-      * Expand-all: visible only when `expandedSubGroups.size < allSubKeys.length` (≥1 collapsed). Label: `Развернуть все подкатегории`.
-      * Collapse-all: visible only when `expandedSubGroups.size > 0` (≥1 expanded). Label: `Свернуть все подкатегории`.
-    - L1 mode (legacy, only `onExpandAllGroups` / `onCollapseAllGroups` provided): always visible. Labels: `Развернуть/Свернуть все` (старые generic).
-- 4: **Добавил 2 i18n ключа в `src/shared/i18n.ts`** (after existing `group.expand_all` / `group.collapse_all`):
-  - `'group.expand_all_subgroups': 'Развернуть все подкатегории'`
-  - `'group.collapse_all_subgroups': 'Свернуть все подкатегории'`
-  - Подробные комментарии объясняют rationale (A4 spec) и backward compat (L1 mode keeps old labels).
-- 5: **Реализовал изменения в `src/ui/components/ModList.tsx`:**
-  - Добавил `allSubKeys` useMemo (lines 679-755) с зависимостями: `onExpandAllSubGroups, onCollapseAllSubGroups, category, implicitGroups, prefixGroups, suffixGroups, implicitSubGroups, prefixSubGroups, suffixSubGroups, showOriginSubSections, showJewelTypeSubGroups, groupMode, sortMode`. Returns `[]` когда нет sub-group wiring (legacy L1 mode).
-  - Заменил existing button JSX (lines 782-882, ~100 строк) на conditional rendering IIFE (~57 строк):
-    - `subMode = !!onExpandAllSubGroups || !!onCollapseAllSubGroups` — определяет L3 vs L1 режим.
-    - `expandedCount = expandedSubGroups?.size ?? 0` — current state.
-    - `showExpandAll = subMode ? (!!onExpandAllSubGroups && expandedCount < allSubKeys.length) : !!onExpandAllGroups`
-    - `showCollapseAll = subMode ? (!!onCollapseAllSubGroups && expandedCount > 0) : !!onCollapseAllGroups`
-    - Labels: `subMode ? t('group.expand_all_subgroups') : t('group.expand_all')` (same for collapse).
-    - Click handlers: вызывают `onExpandAllSubGroups(allSubKeys)` / `onCollapseAllSubGroups()` в L3 mode, fallback на L1 в legacy mode.
-- 6: **Реализовал идентичные изменения в `src/ui/components/VirtualizedModList.tsx`:**
-  - Тот же `allSubKeys` useMemo (lines 973-1052).
-  - Тот же conditional rendering IIFE (lines 1199-1269).
-  - Зеркал ModList.tsx 1:1 — оба файла должны быть в синхроне (они уже были до изменения).
-- 7: **Запустил проверки после изменений:**
-  - `npx tsc -b` — 0 errors.
-  - `npx eslint .` — 0 errors.
-  - `npx vitest run tests/ui/ModList.test.tsx tests/ui/VirtualizedModList.test.tsx` — 6 tests failed (ожидаемо: 3 в каждом файле — старые тесты с empty `expandedSubGroups` и старыми лейблами).
-- 8: **Обновил тесты:**
-  - `tests/ui/ModList.test.tsx`:
-    * Удалил 1 устаревший тест "renders Expand all / Collapse all buttons when collapse wiring is provided" (заменён комментарием-указателем на A4 test suite).
-    * Переименовал 2 existing click tests: «Expand all subcategories» / «Collapse all subcategories» с новыми лейблами + non-empty `expandedSubGroups` для collapse test (чтобы кнопка была видна).
-    * Добавил 4 новых A4 conditional rendering теста: (1) no sub-groups expanded → only expand visible, (2) some → both visible, (3) all → only collapse visible, (4) legacy L1 mode → both always visible with old labels.
-  - `tests/ui/VirtualizedModList.test.tsx`:
-    * Updated 4 existing tests с новыми лейблами + non-empty `expandedSubGroups` где нужно.
-    * Добавил те же 4 новых A4 conditional rendering теста.
-  - Total: 6 новых A4 тестов (3 + 3), 6 existing tests обновлены.
-- 9: **Запустил финальные проверки — ВСЕ PASS:**
-  - `npx tsc -b` — 0 errors.
-  - `npx eslint .` — 0 errors.
-  - `npx vitest run` — 2366/2366 PASS (58 files: 2359 baseline + 7 новых, в т.ч. 6 A4 conditional rendering + 1 net new from test reorganization).
-  - `npx vite build` — PASS. CSS 61.17 KB (без изменений — CSS не трогал). ModList chunk 15.94 KB, VirtualizedModList 37.67 KB (незначительный рост от useMemo). Main bundle `index-Pp49vzXv.js` 343.43 KB / 104.96 KB gzip — в пределах нормы.
-- 10: **Обновил документацию:**
-  - `STATUS.md` — iter 170 как текущая. Секция «Текущее состояние» переписана под A4. «Решения пользователя по аудиту v4» обновлена: A4 → iter 170 DONE. «Next iteration» обновлена.
-  - `AGENT_NAVIGATION.md` — указатель iter 170 (2366 тестов). §1 ModList/VirtualizedModList row обновлена (A4 conditional rendering описание). Pitfall 20 (4-level hierarchy) расширена: iter 170 (A4) — кнопки «Развернуть/Свернуть все подкатегории» рендерятся условно, `allSubKeys` useMemo, L3 vs L1 mode по наличию sub-group wiring.
-  - `worklog.md` — iter 158-169 сжаты в одну секцию «одной строкой» (iter 169 теперь часть сжатой истории), iter 170 добавлен детально (эта запись).
+- 0: **Контекст из чата:** iter 170 завершён, A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) реализован, 2366/2366 PASS, коммит `59beb87` уже в `origin/main`. Задача: актуализировать документацию, упаковать архив, git-команды, точка остановки.
+- 1: **Клонировал репозиторий** `https://github.com/vudirvp-sketch/poe2-regex-ru.git`. `npm install` (pnpm недоступен в окружении). `npx vitest run` — 2366/2366 PASS (58 files). Baseline подтверждена.
+- 2: **Проверил состояние git:** `git status` — clean. `git log origin/main..HEAD` — пусто (iter 170 уже запушен). Файлы iter 170 (8 шт.): `src/shared/i18n.ts`, `src/ui/components/ModList.tsx`, `src/ui/components/VirtualizedModList.tsx`, `tests/ui/ModList.test.tsx`, `tests/ui/VirtualizedModList.test.tsx`, `STATUS.md`, `AGENT_NAVIGATION.md`, `worklog.md`.
+- 3: **Анализ мусора (per требование «Убирай длинную историю изменений, мусор, устаревшие секции»):**
+  - `ITER163_README.md` (root) — delivery-note от iter 163 (7 итераций назад). Не referenced ни из кода, ни из docs. Только self-reference. ** candidates на удаление.**
+  - `DELETED.txt` (root) — список файлов, удалённых в iter 163. Не referenced ниоткуда. **candidate на удаление.**
+  - `docs/ITER142_PROPOSALS.md`, `docs/ITER148_TOOLBAR_REFACTOR.md`, `docs/REDESIGN_CONCEPT_v3.md`, `docs/UI_AUDIT.md`, `docs/UI_REFACTOR_PLAN.md`, `docs/UI_VISUALIZATION_AUDIT.md` — referenced из `src/` и других docs. **ОСТАВЛЯЕМ.**
+- 4: **Удалил 2 stale delivery-артефакта:** `git rm ITER163_README.md DELETED.txt`. Никаких ссылок не сломано (verified via grep).
+- 5: **Сжал iter 170 в worklog.md** в одну строку в секции «iter 158–170 — одной строкой» (была «iter 158–169»). Подробная запись iter 170 удалена — полная история в git commit `59beb87`.
+- 6: **Обновил STATUS.md** — секция «Next iteration» переписана: iter 171 cleanup указан, план iter 172+ по фидбеку пользователя.
+- 7: **Обновил AGENT_NAVIGATION.md** — header (current state) iter 170 → iter 171 cleanup. §13 без изменений (ссылок на удалённые файлы не было).
+- 8: **Финальные проверки:** `npx vitest run` — 2366/2366 PASS (cleanup не влияет на тесты, только docs удалялись).
 
 Stage Summary:
-- **iter 170 завершён.** A4 (кнопки «Свернуть/Развернуть все подкатегории» с conditional rendering) реализован и протестирован.
-- **Изменённые файлы (7):**
-  - `src/shared/i18n.ts` — +2 i18n ключа (`group.expand_all_subgroups` / `group.collapse_all_subgroups`) + комментарии. Без breaking changes.
-  - `src/ui/components/ModList.tsx` — +`allSubKeys` useMemo (~78 строк) + замена existing button JSX на conditional rendering IIFE. Net: ~+0 строк (старый inline ~100 строк, новый ~57 + useMemo 78 = ~135, но убрать дубликат allSubKeys из onClick).
-  - `src/ui/components/VirtualizedModList.tsx` — идентичные изменения.
-  - `tests/ui/ModList.test.tsx` — 3 existing tests обновлены (новые лейблы + non-empty expandedSubGroups где нужно), 4 новых A4 теста.
-  - `tests/ui/VirtualizedModList.test.tsx` — 4 existing tests обновлены, 4 новых A4 теста.
-  - `STATUS.md`, `AGENT_NAVIGATION.md`, `worklog.md` — документация актуализирована.
-- **Проверки:** tsc 0, eslint 0, vitest 2366/2366 PASS (2359 baseline + 7 новых), vite build PASS, CSS 61.17 KB (без изменений).
-- **Stopping point:** iter 170 завершён. Кнопки «Развернуть/Свернуть все подкатегории» теперь рендерятся условно per A4 spec: collapse-all виден только когда `expandedSubGroups.size > 0`; expand-all — только когда `expandedSubGroups.size < allSubKeys.length`. L1 state (top-level affix columns) НЕ трогается (criterion 3). Legacy L1-only callers (без sub-group wiring) — backward compat: кнопки всегда видны, старые generic лейблы «Развернуть/Свернуть все». Ожидается визуальная валидация пользователя: открыть категорию с L3 sub-groups → кнопка «Развернуть все подкатегории» видна (ничего не раскрыто) → раскрыть одну подгруппу → обе кнопки видны → раскрыть все → только «Свернуть» видна. Следующая iter 171+ — по фидбеку пользователя: A5 (активная вкладка), A7 (косметика меню), D1-D3 (отдельный трек).
-- **Что от пользователя нужно (опционально):** (1) Визуальная проверка iter 170 — открыть категорию с L3 sub-groups → проверить conditional rendering кнопок. (2) Ретро-валидация iter 169 (KI#50 — persist expand state через смену вкладок), iter 168 (L1 corner accents), iter 166 (L2/L3 palette split), iter 167 (placeholder + ↓ коннектор) — если ещё не проверены. Если все одобряет — продолжаем iter 171+ по фидбеку (A5/A7/D1-D3).
+- **iter 171 завершён.** Cleanup: удалены 2 stale delivery-артефакта (`ITER163_README.md`, `DELETED.txt`). Документация актуализирована.
+- **Изменённые файлы (iter 171):**
+  - Удалено: `ITER163_README.md`, `DELETED.txt`.
+  - Обновлено: `worklog.md` (iter 170 сжат, iter 171 добавлен), `STATUS.md` (Next iteration), `AGENT_NAVIGATION.md` (header).
+- **Проверки:** vitest 2366/2366 PASS. tsc/eslint не запускались — изменения только в docs (no code touched).
+- **Stopping point:** iter 171 cleanup завершён. Ожидается визуальная валидация пользователя iter 170 (A4 conditional rendering кнопок). Следующая iter 172+ — по фидбеку: A5 (активная вкладка), A7 (косметика меню), D1-D3 (отдельный трек).
+- **Что от пользователя нужно (опционально):** (1) Визуальная проверка iter 170 — открыть категорию с L3 sub-groups → проверить conditional rendering кнопок (collapse-all виден только когда ≥1 L3 expanded; expand-all — только когда ≥1 L3 collapsed). (2) Ретро-валидация iter 169 (KI#50 — persist expand state через смену вкладок), iter 168 (L1 corner accents), iter 166 (L2/L3 palette split), iter 167 (placeholder + ↓ коннектор) — если ещё не проверены. Если всё одобряет — продолжаем iter 172+ по фидбеку (A5/A7/D1-D3).
