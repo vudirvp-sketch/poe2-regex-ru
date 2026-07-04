@@ -1,4 +1,4 @@
-# MIXED-mode UI — In-Game Verification Tests (iter 160)
+# MIXED-mode UI — In-Game Verification Tests (iter 160, прогоны iter 161–162)
 
 > **Цель:** закрыть KI#48 — верифицировать UI MIXED-mode (iter 159) в реальной игре
 > на 5 категориях (ring / waystone / tablet / amulet / jewel).
@@ -6,9 +6,19 @@
 > **Связанные документы:** `регис/результаты AND+OR тестов.md` (iter 157 — core layer),
 > `docs/UI_REFACTOR_PLAN.md` §14 (MIXED-mode UI patterns).
 > **UI-инструкция:** на странице категории переключить logic mode на «Смешанный»
-> (третий radio button в CategoryControlPanel). Чипы получают 3-state поведение:
-> click = want (MUST), shift+click = opt (OPT, amber dashed border),
+> (третий radio button в CategoryControlPanel; рядом с чипом — ⓘ glyph,
+> hover 350ms открывает tooltip с пояснением жестов). Чипы получают 3-state
+> поведение: click = want (MUST), shift+click = opt (OPT, amber dashed border),
 > right-click = exclude (EXCLUDE, red border).
+
+> **Статус прогона (iter 161 → iter 162):**
+> - T1 — PASS (пользователь, iter 161).
+> - T2 — PASS (пользователь, iter 161).
+> - T3 — был FAIL (iter 161, заведён KI#49), FIX в iter 162, ждёт повторного прогона.
+> - T4 — PASS (пользователь, iter 161).
+> - T5 — PASS (пользователь, iter 161).
+> - T6 — пользователь пропустил (UI-only тест, повторить в iter 163).
+> - T7–T10 — ждут прогона (iter 163).
 
 ---
 
@@ -153,8 +163,22 @@ single-OPT MIXED_OR — смотреть `FilterChip.handleClick` + `buildMixedA
 - A1: NOT хаос ✓ AND меткость ✓ AND реген маны ✓ → ДА
 - A2: NOT хаос ✓ AND меткость ✓ AND реген маны ✓ → ДА
 - A3: NOT хаос ✗ (имеет «+14% к сопротивлению хаосу») → НЕТ (`!` — item-wide)
+
+**Результат прогона (iter 161 → iter 162):**
+- **iter 161 — FAIL.** Пользователь выбрал EXCLUDE + MUST + OPT, но в regex
+  попали только `"меткости" "регенерации маны"` (без `"!хаосу"`). Заведён
+  KI#49 — pure-EXCLUDE токен (только в `excludedIds`, не в must/opt)
+  терялся в `buildMixedAstFromSelections`.
+- **iter 162 — FIX готов** (KI#49 closed). Добавлен опциональный параметр
+  `excludeTokens: GameToken[]` в `buildMixedAstFromSelections`. Call site
+  передаёт `selectedTokens.filter(t => excludedIds.has(t.id))`. Regression
+  test в `tests/ui/buildMixedAst.test.ts` воспроизводит T3-сценарий.
+- **iter 163 — нужен повторный прогон** пользователем для подтверждения PASS.
+
 **Если FAIL:** `!`-негация не применяется item-wide — смотреть `buildMixedAstFromSelections`
-шаг 1 (excludedTokens → `exclude(or(...))`).
+шаг 1 (excludedTokens → `exclude(or(...))`). Если pure-EXCLUDE токен не
+попадает в `!BAD` — проверить, что call site передаёт `excludeTokens`
+(iter 162 fix, KI#49).
 
 ---
 

@@ -351,6 +351,87 @@ describe('buildMixedAstFromSelections', () => {
     expect(result).not.toBeNull();
     expect(compile(result!)).toBe('"!BAD" "MUST"');
   });
+
+  // iter 162 (KI#49): regression test for the T3 scenario from the MIXED
+  // test plan. The user selects 1 EXCLUDE + 1 MUST + 1 OPT, where the
+  // EXCLUDE token is NOT in mustTokens or optTokens (it's a pure-exclude
+  // selection — only in excludedIds). Before iter 162, this token was
+  // silently dropped from the `!BAD` block.
+  //
+  // Reproduces: https://github.com/vudirvp-sketch/poe2-regex-ru/issues (T3)
+  // Steps: open Amulet, MIXED mode, right-click «+XX% к сопротивлению хаосу»
+  // (EXCLUDE), click «+XX к меткости» (MUST), shift+click «XX% повышение
+  // скорости регенерации маны» (OPT). Expected: `"!хаосу" "меткости" "регенерации маны"`.
+  // Actual (before fix): `"меткости" "регенерации маны"` (EXCLUDE missing).
+  it('KI#49: pure-EXCLUDE token (not in must/opt) appears in !BAD block', () => {
+    const mustTokens = [makeToken('m1', 'fam-metkost', 'меткости')];
+    const optTokens = [makeToken('o1', 'fam-regen', 'регенерации маны')];
+    const excludeTokens = [makeToken('e1', 'fam-chaos', 'хаосу')];
+    const excludedIds = new Set<string>(['e1']);
+    const result = buildMixedAstFromSelections(
+      mustTokens,
+      optTokens,
+      excludedIds,
+      null,
+      null,
+      false,
+      LOCALE,
+      {},
+      false,  // thresholdEnabled
+      excludeTokens  // iter 162: pure-exclude tokens passed explicitly
+    );
+    expect(result).not.toBeNull();
+    expect(compile(result!)).toBe('"!хаосу" "меткости" "регенерации маны"');
+  });
+
+  // iter 162 (KI#49): same scenario but WITHOUT the new excludeTokens param —
+  // verifies backward compatibility (the bug is still reproducible when the
+  // caller doesn't pass excludeTokens, which is exactly what useRegexBuilder
+  // did before iter 162).
+  it('KI#49 regression: WITHOUT excludeTokens param, pure-EXCLUDE is dropped (documents the bug)', () => {
+    const mustTokens = [makeToken('m1', 'fam-metkost', 'меткости')];
+    const optTokens = [makeToken('o1', 'fam-regen', 'регенерации маны')];
+    const excludedIds = new Set<string>(['e1']);  // 'e1' not in must/opt
+    const result = buildMixedAstFromSelections(
+      mustTokens,
+      optTokens,
+      excludedIds,
+      null,
+      null,
+      false,
+      LOCALE,
+      {}
+      // excludeTokens intentionally omitted — simulates pre-iter-162 caller
+    );
+    expect(result).not.toBeNull();
+    // Bug: EXCLUDE missing — only MUST + OPT appear. This test documents
+    // the pre-fix behaviour; the fix is in the new excludeTokens param.
+    expect(compile(result!)).toBe('"меткости" "регенерации маны"');
+  });
+
+  // iter 162 (KI#49): dedup — if a token is in BOTH mustTokens and
+  // excludeTokens (e.g. caller mistakenly includes it in both), it should
+  // appear only ONCE in the !BAD block (deduped by ID).
+  it('KI#49: excludes from must/opt and excludeTokens are deduped by ID', () => {
+    const badToken = makeToken('b1', 'fam-bad', 'BAD');
+    const mustTokens = [makeToken('m1', 'fam1', 'MUST'), badToken];
+    const excludedIds = new Set<string>(['b1']);
+    const result = buildMixedAstFromSelections(
+      mustTokens,
+      [],
+      excludedIds,
+      null,
+      null,
+      false,
+      LOCALE,
+      {},
+      false,
+      [badToken]  // same token passed twice (once in must, once in exclude)
+    );
+    expect(result).not.toBeNull();
+    // Should compile to `"!BAD" "MUST"` — not `"!BAD|BAD" "MUST"`.
+    expect(compile(result!)).toBe('"!BAD" "MUST"');
+  });
 });
 
 // ─── truncateMixedOrLiterals tests ───

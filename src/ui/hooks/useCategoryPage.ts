@@ -512,8 +512,13 @@ export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResul
       if (searchLogic === 'mixed') {
         // MIXED mode: MUST = selectedIds, OPT = optionalIds, EXCLUDE = excludedIds.
         // buildMixedAstFromSelections handles all three sets internally.
+        // iter 162 (KI#49): pass pure-exclude tokens explicitly via
+        // `excludeTokens`. selectedTokens already includes all tokens that
+        // are in selectedIds ∪ excludedIds ∪ optionalIds, so filtering by
+        // excludedIds gives us the EXCLUDE-only tokens (not in MUST/OPT).
         const mustTokens = selectedTokens.filter(t => selectedIds.has(t.id));
         const optTokens = selectedTokens.filter(t => optionalIds.has(t.id));
+        const excludeTokens = selectedTokens.filter(t => excludedIds.has(t.id));
         modAst = buildMixedAstFromSelections(
           mustTokens,
           optTokens,
@@ -523,7 +528,8 @@ export function useRegexBuilder(args: UseRegexBuilderArgs): UseRegexBuilderResul
           round10Enabled,
           locale,
           perTokenRanges,
-          thresholdEnabled
+          thresholdEnabled,
+          excludeTokens
         );
       } else {
         // AND / OR mode: existing behaviour (selectedIds ∪ excludedIds).

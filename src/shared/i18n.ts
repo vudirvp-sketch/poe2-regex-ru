@@ -34,6 +34,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'logic.mixed': 'Смешанный',
     // Tooltip / aria-description for the MIXED toggle button.
     'logic.mixed_tooltip': 'Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по чипу — хочу, Shift+клик — опционально, правый клик — исключить.',
+    // iter 162: aria-label for the ⓘ icon next to the MIXED chip.
+    // The ⓘ glyph opens a delayed tooltip (350ms hover) with the same
+    // explanation as `logic.mixed_tooltip` — gives beginners a visible
+    // cue that there's help available for the shift+click / right-click
+    // gestures. Before iter 162, the gestures were hidden (only the
+    // native `title` attribute on the chip showed the hint, which most
+    // users never discovered).
+    'logic.mixed_aria': 'Пояснение к смешанному режиму (Shift+клик и правый клик)',
     // iter 161: short inline hint shown in MIXED mode when user has selected
     // affixes but hasn't marked any as OPT yet. Tells them HOW to mark OPT.
     'logic.mixed_hint': 'Shift+клик по аффиксу — опционально (хотя бы 1 из группы)',

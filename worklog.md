@@ -107,3 +107,63 @@ Stage Summary:
 - **Stopping point:** iter 160 завершён. Next iter 161 — пользователь прогоняет T1–T10 в игре, заполняет UX Feedback Checklist, закрывает KI#48. По результатам — UX polish (onboarding hints, icon legend update, visual tweaks) + возможные новые KI#49+ если найдены баги.
 
 ---
+
+Task ID: iter-162
+Agent: main (continuation from iter 161)
+Task: Fix KI#49 (T3 bug — pure-EXCLUDE dropped in MIXED mode) + add explicit ⓘ glyph with delayed tooltip on the MIXED chip.
+
+Work Log:
+- 0: **Прочитал feedback пользователя из iter 161:**
+  - T1, T2 — PASS.
+  - T3 — FAIL: при 1 EXCLUDE (`+XX% к сопротивлению хаосу`, только A3=14%) + 1 MUST (`+XX к меткости`) + 1 OPT (`XX% повышение скорости регенерации маны`) → ожидалось `"!хаосу" "меткости" "регенерации маны"`, фактически `"меткости" "регенерации маны"` (EXCLUDE потерян).
+  - T4, T5 — PASS.
+  - T6 — пользователь пропустил.
+  - UX запрос: добавить явный ⓘ glyph на чип «Смешанный» с delayed hover tooltip про shift+click и right-click.
+- 1: **Документировал KI#49 в `STATUS.md`** (per rule: «Сначала документируй — потом фиксий»).
+- 2: **Root cause analysis KI#49:**
+  - В `src/ui/hooks/category-ast-utils.ts` функция `buildMixedAstFromSelections` строила `excludedTokens` фильтрацией `mustTokens` и `optTokens` по `excludedIds`.
+  - В `src/ui/hooks/useCategoryPage.ts` call site: `mustTokens = selectedTokens.filter(t => selectedIds.has(t.id))`, `optTokens = selectedTokens.filter(t => optionalIds.has(t.id))`. Pure-exclude токен (только в `excludedIds`) НЕ попадает ни в `mustTokens`, ни в `optTokens`, следовательно не попадает и в `excludedTokens`. Блок `!BAD` не генерируется.
+  - Существующие тесты в `tests/ui/buildMixedAst.test.ts` не ловили баг, потому что в test workaround BAD-токен включался в `mustTokens` вручную (см. комментарий в тесте `builds T7 pattern`: «Note: BAD token must be in mustTokens or optTokens to be picked up as excluded»). Это маскировало баг.
+- 3: **Fix KI#49 в `src/ui/hooks/category-ast-utils.ts`:**
+  - Добавлен опциональный параметр `excludeTokens: GameToken[] = []` в конец сигнатуры `buildMixedAstFromSelections` (после `thresholdEnabled`).
+  - `excludedTokens` теперь собирается из 3 источников с dedup по ID: (1) mustTokens ∩ excludedIds (legacy), (2) optTokens ∩ excludedIds (legacy), (3) excludeTokens (новый путь для pure-exclude).
+  - Подробный комментарий объясняет, почему 3 источника и почему backward-compat сохранён.
+  - JSDoc обновлён с описанием нового параметра.
+- 4: **Fix call site в `src/ui/hooks/useCategoryPage.ts`:**
+  - Добавлен `const excludeTokens = selectedTokens.filter(t => excludedIds.has(t.id));` перед вызовом.
+  - `excludeTokens` передаётся как 10-й аргумент в `buildMixedAstFromSelections`.
+  - `selectedTokens` уже включает все токены (selectedIds ∪ excludedIds ∪ optionalIds) — фильтр по `excludedIds` даёт pure-exclude токены.
+- 5: **Regression tests в `tests/ui/buildMixedAst.test.ts` (+3 теста):**
+  - `KI#49: pure-EXCLUDE token (not in must/opt) appears in !BAD block` —正面 кейс: 1 MUST + 1 OPT + 1 EXCLUDE (через `excludeTokens`) → `"!хаосу" "меткости" "регенерации маны"`.
+  - `KI#49 regression: WITHOUT excludeTokens param, pure-EXCLUDE is dropped (documents the bug)` — backward-compat тест: та же выборка, но без `excludeTokens` → `"меткости" "регенерации маны"` (без `!хаосу`). Документирует баг, подтверждает что fix именно в новом параметре.
+  - `KI#49: excludes from must/opt and excludeTokens are deduped by ID` — edge case: тот же токен в mustTokens и в excludeTokens → `"!BAD" "MUST"` (не `"!BAD|BAD" "MUST"`).
+- 6: **i18n — `src/shared/i18n.ts`:**
+  - Новый ключ `logic.mixed_aria`: «Пояснение к смешанному режиму (Shift+клик и правый клик)» — aria-label для ⓘ glyph.
+- 7: **UX enhancement — `src/ui/components/CategoryControlPanel.tsx`:**
+  - Импортирован `Tooltip` из `@ui/components/Tooltip`.
+  - На parent radiogroup `<div className="flex gap-1">` добавлен `items-center` для вертикального выравнивания меньшего ⓘ (16x16) с большими кнопками AND/OR/MIXED (~25px высоты).
+  - После MIXED `<button>` добавлен sibling `<Tooltip content={t('logic.mixed_tooltip')} ariaLabel={t('logic.mixed_aria')} className="-ml-0.5 text-[12px] text-muted hover:text-accent-amber-soft" />`.
+  - Tooltip рендерит `<button>` с default glyph `ⓘ`, hover delay 350ms (существующая логика). Click на ⓘ не переключает logic mode (`e.stopPropagation()` в `handleClick` Tooltip'а).
+  - Sibling-позиция (НЕ nested) — валидная ARIA tree (button + button в одном radiogroup).
+  - `-ml-0.5` (-2px margin-left) визуально прижимает ⓘ к MIXED чипу, чтобы они читались как одна единица.
+- 8: **Документация:**
+  - `STATUS.md` — заголовок iter 162, §«Текущее состояние» переписан (KI#49 fix + ⓘ glyph), KI#49 в Known Issues, KI#48 обновлён (T1/T2/T4/T5 PASS, T3 fix, T6–T10 ждут), таблица «Подтверждённые ограничения» обновлена, Next iteration (iter 162→163) переписан.
+  - `worklog.md` — эта запись.
+- 9: **Проверки:**
+  - `tsc --noEmit -p tsconfig.app.json` — 0 ошибок.
+  - `eslint .` — 0 ошибок.
+  - `pnpm test` — 2318/2318 PASS (was 2315, +3 KI#49 regression tests).
+  - `vite build` — PASS (main bundle 343 KB, не изменился существенно).
+
+Stage Summary:
+- **KI#49 fix готов и покрыт regression tests.** Pure-EXCLUDE токены в MIXED-режиме теперь корректно попадают в `!BAD`-блок. T3 должен PASS при повторном прогоне.
+- **ⓘ glyph на MIXED chip добавлен.** Видимый значок рядом с чипом «Смешанный», hover 350ms → tooltip с объяснением shift+click (OPT) и right-click (EXCLUDE). Sibling of `<button>` — валидная ARIA tree.
+- **Все проверки PASS:** tsc 0, eslint 0, 2318/2318 tests, vite build PASS.
+- **Изменённые файлы (6):**
+  - `src/ui/hooks/category-ast-utils.ts` — `excludeTokens` param + dedup.
+  - `src/ui/hooks/useCategoryPage.ts` — call site передаёт excludeTokens.
+  - `src/ui/components/CategoryControlPanel.tsx` — Tooltip на MIXED chip + items-center.
+  - `src/shared/i18n.ts` — `logic.mixed_aria` key.
+  - `tests/ui/buildMixedAst.test.ts` — +3 KI#49 regression tests.
+  - `STATUS.md`, `worklog.md` — актуализированы.
+- **Stopping point:** iter 162 завершён. Next iter 163 — пользователь повторяет T3 (должен PASS), прогоняет T6–T10, заполняет UX Feedback Checklist, проверяет новый ⓘ glyph, закрывает KI#48. Возможные новые KI#50+ если найдены баги.

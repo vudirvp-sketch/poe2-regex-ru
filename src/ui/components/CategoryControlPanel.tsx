@@ -36,6 +36,7 @@ import React from 'react';
 import type { SearchLogic, SortMode } from '@shared/types';
 import { MAX_ENUMERATE_RANGE } from '@core/number-regex';
 import { t } from '@shared/i18n';
+import { Tooltip } from '@ui/components/Tooltip';
 
 interface CategoryControlPanelProps {
   searchLogic: SearchLogic;
@@ -183,7 +184,7 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             AND/OR keep the existing amber-600 active style; MIXED gets
             amber-soft (amber-400) so the user can tell at a glance that
             chip behavior has changed (shift+click = opt, right-click = exclude). */}
-        <div className="flex gap-1" role="radiogroup" aria-label={t('logic.label')}
+        <div className="flex gap-1 items-center" role="radiogroup" aria-label={t('logic.label')}
           onKeyDown={(e) => handleRadioKeyDown(e, logicOptions, searchLogic)}
         >
           <button
@@ -217,6 +218,20 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           >
             {t('logic.mixed')}
           </button>
+          {/* iter 162: explicit ⓘ glyph next to the MIXED chip.
+              Opens a delayed (350ms hover) Tooltip with the same content as
+              `logic.mixed_tooltip`. The MIXED chip itself only has the native
+              `title` attribute (instant browser tooltip) — the ⓘ gives
+              beginners a VISIBLE cue that there's help available for the
+              shift+click (OPT) and right-click (EXCLUDE) gestures.
+              Sibling of the MIXED `<button>` (NOT nested inside) — valid
+              ARIA tree. The `-ml-0.5` pulls the glyph visually closer to
+              the chip so they read as one unit. */}
+          <Tooltip
+            content={t('logic.mixed_tooltip')}
+            ariaLabel={t('logic.mixed_aria')}
+            className="-ml-0.5 text-[12px] text-muted hover:text-accent-amber-soft"
+          />
         </div>
 
         {/* Active tokens counter (overflow counter).

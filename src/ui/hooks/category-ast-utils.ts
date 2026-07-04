@@ -1010,9 +1010,11 @@ export function truncateMixedOrLiterals(ast: ASTNode, maxLen: number = 12): ASTN
  *                    a single MIXED_OR quoted group). Family-grouping inside
  *                    OPT is the caller's responsibility — typically the user
  *                    explicitly picks one or two OPT alternatives per family.
- * @param excludedIds - Set of token IDs (subset of mustTokens ∪ optTokens)
- *                     that should be excluded via `!`. These tokens are NOT
- *                     emitted as MUST or OPT — they become `!BAD` instead.
+ * @param excludedIds - Set of token IDs that should be excluded via `!`.
+ *                     These tokens are NOT emitted as MUST or OPT — they
+ *                     become `!BAD` instead. May include IDs whose tokens
+ *                     are passed via `excludeTokens` (pure-exclude path,
+ *                     iter 162 KI#49 fix) or are also in mustTokens/optTokens.
  * @param minValue - Global min for ranged tokens (null = no min).
  * @param maxValue - Global max for ranged tokens (null = no max).
  * @param _round10 - Round10 flag (currently unused, kept for API symmetry).
@@ -1021,6 +1023,15 @@ export function truncateMixedOrLiterals(ast: ASTNode, maxLen: number = 12): ASTN
  *                        buildAstFromSelections).
  * @param thresholdEnabled - When true with both min+max, compile RANGE as
  *                          ≥min only (shorter regex, drops max constraint).
+ * @param excludeTokens - iter 162 (KI#49): tokens that are in `excludedIds`
+ *                        but NOT in `mustTokens`/`optTokens` (pure-exclude
+ *                        selections). Before iter 162, `excludedTokens`
+ *                        was computed by filtering must/opt against
+ *                        excludedIds — so a pure-exclude token (only in
+ *                        excludedIds) was silently dropped from `!BAD`.
+ *                        Defaults to `[]` for backward compatibility with
+ *                        existing tests that include BAD tokens inside
+ *                        mustTokens/optTokens (legacy workaround).
  * @returns ASTNode (AND root with [excludes?, ...musts, MIXED_OR]) or null
  *          if both mustTokens and optTokens are empty after exclude filtering.
  */
@@ -1033,15 +1044,33 @@ export function buildMixedAstFromSelections(
   _round10: boolean,
   locale: Locale,
   perTokenRanges: Record<string, TokenRangeOverride>,
-  thresholdEnabled: boolean = false
+  thresholdEnabled: boolean = false,
+  excludeTokens: GameToken[] = []
 ): ASTNode | null {
   // Filter out excluded tokens from MUST/OPT — they go into the !BAD group.
   const mustWant = mustTokens.filter(t => !excludedIds.has(t.id));
   const optWant = optTokens.filter(t => !excludedIds.has(t.id));
-  const excludedTokens = [
+  // iter 162 (KI#49): combine three sources of excluded tokens, deduped by ID:
+  //   1. Tokens in mustTokens that are also in excludedIds (legacy path —
+  //      tests that include BAD in mustTokens still work).
+  //   2. Tokens in optTokens that are also in excludedIds (legacy path).
+  //   3. Tokens passed explicitly via excludeTokens (pure-exclude path —
+  //      the real call site in useRegexBuilder uses this for tokens that are
+  //      ONLY in excludedIds, never in mustTokens/optTokens).
+  // Before iter 162, source (3) was missing — pure-exclude selections were
+  // silently dropped from the `!BAD` block, breaking T3 of the MIXED test plan.
+  const seenExcludeIds = new Set<string>();
+  const excludedTokens: GameToken[] = [];
+  for (const t of [
     ...mustTokens.filter(t => excludedIds.has(t.id)),
     ...optTokens.filter(t => excludedIds.has(t.id)),
-  ];
+    ...excludeTokens,
+  ]) {
+    if (!seenExcludeIds.has(t.id)) {
+      seenExcludeIds.add(t.id);
+      excludedTokens.push(t);
+    }
+  }
 
   if (mustWant.length === 0 && optWant.length === 0 && excludedTokens.length === 0) {
     return null;
