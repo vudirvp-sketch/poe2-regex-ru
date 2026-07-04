@@ -37,6 +37,7 @@ import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { SelectedBasket } from '@ui/components/SelectedBasket';
+import { countUniqueFamilyKeys } from '@shared/family-grouper';
 // iter 139 (KI#20): favorites now via FavoritesIndicator badge (page header),
 // not a separate left-panel chip list (was noise per user feedback).
 // Component file kept for backward compat.
@@ -219,9 +220,16 @@ export function JewelPage() {
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
       {(data) => {
-        const allActiveTokens = data.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id));
+        // iter 161: include optionalIds in active set (MIXED mode)
+        const allActiveTokens = data.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id) || optionalIds.has(tok.id));
         const wantTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
         const excludeTokens = data.tokens.filter(tok => excludedIds.has(tok.id));
+        const optionalTokens = data.tokens.filter(tok => optionalIds.has(tok.id));
+        // iter 161: counters show family-group (affix) count, not token count.
+        const wantGroupCount = countUniqueFamilyKeys(wantTokens);
+        const excludeGroupCount = countUniqueFamilyKeys(excludeTokens);
+        const optionalGroupCount = countUniqueFamilyKeys(optionalTokens);
+        const activeGroupCount = countUniqueFamilyKeys(allActiveTokens);
         const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
         const rangedSuffixes = [...new Set(
           allActiveTokens.filter(tok => tok.ranges.length > 0).map(tok => tok.regex.ru)
@@ -266,12 +274,13 @@ export function JewelPage() {
                 sortMode={sortMode}
                 setSortMode={setSortMode}
                 showSortMode
-                excludedCount={excludeTokens.length}
-                activeTokenCount={allActiveTokens.length}
+                excludedCount={excludeGroupCount}
+                activeTokenCount={activeGroupCount}
+                optionalCount={optionalGroupCount}
                 // Phase 3 (iter 135): show-selected-only toggle
                 showSelectedOnly={showSelectedOnly}
                 onSetShowSelectedOnly={setShowSelectedOnly}
-                selectedCount={selectedIds.size}
+                selectedCount={wantGroupCount}
                 extraControls={
                   <div className="flex flex-wrap items-center gap-2 ml-2 pl-2 border-l border-edge-panel">
                     <span className="text-[12px] text-dim">{t('jewel.type_label')}</span>
@@ -297,9 +306,14 @@ export function JewelPage() {
               <SelectedBasket
                 tokens={data.tokens}
                 selectedIds={selectedIds}
+                excludedIds={excludedIds}
+                optionalIds={optionalIds}
                 onToggleTokens={toggleTokens}
+                onToggleExclude={toggleExclude}
+                onToggleOptional={handleToggleOptional}
                 onClearSelections={clearSelections}
                 category={categoryId}
+                mixedMode={searchLogic === 'mixed'}
               />
             }
             regexOutput={
@@ -308,7 +322,7 @@ export function JewelPage() {
                 isOverflow={isRegexOverflow}
                 regexParts={regexParts}
                 filterStore={filterStore}
-                activeTokenCount={allActiveTokens.length}
+                activeTokenCount={activeGroupCount}
               />
             }
             status={
@@ -339,7 +353,7 @@ export function JewelPage() {
             // Phase 4.5 (iter 137): static «Обозначения» legend at the bottom
             // of the right aside (below ProfilePanel). Companion to Phase 4
             // tooltips — gives beginners a permanent reference.
-            legend={<IconLegend />}
+            legend={<IconLegend showMixedHint={searchLogic === 'mixed'} />}
             mobileBar={
               <MobileRegexBar
                 regexOutput={
@@ -348,7 +362,7 @@ export function JewelPage() {
                     isOverflow={isRegexOverflow}
                     regexParts={regexParts}
                     filterStore={filterStore}
-                    activeTokenCount={allActiveTokens.length}
+                    activeTokenCount={activeGroupCount}
                   />
                 }
                 alerts={hiddenActiveCount > 0 ? [

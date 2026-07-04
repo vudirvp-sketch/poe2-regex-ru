@@ -12,6 +12,40 @@
 
 Реализована UI-интеграция MIXED mode: `SearchLogic` extended с `'mixed'`, `optionalIds: Set<string>` в filter-store с 3-state mutual exclusion, FilterChip 3-state (click=want / shift+click=opt / right-click=exclude, amber dashed OPT border), MIXED toggle в CategoryControlPanel, `useRegexBuilder` MIXED mode + auto-truncation при > 240 chars (KI#46 mitigation), props проброшены через ModList/VirtualizedModList во все 7 page components. 28 новых тестов (18 filter-store + 10 FilterChip). Все проверки PASS (2306/2306 tests, tsc 0, eslint 0, vite build PASS). In-game verification отложена на iter 160.
 
+## iter 160 (MIXED-mode UI — in-game verification test plan) — одной строкой
+
+Прописаны конкретные тесты T1–T10 с реальными предметами из `регис/предметы для теста с аффиксами имплиситами_новый.md` (16 предметов, 5 категорий) в `docs/MIXED_MODE_UI_TESTS.md` (~280 строк). Добавлена §14 «MIXED-mode UI Patterns» в `docs/UI_REFACTOR_PLAN.md` (~150 строк). STATUS.md почищен. Код не изменялся — iter 159 полностью завершён (2306/2306 tests PASS).
+
+---
+
+Task ID: 161 (3-section SelectedBasket + family-group counters + MIXED UX hints)
+Agent: main
+Task: Исправить 3 UX-бага из пользовательского фидбэка: (1) SelectedBasket не показывает исключённые аффиксы, (2) счётчики показывают кол-во токенов вместо кол-ва аффиксов (12 tier-вариаций = «12 выбрано» вместо «1 выбрано»), (3) MIXED режим не отличается от AND потому что пользователь не понимает, как отметить аффикс как OPT (shift+click скрытый жест).
+
+Work Log:
+- 1: **Клонирование и анализ:** Склонировал репозиторий, изучил STATUS.md (iter 160 завершён), FilterChip.tsx (3-state chip уже реализован в iter 159), SelectedBasket.tsx (только want-секция), CategoryControlPanel.tsx (счётчики используют `tokens.length`), family-grouper.ts (нашёл существующий `countUniqueFamilyKeys()`), i18n.ts (ключи для basket/logic/summary), 8 page components (одинаковый паттерн с `excludeTokens.length`). Базовое состояние: 2306/2306 tests PASS.
+- 2: **Fix #2 — Family-group counters:** Во всех 8 page components (Ring/Belt/Amulet/Relic/Waystone/Tablet/Jewel/Vendor) заменил `excludeTokens.length`/`allActiveTokens.length`/`selectedIds.size` на `countUniqueFamilyKeys(...)` (через новые переменные `wantGroupCount`/`excludeGroupCount`/`optionalGroupCount`/`activeGroupCount`). Расширил `allActiveTokens` для включения `optionalIds` (MIXED mode). Использовал существующую функцию — не пришлось писать новую логику.
+- 3: **Fix #3 — MIXED UX hints:** 
+  - `CategoryControlPanel.tsx`: добавил `optionalCount` prop. Когда `searchLogic==='mixed' && optionalCount > 0` → рендерит amber counter «N опц.». Когда `searchLogic==='mixed' && optionalCount === 0 && activeTokenCount > 0` → рендерит inline-подсказку «Shift+клик по аффиксу — опционально (хотя бы 1 из группы)».
+  - `IconLegend.tsx`: добавил `showMixedHint` prop. Когда true → добавляет 4-ю строку с иконкой ⇄ и текстом «Shift+клик по чипу — опционально (хотя бы 1)». Backward compat: custom `items` prop override → `showMixedHint` игнорируется.
+  - `i18n.ts`: добавил ключи `summary.optional` («Опц.»), `logic.mixed_hint`, `legend.opt_shift_click`.
+  - Все 7 страниц: `legend={<IconLegend showMixedHint={searchLogic === 'mixed'} />}`.
+- 4: **Fix #1 — SelectedBasket 3-section rewrite:** Полностью переписал `SelectedBasket.tsx` (~400 строк). Теперь рендерит 3 секции: want (нейтральный фон + ✗), opt (амбра с пунктиром + ⇄, только когда `mixedMode=true`), exclude (красный фон + ✗). Каждая секция имеет независимый «+N ещё» экспандер (cap=20 per section). Шапка показывает общий count + inline-разбивку `(N+M⇄K✗)` когда есть opt/exclude. Все новые props опциональны (backward compat с тестами и VendorPage). Добавил 7 i18n ключей: `basket.excluded_header`, `basket.optional_header`, `basket.unexclude_aria`, `basket.unoptional_aria`.
+  - Обновил все 7 page components: передаю `excludedIds`, `optionalIds`, `onToggleExclude`, `onToggleOptional`, `mixedMode={searchLogic === 'mixed'}`.
+- 5: **Тесты:**
+  - `tests/ui/SelectedBasket.test.tsx`: +6 тестов (3-section layout: exclude renders, exclude click, opt conditional render, opt click, header total count, backward compat). 12 → 18 тестов.
+  - `tests/ui/IconLegend.test.tsx`: +3 теста (showMixedHint=false default, showMixedHint=true → 4 rows, custom items override). 11 → 14 тестов.
+- 6: **Проверки:** tsc 0 errors, eslint 0 errors, 2315/2315 tests PASS (+9 новых), vite build PASS (618ms, main bundle 343 KB).
+- 7: **Документация:** STATUS.md переписан (iter 161 как текущая, iter 158–160 одной строкой). worklog.md — эта запись. AGENT_NAVIGATION.md — указатели обновлены. UI_REFACTOR_PLAN.md — добавлена §15 «iter 161 — User-feedback UX fixes».
+
+Stage Summary:
+- 3 UX-баги из фидбэка исправлены: SelectedBasket 3-section, family-group counters, MIXED UX hints.
+- 9 новых тестов (6 SelectedBasket + 3 IconLegend), 2306 → 2315 total.
+- Все проверки PASS: tsc 0, eslint 0, 2315/2315 tests, vite build PASS.
+- Backward compat сохранён: все новые props опциональны, старые тесты проходят без изменений.
+- KI#48 остаётся открытым — ждёт in-game прогона T1–T10 + проверки новых UX-элементов.
+- Архив с изменёнными файлами + git-команды для push.
+
 ---
 
 Task ID: 160 (MIXED-mode UI — in-game verification test plan)

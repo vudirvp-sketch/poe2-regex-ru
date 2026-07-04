@@ -348,4 +348,148 @@ describe('SelectedBasket — Phase 3 (iter 135)', () => {
       expect(screen.getByText('Резист')).toBeInTheDocument();
     });
   });
+
+  // ─── iter 161: 3-section layout (want + opt + exclude) ───
+
+  describe('iter 161 — 3-section layout (want + opt + exclude)', () => {
+    it('renders exclude section when excludedIds is non-empty (no mixedMode required)', () => {
+      const tokens = makeBeltTokens();
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1'])}
+          excludedIds={new Set(['s1'])}
+          onToggleTokens={vi.fn()}
+          onToggleExclude={vi.fn()}
+          onClearSelections={vi.fn()}
+          category="belt"
+        />,
+      );
+
+      // Exclude section header visible.
+      expect(screen.getByText('Исключено:')).toBeInTheDocument();
+      // Excluded chip renders with «Убрать из исключения» aria.
+      expect(screen.getByRole('button', { name: /Урон — Убрать из исключения/ })).toBeInTheDocument();
+      // Want chip still renders.
+      expect(screen.getByRole('button', { name: /Резист — Снять выделение/ })).toBeInTheDocument();
+    });
+
+    it('click on exclude chip calls onToggleExclude with family member IDs', () => {
+      const tokens = makeBeltTokens();
+      const onToggleExclude = vi.fn();
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set()}
+          excludedIds={new Set(['s1', 's2'])} // 'Урон' family (s1 + s2)
+          onToggleTokens={vi.fn()}
+          onToggleExclude={onToggleExclude}
+          onClearSelections={vi.fn()}
+          category="belt"
+        />,
+      );
+
+      const chip = screen.getByRole('button', { name: /Урон — Убрать из исключения/ });
+      fireEvent.click(chip);
+      expect(onToggleExclude).toHaveBeenCalledWith(['s1', 's2']);
+    });
+
+    it('renders opt section only when mixedMode=true AND optionalIds non-empty', () => {
+      const tokens = makeBeltTokens();
+
+      // Case 1: mixedMode=false → no opt section even if optionalIds has entries.
+      const { unmount } = render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1'])}
+          optionalIds={new Set(['s1'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          onClearSelections={vi.fn()}
+          category="belt"
+          mixedMode={false}
+        />,
+      );
+      expect(screen.queryByText('Опционально (≥1 из группы):')).not.toBeInTheDocument();
+      unmount();
+
+      // Case 2: mixedMode=true → opt section renders.
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1'])}
+          optionalIds={new Set(['s1'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          onClearSelections={vi.fn()}
+          category="belt"
+          mixedMode={true}
+        />,
+      );
+      expect(screen.getByText('Опционально (≥1 из группы):')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Урон — Убрать из опциональных/ })).toBeInTheDocument();
+    });
+
+    it('click on opt chip calls onToggleOptional with family member IDs', () => {
+      const tokens = makeBeltTokens();
+      const onToggleOptional = vi.fn();
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1'])}
+          optionalIds={new Set(['s1', 's2'])} // 'Урон' family
+          onToggleTokens={vi.fn()}
+          onToggleOptional={onToggleOptional}
+          onClearSelections={vi.fn()}
+          category="belt"
+          mixedMode={true}
+        />,
+      );
+
+      const chip = screen.getByRole('button', { name: /Урон — Убрать из опциональных/ });
+      fireEvent.click(chip);
+      expect(onToggleOptional).toHaveBeenCalledWith(['s1', 's2']);
+    });
+
+    it('header shows total count across all 3 sections', () => {
+      const tokens = makeBeltTokens();
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1', 'p3'])}     // 2 want families
+          optionalIds={new Set(['s1'])}            // 1 opt family
+          excludedIds={new Set(['s3'])}            // 1 exclude family
+          onToggleTokens={vi.fn()}
+          onToggleExclude={vi.fn()}
+          onToggleOptional={vi.fn()}
+          onClearSelections={vi.fn()}
+          category="belt"
+          mixedMode={true}
+        />,
+      );
+
+      // Total = 2 + 1 + 1 = 4 → header shows «Выбрано: 4 афф.»
+      expect(screen.getByText(/Выбрано: 4/)).toBeInTheDocument();
+      // Inline breakdown shows: «(2+1⇄1✗)»
+      expect(screen.getByText(/\(2\+1⇄1✗\)/)).toBeInTheDocument();
+    });
+
+    it('excludedIds/optionalIds/onToggleExclude/onToggleOptional are all optional (backward compat)', () => {
+      const tokens = makeBeltTokens();
+      // Render with only the pre-iter-161 required props.
+      render(
+        <SelectedBasket
+          tokens={tokens}
+          selectedIds={new Set(['p1'])}
+          onToggleTokens={vi.fn()}
+          onClearSelections={vi.fn()}
+          category="belt"
+        />,
+      );
+      // Want chip renders; no exclude/opt sections.
+      expect(screen.getByRole('button', { name: /Резист — Снять выделение/ })).toBeInTheDocument();
+      expect(screen.queryByText('Исключено:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Опционально (≥1 из группы):')).not.toBeInTheDocument();
+    });
+  });
 });

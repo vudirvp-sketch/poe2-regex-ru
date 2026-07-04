@@ -1117,3 +1117,142 @@ URL hash содержит ключи:
 5. **Multi-OPT groups:** в текущей реализации все OPT токены собираются в ОДНУ
    `MIXED_OR` quoted group. Если user хочет две независимые OR-группы
    (`"OPT1\|OPT2" "OPT3\|OPT4"`), нужен UI для группировки OPT — не реализовано.
+
+---
+
+## §15. iter 161 — User-feedback UX fixes (3 bugs)
+
+iter 161 исправляет 3 UX-бага, обнаруженных пользователем при первичном
+тестировании MIXED-mode UI (iter 159/160). Кодовая логика генерации regex
+не изменялась — исправления затрагивают только presentation layer.
+
+### 15.1 Bug #1 — SelectedBasket не показывал исключённые аффиксы
+
+**Симптом:** в правой панели `SelectedBasket` отображался блок
+«Выбрано: 0 афф.» с placeholder «Выберите аффиксы», но исключённые (excluded)
+аффиксы не отображались нигде. Пользователь не видел, что он исключил.
+
+**Фикс:** `src/ui/components/SelectedBasket.tsx` переписан в 3-секционную
+компоновку:
+
+| Секция | Условие рендера | Стиль | Иконка | ARIA |
+|--------|----------------|-------|--------|------|
+| want   | `selectedIds.size > 0` | `bg-chip border-edge` | ✗ | `basket.unselect_aria` |
+| opt    | `mixedMode && optionalIds.size > 0` | `bg-amber-900/20 border-dashed` | ⇄ | `basket.unoptional_aria` |
+| exclude | `excludedIds.size > 0` | `bg-indicator-red/30 border-red` | ✗ | `basket.unexclude_aria` |
+
+Каждая секция имеет независимый «+N ещё» экспандер (cap=20 per section).
+Шапка показывает общий count + inline-разбивку `(N+M⇄K✗)` когда есть
+opt/exclude. Все новые props опциональны (backward compat с тестами и
+VendorPage, который не использует excludedIds).
+
+**Новые props:**
+- `excludedIds?: Set<string>`
+- `optionalIds?: Set<string>`
+- `onToggleExclude?: (ids: string[]) => void`
+- `onToggleOptional?: (ids: string[]) => void`
+- `mixedMode?: boolean` (default false)
+
+**Новые i18n ключи:** `basket.excluded_header`, `basket.optional_header`,
+`basket.unexclude_aria`, `basket.unoptional_aria`.
+
+### 15.2 Bug #2 — Счётчики показывали кол-во токенов, не аффиксов
+
+**Симптом:** аффикс «+(10—179) к максимуму маны ×12» (12 tier-вариаций) при
+клике показывал «12 выбрано» в тулбаре вместо «1 выбрано». Пользователь
+выбрал ОДИН аффикс, а не 12 вариаций.
+
+**Причина:** `CategoryControlPanel` использовал `tokens.length` (кол-во
+GameToken объектов), а не кол-во family groups (аффиксов). Когда
+пользователь кликает chip, `toggleTokens(memberIds)` добавляет ВСЕ member
+IDs в `selectedIds` (12 штук для 12-tier семьи).
+
+**Фикс:** во всех 8 page components заменено на `countUniqueFamilyKeys()`
+(существующая функция в `src/shared/family-grouper.ts`, line 173):
+
+```ts
+// Было:
+excludedCount={excludeTokens.length}        // 12
+activeTokenCount={allActiveTokens.length}   // 12
+selectedCount={selectedIds.size}            // 12
+
+// Стало:
+excludedCount={excludeGroupCount}     // 1
+activeTokenCount={activeGroupCount}   // 1
+selectedCount={wantGroupCount}        // 1
+```
+
+Дополнительно: `allActiveTokens` расширен для включения `optionalIds`
+(раньше OPT-токены не учитывались в active count для budget warnings).
+
+### 15.3 Bug #3 — MIXED режим не отличался от AND (UX)
+
+**Симптом:** пользователь включал «Смешанный» режим, выбирал аффиксы —
+генерировался regex, идентичный AND режиму. Причина: без OPT-аффиксов
+`buildMixedAstFromSelections` деградирует в чистый AND (это правильно по
+логике — нет OPT → нет OR → AND). Но пользователь не понимал, КАК отметить
+аффикс как OPT (shift+click был скрытым жестом, описанным только в tooltip).
+
+**Фикс (UX-only, без изменения логики генерации):**
+
+1. **Inline-подсказка в тулбаре** (`CategoryControlPanel.tsx`):
+   Когда `searchLogic === 'mixed' && optionalCount === 0 && activeTokenCount > 0`
+   → рендерится italic-текст «Shift+клик по аффиксу — опционально (хотя бы 1
+   из группы)». Исчезает, как только пользователь shift+кликнет хотя бы один
+   аффикс (`optionalCount > 0`).
+
+2. **OPT counter в тулбаре** (`CategoryControlPanel.tsx`):
+   Новый prop `optionalCount`. Когда `searchLogic === 'mixed' && optionalCount > 0`
+   → рендерится amber counter «N опц.» рядом с «N выбрано» и «N исключить».
+   Визуальный feedback, что OPT-аффиксы есть.
+
+3. **4-я строка в IconLegend** (`IconLegend.tsx`):
+   Новый prop `showMixedHint`. Когда true → добавляется 4-я строка с иконкой ⇄
+   (метафора «либо это, либо то») и текстом «Shift+клик по чипу — опционально
+   (хотя бы 1)». Все 7 страниц передают `showMixedHint={searchLogic === 'mixed'}`.
+   Backward compat: custom `items` prop override → `showMixedHint` игнорируется.
+
+4. **Улучшенный tooltip** (`logic.mixed_tooltip`): уже был с iter 159 —
+   «Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по
+   чипу — хочу, Shift+клик — опционально, правый клик — исключить.»
+
+**Новые i18n ключи:** `summary.optional` («Опц.»), `logic.mixed_hint`,
+`legend.opt_shift_click`.
+
+### 15.4 Test coverage (iter 161)
+
+| File | Было | Стало | Delta |
+|------|------|-------|-------|
+| `tests/ui/SelectedBasket.test.tsx` | 12 | 18 | +6 (3-section layout) |
+| `tests/ui/IconLegend.test.tsx` | 11 | 14 | +3 (showMixedHint) |
+| **Total** | 2306 | **2315** | **+9** |
+
+Новые тесты покрывают: exclude section render + click, opt section conditional
+render (mixedMode gate), opt click, header total count with breakdown, backward
+compat (optional props), IconLegend showMixedHint true/false/override.
+
+### 15.5 Backward compatibility
+
+Все изменения backward-compatible:
+- `SelectedBasket`: новые props опциональны, default behavior = pre-iter-161.
+- `CategoryControlPanel`: `optionalCount` optional, default 0.
+- `IconLegend`: `showMixedHint` optional, default false; custom `items` override.
+- `i18n`: новые ключи добавлены, существующие не изменены.
+- `countUniqueFamilyKeys()` существовала с iter 135 — не новый код.
+
+Старые тесты (FilterChip, filter-store, buildMixedAst, etc.) проходят без
+изменений — 2306 pre-existing + 9 new = 2315 total.
+
+### 15.6 Open questions (для iter 162+)
+
+1. **UX feedback после iter 161:** достаточно ли inline-подсказки, или нужен
+   first-time modal/onboarding tour? → решается после in-game прогона T1–T10.
+2. **3-section SelectedBasket на mobile:** не проверено на маленьких экранах —
+   возможно потребуется collapsible секции или tabbed layout.
+3. **OPT counter «N опц.»:** достаточно ли distinct amber color, или нужен
+   icon (⇄) рядом с count? → UX feedback.
+4. **Inline breakdown `(N+M⇄K✗)` в шапке:** может быть слишком компактным/
+   непонятным для новых users. Альтернатива: убрать breakdown, оставить только
+   общий count.
+5. **IconLegend 4-я строка:** ⇄ может быть непонятен без контекста. Возможно
+   заменить на «Shift+клик» как icon.

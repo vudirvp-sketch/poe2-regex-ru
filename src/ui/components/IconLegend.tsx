@@ -33,6 +33,10 @@ interface IconLegendProps {
    *  rendering of custom items. When omitted, uses the default legend
    *  content per UI_REFACTOR_PLAN.md §4 Phase 4.5. */
   items?: IconLegendItem[];
+  /** iter 161: when true, appends a 4th row explaining shift+click = OPT
+   *  for MIXED-mode. Pages pass `searchLogic === 'mixed'` so the hint
+   *  appears only when MIXED is active. Default false (backward compat). */
+  showMixedHint?: boolean;
 }
 
 /** Default legend content per UI_REFACTOR_PLAN.md §4 Phase 4.5. */
@@ -41,6 +45,13 @@ const DEFAULT_ITEMS: IconLegendItem[] = [
   { icon: '✗', textKey: 'legend.exclude' },
   { icon: 'ⓘ', textKey: 'legend.info' },
 ];
+
+/** iter 161: extra row appended when MIXED mode is active. */
+const MIXED_HINT_ITEM: IconLegendItem = {
+  // ⇄ (left-right arrow) — visual metaphor for "either this OR that".
+  icon: '⇄',
+  textKey: 'legend.opt_shift_click',
+};
 
 /**
  * Render the static «Обозначения» legend. Pure presentational — no state,
@@ -52,7 +63,10 @@ const DEFAULT_ITEMS: IconLegendItem[] = [
  * Custom items (for testing):
  *   <IconLegend items={[{ icon: '?', textKey: 'custom.key' }]} />
  */
-export const IconLegend: React.FC<IconLegendProps> = ({ items = DEFAULT_ITEMS }) => {
+export const IconLegend: React.FC<IconLegendProps> = ({ items, showMixedHint = false }) => {
+  // iter 161: when `items` is explicitly provided (tests), use it as-is.
+  // Otherwise, build from DEFAULT_ITEMS + optional MIXED hint row.
+  const effectiveItems = items ?? (showMixedHint ? [...DEFAULT_ITEMS, MIXED_HINT_ITEM] : DEFAULT_ITEMS);
   const titleId = 'icon-legend-title';
   return (
     <section
@@ -63,7 +77,7 @@ export const IconLegend: React.FC<IconLegendProps> = ({ items = DEFAULT_ITEMS })
         {t('legend.title')}
       </div>
       <ul className="flex flex-col gap-0 m-0 p-0 list-none">
-        {items.map((item, idx) => (
+        {effectiveItems.map((item, idx) => (
           <li key={`${item.icon}-${idx}`} className="icon-legend__row">
             <span className="icon-legend__icon" aria-hidden="true">{item.icon}</span>
             <span>{t(item.textKey)}</span>

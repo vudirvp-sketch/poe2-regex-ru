@@ -34,6 +34,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'logic.mixed': 'Смешанный',
     // Tooltip / aria-description for the MIXED toggle button.
     'logic.mixed_tooltip': 'Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по чипу — хочу, Shift+клик — опционально, правый клик — исключить.',
+    // iter 161: short inline hint shown in MIXED mode when user has selected
+    // affixes but hasn't marked any as OPT yet. Tells them HOW to mark OPT.
+    'logic.mixed_hint': 'Shift+клик по аффиксу — опционально (хотя бы 1 из группы)',
     'search.placeholder': 'Поиск аффиксов...',
     'filter.all_types': 'Все типы',
     'filter.all_origins': 'Все источники',
@@ -103,6 +106,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'origin.breachborn': 'Разлом',
     'summary.selected': 'Выбрано',
     'summary.include': 'Включить',
+    // iter 161: noun for the optional-affix counter in MIXED mode.
+    // Displayed lowercase after the count: «N опц.»
+    'summary.optional': 'Опц.',
     'summary.exclude': 'Исключить',
     'control.panel': 'Панель управления',
     'suffixes.label': 'суффиксы',
@@ -197,6 +203,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'basket.title': 'Выбрано: {n}',
     // SelectedBasket header noun suffix
     'basket.title_suffix': 'афф.',
+    // iter 161: section headers for excluded and optional affixes.
+    // Shown as small italic labels above the chip list when those sets
+    // are non-empty. Lowercase to match the existing «Выбрано: N афф.» style.
+    'basket.excluded_header': 'Исключено:',
+    'basket.optional_header': 'Опционально (≥1 из группы):',
     // SelectedBasket empty state — shown when selectedIds is empty.
     'basket.empty': 'Выберите аффиксы',
     // SelectedBasket «Очистить все» link → calls clearSelections().
@@ -215,6 +226,10 @@ const translations: Record<Locale, Record<string, string>> = {
     // SelectedBasket ARIA label for clicking a basket chip to deselect.
     // Appended after the chip's displayText in the aria-label string.
     'basket.unselect_aria': 'Снять выделение',
+    // iter 161: ARIA label appended after displayText for excluded chips.
+    'basket.unexclude_aria': 'Убрать из исключения',
+    // iter 161: ARIA label appended after displayText for optional chips.
+    'basket.unoptional_aria': 'Убрать из опциональных',
     // Affix-type badge labels prefixed to each basket chip (iter 130 visualization).
     'basket.badge_implicit': 'ИМПЛ',
     'basket.badge_prefix': 'ПРЕФ',
@@ -273,6 +288,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.star': 'в избранное',
     'legend.exclude': 'исключить аффикс (не хочу)',
     'legend.info': 'наведите для подсказки',
+    // iter 161: shift+click hint for MIXED mode. Rendered only when
+    // searchLogic==='mixed' (IconLegend accepts optional `showMixedHint`).
+    'legend.opt_shift_click': 'Shift+клик по чипу — опционально (хотя бы 1)',
     // iter 140 (KI#25): tooltip text for show-selected-only radio toggle.
     // User asked: «кнопка режим отображения аффиксов и сама функция для чего
     // собственно?». Tooltip explains what the toggle does.

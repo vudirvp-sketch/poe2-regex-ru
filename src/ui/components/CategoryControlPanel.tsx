@@ -73,11 +73,18 @@ interface CategoryControlPanelProps {
   showRound10?: boolean;
   /** Slot for a clear/reset button (used by VendorPage) */
   clearButton?: React.ReactNode;
-  /** Count of excluded ("don't want") mods for summary */
+  /** Count of excluded ("don't want") mods for summary.
+   *  iter 161: now counts family GROUPS (affixes), not individual tokens —
+   *  a 12-tier affix chip = 1 family group, displayed as "1 исключить". */
   excludedCount?: number;
   /** Number of active (selected + excluded) tokens — for budget-aware warnings.
-   *  Used for the active-tokens counter in the controls row. */
+   *  iter 161: now counts family GROUPS, not tokens. */
   activeTokenCount?: number;
+  /** iter 161: Count of optional ("opt") family groups in MIXED mode.
+   *  When > 0 and searchLogic==='mixed', renders an amber counter next to
+   *  the active/excluded counters: «N опц.». Visual cue that the user has
+   *  marked some affixes as optional (shift+click). */
+  optionalCount?: number;
 
   // ─── Phase 3 (iter 135): show-selected-only toggle ─────────────────────────
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
@@ -142,6 +149,8 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   showSortMode,
   excludedCount = 0,
   activeTokenCount = 0,
+  // iter 161: optional count for MIXED mode (family groups, not tokens)
+  optionalCount = 0,
   // Phase 3 (iter 135): show-selected-only toggle
   showSelectedOnly = false,
   onSetShowSelectedOnly,
@@ -210,17 +219,42 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           </button>
         </div>
 
-        {/* Active tokens counter (overflow counter) */}
+        {/* Active tokens counter (overflow counter).
+            iter 161: counts family groups (affixes), not raw tokens.
+            A 12-tier affix chip = 1 family group → displays as «1 выбрано». */}
         {activeTokenCount > 0 && (
           <span className="text-[12px] text-muted font-medium">
             {activeTokenCount} {t('selected')}
           </span>
         )}
 
-        {/* Exclude summary indicator */}
+        {/* iter 161: Optional counter (MIXED mode only).
+            Shows the number of family groups marked as OPT (shift+click).
+            Visual cue that the user has opted-in some affixes as "at least 1
+            of these". Hidden when 0 OR when not in MIXED mode. */}
+        {searchLogic === 'mixed' && optionalCount > 0 && (
+          <span className="text-[12px] text-accent-amber-warn font-medium" title={t('logic.mixed_tooltip')}>
+            {optionalCount} {t('summary.optional').toLowerCase()}
+          </span>
+        )}
+
+        {/* Exclude summary indicator.
+            iter 161: counts family groups, not tokens. */}
         {excludedCount > 0 && (
           <span className="text-[12px] text-accent-red font-medium">
             {excludedCount} {t('summary.exclude').toLowerCase()}
+          </span>
+        )}
+
+        {/* iter 161: MIXED-mode onboarding hint.
+            When user enables MIXED mode but hasn't marked any OPT yet,
+            show a compact inline hint explaining shift+click. Disappears
+            as soon as the user shift+clicks at least one affix (optionalCount > 0).
+            Only shown when there's at least 1 active selection (otherwise the
+            hint is noise on an empty page). */}
+        {searchLogic === 'mixed' && optionalCount === 0 && activeTokenCount > 0 && (
+          <span className="text-[11px] text-dim italic" title={t('logic.mixed_tooltip')}>
+            {t('logic.mixed_hint')}
           </span>
         )}
 

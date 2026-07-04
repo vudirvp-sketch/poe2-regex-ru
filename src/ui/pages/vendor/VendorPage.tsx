@@ -29,6 +29,7 @@ import { RegexOutput } from '@ui/components/RegexOutput';
 import { StatusPanel } from '@ui/components/StatusPanel';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { CategoryLayout } from '@ui/layout/CategoryLayout';
+import { countUniqueFamilyKeys } from '@shared/family-grouper';
 // iter 144 (KI#33): FavoritesIndicator + ⭐ pin slot support for vendor page.
 // VendorPage previously used custom FilterChip without ⭐ pin slot — favorites
 // gap was known since iter 136 (Phase 5), deferred. KI#33 closes this gap by
@@ -166,8 +167,11 @@ export function VendorPage() {
   }, [data, perTokenRanges]);
 
   // Count active tokens
+  // iter 161: use family-group count for display, not raw token count.
+  // Each vendor property is its own family, so the count matches user mental model.
   const allActiveTokens = data?.tokens.filter(tok => selectedIds.has(tok.id) || excludedIds.has(tok.id)) ?? [];
-  const excludeCount = data?.tokens.filter(tok => excludedIds.has(tok.id)).length ?? 0;
+  const excludeCount = countUniqueFamilyKeys(data?.tokens.filter(tok => excludedIds.has(tok.id)) ?? []);
+  const activeGroupCount = countUniqueFamilyKeys(allActiveTokens);
   /* hasRangedTokens removed in iter 59: global min/max is hidden for vendor
      (no-op setters were misleading). Per-chip range inputs in FilterChip work. */
 
@@ -226,7 +230,7 @@ export function VendorPage() {
           searchLogic={searchLogic}
           setSearchLogic={setSearchLogic}
           excludedCount={excludeCount}
-          activeTokenCount={allActiveTokens.length}
+          activeTokenCount={activeGroupCount}
           clearButton={
             selectedIds.size > 0 ? (
               <button
@@ -245,7 +249,7 @@ export function VendorPage() {
           isOverflow={isRegexOverflow}
           regexParts={regexParts}
           filterStore={filterStore}
-          activeTokenCount={allActiveTokens.length}
+          activeTokenCount={activeGroupCount}
         />
       }
       status={
@@ -268,7 +272,7 @@ export function VendorPage() {
               isOverflow={isRegexOverflow}
               regexParts={regexParts}
               filterStore={filterStore}
-              activeTokenCount={allActiveTokens.length}
+              activeTokenCount={activeGroupCount}
             />
           }
           alerts={[

@@ -129,4 +129,38 @@ describe('IconLegend', () => {
     // Title still renders.
     expect(screen.getByText('Обозначения')).toBeInTheDocument();
   });
+
+  // ─── iter 161: showMixedHint appends a 4th row for MIXED mode ───
+
+  it('iter 161: showMixedHint=false (default) → 3 rows, no OPT hint', () => {
+    const { container } = render(<IconLegend />);
+    const rows = container.querySelectorAll('.icon-legend__row');
+    expect(rows).toHaveLength(3);
+    expect(screen.queryByText(/Shift\+клик по чипу/)).not.toBeInTheDocument();
+  });
+
+  it('iter 161: showMixedHint=true → 4 rows, last row is the OPT shift+click hint', () => {
+    const { container } = render(<IconLegend showMixedHint={true} />);
+    const rows = container.querySelectorAll('.icon-legend__row');
+    expect(rows).toHaveLength(4);
+    // The 4th row text matches the i18n key 'legend.opt_shift_click'.
+    expect(screen.getByText(/Shift\+клик по чипу — опционально/)).toBeInTheDocument();
+    // The 4th row icon is ⇄ (left-right arrow, metaphor for "either this OR that").
+    expect(screen.getByText('⇄')).toBeInTheDocument();
+  });
+
+  it('iter 161: custom items prop overrides showMixedHint (backward compat with tests)', () => {
+    // When `items` is explicitly provided, showMixedHint is ignored — the
+    // caller is in full control of the row list. This preserves backward
+    // compat with the existing `items` prop tests above.
+    const { container } = render(
+      <IconLegend
+        items={[{ icon: 'X', textKey: 'legend.star' }]}
+        showMixedHint={true}
+      />
+    );
+    const rows = container.querySelectorAll('.icon-legend__row');
+    expect(rows).toHaveLength(1);
+    expect(screen.queryByText(/Shift\+клик по чипу/)).not.toBeInTheDocument();
+  });
 });
