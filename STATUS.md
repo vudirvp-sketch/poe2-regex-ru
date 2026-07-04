@@ -2,14 +2,26 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 155 (KI#43 deploy retry fix)
+> **Текущая итерация:** 157 (Mixed AND+OR verified — UI MIXED ready to implement)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 155: KI#43 deploy retry fix.** Build + Deploy workflow теперь оборачивает `actions/deploy-pages@v4` в `Wandalen/wretry.action@v3` (3 attempts, 30s delay) для автоматического retry при transient Pages API failures. Build artifact успешен — fallback только на deploy step.
+**iter 157: Mixed AND+OR логика verified in-game.** 10 тестов (T1–T10) на 3 путевых камнях подтвердили полную механику combined-режима:
+- ✅ `"MUST1" "MUST2" "OPT1|OPT2"` — работает (T1, T2, T3)
+- ✅ Две OR-группы + AND между ними — работает (T6)
+- ✅ `!` item-wide negation в combined-режиме — работает (T7)
+- ✅ Truncation длинных имён для экономии длины — работает (T8)
+- ✅ Пороговые паттерны в OPT (прямая форма `N%.*suffix`) — работают (T9)
+- ✅ OR-группа без матчей → все предметы скрыты (T10)
+- ❌ `^` на второй ALT ломает матч (T4) → KI#45
+- ❌ Лимит 250 chars жёсткий (T5) → KI#46
+
+Готов к реализации UI-режима «MIXED» в iter 158.
+
+**iter 155: KI#43 deploy retry fix.** `actions/deploy-pages@v4` обёрнут в `Wandalen/wretry.action@v3`. Ожидает подтверждения на следующем push.
 
 ---
 
@@ -17,33 +29,43 @@
 
 ### Активные
 
+**KI#45 — `^`-anchor на второй/третьей ALT в OR ломает матч (iter 157).**
+
+**Симптом:** регекс `"X" "^A.*P1|^B.*P2"` matчит только предметы, где первая ALT срабатывает. Вторая ALT НЕ matчит даже если блок содержит B...P2, потому что `^B` требует блок, начинающийся с B.
+
+**Test (T4):** `"бонусу критического урона монстров" "^Монстры имеют.*порога состояний|^сопротивлений стихиям"`. W3 (блок «Урон монстров пробивает 13% сопротивлений стихиям») — ❌ НЕ matчит, хотя блок содержит «сопротивлений стихиям».
+
+**Для UI-режима MIXED:** `^` только на первую ALT в OPT-группе.
+
+**KI#46 — Лимит 250 chars в combined-режиме (iter 157).**
+
+**Симптом:** регекс 268 chars — игра НЕ принимает (T5).
+
+**Для UI-режима MIXED:**
+- Счётчик длины в реальном времени, предупреждение при >240 chars.
+- Авто-truncation длинных affix names (verified T8 — работает в combined-режиме).
+- Ограничение количества mandatory и OPT-альтернатив в UI.
+
 **KI#43 — Transient `actions/deploy-pages` failures (iter 155).**
 
-**Симптом:** `Build + Deploy` workflow завершается `failure` при `Deploy to Pages` step (~6s), хотя `Build` и `Upload Pages artifact` steps — `success`.
+`Build + Deploy` workflow завершается `failure` при `Deploy to Pages` step (~6s), хотя Build — `success`. Fix: deploy step обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay). Ожидает подтверждения на следующем push.
 
-**Incident:** Run [28677715718](https://github.com/vudirvp-sketch/poe2-regex-ru/actions/runs/28677715718) от iter 154 (commit `7dc558d`). Два push'а iter 154 подряд (`fad413f` success → `7dc558d` failure, ~90s apart). Build upload прошел за 1s, deploy step стартовал в 18:35:06 и упал в 18:35:12 — слишком быстро для real failure, GitHub Pages API вернул ошибку без подробностей (admin-only logs).
+### Фоновые (low-priority)
 
-**Root cause (предположение):** Transient GitHub Pages API error. Pages deployments sometimes fail when triggered shortly after another deploy finished — internal state machine GitHub Pages ещё не released предыдущий deployment.
-
-**Fix (iter 155):** `deploy.yml` → deploy step обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay между попытками). Все inputs/outputs `actions/deploy-pages@v4` пробрасываются прозрачно (включая `steps.deployment.outputs.page_url`).
-
-**Recovery для существующего failed run:** User может manually re-run failed workflow из GitHub Actions UI (`...` → `Re-run failed jobs`) — Pages API к этому моменту уже свободен.
-
-### Фоновые (low-priority, опциональные)
-
-1. **APCA Lc<75 для small text с weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
-2. **MobileRegexBar chunk 158 KB** — отдельный chunk для mobile-only компонента. Можно ещё больше раздробить, но это не критично (загружается только на mobile, не влияет на desktop LCP).
-3. **`scripts/patch-ki10-ki12-overrides.ts` (iter 153 one-shot)** — оставлен в repo до следующего ETL refresh. После подтверждения, что `manualOverride` flag корректно защищает future ETL runs, можно удалить.
-4. **`_local-tools/browser-test-iter153.sh`** — iter 153 one-shot browser-testing script с hardcoded `/tmp/` paths. Можно удалить или перенести в `docs/` как reference.
+1. **APCA Lc<75 для small text weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
+2. **MobileRegexBar chunk 158 KB** — отдельный chunk для mobile-only компонента.
+3. **`scripts/patch-ki10-ki12-overrides.ts`** — iter 153 one-shot, удалить после ETL refresh.
+4. **`_local-tools/browser-test-iter153.sh`** — iter 153 one-shot, удалить или перенести в `docs/`.
 
 ### Закрытые
 
-- ✅ **iter 154:** KI#38 scroll jitter (user-verified на «Самоцветы» 250+ токенов), KI#31 mobile UX (user-verified на 8 страницах), iter 150 KI#41 ⓘ glyph visual (user-verified). Repo cleanup: 17 stale files deleted + 11 `.etl-cache/*.html` untracked.
-- ✅ **iter 153:** KI#10 (rarity disambiguation override regression), KI#12 (tier-hardcoded regex regression) — fixed via `manualOverride` flag. Bundle 603→342 KB via `React.lazy + Suspense` code-split.
-- ✅ **iter 152:** KI#42 search focus loss fix на jewel/waystone.
-- ✅ **iter 150:** KI#40 ⭐ pin button on all 7 pages, KI#41 ⓘ in-box layout.
-- ✅ **iter 149:** PriorityFilter feature complete removal.
-- ✅ **iter 148:** toolbar UX refactor (radiogroups → `<select>`).
+- ✅ **iter 157:** KI#44 — Mixed AND+OR verified (10 in-game tests T1–T10 PASS).
+- ✅ **iter 154:** KI#38 scroll jitter, KI#31 mobile UX, KI#41 ⓘ glyph — user-verified. Repo cleanup.
+- ✅ **iter 153:** KI#10/KI#12 — `manualOverride` flag. Bundle 603→342 KB.
+- ✅ **iter 152:** KI#42 search focus loss fix.
+- ✅ **iter 150:** KI#40 ⭐ pin, KI#41 ⓘ in-box layout.
+- ✅ **iter 149:** PriorityFilter removal.
+- ✅ **iter 148:** toolbar UX refactor.
 
 ---
 
@@ -54,35 +76,49 @@
 | `\|` между одиночными словами | ✅ | `"Бездн\|Делир"` |
 | `\|` top-level + `.*` мосты (Path D) | ✅ | до 9 альтернатив |
 | `\|` между quoted groups | ❌ | zero matches |
-| Пробел = AND | ✅ | same-block + cross-block |
+| Пробел = AND (cross-block + same-block) | ✅ | |
 | `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` |
 | `!` item-wide | ✅ | для top-level AND |
-| `^` start-of-block anchor | ✅ | |
+| `^` start-of-block anchor | ✅ | **только на первой ALT в OR** (iter 46 + iter 157 T4) |
 | `\d`, `\d{N,}` | ✅ | |
 | `?` optional | ❌ | не работает в игре |
 | `(A\|B\|C)` alone | ✅ | in-game verified |
-| `prefix (A\|B\|C)%.*suffix` | ✅ | iter 15 verified |
+| `prefix (A\|B\|C)%.*suffix` | ✅ | iter 15 |
 | `^(A\|B\|C).*suffix` | ✅ | Phase 9b |
 | `prefix.*literal(A\|B\|C)` | ❌ | Fix: Path D |
-| Regex char limit ≈ 250 chars | ✅ | runtime split |
+| **`"A" "B" "C\|D"` (AND + OR combined)** | ✅ iter 157 | T1/T2/T3 |
+| **`"A" "ctx.*X\|ctx2.*Y"` (Path D + AND)** | ✅ iter 157 | T3 |
+| **`"A" "OPT1\|OPT2" "OPT3\|OPT4"` (несколько OR)** | ✅ iter 157 | T6 |
+| **`"!BAD" "MUST" "OPT1\|OPT2"` (`!` + AND + OR)** | ✅ iter 157 | T7 |
+| **Truncation в combined-режиме** | ✅ iter 157 | T8 |
+| **Пороги в OPT (прямая `N%.*suffix`)** | ✅ iter 157 | T9 |
+| **Пороги в OPT (reversed `suffix.*N%`)** | ⚠️ нужен reversed паттерн | T9 (W3 не matчит — pierce reversed) |
+| **OR без матчей → предмет скрыт** | ✅ iter 157 | T10 |
+| **`"A" "^X\|^Y"` (`^` на нескольких ALT)** | ❌ iter 157 KI#45 | T4: вторая ALT ломается |
+| Regex char limit ≈ 250 chars | ✅ | **жёсткий в combined-режиме** (iter 157 T5) |
 
 ---
 
-## Next iteration (iter 155 → iter 156)
+## Next iteration (iter 157 → iter 158)
 
-**iter 155 завершён: KI#43 deploy retry fix. Готов к push.**
+**iter 157 завершён: Mixed AND+OR verified (10 тестов). Готов к push.**
 
-**Приоритеты для iter 156:**
+**Приоритеты для iter 158:**
 
-1. **Новые баги** (если найдены) — сначала документировать в STATUS.md как Known Issue, потом фиксить.
+1. **Реализовать UI-режим «MIXED»** на основе verified-шаблонов:
+   - UI: чекбоксы «обязательный» (MUST) vs «опциональный» (OPT) для каждого аффикса.
+   - Генератор: `"MUST1" "MUST2" "OPT1|OPT2|OPT3"` (базовый, T1–T3).
+   - Поддержка нескольких OPT-групп: `"MUST" "OPT1|OPT2" "OPT3|OPT4"` (T6).
+   - Поле «исключить аффикс» → `!` item-wide (T7).
+   - Счётчик длины с предупреждением при >240 chars (KI#46).
+   - Авто-truncation длинных affix names (T8 verified).
+   - `^`-anchor только на первой OPT-alt (KI#45).
+   - Path D (`ctx.*suffix`) разрешён внутри OPT-alt (T3 verified).
+   - Пороговые паттерны в OPT: прямая `N%.*suffix` (T9 verified) + reversed `suffix.*N%` (через `reversed` флаг в AST).
 
-2. **Фоновые задачи (опционально, low-priority):**
-   - **APCA Lc<75 для small text weight 400** — weight 500 на критичных лейблах.
-   - **MobileRegexBar chunk 158 KB** — дальнейший code-split, если user заметит медленную загрузку на mobile.
-   - **`scripts/patch-ki10-ki12-overrides.ts` (iter 153 one-shot)** — удалить после подтверждения, что `manualOverride` flag защищает future ETL runs.
-   - **`_local-tools/browser-test-iter153.sh`** — удалить или перенести в `docs/` как reference.
+2. **Новые баги** (если найдены) — сначала STATUS.md, потом фикс.
 
-3. **Новые фичи / UX-импрувменты** — по запросу user.
+3. **Фоновые задачи (опционально):** APCA, MobileRegexBar split, удаление one-shot скриптов.
 
 ---
 

@@ -4,30 +4,53 @@
 
 ---
 
-Task ID: 155 (KI#43 deploy retry fix)
+Task ID: 157 (Mixed AND+OR in-game verification)
 Agent: main
-Task: iter 154 push trigger'нул `Build + Deploy` workflow, run [28677715718](https://github.com/vudirvp-sketch/poe2-regex-ru/actions/runs/28677715718) — Build job SUCCESS (artifact uploaded), но Deploy to Pages job FAILURE (step 2, ~6s). Investigate + fix.
+Task: пользователь прогнал в игре 10 тестов (T1–T5 + T6–T10) на 3 путевых камнях (Призрачный камень / Изменённый прогресс / Разрушенный коридор). Обработать результаты, обновить документацию, подготовить архив к push.
 
 Work Log:
-- 1: **Fetched run info via GitHub API** (`https://api.github.com/repos/vudirvp-sketch/poe2-regex-ru/actions/runs/28677715718/jobs`). 4 jobs total: ETL (skipped), Build (success), Deploy (failure), Notify IndexNow (skipped). All 9 Build steps success including `Upload Pages artifact`. Deploy job `started_at=18:35:04`, step 2 `Deploy to Pages` `started_at=18:35:06`, `conclusion=failure`, `completed_at=18:35:12` — 6 seconds total. Step 1 (`Set up job`) success, step 3 (`Complete job`) success.
-- 2: **Compared with successful run 28677653893** (commit `fad413f` — first iter 154 push, 90s earlier). Successful run's deploy step took 6s too (18:33:27 → 18:33:33). Same workflow YAML, same code (diff between `fad413f` and `7dc558d` = only file deletions of stale root files + `.etl-cache/*.html` untrack + `DELETIONS-iter151.txt` added; no source/build logic changes). Build artifact identical in content (verified via `git diff 113b573..7dc558d` — 9157 deletions, 321 insertions, all in cleanup files).
-- 3: **Tried to fetch deploy job logs** via API — got `403 Must have admin rights to Repository` (public API doesn't expose job logs to unauthenticated clients). Conclusion: failure mode matches the documented "transient Pages API error" pattern — Build artifact uploaded successfully, deploy step fails fast (6s) without a real artifact issue.
-- 4: **Documented KI#43 in STATUS.md** — new active Known Issue: "Transient `actions/deploy-pages` failures". Симптом: Build SUCCESS, Deploy FAILURE ~6s. Incident: run 28677715718 от iter 154. Root cause (предположение): GitHub Pages API internal state machine не released предыдущий deployment (два push'а ~90s apart). Recovery: manual re-run из GitHub Actions UI.
-- 5: **Fix deploy.yml** — обернул `actions/deploy-pages@v4` в `Wandalen/wretry.action@v3` (latest release v3.8.0 от 2025-01-09, well-maintained). `attempt_limit: 3`, `attempt_delay: 30` (seconds). Все inputs/outputs пробрасываются прозрачно — `id: deployment` на wretry action, `steps.deployment.outputs.page_url` продолжит работать (wretry.action README: "All inputs and outputs of the internal action are properly forwarded"). Inline comment со ссылкой на KI#43 + STATUS.md. Permissions block unchanged (`pages: write`, `id-token: write` на job level).
-- 6: **Validated YAML** — `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/deploy.yml'))"` passes. Jobs: etl/build/deploy/indexnow — все на месте. Deploy step `uses: Wandalen/wretry.action@v3`, `with: {action: actions/deploy-pages@v4, attempt_limit: 3, attempt_delay: 30}`.
-- 7: **Cleanup stale manifests** — удалил `DELETIONS-iter151.txt` (iter 151 manifest listing 6 root files — все уже удалены в iter 154) и `CLEANUP_ITER154.txt` (iter 154 cleanup manifest — cleanup применён в commit `7dc558d`). Оба файла — stale manifests уже выполненных cleanups, засоряют root.
-- 8: **Updated AGENT_NAVIGATION.md** — header iter 154 → 155, упоминание KI#43 в brief status. NEW Pitfall 56 (CI/CD lessons): (a) **transient GitHub Pages deploy failures** — Build SUCCESS + Deploy FAILURE ~6s = transient Pages API error, NOT artifact issue. Fix pattern: wrap deploy-pages в retry action; (b) **wretry.action usage** — `Wandalen/wretry.action@v3` properly forwards inputs/outputs of inner action, including OIDC id-token permissions; (c) **stale cleanup manifest files** — удалять после применения cleanup, не оставлять как documentation (git history + worklog достаточно).
-- 9: **Документация** — STATUS.md переписан под iter 155 (KI#43 в "Активные", iter 154 summary в "Закрытые" — сокращён). worklog.md — iter 154 сокращён до одной строки, iter 155 подробно. AGENT_NAVIGATION.md — header iter 154 → 155, Pitfall 56 добавлен.
+- 1: **Раунд 1 — T1–T5 (basic verification):**
+  - T1 (`"crit_chance" "crit_damage" "пробивает|порога состояний"`): ✅ W1, ✅ W3, ❌ W2 — mixed AND+OR РАБОТАЕТ.
+  - T2 (3 mandatory + OR): идентично T1 — количество mandatory не влияет.
+  - T3 (Path D `.*` мост внутри OR + AND): идентично T1 — Path D сохраняется.
+  - T4 (`^` на обеих ALT): ✅ W1, ❌ W2, ❌ W3 — `^` на второй ALT ломает матч (KI#45).
+  - T5 (268 chars): rejected игрой — лимит 250 жёсткий (KI#46).
+- 2: **Раунд 2 — T6–T10 (extended scenarios for UI):**
+  - T6 (две OR-группы + AND): ✅ W1, ✅ W3, ❌ W2 — несколько OPT-групп работают, AND между ними.
+  - T7 (`!` negation + AND + OR): ✅ W1, ✅ W3, ❌ W2 — `!` item-wide работает в combined-режиме. W2 исключён через `!замерзшей земли`.
+  - T8 (truncation в combined): ✅ W1, ✅ W3, ❌ W2 — truncation работает, можно экономить длину (mitigation для KI#46).
+  - T9 (пороги в OPT): ✅ W1, ❌ W2, ❌ W3 — пороги работают только в «прямой» форме `N%.*suffix`. W3 не matчит из-за reversed-формы pierce: блок «Урон монстров **пробивает 13%** сопротивлений стихиям» — «пробивает» ДО числа, паттерн `([6-9]|1[0-6])%.*пробивает` ожидает число → потом «пробивает». Для reversed нужен паттерн `suffix.*N%` (через `reversed` флаг в AST, уже реализован для MUST).
+  - T10 (OR без матчей): все ❌ — OR-группа без матчей отбрасывает все предметы (semantics = AND с OR-группой как обязательным элементом).
+- 3: **Интерпретация:**
+  - KI#44 (Mixed AND+OR) — ЗАКРЫТ. Полная механика verified: 10 тестов, все PASS с учётом известных constraints (KI#45/KI#46).
+  - T9 — НЕ новый баг. Reversed-форма порогов в OPT требует того же подхода что и для MUST (через `reversed` флаг в AST, уже реализован в `category-ast-utils.ts`). UI в iter 158 должен переиспользовать эту логику.
+- 4: **Обновил STATUS.md:**
+  - Header iter 157 — расширенный brief со всеми 10 тестами.
+  - KI#44 — в «Закрытые» (✅ iter 157, 10 тестов).
+  - KI#45/KI#46 — в «Активные» с пометкой «для UI-режима MIXED».
+  - Таблица PoE2 limitations — добавлены 7 новых строк (combined AND+OR ✅, Path D + AND ✅, несколько OR ✅, `!`+AND+OR ✅, truncation ✅, пороги в OPT ✅/⚠️, OR без матчей ✅).
+  - Next iteration — конкретный чек-лист для iter 158 (UI MIXED с учётом всех verified-возможностей).
+- 5: **Обновил `регис/результаты AND+OR тестов.md`** — добавил T6–T10 с результатами и выводами, расширил секцию «Итоговые правила для UI» до 10 пунктов.
+- 6: **Не трогал src/ код** — iter 157 чисто documentation pass. Реализация UI-режима MIXED — в iter 158.
 
 Stage Summary:
-- **KI#43 FIXED** — `actions/deploy-pages@v4` обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay). Transient Pages API failures теперь auto-retry вместо manual re-run.
-- **2 stale manifest files deleted** — `DELETIONS-iter151.txt`, `CLEANUP_ITER154.txt` (оба уже выполнены).
-- **Документация актуальна** — STATUS.md (KI#43 documented + active), worklog.md (iter 155 подробно), AGENT_NAVIGATION.md (Pitfall 56 added).
-- Baseline сохранён (без code changes в src/): tsc 0 / eslint 0 / vitest 2235/2235 / vite build PASS (previous baseline iter 154).
-- Изменённые файлы: `.github/workflows/deploy.yml`, `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`. Удаляемые файлы: `DELETIONS-iter151.txt`, `CLEANUP_ITER154.txt`.
-- **Stopping point:** iter 155 завершён, готов к push. После push'а — проверить что новый `Build + Deploy` run проходит (deploy step теперь должен либо succeed с первой попытки, либо succeed с retry). Если опять failure — admin user может fetch'нуть logs из GitHub UI для точной diagnostics. Next iter 156 = новые баги (если найдены) + опциональные фоновые задачи (APCA Lc<75, MobileRegexBar split, удаление `patch-ki10-ki12-overrides.ts` и `browser-test-iter153.sh`).
+- **KI#44 CLOSED** — Mixed AND+OR fully verified (10 in-game tests T1–T10 PASS):
+  - ✅ `"MUST1" "MUST2" "OPT1|OPT2"` — базовый шаблон (T1–T3)
+  - ✅ Несколько OPT-групп (T6)
+  - ✅ `!` item-wide negation в combined (T7)
+  - ✅ Truncation в combined (T8) — mitigation для KI#46
+  - ✅ Пороги в OPT прямая форма (T9), reversed через `reversed` флаг в AST (без нового KI)
+  - ✅ OR без матчей → все скрыты (T10)
+- **KI#45 OPEN** — `^` только на первой ALT в OR (T4).
+- **KI#46 OPEN** — лимит 250 chars жёсткий (T5), mitigation: auto-truncation (T8).
+- **Изменённые файлы:** `STATUS.md` (updated), `worklog.md` (updated), `регис/результаты AND+OR тестов.md` (updated с T6–T10).
+- **Stopping point:** iter 157 завершён, готов к push. Все in-game данные для UI MIXED собраны. Next iter 158 — реализовать UI-режим «MIXED» (checkbox MUST/OPT, генератор с поддержкой нескольких OPT-групп + `!` negation + счётчик длины + auto-truncation + `^` только на первой ALT + пороги с учётом reversed-флага).
 
 ---
+
+Task ID: 156 — подготовлен пакет in-game тестов для смешанной AND+OR логики (30 тестов, 9 категорий в `регис/тесты AND+OR смешанная логика.md`). Без code changes в src/. vitest baseline сохранён.
+
+Task ID: 155 — KI#43 deploy retry fix: `actions/deploy-pages@v4` обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay) для auto-retry при transient Pages API failures. Удалены 2 stale manifest files. vitest 2235/2235 (без code changes в src/).
 
 Task ID: 154 — user visual verification закрыл KI#38/31/41 (scroll jitter на «Самоцветы» 250+ токенов, mobile UX на 8 страницах, ⓘ glyph in-box) + repo cleanup (6 root files + 11 one-shot scripts deleted, 11 `.etl-cache/*.html` untracked, refs updated). vitest 2235/2235 (без code changes).
 
