@@ -2,47 +2,31 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 164 (UX redesign v3 — L2 origin frame, усиление nav-active и RegexOutput)
-> **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v3.md`
-> **UI-документация:** `docs/UI_AUDIT.md` (v2), `docs/UI_REFACTOR_PLAN.md`, `docs/REDESIGN_CONCEPT_v3.md`
+> **Текущая итерация:** 165 (концепт-спецификация v4 — детальная проработка UX-аудита без реализации)
+> **Концепт-спецификация:** `docs/REDESIGN_CONCEPT_v4.md` (актуальная)
+> **Предыдущая:** `docs/REDESIGN_CONCEPT_v3.md` (iter 164 — реализован, см. §4 в v4 для ревизии)
 
 ---
 
-## Текущее состояние (iter 164)
+## Текущее состояние (iter 165)
 
-**iter 164: UX redesign v3 — 3 точечных улучшения по концепт-спецификации.**
+**iter 165: концепт-спецификация v4 — без изменения кода.**
 
-1. **P1 — L2 origin header frame.** Новый CSS-класс `.affix-origin-header`
-   (gradient + 3px border-l + small corner accents) для заголовков origin-секций
-   (Обычные / Осквернённые / Очернённые / Сущность / Разлома). Применён в
-   `ModList.tsx` и `VirtualizedModList.tsx`. Создаёт чёткую 3-ступенчатую
-   иерархию: L1 (affix column, большой фрейм) → L2 (origin, средний фрейм) →
-   L3 (sub-group, плоский badge).
-2. **P2 — усиление `.nav-mode-active`.** Alpha gradient 0.14 → 0.20,
-   box-shadow 0.10 → 0.16/0.18, добавлен text-shadow. Активная вкладка теперь
-   читается мгновенно на ярких OLED.
-3. **P3 — усиление `.regex-output` + pulse-on-change.** Border alpha
-   0.35 → 0.48, glow 0.10 → 0.18. CSS-анимация `regex-output-pulse` (600ms)
-   срабатывает при изменении regex string — мгновенная обратная связь
-   «выбрал → результат». `prefers-reduced-motion` уважается.
+Пользователь явно попросил: «сначала проработать и согласовать каждый аспект отдельно и обоснованно, потом реализовывать». Поэтому iter 165 — **только документ**.
 
-**Концепт-спецификация создана:** `docs/REDESIGN_CONCEPT_v3.md` — обоснованный
-анализ внешнего UX-аудита (согласия/разногласия), приоритизированный план,
-что НЕ делаем и почему.
+Создан `docs/REDESIGN_CONCEPT_v4.md` (~440 строк) с детальной проработкой 7 аспектов внешнего UX-аудита:
 
-**Все проверки PASS:** tsc 0, eslint 0, 2319/2319 tests PASS, vite build PASS
-(CSS 60 → 61 KB, main bundle 343 KB без изменений).
+1. **A1 — Визуальная иерархия L1/L2/L3.** Аудит смешивает 3 уровня в 2. Реально 4 уровня. iter 164 усилил L2, но контраст corner accents (0.4 vs 0.35) недостаточен. Предложение: вариант A (L3 → монохромный) или B (усиление контраста L1/L2 по opacity).
+2. **A2 — Цветовая система.** Аудит утверждает «цвета не несут информации» — неверно. Цвета семантически нагружены на 3 осях (A: affix type, B: origin, C: functional). Проблема в конкуренции L2/L3, использующих одну палитру. Предложение: разделить палитры (L2 — bg-tint, L3 — текст-only).
+3. **A3 — Regex как визуальный центр.** iter 164 уже усилил `.regex-output` (gold border + glow + pulse). Аудит увидел старую версию. Предложение: визуальная связь SelectedBasket → RegexOutput + placeholder для пустого состояния.
+4. **A4 — Визуальный шум.** Аудит предлагает Compact/Extended toggle — переизобретение existing collapse-логики. Предложение: кнопки «Свернуть/Развернуть все подкатегории».
+5. **A5 — Активная вкладка.** iter 164 усилил `.nav-mode-active`. Ждём фидбек пользователя.
+6. **A6 — Цельная панель навигации.** Отвергнуто — плохо работает при horizontal scroll на мобильном.
+7. **A7 — Косметика меню.** Не конкретизировано аудитом — отложено.
 
-**Изменённые файлы (iter 164):**
-- `docs/REDESIGN_CONCEPT_v3.md` — новый концепт-документ.
-- `src/index.css` — `.affix-origin-header`, усиление `.regex-output` + pulse
-  keyframes, усиление `.nav-mode-active`.
-- `src/ui/components/ModList.tsx` — L2 origin header использует
-  `.affix-origin-header` (убран inline `border-l-2`).
-- `src/ui/components/VirtualizedModList.tsx` — то же для virtualized версии.
-- `src/ui/components/RegexOutput.tsx` — pulse-on-change effect (rAF + timeout
-  + `setIsPulsing` toggle, класс `regex-output--pulse`).
-- `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md` — актуализированы.
+**План iter 166-170+:** одна задача за итерацию, с явными критериями приёмки. См. §5 в v4.
+
+**Код НЕ изменялся в iter 165.** Это намеренно.
 
 ---
 
@@ -51,16 +35,13 @@
 ### Активные
 
 **KI#45 — `^`-anchor на 2+ ALT в OR ломает матч.**
-Mitigation: `MIXED_OR` с `anchorFirstAltOnly: true` в компиляторе. Builder
-`buildMixedAstFromSelections` включает эту опцию по умолчанию.
+Mitigation: `MIXED_OR` с `anchorFirstAltOnly: true` в компиляторе. Builder `buildMixedAstFromSelections` включает эту опцию по умолчанию.
 
 **KI#46 — Лимит 250 chars в combined-режиме.**
-Mitigation: `truncateMixedOrLiterals(ast, maxLen=12)` автоматически вызывается
-в `useRegexBuilder` когда compiled regex > 240 chars.
+Mitigation: `truncateMixedOrLiterals(ast, maxLen=12)` автоматически вызывается в `useRegexBuilder` когда compiled regex > 240 chars.
 
 **KI#47 — Cross-suppression excludes в MIXED-режиме (low priority).**
-`buildMixedAstFromSelections` делегирует MUST/OPT отдельно, поэтому
-`computeSuppressedExcludes` не видит cross-MUST/OPT conflicts. Редкий edge case.
+`buildMixedAstFromSelections` делегирует MUST/OPT отдельно, поэтому `computeSuppressedExcludes` не видит cross-MUST/OPT conflicts. Редкий edge case.
 
 **KI#43 — Transient `actions/deploy-pages` failures.**
 Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивная проверка.
@@ -69,8 +50,7 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 1. APCA Lc<75 для small text weight 400 — WCAG AA PASS, APCA FAIL.
 2. MobileRegexBar chunk 165 KB — отдельный chunk для mobile-only.
-3. Пред-существующие `act()` warnings в `tests/ui/RegexOutput.test.tsx` —
-   от `setCopied(false)` в 2000ms setTimeout (не от iter 164).
+3. Пред-существующие `act()` warnings в `tests/ui/RegexOutput.test.tsx` — от `setCopied(false)` в 2000ms setTimeout.
 
 ---
 
@@ -95,24 +75,26 @@ Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Пассивна
 
 ---
 
-## Next iteration (iter 164 → iter 165)
+## Next iteration (iter 165 → iter 166)
 
-**iter 164 завершён.** Все 3 пункта P1/P2/P3 реализованы. Тесты PASS.
+**iter 165 завершён.** Концепт-спецификация v4 готова к согласованию.
 
-**От пользователя нужно (опционально, 30 секунд):**
-1. Визуальная проверка L2 origin header — открыть категорию (например,
-   Amulet), убедиться что «Обычные» / «Осквернённые» заголовки имеют явный
-   фрейм (gradient + corner accents), отличный от L3 sub-group badges.
-2. Визуальная проверка активной вкладки TopNav — должна быть чуть заметнее.
-3. Визуальная проверка pulse-анимации RegexOutput — выбрать аффикс, regex
-   должен кратко «вспыхнуть» золотым свечением.
+**Что от пользователя нужно (5 минут):**
 
-**Приоритеты для iter 165 (по запросу пользователя):**
-1. Compact/Extended single-toggle (если пользователь запросит после проверки).
-2. Ревизия functional category colors (если после iter 164 всё ещё шумно).
-3. Усиление визуальной связи SelectedBasket ↔ RegexOutput (animated arrow).
-4. Фоновые задачи: APCA Lc<75 audit, MobileRegexBar chunk split.
-5. Если найден новый баг — завести KI#50+ в STATUS.md, потом фиксить.
+1. Прочитать `docs/REDESIGN_CONCEPT_v4.md` целиком (особенно §2 — анализ аспектов и §5 — план).
+2. По каждому из 7 аспектов (A1-A7) сказать:
+   - Какой вариант выбрать (A / B / C / свой).
+   - Или «отложить» — если не готов решение.
+3. Особое внимание — A2 (цветовая система): это самое спорное.
+4. По iter 164 (P1/P2/P3) — сказать: «работает» / «не работает» / «частично». Это определит, нужно ли корректировать iter 166.
+
+**Приоритеты для iter 166 (по плану v4):**
+1. **A1 — Усиление контраста L1/L2** (вариант B — opacity/size corner accents). Самый дешёвый, ~10 строк CSS.
+2. Если пользователь согласует A2 — iter 167 на разделение палитр.
+3. Если пользователь согласует A3 — iter 168 на визуальную связь.
+4. Если пользователь согласует A4 — iter 169 на кнопки collapse/expand all.
+5. iter 170+ — по фидбеку на A5/A7.
+6. Если найден новый баг — завести KI#50+ в STATUS.md, потом фиксить.
 
 ---
 
