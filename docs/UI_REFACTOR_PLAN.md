@@ -968,3 +968,152 @@ Estimate unchanged: 6 iterations, 42 files, 65-96 tests.
 **User overall verdict:** «Если оценивать как roadmap для репозитория —
 8.5/10. Главное: план уже не выглядит как набор косметических правок. Он
 реально решает проблему перегруженности интерфейса».
+
+---
+
+## 14. MIXED-mode UI Patterns (iter 158–159, verification iter 160)
+
+> **Status:** Phase 1 (core layer) — ✅ DONE iter 158. Phase 2 (UI integration) —
+> ✅ DONE iter 159. Phase 3 (in-game verification) — ⏳ iter 160 (KI#48).
+> **Source docs:** `регис/результаты AND+OR тестов.md` (iter 157 — core verified),
+> `docs/MIXED_MODE_UI_TESTS.md` (iter 160 — UI verification test plan).
+
+### 14.1 Концепция MIXED mode
+
+MIXED mode — третий search-logic mode (помимо `'and'` и `'or'`), который позволяет
+пользователю в одном regex выразить **MUST / OPT / EXCLUDE** семантику:
+
+```
+"!BAD1|BAD2" "MUST1" "MUST2" "OPT1|OPT2|OPT3"
+```
+
+- `!BAD1|BAD2` — item-wide EXCLUDE (если предмет содержит BAD1 ИЛИ BAD2 — скрыть).
+- `"MUST1" "MUST2"` — cross-block AND (предмет должен содержать BOTH).
+- `"OPT1|OPT2|OPT3"` — OR-группа (предмет должен содержать ХОТЯ БЫ ОДНУ из ALT).
+- Все три части комбинируются через top-level AND.
+
+Это решает частую задачу: «хочу предмет с mandatory аффиксами + хотя бы одним из
+опциональных, но без вот этих плохих». В `'and'` mode нельзя выразить OR-группу;
+в `'or'` mode нельзя выразить cross-block AND. MIXED = AND + OR + EXCLUDE в одном regex.
+
+### 14.2 Реализация (iter 158 core + iter 159 UI)
+
+#### Core layer (iter 158)
+
+| File | Role | Key exports |
+|------|------|-------------|
+| `src/shared/types.ts` | `SearchLogic` extended с `'mixed'`; `MIXED_OR` AST node type; `MixedOrOptions` (`{ anchorFirstAltOnly?: boolean }`) | Type definitions |
+| `src/core/compiler.ts` | MIXED_OR compilation: emits `ALT1\|ALT2\|...` inside ONE quoted group; `anchorFirstAltOnly: true` ставит `^` только на первую ALT (KI#45 mitigation) | `compile()` handles MIXED_OR |
+| `src/ui/hooks/category-ast-utils.ts` | `buildMixedAstFromSelections(mustTokens, optTokens, excludedIds, ...)` → `AND(EXCLUDE(...), MUST_children, MIXED_OR(opt_children))`. `truncateMixedOrLiterals(ast, maxLen=12)` — KI#46 mitigation (shortens LITERAL values в MIXED_OR) | Builders |
+
+**Build order в `buildMixedAstFromSelections`:**
+1. EXCLUDE tokens → `exclude(or(...))` как ПЕРВЫЙ AND-child (compile to `"!A\|B"`).
+2. MUST tokens → делегирование в `buildAstFromSelections(searchLogic='and')` →
+   каждый MUST = отдельный quoted group (cross-block AND).
+3. OPT tokens → делегирование в `buildAstFromSelections(searchLogic='or')` →
+   unwrap OR → re-wrap as `MIXED_OR(children, { anchorFirstAltOnly: true })`.
+
+#### UI layer (iter 159)
+
+| File | Role | Key changes |
+|------|------|-------------|
+| `src/store/filter-store.ts` | `optionalIds: Set<string>` field + `toggleOptional(ids)` action + 3-state mutual exclusion (token только в одном из selectedIds/excludedIds/optionalIds) + serialize (`opt` URL key) + deserialize (defensive strip duplicates) | +1 state field, +1 action |
+| `src/ui/components/FilterChip.tsx` | 3-state chip: click = want, shift+click = opt, right-click = exclude. Новые props: `optionalIds`, `onToggleOptional`, `mixedMode` (default false). `selectionState` extended: 'full-optional' / 'partial-optional'. CSS class `chip-opt` (amber dashed border) | +3 props, +2 selection states |
+| `src/ui/components/CategoryControlPanel.tsx` | Третий radio button «Смешанный» (logic.mixed) с `bg-accent-amber-soft` active style + tooltip (logic.mixed_tooltip) | +1 radio option |
+| `src/ui/hooks/useCategoryPage.ts` | `useRegexBuilder`: при `searchLogic === 'mixed'` вызывает `buildMixedAstFromSelections`. Auto-truncation при > 240 chars (KI#46 mitigation) | MIXED branch в builder |
+| `src/ui/components/{ModList,VirtualizedModList}.tsx` | Проброс `optionalIds` / `onToggleOptional` / `mixedMode` props | +3 props каждый |
+| `src/ui/pages/{belt,ring,amulet,waystone,tablet,relic,jewel}/*Page.tsx` | 7 page components: деструктуризация `optionalIds`/`toggleOptional` + `handleToggleOptional` useCallback + `<VirtualizedModList mixedMode={searchLogic === 'mixed'}>` | +5 строк на page |
+| `src/shared/i18n.ts` | `logic.mixed`, `logic.mixed_tooltip`, `chip.optional`, `chip.partial_optional` | +4 i18n keys |
+| `src/index.css` | `.chip-opt` CSS class: `border-left-style: dashed` + `border-left-width: 2px` (отличает OPT от MUST solid) | +1 CSS rule |
+
+### 14.3 UX паттерны (iter 159)
+
+#### 3-state chip interactions
+
+| Жест | Результат | State | Visual |
+|------|-----------|-------|--------|
+| Click | want (MUST) | `selectedIds.add(...)` | solid border, `bg-chip-active` |
+| Shift+click | opt (OPT) | `optionalIds.add(...)` (mutual exclusion: remove from selected/excluded) | amber dashed border, `bg-amber-900/30`, `.chip-opt` |
+| Right-click | exclude (EXCLUDE) | `excludedIds.add(...)` (mutual exclusion: remove from selected/optional) | red solid border, `bg-indicator-red` |
+| Enter / Space | want (MUST) | `selectedIds.add(...)` | same as click |
+| Shift+Enter / Shift+Space | opt (OPT) | `optionalIds.add(...)` | same as shift+click (keyboard parity) |
+
+**Контекстное меню браузера suppressed** в MIXED mode (`preventDefault` в
+`handleContextMenu`). В AND/OR mode right-click работает как обычно (browser menu).
+
+#### Mutual exclusion invariant
+
+Токен может быть только в ОДНОМ из `selectedIds` / `excludedIds` / `optionalIds`.
+При `toggleOptional(id)`:
+- если id уже в `selectedIds` → удалить оттуда, добавить в `optionalIds`.
+- если id уже в `excludedIds` → удалить оттуда, добавить в `optionalIds`.
+- если id уже в `optionalIds` → удалить (toggle off).
+
+Это гарантирует, что chip всегда отображается ровно в одном state.
+
+#### URL persistence
+
+URL hash содержит ключи:
+- `s` — selected (MUST) IDs array.
+- `opt` — optional (OPT) IDs array (omitted when empty).
+- `e` — excluded IDs array (omitted when empty).
+
+При `deserialize`: defensive strip — если ID оказался в нескольких множествах
+(малформенный URL), precedence `selected > excluded > optional` (последний wins
+в обратном порядке: optional теряет ID первым).
+
+#### Mode switching (MIXED ↔ AND ↔ OR)
+
+При переключении logic mode `optionalIds` **НЕ очищается** в store — только
+**игнорируется** в FilterChip (когда `mixedMode=false`, `effectiveOptional = new Set()`)
+и в `useRegexBuilder` (когда `searchLogic !== 'mixed'`, вызывается обычный
+`buildAstFromSelections`).
+
+Это позволяет пользователю переключаться MIXED → AND → MIXED без потери OPT
+состояний (T9 проверяет этот сценарий).
+
+### 14.4 KI mitigations
+
+| KI | Описание | Mitigation | Where |
+|----|----------|------------|-------|
+| **KI#45** | `^`-anchor на 2+ ALT ломает матч | `anchorFirstAltOnly: true` в MIXED_OR — `^` ставится только на первую ALT | `compiler.ts` MIXED_OR case |
+| **KI#46** | Regex > 250 chars rejected игрой | `truncateMixedOrLiterals(ast, maxLen=12)` auto-applied при compiled > 240 chars в `useRegexBuilder` | `useCategoryPage.ts` шаг 4b |
+| **KI#47** | Cross-suppression excludes в MIXED (MUST и OPT из одной family с regexExclude) | Low priority — rare edge case. `buildMixedAstFromSelections` делегирует MUST/OPT separately, поэтому `computeSuppressedExcludes` не видит cross-conflicts | Не fixed — documented |
+| **KI#48** | In-game verification MIXED-mode UI | Tests T1–T10 в `docs/MIXED_MODE_UI_TESTS.md` | ⏳ iter 160 |
+
+### 14.5 Test coverage
+
+| Layer | Tests | File |
+|-------|-------|------|
+| Core (AST + compiler + builder) | 43 tests | `tests/core/compiler-mixed.test.ts` + `tests/ui/buildMixedAst.test.ts` |
+| Store (optionalIds + 3-state + serialize) | 18 tests | `tests/store/filter-store.test.ts` |
+| FilterChip (3-state click/shift+click/right-click + ARIA) | 10 tests | `tests/ui/FilterChip.test.tsx` |
+| In-game UI verification | T1–T10 (этот план) | `docs/MIXED_MODE_UI_TESTS.md` |
+
+**Всего:** 71 unit-test + 10 in-game tests = 81 test на MIXED mode.
+
+### 14.6 Backward compatibility
+
+- `mixedMode` prop default = `false` → все pre-iter-159 callers (tests, VendorPage,
+  legacy code) рендерят chip как раньше (2-state: click = want, ✗ button = exclude).
+- URL `opt` key отсутствует в старых ссылках → deserialize как empty set (no crash).
+- `SearchLogic` type extended с `'mixed'` — existing code, проверяющий
+  `searchLogic === 'and' || searchLogic === 'or'`, не ломается (mixed branch
+  добавлен в `useRegexBuilder`, в остальных местах `'mixed'` treated как fallback
+  к `'and'` поведению).
+- `optionalIds` в store инициализирован как `new Set<string>()` — не влияет на
+  существующие `selectedIds`/`excludedIds` logic.
+
+### 14.7 Open questions (для iter 161+)
+
+1. **UX feedback (T1–T10):** достаточно ли визуально distinct OPT state (amber dashed)?
+   Или нужен дополнительный icon (⭐ для OPT)? → решается после iter 160 test results.
+2. **Onboarding hint:** нужен ли first-time tooltip при переключении в MIXED mode,
+   объясняющий shift+click/right-click? → решается после iter 160 UX feedback.
+3. **Icon legend update:** добавить ⚡ OPT row в `IconLegend.tsx`? → зависит от
+   того, поймут ли users жест shift+click без legend.
+4. **KI#47 fix (cross-suppression):** нужно ли сканировать MUST+OPT вместе для
+   `computeSuppressedExcludes`? → low priority, редкий edge case.
+5. **Multi-OPT groups:** в текущей реализации все OPT токены собираются в ОДНУ
+   `MIXED_OR` quoted group. Если user хочет две независимые OR-группы
+   (`"OPT1\|OPT2" "OPT3\|OPT4"`), нужен UI для группировки OPT — не реализовано.
