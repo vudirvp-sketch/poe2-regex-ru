@@ -1,0 +1,28 @@
+iter 163 — DELETED FILES
+========================
+
+Эти 4 файла были удалены в iter 163. Чтобы синхронизировать локальную копию
+репозитория, удалите их у себя (если они есть):
+
+  rm scripts/patch-ki10-ki12-overrides.ts
+  rm -r _local-tools/                                   # entire directory
+  rm iter162.diff
+  rm ITER162_README.md
+
+Причины удаления:
+
+1. `scripts/patch-ki10-ki12-overrides.ts` — iter 153 one-shot patch script.
+   Флаг `manualOverride` уже применён к JSON-файлам (relic 7 токенов, tablet 2,
+   waystone 2, waystone-desecrated 2 = 13 total). ETL-protected через Zod
+   schema + iterative-optimizer skip. Скрипт больше не нужен — повторные ETL
+   запуски не затирают override-regexes.
+
+2. `_local-tools/browser-test-iter153.sh` — iter 153 one-shot shell script
+   для локального browser-testing. Вне репозитория по сути, был закоммичен
+   случайно. iter 154+ покрывается через `tests/` (vitest).
+
+3. `iter162.diff` — delivery-артефакт iter 162 (полный diff для ревью).
+   Не часть проекта, был закоммичен случайно.
+
+4. `ITER162_README.md` — delivery-артефакт iter 162 (README для архива).
+   Не часть проекта, был закоммичен случайно.

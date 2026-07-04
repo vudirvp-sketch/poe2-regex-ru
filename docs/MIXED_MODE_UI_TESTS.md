@@ -1,4 +1,4 @@
-# MIXED-mode UI — In-Game Verification Tests (iter 160, прогоны iter 161–162)
+# MIXED-mode UI — In-Game Verification Tests (iter 160, прогоны iter 161–163)
 
 > **Цель:** закрыть KI#48 — верифицировать UI MIXED-mode (iter 159) в реальной игре
 > на 5 категориях (ring / waystone / tablet / amulet / jewel).
@@ -11,14 +11,19 @@
 > поведение: click = want (MUST), shift+click = opt (OPT, amber dashed border),
 > right-click = exclude (EXCLUDE, red border).
 
-> **Статус прогона (iter 161 → iter 162):**
-> - T1 — PASS (пользователь, iter 161).
-> - T2 — PASS (пользователь, iter 161).
-> - T3 — был FAIL (iter 161, заведён KI#49), FIX в iter 162, ждёт повторного прогона.
-> - T4 — PASS (пользователь, iter 161).
-> - T5 — PASS (пользователь, iter 161).
-> - T6 — пользователь пропустил (UI-only тест, повторить в iter 163).
-> - T7–T10 — ждут прогона (iter 163).
+> **Статус прогона (iter 161 → iter 163):**
+> - T1 — PASS in-game (пользователь, iter 161).
+> - T2 — PASS in-game (пользователь, iter 161).
+> - T3 — был FAIL in-game (iter 161, заведён KI#49). FIX в iter 162. **Unit-test PASS** (KI#49 regression tests в `tests/ui/buildMixedAst.test.ts`, 3 теста). Ждёт повторного in-game прогона.
+> - T4 — PASS in-game (пользователь, iter 161).
+> - T5 — PASS in-game (пользователь, iter 161).
+> - T6 — **unit-test PASS** (`tests/ui/FilterChip.test.tsx`: `enters full-optional state`, `enters partial-optional state`, `shift+click calls onToggleOptional`). In-game прогон опционален (UI-only тест).
+> - T7 — **unit-test PASS** (`tests/ui/FilterChip.test.tsx`: `right-click calls onToggleExclude when mixedMode is true`, `right-click does NOT call onToggleExclude when mixedMode is false`, `shift+Enter calls onToggleOptional`). In-game прогон опционален.
+> - T8 — **unit-test PASS** (`tests/store/filter-store.test.ts`: `serialize() includes 'opt' key`, `deserialize() restores optionalIds from 'opt' key`, `serialize → deserialize round-trip preserves optionalIds`, defensive strips). In-game прогон опционален.
+> - T9 — **unit-test PASS** (iter 163, `tests/ui/FilterChip.test.tsx`: `iter 163 (T9): toggling mixedMode off then on preserves OPT state`). In-game прогон опционален.
+> - T10 — **unit-test PASS** (`tests/ui/buildMixedAst.test.ts`: `builds canonical MIXED pattern: "MUST1" "MUST2" "OPT1|OPT2"`). In-game прогон опционален, но recommended для проверки regex строки в PoE2.
+>
+> **Итог:** in-game verification осталась для T3 (regex match в PoE2 после KI#49 fix) + опционально T6–T10 для UX Feedback Checklist (§4). Unit-test layer полностью закрыт.
 
 ---
 

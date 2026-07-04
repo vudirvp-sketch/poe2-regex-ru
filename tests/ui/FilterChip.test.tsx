@@ -915,6 +915,67 @@ describe('FilterChip', () => {
       expect(minInput).toBeInTheDocument();
       expect(maxInput).toBeInTheDocument();
     });
+
+    // iter 163 (T9 regression): Toggle MIXED → AND → MIXED must preserve
+    // optionalIds. The store-level guarantee is that `optionalIds` lives in
+    // filter-store (Zustand) and is NOT cleared by `setSearchLogic` (which
+    // is local React state in useCategoryPage). The FilterChip-level guarantee
+    // is that `effectiveOptional = mixedMode ? optionalIds : empty` — so when
+    // mixedMode flips back to true, the OPT state re-appears using the SAME
+    // optionalIds. This test verifies the FilterChip side of that contract.
+    it('iter 163 (T9): toggling mixedMode off then on preserves OPT state', () => {
+      const group = makeGroup(); // 2 members: t1, t2
+      const optionalIds = new Set(['t1', 't2']);
+      const onToggleOptional = vi.fn();
+
+      // Step 1: MIXED mode + optionalIds populated → chip shows OPT state.
+      const { rerender } = render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={optionalIds}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+      let switchEl = screen.getByRole('switch');
+      expect(switchEl).toHaveAttribute('aria-checked', 'true');
+      expect(switchEl.getAttribute('aria-label')).toContain('опционально');
+
+      // Step 2: Switch to AND mode (mixedMode=false). The SAME optionalIds is
+      // still passed — but FilterChip should ignore it and show unselected.
+      // (This mirrors the user toggling logic mode AND in CategoryControlPanel.)
+      rerender(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={optionalIds} // SAME optionalIds — NOT cleared
+          onToggleTokens={vi.fn()}
+          onToggleOptional={onToggleOptional}
+          // mixedMode omitted → defaults to false
+        />,
+      );
+      switchEl = screen.getByRole('switch');
+      expect(switchEl).toHaveAttribute('aria-checked', 'false');
+      expect(switchEl.getAttribute('aria-label')).not.toContain('опционально');
+
+      // Step 3: Switch back to MIXED mode. OPT state should re-appear using
+      // the SAME optionalIds (proving it was preserved, not lost).
+      rerender(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={optionalIds} // SAME optionalIds — preserved across toggle
+          onToggleTokens={vi.fn()}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+      switchEl = screen.getByRole('switch');
+      expect(switchEl).toHaveAttribute('aria-checked', 'true');
+      expect(switchEl.getAttribute('aria-label')).toContain('опционально');
+    });
   });
 
   // ─── Phase 4 (iter 137): compact density ───

@@ -1256,3 +1256,20 @@ compat (optional props), IconLegend showMixedHint true/false/override.
    общий count.
 5. **IconLegend 4-я строка:** ⇄ может быть непонятен без контекста. Возможно
    заменить на «Shift+клик» как icon.
+
+### 15.7 iter 162–163 updates
+
+- **iter 162:** Добавлен постоянный ⓘ glyph (sibling `<Tooltip>`, hover 350ms)
+  рядом с чипом «Смешанный» в CategoryControlPanel. Tooltip содержит тот же
+  текст, что и `logic.mixed_tooltip`. Glyph всегда виден — даёт явный cue
+  пользователям, что есть help для shift+click/right-click жестов.
+- **iter 163:** Inline-подсказка из §15.4 (пункт 1) **удалена** — стала
+  избыточной после iter 162 (ⓘ glyph всегда виден, тот же текст через hover).
+  i18n ключ `logic.mixed_hint` удалён. IconLegend 4-я строка (пункт 3)
+  оставлена — другой контекст (образовательный, не contextual).
+- **iter 163:** Добавлен regression test для T9 — `iter 163 (T9): toggling
+  mixedMode off then on preserves OPT state` в `tests/ui/FilterChip.test.tsx`.
+  3-step rerender: OPT visible → AND mode (OPT hidden) → MIXED mode (OPT
+  visible again, SAME optionalIds). Документирует контракт: `effectiveOptional
+  = mixedMode ? optionalIds : empty` + `optionalIds` в filter-store не
+  очищается при `setSearchLogic` (они в разных stores).

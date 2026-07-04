@@ -42,9 +42,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // native `title` attribute on the chip showed the hint, which most
     // users never discovered).
     'logic.mixed_aria': 'Пояснение к смешанному режиму (Shift+клик и правый клик)',
-    // iter 161: short inline hint shown in MIXED mode when user has selected
-    // affixes but hasn't marked any as OPT yet. Tells them HOW to mark OPT.
-    'logic.mixed_hint': 'Shift+клик по аффиксу — опционально (хотя бы 1 из группы)',
+    // iter 163: removed `logic.mixed_hint` (was an inline "Shift+клик" hint
+    // in CategoryControlPanel). The always-visible ⓘ glyph next to the MIXED
+    // chip (added iter 162) makes the inline hint redundant.
     'search.placeholder': 'Поиск аффиксов...',
     'filter.all_types': 'Все типы',
     'filter.all_origins': 'Все источники',

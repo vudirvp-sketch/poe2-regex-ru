@@ -261,17 +261,14 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
           </span>
         )}
 
-        {/* iter 161: MIXED-mode onboarding hint.
-            When user enables MIXED mode but hasn't marked any OPT yet,
-            show a compact inline hint explaining shift+click. Disappears
-            as soon as the user shift+clicks at least one affix (optionalCount > 0).
-            Only shown when there's at least 1 active selection (otherwise the
-            hint is noise on an empty page). */}
-        {searchLogic === 'mixed' && optionalCount === 0 && activeTokenCount > 0 && (
-          <span className="text-[11px] text-dim italic" title={t('logic.mixed_tooltip')}>
-            {t('logic.mixed_hint')}
-          </span>
-        )}
+        {/* iter 163: removed inline "Shift+клик" hint.
+            Previously (iter 161) we showed an inline hint here when the user
+            enabled MIXED mode but hadn't marked any OPT yet. As of iter 162
+            there is a permanent ⓘ glyph next to the MIXED chip that opens a
+            delayed tooltip explaining shift+click (OPT) and right-click
+            (EXCLUDE). The inline hint became redundant — the ⓘ is always
+            visible and provides the same info via hover. Keeping the inline
+            hint would just add visual noise next to the toolbar. */}
 
         {/* Range filter — iter 61 (Phase 8 polish): removed always-on `⚠ Диапазон`
             visible badge (was firing on every range use = pure noise). The FP

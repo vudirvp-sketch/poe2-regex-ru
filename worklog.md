@@ -14,156 +14,92 @@
 
 ## iter 160 (MIXED-mode UI — in-game verification test plan) — одной строкой
 
-Прописаны конкретные тесты T1–T10 с реальными предметами из `регис/предметы для теста с аффиксами имплиситами_новый.md` (16 предметов, 5 категорий) в `docs/MIXED_MODE_UI_TESTS.md` (~280 строк). Добавлена §14 «MIXED-mode UI Patterns» в `docs/UI_REFACTOR_PLAN.md` (~150 строк). STATUS.md почищен. Код не изменялся — iter 159 полностью завершён (2306/2306 tests PASS).
+Прописаны конкретные тесты T1–T10 с реальными предметами в `docs/MIXED_MODE_UI_TESTS.md` (~280 строк). Добавлена §14 «MIXED-mode UI Patterns» в `docs/UI_REFACTOR_PLAN.md`. STATUS.md почищен. Код не изменялся — iter 159 полностью завершён (2306/2306 tests PASS).
+
+## iter 161 (3-section SelectedBasket + family-group counters + MIXED UX hints) — одной строкой
+
+3 UX-бага из фидбэка: (1) SelectedBasket → 3-section (want/opt/exclude), (2) счётчики → family-group counters (через `countUniqueFamilyKeys`), (3) MIXED UX hints (inline «Shift+клик» в CategoryControlPanel + 4-я строка в IconLegend). 9 новых тестов (6 SelectedBasket + 3 IconLegend), 2306 → 2315 total. Все проверки PASS.
+
+## iter 162 (KI#49 fix + ⓘ glyph на MIXED chip) — одной строкой
+
+KI#49 fix: pure-EXCLUDE токен (только в `excludedIds`) больше не теряется в MIXED-режиме — добавлен опциональный параметр `excludeTokens: GameToken[]` в `buildMixedAstFromSelections`. 3 regression tests в `buildMixedAst.test.ts`. UX: на чип «Смешанный» добавлен явный ⓘ glyph (sibling `<Tooltip>`, hover 350ms → tooltip с пояснением shift+click/right-click). 2315 → 2318 tests. Все проверки PASS.
 
 ---
 
-Task ID: 161 (3-section SelectedBasket + family-group counters + MIXED UX hints)
+Task ID: iter-163
 Agent: main
-Task: Исправить 3 UX-бага из пользовательского фидбэка: (1) SelectedBasket не показывает исключённые аффиксы, (2) счётчики показывают кол-во токенов вместо кол-ва аффиксов (12 tier-вариаций = «12 выбрано» вместо «1 выбрано»), (3) MIXED режим не отличается от AND потому что пользователь не понимает, как отметить аффикс как OPT (shift+click скрытый жест).
+Task: (1) Добавить regression test для T9 (toggle MIXED → AND → MIXED preserves optionalIds). (2) UX cleanup — убрать inline hint «Shift+клик» из CategoryControlPanel, ставший избыточным после iter 162 (теперь есть постоянный ⓘ glyph). (3) Repo hygiene — удалить one-shot scripts и iter162 delivery-артефакты. (4) Verify что T3/T6/T7/T8/T10 уже покрыты unit-тестами (T3 — KI#49 regression, T6/T7 — FilterChip 3-state tests, T8 — filter-store serialize/deserialize `opt` key, T10 — canonical MIXED pattern test).
 
 Work Log:
-- 1: **Клонирование и анализ:** Склонировал репозиторий, изучил STATUS.md (iter 160 завершён), FilterChip.tsx (3-state chip уже реализован в iter 159), SelectedBasket.tsx (только want-секция), CategoryControlPanel.tsx (счётчики используют `tokens.length`), family-grouper.ts (нашёл существующий `countUniqueFamilyKeys()`), i18n.ts (ключи для basket/logic/summary), 8 page components (одинаковый паттерн с `excludeTokens.length`). Базовое состояние: 2306/2306 tests PASS.
-- 2: **Fix #2 — Family-group counters:** Во всех 8 page components (Ring/Belt/Amulet/Relic/Waystone/Tablet/Jewel/Vendor) заменил `excludeTokens.length`/`allActiveTokens.length`/`selectedIds.size` на `countUniqueFamilyKeys(...)` (через новые переменные `wantGroupCount`/`excludeGroupCount`/`optionalGroupCount`/`activeGroupCount`). Расширил `allActiveTokens` для включения `optionalIds` (MIXED mode). Использовал существующую функцию — не пришлось писать новую логику.
-- 3: **Fix #3 — MIXED UX hints:** 
-  - `CategoryControlPanel.tsx`: добавил `optionalCount` prop. Когда `searchLogic==='mixed' && optionalCount > 0` → рендерит amber counter «N опц.». Когда `searchLogic==='mixed' && optionalCount === 0 && activeTokenCount > 0` → рендерит inline-подсказку «Shift+клик по аффиксу — опционально (хотя бы 1 из группы)».
-  - `IconLegend.tsx`: добавил `showMixedHint` prop. Когда true → добавляет 4-ю строку с иконкой ⇄ и текстом «Shift+клик по чипу — опционально (хотя бы 1)». Backward compat: custom `items` prop override → `showMixedHint` игнорируется.
-  - `i18n.ts`: добавил ключи `summary.optional` («Опц.»), `logic.mixed_hint`, `legend.opt_shift_click`.
-  - Все 7 страниц: `legend={<IconLegend showMixedHint={searchLogic === 'mixed'} />}`.
-- 4: **Fix #1 — SelectedBasket 3-section rewrite:** Полностью переписал `SelectedBasket.tsx` (~400 строк). Теперь рендерит 3 секции: want (нейтральный фон + ✗), opt (амбра с пунктиром + ⇄, только когда `mixedMode=true`), exclude (красный фон + ✗). Каждая секция имеет независимый «+N ещё» экспандер (cap=20 per section). Шапка показывает общий count + inline-разбивку `(N+M⇄K✗)` когда есть opt/exclude. Все новые props опциональны (backward compat с тестами и VendorPage). Добавил 7 i18n ключей: `basket.excluded_header`, `basket.optional_header`, `basket.unexclude_aria`, `basket.unoptional_aria`.
-  - Обновил все 7 page components: передаю `excludedIds`, `optionalIds`, `onToggleExclude`, `onToggleOptional`, `mixedMode={searchLogic === 'mixed'}`.
-- 5: **Тесты:**
-  - `tests/ui/SelectedBasket.test.tsx`: +6 тестов (3-section layout: exclude renders, exclude click, opt conditional render, opt click, header total count, backward compat). 12 → 18 тестов.
-  - `tests/ui/IconLegend.test.tsx`: +3 теста (showMixedHint=false default, showMixedHint=true → 4 rows, custom items override). 11 → 14 тестов.
-- 6: **Проверки:** tsc 0 errors, eslint 0 errors, 2315/2315 tests PASS (+9 новых), vite build PASS (618ms, main bundle 343 KB).
-- 7: **Документация:** STATUS.md переписан (iter 161 как текущая, iter 158–160 одной строкой). worklog.md — эта запись. AGENT_NAVIGATION.md — указатели обновлены. UI_REFACTOR_PLAN.md — добавлена §15 «iter 161 — User-feedback UX fixes».
+- 0: **Прочитал feedback пользователя из iter 162:**
+  - KI#49 fix готов, ждёт повторного прогона T3 в игре.
+  - KI#48 in-game verification частично пройден (T1/T2/T4/T5 PASS, T6 пропущен, T7–T10 ждут).
+  - Пользователь просит: «САМ по максимуму сделай что можешь! Не нужно на меня перекладывать работу и тестирование того, что ты сам можешь сделать!»
+  - UX polish hint: «Если inline hint «Shift+клик» избыточен (теперь есть ⓘ) — убрать.»
+  - Фоновые задачи: удаление one-shot скриптов (`patch-ki10-ki12-overrides.ts`, `browser-test-iter153.sh`).
+- 1: **Клонирование и baseline:**
+  - Склонировал `https://github.com/vudirvp-sketch/poe2-regex-ru.git` в `/home/z/my-project/poe2-regex-ru/`.
+  - `pnpm install` — 8.1s, без ошибок.
+  - `pnpm test` — 2318/2318 PASS (baseline подтверждён).
+- 2: **Verification T3/T6/T7/T8/T10 — unit-test coverage:**
+  - **T3** — KI#49 regression tests в `tests/ui/buildMixedAst.test.ts` (3 теста, iter 162): positive case (`"!хаосу" "меткости" "регенерации маны"`), backward-compat (documents bug), dedup edge case. Все 3 PASS. T3 regex string корректный — ждёт только in-game подтверждения.
+  - **T6** (Shift+click → OPT visual) — `tests/ui/FilterChip.test.tsx`: `enters full-optional state when mixedMode is true and all members are optional`, `enters partial-optional state`, `shift+click calls onToggleOptional`. Все PASS. CSS class `.chip-opt` тестируется через `aria-checked` (true/mixed/false).
+  - **T7** (Right-click → exclude, contextmenu suppressed, keyboard parity) — `tests/ui/FilterChip.test.tsx`: `right-click calls onToggleExclude when mixedMode is true`, `right-click does NOT call onToggleExclude when mixedMode is false (browser context menu)`, `shift+Enter calls onToggleOptional (keyboard parity with shift+click)`. Все PASS.
+  - **T8** (URL shareable link with `opt` key) — `tests/store/filter-store.test.ts`: `serialize() includes 'opt' key when optionalIds is non-empty`, `serialize() omits 'opt' key when optionalIds is empty (URL compactness)`, `deserialize() restores optionalIds from 'opt' key`, `deserialize() without 'opt' key → empty optionalIds (backward compat)`, `serialize → deserialize round-trip preserves optionalIds`, `deserialize() strips IDs from optionalIds that are also in selectedIds (defensive)`, `deserialize() strips IDs from optionalIds that are also in excludedIds (defensive)`. Все PASS.
+  - **T10** (2+ OPT tokens → one MIXED_OR group) — `tests/ui/buildMixedAst.test.ts`: `builds canonical MIXED pattern: "MUST1" "MUST2" "OPT1|OPT2"`. PASS — каноническая форма с 2+ OPT в одной quoted group через `|` уже покрыта.
+  - **T9** (Toggle MIXED → AND → optionalIds preserved) — НЕ покрыт. Нет теста, который бы явно верифицировал, что optionalIds переживает переключение logic mode. Заведён как задача iter 163.
+- 3: **T9 regression test** — добавлен в `tests/ui/FilterChip.test.tsx`:
+  - Название: `iter 163 (T9): toggling mixedMode off then on preserves OPT state`.
+  - 3-step rerender через Testing Library's `rerender`:
+    - Step 1: `mixedMode=true` + `optionalIds={'t1','t2'}` → `aria-checked='true'`, label содержит «опционально».
+    - Step 2: `mixedMode=false` (omit) + SAME `optionalIds` → `aria-checked='false'`, label НЕ содержит «опционально». (Симулирует переключение logic mode на AND.)
+    - Step 3: `mixedMode=true` + SAME `optionalIds` → `aria-checked='true'`, label снова содержит «опционально». (Симулирует переключение обратно на MIXED — optionalIds preserved.)
+  - Тест документирует контракт: `effectiveOptional = mixedMode ? optionalIds : empty` в FilterChip (line 125), а `optionalIds` в filter-store не очищается при `setSearchLogic` (потому что `searchLogic` — local React state в `useCategoryPage`, а `optionalIds` — Zustand store).
+  - Тест PASS (15ms).
+- 4: **UX cleanup — удалён inline hint из CategoryControlPanel.tsx:**
+  - Удалены строки 264-274 (`{searchLogic === 'mixed' && optionalCount === 0 && activeTokenCount > 0 && <span>{t('logic.mixed_hint')}</span>}`).
+  - Заменены комментарием-маркером: «iter 163: removed inline "Shift+клик" hint. Previously (iter 161) we showed an inline hint here... As of iter 162 there is a permanent ⓘ glyph next to the MIXED chip that opens a delayed tooltip... The inline hint became redundant.»
+  - Удалён i18n ключ `logic.mixed_hint` из `src/shared/i18n.ts` (единственное использование было в CategoryControlPanel). Заменён комментарием-маркером.
+  - `legend.opt_shift_click` (в IconLegend) — ОСТАВЛЕН. IconLegend — отдельная секция внизу страницы, persistent reference. Inline hint был contextual, рядом с toolbar — там избыточен. IconLegend — образовательный, оставлен.
+  - tsc 0, eslint 0 — backward compat сохранён.
+- 5: **Repo hygiene — удалены 4 файла:**
+  - `scripts/patch-ki10-ki12-overrides.ts` — iter 153 one-shot. Verified: `manualOverride: true` уже применён к JSON (4 файла, 13 токенов: relic 7, tablet 2, waystone 2, waystone-desecrated 2). ETL-protected через Zod schema + iterative-optimizer skip. Скрипт больше не нужен.
+  - `_local-tools/browser-test-iter153.sh` — iter 153 one-shot, local-tool, не part of project.
+  - `_local-tools/` directory — стала пустой, удалена.
+  - `iter162.diff`, `ITER162_README.md` — delivery-артефакты iter 162 (были случайно закоммичены в репо в iter 162). Не часть проекта.
+  - `git rm` всех 4 файлов — clean removal, нет dangling references (verified через grep).
+- 6: **Документация:**
+  - `STATUS.md` — переписан. iter 163 как текущая. KI#48 — таблица T1–T10 с unit-test/in-game статусом. Фоновые задачи — 3 пункта (было 4, one-shot scripts удалены). Next iteration (iter 164) — in-game verification оставшихся тестов + UX polish по результатам.
+  - `worklog.md` — iter 158–162 сжаты до одной строки каждый (были подробно), iter 163 подробно.
+  - `AGENT_NAVIGATION.md` — header (current state) обновлён до iter 163. Указатели на удалённые файлы убраны.
+  - `docs/MIXED_MODE_UI_TESTS.md` — статус прогона T1–T10 обновлён (unit-test PASS отмечены).
+- 7: **Проверки:**
+  - `pnpm exec tsc --noEmit -p tsconfig.app.json` — 0 ошибок.
+  - `pnpm exec eslint .` — 0 ошибок.
+  - `pnpm test` — 2319/2319 PASS (was 2318, +1 T9 regression test).
+  - `pnpm exec vite build` — PASS (591ms, main bundle 343 KB, не изменился существенно).
 
 Stage Summary:
-- 3 UX-баги из фидбэка исправлены: SelectedBasket 3-section, family-group counters, MIXED UX hints.
-- 9 новых тестов (6 SelectedBasket + 3 IconLegend), 2306 → 2315 total.
-- Все проверки PASS: tsc 0, eslint 0, 2315/2315 tests, vite build PASS.
-- Backward compat сохранён: все новые props опциональны, старые тесты проходят без изменений.
-- KI#48 остаётся открытым — ждёт in-game прогона T1–T10 + проверки новых UX-элементов.
-- Архив с изменёнными файлами + git-команды для push.
-
----
-
-Task ID: 160 (MIXED-mode UI — in-game verification test plan)
-Agent: main
-Task: Прописать конкретные тесты T1–T10 с реальными UI для in-game verification MIXED-mode UI (KI#48), используя предметы и аффиксы из `регис/предметы для теста с аффиксами имплиситами_новый.md`. Обновить документацию (UI_REFACTOR_PLAN.md разделом о MIXED-mode UI паттернах, STATUS.md почистить). Код не менять — iter 159 полностью завершён.
-
-Work Log:
-- 1: **Клонирование и анализ:**
-  - Склонировал `https://github.com/vudirvp-sketch/poe2-regex-ru.git` в `/home/z/my-project/repo/poe2-regex-ru/`.
-  - Изучил `STATUS.md` (iter 159 — MIXED-mode UI integration готов), `docs/UI_REFACTOR_PLAN.md` (970 строк, нет секции про MIXED-mode UI patterns), `docs/IN_GAME_TESTS.md` (история iter 46/108/125), `регис/результаты AND+OR тестов.md` (iter 157 — core layer verified на W1/W2/W3 путевых камнях).
-  - Изучил `регис/предметы для теста с аффиксами имплиситами_новый.md` — 16 предметов, 5 категорий (3 кольца, 3 путевых камня, 3 заражённые плитки, 3 амулета, 4 самоцвета).
-  - Изучил реализацию: `src/ui/components/FilterChip.tsx` (3-state chip, lines 1–665), `src/ui/hooks/useCategoryPage.ts` (useRegexBuilder MIXED mode, lines 470–590), `src/ui/hooks/category-ast-utils.ts` (`buildMixedAstFromSelections`, lines 1027–1134), `src/store/filter-store.ts` (optionalIds + 3-state mutual exclusion + serialize/deserialize, lines 280–540).
-- 2: **Создан `docs/MIXED_MODE_UI_TESTS.md` (~280 строк):**
-  - §1: Тестовые предметы — таблицы с кодами R1–R3 (кольца), W1–W3 (путевые камни), T1–T3 (плитки), A1–A3 (амулеты), J1–J4 (самоцветы) + ключевые аффиксы каждого.
-  - §2: Раунд 1 — T1–T5 (базовые сценарии):
-    - T1: 1 MUST + 1 OPT (Ring, R1) → `"максимуму здоровья" "силе"`.
-    - T2: 2 MUST + 2 OPT (Amulet, A1/A2 ✓, A3 ✗) → `"максимума энергетического щита" "меткости" "сопротивлению холоду|сопротивлению молнии"`.
-    - T3: 1 MUST + 1 OPT + 1 EXCLUDE (Amulet, A3 исключён через `!хаосу`) → `"!хаосу" "меткости" "регенерации маны"`.
-    - T4: Ranged MUST + ranged OPT reversed RANGE (Waystone, min=35 / min=85, только W3 матчит) → `"азмер групп.*\+[3-9][0-9]%|..." "анс выпадения.*\+[8-9][0-9]%|..."`.
-    - T5: > 240 chars auto-truncation (Waystone, 4 MUST + 4 OPT длинных аффиксов, только W1 матчит) — проверка KI#46 mitigation.
-  - §3: Раунд 2 — T6–T10 (UI-specific):
-    - T6: Shift+click → OPT state visual (amber dashed border, `.chip-opt` CSS class, ARIA `aria-checked="mixed"`).
-    - T7: Right-click → exclude (browser contextmenu suppressed via `preventDefault`, red border, keyboard parity shift+Enter).
-    - T8: URL shareable link с `opt` key → deserialize восстанавливает 3-state (MUST + OPT + EXCLUDE после reload).
-    - T9: Toggle MIXED → AND → MIXED → optionalIds не теряется (только игнорируется в AND mode, восстанавливается в MIXED).
-    - T10: 2+ OPT tokens → одна MIXED_OR группа (Jewel, J3/J4 матчат, J1/J2 нет).
-  - §4: UX Feedback Checklist (10 вопросов для пользователя).
-  - §5: Известные ограничения (KI#45/46/47/48 с mitigation).
-  - §6: Порядок прогонки (6 шагов).
-  - §7: Инструкция «Если найден новый баг» (KI#49+ в STATUS.md).
-- 3: **Обновлён `docs/UI_REFACTOR_PLAN.md` — добавлена §14 «MIXED-mode UI Patterns (iter 158–159, verification iter 160)» (~150 строк):**
-  - §14.1: Концепция MIXED mode (`"!BAD" "MUST" "OPT1|OPT2"` semantics).
-  - §14.2: Реализация — core layer (iter 158) + UI layer (iter 159) с таблицами файлов и изменений.
-  - §14.3: UX паттерны — 3-state chip interactions table, mutual exclusion invariant, URL persistence, mode switching.
-  - §14.4: KI mitigations (KI#45/46/47/48).
-  - §14.5: Test coverage (71 unit-test + 10 in-game tests = 81 total).
-  - §14.6: Backward compatibility (mixedMode default=false, URL `opt` key missing in old links, SearchLogic extended).
-  - §14.7: Open questions для iter 161+ (UX feedback, onboarding hint, icon legend, KI#47 fix, multi-OPT groups).
-- 4: **Обновлён `STATUS.md` — почищен от длинной истории:**
-  - Текущая итерация: 160 (in-game verification test plan готов).
-  - iter 158/159 сжаты до одной строки каждый.
-  - Known Issues: оставлены только KI#43/45/46/47/48 + 4 фоновых.
-  - Удалены закрытые KI (iter 150–157) — они в git history.
-  - Next iteration: iter 161 plan (закрыть KI#48 + UX polish).
-- 5: **Обновлён `worklog.md` — эта запись (iter 158/159 сжаты до одной строки каждый).**
-
-Stage Summary:
-- **In-game verification test plan ГОТОВ.** `docs/MIXED_MODE_UI_TESTS.md` содержит 10 конкретных тестов T1–T10 с реальными предметами из `регис/предметы для теста с аффиксами имплиситами_новый.md`. Каждый тест: категория, шаги UI (click / shift+click / right-click), ожидаемый regex (форма), таблица ожиданий (✅/❌ для каждого предмета), инструкция «Если FAIL».
-- **Документация актуализирована:**
-  - `docs/UI_REFACTOR_PLAN.md` — +§14 (MIXED-mode UI Patterns, ~150 строк).
-  - `STATUS.md` — почищен, iter 160 как текущее состояние, KI#48 ждёт прогона.
-  - `worklog.md` — iter 158/159 сжаты, iter 160 подробно.
-- **Изменённые файлы (3):**
-  - `docs/MIXED_MODE_UI_TESTS.md` — NEW (test plan T1–T10).
-  - `docs/UI_REFACTOR_PLAN.md` — +§14 (MIXED-mode UI patterns).
-  - `STATUS.md` — почищен, актуализирован.
-  - `worklog.md` — iter 160 запись.
-- **Код НЕ изменён** — iter 159 полностью завершён, все проверки PASS (2306/2306 tests, tsc 0, eslint 0, vite build PASS). iter 160 = чисто документационная итерация.
-- **Stopping point:** iter 160 завершён. Next iter 161 — пользователь прогоняет T1–T10 в игре, заполняет UX Feedback Checklist, закрывает KI#48. По результатам — UX polish (onboarding hints, icon legend update, visual tweaks) + возможные новые KI#49+ если найдены баги.
-
----
-
-Task ID: iter-162
-Agent: main (continuation from iter 161)
-Task: Fix KI#49 (T3 bug — pure-EXCLUDE dropped in MIXED mode) + add explicit ⓘ glyph with delayed tooltip on the MIXED chip.
-
-Work Log:
-- 0: **Прочитал feedback пользователя из iter 161:**
-  - T1, T2 — PASS.
-  - T3 — FAIL: при 1 EXCLUDE (`+XX% к сопротивлению хаосу`, только A3=14%) + 1 MUST (`+XX к меткости`) + 1 OPT (`XX% повышение скорости регенерации маны`) → ожидалось `"!хаосу" "меткости" "регенерации маны"`, фактически `"меткости" "регенерации маны"` (EXCLUDE потерян).
-  - T4, T5 — PASS.
-  - T6 — пользователь пропустил.
-  - UX запрос: добавить явный ⓘ glyph на чип «Смешанный» с delayed hover tooltip про shift+click и right-click.
-- 1: **Документировал KI#49 в `STATUS.md`** (per rule: «Сначала документируй — потом фиксий»).
-- 2: **Root cause analysis KI#49:**
-  - В `src/ui/hooks/category-ast-utils.ts` функция `buildMixedAstFromSelections` строила `excludedTokens` фильтрацией `mustTokens` и `optTokens` по `excludedIds`.
-  - В `src/ui/hooks/useCategoryPage.ts` call site: `mustTokens = selectedTokens.filter(t => selectedIds.has(t.id))`, `optTokens = selectedTokens.filter(t => optionalIds.has(t.id))`. Pure-exclude токен (только в `excludedIds`) НЕ попадает ни в `mustTokens`, ни в `optTokens`, следовательно не попадает и в `excludedTokens`. Блок `!BAD` не генерируется.
-  - Существующие тесты в `tests/ui/buildMixedAst.test.ts` не ловили баг, потому что в test workaround BAD-токен включался в `mustTokens` вручную (см. комментарий в тесте `builds T7 pattern`: «Note: BAD token must be in mustTokens or optTokens to be picked up as excluded»). Это маскировало баг.
-- 3: **Fix KI#49 в `src/ui/hooks/category-ast-utils.ts`:**
-  - Добавлен опциональный параметр `excludeTokens: GameToken[] = []` в конец сигнатуры `buildMixedAstFromSelections` (после `thresholdEnabled`).
-  - `excludedTokens` теперь собирается из 3 источников с dedup по ID: (1) mustTokens ∩ excludedIds (legacy), (2) optTokens ∩ excludedIds (legacy), (3) excludeTokens (новый путь для pure-exclude).
-  - Подробный комментарий объясняет, почему 3 источника и почему backward-compat сохранён.
-  - JSDoc обновлён с описанием нового параметра.
-- 4: **Fix call site в `src/ui/hooks/useCategoryPage.ts`:**
-  - Добавлен `const excludeTokens = selectedTokens.filter(t => excludedIds.has(t.id));` перед вызовом.
-  - `excludeTokens` передаётся как 10-й аргумент в `buildMixedAstFromSelections`.
-  - `selectedTokens` уже включает все токены (selectedIds ∪ excludedIds ∪ optionalIds) — фильтр по `excludedIds` даёт pure-exclude токены.
-- 5: **Regression tests в `tests/ui/buildMixedAst.test.ts` (+3 теста):**
-  - `KI#49: pure-EXCLUDE token (not in must/opt) appears in !BAD block` —正面 кейс: 1 MUST + 1 OPT + 1 EXCLUDE (через `excludeTokens`) → `"!хаосу" "меткости" "регенерации маны"`.
-  - `KI#49 regression: WITHOUT excludeTokens param, pure-EXCLUDE is dropped (documents the bug)` — backward-compat тест: та же выборка, но без `excludeTokens` → `"меткости" "регенерации маны"` (без `!хаосу`). Документирует баг, подтверждает что fix именно в новом параметре.
-  - `KI#49: excludes from must/opt and excludeTokens are deduped by ID` — edge case: тот же токен в mustTokens и в excludeTokens → `"!BAD" "MUST"` (не `"!BAD|BAD" "MUST"`).
-- 6: **i18n — `src/shared/i18n.ts`:**
-  - Новый ключ `logic.mixed_aria`: «Пояснение к смешанному режиму (Shift+клик и правый клик)» — aria-label для ⓘ glyph.
-- 7: **UX enhancement — `src/ui/components/CategoryControlPanel.tsx`:**
-  - Импортирован `Tooltip` из `@ui/components/Tooltip`.
-  - На parent radiogroup `<div className="flex gap-1">` добавлен `items-center` для вертикального выравнивания меньшего ⓘ (16x16) с большими кнопками AND/OR/MIXED (~25px высоты).
-  - После MIXED `<button>` добавлен sibling `<Tooltip content={t('logic.mixed_tooltip')} ariaLabel={t('logic.mixed_aria')} className="-ml-0.5 text-[12px] text-muted hover:text-accent-amber-soft" />`.
-  - Tooltip рендерит `<button>` с default glyph `ⓘ`, hover delay 350ms (существующая логика). Click на ⓘ не переключает logic mode (`e.stopPropagation()` в `handleClick` Tooltip'а).
-  - Sibling-позиция (НЕ nested) — валидная ARIA tree (button + button в одном radiogroup).
-  - `-ml-0.5` (-2px margin-left) визуально прижимает ⓘ к MIXED чипу, чтобы они читались как одна единица.
-- 8: **Документация:**
-  - `STATUS.md` — заголовок iter 162, §«Текущее состояние» переписан (KI#49 fix + ⓘ glyph), KI#49 в Known Issues, KI#48 обновлён (T1/T2/T4/T5 PASS, T3 fix, T6–T10 ждут), таблица «Подтверждённые ограничения» обновлена, Next iteration (iter 162→163) переписан.
-  - `worklog.md` — эта запись.
-- 9: **Проверки:**
-  - `tsc --noEmit -p tsconfig.app.json` — 0 ошибок.
-  - `eslint .` — 0 ошибок.
-  - `pnpm test` — 2318/2318 PASS (was 2315, +3 KI#49 regression tests).
-  - `vite build` — PASS (main bundle 343 KB, не изменился существенно).
-
-Stage Summary:
-- **KI#49 fix готов и покрыт regression tests.** Pure-EXCLUDE токены в MIXED-режиме теперь корректно попадают в `!BAD`-блок. T3 должен PASS при повторном прогоне.
-- **ⓘ glyph на MIXED chip добавлен.** Видимый значок рядом с чипом «Смешанный», hover 350ms → tooltip с объяснением shift+click (OPT) и right-click (EXCLUDE). Sibling of `<button>` — валидная ARIA tree.
-- **Все проверки PASS:** tsc 0, eslint 0, 2318/2318 tests, vite build PASS.
-- **Изменённые файлы (6):**
-  - `src/ui/hooks/category-ast-utils.ts` — `excludeTokens` param + dedup.
-  - `src/ui/hooks/useCategoryPage.ts` — call site передаёт excludeTokens.
-  - `src/ui/components/CategoryControlPanel.tsx` — Tooltip на MIXED chip + items-center.
-  - `src/shared/i18n.ts` — `logic.mixed_aria` key.
-  - `tests/ui/buildMixedAst.test.ts` — +3 KI#49 regression tests.
-  - `STATUS.md`, `worklog.md` — актуализированы.
-- **Stopping point:** iter 162 завершён. Next iter 163 — пользователь повторяет T3 (должен PASS), прогоняет T6–T10, заполняет UX Feedback Checklist, проверяет новый ⓘ glyph, закрывает KI#48. Возможные новые KI#50+ если найдены баги.
+- **T9 regression test добавлен.** `tests/ui/FilterChip.test.tsx` — `iter 163 (T9): toggling mixedMode off then on preserves OPT state`. 3-step rerender: OPT visible → OPT hidden (AND mode) → OPT visible again using SAME optionalIds. Документирует контракт: `effectiveOptional = mixedMode ? optionalIds : empty` + `optionalIds` в filter-store не очищается при `setSearchLogic`.
+- **UX cleanup выполнен.** Inline hint «Shift+клик» удалён из CategoryControlPanel — стал избыточен после iter 162 (постоянный ⓘ glyph с delayed tooltip). i18n ключ `logic.mixed_hint` удалён. IconLegend 4-я строка оставлена (другой контекст — образовательный, не contextual).
+- **Repo hygiene выполнен.** 4 файла удалены: `scripts/patch-ki10-ki12-overrides.ts` (one-shot, manualOverride уже applied), `_local-tools/browser-test-iter153.sh` + `_local-tools/` dir (one-shot local tool), `iter162.diff` + `ITER162_README.md` (delivery-артефакты, случайно закоммичены в iter 162).
+- **Verification matrix T1–T10** (unit-test level, что я мог проверить сам):
+  - T1, T2, T4, T5 — in-game PASS (пользователь, iter 161).
+  - T3 — unit-test PASS (KI#49 regression, iter 162). Regex string корректный. Ждёт in-game.
+  - T6 — unit-test PASS (FilterChip OPT state tests, iter 159).
+  - T7 — unit-test PASS (FilterChip right-click + shift+Enter tests, iter 159).
+  - T8 — unit-test PASS (filter-store serialize/deserialize `opt` key tests, iter 159).
+  - T9 — unit-test PASS (iter 163, новый тест).
+  - T10 — unit-test PASS (canonical MIXED pattern test, iter 158).
+- **Все проверки PASS:** tsc 0, eslint 0, 2319/2319 tests, vite build PASS.
+- **Изменённые файлы (iter 163):**
+  - `tests/ui/FilterChip.test.tsx` — +1 T9 regression test (3-step rerender, ~60 строк).
+  - `src/ui/components/CategoryControlPanel.tsx` — удалён inline hint (10 строк кода → 8 строк комментария-маркера).
+  - `src/shared/i18n.ts` — удалён `logic.mixed_hint` key (1 строка → 3 строки комментария-маркера).
+  - `STATUS.md`, `worklog.md`, `AGENT_NAVIGATION.md`, `docs/MIXED_MODE_UI_TESTS.md` — актуализированы.
+- **Удалённые файлы (4):**
+  - `scripts/patch-ki10-ki12-overrides.ts`
+  - `_local-tools/browser-test-iter153.sh`
+  - `iter162.diff`
+  - `ITER162_README.md`
+- **Stopping point:** iter 163 завершён. Next iter 164 — пользователь прогоняет T3 (должен PASS после KI#49 fix) + T6–T10 в игре, заполняет UX Feedback Checklist, закрывает KI#48. Возможные новые KI#50+ если найдены баги. Фоновые задачи: APCA, MobileRegexBar split, KI#47, KI#43.
