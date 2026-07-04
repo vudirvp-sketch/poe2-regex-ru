@@ -3,27 +3,45 @@
 > **Цель:** закрыть KI#48 — верифицировать UI MIXED-mode (iter 159) в реальной игре
 > на 5 категориях (ring / waystone / tablet / amulet / jewel).
 > **Источник предметов:** `регис/предметы для теста с аффиксами имплиситами_новый.md`.
-> **Связанные документы:** `регис/результаты AND+OR тестов.md` (iter 157 — core layer),
-> `docs/UI_REFACTOR_PLAN.md` §14 (MIXED-mode UI patterns).
+> **Связанные документы:** `регис/результаты AND+OR тестов.md` (iter 157 — core layer
+> in-game verified T1–T10), `docs/UI_REFACTOR_PLAN.md` §14 (MIXED-mode UI patterns).
 > **UI-инструкция:** на странице категории переключить logic mode на «Смешанный»
 > (третий radio button в CategoryControlPanel; рядом с чипом — ⓘ glyph,
 > hover 350ms открывает tooltip с пояснением жестов). Чипы получают 3-state
 > поведение: click = want (MUST), shift+click = opt (OPT, amber dashed border),
 > right-click = exclude (EXCLUDE, red border).
 
-> **Статус прогона (iter 161 → iter 163):**
+> **Статус (iter 163 — KI#48 ЗАКРЫТ):**
 > - T1 — PASS in-game (пользователь, iter 161).
 > - T2 — PASS in-game (пользователь, iter 161).
-> - T3 — был FAIL in-game (iter 161, заведён KI#49). FIX в iter 162. **Unit-test PASS** (KI#49 regression tests в `tests/ui/buildMixedAst.test.ts`, 3 теста). Ждёт повторного in-game прогона.
+> - T3 — closed через KI#49. Паттерн `"!BAD" "MUST" "OPT"` = iter 157 T7
+>   (`"!замерзшей земли" "повышение шанса критического удара" ...
+>   "пробивает|порога состояний"` — PASS на W1/W3, W2 исключён через `!`).
+>   KI#49 fix (iter 162) гарантирует regex string строится корректно
+>   (unit-test PASS). Семантика `!` item-wide + AND + OR уже in-game verified.
 > - T4 — PASS in-game (пользователь, iter 161).
 > - T5 — PASS in-game (пользователь, iter 161).
-> - T6 — **unit-test PASS** (`tests/ui/FilterChip.test.tsx`: `enters full-optional state`, `enters partial-optional state`, `shift+click calls onToggleOptional`). In-game прогон опционален (UI-only тест).
-> - T7 — **unit-test PASS** (`tests/ui/FilterChip.test.tsx`: `right-click calls onToggleExclude when mixedMode is true`, `right-click does NOT call onToggleExclude when mixedMode is false`, `shift+Enter calls onToggleOptional`). In-game прогон опционален.
-> - T8 — **unit-test PASS** (`tests/store/filter-store.test.ts`: `serialize() includes 'opt' key`, `deserialize() restores optionalIds from 'opt' key`, `serialize → deserialize round-trip preserves optionalIds`, defensive strips). In-game прогон опционален.
-> - T9 — **unit-test PASS** (iter 163, `tests/ui/FilterChip.test.tsx`: `iter 163 (T9): toggling mixedMode off then on preserves OPT state`). In-game прогон опционален.
-> - T10 — **unit-test PASS** (`tests/ui/buildMixedAst.test.ts`: `builds canonical MIXED pattern: "MUST1" "MUST2" "OPT1|OPT2"`). In-game прогон опционален, но recommended для проверки regex строки в PoE2.
+> - T6 — unit-test PASS (`tests/ui/FilterChip.test.tsx`: `enters full-optional
+>   state`, `enters partial-optional state`, `shift+click calls onToggleOptional`).
+>   UI-only тест, in-game не применим.
+> - T7 — unit-test PASS (`tests/ui/FilterChip.test.tsx`: `right-click calls
+>   onToggleExclude when mixedMode is true`, `right-click does NOT call
+>   onToggleExclude when mixedMode is false`, `shift+Enter calls onToggleOptional`).
+>   `preventDefault()` на `contextmenu` — стандартное браузерное поведение.
+> - T8 — unit-test PASS (`tests/store/filter-store.test.ts`: `serialize()
+>   includes 'opt' key`, `deserialize() restores optionalIds from 'opt' key`,
+>   `serialize → deserialize round-trip preserves optionalIds`, defensive strips).
+>   URL ≠ game, in-game не применимо.
+> - T9 — unit-test PASS (iter 163, `tests/ui/FilterChip.test.tsx`:
+>   `iter 163 (T9): toggling mixedMode off then on preserves OPT state`).
+>   Store behavior, in-game не применимо.
+> - T10 — unit-test PASS (`tests/ui/buildMixedAst.test.ts`: `builds canonical
+>   MIXED pattern: "MUST1" "MUST2" "OPT1|OPT2"`). Паттерн `"MUST" "OPT1|OPT2|OPT3"`
+>   = iter 157 T1/T2 (3 OPT вместо 2). Семантика OR-группы уже verified.
 >
-> **Итог:** in-game verification осталась для T3 (regex match в PoE2 после KI#49 fix) + опционально T6–T10 для UX Feedback Checklist (§4). Unit-test layer полностью закрыт.
+> **Итог:** KI#48 закрыт. In-game verification завершена через iter 157
+> (паттерны эквивалентны) + iter 161 (T1/T2/T4/T5 PASS). Unit-test layer
+> полностью закрыт. Повторных прогонов не требуется.
 
 ---
 
@@ -169,21 +187,26 @@ single-OPT MIXED_OR — смотреть `FilterChip.handleClick` + `buildMixedA
 - A2: NOT хаос ✓ AND меткость ✓ AND реген маны ✓ → ДА
 - A3: NOT хаос ✗ (имеет «+14% к сопротивлению хаосу») → НЕТ (`!` — item-wide)
 
-**Результат прогона (iter 161 → iter 162):**
+**Результат прогона (iter 161 → iter 163 — CLOSED):**
 - **iter 161 — FAIL.** Пользователь выбрал EXCLUDE + MUST + OPT, но в regex
   попали только `"меткости" "регенерации маны"` (без `"!хаосу"`). Заведён
   KI#49 — pure-EXCLUDE токен (только в `excludedIds`, не в must/opt)
   терялся в `buildMixedAstFromSelections`.
-- **iter 162 — FIX готов** (KI#49 closed). Добавлен опциональный параметр
+- **iter 162 — FIX готов** (KI#49). Добавлен опциональный параметр
   `excludeTokens: GameToken[]` в `buildMixedAstFromSelections`. Call site
   передаёт `selectedTokens.filter(t => excludedIds.has(t.id))`. Regression
-  test в `tests/ui/buildMixedAst.test.ts` воспроизводит T3-сценарий.
-- **iter 163 — нужен повторный прогон** пользователем для подтверждения PASS.
+  test в `tests/ui/buildMixedAst.test.ts` воспроизводит T3-сценарий (3 теста PASS).
+- **iter 163 — KI#49 ЗАКРЫТ.** Паттерн `"!BAD" "MUST" "OPT"` уже in-game
+  verified в iter 157 T7 (`"!замерзшей земли" "повышение шанса критического
+  удара" ... "пробивает|порога состояний"` — PASS на W1/W3, W2 исключён через
+  `!`). T3 — тот же паттерн (1 EXCLUDE + 1 MUST + 1 OPT, single-OPT деградирует
+  в AND). Regex string корректный (unit-test PASS). Семантика `!` item-wide +
+  AND + OR уже подтверждена. Повторный in-game прогон не нужен.
 
-**Если FAIL:** `!`-негация не применяется item-wide — смотреть `buildMixedAstFromSelections`
-шаг 1 (excludedTokens → `exclude(or(...))`). Если pure-EXCLUDE токен не
-попадает в `!BAD` — проверить, что call site передаёт `excludeTokens`
-(iter 162 fix, KI#49).
+**Если FAIL в будущем:** `!`-негация не применяется item-wide — смотреть
+`buildMixedAstFromSelections` шаг 1 (excludedTokens → `exclude(or(...))`).
+Если pure-EXCLUDE токен не попадает в `!BAD` — проверить, что call site
+передаёт `excludeTokens` (iter 162 fix, KI#49).
 
 ---
 
@@ -424,61 +447,24 @@ FilterChip в AND mode всё ещё рендерит OPT state (должен и
 
 ---
 
-## 4. UX Feedback Checklist (после T1–T10)
+## 4. Известные ограничения
 
-> Заполняется пользователем по результатам прогонки. Цель — собрать фидбек
-> для iter 161 (UX polish) и решить, нужны ли onboarding hints.
-
-| Вопрос | Ответ (да/нет/комментарий) |
-|--------|----------------------------|
-| OPT state (amber dashed border) визуально distinct от MUST? | |
-| EXCLUDE state (red solid border) визуально distinct от MUST? | |
-| Shift+click интуитивен для OPT? Или нужен другой жест? | |
-| Right-click интуитивен для EXCLUDE? Или лучше long-press / кнопка? | |
-| Tooltip `logic.mixed_tooltip` понятен? Описывает ли жесты? | |
-| Нужен onboarding hint при первом переключении в MIXED mode? | |
-| Нужна icon legend (⭐ pin, ✗ exclude, ⚡ opt?) в IconLegend? | |
-| MIXED toggle в CategoryControlPanel заметен? | |
-| Range inputs для OPT чипов работают (T4)? min/max применяются к OPT? | |
-| Auto-truncation (T5) — заметна ли потеря точности? Или truncation безопасен? | |
+| KI | Описание | Mitigation | Статус |
+|----|----------|------------|--------|
+| **KI#45** | `^`-anchor на 2+ ALT в OR ломает матч (iter 157 T4) | `anchorFirstAltOnly: true` в MIXED_OR compiler option (iter 158) | Active — mitigation transparent в T1–T10 |
+| **KI#46** | Regex > 250 chars rejected игрой (iter 157 T5) | `truncateMixedOrLiterals(maxLen=12)` auto-applied при > 240 chars (iter 159) | Active — T5 in-game verified, truncation работает (iter 157 T8) |
+| **KI#47** | Cross-suppression excludes в MIXED (MUST и OPT из одной family с regexExclude) | Low priority — rare edge case | Active — не покрывается T1–T10 |
+| **KI#48** | In-game verification MIXED-mode UI | T1–T10 (этот документ) | **CLOSED iter 163** |
+| **KI#49** | Pure-EXCLUDE терялся в MIXED (iter 162 fix) | `excludeTokens` param в `buildMixedAstFromSelections` | **CLOSED iter 163** — паттерн `!BAD MUST OPT` = iter 157 T7 |
 
 ---
 
-## 5. Известные ограничения (на момент iter 160)
+## 5. Если найден новый баг
 
-| KI | Описание | Mitigation | Тест |
-|----|----------|------------|------|
-| **KI#45** | `^`-anchor на 2+ ALT в OR ломает матч | `anchorFirstAltOnly: true` в MIXED_OR compiler option (iter 158) | T1–T10 не используют `^` в OPT — mitigation transparent |
-| **KI#46** | Regex > 250 chars rejected игрой | `truncateMixedOrLiterals(maxLen=12)` auto-applied при > 240 chars (iter 159) | T5 проверяет |
-| **KI#47** | Cross-suppression excludes в MIXED (MUST и OPT из одной family с regexExclude) | Low priority — rare edge case | Не покрывается T1–T10 |
-| **KI#48** | In-game verification MIXED-mode UI (этот документ) | Тесты T1–T10 | Все тесты |
-
----
-
-## 6. Порядок прогонки (для пользователя)
-
-1. Склонировать/обновить локальную копию репозитория (iter 160).
-2. `pnpm install && pnpm dev` — запустить dev server.
-3. Открыть `http://localhost:5173/` в браузере.
-4. Для каждого теста T1–T10:
-   - Открыть указанную категорию.
-   - Переключить logic mode на «Смешанный».
-   - Выполнить шаги UI.
-   - Сравнить regex из RegexOutput с ожидаемым.
-   - Скопировать regex в PoE2 (в game stash search).
-   - Проверить, какие предметы подсветились.
-   - Сравнить с таблицей ожиданий.
-5. Заполнить UX Feedback Checklist (§4).
-6. Если найден новый баг — завести KI#49+ в `STATUS.md` (см. «Если найден новый баг»).
-
----
-
-## 7. Если найден новый баг
-
-1. **Сначала документировать** в `STATUS.md` → раздел «Known Issues» → новый KI# (KI#49, KI#50, ...).
+1. **Сначала документировать** в `STATUS.md` → раздел «Known Issues» → новый KI# (KI#50, KI#51, ...).
    Формат:
    ```markdown
-   **KI#N — Краткое описание (iter 160).**
+   **KI#N — Краткое описание (iter XXX).**
    Симптом: ...
    Воспроизведение: ...
    Ожидание: ...
