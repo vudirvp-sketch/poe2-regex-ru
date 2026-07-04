@@ -14,10 +14,14 @@
  *     AND/OR family logic, multi-slot range groups, suppressed excludes).
  *   - pushLiteralsWithFamilyLogic: Family-grouping helper for literal nodes.
  *   - applyRuntimeYofication: Post-compile yofication with char budget check.
+ *   - buildMixedAstFromSelections (iter 158): MIXED-mode builder — produces
+ *     `"MUST1" "MUST2" "OPT1|OPT2"` AST with KI#45/KI#46 mitigations.
+ *   - truncateMixedOrLiterals (iter 158): KI#46 mitigation helper — shortens
+ *     LITERAL values in MIXED_OR children to fit the 250-char budget.
  */
-import type { GameToken, ASTNode, Locale, SearchLogic } from '@shared/types';
+import type { GameToken, ASTNode, Locale, SearchLogic, MixedOrOptions } from '@shared/types';
 import type { TokenRangeOverride, SlotRangeOverride } from '@store/filter-store';
-import { and, or, exclude, literal, range, multiRange } from '@core/ast';
+import { and, or, mixedOr, exclude, literal, range, multiRange } from '@core/ast';
 import { applyYofication } from '@strategies/locale';
 
 // ─── Effective range computation ───
@@ -898,4 +902,233 @@ export function applyRuntimeYofication(
   const canAfford = (extraChars: number) => (regex.length + extraChars) <= MAX_CHARS;
 
   return applyYofication(regex, allPositions, canAfford);
+}
+
+// ─── iter 158: MIXED-mode AST builder + truncation helper ─────────────────────
+//
+// MIXED mode = verified combined AND+OR pattern (iter 157, KI#44 closed):
+//   `"MUST1" "MUST2" "OPT1|OPT2|OPT3"`
+//
+// In-game-verified rules baked into the builder:
+//  - MUST tokens → each becomes its own quoted group (AND across blocks)
+//  - OPT tokens → all collected into a single MIXED_OR quoted group
+//  - Multiple OPT groups supported (T6): `"MUST" "OPT1|OPT2" "OPT3|OPT4"`
+//    — caller splits optTokens into groups before calling, OR builds multiple
+//    MIXED_OR nodes and ANDs them together (this builder takes a single
+//    optTokens array; for multiple groups, call it once per group and AND
+//    the results manually).
+//  - Excluded tokens → `!` item-wide negation (T7): `"!BAD" "MUST" "OPT1|OPT2"`
+//  - Ranged OPT tokens → reuse reversed-RANGE logic from MUST path (T9 reversed)
+//  - KI#45 mitigation: MIXED_OR is built with `anchorFirstAltOnly: true`,
+//    so the compiler strips `^` from non-first alternatives.
+//  - KI#46 mitigation: caller can run `truncateMixedOrLiterals` after building
+//    if the compiled regex exceeds the 250-char limit.
+
+/**
+ * KI#46 mitigation: shorten LITERAL values inside MIXED_OR children.
+ *
+ * Walks the AST, finds MIXED_OR nodes, and for each LITERAL child, truncates
+ * `value` to at most `maxLen` chars. Preserves the start of the string (the
+ * most distinctive part of Russian mod names — verified in-game T8).
+ *
+ * Truncation strategy:
+ *  - If value.length ≤ maxLen → unchanged.
+ *  - Otherwise → keep first `maxLen` chars. No ellipsis (game doesn't accept
+ *    Unicode escapes for `…`, and `...` wastes 3 chars).
+ *
+ * Non-LITERAL children (RANGE, MULTI_RANGE, AND, OR, EXCLUDE) are left
+ * untouched — they cannot be safely shortened without breaking semantics.
+ *
+ * The function is PURE: returns a new AST, does not mutate the input.
+ *
+ * @param ast - The AST to transform (typically the output of buildMixedAstFromSelections)
+ * @param maxLen - Max chars per LITERAL value (default 12 — covers most Russian
+ *                mod-family stems like «сопротивлен», «к критичес», «пробивает»)
+ * @returns New AST with truncated LITERAL values in MIXED_OR nodes
+ */
+export function truncateMixedOrLiterals(ast: ASTNode, maxLen: number = 12): ASTNode {
+  function walk(node: ASTNode): ASTNode {
+    switch (node.type) {
+      case 'AND': {
+        return { ...node, children: node.children.map(walk) };
+      }
+      case 'OR': {
+        return { ...node, children: node.children.map(walk) };
+      }
+      case 'MIXED_OR': {
+        const newChildren = node.children.map(child => {
+          if (child.type === 'LITERAL' && child.value.length > maxLen) {
+            const truncated: ASTNode = {
+              type: 'LITERAL',
+              value: child.value.slice(0, maxLen),
+              ...(child.tokenId ? { tokenId: child.tokenId } : {}),
+            };
+            return truncated;
+          }
+          return walk(child);
+        });
+        if (node.options) {
+          return { type: 'MIXED_OR', children: newChildren, options: node.options };
+        }
+        return { type: 'MIXED_OR', children: newChildren };
+      }
+      case 'EXCLUDE': {
+        return { ...node, child: walk(node.child) };
+      }
+      case 'LITERAL':
+      case 'RANGE':
+      case 'MULTI_RANGE':
+        return node;
+    }
+  }
+  return walk(ast);
+}
+
+/**
+ * Build an AST for MIXED mode (iter 158).
+ *
+ * Output shape (verified in-game iter 157, KI#44 closed):
+ *   `"MUST1" "MUST2" "OPT1|OPT2|OPT3"`
+ *   `"!BAD" "MUST1" "OPT1|OPT2"`       (with excluded tokens)
+ *   `"MUST1" "MUST2" "10.*suffix|20.*suffix"`  (with ranged OPT tokens)
+ *
+ * Differences from `buildAstFromSelections`:
+ *  - MUST tokens go into the AND-context as separate quoted groups (NOT into
+ *    an OR group based on family logic — MIXED mode treats each MUST as a
+ *    strict requirement, even if they're the same family at different tiers).
+ *  - OPT tokens all go into a single MIXED_OR quoted group with
+ *    `anchorFirstAltOnly: true` (KI#45 mitigation).
+ *  - Ranged OPT tokens reuse the same reversed-RANGE logic as MUST tokens
+ *    (T9 reversed): the compiler handles reversed RANGE inside MIXED_OR
+ *    identically to OR (since MIXED_OR is OR + post-process).
+ *  - Excluded tokens → `!BAD` item-wide negation as the FIRST AND child
+ *    (T7 verified).
+ *
+ * @param mustTokens - Tokens that MUST appear on the item (each becomes its
+ *                    own quoted group, AND across blocks).
+ * @param optTokens  - Tokens where at least one must appear (collected into
+ *                    a single MIXED_OR quoted group). Family-grouping inside
+ *                    OPT is the caller's responsibility — typically the user
+ *                    explicitly picks one or two OPT alternatives per family.
+ * @param excludedIds - Set of token IDs (subset of mustTokens ∪ optTokens)
+ *                     that should be excluded via `!`. These tokens are NOT
+ *                     emitted as MUST or OPT — they become `!BAD` instead.
+ * @param minValue - Global min for ranged tokens (null = no min).
+ * @param maxValue - Global max for ranged tokens (null = no max).
+ * @param _round10 - Round10 flag (currently unused, kept for API symmetry).
+ * @param locale   - Locale ('ru').
+ * @param perTokenRanges - Per-token range overrides (same format as
+ *                        buildAstFromSelections).
+ * @param thresholdEnabled - When true with both min+max, compile RANGE as
+ *                          ≥min only (shorter regex, drops max constraint).
+ * @returns ASTNode (AND root with [excludes?, ...musts, MIXED_OR]) or null
+ *          if both mustTokens and optTokens are empty after exclude filtering.
+ */
+export function buildMixedAstFromSelections(
+  mustTokens: GameToken[],
+  optTokens: GameToken[],
+  excludedIds: Set<string>,
+  minValue: number | null,
+  maxValue: number | null,
+  _round10: boolean,
+  locale: Locale,
+  perTokenRanges: Record<string, TokenRangeOverride>,
+  thresholdEnabled: boolean = false
+): ASTNode | null {
+  // Filter out excluded tokens from MUST/OPT — they go into the !BAD group.
+  const mustWant = mustTokens.filter(t => !excludedIds.has(t.id));
+  const optWant = optTokens.filter(t => !excludedIds.has(t.id));
+  const excludedTokens = [
+    ...mustTokens.filter(t => excludedIds.has(t.id)),
+    ...optTokens.filter(t => excludedIds.has(t.id)),
+  ];
+
+  if (mustWant.length === 0 && optWant.length === 0 && excludedTokens.length === 0) {
+    return null;
+  }
+
+  // Note: we delegate to buildAstFromSelections for both MUST and OPT paths,
+  // which computes its own suppressedExcludes from its own selectedTokens.
+  // This means cross-suppression (a MUST token's regexExclude being suppressed
+  // because it matches an OPT token's text) is NOT applied — a known limitation
+  // of this builder. For the common case (MUST and OPT are from different
+  // families), this is fine; the edge case is documented as KI#47.
+  const andChildren: ASTNode[] = [];
+
+  // 1. Excluded tokens → "!BAD1|BAD2" as the FIRST AND child (T7 verified).
+  //    All excluded tokens share a single quoted negation group.
+  if (excludedTokens.length > 0) {
+    const exclLiterals = excludedTokens.map(t => buildLiteralNode(t, locale, true));
+    if (exclLiterals.length === 1) {
+      andChildren.push(exclude(exclLiterals[0]));
+    } else {
+      // Wrap multiple excludes in EXCLUDE(OR(...)) — compiles to "!A|B|C".
+      andChildren.push(exclude(or(...exclLiterals)));
+    }
+  }
+
+  // 2. MUST tokens — each becomes its own quoted group (AND across blocks).
+  //    Family-grouping is NOT applied in MIXED mode: each MUST is a strict
+  //    requirement, even if it's the same family at a different tier.
+  //    Ranged MUST tokens reuse the same logic as buildAstFromSelections
+  //    (reversed RANGE, MULTI_RANGE for dual-slot, prefix context, excludes).
+  //    To keep this builder simple and avoid duplicating the ~300-line range
+  //    grouping logic, we delegate MUST ranged tokens to buildAstFromSelections
+  //    with searchLogic='and' and extract the resulting children.
+  if (mustWant.length > 0) {
+    const mustAst = buildAstFromSelections(
+      mustWant,
+      new Set<string>(),  // No excludes here — handled separately above
+      minValue,
+      maxValue,
+      _round10,
+      locale,
+      perTokenRanges,
+      'and',  // AND mode — each MUST is a strict requirement
+      thresholdEnabled
+    );
+    if (mustAst) {
+      // Flatten the AND root into individual children (each becomes a quoted
+      // group when compiled by the parent AND context).
+      if (mustAst.type === 'AND') {
+        andChildren.push(...mustAst.children);
+      } else {
+        andChildren.push(mustAst);
+      }
+    }
+  }
+
+  // 3. OPT tokens — collected into a single MIXED_OR with anchorFirstAltOnly.
+  //    For ranged OPT tokens, we use the same buildAstFromSelections logic
+  //    (searchLogic='or') to get the reversed-RANGE behavior, then unwrap
+  //    the OR node and re-wrap as MIXED_OR.
+  if (optWant.length > 0) {
+    const optAst = buildAstFromSelections(
+      optWant,
+      new Set<string>(),
+      minValue,
+      maxValue,
+      _round10,
+      locale,
+      perTokenRanges,
+      'or',  // OR mode — all OPT alts in a single quoted group
+      thresholdEnabled
+    );
+    if (optAst) {
+      // optAst is typically OR([...]) — unwrap and re-wrap as MIXED_OR.
+      // If it's a single LITERAL/RANGE (only one OPT token), still wrap.
+      let optChildren: ASTNode[];
+      if (optAst.type === 'OR') {
+        optChildren = optAst.children;
+      } else {
+        optChildren = [optAst];
+      }
+      const mixedOrOptions: MixedOrOptions = { anchorFirstAltOnly: true };
+      andChildren.push(mixedOr(optChildren, mixedOrOptions));
+    }
+  }
+
+  if (andChildren.length === 0) return null;
+  if (andChildren.length === 1) return andChildren[0];
+  return and(...andChildren);
 }

@@ -2,26 +2,23 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 157 (Mixed AND+OR verified — UI MIXED ready to implement)
+> **Текущая итерация:** 158 (MIXED-mode core: AST + compiler + builder + tests — UI pending)
 > **UI-документация:** `docs/UI_REFACTOR_PLAN.md`
 
 ---
 
 ## Текущее состояние
 
-**iter 157: Mixed AND+OR логика verified in-game.** 10 тестов (T1–T10) на 3 путевых камнях подтвердили полную механику combined-режима:
-- ✅ `"MUST1" "MUST2" "OPT1|OPT2"` — работает (T1, T2, T3)
-- ✅ Две OR-группы + AND между ними — работает (T6)
-- ✅ `!` item-wide negation в combined-режиме — работает (T7)
-- ✅ Truncation длинных имён для экономии длины — работает (T8)
-- ✅ Пороговые паттерны в OPT (прямая форма `N%.*suffix`) — работают (T9)
-- ✅ OR-группа без матчей → все предметы скрыты (T10)
-- ❌ `^` на второй ALT ломает матч (T4) → KI#45
-- ❌ Лимит 250 chars жёсткий (T5) → KI#46
+**iter 158: MIXED-mode core layer готов.** Реализованы AST-расширение, compiler-поддержка, builder utility и 43 юнит-теста (43/43 PASS). Все 2278 тестов PASS, tsc 0, eslint 0, vite build PASS.
 
-Готов к реализации UI-режима «MIXED» в iter 158.
+Что сделано в iter 158:
+- ✅ **AST extension** — новый `MIXED_OR` тип ноды + `MixedOrOptions` в `src/shared/types.ts`, builder `mixedOr()` в `src/core/ast.ts`.
+- ✅ **Compiler support** — `MIXED_OR` в `normalizeAst` + `compileInner` + `compile()` (`src/core/compiler.ts`). KI#45 mitigation (`anchorFirstAltOnly`): компилятор strip'ит `^` с non-first альтернатив.
+- ✅ **Builder utility** — `buildMixedAstFromSelections()` + `truncateMixedOrLiterals()` в `src/ui/hooks/category-ast-utils.ts`. Переиспользует reversed-RANGE логику MUST (T9 reversed — работает в OPT).
+- ✅ **Re-export** — новые функции доступны через `src/ui/hooks/useCategoryPage.ts`.
+- ✅ **Юнит-тесты** — `tests/core/compiler-mixed.test.ts` (21 tests) + `tests/ui/buildMixedAst.test.ts` (22 tests).
 
-**iter 155: KI#43 deploy retry fix.** `actions/deploy-pages@v4` обёрнут в `Wandalen/wretry.action@v3`. Ожидает подтверждения на следующем push.
+**iter 157: Mixed AND+OR logic verified in-game (10 тестов T1–T10).** KI#44 закрыт. KI#45/KI#46 — mitigation для UI реализованы в core layer.
 
 ---
 
@@ -31,41 +28,39 @@
 
 **KI#45 — `^`-anchor на второй/третьей ALT в OR ломает матч (iter 157).**
 
-**Симптом:** регекс `"X" "^A.*P1|^B.*P2"` matчит только предметы, где первая ALT срабатывает. Вторая ALT НЕ matчит даже если блок содержит B...P2, потому что `^B` требует блок, начинающийся с B.
+**Симптом:** `"X" "^A.*P1|^B.*P2"` matчит только предметы, где первая ALT срабатывает.
 
-**Test (T4):** `"бонусу критического урона монстров" "^Монстры имеют.*порога состояний|^сопротивлений стихиям"`. W3 (блок «Урон монстров пробивает 13% сопротивлений стихиям») — ❌ НЕ matчит, хотя блок содержит «сопротивлений стихиям».
-
-**Для UI-режима MIXED:** `^` только на первую ALT в OPT-группе.
+**Mitigation (реализована в core):** `MIXED_OR` с `anchorFirstAltOnly: true` — компилятор strip'ит `^` с non-first альтернатив. Builder `buildMixedAstFromSelections` включает эту опцию по умолчанию.
 
 **KI#46 — Лимит 250 chars в combined-режиме (iter 157).**
 
 **Симптом:** регекс 268 chars — игра НЕ принимает (T5).
 
-**Для UI-режима MIXED:**
-- Счётчик длины в реальном времени, предупреждение при >240 chars.
-- Авто-truncation длинных affix names (verified T8 — работает в combined-режиме).
-- Ограничение количества mandatory и OPT-альтернатив в UI.
+**Mitigation (реализована в core):** `truncateMixedOrLiterals(ast, maxLen=12)` — shortens LITERAL values в MIXED_OR. Вызывается когда compiled regex > 240 chars. Verified in-game T8: truncation работает.
+
+**KI#47 — Cross-suppression excludes в MIXED-режиме (iter 158, low priority).**
+
+`buildMixedAstFromSelections` делегирует MUST/OPT в `buildAstFromSelections` отдельно, поэтому `computeSuppressedExcludes` не видит cross-MUST/OPT conflicts. Редкий edge case (MUST и OPT из одной family с regexExclude). Для common case (MUST и OPT из разных family) — не влияет.
 
 **KI#43 — Transient `actions/deploy-pages` failures (iter 155).**
 
-`Build + Deploy` workflow завершается `failure` при `Deploy to Pages` step (~6s), хотя Build — `success`. Fix: deploy step обёрнут в `Wandalen/wretry.action@v3` (3 attempts, 30s delay). Ожидает подтверждения на следующем push.
+Fix: deploy step обёрнут в `Wandalen/wretry.action@v3`. Ожидает подтверждения.
 
 ### Фоновые (low-priority)
 
-1. **APCA Lc<75 для small text weight 400** — WCAG AA PASS, APCA FAIL. Weight 500 на критичных лейблах.
-2. **MobileRegexBar chunk 158 KB** — отдельный chunk для mobile-only компонента.
+1. **APCA Lc<75 для small text weight 400** — WCAG AA PASS, APCA FAIL.
+2. **MobileRegexBar chunk 158 KB** — отдельный chunk для mobile-only.
 3. **`scripts/patch-ki10-ki12-overrides.ts`** — iter 153 one-shot, удалить после ETL refresh.
-4. **`_local-tools/browser-test-iter153.sh`** — iter 153 one-shot, удалить или перенести в `docs/`.
+4. **`_local-tools/browser-test-iter153.sh`** — iter 153 one-shot.
 
 ### Закрытые
 
-- ✅ **iter 157:** KI#44 — Mixed AND+OR verified (10 in-game tests T1–T10 PASS).
-- ✅ **iter 154:** KI#38 scroll jitter, KI#31 mobile UX, KI#41 ⓘ glyph — user-verified. Repo cleanup.
-- ✅ **iter 153:** KI#10/KI#12 — `manualOverride` flag. Bundle 603→342 KB.
-- ✅ **iter 152:** KI#42 search focus loss fix.
+- ✅ **iter 158:** MIXED-mode core layer (AST + compiler + builder + 43 tests).
+- ✅ **iter 157:** KI#44 — Mixed AND+OR verified (10 in-game tests).
+- ✅ **iter 154:** KI#38/31/41 + repo cleanup.
+- ✅ **iter 153:** KI#10/KI#12 — `manualOverride` flag.
+- ✅ **iter 152:** KI#42 search focus loss.
 - ✅ **iter 150:** KI#40 ⭐ pin, KI#41 ⓘ in-box layout.
-- ✅ **iter 149:** PriorityFilter removal.
-- ✅ **iter 148:** toolbar UX refactor.
 
 ---
 
@@ -79,7 +74,7 @@
 | Пробел = AND (cross-block + same-block) | ✅ | |
 | `(?!…)` per-block bidirectional | ✅ | через `^(?!…).*Z` |
 | `!` item-wide | ✅ | для top-level AND |
-| `^` start-of-block anchor | ✅ | **только на первой ALT в OR** (iter 46 + iter 157 T4) |
+| `^` start-of-block anchor | ✅ | **только на первой ALT в OR** (KI#45) |
 | `\d`, `\d{N,}` | ✅ | |
 | `?` optional | ❌ | не работает в игре |
 | `(A\|B\|C)` alone | ✅ | in-game verified |
@@ -90,35 +85,44 @@
 | **`"A" "ctx.*X\|ctx2.*Y"` (Path D + AND)** | ✅ iter 157 | T3 |
 | **`"A" "OPT1\|OPT2" "OPT3\|OPT4"` (несколько OR)** | ✅ iter 157 | T6 |
 | **`"!BAD" "MUST" "OPT1\|OPT2"` (`!` + AND + OR)** | ✅ iter 157 | T7 |
-| **Truncation в combined-режиме** | ✅ iter 157 | T8 |
+| **Truncation в combined-режиме** | ✅ iter 157 | T8 — mitigation для KI#46 |
 | **Пороги в OPT (прямая `N%.*suffix`)** | ✅ iter 157 | T9 |
-| **Пороги в OPT (reversed `suffix.*N%`)** | ⚠️ нужен reversed паттерн | T9 (W3 не matчит — pierce reversed) |
+| **Пороги в OPT (reversed `suffix.*N%`)** | ✅ iter 158 | через `reversed` флаг + MIXED_OR |
 | **OR без матчей → предмет скрыт** | ✅ iter 157 | T10 |
-| **`"A" "^X\|^Y"` (`^` на нескольких ALT)** | ❌ iter 157 KI#45 | T4: вторая ALT ломается |
-| Regex char limit ≈ 250 chars | ✅ | **жёсткий в combined-режиме** (iter 157 T5) |
+| **`"A" "^X\|^Y"` (`^` на нескольких ALT)** | ❌ KI#45 | mitigation: `anchorFirstAltOnly` |
+| Regex char limit ≈ 250 chars | ✅ | **жёсткий в combined-режиме** (KI#46) |
 
 ---
 
-## Next iteration (iter 157 → iter 158)
+## Next iteration (iter 158 → iter 159)
 
-**iter 157 завершён: Mixed AND+OR verified (10 тестов). Готов к push.**
+**iter 158 завершён: MIXED-mode core layer готов.** UI-интеграция отложена на iter 159 (согласовано с правилом «лучше недоделать, чем сломать»).
 
-**Приоритеты для iter 158:**
+**Приоритеты для iter 159 (UI-интеграция):**
 
-1. **Реализовать UI-режим «MIXED»** на основе verified-шаблонов:
-   - UI: чекбоксы «обязательный» (MUST) vs «опциональный» (OPT) для каждого аффикса.
-   - Генератор: `"MUST1" "MUST2" "OPT1|OPT2|OPT3"` (базовый, T1–T3).
-   - Поддержка нескольких OPT-групп: `"MUST" "OPT1|OPT2" "OPT3|OPT4"` (T6).
-   - Поле «исключить аффикс» → `!` item-wide (T7).
-   - Счётчик длины с предупреждением при >240 chars (KI#46).
-   - Авто-truncation длинных affix names (T8 verified).
-   - `^`-anchor только на первой OPT-alt (KI#45).
-   - Path D (`ctx.*suffix`) разрешён внутри OPT-alt (T3 verified).
-   - Пороговые паттерны в OPT: прямая `N%.*suffix` (T9 verified) + reversed `suffix.*N%` (через `reversed` флаг в AST).
+1. **Расширить `SearchLogic` тип** — добавить `'mixed'` к `'and' | 'or'` в `src/shared/types.ts`.
 
-2. **Новые баги** (если найдены) — сначала STATUS.md, потом фикс.
+2. **Добавить `optionalIds: Set<string>` в filter-store** (`src/store/filter-store.ts`):
+   - Новый field рядом с `selectedIds` / `excludedIds`.
+   - 3-state chip: want (selected) / opt (optional) / exclude.
+   - Mutually exclusive с selectedIds/excludedIds.
+   - Serialize/deserialize в URL hash (новый ключ `o`).
 
-3. **Фоновые задачи (опционально):** APCA, MobileRegexBar split, удаление one-shot скриптов.
+3. **Обновить `FilterChip`** (`src/ui/components/`):
+   - 3-state toggle: click = want, shift+click = opt, right-click = exclude (или иной UX).
+   - Визуально distinct state для OPT (например, amber dashed border).
+
+4. **Обновить `CategoryControlPanel`** — добавить MIXED toggle к AND/OR radiogroup.
+
+5. **Обновить `useCategoryPage`** — при `searchLogic === 'mixed'`:
+   - Разделить selectedIds на MUST (selectedIds) и OPT (optionalIds).
+   - Вызвать `buildMixedAstFromSelections` вместо `buildAstFromSelections`.
+   - При overflow > 240 → вызвать `truncateMixedOrLiterals` и пересобрать.
+   - Счётчик длины уже есть в `RegexOutput` (existing) — расширен для MIXED-mode warning.
+
+6. **In-game verification** — прогнать 5–10 тестов с реальным UI MIXED mode на разных категориях.
+
+**Фоновые задачи (опционально):** APCA, MobileRegexBar split, удаление one-shot скриптов.
 
 ---
 

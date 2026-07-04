@@ -49,10 +49,14 @@ import { isOverflow, splitOverLimitRegex } from '@core/limits';
 
 // Re-export pure helpers (extracted iter 78, Bug #8 Phase 1).
 // Tests import buildAstFromSelections + pushLiteralsWithFamilyLogic from this module.
+// iter 158: also re-exports buildMixedAstFromSelections + truncateMixedOrLiterals
+// (MIXED-mode helpers for combined AND+OR pattern with KI#45/KI#46 mitigations).
 export {
   buildAstFromSelections,
   pushLiteralsWithFamilyLogic,
   applyRuntimeYofication,
+  buildMixedAstFromSelections,
+  truncateMixedOrLiterals,
 } from './category-ast-utils';
 
 // Import for internal use.

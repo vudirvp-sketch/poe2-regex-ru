@@ -1,4 +1,4 @@
-import type { ASTNode } from '@shared/types';
+import type { ASTNode, MixedOrOptions } from '@shared/types';
 
 // Builder functions
 export function and(...children: ASTNode[]): ASTNode {
@@ -7,6 +7,25 @@ export function and(...children: ASTNode[]): ASTNode {
 
 export function or(...children: ASTNode[]): ASTNode {
   return { type: 'OR', children };
+}
+
+/**
+ * Build a MIXED_OR node (iter 158).
+ *
+ * MIXED_OR is an OR-group inside an AND-context — the verified combined-mode
+ * pattern: `"MUST1" "MUST2" "OPT1|OPT2|OPT3"`. Compiles identically to OR
+ * (children share a single quoted group separated by `|`), but supports
+ * `MixedOrOptions` for KI#45/KI#46 mitigations.
+ *
+ * @param children - OPT alternatives (LITERAL or RANGE nodes)
+ * @param options - KI#45 mitigation: anchorFirstAltOnly strips `^` from
+ *                 non-first alternatives (default false).
+ */
+export function mixedOr(children: ASTNode[], options?: MixedOrOptions): ASTNode {
+  if (options) {
+    return { type: 'MIXED_OR', children, options };
+  }
+  return { type: 'MIXED_OR', children };
 }
 
 export function exclude(child: ASTNode): ASTNode {
@@ -54,6 +73,7 @@ export function collectTokenIds(node: ASTNode): string[] {
     switch (n.type) {
       case 'AND':
       case 'OR':
+      case 'MIXED_OR':
         n.children.forEach(walk);
         break;
       case 'EXCLUDE':

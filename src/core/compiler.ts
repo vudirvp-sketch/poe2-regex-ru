@@ -240,6 +240,22 @@ function normalizeAst(node: ASTNode): ASTNode {
 
       return { ...node, children: transformedChildren };
     }
+    case 'MIXED_OR': {
+      // iter 158: MIXED_OR is an OR-group inside an AND-context.
+      // Normalize like OR (apply AND-in-OR transforms to avoid nested quotes),
+      // then preserve the `options` field so the compiler can apply KI#45
+      // mitigation (anchorFirstAltOnly: strip `^` from non-first alternatives).
+      const normalizedChildren = node.children.map(normalizeAst);
+      // Reuse the same AND-in-OR transform logic as OR case above by routing
+      // through a temporary OR node and then re-wrapping as MIXED_OR.
+      const tempOr: ASTNode = { type: 'OR', children: normalizedChildren };
+      const orNormalized = normalizeAst(tempOr);
+      const finalChildren = orNormalized.type === 'OR' ? orNormalized.children : [orNormalized];
+      if (node.options) {
+        return { type: 'MIXED_OR', children: finalChildren, options: node.options };
+      }
+      return { type: 'MIXED_OR', children: finalChildren };
+    }
     case 'EXCLUDE': {
       return { ...node, child: normalizeAst(node.child) };
     }
@@ -406,6 +422,39 @@ function compileInner(ast: ASTNode, options: CompileOptions): string {
         .map(c => compileInner(c, options))
         .filter(s => s.length > 0);
       if (compiled.length === 0) return '';
+      return compiled.join('|');
+    }
+    case 'MIXED_OR': {
+      // iter 158: MIXED_OR compiles like OR (children share a single quoted
+      // group separated by `|`), but applies KI#45 mitigation when
+      // `options.anchorFirstAltOnly` is true: strip leading `^` from every
+      // alternative EXCEPT the first.
+      //
+      // Background (iter 157 T4): `"MUST" "^X.*P1|^Y.*P2"` matched only items
+      // where the first ALT fired — the second ALT's `^Y` required the mod
+      // block to START with Y, which is wrong because `^` anchors to start
+      // of the WHOLE alternation, not per-ALT. Mitigation: only the first
+      // ALT may keep its `^`.
+      //
+      // The `^` can come from three sources:
+      //  1. LITERAL value starting with `^` (rare — usually from manual override)
+      //  2. RANGE node with `anchorStart=true` (compiler emits `^` before numRegex)
+      //  3. iter 49 transform output `^(?!…).*literal` (from AND-in-OR normalization)
+      //
+      // We strip the leading `^` post-compilation as a simple, robust solution
+      // that covers all three sources without modifying each child's compile path.
+      const compiled = ast.children
+        .map(c => compileInner(c, options))
+        .filter(s => s.length > 0);
+      if (compiled.length === 0) return '';
+
+      if (ast.options?.anchorFirstAltOnly) {
+        for (let i = 1; i < compiled.length; i++) {
+          if (compiled[i].startsWith('^')) {
+            compiled[i] = compiled[i].slice(1);
+          }
+        }
+      }
       return compiled.join('|');
     }
     case 'EXCLUDE': {
@@ -601,5 +650,8 @@ export function compile(ast: ASTNode, options: CompileOptions = {}): string {
   if (!inner) return '';
   // AND already handles quoting each child; other types need outer quotes
   if (normalized.type === 'AND') return inner;
+  // MIXED_OR is treated identically to OR — outer quotes wrap the `|`-joined
+  // alternatives into a single quoted group: `"alt1|alt2|alt3"`.
+  if (normalized.type === 'MIXED_OR') return `"${inner}"`;
   return `"${inner}"`;
 }

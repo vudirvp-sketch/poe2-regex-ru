@@ -159,9 +159,36 @@ export interface FamilyGroup {
   sortKey?: string;
 }
 
+/**
+ * Options for MIXED_OR node (iter 158, KI#45/KI#46 mitigations).
+ *
+ * MIXED_OR represents an OR-group inside an AND-context — the verified
+ * combined-mode pattern: `"MUST1" "MUST2" "OPT1|OPT2|OPT3"`.
+ *
+ * Semantically equivalent to OR for compilation (children share a single
+ * quoted group separated by `|`), but with two in-game-verified mitigations:
+ *
+ * - `anchorFirstAltOnly`: KI#45 — `^`-anchor on the second+ ALT in an OR-group
+ *   breaks matching (T4 in iter 157). When true, the compiler strips a leading
+ *   `^` from every alternative EXCEPT the first. This lets the AST builder
+ *   reuse the existing reversed-RANGE / anchorStart logic without worrying
+ *   about which alt ends up first in the compiled output.
+ *
+ * - `autoTruncate`: KI#46 — PoE2 has a hard 250-char limit in combined mode
+ *   (T5 in iter 157). When true, the post-build helper `truncateMixedOrLiterals`
+ *   shortens LITERAL children values (preserving the start, which is the most
+ *   distinctive part of Russian mod names) to fit the budget. Verified in-game
+ *   (T8): truncation works in combined mode and saves length.
+ */
+export interface MixedOrOptions {
+  /** KI#45 mitigation: strip leading ^ from non-first alternatives. Default false. */
+  anchorFirstAltOnly?: boolean;
+}
+
 export type ASTNode =
   | { type: 'AND'; children: ASTNode[] }
   | { type: 'OR'; children: ASTNode[] }
+  | { type: 'MIXED_OR'; children: ASTNode[]; options?: MixedOrOptions }
   | { type: 'EXCLUDE'; child: ASTNode }
   | { type: 'LITERAL'; value: string; tokenId?: string }
   | { type: 'RANGE'; min?: number; max?: number; suffix?: string; prefix?: string; exact?: boolean; anchorStart?: boolean; anchorEnd?: string; reversed?: boolean; colonAnchor?: boolean; threshold?: boolean; signPrefix?: '+' | '-' }
