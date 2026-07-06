@@ -357,7 +357,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // ─── Timeless Jewel page (iter 176) ───────────────────────────────
     // Atlas-tree search regex generator for the 2 special jewels that
     // replace atlas passives: Вечная ненависть + Трагедия героев.
-    'timeless_jewel.title': 'Особые самоцветы',
+    // iter 178: title renamed 'Особые самоцветы' → 'Вневременные самоцветы'
+    // (matches the in-game item class name for these jewels).
+    'timeless_jewel.title': 'Вневременные самоцветы',
     'timeless_jewel.subtitle': 'Подсветка нод древа атласа',
     'timeless_jewel.selector_label': 'Самоцвет:',
     'timeless_jewel.undying_hate': 'Вечная ненависть',

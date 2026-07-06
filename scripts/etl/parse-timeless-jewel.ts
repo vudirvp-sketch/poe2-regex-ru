@@ -28,6 +28,11 @@
  *     - Extracts: sourceKey (URL-decoded from data-hover), slug, name, iconUrl,
  *       description (effect lines joined with `\n`, with HTML stripped and
  *       `<span class="mod-value">N</span>` collapsed to `N`).
+ *     - iter 178: downloads each unique icon to `public/icons/atlas-nodes/`
+ *       and stores the LOCAL relative path in `iconUrl` (e.g.
+ *       `icons/atlas-nodes/AmanamusDefiance.webp`). Self-hosting avoids
+ *       CDN latency on first page load. Falls back to the remote URL if
+ *       download fails (rare — logged to stderr).
  *
  *   Output: `public/generated/timeless-jewel.json` validated against
  *   `AtlasJewelCategoryDataSchema`.
@@ -100,6 +105,62 @@ function cleanText($: cheerio.CheerioAPI, el: cheerio.AnyNode): string {
   return text;
 }
 
+/**
+ * iter 178: localize icon URL — download the remote icon to
+ * `public/icons/atlas-nodes/<filename>` and return the relative
+ * local path. Skips download if file already exists (idempotent).
+ * Falls back to the remote URL on download failure.
+ *
+ * Self-hosted icons avoid CDN TLS/DNS overhead on first page load
+ * (15 unique icons, ~50KB total). Runtime resolverves the relative
+ * path against `import.meta.env.BASE_URL` (see AtlasNodeList.tsx).
+ */
+const ICONS_DIR = path.resolve(process.cwd(), 'public/icons/atlas-nodes');
+const ICON_URL_PREFIX = 'https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/';
+const iconCache = new Map<string, string>(); // remote URL → local path (or remote URL on failure)
+
+function localizeIconUrl(remoteUrl: string): string {
+  if (iconCache.has(remoteUrl)) return iconCache.get(remoteUrl)!;
+  if (!remoteUrl.startsWith(ICON_URL_PREFIX)) {
+    // Not a poe2db CDN URL — keep as-is.
+    iconCache.set(remoteUrl, remoteUrl);
+    return remoteUrl;
+  }
+  const fname = remoteUrl.slice(ICON_URL_PREFIX.length);
+  const localFile = path.join(ICONS_DIR, fname);
+  const localRel = `icons/atlas-nodes/${fname}`;
+
+  if (fs.existsSync(localFile)) {
+    iconCache.set(remoteUrl, localRel);
+    return localRel;
+  }
+
+  // Download with browser-like headers (some CDNs 403 plain urllib).
+  try {
+    fs.mkdirSync(ICONS_DIR, { recursive: true });
+    const resp = fetch(remoteUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+        Referer: 'https://poe2db.tw/',
+        Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+      },
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const buf = Buffer.from(resp.arrayBuffer());
+    fs.writeFileSync(localFile, buf);
+    iconCache.set(remoteUrl, localRel);
+    return localRel;
+  } catch (e) {
+    console.warn(
+      `[parse-timeless-jewel] icon download failed: ${remoteUrl} — ${(e as Error).message}. ` +
+        `Keeping remote URL as fallback.`,
+    );
+    iconCache.set(remoteUrl, remoteUrl);
+    return remoteUrl;
+  }
+}
+
 function parseJewel(html: string, source: JewelSource): AtlasNodeToken[] {
   const $ = cheerio.load(html);
 
@@ -143,9 +204,11 @@ function parseJewel(html: string, source: JewelSource): AtlasNodeToken[] {
     if (!name) return;
 
     // Icon URL — first <img> with cdn.poe2db.tw src inside the block.
+    // iter 178: download to public/icons/atlas-nodes/ and use local path.
     const $img = $el.find('img').first();
-    const iconUrl = $img.attr('src') ?? '';
-    if (!iconUrl.startsWith('http')) return; // skip placeholder/broken
+    const rawIconUrl = $img.attr('src') ?? '';
+    if (!rawIconUrl.startsWith('http')) return; // skip placeholder/broken
+    const iconUrl = localizeIconUrl(rawIconUrl);
 
     // Effects — every `.implicitMod` div under this block.
     const effectLines: string[] = [];

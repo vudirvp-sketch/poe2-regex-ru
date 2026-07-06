@@ -58,6 +58,15 @@ const routes: RouteMeta[] = [
     noscriptIntro: 'Фильтрация самоцветов Path of Exile 2. Рубин, изумруд, сапфир — выберите свойства и скопируйте поисковую строку.',
   },
   {
+    // iter 178: SEO entry for /timeless-jewel. Atlas-tree search uses
+    // OR-only regex — separate from /jewel (which uses item-semantic
+    // regex with AND/NOT). See docs/ATLAS_JEWEL_PLAN.md.
+    path: '/timeless-jewel',
+    title: 'Вневременные самоцветы PoE2 — Генератор регексов для древа атласа | PoE2 Regex',
+    description: 'Генератор поисковых строк для вневременных самоцветов Path of Exile 2 (Вечная ненависть, Трагедия героев). Подсветка нод древа атласа через OR-регекс. 75 пассивных нод, поиск по названию и эффекту.',
+    noscriptIntro: 'Вневременные самоцветы Path of Exile 2 — Вечная ненависть и Трагедия героев. Выберите пассивные ноды древа атласа для подсветки — генератор создаст OR-регекс для поиска в игре.',
+  },
+  {
     path: '/vendor',
     title: 'Торговец PoE2 — Генератор поисковых строк | PoE2 Regex',
     description: 'Генератор поисковых строк для фильтрации товаров торговца Path of Exile 2 на русском языке. Свойства и цены товаров торговца.',
@@ -89,6 +98,7 @@ const navLinks = [
   { path: '/tablet', label: 'Башни предтеч' },
   { path: '/relic', label: 'Реликвии' },
   { path: '/jewel', label: 'Самоцветы' },
+  { path: '/timeless-jewel', label: 'Вневременные самоцветы' },
   { path: '/vendor', label: 'Торговец' },
   { path: '/belt', label: 'Пояса' },
   { path: '/ring', label: 'Кольца' },

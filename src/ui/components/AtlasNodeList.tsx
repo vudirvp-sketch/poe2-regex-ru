@@ -170,7 +170,16 @@ export function AtlasNodeList({
                 />
                 {node.iconUrl && (
                   <img
-                    src={node.iconUrl}
+                    src={
+                      // iter 178: iconUrl can be either an absolute URL
+                      // (https://cdn.poe2db.tw/...) or a relative path
+                      // (icons/atlas-nodes/X.webp — self-hosted). For
+                      // relative paths, prepend BASE_URL so GitHub Pages
+                      // subpath deployment resolves correctly.
+                      /^https?:\/\//i.test(node.iconUrl)
+                        ? node.iconUrl
+                        : `${import.meta.env.BASE_URL}${node.iconUrl}`
+                    }
                     alt=""
                     loading="lazy"
                     width={28}

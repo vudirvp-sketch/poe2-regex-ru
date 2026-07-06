@@ -19,7 +19,10 @@ export const navItems: readonly NavItem[] = [
   { path: '/jewel', label: 'jewel.title', icon: 'jewel' },
   // iter 176: Timeless Jewels (Undying Hate + Heroic Tragedy) — separate
   // route because Atlas tree search uses OR-only regex semantics.
-  { path: '/timeless-jewel', label: 'timeless_jewel.title', icon: 'jewel' },
+  // iter 178: dedicated icon 'timeless-jewel' (was 'jewel' — same as
+  // regular /jewel; visually confusing). Now uses
+  // public/icons/timeless-jewel.png (purple cosmic gem).
+  { path: '/timeless-jewel', label: 'timeless_jewel.title', icon: 'timeless-jewel' },
   { path: '/vendor', label: 'vendor.title', icon: 'vendor' },
   { path: '/belt', label: 'belt.title', icon: 'belt' },
   { path: '/ring', label: 'ring.title', icon: 'ring' },

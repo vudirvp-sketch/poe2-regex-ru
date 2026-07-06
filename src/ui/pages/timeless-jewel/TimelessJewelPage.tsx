@@ -1,5 +1,5 @@
 /**
- * TimelessJewelPage — iter 176 — NEW.
+ * TimelessJewelPage — iter 176 — NEW. iter 178: icon + MobileRegexBar polish.
  *
  * Generates Atlas-tree search regexes for the 2 Timeless Jewels:
  *   - Вечная ненависть (Undying Hate) — 35 nodes
@@ -16,10 +16,23 @@
  *   branch on category — high regression risk. A dedicated page with a
  *   trivial OR-only builder keeps `/jewel` untouched.
  *
- * ## UI shape (minimal, iter 176)
+ * ## iter 178 changes
+ *
+ *   - Header icon: `icons/jewel.png` → `icons/timeless-jewel.png` (dedicated
+ *     purple cosmic gem — visually distinct from /jewel category).
+ *   - MobileRegexBar integration: on mobile (< lg) the RegexOutput now
+ *     renders in a sticky-bottom bar (same pattern as other category pages
+ *     via `CategoryLayout`'s `mobileBar` slot). On desktop the layout is
+ *     unchanged — RegexOutput stays in the right aside. RegexOutput is
+ *     mounted in BOTH places (mobile bar + desktop aside); each instance
+ *     has its own transient copy/share state but the rendered `regex`
+ *     string is the same. This mirrors the MobileRegexBar tradeoff
+ *     documented in `MobileRegexBar.tsx` header.
+ *
+ * ## UI shape (iter 178)
  *
  *   ┌──────────────────────────────────────────────────────────────┐
- *   │ [icon] Особые самоцветы   [Вечная ненависть] [Трагедия героев]│
+ *   │ [icon] Вневременные самоцветы   [Вечная ненависть] [Трагедия…]│
  *   │ N of M нод · ⟨info: Atlas OR-only⟩                          │
  *   ├──────────────────────────────────────────────────────────────┤
  *   │ AtlasNodeList (left)         │ RegexOutput (right, sticky)    │
@@ -27,21 +40,24 @@
  *   │   icon + name + description  │   250-char health bar          │
  *   │                              │   ⚠ Atlas semantics notice      │
  *   └──────────────────────────────────────────────────────────────┘
+ *   Mobile (< lg): RegexOutput also rendered in MobileRegexBar (sticky bottom).
  *
- * ## What this page does NOT do (deferred to iter 177+)
+ * ## What this page still does NOT do (deferred to iter 179+)
  *
- *   - URL-sync (selection not persisted in URL hash yet).
- *   - Profile persistence (no ProfilePanel).
- *   - MobileRegexBar (RegexOutput renders inline on mobile for now).
- *   - SelectedBasket (selection lives only in the checkbox list).
- *   - Prerendering / SEO meta tags.
+ *   - URL-sync (selection not persisted in URL hash yet — needs separate
+ *     serialize/deserialize logic for atlas-node ids).
+ *   - Profile persistence (ProfilePanel wired to filter-store, not atlas
+ *     node selections — would require new profile-store section).
+ *   - SelectedBasket (filter-store-driven component; would need an
+ *     atlas-node-specific variant or a generic adapter).
  *
- *   These are deliberate scope cuts to land iter 176 without regression.
+ *   These are deliberate scope cuts to land iter 178 without regression.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { loadAtlasJewelData, getJewelNodes } from '@data/atlas-jewel-loader';
 import { AtlasNodeList } from '@ui/components/AtlasNodeList';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { buildAtlasRegex } from '@core/atlas-regex-builder';
 import { t } from '@shared/i18n';
@@ -143,7 +159,7 @@ export function TimelessJewelPage() {
               style={{ color: 'var(--poe-gold)' }}
             >
               <img
-                src={`${import.meta.env.BASE_URL}icons/jewel.png`}
+                src={`${import.meta.env.BASE_URL}icons/timeless-jewel.png`}
                 alt=""
                 width={24}
                 height={24}
@@ -189,7 +205,12 @@ export function TimelessJewelPage() {
 
           <hr className="poe-divider--ornate" aria-hidden="true" />
 
-          {/* 2-column grid: list left, regex output right */}
+          {/* 2-column grid: list left, regex output right (desktop only).
+              iter 178: RegexOutput rendered in two places (desktop aside +
+              mobile MobileRegexBar) — same pattern as other category pages
+              (see BeltPage.tsx, etc.). Each instance has its own transient
+              copy/share state; autoCopy is persisted to localStorage so
+              both stay in sync. */}
           <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
             <div className="flex flex-col gap-2 min-w-0">
               <AtlasNodeList
@@ -201,7 +222,10 @@ export function TimelessJewelPage() {
               />
             </div>
 
-            <aside className="flex flex-col gap-3 lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto">
+            {/* Desktop aside — hidden on mobile via `hidden lg:flex`.
+                Mobile gets its own RegexOutput in MobileRegexBar below
+                (sticky-bottom). Two separate instances — intentional. */}
+            <aside className="hidden lg:flex flex-col gap-3 lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto">
               <RegexOutput
                 regex={regexResult.regex}
                 isOverflow={regexResult.isOverflow}
@@ -221,6 +245,34 @@ export function TimelessJewelPage() {
               </div>
             </aside>
           </div>
+
+          {/* MobileRegexBar — sticky-bottom on mobile (< lg), hidden on
+              desktop. Atlas-semantics notice included as an alert above
+              the regex output so mobile users see the OR-only caveat. */}
+          <MobileRegexBar
+            regexOutput={
+              <RegexOutput
+                regex={regexResult.regex}
+                isOverflow={regexResult.isOverflow}
+                regexParts={regexResult.regexParts}
+                filterStore={null}
+                activeTokenCount={selectedCount}
+              />
+            }
+            alerts={[
+              <div
+                key="atlas-notice"
+                className="text-[12px] text-dim bg-surface border border-edge rounded p-2 leading-snug"
+                role="note"
+              >
+                <strong className="text-soft">
+                  {t('timeless_jewel.atlas_semantics_title')}
+                </strong>
+                <br />
+                {t('timeless_jewel.atlas_semantics_notice')}
+              </div>,
+            ]}
+          />
         </div>
       )}
     </PageStateWrapper>

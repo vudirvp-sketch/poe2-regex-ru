@@ -19,7 +19,7 @@
           "description": {
             "ru": "При получении урона от ударов предотвращает 20% потери здоровья, затем 150% предотвращенной потери здоровья теряется за 4 секунды"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AmanamusDefiance.webp",
+          "iconUrl": "icons/atlas-nodes/AmanamusDefiance.webp",
           "slug": "Sacrifice_of_Flesh",
           "sourceKey": "abyss_keystone_1"
         },
@@ -32,7 +32,7 @@
           "description": {
             "ru": "Вы наносите на 1% больше урона за каждые 2 от общего уровня угрозы ваших приспешников-нежитиПриспешники-нежить имеют на 25% меньше максимума здоровья"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KulemaksSovereignty.webp",
+          "iconUrl": "icons/atlas-nodes/KulemaksSovereignty.webp",
           "slug": "Sacrifice_of_Loyalty",
           "sourceKey": "abyss_keystone_2"
         },
@@ -45,7 +45,7 @@
           "description": {
             "ru": "Восстановление маны от регенерации переполняет максимум маныНа 50% меньше скорости регенерации маны"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KurgasAmbition.webp",
+          "iconUrl": "icons/atlas-nodes/KurgasAmbition.webp",
           "slug": "Sacrifice_of_Mind",
           "sourceKey": "abyss_keystone_3"
         },
@@ -58,7 +58,7 @@
           "description": {
             "ru": "Регенерирует 1 здоровья в секунду за каждые 16 здоровья, потраченных за последние 4 секундыНа 20% больше расхода здоровья на умения"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/TecrodsBrutality.webp",
+          "iconUrl": "icons/atlas-nodes/TecrodsBrutality.webp",
           "slug": "Sacrifice_of_Blood",
           "sourceKey": "abyss_keystone_4"
         },
@@ -71,7 +71,7 @@
           "description": {
             "ru": "Снаряды выполняют одно их следующих действий в случайном порядке:• Разветвляются еще раз•Наносят дополнительный удар по цепи•Не могут столкнуться с целями"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/UlamansVision.webp",
+          "iconUrl": "icons/atlas-nodes/UlamansVision.webp",
           "slug": "Sacrifice_of_Sight",
           "sourceKey": "abyss_keystone_5"
         },
@@ -84,7 +84,7 @@
           "description": {
             "ru": "+5 к дарам"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssJewelNode.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssJewelNode.webp",
           "slug": "Tribute",
           "sourceKey": "abyss_small_tribute"
         },
@@ -97,7 +97,7 @@
           "description": {
             "ru": "20% увеличение количества даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Disciple_of_Darkness",
           "sourceKey": "abyss_notable_1"
         },
@@ -110,7 +110,7 @@
           "description": {
             "ru": "1% получаемого урона восполняется в виде здоровья за каждые 10 даров\nВосстанавливает 1% от максимума здоровья при убийстве за каждые 50 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Creature_of_Death",
           "sourceKey": "abyss_notable_2"
         },
@@ -123,7 +123,7 @@
           "description": {
             "ru": "1% получаемого урона восполняется в виде маны за каждые 10 даров\nВосстанавливает 1% от максимума маны при убийстве за каждые 50 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Creature_of_Magic",
           "sourceKey": "abyss_notable_3"
         },
@@ -136,7 +136,7 @@
           "description": {
             "ru": "Приспешники имеют 3% повышение скорости атаки и сотворения чар за каждые 50 даров\nПриспешники наносят увеличенный на 1% урон за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Quickened_Corpses",
           "sourceKey": "abyss_notable_4"
         },
@@ -149,7 +149,7 @@
           "description": {
             "ru": "Приспешники имеют 4% повышение скорости перезарядки умений за каждые 10 даров\nПриспешники теряют 2% здоровья за кадые 10 ваших даров при выполнении приказов"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Ambivalent_Command",
           "sourceKey": "abyss_notable_5"
         },
@@ -162,7 +162,7 @@
           "description": {
             "ru": "Снаряды с 10% шансом могут выпустить дополнительный снаряд при разветвлении за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Boneshedder",
           "sourceKey": "abyss_notable_6"
         },
@@ -175,7 +175,7 @@
           "description": {
             "ru": "8% увеличение урона от атак за каждые 10 даров\n1% увеличение получаемого урона за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Unfiltered_Brutality",
           "sourceKey": "abyss_notable_7"
         },
@@ -188,7 +188,7 @@
           "description": {
             "ru": "3% уменьшение меткости за каждые 25 даров\n5% увеличение шанса критического удара атаками за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Derogatory_Gaze",
           "sourceKey": "abyss_notable_8"
         },
@@ -201,7 +201,7 @@
           "description": {
             "ru": "2% увеличение эффективности расхода маны за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Abyssal_Conduit",
           "sourceKey": "abyss_notable_9"
         },
@@ -214,7 +214,7 @@
           "description": {
             "ru": "3% увеличение длительности проклятия за каждые 10 даров\nНа 3% быстрее активация проклятий за каждые 20 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Expedited_Horrors",
           "sourceKey": "abyss_notable_10"
         },
@@ -227,7 +227,7 @@
           "description": {
             "ru": "1% увеличение эффективности удержания духа умениями за каждые 20 даров\n2% уменьшение области действия присутствия за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Confined_Exaltation",
           "sourceKey": "abyss_notable_11"
         },
@@ -240,7 +240,7 @@
           "description": {
             "ru": "1% от максимума здоровья становится энергетическим щитом за каждые 20 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Arcane_Ascension",
           "sourceKey": "abyss_notable_12"
         },
@@ -253,7 +253,7 @@
           "description": {
             "ru": "2% повышение скорости восстановления маны за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Ravenous_Mind",
           "sourceKey": "abyss_notable_13"
         },
@@ -266,7 +266,7 @@
           "description": {
             "ru": "2% повышение скорости восстановления здоровья за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Gluttonous_Presence",
           "sourceKey": "abyss_notable_14"
         },
@@ -279,7 +279,7 @@
           "description": {
             "ru": "1% повышение скорости перезарядки умений за каждые 10 даров\n+2 к интеллекту за каждые 25 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Unrestrained_Intellect",
           "sourceKey": "abyss_notable_15"
         },
@@ -292,7 +292,7 @@
           "description": {
             "ru": "+2 к силе за каждые 25 даров\n2% увеличение накопления шкалы оглушения за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Cruel_Strength",
           "sourceKey": "abyss_notable_16"
         },
@@ -305,7 +305,7 @@
           "description": {
             "ru": "+2 к ловкости за каждые 25 даров\n2% увеличение длительности эффекта парирования за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Opportunistic_Dexterity",
           "sourceKey": "abyss_notable_17"
         },
@@ -318,7 +318,7 @@
           "description": {
             "ru": "1% шанс при получении вами заряда получить дополнительный заряд за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Unreal_Potential",
           "sourceKey": "abyss_notable_18"
         },
@@ -331,7 +331,7 @@
           "description": {
             "ru": "2% увеличение меткости за каждые 10 даров\n2% уменьшение радиуса обзора за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "I_Have_Darkvision",
           "sourceKey": "abyss_notable_19"
         },
@@ -344,7 +344,7 @@
           "description": {
             "ru": "Улучшенные атаки наносят увеличенный на 2% урон за каждые 10 даров\n4% повышение скорости боевых кличей за каждые 25 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Domineering_Commands",
           "sourceKey": "abyss_notable_20"
         },
@@ -357,7 +357,7 @@
           "description": {
             "ru": "2% усиление эффекта создаваемых вами осколков за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Worthy_Tithes",
           "sourceKey": "abyss_notable_21"
         },
@@ -370,7 +370,7 @@
           "description": {
             "ru": "2% увеличение силы накладываемых вами наносящих урон состояний за каждые 10 даров\n1% уменьшение длительности наносящих урон состояний за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Fast_Rot",
           "sourceKey": "abyss_notable_23"
         },
@@ -383,7 +383,7 @@
           "description": {
             "ru": "Дарует отклонение урона в размере 2% от уклонения за каждые 25 даров\n2% увеличение уклонения за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Hollow_Bones",
           "sourceKey": "abyss_notable_24"
         },
@@ -396,7 +396,7 @@
           "description": {
             "ru": "2% снижение скорости перезарядки энергетического щита за каждые 25 даров\n4% увеличение максимума энергетического щита за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssIntNotable.webp",
           "slug": "Ancient_Bastion",
           "sourceKey": "abyss_notable_25"
         },
@@ -409,7 +409,7 @@
           "description": {
             "ru": "2% увеличение брони за каждые 10 даров\n5% увеличение порога оглушения за каждые 25 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Deformed_Steel",
           "sourceKey": "abyss_notable_26"
         },
@@ -422,7 +422,7 @@
           "description": {
             "ru": "3% увеличение длительности эффекта флакона за каждые 25 даров\n1% повышение скорости восстановления здоровья и маны от флаконов за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Mystic_Brew",
           "sourceKey": "abyss_notable_27"
         },
@@ -435,7 +435,7 @@
           "description": {
             "ru": "3% увеличение длительности эффекта оберега за каждые 25 даров\n1% усиление эффекта применяемых к вам оберегов за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssDexNotable.webp",
           "slug": "Resilient_Wards",
           "sourceKey": "abyss_notable_28"
         },
@@ -448,7 +448,7 @@
           "description": {
             "ru": "Ваща шкала накопления сильного оглушения опустошается на 1% быстрее за каждые 10 даров\n5% увеличение брони, уклонения и энергетического щита от щита в руках за каждые 25 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Dreadful_Fortitude",
           "sourceKey": "abyss_notable_29"
         },
@@ -461,7 +461,7 @@
           "description": {
             "ru": "+0.5% к шансу критического удара шипами за каждые 50 даров\n2% увеличение урона шипами за каждые 10 даров"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/AbyssStrNotable.webp",
           "slug": "Barbed_Allegiance",
           "sourceKey": "abyss_notable_30"
         }
@@ -482,7 +482,7 @@
           "description": {
             "ru": "Сила не дарует изначальные бонусы1% увеличение энергетического щита за каждые 2 силы"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrKeystone.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrKeystone.webp",
           "slug": "Black_Scythe_Training",
           "sourceKey": "kalguur_keystone_1"
         },
@@ -495,7 +495,7 @@
           "description": {
             "ru": "Ловкость не дарует изначальные бонусы1% увеличение брони за каждые 2 ловкости"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexKeystone.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexKeystone.webp",
           "slug": "Circular_Teachings",
           "sourceKey": "kalguur_keystone_2"
         },
@@ -508,7 +508,7 @@
           "description": {
             "ru": "Интеллект не дарует изначальные бонусы1% увеличение уклонения за каждые 2 интеллекта"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntKeystone.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntKeystone.webp",
           "slug": "Knightly_Tenets",
           "sourceKey": "kalguur_keystone_3"
         },
@@ -521,7 +521,7 @@
           "description": {
             "ru": "40% увеличение урона от огня\n+15 к интеллекту"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Scorched_Earth",
           "sourceKey": "kalguur_notable1"
         },
@@ -534,7 +534,7 @@
           "description": {
             "ru": "20% повышение скорости регенерации маны\n40% увеличение физического урона"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "War_Tactics",
           "sourceKey": "kalguur_notable2"
         },
@@ -547,7 +547,7 @@
           "description": {
             "ru": "+2% к максимальному сопротивлению огню\n10% уменьшение длительности заморозки на вас"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Kalguuran_Forged",
           "sourceKey": "kalguur_notable3"
         },
@@ -560,7 +560,7 @@
           "description": {
             "ru": "40% повышение брони\n+10% к сопротивлению холоду"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Born_of_Middengard",
           "sourceKey": "kalguur_notable4"
         },
@@ -573,7 +573,7 @@
           "description": {
             "ru": "2% увеличение максимума маны\n30% повышение скорости накопления шкалы оглушения"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Force_of_Will",
           "sourceKey": "kalguur_notable5"
         },
@@ -586,7 +586,7 @@
           "description": {
             "ru": "10% увеличение длительности проклятий\nРегенерация 1.5% здоровья в секунду"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Runic_Flows",
           "sourceKey": "kalguur_notable6"
         },
@@ -599,7 +599,7 @@
           "description": {
             "ru": "10% ускорение начала перезарядки энергетического щита\n40% увеличение количества разрушаемой брони"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Siege_Mentality",
           "sourceKey": "kalguur_notable7"
         },
@@ -612,7 +612,7 @@
           "description": {
             "ru": "15% увеличение бонуса к критическому урону от чар\n40% увеличение урона в ближнем бою"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Rune_Knight",
           "sourceKey": "kalguur_notable8"
         },
@@ -625,7 +625,7 @@
           "description": {
             "ru": "40% увеличение силы Горючести\nПриспешники имеют +15% к сопротивлению всем стихиям"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Fiery_Leadership",
           "sourceKey": "kalguur_notable9"
         },
@@ -638,7 +638,7 @@
           "description": {
             "ru": "+7% к сопротивлению хаосу\n40% увеличение урона тотемов"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Druidic_Alliance",
           "sourceKey": "kalguur_notable10"
         },
@@ -651,7 +651,7 @@
           "description": {
             "ru": "10% усиление эффекта Колдовского выброса на вас\n20% увеличение силы накладываемого вами кровотечения"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Steel_and_Sorcery",
           "sourceKey": "kalguur_notable11"
         },
@@ -664,7 +664,7 @@
           "description": {
             "ru": "10% усиление эффекта восприимчивости к холоду\nУлучшенные атаки наносят увеличенный на 50% урон\n10% усиление эффекта восприимчивости к огню\n10% усиление эффекта восприимчивости к молнии"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranStrNotable.webp",
           "slug": "Triskelions_Light",
           "sourceKey": "kalguur_notable12"
         },
@@ -677,7 +677,7 @@
           "description": {
             "ru": "+2% к максимальному сопротивлению молнии\n10% уменьшение длительности поджога на вас"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Stormtossed_Voyager",
           "sourceKey": "kalguur_notable13"
         },
@@ -690,7 +690,7 @@
           "description": {
             "ru": "40% увеличение урона от молнии\n+15 к силе"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Wrest_Control",
           "sourceKey": "kalguur_notable14"
         },
@@ -703,7 +703,7 @@
           "description": {
             "ru": "40% увеличение уклонения\n+10% к сопротивлению огню"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Firedancer",
           "sourceKey": "kalguur_notable15"
         },
@@ -716,7 +716,7 @@
           "description": {
             "ru": "10% повышение скорости атаки\n15% увеличение порога оглушения"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Mercenarys_Lot",
           "sourceKey": "kalguur_notable16"
         },
@@ -729,7 +729,7 @@
           "description": {
             "ru": "40% увеличение урона снарядов\nДарует 1 свирепости при нанесении удара в ближнем бою"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Voranas_Fury",
           "sourceKey": "kalguur_notable17"
         },
@@ -742,7 +742,7 @@
           "description": {
             "ru": "6% увеличение шанса блока\n40% увеличение восстановления здоровья от флаконов"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Sensible_Precautions",
           "sourceKey": "kalguur_notable18"
         },
@@ -755,7 +755,7 @@
           "description": {
             "ru": "30% повышение глобальной меткости\n10% увеличение силы накладываемого вами кровотечения"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Aim_for_the_Jugular",
           "sourceKey": "kalguur_notable19"
         },
@@ -768,7 +768,7 @@
           "description": {
             "ru": "2% увеличение максимума здоровья\n40% увеличение восстановления маны от флаконов"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Survival_Plan",
           "sourceKey": "kalguur_notable20"
         },
@@ -781,7 +781,7 @@
           "description": {
             "ru": "10% увеличение количества похищенного здоровья\n20% увеличение силы накладываемого вами отравления"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "War_of_Attrition",
           "sourceKey": "kalguur_notable21"
         },
@@ -794,7 +794,7 @@
           "description": {
             "ru": "40% увеличение шанса наложения шока\n15% увеличение здоровья тотема"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Guerilla_Warfare",
           "sourceKey": "kalguur_notable22"
         },
@@ -807,7 +807,7 @@
           "description": {
             "ru": "30% увеличение длительности эффекта флакона\n15% повышение скорости перезарядки боевых кличей"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "One_for_the_Road",
           "sourceKey": "kalguur_notable23"
         },
@@ -820,7 +820,7 @@
           "description": {
             "ru": "8% увеличение длительности эффекта умения\n20% усиление эффекта ваших умений меток"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Targeted_Strike",
           "sourceKey": "kalguur_notable24"
         },
@@ -833,7 +833,7 @@
           "description": {
             "ru": "40% увеличение урона от стихий\n20% увеличение брони, уклонения и энергетического щита от щита в руках"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranDexNotable.webp",
           "slug": "Steel_Bastion",
           "sourceKey": "kalguur_notable25"
         },
@@ -846,7 +846,7 @@
           "description": {
             "ru": "10% повышение скорости сотворения чар\n10% шанс пронзить врага"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Forceful_Energies",
           "sourceKey": "kalguur_notable26"
         },
@@ -859,7 +859,7 @@
           "description": {
             "ru": "40% увеличение урона от холода\n+15 к ловкости"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Winter_Forest",
           "sourceKey": "kalguur_notable27"
         },
@@ -872,7 +872,7 @@
           "description": {
             "ru": "8% повышение глобальной меткости\nПриспешники имеют 40% увеличение урона"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Fight_as_One",
           "sourceKey": "kalguur_notable28"
         },
@@ -885,7 +885,7 @@
           "description": {
             "ru": "15% увеличение уклонения\nПриспешники имеют 30% увеличение максимума здоровья"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Summer_Meadows",
           "sourceKey": "kalguur_notable29"
         },
@@ -898,7 +898,7 @@
           "description": {
             "ru": "40% увеличение урона от чар\n10% увеличение количества получаемых зарядов флакона и оберега"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Druidic_Training",
           "sourceKey": "kalguur_notable30"
         },
@@ -911,7 +911,7 @@
           "description": {
             "ru": "30% повышение шанса критического удара для чар\n5% шанс ослепить врагов при нанесении удара"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Corrupted_Vision",
           "sourceKey": "kalguur_notable31"
         },
@@ -924,7 +924,7 @@
           "description": {
             "ru": "30% повышение скорости регенерации маны\n15% увеличение порога стихийных состояний"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Runic_Tattoos",
           "sourceKey": "kalguur_notable32"
         },
@@ -937,7 +937,7 @@
           "description": {
             "ru": "+2% к максимальному сопротивлению холоду\n10% уменьшение длительности шока на вас"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Furs_and_Leather",
           "sourceKey": "kalguur_notable33"
         },
@@ -950,7 +950,7 @@
           "description": {
             "ru": "8% повышение скорости снарядов\n30% повышение скорости накопления шкалы заморозки"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Sudden_Hail",
           "sourceKey": "kalguur_notable34"
         },
@@ -963,7 +963,7 @@
           "description": {
             "ru": "40% увеличение максимума энергетического щита\n+10% к сопротивлению молнии"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Natural_Energies",
           "sourceKey": "kalguur_notable35"
         },
@@ -976,7 +976,7 @@
           "description": {
             "ru": "10% увеличение длительности эффекта оберега\n10% полученного урона восполняется в виде здоровья"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Oaken_Form",
           "sourceKey": "kalguur_notable36"
         },
@@ -989,7 +989,7 @@
           "description": {
             "ru": "37% увеличение урона хаосом\nСнаряды с 6% шансом могут ударить по цепи при столкновении с окружающей средой"
           },
-          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "iconUrl": "icons/atlas-nodes/KalguuranIntNotable.webp",
           "slug": "Spiders_Lesson",
           "sourceKey": "kalguur_notable37"
         }

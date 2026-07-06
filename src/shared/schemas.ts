@@ -158,7 +158,23 @@ export const AtlasNodeTokenSchema = z.object({
   name: LocalizedString,
   // REQUIRED — UI shows effects to player. Parser always populates this.
   description: LocalizedString,
-  iconUrl: z.string().url(),
+  // iter 178: accepts BOTH absolute URLs (https://cdn.poe2db.tw/...)
+  // AND relative paths (icons/atlas-nodes/X.webp — self-hosted).
+  // Self-hosted paths are resolved against `import.meta.env.BASE_URL`
+  // at runtime (see AtlasNodeList.tsx).
+  iconUrl: z
+    .string()
+    .min(1)
+    .refine(
+      (v) => {
+        // Accept any http(s) URL OR a relative path that starts with
+        // 'icons/' (local self-hosted asset under public/icons/).
+        if (/^https?:\/\//i.test(v)) return true;
+        if (v.startsWith('icons/')) return true;
+        return false;
+      },
+      { message: 'Must be an http(s) URL or a relative path starting with "icons/"' },
+    ),
   slug: z.string().min(1),
   sourceKey: z.string().min(1),
 });
