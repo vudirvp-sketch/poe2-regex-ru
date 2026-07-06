@@ -356,6 +356,30 @@
       "regex": "урон",
       "source": "iter 127 KI#12 fix — single-# template produced tier-hardcoded regex 'сы наносят уменьшенный на 5' (FN for tiers 2-3). Override to tier-agnostic regex 'урон' + prefixContext 'Боссы наносят' (matching ## siblings bossreduceddamage2/3).",
       "regexPrefixContext": "Боссы наносят"
+    },
+    "tablet.mod_od9m77.f2md77": {
+      "rawText": "На карте можно встретить дополнительных духов азмири: 1",
+      "rawTextTemplate": "На карте можно встретить дополнительных духов азмири: #",
+      "regex": " можно встретить дополнительных д",
+      "source": "iter 177 KI#53 fix — single-# template produced tier-hardcoded regex 'в азмири: 1' (FN for ## sibling tier). Override to tier-agnostic regex matching ## sibling mod_aiin1b. Same KI#12-pattern as relic iter 127."
+    },
+    "tablet.mod_xhncu6.yctrln": {
+      "rawText": "На карте можно встретить дополнительные Сущности: 1",
+      "rawTextTemplate": "На карте можно встретить дополнительные Сущности: #",
+      "regex": " можно встретить дополнительные",
+      "source": "iter 177 KI#53 fix — single-# template produced tier-hardcoded regex 'ущности: 1' (FN for ## sibling tier). Override to tier-agnostic regex matching ## sibling mod_1xyz3h. Note: 'дополнительные' (nominative ЫЕ) is unique to this family — other 3 related families use genitive 'дополнительных' (ЫХ)."
+    },
+    "tablet.mod_as23xk.63l845": {
+      "rawText": "На карте можно встретить дополнительных ларцов: 1",
+      "rawTextTemplate": "На карте можно встретить дополнительных ларцов: #",
+      "regex": " можно встретить дополнительных л",
+      "source": "iter 177 KI#53 fix — single-# template produced tier-hardcoded regex 'х ларцов: 1' (FN for ## sibling tier). Override to tier-agnostic regex matching ## sibling mod_axi6zh."
+    },
+    "tablet.mod_as23xk.ckza9l": {
+      "rawText": "На карте можно встретить дополнительных алтарей: 1",
+      "rawTextTemplate": "На карте можно встретить дополнительных алтарей: #",
+      "regex": " можно встретить дополнительных а",
+      "source": "iter 177 KI#53 fix — single-# template produced tier-hardcoded regex 'алтарей: 1' (FN for ## sibling tier). Override to tier-agnostic regex matching ## sibling mod_kcgzmd."
     }
   }
 }

@@ -130,7 +130,7 @@
         "ru": "На карте можно встретить дополнительных духов азмири: #"
       },
       "regex": {
-        "ru": "в азмири: 1"
+        "ru": " можно встретить дополнительных д"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительных духов азмири: #"
@@ -148,13 +148,10 @@
       "values": [
         1
       ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33
-      ],
-      "level": 1
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_xhncu6.yctrln",
@@ -167,7 +164,7 @@
         "ru": "На карте можно встретить дополнительные Сущности: #"
       },
       "regex": {
-        "ru": "ущности: 1"
+        "ru": " можно встретить дополнительные"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительные Сущности: #"
@@ -185,13 +182,10 @@
       "values": [
         1
       ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33
-      ],
-      "level": 1
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_wrlukt",
@@ -2464,7 +2458,7 @@
         "ru": "На карте можно встретить дополнительных ларцов: #"
       },
       "regex": {
-        "ru": "х ларцов: 1"
+        "ru": " можно встретить дополнительных л"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительных ларцов: #"
@@ -2482,13 +2476,10 @@
       "values": [
         1
       ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33
-      ],
-      "level": 1
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_xpt1fq",
@@ -2541,7 +2532,7 @@
         "ru": "На карте можно встретить дополнительных алтарей: #"
       },
       "regex": {
-        "ru": "алтарей: 1"
+        "ru": " можно встретить дополнительных а"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительных алтарей: #"
@@ -2559,14 +2550,10 @@
       "values": [
         1
       ],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33,
-        45
-      ],
-      "level": 1
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1,
+      "manualOverride": true
     },
     {
       "id": "tablet.mod_swvjcv",
@@ -3575,28 +3562,6 @@
     }
   ],
   "optimizationTable": {
-    "tablet.mod_aiin1b:tablet.mod_od9m77.f2md77": {
-      "ids": [
-        "tablet.mod_aiin1b",
-        "tablet.mod_od9m77.f2md77"
-      ],
-      "regex": {
-        "ru": "в азмири: 1"
-      },
-      "weight": 11,
-      "count": 2
-    },
-    "tablet.mod_1xyz3h:tablet.mod_xhncu6.yctrln": {
-      "ids": [
-        "tablet.mod_1xyz3h",
-        "tablet.mod_xhncu6.yctrln"
-      ],
-      "regex": {
-        "ru": "ущности: 1"
-      },
-      "weight": 10,
-      "count": 2
-    },
     "tablet.mod_as23xk.ckza9l:tablet.mod_kcgzmd": {
       "ids": [
         "tablet.mod_as23xk.ckza9l",
@@ -3822,19 +3787,6 @@
       "weight": 32,
       "count": 2
     },
-    "tablet.mod_as23xk.63l845:tablet.mod_as23xk.ckza9l:tablet.mod_od9m77.f2md77:tablet.mod_xhncu6.yctrln": {
-      "ids": [
-        "tablet.mod_as23xk.63l845",
-        "tablet.mod_as23xk.ckza9l",
-        "tablet.mod_od9m77.f2md77",
-        "tablet.mod_xhncu6.yctrln"
-      ],
-      "regex": {
-        "ru": "х ларцов.*: 1|в азмири.*: 1|ущности.*: 1|алтарей.*: 1"
-      },
-      "weight": 53,
-      "count": 4
-    },
     "tablet.mod_93pla5:tablet.mod_gztigx": {
       "ids": [
         "tablet.mod_93pla5",
@@ -3958,17 +3910,6 @@
         "ru": "яет.*алтари|яет.*бездны"
       },
       "weight": 23,
-      "count": 2
-    },
-    "tablet.mod_od9m77.f2md77:tablet.mod_xhncu6.yctrln": {
-      "ids": [
-        "tablet.mod_od9m77.f2md77",
-        "tablet.mod_xhncu6.yctrln"
-      ],
-      "regex": {
-        "ru": "в азмир.*и: 1|ущност.*и: 1"
-      },
-      "weight": 26,
       "count": 2
     },
     "tablet.mod_4ej297:tablet.mod_7ms10f": {

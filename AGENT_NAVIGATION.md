@@ -1,10 +1,10 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 176 — категория `/timeless-jewel` ЗАВЕРШЕНА (минимальная рабочая версия: 75 нод, OR-only builder, UI с описаниями, 40 новых тестов, 2405/2410 PASS — 5 failures это KI#53 pre-existing). iter 175 (разведка + план), iter 174 (KI#52 fix — search auto-expand), iter 173 (KI#51 — scroll fade + GitHub link) — все DONE ✅.
+> **Текущее состояние:** iter 177 — KI#53 ЗАКРЫТ (деплой снова работает). 2405 passed | 5 skipped (KI#53-relic секции). iter 176 (категория `/timeless-jewel` — минимальная рабочая версия), iter 175 (разведка + план), iter 174 (KI#52 fix), iter 173 (KI#51 fix) — все DONE ✅.
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка), **KI#53 (NEW — pre-existing data regression в tablet.json regex, 5 test failures)**.
-> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405/2410 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#53 — ЗАКРЫТ (iter 177)**.
+> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -34,7 +34,7 @@
 | `public/` | Static assets: robots.txt, sitemap.xml, 404.html, IndexNow key, Google/Yandex/Bing verification, favicon, og-banner, generated JSONs | Served as-is by GitHub Pages |
 | `public/atmosphere/` | PoE2-themed textures: `bg.webp` (body bg), `bg-2x.webp` (divider ornate), hero portraits (`hero-shaman.webp` left, `hero-iva.webp` right), `seo-atmosphere.webp` (SeoBlock backdrop, lg+ only). | All assets actively referenced from JSX or CSS |
 | `scripts/` | ETL pipeline (`scripts/etl/`) + prerender (`prerender.ts` / `prerender-full.ts`) + analysis. **НЕ добавлять новые verify-iter*-*.ts** — покрывать через `tests/` (vitest). | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
-| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2328 passing) |
+| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2405 passing + 5 KI#53-skipped) |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan, UI audits, redesign concepts | See §13 |
 | `регис/` | User-provided in-game test data (Russian source mod lists + test items) | Reference only — do not modify |
 
@@ -68,7 +68,7 @@ pnpm dev                  # Vite dev server
 pnpm build                # tsc -b + vite build + shell prerender (no Playwright)
 pnpm build:full           # tsc -b + vite build + shell prerender + Playwright prerender
 pnpm prerender:full       # Run Playwright prerender only (needs dist/)
-pnpm test                 # Vitest (all tests) — current: 2319 passing
+pnpm test                 # Vitest (all tests) — current: 2405 passing + 5 KI#53-skipped
 pnpm etl                  # Full ETL with optimizer
 pnpm etl:fresh            # ETL without cache (regenerate all)
 pnpm etl:check-stale      # Check source HTML staleness
@@ -158,6 +158,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 26. **`regexExclude` field (FAQ):** Когда в регексе появляется `"!something"` токен (например `"!100%"`), это **намеренная FP-защита**, не баг. Поле `regexExclude: Record<Locale, string[]>` в `GameToken` (`src/shared/types.ts`) задаётся ETL-пайплайном когда два мода разделяют общую подстроку. AST builder (`category-ast-utils.ts` → `pushLiteralsWithFamilyLogic`) и optimizer (`optimization-strategies.ts`) добавляют EXCLUDE-ноды → компилятор генерирует `"suffix" !"exclude"`. Подробности — в STATUS.md → FAQ.
 27. **Atlas regex-семантика ОТЛИЧАЕТСЯ от item-семантики (iter 175 VERIFIED IN-GAME):** На древе атласа **multi-word OR работает** (`"А Б\|В Г"` ✅), но **AND не работает** (`"А" "Б"` = 0 matches ❌) и **NOT не работает** (`"!А\|Б"` подсвечивает ВСЕ ноды ❌). Substring / quoted phrase / `.*` bridge / case-insensitive — всё работает ✅. Единственная рабочая логика для Atlas — **OR** (подсветить любые ноды, содержащие ЛЮБОЕ из перечисленных названий). Это критично для планируемой категории `/timeless-jewel` (`docs/ATLAS_JEWEL_PLAN.md`) — она НЕ может использовать существующий regex-engine (завязан на AND/NOT/ranges). Нужен отдельный упрощённый `buildAtlasRegex()` (iter 176+). См. STATUS.md → «Atlas-семантика».
 28. **Atlas Timeless Jewel — ОТДЕЛЬНЫЙ pipeline (iter 176):** Категория `/timeless-jewel` НЕ использует `useCategoryPage`, `filter-store`, `compiler.ts`, `optimizer.ts`, `ast.ts` или `ModList`/`VirtualizedModList`. Причины: (1) Atlas-семантика OR-only (см. pitfall #27) — существующий engine заточен под AND/NOT/ranges; (2) `GameToken` schema избыточна (нет ranges/familyKey/affix/genderForms). Используются: `AtlasNodeToken` (новый минимальный тип), `atlas-jewel-loader.ts` (отдельный loader), `atlas-regex-builder.ts` (новый `buildAtlasRegex()` — OR-only + alphabetical sort + dedupe + overflow split), `AtlasNodeList` (новый компонент — плоский список с чекбоксами/иконками/описаниями), `TimelessJewelPage` (новая страница). Переиспользуется только `RegexOutput` (props `filterStore` передаётся как `null` — share-кнопка disabled). При модификации `/timeless-jewel` — НЕ трогать `/jewel` и наоборот. Парсер данных — отдельный скрипт `scripts/etl/parse-timeless-jewel.ts` (НЕ в `run-etl.ts`).
+29. **KI#53 (iter 177, ЗАКРЫТ):** ETL-обновление `2d48349` регрессировало данные двумя путями: (1) 4 tablet-токена (KI#12-pattern, single-# template + ## sibling) получили tier-hardcoded regex — пофикшено 4 override'ами в `scripts/etl/i18n-overrides.json` (см. `tablet.mod_od9m77.f2md77`, `tablet.mod_xhncu6.yctrln`, `tablet.mod_as23xk.63l845`, `tablet.mod_as23xk.ckza9l`); (2) 7 relic-токенов из iter 127 KI#12 fix пропали из `relic.json` (poe2db.tw убрал эти моды) — SECTIONS 1+2 `iter127-ki12-tier-hardcoded-regex.test.ts` обёрнуты в `describe.skipIf(KI53_RELIC_TOKENS_MISSING)` (synchronous check via `relicTokensExistSync()`). SECTION 6 (audit) остаётся активным — это каноническая регрессионная защита. 7 relic overrides в `i18n-overrides.json` сейчас no-ops — можно удалить в будущем iter. **При следующем ETL-обновлении:** 4 tablet override'а автоматически применятся через `applyI18nOverrides()` — повторная регрессия исключена.
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -225,5 +226,5 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `docs/UI_REFACTOR_PLAN.md` | iter 137 — 7 фаз UI-рефакторинга. All DONE. |
 | `docs/REDESIGN_CONCEPT_v3.md` | iter 164 — реализован (P1/P2/P3). Ревизия в v4 §4. |
 | `docs/REDESIGN_CONCEPT_v4.md` | iter 165 — концепт-спецификация редизайна (реализован в iter 166-170). Reference only. |
-| `docs/ATLAS_JEWEL_PLAN.md` | iter 175–176 — план + реализация категории `/timeless-jewel`. iter 176 DONE (минимальная рабочая версия). iter 177+ — полировка (URL-sync, profile, prerender, SEO). |
+| `docs/ATLAS_JEWEL_PLAN.md` | iter 175–176 — план + реализация категории `/timeless-jewel`. iter 176 DONE (минимальная рабочая версия). iter 177 DONE (KI#53 фикс деплоя). iter 178+ — полировка (URL-sync, profile, prerender, SEO). |
 | `worklog.md` | Every iteration — append new Task ID section |

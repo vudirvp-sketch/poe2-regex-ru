@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { matchPoE2RegexItem } from '@core/poe2-regex-matcher';
 import type { GameItemText } from '@core/poe2-regex-matcher';
-import { promises as fs } from 'fs';
+import { promises as fs, readFileSync } from 'fs';
 import path from 'path';
 
 /**
@@ -42,11 +42,44 @@ import path from 'path';
  */
 
 // ═══════════════════════════════════════════════════════════════════════════
+// KI#53 (iter 177): Upstream ETL refresh in commit 2d48349 removed the 7
+// relic tokens that iter 127 KI#12 fix targeted. The 7 overrides in
+// i18n-overrides.json are now no-ops (tokens don't exist in ETL output).
+// SECTIONS 1 + 2 below are skipped when any of the 7 tokens is missing.
+// SECTION 6 (audit) remains active and is the canonical regression check.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const RELIC_JSON_PATH = path.resolve(__dirname, '../../public/generated/relic.json');
+
+/** KI#53: synchronously detect whether the 7 iter-127 relic tokens still exist
+ *  in relic.json. Used to gate describe.skipIf() at module load time. */
+function relicTokensExistSync(): boolean {
+  try {
+    const data = JSON.parse(readFileSync(RELIC_JSON_PATH, 'utf-8'));
+    const ids = new Set((data.tokens ?? []).map((t: { id: string }) => t.id));
+    return [
+      'relic.sanctummonstersreduceddamage1',
+      'relic.sanctummonsterspeed1',
+      'relic.sanctummonsterspeed2',
+      'relic.sanctumrevealextraroomeachfloor2',
+      'relic.sanctumrevealextraroomeachfloorlarge2',
+      'relic.sanctumguardsreduceddamage1',
+      'relic.sanctumbossreduceddamage1',
+    ].every(id => ids.has(id));
+  } catch {
+    return false;
+  }
+}
+
+/** KI#53: when true, relic-specific sections (1 + 2) are skipped. */
+const KI53_RELIC_TOKENS_MISSING = !relicTokensExistSync();
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 1: Per-token regex verification — 7 relic tokens have tier-agnostic regex
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('iter 127 — KI#12 per-token regex: tier-agnostic (not tier-hardcoded)', () => {
-  const RELIC_JSON = path.resolve(__dirname, '../../public/generated/relic.json');
+describe.skipIf(KI53_RELIC_TOKENS_MISSING)('iter 127 — KI#12 per-token regex: tier-agnostic (not tier-hardcoded) [SECTION 1 — skipped if 7 relic tokens missing, see KI#53]', () => {
+  const RELIC_JSON = RELIC_JSON_PATH;
 
   // Expected regexes after iter 127 fix (tier-agnostic, matching ## siblings)
   const EXPECTED: Record<string, { regex: string; ctx: string; excl: string[] }> = {
@@ -131,8 +164,9 @@ describe('iter 127 — KI#12 per-token regex: tier-agnostic (not tier-hardcoded)
 // SECTION 2: Family-level optimization entries — tier-agnostic regex
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('iter 127 — KI#12 family-level opt entries: tier-agnostic', () => {
-  const RELIC_JSON = path.resolve(__dirname, '../../public/generated/relic.json');
+// KI#53: skip SECTION 2 when 7 relic tokens are missing (no family opt entries to check)
+describe.skipIf(KI53_RELIC_TOKENS_MISSING)('iter 127 — KI#12 family-level opt entries: tier-agnostic [SECTION 2 — skipped if 7 relic tokens missing, see KI#53]', () => {
+  const RELIC_JSON = RELIC_JSON_PATH;
 
   const EXPECTED_FAMILY_OPT: Record<string, string> = {
     'relic.sanctummonstersreduceddamage1:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3':
