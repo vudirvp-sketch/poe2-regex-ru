@@ -4,7 +4,7 @@
 
 ---
 
-## iter 158–173 — одной строкой
+## iter 158–174 — одной строкой
 
 **iter 158:** core MIXED mode (`MIXED_OR` AST + `anchorFirstAltOnly` mitigation для KI#45 + `truncateMixedOrLiterals` для KI#46, 43 теста).
 **iter 159:** UI MIXED integration (`optionalIds`, FilterChip 3-state, MIXED toggle, 28 новых тестов).
@@ -22,37 +22,43 @@
 **iter 171:** Cleanup — удалены `ITER163_README.md` + `DELETED.txt` (stale delivery-артефакты iter 163). Только docs.
 **iter 172:** Fix `act()` warnings в `tests/ui/RegexOutput.test.tsx` (background issue closed). Паттерн `vi.useFakeTimers()`/`vi.useRealTimers()` (как в `Tooltip.test.tsx`) + flush microtasks внутри `act()` вместо `vi.waitFor`. 0 warnings, 2366/2366 PASS, 0 регрессий.
 **iter 173 (KI#51 + GitHub link):** Fix hidden categories on narrow viewports. Новый wrapper `.topnav-tabs-wrap` (relative, `flex:1`, `overflow:hidden`) вокруг `.topnav-tabs` с `::before`/`::after` fade-градиентами (24px, `var(--poe-bg)` → transparent). JS scroll-position tracking через `useRef`/`useEffect`/`useState` toggles `--can-left`/`--can-right` классы. GitHub link добавлен в `.topnav-feedback` рядом с Discord-хинтом: `Баги и идеи → Discord: woonderdad · GitHub ↗` (lg+, `target="_blank" rel="noopener noreferrer"`). Новый i18n ключ `nav.github`. A5 CLOSED (iter 164 sufficient). A7 partial. 2366/2366 PASS, tsc 0, eslint 0, CSS 61.17 → 62.37 KB (+1.20 KB raw / +0.05 KB gzip).
-**iter 174 (KI#52 + FAQ regexExclude):** Fix search auto-expand подкатегорий. Пользователь сообщил: при поиске отображаются только закрытые категории, чипы спрятаны внутри — приходится вручную раскрывать. Зафиксирован KI#52 (правило «сначала документируй»). Fix: в `ModList.tsx` и `VirtualizedModList.tsx` при непустом `searchText` вычисляются ЛОКАЛЬНЫЕ `effectiveCollapsedGroups` (= `new Set()`) и `effectiveExpandedSubGroups` (= `new Set(allSubKeys)`) — store НЕ мутируется. Effective Set'ы передаются во все AffixColumn/buildColumnRows callsites ВМЕСТО raw props. Кнопки «Развернуть/Свернуть все подкатегории» скрываются во время поиска (`isSearchActive` guard). В `VirtualizedModList.tsx` `allSubKeys` moved up до `buildColumnRows` (нужно для effective Sets). FAQ про `regexExclude` / `"!100%"` задокументирован в STATUS.md (не баг — намеренная FP-защита, когда два мода разделяют подстроку). +4 новых теста (3 в ModList.test.tsx, 1 в VirtualizedModList.test.tsx). 2370/2370 PASS, tsc 0, eslint 0, CSS без изменений (62.37 KB).
+**iter 174 (KI#52 + FAQ regexExclude):** Fix search auto-expand подкатегорий. Пользователь сообщил: при поиске отображаются только закрытые категории, чипы спрятаны внутри, приходится вручную раскрывать. Fix: в `ModList.tsx` и `VirtualizedModList.tsx` при непустом `searchText` вычисляются ЛОКАЛЬНЫЕ `effectiveCollapsedGroups` (= `new Set()`) и `effectiveExpandedSubGroups` (= `new Set(allSubKeys)`) — store НЕ мутируется. FAQ про `regexExclude` / `"!100%"` задокументирован в STATUS.md. +4 новых теста. 2370/2370 PASS.
 
 ---
 
-Task ID: iter-174
+Task ID: iter-175
 Agent: main
-Task: (1) Fix bug: при поиске отображаются только закрытые категории — чипы спрятаны внутри, приходится вручную раскрывать. (2) Ответить на вопрос пользователя про `"!100%"` токен в сгенерированном регексе (баг или фича?). Принцип: «лучше недоделать, чем сломать». UI-layer fix, нулевой риск для regex-engine.
+Task: Разведка и планирование новой категории `/timeless-jewel` для особых самоцветов (Undying Hate + Heroic Tragedy), которые заменяют ноды древа атласа. Регекс должен подсвечивать только названия нод — без цифр, без аффиксов. Не смешивать с существующей категорией `/jewel`. Код НЕ изменять — только план.
 
 Work Log:
-- 0: **Контекст из чата:** iter 173 завершён, ждёт визуальной валидации. Пользователь сообщил новый баг (KI#52) и задал вопрос про `"!100%"`.
-- 1: **Клонировал репозиторий.** `npm install`, `npx vitest run` — 2366/2366 PASS (baseline).
-- 2: **Изучил ModList.tsx + VirtualizedModList.tsx + filter-store.ts.** Root cause KI#52: `expandedSubGroups` defaults to empty Set = all sub-groups COLLAPSED. При поиске tokens фильтруются, но `expandedSubGroups` НЕ обновляется → sub-groups с матчами остаются collapsed, чипы спрятаны. Дополнительно: `collapsedGroups` (L1) может быть collapsed → sub-groups вообще не рендерятся.
-- 3: **Изучил `"!100%"` вопрос.** Нашёл в `public/generated/tablet.json`: мод `(10—15)% увеличение эффективности монстров` имеет `regexExclude: ["100%"]`. Конфликтующий мод `(8—12)% увеличение эффективности монстров Бездны за каждый закрытый провал, вплоть до 100%` содержит ту же подстроку → без `"!100%"` regex матчит оба (FP). Поле `regexExclude` определено в `src/shared/types.ts` (GameToken + OptimizationEntry), работает на уровне ETL + AST builder + compiler. НЕ БАГ.
-- 4: **Документировал KI#52 в STATUS.md ПЕРВЫМ** (правило: «сначала документируй, потом фиксись»). KI#52 = «Search не авто-раскрывает подкатегории». Добавлен в Known Issues → Недавно закрытые. FAQ regexExclude добавлен в STATUS.md отдельной секцией.
-- 5: **Спроектировал fix:** при непустом `searchText` вычислять ЛОКАЛЬНЫЕ `effectiveCollapsedGroups` (= `new Set()`, force L1 expanded) и `effectiveExpandedSubGroups` (= `new Set(allSubKeys)`, force L3 expanded). Store НЕ мутируется → ручное состояние сохраняется при очистке поиска. `allSubKeys` выведен из `filteredTokens`, поэтому содержит только sub-groups с матчами. Кнопки «Развернуть/Свернуть все подкатегории» скрываются во время поиска.
-- 6: **Реализовал ModList.tsx:** добавил `isSearchActive`, `effectiveCollapsedGroups`, `effectiveExpandedSubGroups` useMemo после `allSubKeys`. Заменил все downstream `collapsedGroups`/`expandedSubGroups` usages в AffixColumn calls (4 места) на effective-версии через `replace_all`. Добавил `isSearchActive` guard в conditional rendering expand/collapse-all кнопок. ВАЖНО: обнаружил что single-column path (lines 1183-1184, 1209-1210) НЕ был покрыт `replace_all` из-за другой индентации — вручную исправил через MultiEdit.
-- 7: **Реализовал VirtualizedModList.tsx:** переместил `allSubKeys` useMemo ВЫШЕ `buildColumnRows` calls (нужно для effective Sets). Добавил `isSearchActive`, `effectiveCollapsedGroups`, `effectiveExpandedSubGroups` useMemo после `allSubKeys`. Обновил все 3 `buildColumnRows` calls (implicit/prefix/suffix) на effective-версии. Добавил `isSearchActive` guard в conditional rendering expand/collapse-all кнопок.
-- 8: **Добавил тесты:** 3 теста в `tests/ui/ModList.test.tsx` (search auto-expand L3 chips видны; L1 collapsed → force-expand; кнопки hidden во время поиска). 1 тест в `tests/ui/VirtualizedModList.test.tsx` (кнопки hidden во время поиска). Все тесты используют `searchText="сопротивлению"` (matches p1, p2 — prefix family 'Резист').
-- 9: **Проверки:** `npx tsc -b` — 0 errors. `npx eslint .` — 0 errors. `npx vitest run` — 2370/2370 PASS (2366 baseline + 4 новых). `npx vite build` — PASS, CSS без изменений (62.37 KB).
-- 10: **Документация актуализирована:** STATUS.md (header iter 173→174, "Текущее состояние" переписана под iter 174, iter 173 → одной строкой в "История", KI#52 в "Недавно закрытые", FAQ regexExclude секция добавлена, Next iteration iter 173→174 → iter 174→175). AGENT_NAVIGATION.md (header iter 173→174, KI#52 в активных KI, pitfall #25 search auto-expand + #26 regexExclude FAQ добавлены, ModList/VirtualizedModList описание обновлено с KI#52 fix). worklog.md (iter 174 добавлен в shared-секцию и как Task ID section).
+- 0: **Контекст из чата:** Пользователь хочет отдельный раздел для генерации регексов подсветки нод древа атласа. Два особых самоцвета: «Вечная ненависть» (Undying Hate) и «Трагедия героев» (Heroic Tragedy). Тесты Atlas regex-семантики уже проведены: multi-word OR ✅, AND ❌, NOT ❌, case-insensitive ✅, `.*` bridge ✅.
+- 1: **Клонировал репозиторий** `https://github.com/vudirvp-sketch/poe2-regex-ru.git` в `/home/z/my-project/repo`.
+- 2: **Изучил архитектуру проекта** — React 19 + TypeScript + Vite, 8 категорий (waystone/tablet/relic/jewel/vendor/belt/ring/amulet) + home. Каждая категория: page component + route + nav-item + i18n-keys + JSON-данные (`public/generated/<cat>.json`) + ETL-pipeline (`scripts/etl/`). Regex-engine: `src/core/compiler.ts` + `optimizer.ts` + `ast.ts` (item-семантика: AND ✅, NOT ✅, multi-word OR ❌). Существующая `/jewel` уже мержит 3 JSON (jewel + jewel-desecrated + jewel-corrupted) через `loadMergedCategoryData`.
+- 3: **Распарсил PoE2DB-страницы** обоих самоцветов (`https://poe2db.tw/ru/Undying_Hate` + `https://poe2db.tw/ru/Heroic_Tragedy`). Извлёк секцию `#ВневременнойсамоцветPassive` через Python regex. Получил **35 нод для Вечной ненависти** (раздел /35) и **40 нод для Трагедии героев** (раздел /40). Подтверждено: это AlternatePassiveSkills — альтернативные ноды, на которые самоцвет заменяет стандартные ноды древа атласа в радиусе. Списки сохранены в `регис/undying_hate_nodes.txt` + `регис/heroic_tragedy_nodes.txt`.
+- 4: **Зафиксировал Atlas regex-семантику** (отличается от item-семантики): multi-word OR работает ✅, AND не работает ❌, NOT не работает ❌. Это означает, что существующий regex-engine НЕ подходит для новой категории — нужен упрощённый `buildAtlasRegex()` (только OR-паттерны).
+- 5: **Составил план** `docs/ATLAS_JEWEL_PLAN.md` (9 секций):
+  - §1 Постановка задачи + обоснование изоляции от `/jewel` (таблица сравнения).
+  - §2 Atlas regex-семантика (таблица тестов + ключевое ограничение + 3 варианта регекса).
+  - §3 Архитектурное решение — Вариант A: новый top-level раздел `/timeless-jewel` с selector внутри. Отклонённые альтернативы: sub-section в `/jewel`, расширение origin-системы, две отдельные страницы.
+  - §4 Дата-модель — новый `AtlasNodeToken` (НЕ наследует GameToken) + Zod-схема + JSON-файл `public/generated/timeless-jewel.json` (ручная сборка vs ETL-парсер — рекомендации).
+  - §5 UI/UX план — nav-item, i18n-ключи, структура страницы `TimelessJewelPage.tsx`, новый компонент `AtlasNodeList.tsx`, новый regex-builder `buildAtlasRegex()`.
+  - §6 План реализации — iter 176 (дата-модель + минимальная страница), iter 177 (полировка + SEO), iter 178+ (ETL опционально).
+  - §7 Риски и mitigations — длина регекса > 250 chars, дубликаты имён между самоцветами, регрессия `/jewel`, изменение Atlas-семантики.
+  - §8 Что нужно от пользователя для старта iter 176.
+  - §9 Ссылки.
+- 6: **Обновил STATUS.md** — header iter 174 → 175; новая секция «Текущее состояние (iter 175 — РАЗВЕДКА)»; новая секция «Roadmap: новая категория `/timeless-jewel`» с таблицей iter 175-178; iter 174 + 173 → одной строкой в «История»; удалена устаревшая секция «Решения пользователя по аудиту v4 (iter 165 → iter 173)» (все DONE, не тянуть в новую итерацию); удалена устаревшая секция «Новые идеи пользователя (D1-D3)»; FAQ regexExclude сокращён; «Подтверждённые ограничения PoE2» разбита на Item-семантику + Atlas-семантику (новая подтаблица); «Next iteration» переписана под iter 175 → iter 176 с 6 пунктами «что нужно от пользователя».
+- 7: **Обновил AGENT_NAVIGATION.md** — header iter 174 → 175 (краткое описание + ссылка на план); удалены подробности KI#50/51/52 (всё закрыто, не тащить); добавлен pitfall #27 «Atlas regex-семантика ОТЛИЧАЕТСЯ от item-семантики» с полным описанием отличий; обновлён Documentation Map — `REDESIGN_CONCEPT_v4.md` помечен как «реализован, reference only», добавлен `ATLAS_JEWEL_PLAN.md`.
+- 8: **Обновил README.md** — добавлена строка `docs/ATLAS_JEWEL_PLAN.md` в таблицу документации; добавлена строка `регис/` с описанием.
 
 Stage Summary:
-- **iter 174 завершён.** KI#52 (search auto-expand) — fixed через локальные effective Sets в ModList/VirtualizedModList. FAQ regexExclude задокументирован.
-- **Изменённые файлы (iter 174):**
-  - `src/ui/components/ModList.tsx` — `effectiveCollapsedGroups`/`effectiveExpandedSubGroups` useMemo + замена всех downstream usages (5 AffixColumn callsites); `isSearchActive` guard для expand/collapse-all кнопок.
-  - `src/ui/components/VirtualizedModList.tsx` — `allSubKeys` moved up до `buildColumnRows`; `effectiveCollapsedGroups`/`effectiveExpandedSubGroups` useMemo; 3 `buildColumnRows` calls обновлены; `isSearchActive` guard для кнопок.
-  - `tests/ui/ModList.test.tsx` — +3 теста на search-auto-expand.
-  - `tests/ui/VirtualizedModList.test.tsx` — +1 тест на search-auto-expand.
-  - `STATUS.md` — iter 174 header, "Текущее состояние" переписана, iter 173 в "История", KI#52 в "Недавно закрытые", FAQ regexExclude секция, Next iteration → iter 175.
-  - `AGENT_NAVIGATION.md` — iter 174 header, KI#52 в активных KI, pitfall #25 + #26 добавлены, ModList/VirtualizedModList описание обновлено.
-  - `worklog.md` — iter 174 в shared-секции + этот Task ID section.
-- **Проверки:** tsc 0 errors, eslint 0 errors, vitest 2370/2370 PASS (4 новых теста, 0 регрессий), vite build PASS, CSS без изменений (62.37 KB).
-- **Stopping point:** iter 174 завершён. Ожидается визуальная валидация пользователя: (1) Ввести аффикс в поиск → чипы с матчами видны сразу, без ручного раскрытия категорий. После очистки поиска — ручное expand/collapse состояние сохраняется. (2) Визуальная валидация iter 173 (если ещё не сделана). (3) Конкретика по A7. (4) Понял ли пользователь объяснение про `"!100%"` (FAQ regexExclude).
-- **Что от пользователя нужно (опционально):** (1) Визуальная валидация KI#52 fix на любой странице категории. (2) Визуальная валидация iter 173 (fade-индикаторы + GitHub link). (3) Конкретика по A7. (4) Подтверждение что объяснение про `"!100%"` понятно. Активные KI без изменений: KI#45/46/47/43. Оставшиеся фоновые issues: APCA Lc<75, MobileRegexBar 168 KB.
+- **iter 175 завершён (разведка и планирование).** План новой категории `/timeless-jewel` составлен в `docs/ATLAS_JEWEL_PLAN.md`. Код НЕ изменялся.
+- **Изменённые файлы (iter 175):**
+  - `docs/ATLAS_JEWEL_PLAN.md` — НОВЫЙ файл (план, 9 секций).
+  - `регис/undying_hate_nodes.txt` — НОВЫЙ файл (35 названий нод Вечной ненависти, распарсенных с PoE2DB).
+  - `регис/heroic_tragedy_nodes.txt` — НОВЫЙ файл (40 названий нод Трагедии героев, распарсенных с PoE2DB).
+  - `STATUS.md` — header iter 175, новая секция «Текущее состояние (iter 175)», новая секция «Roadmap», удалены устаревшие секции (Аудит v4, D1-D3), Atlas-семантика добавлена в «Подтверждённые ограничения», Next iteration переписана.
+  - `AGENT_NAVIGATION.md` — header iter 175, pitfall #27 (Atlas regex), Documentation Map обновлён.
+  - `README.md` — добавлен `ATLAS_JEWEL_PLAN.md` + `регис/` в таблицу документации.
+  - `worklog.md` — iter 175 добавлен в shared-секцию и как Task ID section.
+- **Stopping point:** iter 175 завершён (разведка). Ждём от пользователя подтверждения по 5 пунктам (см. STATUS.md → Next iteration): (1) архитектура Вариант A, (2) название раздела, (3) проверка списков нод, (4) ETL ручная vs авто, (5) UI новый AtlasNodeList vs обёртка. После — iter 176: дата-модель + JSON + минимальная страница.
+- **Что НЕ сделано (намеренно, по требованию пользователя «пока просто разведка и планирование»):** код компонентов, типов, Zod-схем, JSON-файла, тестов, route, nav-item, i18n — всё отложено на iter 176.
