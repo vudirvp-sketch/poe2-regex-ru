@@ -1,10 +1,10 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 175 (РАЗВЕДКА — план новой категории `/timeless-jewel` для особых самоцветов; Atlas regex-семантика зафиксирована). Код НЕ изменялся — ждёт согласования пользователя. iter 174 (KI#52 fix — search auto-expand), iter 173 (KI#51 — scroll fade + GitHub link), iter 170 (A4), iter 169 (KI#50), iter 168 (A1), iter 167 (A3), iter 166 (A2), iter 172 (act() warnings fix) — все DONE ✅. 2370/2370 PASS.
-> **План новой категории:** `docs/ATLAS_JEWEL_PLAN.md` (iter 175 — ждёт подтверждения пользователя).
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). Все остальные KI закрыты.
-> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2370/2370 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Текущее состояние:** iter 176 — категория `/timeless-jewel` ЗАВЕРШЕНА (минимальная рабочая версия: 75 нод, OR-only builder, UI с описаниями, 40 новых тестов, 2405/2410 PASS — 5 failures это KI#53 pre-existing). iter 175 (разведка + план), iter 174 (KI#52 fix — search auto-expand), iter 173 (KI#51 — scroll fade + GitHub link) — все DONE ✅.
+> **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка), **KI#53 (NEW — pre-existing data regression в tablet.json regex, 5 test failures)**.
+> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405/2410 PASS), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -16,7 +16,7 @@
 | `src/shared/` | Types, i18n, mod-classifier, family-grouper, constants, Zod schemas | Imported by core + UI |
 | `src/strategies/` | Locale strategy (Russian dialect: ёфикация, ю/я) | Imported by core |
 | `src/store/` | Zustand stores — filter-store, profile-store, url-sync | Import from `@shared`, `@core` |
-| `src/data/` | Runtime JSON loader (Zod-validated) + vendor properties | Fetches + validates `public/generated/*.json` |
+| `src/data/` | Runtime JSON loader (Zod-validated) + vendor properties | Fetches + validates `public/generated/*.json`. iter 176: добавлен `atlas-jewel-loader.ts` (отдельная schema `AtlasJewelCategoryData`). |
 | `src/ui/` | React components — pages, layout, hooks | Import from `@store`, `@shared`, `@data`, `@core` |
 | `src/ui/hooks/category-ast-utils.ts` | Pure AST helpers (`buildAstFromSelections`, `pushLiteralsWithFamilyLogic`, `applyRuntimeYofication`, `getEffectiveRange*`). All PURE (no React). Re-exported from `useCategoryPage.ts` для backward compat с tests. | All PURE |
 | `src/ui/hooks/useCategoryPage.ts` | Main hook для category pages. Compose-хук из 3 sub-hooks: `useFilterStore` / `useCategoryData` / `useRegexBuilder`. Accepts optional `config.filterStore: FilterStoreHook` для pages с extraAstNodes-from-local-state (Waystone/Jewel/Tablet). | Backward compat: `useCategoryPage({ categoryId: 'belt' })` still works |
@@ -157,6 +157,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 25. **Search auto-expand (iter 174 — KI#52):** When `searchText` is non-empty, `ModList.tsx` и `VirtualizedModList.tsx` вычисляют ЛОКАЛЬНЫЕ `effectiveCollapsedGroups` (= `new Set()`) и `effectiveExpandedSubGroups` (= `new Set(allSubKeys)`) — store НЕ мутируется. Эти effective Set'ы передаются во ВСЕ `AffixColumn`/`buildColumnRows` callsites ВМЕСТО raw `collapsedGroups`/`expandedSubGroups`. Кнопки «Развернуть/Свернуть все подкатегории» скрываются во время поиска (`isSearchActive` guard). **ОСТОРОЖНО:** при добавлении нового AffixColumn call site — используй `effectiveCollapsedGroups`/`effectiveExpandedSubGroups`, НЕ raw props. `allSubKeys` в `VirtualizedModList.tsx` вычисляется ДО `buildColumnRows` (moved up iter 174) — не возвращать обратно ниже.
 26. **`regexExclude` field (FAQ):** Когда в регексе появляется `"!something"` токен (например `"!100%"`), это **намеренная FP-защита**, не баг. Поле `regexExclude: Record<Locale, string[]>` в `GameToken` (`src/shared/types.ts`) задаётся ETL-пайплайном когда два мода разделяют общую подстроку. AST builder (`category-ast-utils.ts` → `pushLiteralsWithFamilyLogic`) и optimizer (`optimization-strategies.ts`) добавляют EXCLUDE-ноды → компилятор генерирует `"suffix" !"exclude"`. Подробности — в STATUS.md → FAQ.
 27. **Atlas regex-семантика ОТЛИЧАЕТСЯ от item-семантики (iter 175 VERIFIED IN-GAME):** На древе атласа **multi-word OR работает** (`"А Б\|В Г"` ✅), но **AND не работает** (`"А" "Б"` = 0 matches ❌) и **NOT не работает** (`"!А\|Б"` подсвечивает ВСЕ ноды ❌). Substring / quoted phrase / `.*` bridge / case-insensitive — всё работает ✅. Единственная рабочая логика для Atlas — **OR** (подсветить любые ноды, содержащие ЛЮБОЕ из перечисленных названий). Это критично для планируемой категории `/timeless-jewel` (`docs/ATLAS_JEWEL_PLAN.md`) — она НЕ может использовать существующий regex-engine (завязан на AND/NOT/ranges). Нужен отдельный упрощённый `buildAtlasRegex()` (iter 176+). См. STATUS.md → «Atlas-семантика».
+28. **Atlas Timeless Jewel — ОТДЕЛЬНЫЙ pipeline (iter 176):** Категория `/timeless-jewel` НЕ использует `useCategoryPage`, `filter-store`, `compiler.ts`, `optimizer.ts`, `ast.ts` или `ModList`/`VirtualizedModList`. Причины: (1) Atlas-семантика OR-only (см. pitfall #27) — существующий engine заточен под AND/NOT/ranges; (2) `GameToken` schema избыточна (нет ranges/familyKey/affix/genderForms). Используются: `AtlasNodeToken` (новый минимальный тип), `atlas-jewel-loader.ts` (отдельный loader), `atlas-regex-builder.ts` (новый `buildAtlasRegex()` — OR-only + alphabetical sort + dedupe + overflow split), `AtlasNodeList` (новый компонент — плоский список с чекбоксами/иконками/описаниями), `TimelessJewelPage` (новая страница). Переиспользуется только `RegexOutput` (props `filterStore` передаётся как `null` — share-кнопка disabled). При модификации `/timeless-jewel` — НЕ трогать `/jewel` и наоборот. Парсер данных — отдельный скрипт `scripts/etl/parse-timeless-jewel.ts` (НЕ в `run-etl.ts`).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -224,5 +225,5 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `docs/UI_REFACTOR_PLAN.md` | iter 137 — 7 фаз UI-рефакторинга. All DONE. |
 | `docs/REDESIGN_CONCEPT_v3.md` | iter 164 — реализован (P1/P2/P3). Ревизия в v4 §4. |
 | `docs/REDESIGN_CONCEPT_v4.md` | iter 165 — концепт-спецификация редизайна (реализован в iter 166-170). Reference only. |
-| `docs/ATLAS_JEWEL_PLAN.md` | iter 175 — ПЛАН новой категории `/timeless-jewel` для особых самоцветов. Разведка + архитектура + дата-модель + UI + риски. **Ждёт согласования пользователя перед iter 176.** |
+| `docs/ATLAS_JEWEL_PLAN.md` | iter 175–176 — план + реализация категории `/timeless-jewel`. iter 176 DONE (минимальная рабочая версия). iter 177+ — полировка (URL-sync, profile, prerender, SEO). |
 | `worklog.md` | Every iteration — append new Task ID section |

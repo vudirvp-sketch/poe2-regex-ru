@@ -37,6 +37,11 @@ const AmuletPage = lazy(() =>
 const JewelPage = lazy(() =>
   import('./ui/pages/jewel/JewelPage').then((m) => ({ default: m.JewelPage })),
 )
+// iter 176: Timeless Jewel page — separate route, separate regex dialect
+// (Atlas tree search uses OR-only semantics; see docs/ATLAS_JEWEL_PLAN.md).
+const TimelessJewelPage = lazy(() =>
+  import('./ui/pages/timeless-jewel/TimelessJewelPage').then((m) => ({ default: m.TimelessJewelPage })),
+)
 
 function NotFoundPage() {
   return (
@@ -97,6 +102,14 @@ export default function App() {
           element={
             <Suspense fallback={<PageFallback />}>
               <JewelPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/timeless-jewel"
+          element={
+            <Suspense fallback={<PageFallback />}>
+              <TimelessJewelPage />
             </Suspense>
           }
         />

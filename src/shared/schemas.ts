@@ -143,3 +143,39 @@ export const RawModGroupDataSchema = z.object({
 /** Inferred ETL types */
 export type ValidatedRawModTier = z.infer<typeof RawModTierSchema>;
 export type ValidatedRawModGroupData = z.infer<typeof RawModGroupDataSchema>;
+
+// ─── Atlas Timeless Jewel schemas (iter 176) ─────────────────────────
+//
+// Runtime validation for `public/generated/timeless-jewel.json`.
+// Mirrors AtlasNodeToken / AtlasJewelCategoryData in src/shared/types.ts.
+// Used by src/data/atlas-jewel-loader.ts at the fetch→runtime boundary.
+
+export const AtlasJewelIdSchema = z.enum(['undying-hate', 'heroic-tragedy']);
+
+export const AtlasNodeTokenSchema = z.object({
+  id: z.string().min(1),
+  jewel: AtlasJewelIdSchema,
+  name: LocalizedString,
+  // REQUIRED — UI shows effects to player. Parser always populates this.
+  description: LocalizedString,
+  iconUrl: z.string().url(),
+  slug: z.string().min(1),
+  sourceKey: z.string().min(1),
+});
+
+export const AtlasJewelCategoryDataSchema = z.object({
+  version: z.string(),
+  category: z.literal('timeless-jewel'),
+  source: z.string(),
+  sourceHash: z.string().optional(),
+  jewels: z.array(
+    z.object({
+      id: AtlasJewelIdSchema,
+      name: LocalizedString,
+      nodes: z.array(AtlasNodeTokenSchema).min(1),
+    }),
+  ).min(1),
+});
+
+export type ValidatedAtlasNodeToken = z.infer<typeof AtlasNodeTokenSchema>;
+export type ValidatedAtlasJewelCategoryData = z.infer<typeof AtlasJewelCategoryDataSchema>;

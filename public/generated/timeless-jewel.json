@@ -1,0 +1,999 @@
+{
+  "version": "2026-07-06T18:41:46.137Z",
+  "category": "timeless-jewel",
+  "source": "poe2db.tw",
+  "sourceHash": "9247e0089db75f20",
+  "jewels": [
+    {
+      "id": "undying-hate",
+      "name": {
+        "ru": "Вечная ненависть"
+      },
+      "nodes": [
+        {
+          "id": "undying-hate.abyss_keystone_1",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жертва плоти"
+          },
+          "description": {
+            "ru": "При получении урона от ударов предотвращает 20% потери здоровья, затем 150% предотвращенной потери здоровья теряется за 4 секунды"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AmanamusDefiance.webp",
+          "slug": "Sacrifice_of_Flesh",
+          "sourceKey": "abyss_keystone_1"
+        },
+        {
+          "id": "undying-hate.abyss_keystone_2",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жертва верности"
+          },
+          "description": {
+            "ru": "Вы наносите на 1% больше урона за каждые 2 от общего уровня угрозы ваших приспешников-нежитиПриспешники-нежить имеют на 25% меньше максимума здоровья"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KulemaksSovereignty.webp",
+          "slug": "Sacrifice_of_Loyalty",
+          "sourceKey": "abyss_keystone_2"
+        },
+        {
+          "id": "undying-hate.abyss_keystone_3",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жертва разума"
+          },
+          "description": {
+            "ru": "Восстановление маны от регенерации переполняет максимум маныНа 50% меньше скорости регенерации маны"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KurgasAmbition.webp",
+          "slug": "Sacrifice_of_Mind",
+          "sourceKey": "abyss_keystone_3"
+        },
+        {
+          "id": "undying-hate.abyss_keystone_4",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жертва крови"
+          },
+          "description": {
+            "ru": "Регенерирует 1 здоровья в секунду за каждые 16 здоровья, потраченных за последние 4 секундыНа 20% больше расхода здоровья на умения"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/TecrodsBrutality.webp",
+          "slug": "Sacrifice_of_Blood",
+          "sourceKey": "abyss_keystone_4"
+        },
+        {
+          "id": "undying-hate.abyss_keystone_5",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жертва зрения"
+          },
+          "description": {
+            "ru": "Снаряды выполняют одно их следующих действий в случайном порядке:• Разветвляются еще раз•Наносят дополнительный удар по цепи•Не могут столкнуться с целями"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/UlamansVision.webp",
+          "slug": "Sacrifice_of_Sight",
+          "sourceKey": "abyss_keystone_5"
+        },
+        {
+          "id": "undying-hate.abyss_small_tribute",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Дань"
+          },
+          "description": {
+            "ru": "+5 к дарам"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssJewelNode.webp",
+          "slug": "Tribute",
+          "sourceKey": "abyss_small_tribute"
+        },
+        {
+          "id": "undying-hate.abyss_notable_1",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Служитель Тьмы"
+          },
+          "description": {
+            "ru": "20% увеличение количества даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Disciple_of_Darkness",
+          "sourceKey": "abyss_notable_1"
+        },
+        {
+          "id": "undying-hate.abyss_notable_2",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Создание смерти"
+          },
+          "description": {
+            "ru": "1% получаемого урона восполняется в виде здоровья за каждые 10 даров\nВосстанавливает 1% от максимума здоровья при убийстве за каждые 50 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Creature_of_Death",
+          "sourceKey": "abyss_notable_2"
+        },
+        {
+          "id": "undying-hate.abyss_notable_3",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Создание волшебства"
+          },
+          "description": {
+            "ru": "1% получаемого урона восполняется в виде маны за каждые 10 даров\nВосстанавливает 1% от максимума маны при убийстве за каждые 50 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Creature_of_Magic",
+          "sourceKey": "abyss_notable_3"
+        },
+        {
+          "id": "undying-hate.abyss_notable_4",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Ускоренные трупы"
+          },
+          "description": {
+            "ru": "Приспешники имеют 3% повышение скорости атаки и сотворения чар за каждые 50 даров\nПриспешники наносят увеличенный на 1% урон за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Quickened_Corpses",
+          "sourceKey": "abyss_notable_4"
+        },
+        {
+          "id": "undying-hate.abyss_notable_5",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Неоднозначный приказ"
+          },
+          "description": {
+            "ru": "Приспешники имеют 4% повышение скорости перезарядки умений за каждые 10 даров\nПриспешники теряют 2% здоровья за кадые 10 ваших даров при выполнении приказов"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Ambivalent_Command",
+          "sourceKey": "abyss_notable_5"
+        },
+        {
+          "id": "undying-hate.abyss_notable_6",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Крошитель костей"
+          },
+          "description": {
+            "ru": "Снаряды с 10% шансом могут выпустить дополнительный снаряд при разветвлении за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Boneshedder",
+          "sourceKey": "abyss_notable_6"
+        },
+        {
+          "id": "undying-hate.abyss_notable_7",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Неприкрытая жестокость"
+          },
+          "description": {
+            "ru": "8% увеличение урона от атак за каждые 10 даров\n1% увеличение получаемого урона за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Unfiltered_Brutality",
+          "sourceKey": "abyss_notable_7"
+        },
+        {
+          "id": "undying-hate.abyss_notable_8",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Презрительный взор"
+          },
+          "description": {
+            "ru": "3% уменьшение меткости за каждые 25 даров\n5% увеличение шанса критического удара атаками за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Derogatory_Gaze",
+          "sourceKey": "abyss_notable_8"
+        },
+        {
+          "id": "undying-hate.abyss_notable_9",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Проводник Бездны"
+          },
+          "description": {
+            "ru": "2% увеличение эффективности расхода маны за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Abyssal_Conduit",
+          "sourceKey": "abyss_notable_9"
+        },
+        {
+          "id": "undying-hate.abyss_notable_10",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Скрытые ужасы"
+          },
+          "description": {
+            "ru": "3% увеличение длительности проклятия за каждые 10 даров\nНа 3% быстрее активация проклятий за каждые 20 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Expedited_Horrors",
+          "sourceKey": "abyss_notable_10"
+        },
+        {
+          "id": "undying-hate.abyss_notable_11",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Сдержанное возвышение"
+          },
+          "description": {
+            "ru": "1% увеличение эффективности удержания духа умениями за каждые 20 даров\n2% уменьшение области действия присутствия за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Confined_Exaltation",
+          "sourceKey": "abyss_notable_11"
+        },
+        {
+          "id": "undying-hate.abyss_notable_12",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Колдовское восхождение"
+          },
+          "description": {
+            "ru": "1% от максимума здоровья становится энергетическим щитом за каждые 20 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Arcane_Ascension",
+          "sourceKey": "abyss_notable_12"
+        },
+        {
+          "id": "undying-hate.abyss_notable_13",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Ненасытный разум"
+          },
+          "description": {
+            "ru": "2% повышение скорости восстановления маны за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Ravenous_Mind",
+          "sourceKey": "abyss_notable_13"
+        },
+        {
+          "id": "undying-hate.abyss_notable_14",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Прожорливое присутствие"
+          },
+          "description": {
+            "ru": "2% повышение скорости восстановления здоровья за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Gluttonous_Presence",
+          "sourceKey": "abyss_notable_14"
+        },
+        {
+          "id": "undying-hate.abyss_notable_15",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Несдержанный интеллект"
+          },
+          "description": {
+            "ru": "1% повышение скорости перезарядки умений за каждые 10 даров\n+2 к интеллекту за каждые 25 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Unrestrained_Intellect",
+          "sourceKey": "abyss_notable_15"
+        },
+        {
+          "id": "undying-hate.abyss_notable_16",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Жестокая сила"
+          },
+          "description": {
+            "ru": "+2 к силе за каждые 25 даров\n2% увеличение накопления шкалы оглушения за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Cruel_Strength",
+          "sourceKey": "abyss_notable_16"
+        },
+        {
+          "id": "undying-hate.abyss_notable_17",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Гибкая ловкость"
+          },
+          "description": {
+            "ru": "+2 к ловкости за каждые 25 даров\n2% увеличение длительности эффекта парирования за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Opportunistic_Dexterity",
+          "sourceKey": "abyss_notable_17"
+        },
+        {
+          "id": "undying-hate.abyss_notable_18",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Нереальный потенциал"
+          },
+          "description": {
+            "ru": "1% шанс при получении вами заряда получить дополнительный заряд за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Unreal_Potential",
+          "sourceKey": "abyss_notable_18"
+        },
+        {
+          "id": "undying-hate.abyss_notable_19",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Я вижу тьму"
+          },
+          "description": {
+            "ru": "2% увеличение меткости за каждые 10 даров\n2% уменьшение радиуса обзора за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "I_Have_Darkvision",
+          "sourceKey": "abyss_notable_19"
+        },
+        {
+          "id": "undying-hate.abyss_notable_20",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Довлеющие приказы"
+          },
+          "description": {
+            "ru": "Улучшенные атаки наносят увеличенный на 2% урон за каждые 10 даров\n4% повышение скорости боевых кличей за каждые 25 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Domineering_Commands",
+          "sourceKey": "abyss_notable_20"
+        },
+        {
+          "id": "undying-hate.abyss_notable_21",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Достойные подношения"
+          },
+          "description": {
+            "ru": "2% усиление эффекта создаваемых вами осколков за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Worthy_Tithes",
+          "sourceKey": "abyss_notable_21"
+        },
+        {
+          "id": "undying-hate.abyss_notable_23",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Быстрое гниение"
+          },
+          "description": {
+            "ru": "2% увеличение силы накладываемых вами наносящих урон состояний за каждые 10 даров\n1% уменьшение длительности наносящих урон состояний за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Fast_Rot",
+          "sourceKey": "abyss_notable_23"
+        },
+        {
+          "id": "undying-hate.abyss_notable_24",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Пустотелые кости"
+          },
+          "description": {
+            "ru": "Дарует отклонение урона в размере 2% от уклонения за каждые 25 даров\n2% увеличение уклонения за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Hollow_Bones",
+          "sourceKey": "abyss_notable_24"
+        },
+        {
+          "id": "undying-hate.abyss_notable_25",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Древний бастион"
+          },
+          "description": {
+            "ru": "2% снижение скорости перезарядки энергетического щита за каждые 25 даров\n4% увеличение максимума энергетического щита за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssIntNotable.webp",
+          "slug": "Ancient_Bastion",
+          "sourceKey": "abyss_notable_25"
+        },
+        {
+          "id": "undying-hate.abyss_notable_26",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Погнутая сталь"
+          },
+          "description": {
+            "ru": "2% увеличение брони за каждые 10 даров\n5% увеличение порога оглушения за каждые 25 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Deformed_Steel",
+          "sourceKey": "abyss_notable_26"
+        },
+        {
+          "id": "undying-hate.abyss_notable_27",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Мистическое варево"
+          },
+          "description": {
+            "ru": "3% увеличение длительности эффекта флакона за каждые 25 даров\n1% повышение скорости восстановления здоровья и маны от флаконов за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Mystic_Brew",
+          "sourceKey": "abyss_notable_27"
+        },
+        {
+          "id": "undying-hate.abyss_notable_28",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Крепкие барьеры"
+          },
+          "description": {
+            "ru": "3% увеличение длительности эффекта оберега за каждые 25 даров\n1% усиление эффекта применяемых к вам оберегов за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssDexNotable.webp",
+          "slug": "Resilient_Wards",
+          "sourceKey": "abyss_notable_28"
+        },
+        {
+          "id": "undying-hate.abyss_notable_29",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Ужасающая стойкость"
+          },
+          "description": {
+            "ru": "Ваща шкала накопления сильного оглушения опустошается на 1% быстрее за каждые 10 даров\n5% увеличение брони, уклонения и энергетического щита от щита в руках за каждые 25 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Dreadful_Fortitude",
+          "sourceKey": "abyss_notable_29"
+        },
+        {
+          "id": "undying-hate.abyss_notable_30",
+          "jewel": "undying-hate",
+          "name": {
+            "ru": "Колючая верность"
+          },
+          "description": {
+            "ru": "+0.5% к шансу критического удара шипами за каждые 50 даров\n2% увеличение урона шипами за каждые 10 даров"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/AbyssStrNotable.webp",
+          "slug": "Barbed_Allegiance",
+          "sourceKey": "abyss_notable_30"
+        }
+      ]
+    },
+    {
+      "id": "heroic-tragedy",
+      "name": {
+        "ru": "Трагедия героев"
+      },
+      "nodes": [
+        {
+          "id": "heroic-tragedy.kalguur_keystone_1",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Подготовка Чёрной косы"
+          },
+          "description": {
+            "ru": "Сила не дарует изначальные бонусы1% увеличение энергетического щита за каждые 2 силы"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrKeystone.webp",
+          "slug": "Black_Scythe_Training",
+          "sourceKey": "kalguur_keystone_1"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_keystone_2",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Учения круга"
+          },
+          "description": {
+            "ru": "Ловкость не дарует изначальные бонусы1% увеличение брони за каждые 2 ловкости"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexKeystone.webp",
+          "slug": "Circular_Teachings",
+          "sourceKey": "kalguur_keystone_2"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_keystone_3",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Рыцарский догмат"
+          },
+          "description": {
+            "ru": "Интеллект не дарует изначальные бонусы1% увеличение уклонения за каждые 2 интеллекта"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntKeystone.webp",
+          "slug": "Knightly_Tenets",
+          "sourceKey": "kalguur_keystone_3"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable1",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Опалённая земля"
+          },
+          "description": {
+            "ru": "40% увеличение урона от огня\n+15 к интеллекту"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Scorched_Earth",
+          "sourceKey": "kalguur_notable1"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable2",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Военная тактика"
+          },
+          "description": {
+            "ru": "20% повышение скорости регенерации маны\n40% увеличение физического урона"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "War_Tactics",
+          "sourceKey": "kalguur_notable2"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable3",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Калгууранская закалка"
+          },
+          "description": {
+            "ru": "+2% к максимальному сопротивлению огню\n10% уменьшение длительности заморозки на вас"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Kalguuran_Forged",
+          "sourceKey": "kalguur_notable3"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable4",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Рождённый в Мидденгарде"
+          },
+          "description": {
+            "ru": "40% повышение брони\n+10% к сопротивлению холоду"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Born_of_Middengard",
+          "sourceKey": "kalguur_notable4"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable5",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Сила воли"
+          },
+          "description": {
+            "ru": "2% увеличение максимума маны\n30% повышение скорости накопления шкалы оглушения"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Force_of_Will",
+          "sourceKey": "kalguur_notable5"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable6",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Рунический поток"
+          },
+          "description": {
+            "ru": "10% увеличение длительности проклятий\nРегенерация 1.5% здоровья в секунду"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Runic_Flows",
+          "sourceKey": "kalguur_notable6"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable7",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Осадный менталитет"
+          },
+          "description": {
+            "ru": "10% ускорение начала перезарядки энергетического щита\n40% увеличение количества разрушаемой брони"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Siege_Mentality",
+          "sourceKey": "kalguur_notable7"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable8",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Рунный рыцарь"
+          },
+          "description": {
+            "ru": "15% увеличение бонуса к критическому урону от чар\n40% увеличение урона в ближнем бою"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Rune_Knight",
+          "sourceKey": "kalguur_notable8"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable9",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Пламенное лидерство"
+          },
+          "description": {
+            "ru": "40% увеличение силы Горючести\nПриспешники имеют +15% к сопротивлению всем стихиям"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Fiery_Leadership",
+          "sourceKey": "kalguur_notable9"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable10",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Друидский союз"
+          },
+          "description": {
+            "ru": "+7% к сопротивлению хаосу\n40% увеличение урона тотемов"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Druidic_Alliance",
+          "sourceKey": "kalguur_notable10"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable11",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Сталь и магия"
+          },
+          "description": {
+            "ru": "10% усиление эффекта Колдовского выброса на вас\n20% увеличение силы накладываемого вами кровотечения"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Steel_and_Sorcery",
+          "sourceKey": "kalguur_notable11"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable12",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Свет Трискелиона"
+          },
+          "description": {
+            "ru": "10% усиление эффекта восприимчивости к холоду\nУлучшенные атаки наносят увеличенный на 50% урон\n10% усиление эффекта восприимчивости к огню\n10% усиление эффекта восприимчивости к молнии"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranStrNotable.webp",
+          "slug": "Triskelions_Light",
+          "sourceKey": "kalguur_notable12"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable13",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Странник в буре"
+          },
+          "description": {
+            "ru": "+2% к максимальному сопротивлению молнии\n10% уменьшение длительности поджога на вас"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Stormtossed_Voyager",
+          "sourceKey": "kalguur_notable13"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable14",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Захват контроля"
+          },
+          "description": {
+            "ru": "40% увеличение урона от молнии\n+15 к силе"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Wrest_Control",
+          "sourceKey": "kalguur_notable14"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable15",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Танцующий с огнём"
+          },
+          "description": {
+            "ru": "40% увеличение уклонения\n+10% к сопротивлению огню"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Firedancer",
+          "sourceKey": "kalguur_notable15"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable16",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Удел наёмника"
+          },
+          "description": {
+            "ru": "10% повышение скорости атаки\n15% увеличение порога оглушения"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Mercenarys_Lot",
+          "sourceKey": "kalguur_notable16"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable17",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Гнев Вораны"
+          },
+          "description": {
+            "ru": "40% увеличение урона снарядов\nДарует 1 свирепости при нанесении удара в ближнем бою"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Voranas_Fury",
+          "sourceKey": "kalguur_notable17"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable18",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Разумные предосторожности"
+          },
+          "description": {
+            "ru": "6% увеличение шанса блока\n40% увеличение восстановления здоровья от флаконов"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Sensible_Precautions",
+          "sourceKey": "kalguur_notable18"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable19",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Бей в слабое место"
+          },
+          "description": {
+            "ru": "30% повышение глобальной меткости\n10% увеличение силы накладываемого вами кровотечения"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Aim_for_the_Jugular",
+          "sourceKey": "kalguur_notable19"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable20",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "План выживания"
+          },
+          "description": {
+            "ru": "2% увеличение максимума здоровья\n40% увеличение восстановления маны от флаконов"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Survival_Plan",
+          "sourceKey": "kalguur_notable20"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable21",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Война на истощение"
+          },
+          "description": {
+            "ru": "10% увеличение количества похищенного здоровья\n20% увеличение силы накладываемого вами отравления"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "War_of_Attrition",
+          "sourceKey": "kalguur_notable21"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable22",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Партизанская тактика"
+          },
+          "description": {
+            "ru": "40% увеличение шанса наложения шока\n15% увеличение здоровья тотема"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Guerilla_Warfare",
+          "sourceKey": "kalguur_notable22"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable23",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "В путь-дорогу"
+          },
+          "description": {
+            "ru": "30% увеличение длительности эффекта флакона\n15% повышение скорости перезарядки боевых кличей"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "One_for_the_Road",
+          "sourceKey": "kalguur_notable23"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable24",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Направленный удар"
+          },
+          "description": {
+            "ru": "8% увеличение длительности эффекта умения\n20% усиление эффекта ваших умений меток"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Targeted_Strike",
+          "sourceKey": "kalguur_notable24"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable25",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Стальной бастион"
+          },
+          "description": {
+            "ru": "40% увеличение урона от стихий\n20% увеличение брони, уклонения и энергетического щита от щита в руках"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranDexNotable.webp",
+          "slug": "Steel_Bastion",
+          "sourceKey": "kalguur_notable25"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable26",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Могучая энергия"
+          },
+          "description": {
+            "ru": "10% повышение скорости сотворения чар\n10% шанс пронзить врага"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Forceful_Energies",
+          "sourceKey": "kalguur_notable26"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable27",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Зимний лес"
+          },
+          "description": {
+            "ru": "40% увеличение урона от холода\n+15 к ловкости"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Winter_Forest",
+          "sourceKey": "kalguur_notable27"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable28",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Бейся как одно целое"
+          },
+          "description": {
+            "ru": "8% повышение глобальной меткости\nПриспешники имеют 40% увеличение урона"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Fight_as_One",
+          "sourceKey": "kalguur_notable28"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable29",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Летние луга"
+          },
+          "description": {
+            "ru": "15% увеличение уклонения\nПриспешники имеют 30% увеличение максимума здоровья"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Summer_Meadows",
+          "sourceKey": "kalguur_notable29"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable30",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Друидская подготовка"
+          },
+          "description": {
+            "ru": "40% увеличение урона от чар\n10% увеличение количества получаемых зарядов флакона и оберега"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Druidic_Training",
+          "sourceKey": "kalguur_notable30"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable31",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Осквернённый взор"
+          },
+          "description": {
+            "ru": "30% повышение шанса критического удара для чар\n5% шанс ослепить врагов при нанесении удара"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Corrupted_Vision",
+          "sourceKey": "kalguur_notable31"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable32",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Рунические татуировки"
+          },
+          "description": {
+            "ru": "30% повышение скорости регенерации маны\n15% увеличение порога стихийных состояний"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Runic_Tattoos",
+          "sourceKey": "kalguur_notable32"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable33",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Шкуры и кожа"
+          },
+          "description": {
+            "ru": "+2% к максимальному сопротивлению холоду\n10% уменьшение длительности шока на вас"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Furs_and_Leather",
+          "sourceKey": "kalguur_notable33"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable34",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Внезапный град"
+          },
+          "description": {
+            "ru": "8% повышение скорости снарядов\n30% повышение скорости накопления шкалы заморозки"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Sudden_Hail",
+          "sourceKey": "kalguur_notable34"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable35",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Природная энергия"
+          },
+          "description": {
+            "ru": "40% увеличение максимума энергетического щита\n+10% к сопротивлению молнии"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Natural_Energies",
+          "sourceKey": "kalguur_notable35"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable36",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Форма дуба"
+          },
+          "description": {
+            "ru": "10% увеличение длительности эффекта оберега\n10% полученного урона восполняется в виде здоровья"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Oaken_Form",
+          "sourceKey": "kalguur_notable36"
+        },
+        {
+          "id": "heroic-tragedy.kalguur_notable37",
+          "jewel": "heroic-tragedy",
+          "name": {
+            "ru": "Паучий урок"
+          },
+          "description": {
+            "ru": "37% увеличение урона хаосом\nСнаряды с 6% шансом могут ударить по цепи при столкновении с окружающей средой"
+          },
+          "iconUrl": "https://cdn.poe2db.tw/image/Art/2DArt/SkillIcons/passives/KalguuranIntNotable.webp",
+          "slug": "Spiders_Lesson",
+          "sourceKey": "kalguur_notable37"
+        }
+      ]
+    }
+  ]
+}

@@ -353,6 +353,24 @@ const translations: Record<Locale, Record<string, string>> = {
     'favorites.panel_close_aria': 'Закрыть панель избранных аффиксов',
     // ARIA label for the ★ N badge button — opens the quick-select panel.
     'favorites.indicator_open_aria': 'Открыть панель избранных аффиксов ({n})',
+
+    // ─── Timeless Jewel page (iter 176) ───────────────────────────────
+    // Atlas-tree search regex generator for the 2 special jewels that
+    // replace atlas passives: Вечная ненависть + Трагедия героев.
+    'timeless_jewel.title': 'Особые самоцветы',
+    'timeless_jewel.subtitle': 'Подсветка нод древа атласа',
+    'timeless_jewel.selector_label': 'Самоцвет:',
+    'timeless_jewel.undying_hate': 'Вечная ненависть',
+    'timeless_jewel.heroic_tragedy': 'Трагедия героев',
+    'timeless_jewel.nodes_word': 'нод',
+    'timeless_jewel.search_placeholder': 'Поиск нод по названию или эффекту…',
+    'timeless_jewel.select_all': 'Все',
+    'timeless_jewel.clear_all': 'Сброс',
+    'timeless_jewel.list_aria': 'Список нод древа атласа',
+    'timeless_jewel.no_results': 'Ноды не найдены',
+    'timeless_jewel.atlas_semantics_title': 'Atlas-семантика',
+    'timeless_jewel.atlas_semantics_notice':
+      'На древе атласа работают только OR-паттерны (подсветить любое из названий). AND и НЕ не поддерживаются — поэтому выбраны только имена нод, без их эффектов.',
   },
 };
 

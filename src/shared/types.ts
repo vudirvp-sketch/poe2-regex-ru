@@ -225,3 +225,75 @@ export type ASTNode =
 //   the template ends with ': ##'. Verified in-game: ': ' anchor prevents FP from range
 //   notation because the rolled value appears right after ': ', while secondary numbers
 //   in range notation (e.g. '2' in '1(1-2)') do not. Pattern: "suffix.*: (number)".
+
+// ─── Atlas Timeless Jewel — new minimal data model (iter 176) ─────────────
+//
+// These types are intentionally SEPARATE from GameToken / CategoryData because
+// they model a fundamentally different domain:
+//
+//   GameToken       → item affixes (search via PoE2 inventory search bar)
+//                     Uses item-regex semantics: AND ✅, NOT ✅, multi-word OR ❌
+//                     Has ranges, familyKey, affix type, gender forms, etc.
+//
+//   AtlasNodeToken  → atlas tree passives replaced by Timeless Jewels
+//                     (Undying Hate + Heroic Tragedy). Search via atlas tree
+//                     search bar. Uses ATLAS-regex semantics (verified iter 175):
+//                       - multi-word OR ✅  `"А Б\|В Г"` works
+//                       - AND ❌            `"А" "Б"` = 0 matches
+//                       - NOT ❌            `"!А\|Б"` highlights ALL nodes
+//                     No ranges, no affix type, no gender forms — just a name.
+//
+// The `description` field is REQUIRED because the UI must show the player what
+// the node does (effects) so they can decide which nodes to highlight. The
+// generator uses ONLY `name` — description never enters the regex.
+//
+// See `docs/ATLAS_JEWEL_PLAN.md` for the full design rationale.
+
+/** Which Timeless Jewel a node belongs to. */
+export type AtlasJewelId = 'undying-hate' | 'heroic-tragedy';
+
+/**
+ * A single atlas-tree passive node that a Timeless Jewel can replace the
+ * original node with. Stored inside `AtlasJewelCategoryData.jewels[].nodes`.
+ */
+export interface AtlasNodeToken {
+  /** Stable unique id, format: `<jewelId>.<sourceKey>` (e.g. `undying-hate.abyss_notable_1`). */
+  id: string;
+  /** Which jewel replaces the original node with this one. */
+  jewel: AtlasJewelId;
+  /** Display name in the client locale — used BOTH for UI and for the regex. */
+  name: Record<Locale, string>;
+  /**
+   * Effect description shown in the UI (one or more mod lines joined with `\n`).
+   * REQUIRED — the player needs to see what the node gives before clicking.
+   * NEVER enters the regex (regex uses `name` only).
+   */
+  description: Record<Locale, string>;
+  /** Absolute CDN URL of the node icon (poe2db.tw hosted). */
+  iconUrl: string;
+  /** English slug from poe2db href (e.g. `Disciple_of_Darkness`). */
+  slug: string;
+  /** AlternatePassiveSkills key from poe2db `data-hover` (e.g. `abyss_notable_1`). */
+  sourceKey: string;
+}
+
+/**
+ * Top-level shape of `public/generated/timeless-jewel.json`.
+ * Contains metadata + an array of jewels, each with its full node list.
+ */
+export interface AtlasJewelCategoryData {
+  /** ISO timestamp of the parser run that produced this file. */
+  version: string;
+  /** Fixed literal — distinguishes from CategoryData.category. */
+  category: 'timeless-jewel';
+  /** Always `'poe2db.tw'`. */
+  source: string;
+  /** Optional SHA-256 prefix of source HTML (for staleness detection). */
+  sourceHash?: string;
+  /** The two Timeless Jewels + their node lists. */
+  jewels: Array<{
+    id: AtlasJewelId;
+    name: Record<Locale, string>;
+    nodes: AtlasNodeToken[];
+  }>;
+}
