@@ -19,7 +19,7 @@
  * ## iter 178 changes
  *
  *   - Header icon: `icons/jewel.png` → `icons/timeless-jewel.png` (dedicated
- *     purple cosmic gem — visually distinct from /jewel category).
+ *     icon — visually distinct from /jewel category; user-provided 128×128 RGBA).
  *   - MobileRegexBar integration: on mobile (< lg) the RegexOutput now
  *     renders in a sticky-bottom bar (same pattern as other category pages
  *     via `CategoryLayout`'s `mobileBar` slot). On desktop the layout is

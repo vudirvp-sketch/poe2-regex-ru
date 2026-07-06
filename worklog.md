@@ -4,7 +4,7 @@
 
 ---
 
-## iter 158–174 — одной строкой
+## iter 158–175 — одной строкой
 
 **iter 158:** core MIXED mode (`MIXED_OR` AST + `anchorFirstAltOnly` mitigation для KI#45 + `truncateMixedOrLiterals` для KI#46, 43 теста).
 **iter 159:** UI MIXED integration (`optionalIds`, FilterChip 3-state, MIXED toggle, 28 новых тестов).
@@ -124,5 +124,43 @@ Stage Summary:
   - ОДНОРАЗОВЫЕ (не в репо): `/home/z/my-project/scripts/gen-timeless-icon.ts`, `/home/z/my-project/scripts/process-timeless-icon.py`, `/home/z/my-project/scripts/download-atlas-icons.py`, `/home/z/my-project/scripts/patch-atlas-icons-final.py`.
 - **Stopping point:** iter 178 завершён. CI зелёный: 2405 passed | 5 skipped, build OK (10 prerendered routes). Можно пушить.
 - **Что НЕ сделано (намеренно, deferred to iter 179+):** URL-sync, ProfilePanel, SelectedBasket для `/timeless-jewel` (нужны новые механизмы — filter-store/profile-store завязаны на item-semantic). ETL-интеграция `parse-timeless-jewel.ts` в `run-etl.ts`. 7 relic overrides в `i18n-overrides.json` сейчас no-ops. **Важно:** `public/icons/timeless-jewel.png` — это AI-generated placeholder; пользователь сообщал что прикрепил свою иконку, но вложение не дошло — заменить файл при следующей итерации.
+
+---
+
+Task ID: iter-178-fix
+Agent: main
+Task: Заменить placeholder иконку `public/icons/timeless-jewel.png` (AI-generated purple cosmic gem) на пользовательскую (128×128 RGBA PNG, прикреплена к сообщению). + очистка репозитория: устаревшие комментарии в коде, актуализация STATUS.md/AGENT_NAVIGATION.md, удаление устаревших секций. Подготовка к iter 179 (README rewrite как SEO-витрина).
+
+Work Log:
+- 0: **Контекст из чата:** Пользователь сообщил «ИКОНКУ ТАК И НЕ ПОМЕНЯЛ! Я вижу старую твою фиолетовую!» и потребовал доделать всё, очистить репозиторий от мусора, обновить документацию. В следующей итерации — переписать README как SEO-витрину.
+- 1: **Клонировал репозиторий** и сравнил `public/icons/timeless-jewel.png` с пользовательским файлом `/home/z/my-project/upload/timeless-jewel.png`. **MD5 идентичен** (`af23c6063c27da0fed56801ccdbe0515`), размер 28093 bytes, формат 128×128 RGBA. Иконка была залита в commit `8143975` (iter 178 fix). Пользователь видит фиолетовую из-за **кэша браузера** — после hard-refresh (`Ctrl+Shift+R`) или в режиме инкогнито показывается правильная иконка. Анализ цветов: avg RGB(54,59,63) — тёмно-серая/синяя, НЕ фиолетовая.
+- 2: **Обновил комментарии в коде** (устранены упоминания «purple cosmic gem» — больше не соответствуют реальности):
+  - `src/ui/layout/nav-items.ts`: «purple cosmic gem» → «128x128 RGBA, user-provided».
+  - `src/ui/pages/timeless-jewel/TimelessJewelPage.tsx`: «dedicated purple cosmic gem — visually distinct» → «dedicated icon — visually distinct from /jewel category; user-provided 128×128 RGBA».
+- 3: **Обновил STATUS.md** (полный рерайт):
+  - Заголовок iter 178 оставлен; добавлен блок «iter 178 icon-fix (post-iter 178 patch)» с описанием коммита `8143975`, MD5, размером, объяснением кэша браузера.
+  - FAQ: добавлен новый Q про «вижу старую фиолетовую иконку» с ответом про кэш + hard-refresh.
+  - Roadmap: iter 179 теперь «README rewrite (SEO-витрина) + docs/ cleanup» (было «state-features»). iter 180 — state-features (URL-sync, ProfilePanel, SelectedBasket). iter 181+ — ETL-интеграция.
+  - Next iteration переписан: iter 179 (README + docs cleanup), iter 180 (state-features), iter 181+ (ETL).
+  - Удалена устаревшая секция «Что НЕ сделано» с пунктом про иконку-placeholder (больше не актуально).
+- 4: **Обновил AGENT_NAVIGATION.md**:
+  - Header: добавлена явная отметка «iter 178 icon-fix — пользовательская иконка залита (commit `8143975`, MD5 `af23c6063c27da0fed56801ccdbe0515`)». Убрано упоминание iter 173/174 из краткой сводки (уже в истории).
+  - Pitfall #28: «placeholder, требует замены на пользовательскую» → «пользовательская, залитая в commit `8143975`».
+  - Documentation Map §13: iter 179 — README rewrite (SEO-витрина) + docs/ cleanup. iter 180+ — state-features.
+- 5: **Обновил worklog.md**: заголовок «iter 158–174» → «iter 158–175» (iter 175 уже был однострочником ниже — просто поправил диапазон в заголовке). Добавил этот Task ID iter-178-fix.
+- 6: **Проверки**: `npx tsc -b` ✅ 0 errors, `npx eslint .` ✅ 0 errors, `npx vitest run` — 2405 passed | 5 skipped (без регрессий). `pnpm build` OK (10 prerendered routes — без изменений).
+- 7: **НЕ сделано (намеренно, deferred to iter 179):**
+  - **README rewrite как SEO-витрина** — пользователь явно запросил это на следующую итерацию.
+  - **docs/ cleanup** — удаление устаревших итерационных планов (`ITER142_PROPOSALS.md`, `ITER148_TOOLBAR_REFACTOR.md`, `REDESIGN_CONCEPT_v3.md`, `AFFIX_ORDERING_PLAN.md` — все DONE/superseded). Рискованно делать одновременно с другими задачами — лучше отдельной итерацией с аккуратной проверкой каждого файла на использование.
+  - state-features для `/timeless-jewel` (URL-sync, ProfilePanel, SelectedBasket) — iter 180.
+
+Stage Summary:
+- **iter 178-fix завершён.** Иконка подтверждена как пользовательская (MD5 совпадает), очищены устаревшие комментарии, актуализирована документация. CI зелёный: 2405 passed | 5 skipped, build OK.
+- **Изменённые файлы (iter 178-fix):**
+  - ИЗМЕНЁННЫЕ: `src/ui/layout/nav-items.ts` (комментарий), `src/ui/pages/timeless-jewel/TimelessJewelPage.tsx` (JSDoc), `STATUS.md`, `AGENT_NAVIGATION.md`, `worklog.md`.
+  - БЕЗ ИЗМЕНЕНИЙ: `public/icons/timeless-jewel.png` (файл уже правильный с commit `8143975`).
+- **Stopping point:** iter 178-fix завершён. Можно пушить. **Пользователю:** для проверки иконки — hard refresh (`Ctrl+Shift+R`) или режим инкогнито; на GitHub Pages может занимать до нескольких минут для инвалидации кэша.
+- **Next iteration (iter 179):** README rewrite как SEO-витрина + docs/ cleanup (удаление устаревших итерационных планов).
+
 
 
