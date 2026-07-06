@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-29T10:47:43.659Z",
+  "version": "2026-07-06T10:08:15.628Z",
   "category": "tablet",
   "source": "poe2db.tw",
   "tokens": [
@@ -46,20 +46,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_42klst",
+      "id": "tablet.mod_fhuzf8",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительный ритуальный круг"
+        "ru": "На карте можно встретить дополнительных ритуальных кругов: 1"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительный ритуальный круг"
+        "ru": "На карте можно встретить дополнительных ритуальных кругов: #"
       },
       "regex": {
-        "ru": "ительный р"
+        "ru": "ритуальных"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительный ритуальный круг"
+        "ru": "На карте можно встретить дополнительных ритуальных кругов: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -71,7 +71,9 @@
       "affix": "prefix",
       "tags": [],
       "ranges": [],
-      "values": [],
+      "values": [
+        1
+      ],
       "hasYofication": true,
       "yoficationPositions": [
         7,
@@ -128,7 +130,7 @@
         "ru": "На карте можно встретить дополнительных духов азмири: #"
       },
       "regex": {
-        "ru": "ьных духов"
+        "ru": "в азмири: 1"
       },
       "familyKey": {
         "ru": "На карте можно встретить дополнительных духов азмири: #"
@@ -155,20 +157,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_vc6g4q.3d4ulj",
+      "id": "tablet.mod_xhncu6.yctrln",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительную Сущность"
+        "ru": "На карте можно встретить дополнительные Сущности: 1"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительную Сущность"
+        "ru": "На карте можно встретить дополнительные Сущности: #"
       },
       "regex": {
-        "ru": " можно встретить дополнительную"
+        "ru": "ущности: 1"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительную Сущность"
+        "ru": "На карте можно встретить дополнительные Сущности: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -180,20 +182,16 @@
       "affix": "prefix",
       "tags": [],
       "ranges": [],
-      "values": [],
+      "values": [
+        1
+      ],
       "hasYofication": true,
       "yoficationPositions": [
         7,
         19,
         33
       ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "без",
-          "бездну"
-        ]
-      }
+      "level": 1
     },
     {
       "id": "tablet.mod_wrlukt",
@@ -522,20 +520,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_2pzo3q",
+      "id": "tablet.mod_3ywy8f",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Туман Делириума на карте порождает на (12—26)% больше осколков зеркал"
+        "ru": "Туман Делириума на карте порождает увеличенное на (12—26)% количество осколков зеркала"
       },
       "rawTextTemplate": {
-        "ru": "Туман Делириума на карте порождает на (##)% больше осколков зеркал"
+        "ru": "Туман Делириума на карте порождает увеличенное на ##% количество осколков зеркала"
       },
       "regex": {
-        "ru": "осколков зеркал"
+        "ru": "осколков зеркала"
       },
       "familyKey": {
-        "ru": "Туман Делириума на карте порождает на (#)% больше осколков зеркал"
+        "ru": "Туман Делириума на карте порождает увеличенное на #% количество осколков зеркала"
       },
       "regexPrefix": {
         "ru": ""
@@ -553,8 +551,13 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        23,
+        41,
+        64
+      ],
       "level": 1
     },
     {
@@ -637,20 +640,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_swdilk",
+      "id": "tablet.mod_aiin1b",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительного духа азмири"
+        "ru": "На карте можно встретить дополнительных духов азмири: (1—2)"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительного духа азмири"
+        "ru": "На карте можно встретить дополнительных духов азмири: ##"
       },
       "regex": {
-        "ru": "нительного"
+        "ru": " можно встретить дополнительных д"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительного духа азмири"
+        "ru": "На карте можно встретить дополнительных духов азмири: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -661,47 +664,12 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "редкого"
+      "ranges": [
+        [
+          1,
+          2
         ]
-      }
-    },
-    {
-      "id": "tablet.mod_vc6g4q",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте можно встретить дополнительную Сущность"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительную Сущность"
-      },
-      "regex": {
-        "ru": " можно встретить дополнительную"
-      },
-      "familyKey": {
-        "ru": "На карте можно встретить дополнительную Сущность"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -713,25 +681,30 @@
       "regexExclude": {
         "ru": [
           "без",
-          "бездну"
+          "ритуальных",
+          "бродячих",
+          "редких",
+          "алтарей:",
+          "ларцов:",
+          "бездн:"
         ]
       }
     },
     {
-      "id": "tablet.mod_sglt63",
+      "id": "tablet.mod_1xyz3h",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительные Сущности: (1—2)"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительные Сущности: ##"
       },
       "regex": {
-        "ru": " можно встретить дополнительный а"
+        "ru": " можно встретить дополнительные"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительные Сущности: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -742,7 +715,104 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_kcgzmd",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительных алтарей: (1—2)"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительных алтарей: ##"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительных а"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительных алтарей: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        7,
+        19,
+        33,
+        45
+      ],
+      "level": 1,
+      "regexExclude": {
+        "ru": [
+          "без",
+          "ритуальных",
+          "бродячих",
+          "духов",
+          "редких",
+          "ларцов:",
+          "бездн:"
+        ]
+      }
+    },
+    {
+      "id": "tablet.mod_axi6zh",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "На карте можно встретить дополнительных ларцов: (1—2)"
+      },
+      "rawTextTemplate": {
+        "ru": "На карте можно встретить дополнительных ларцов: ##"
+      },
+      "regex": {
+        "ru": " можно встретить дополнительных л"
+      },
+      "familyKey": {
+        "ru": "На карте можно встретить дополнительных ларцов: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          1,
+          2
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -753,50 +823,13 @@
       "level": 1,
       "regexExclude": {
         "ru": [
-          "ритуальный",
-          "ларец"
-        ]
-      }
-    },
-    {
-      "id": "tablet.mod_a94wuy",
-      "category": "tablet",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте можно встретить дополнительный ларец"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительный ларец"
-      },
-      "regex": {
-        "ru": " можно встретить дополнительный л"
-      },
-      "familyKey": {
-        "ru": "На карте можно встретить дополнительный ларец"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        19,
-        33,
-        43
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "ритуальный",
-          "алтарь"
+          "без",
+          "ритуальных",
+          "бродячих",
+          "духов",
+          "редких",
+          "алтарей:",
+          "бездн:"
         ]
       }
     },
@@ -1003,20 +1036,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_a1jzo3",
+      "id": "tablet.mod_7g6lon",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
+        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно (1—3) раза"
       },
       "rawTextTemplate": {
-        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
+        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно ## раза"
       },
       "regex": {
         "ru": "т обновить"
       },
       "familyKey": {
-        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно 1 раз"
+        "ru": "Алтари Ритуала на карте позволяют обновить награды дополнительно # раза"
       },
       "regexPrefix": {
         "ru": ""
@@ -1027,7 +1060,12 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
+      "ranges": [
+        [
+          1,
+          3
+        ]
+      ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
@@ -1073,9 +1111,6 @@
       "level": 1,
       "regexPrefixContext": {
         "ru": "снова"
-      },
-      "regexExclude": {
-        "ru": []
       }
     },
     {
@@ -1204,20 +1239,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_jkqo0p",
+      "id": "tablet.mod_owp83e",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(30—60)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
+        "ru": "Сундуки маяков ваал на карте с увеличенным на (30—60)% шансом будут редкими"
       },
       "rawTextTemplate": {
-        "ru": "(##)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
+        "ru": "Сундуки маяков ваал на карте с увеличенным на ##% шансом будут редкими"
       },
       "regex": {
-        "ru": "окажутся редкими"
+        "ru": "будут редкими"
       },
       "familyKey": {
-        "ru": "(#)% увеличение шанса, что сундуки Маяков Ваал на карте окажутся редкими"
+        "ru": "Сундуки маяков ваал на карте с увеличенным на #% шансом будут редкими"
       },
       "regexPrefix": {
         "ru": ""
@@ -1235,8 +1270,12 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        27,
+        37,
+        69
+      ],
       "level": 1
     },
     {
@@ -1283,20 +1322,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_df7zhf",
+      "id": "tablet.mod_ox1p9r",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(10—25)% шанс добавить на карту уникального монстра Маяка Ваал"
+        "ru": "(10—25)% шанс добавить уникального монстра маяков ваал на карту"
       },
       "rawTextTemplate": {
-        "ru": "(##)% шанс добавить на карту уникального монстра Маяка Ваал"
+        "ru": "##% шанс добавить уникального монстра маяков ваал на карту"
       },
       "regex": {
-        "ru": "Маяка Ваал"
+        "ru": "маяков ваал на карту"
       },
       "familyKey": {
-        "ru": "(#)% шанс добавить на карту уникального монстра Маяка Ваал"
+        "ru": "#% шанс добавить уникального монстра маяков ваал на карту"
       },
       "regexPrefix": {
         "ru": ""
@@ -1319,20 +1358,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_v2ddkt",
+      "id": "tablet.mod_s2682p",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(5—10)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
+        "ru": "(5—10)% шанс получения дополнительного кристала от маяков ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "(##)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
+        "ru": "##% шанс получения дополнительного кристала от маяков ваал на карте"
       },
       "regex": {
-        "ru": "с Маяков Ваал на карте"
+        "ru": "от маяков ваал на карте"
       },
       "familyKey": {
-        "ru": "(#)% шанс получить дополнительный кристалл с Маяков Ваал на карте"
+        "ru": "#% шанс получения дополнительного кристала от маяков ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -1350,25 +1389,29 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18,
+        31,
+        70
+      ],
       "level": 1
     },
     {
-      "id": "tablet.mod_h8udqa",
+      "id": "tablet.mod_qjsr1",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(25—50)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
+        "ru": "Маяки ваал на карте с увеличенным на (25—50)% шансом могут призвать дополнительных монстров"
       },
       "rawTextTemplate": {
-        "ru": "(##)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
+        "ru": "Маяки ваал на карте с увеличенным на ##% шансом могут призвать дополнительных монстров"
       },
       "regex": {
-        "ru": "дополнительных монстров на карте"
+        "ru": "дополнительных монстров"
       },
       "familyKey": {
-        "ru": "(#)% увеличение шанса, что Маяки Ваал призовут дополнительных монстров на карте"
+        "ru": "Маяки ваал на карте с увеличенным на #% шансом могут призвать дополнительных монстров"
       },
       "regexPrefix": {
         "ru": ""
@@ -1386,25 +1429,29 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18,
+        28,
+        76
+      ],
       "level": 1
     },
     {
-      "id": "tablet.mod_i7llgb",
+      "id": "tablet.mod_8i4o6o",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(30—60)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
+        "ru": "(30—60)% шанс появления дополнительных групп монстров вокруг маяков ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "(##)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
+        "ru": "##% шанс появления дополнительных групп монстров вокруг маяков ваал на карте"
       },
       "regex": {
-        "ru": "дополнительных групп монстров вокруг Маяков Ваал на карте"
+        "ru": "дополнительных групп монстров вокруг маяков ваал на карте"
       },
       "familyKey": {
-        "ru": "(#)% шанс появления дополнительных групп монстров вокруг Маяков Ваал на карте"
+        "ru": "#% шанс появления дополнительных групп монстров вокруг маяков ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -1422,25 +1469,29 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        19,
+        32,
+        80
+      ],
       "level": 1
     },
     {
-      "id": "tablet.mod_lqwqxg",
+      "id": "tablet.mod_5em1z1",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "1 дополнительная группа монстров вокруг Маяков Ваал на карте"
+        "ru": "1 дополнительные группы монстров вокруг маяков ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "# дополнительная группа монстров вокруг Маяков Ваал на карте"
+        "ru": "# дополнительные группы монстров вокруг маяков ваал на карте"
       },
       "regex": {
-        "ru": "группа монстров вокруг Маяков Ваал на карте"
+        "ru": "группы монстров вокруг маяков ваал на карте"
       },
       "familyKey": {
-        "ru": "# дополнительная группа монстров вокруг Маяков Ваал на карте"
+        "ru": "# дополнительные группы монстров вокруг маяков ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -1455,25 +1506,28 @@
       "values": [
         1
       ],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        10,
+        59
+      ],
       "level": 1
     },
     {
-      "id": "tablet.mod_q7wgu2",
+      "id": "tablet.mod_p5hgos",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(10—30)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
+        "ru": "(10—30)% увеличение размера групп монстров вокруг маяков ваал на карте"
       },
       "rawTextTemplate": {
-        "ru": "(##)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
+        "ru": "##% увеличение размера групп монстров вокруг маяков ваал на карте"
       },
       "regex": {
-        "ru": "размера групп монстров вокруг Маяков Ваал на карте"
+        "ru": "размера групп монстров вокруг маяков ваал на карте"
       },
       "familyKey": {
-        "ru": "(#)% увеличение размера групп монстров вокруг Маяков Ваал на карте"
+        "ru": "#% увеличение размера групп монстров вокруг маяков ваал на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -1491,8 +1545,12 @@
         ]
       ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        24,
+        69
+      ],
       "level": 1
     },
     {
@@ -1652,20 +1710,20 @@
       "manualOverride": true
     },
     {
-      "id": "tablet.mod_m17m7u",
+      "id": "tablet.mod_6qmap9",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительную Бездну"
+        "ru": "На карте можно встретить дополнительных Бездн: 1"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительную Бездну"
+        "ru": "На карте можно встретить дополнительных Бездн: #"
       },
       "regex": {
-        "ru": "ную бездну"
+        "ru": "ных бездн:"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительную Бездну"
+        "ru": "На карте можно встретить дополнительных Бездн: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -1677,7 +1735,9 @@
       "affix": "suffix",
       "tags": [],
       "ranges": [],
-      "values": [],
+      "values": [
+        1
+      ],
       "hasYofication": true,
       "yoficationPositions": [
         7,
@@ -1763,9 +1823,6 @@
       "hasYofication": false,
       "yoficationPositions": [],
       "level": 1,
-      "regexPrefixContext": {
-        "ru": "провал,"
-      },
       "manualOverride": true
     },
     {
@@ -1925,20 +1982,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_al1nsy",
+      "id": "tablet.mod_3ulhrh",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации"
+        "ru": "Нестабильные Разломы на карте порождают (1—3) дополнительных редких монстров при стабилизации"
       },
       "rawTextTemplate": {
-        "ru": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации"
+        "ru": "Нестабильные Разломы на карте порождают ## дополнительных редких монстров при стабилизации"
       },
       "regex": {
-        "ru": "неста"
+        "ru": "стабилизации"
       },
       "familyKey": {
-        "ru": "Нестабильные Разломы на карте порождают дополнительного редкого монстра при стабилизации"
+        "ru": "Нестабильные Разломы на карте порождают # дополнительных редких монстров при стабилизации"
       },
       "regexPrefix": {
         "ru": ""
@@ -1949,10 +2006,181 @@
       },
       "affix": "suffix",
       "tags": [],
-      "ranges": [],
+      "ranges": [
+        [
+          1,
+          3
+        ]
+      ],
       "values": [],
-      "hasYofication": false,
-      "yoficationPositions": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        1,
+        28,
+        54,
+        62
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_5a1s0e",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "В нестабильных Разломах на карте с увеличенным на (20—50)% шансом может появиться Руун, маршал Ксешта"
+      },
+      "rawTextTemplate": {
+        "ru": "В нестабильных Разломах на карте с увеличенным на ##% шансом может появиться Руун, маршал Ксешта"
+      },
+      "regex": {
+        "ru": "маршал Ксешта"
+      },
+      "familyKey": {
+        "ru": "В нестабильных Разломах на карте с увеличенным на #% шансом может появиться Руун, маршал Ксешта"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          50
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        3,
+        31,
+        41,
+        69,
+        97
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_hkrqni",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дары утробы на карте с (10—30)% шансом могут выпасть на один уровень выше"
+      },
+      "rawTextTemplate": {
+        "ru": "Дары утробы на карте с ##% шансом могут выпасть на один уровень выше"
+      },
+      "regex": {
+        "ru": "уровень выше"
+      },
+      "familyKey": {
+        "ru": "Дары утробы на карте с #% шансом могут выпасть на один уровень выше"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          10,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        19,
+        72
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_hatr30",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—60)% увеличение количества находимых на карте даров утробы"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества находимых на карте даров утробы"
+      },
+      "regex": {
+        "ru": "даров утробы"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества находимых на карте даров утробы"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          60
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        48
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_hlfpb9",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(30—60)% увеличение количества находимой на карте крови улья"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества находимой на карте крови улья"
+      },
+      "regex": {
+        "ru": "крови улья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества находимой на карте крови улья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          60
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        48
+      ],
       "level": 1
     },
     {
@@ -1992,20 +2220,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_9lbzqh",
+      "id": "tablet.mod_phqqax",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Карта обладает (1—2) дополнительным случайным свойством"
+        "ru": "Карта обладает (1—2) дополнительными случайными свойствами"
       },
       "rawTextTemplate": {
-        "ru": "Карта обладает ## дополнительным случайным свойством"
+        "ru": "Карта обладает ## дополнительными случайными свойствами"
       },
       "regex": {
-        "ru": "случайным свойством"
+        "ru": "случайными свойствами"
       },
       "familyKey": {
-        "ru": "Карта обладает # дополнительным случайным свойством"
+        "ru": "Карта обладает # дополнительными случайными свойствами"
       },
       "regexPrefix": {
         "ru": ""
@@ -2040,7 +2268,7 @@
         "ru": "На карте с увеличенным на ##% шансом можно встретить ритуальный круг"
       },
       "regex": {
-        "ru": "встретить ритуальный круг"
+        "ru": "ритуальный круг"
       },
       "familyKey": {
         "ru": "На карте с увеличенным на #% шансом можно встретить ритуальный круг"
@@ -2066,6 +2294,46 @@
         7,
         17,
         53
+      ],
+      "level": 1
+    },
+    {
+      "id": "tablet.mod_4qpjzp",
+      "category": "tablet",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(5—20)% увеличение эффективности редких монстров Разлома на карте"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение эффективности редких монстров Разлома на карте"
+      },
+      "regex": {
+        "ru": "Разлома на карте"
+      },
+      "familyKey": {
+        "ru": "#% увеличение эффективности редких монстров Разлома на карте"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        34,
+        64
       ],
       "level": 1
     },
@@ -2186,20 +2454,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_as23xk.2po3dj",
+      "id": "tablet.mod_as23xk.63l845",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительный ларец"
+        "ru": "На карте можно встретить дополнительных ларцов: 1"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительный ларец"
+        "ru": "На карте можно встретить дополнительных ларцов: #"
       },
       "regex": {
-        "ru": " можно встретить дополнительный л"
+        "ru": "х ларцов: 1"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительный ларец"
+        "ru": "На карте можно встретить дополнительных ларцов: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -2211,21 +2479,16 @@
       "affix": "suffix",
       "tags": [],
       "ranges": [],
-      "values": [],
+      "values": [
+        1
+      ],
       "hasYofication": true,
       "yoficationPositions": [
         7,
         19,
-        33,
-        43
+        33
       ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "ритуальный",
-          "алтарь"
-        ]
-      }
+      "level": 1
     },
     {
       "id": "tablet.mod_xpt1fq",
@@ -2268,20 +2531,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_as23xk.i41rig",
+      "id": "tablet.mod_as23xk.ckza9l",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительных алтарей: 1"
       },
       "rawTextTemplate": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительных алтарей: #"
       },
       "regex": {
-        "ru": " можно встретить дополнительный а"
+        "ru": "алтарей: 1"
       },
       "familyKey": {
-        "ru": "На карте можно встретить дополнительный алтарь"
+        "ru": "На карте можно встретить дополнительных алтарей: #"
       },
       "regexPrefix": {
         "ru": ""
@@ -2293,20 +2556,17 @@
       "affix": "suffix",
       "tags": [],
       "ranges": [],
-      "values": [],
+      "values": [
+        1
+      ],
       "hasYofication": true,
       "yoficationPositions": [
         7,
         19,
-        33
+        33,
+        45
       ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "ритуальный",
-          "ларец"
-        ]
-      }
+      "level": 1
     },
     {
       "id": "tablet.mod_swvjcv",
@@ -2599,20 +2859,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_6nl4q9",
+      "id": "tablet.mod_r03pjr",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "Плотность Делириума на карте увеличивается на (15—30)% быстрее в зависимости от расстояния до Зеркала"
+        "ru": "Туман Делириума на карте накладывает (15—30)% увеличение бредовости на игроков"
       },
       "rawTextTemplate": {
-        "ru": "Плотность Делириума на карте увеличивается на ##% быстрее в зависимости от расстояния до Зеркала"
+        "ru": "Туман Делириума на карте накладывает ##% увеличение бредовости на игроков"
       },
       "regex": {
-        "ru": "до Зеркала"
+        "ru": "на игроков"
       },
       "familyKey": {
-        "ru": "Плотность Делириума на карте увеличивается на #% быстрее в зависимости от расстояния до Зеркала"
+        "ru": "Туман Делириума на карте накладывает #% увеличение бредовости на игроков"
       },
       "regexPrefix": {
         "ru": ""
@@ -2632,9 +2892,10 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        11,
-        27,
-        60
+        7,
+        23,
+        52,
+        59
       ],
       "level": 1
     },
@@ -2972,20 +3233,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_vbi0im",
+      "id": "tablet.mod_9ju9he",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "+(1—2) реликт в Экспедициях на карте"
+        "ru": "+(1—2) реликта(-ов) в Экспедициях на карте"
       },
       "rawTextTemplate": {
-        "ru": "+## реликт в Экспедициях на карте"
+        "ru": "+## реликта(-ов) в Экспедициях на карте"
       },
       "regex": {
-        "ru": "Экспедициях на карте"
+        "ru": "кспедициях"
       },
       "familyKey": {
-        "ru": "+# реликт в Экспедициях на карте"
+        "ru": "+# реликта(-ов) в Экспедициях на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -3006,8 +3267,8 @@
       "hasYofication": true,
       "yoficationPositions": [
         8,
-        20,
-        35
+        26,
+        41
       ],
       "level": 1
     },
@@ -3096,20 +3357,20 @@
       "level": 1
     },
     {
-      "id": "tablet.mod_xz25i0",
+      "id": "tablet.mod_9zwnaw",
       "category": "tablet",
       "origin": "normal",
       "rawText": {
-        "ru": "(5—15)% увеличение плотности монстров в Разломах на карте"
+        "ru": "(5—15)% увеличение размера групп монстров в Разломах на карте"
       },
       "rawTextTemplate": {
-        "ru": "##% увеличение плотности монстров в Разломах на карте"
+        "ru": "##% увеличение размера групп монстров в Разломах на карте"
       },
       "regex": {
-        "ru": "Разломах на карте"
+        "ru": "в Разломах на карте"
       },
       "familyKey": {
-        "ru": "#% увеличение плотности монстров в Разломах на карте"
+        "ru": "#% увеличение размера групп монстров в Разломах на карте"
       },
       "regexPrefix": {
         "ru": ""
@@ -3130,7 +3391,8 @@
       "hasYofication": true,
       "yoficationPositions": [
         14,
-        56
+        23,
+        60
       ],
       "level": 1
     },
@@ -3313,127 +3575,76 @@
     }
   ],
   "optimizationTable": {
-    "tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
+    "tablet.mod_aiin1b:tablet.mod_od9m77.f2md77": {
       "ids": [
-        "tablet.mod_vc6g4q",
-        "tablet.mod_vc6g4q.3d4ulj"
+        "tablet.mod_aiin1b",
+        "tablet.mod_od9m77.f2md77"
       ],
       "regex": {
-        "ru": " можно встретить дополнительную"
+        "ru": "в азмири: 1"
+      },
+      "weight": 11,
+      "count": 2
+    },
+    "tablet.mod_1xyz3h:tablet.mod_xhncu6.yctrln": {
+      "ids": [
+        "tablet.mod_1xyz3h",
+        "tablet.mod_xhncu6.yctrln"
+      ],
+      "regex": {
+        "ru": "ущности: 1"
+      },
+      "weight": 10,
+      "count": 2
+    },
+    "tablet.mod_as23xk.ckza9l:tablet.mod_kcgzmd": {
+      "ids": [
+        "tablet.mod_as23xk.ckza9l",
+        "tablet.mod_kcgzmd"
+      ],
+      "regex": {
+        "ru": " можно встретить дополнительных"
       },
       "weight": 31,
-      "count": 2,
-      "regexExclude": {
-        "ru": [
-          "без",
-          "бездну"
-        ]
-      }
+      "count": 2
     },
-    "tablet.mod_as23xk.i41rig:tablet.mod_sglt63": {
+    "tablet.mod_as23xk.63l845:tablet.mod_axi6zh": {
       "ids": [
-        "tablet.mod_as23xk.i41rig",
-        "tablet.mod_sglt63"
+        "tablet.mod_as23xk.63l845",
+        "tablet.mod_axi6zh"
       ],
       "regex": {
-        "ru": " можно встретить дополнительный"
+        "ru": " можно встретить дополнительных"
       },
       "weight": 31,
-      "count": 2,
-      "regexExclude": {
-        "ru": [
-          "ритуальный",
-          "ларец"
-        ]
-      }
+      "count": 2
     },
-    "tablet.mod_a94wuy:tablet.mod_as23xk.2po3dj": {
-      "ids": [
-        "tablet.mod_a94wuy",
-        "tablet.mod_as23xk.2po3dj"
-      ],
-      "regex": {
-        "ru": " можно встретить дополнительный"
-      },
-      "weight": 31,
-      "count": 2,
-      "regexExclude": {
-        "ru": [
-          "ритуальный",
-          "алтарь"
-        ]
-      }
-    },
-    "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_jkqo0p:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
-      "ids": [
-        "tablet.mod_h8udqa",
-        "tablet.mod_i7llgb",
-        "tablet.mod_jkqo0p",
-        "tablet.mod_lqwqxg",
-        "tablet.mod_q7wgu2",
-        "tablet.mod_v2ddkt"
-      ],
-      "regex": {
-        "ru": "Rare.*in Map|from Vaal Beacons.*in Map|Monsters.*in Map|pack(s) of Monsters around Vaal Beacons.*in Map|for Monsters around Vaal Beacons.*in Map"
-      },
-      "weight": 144,
-      "count": 6
-    },
-    "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
-      "ids": [
-        "tablet.mod_h8udqa",
-        "tablet.mod_i7llgb",
-        "tablet.mod_lqwqxg",
-        "tablet.mod_q7wgu2",
-        "tablet.mod_v2ddkt"
-      ],
-      "regex": {
-        "ru": "from Vaal Beacon.*s in Map|Monster.*s in Map|pack(s) of Monsters around Vaal Beacon.*s in Map|for Monsters around Vaal Beacon.*s in Map"
-      },
-      "weight": 135,
-      "count": 5
-    },
-    "tablet.mod_df7zhf:tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_jkqo0p:tablet.mod_lqwqxg:tablet.mod_q7wgu2:tablet.mod_v2ddkt": {
-      "ids": [
-        "tablet.mod_df7zhf",
-        "tablet.mod_h8udqa",
-        "tablet.mod_i7llgb",
-        "tablet.mod_jkqo0p",
-        "tablet.mod_lqwqxg",
-        "tablet.mod_q7wgu2",
-        "tablet.mod_v2ddkt"
-      ],
-      "regex": {
-        "ru": "to the.*Map|Rare in.*Map|from Vaal Beacons in.*Map|Monsters in.*Map|pack(s) of Monsters around Vaal Beacons in.*Map|for Monsters around Vaal Beacons in.*Map"
-      },
-      "weight": 156,
-      "count": 7
-    },
-    "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_o3kmu5:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
+    "tablet.mod_3mbysh:tablet.mod_apm69j:tablet.mod_bunso1:tablet.mod_swvjcv:tablet.mod_xpt1fq": {
       "ids": [
         "tablet.mod_3mbysh",
         "tablet.mod_apm69j",
         "tablet.mod_bunso1",
-        "tablet.mod_o3kmu5",
         "tablet.mod_swvjcv",
         "tablet.mod_xpt1fq"
       ],
       "regex": {
-        "ru": "встретить.*бродячих изгнанников|встретить.*ритуальный круг|встретить.*духов азмири|встретить.*Сущности|встретить.*ларцы|встретить.*алтари"
+        "ru": "встретить.*бродячих изгнанников|встретить.*духов азмири|встретить.*Сущности|встретить.*ларцы|встретить.*алтари"
       },
-      "weight": 137,
-      "count": 6
+      "weight": 110,
+      "count": 5
     },
-    "tablet.mod_i7llgb:tablet.mod_lqwqxg": {
+    "tablet.mod_8i4o6o:tablet.mod_l616q8:tablet.mod_qjsr1:tablet.mod_umh3r9": {
       "ids": [
-        "tablet.mod_i7llgb",
-        "tablet.mod_lqwqxg"
+        "tablet.mod_8i4o6o",
+        "tablet.mod_l616q8",
+        "tablet.mod_qjsr1",
+        "tablet.mod_umh3r9"
       ],
       "regex": {
-        "ru": "pack(s) of Monsters around Vaal Beacons in Map"
+        "ru": "дополнительны.*е Бездны|дополнительны.*х монстров|дополнительны.*х групп монстров вокруг маяков ваал на карте|дополнительны.*м свойством"
       },
-      "weight": 46,
-      "count": 2
+      "weight": 136,
+      "count": 4
     },
     "tablet.mod_2jjyh7:tablet.mod_9l6crt": {
       "ids": [
@@ -3458,20 +3669,18 @@
       "weight": 86,
       "count": 3
     },
-    "tablet.mod_a94wuy:tablet.mod_as23xk.2po3dj:tablet.mod_as23xk.i41rig:tablet.mod_sglt63:tablet.mod_vc6g4q:tablet.mod_vc6g4q.3d4ulj": {
+    "tablet.mod_1xyz3h:tablet.mod_aiin1b:tablet.mod_axi6zh:tablet.mod_kcgzmd": {
       "ids": [
-        "tablet.mod_a94wuy",
-        "tablet.mod_as23xk.2po3dj",
-        "tablet.mod_as23xk.i41rig",
-        "tablet.mod_sglt63",
-        "tablet.mod_vc6g4q",
-        "tablet.mod_vc6g4q.3d4ulj"
+        "tablet.mod_1xyz3h",
+        "tablet.mod_aiin1b",
+        "tablet.mod_axi6zh",
+        "tablet.mod_kcgzmd"
       ],
       "regex": {
-        "ru": " можно встретить дополнительн.*ую| можно встретить дополнительн.*ый"
+        "ru": " можно встретить дополнительны.*х| можно встретить дополнительны.*е"
       },
       "weight": 67,
-      "count": 6
+      "count": 4
     },
     "tablet.mod_2jjyh7:tablet.mod_f87zsk:tablet.mod_guq13l:tablet.mod_yvoqjl": {
       "ids": [
@@ -3496,6 +3705,18 @@
       },
       "weight": 23,
       "count": 2
+    },
+    "tablet.mod_qjsr1:tablet.mod_wrlukt:tablet.mod_yvoqjl": {
+      "ids": [
+        "tablet.mod_qjsr1",
+        "tablet.mod_wrlukt",
+        "tablet.mod_yvoqjl"
+      ],
+      "regex": {
+        "ru": "увеличение эффективности.*монстров|дополнительных.*монстров|количество.*монстров"
+      },
+      "weight": 80,
+      "count": 3
     },
     "tablet.implicit.abyss:tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [
@@ -3523,6 +3744,17 @@
       "weight": 81,
       "count": 4
     },
+    "tablet.mod_p5hgos:tablet.mod_vx5kd7": {
+      "ids": [
+        "tablet.mod_p5hgos",
+        "tablet.mod_vx5kd7"
+      ],
+      "regex": {
+        "ru": "разме.*ра групп монстров вокруг маяков ваал.*на карте|разме.*щения взрывчатки в событии Экспедиции.*на карте"
+      },
+      "weight": 108,
+      "count": 2
+    },
     "tablet.mod_1vman9:tablet.mod_iz241m:tablet.mod_l616q8": {
       "ids": [
         "tablet.mod_1vman9",
@@ -3535,28 +3767,6 @@
       "weight": 58,
       "count": 3
     },
-    "tablet.mod_l616q8:tablet.mod_umh3r9": {
-      "ids": [
-        "tablet.mod_l616q8",
-        "tablet.mod_umh3r9"
-      ],
-      "regex": {
-        "ru": "дополнительны.*е Бездны|дополнительны.*м свойством"
-      },
-      "weight": 50,
-      "count": 2
-    },
-    "tablet.mod_9lbzqh:tablet.mod_umh3r9": {
-      "ids": [
-        "tablet.mod_9lbzqh",
-        "tablet.mod_umh3r9"
-      ],
-      "regex": {
-        "ru": "случай.*ным свойством|дополнитель.*ным свойством"
-      },
-      "weight": 48,
-      "count": 2
-    },
     "tablet.mod_wrlukt:tablet.mod_yr6d7c": {
       "ids": [
         "tablet.mod_wrlukt",
@@ -3566,6 +3776,28 @@
         "ru": "увеличение.*эффективности монстров|увеличение.*размера групп монстров на карте"
       },
       "weight": 78,
+      "count": 2
+    },
+    "tablet.mod_3ywy8f:tablet.mod_g8qfur": {
+      "ids": [
+        "tablet.mod_3ywy8f",
+        "tablet.mod_g8qfur"
+      ],
+      "regex": {
+        "ru": "осколков.*зеркал.*а|осколков.*Симулякр.*а"
+      },
+      "weight": 41,
+      "count": 2
+    },
+    "tablet.mod_fhuzf8:tablet.mod_o3kmu5": {
+      "ids": [
+        "tablet.mod_fhuzf8",
+        "tablet.mod_o3kmu5"
+      ],
+      "regex": {
+        "ru": "ритуальны.*х|ритуальны.*й круг"
+      },
+      "weight": 30,
       "count": 2
     },
     "tablet.mod_9l6crt:tablet.mod_gnrsv2": {
@@ -3590,16 +3822,18 @@
       "weight": 32,
       "count": 2
     },
-    "tablet.mod_wrlukt:tablet.mod_yvoqjl": {
+    "tablet.mod_as23xk.63l845:tablet.mod_as23xk.ckza9l:tablet.mod_od9m77.f2md77:tablet.mod_xhncu6.yctrln": {
       "ids": [
-        "tablet.mod_wrlukt",
-        "tablet.mod_yvoqjl"
+        "tablet.mod_as23xk.63l845",
+        "tablet.mod_as23xk.ckza9l",
+        "tablet.mod_od9m77.f2md77",
+        "tablet.mod_xhncu6.yctrln"
       ],
       "regex": {
-        "ru": "увеличение эффективности.*монстров|количество.*монстров"
+        "ru": "х ларцов.*: 1|в азмири.*: 1|ущности.*: 1|алтарей.*: 1"
       },
-      "weight": 55,
-      "count": 2
+      "weight": 53,
+      "count": 4
     },
     "tablet.mod_93pla5:tablet.mod_gztigx": {
       "ids": [
@@ -3610,6 +3844,17 @@
         "ru": "волшебны.*х монстров на карте|волшебны.*ми"
       },
       "weight": 42,
+      "count": 2
+    },
+    "tablet.mod_owp83e:tablet.mod_vj1bxt": {
+      "ids": [
+        "tablet.mod_owp83e",
+        "tablet.mod_vj1bxt"
+      ],
+      "regex": {
+        "ru": "стать.*редкими|будут.*редкими"
+      },
+      "weight": 29,
       "count": 2
     },
     "tablet.implicit.ritual_altars:tablet.mod_swvjcv": {
@@ -3634,6 +3879,18 @@
       "weight": 25,
       "count": 2
     },
+    "tablet.mod_1xyz3h:tablet.mod_8rpt3p:tablet.mod_kbdifj": {
+      "ids": [
+        "tablet.mod_1xyz3h",
+        "tablet.mod_8rpt3p",
+        "tablet.mod_kbdifj"
+      ],
+      "regex": {
+        "ru": "отложен.*ные| можно встретить дополнитель.*ные|уникаль.*ные"
+      },
+      "weight": 59,
+      "count": 3
+    },
     "tablet.mod_4ej297:tablet.mod_7jrajl:tablet.mod_7ms10f": {
       "ids": [
         "tablet.mod_4ej297",
@@ -3646,6 +3903,30 @@
       "weight": 38,
       "count": 3
     },
+    "tablet.mod_aiin1b:tablet.mod_axi6zh:tablet.mod_fhuzf8:tablet.mod_kcgzmd": {
+      "ids": [
+        "tablet.mod_aiin1b",
+        "tablet.mod_axi6zh",
+        "tablet.mod_fhuzf8",
+        "tablet.mod_kcgzmd"
+      ],
+      "regex": {
+        "ru": "ритуа.*льных| можно встретить дополните.*льных"
+      },
+      "weight": 46,
+      "count": 4
+    },
+    "tablet.mod_1xyz3h:tablet.mod_8rpt3p": {
+      "ids": [
+        "tablet.mod_1xyz3h",
+        "tablet.mod_8rpt3p"
+      ],
+      "regex": {
+        "ru": " можно встретить дополните.*льные|уника.*льные"
+      },
+      "weight": 46,
+      "count": 2
+    },
     "tablet.mod_f87zsk:tablet.mod_ldczbk": {
       "ids": [
         "tablet.mod_f87zsk",
@@ -3655,6 +3936,17 @@
         "ru": "стоить.*дани|количество.*дани"
       },
       "weight": 29,
+      "count": 2
+    },
+    "tablet.mod_3ulhrh:tablet.mod_vj1bxt": {
+      "ids": [
+        "tablet.mod_3ulhrh",
+        "tablet.mod_vj1bxt"
+      ],
+      "regex": {
+        "ru": "ста.*ть редким.*и|ста.*билизаци.*и"
+      },
+      "weight": 34,
       "count": 2
     },
     "tablet.implicit.abyss:tablet.implicit.ritual_altars": {
@@ -3668,6 +3960,17 @@
       "weight": 23,
       "count": 2
     },
+    "tablet.mod_od9m77.f2md77:tablet.mod_xhncu6.yctrln": {
+      "ids": [
+        "tablet.mod_od9m77.f2md77",
+        "tablet.mod_xhncu6.yctrln"
+      ],
+      "regex": {
+        "ru": "в азмир.*и: 1|ущност.*и: 1"
+      },
+      "weight": 26,
+      "count": 2
+    },
     "tablet.mod_4ej297:tablet.mod_7ms10f": {
       "ids": [
         "tablet.mod_4ej297",
@@ -3679,72 +3982,26 @@
       "weight": 25,
       "count": 2
     },
-    "tablet.mod_8rpt3p:tablet.mod_kbdifj": {
+    "tablet.mod_apm69j:tablet.mod_r03pjr": {
       "ids": [
-        "tablet.mod_8rpt3p",
-        "tablet.mod_kbdifj"
+        "tablet.mod_apm69j",
+        "tablet.mod_r03pjr"
       ],
       "regex": {
-        "ru": "отложен.*ные|уникаль.*ные"
+        "ru": "встретить бродячих изгнанни.*ков|на игро.*ков"
       },
-      "weight": 25,
+      "weight": 45,
       "count": 2
     },
-    "tablet.mod_h8udqa:tablet.mod_i7llgb:tablet.mod_l616q8:tablet.mod_umh3r9": {
+    "tablet.mod_3ulhrh:tablet.mod_qoeut5": {
       "ids": [
-        "tablet.mod_h8udqa",
-        "tablet.mod_i7llgb",
-        "tablet.mod_l616q8",
-        "tablet.mod_umh3r9"
+        "tablet.mod_3ulhrh",
+        "tablet.mod_qoeut5"
       ],
       "regex": {
-        "ru": "дополнительны.*е Бездны|дополнительны.*х.*монстров.*на карте|дополнительны.*х.*групп монстров вокруг Маяков Ваал.*на карте|дополнительны.*м свойством"
+        "ru": "стабилиза.*ции|артефактов Экспеди.*ции"
       },
-      "weight": 149,
-      "count": 4
-    },
-    "tablet.mod_q7wgu2:tablet.mod_vx5kd7": {
-      "ids": [
-        "tablet.mod_q7wgu2",
-        "tablet.mod_vx5kd7"
-      ],
-      "regex": {
-        "ru": "разме.*ра групп монстров вокруг Маяков Ваал.*на карте|разме.*щения взрывчатки в событии Экспедиции.*на карте"
-      },
-      "weight": 108,
-      "count": 2
-    },
-    "tablet.mod_2pzo3q:tablet.mod_g8qfur": {
-      "ids": [
-        "tablet.mod_2pzo3q",
-        "tablet.mod_g8qfur"
-      ],
-      "regex": {
-        "ru": "осколков.*зеркал|осколков.*Симулякра"
-      },
-      "weight": 36,
-      "count": 2
-    },
-    "tablet.mod_jkqo0p:tablet.mod_vj1bxt": {
-      "ids": [
-        "tablet.mod_jkqo0p",
-        "tablet.mod_vj1bxt"
-      ],
-      "regex": {
-        "ru": "стать.*редкими|окажутся.*редкими"
-      },
-      "weight": 32,
-      "count": 2
-    },
-    "tablet.mod_24pi7h:tablet.mod_2pzo3q": {
-      "ids": [
-        "tablet.mod_24pi7h",
-        "tablet.mod_2pzo3q"
-      ],
-      "regex": {
-        "ru": "осколков.*зеркал|хрупких.*зеркал"
-      },
-      "weight": 32,
+      "weight": 38,
       "count": 2
     }
   }

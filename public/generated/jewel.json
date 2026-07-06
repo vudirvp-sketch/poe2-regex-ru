@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-29T10:47:44.574Z",
+  "version": "2026-07-06T10:08:17.003Z",
   "category": "jewel",
   "source": "poe2db.tw",
   "tokens": [
@@ -505,7 +505,7 @@
         31
       ],
       "level": 1,
-      "jewelType": "emerald",
+      "jewelType": "shared",
       "functionalCategory": "ailments"
     },
     {
@@ -956,7 +956,7 @@
         36
       ],
       "level": 1,
-      "jewelType": "sapphire",
+      "jewelType": "shared",
       "functionalCategory": "damage-type"
     },
     {
@@ -1110,7 +1110,7 @@
         28
       ],
       "level": 1,
-      "jewelType": "sapphire",
+      "jewelType": "shared",
       "functionalCategory": "area-duration"
     },
     {
@@ -1260,7 +1260,7 @@
         54
       ],
       "level": 1,
-      "jewelType": "ruby",
+      "jewelType": "shared",
       "functionalCategory": "defence-stats"
     },
     {
@@ -1877,7 +1877,7 @@
         14
       ],
       "level": 1,
-      "jewelType": "shared",
+      "jewelType": "ruby",
       "functionalCategory": "ailments"
     },
     {
@@ -2765,7 +2765,7 @@
         44
       ],
       "level": 1,
-      "jewelType": "emerald",
+      "jewelType": "shared",
       "functionalCategory": "other"
     },
     {
@@ -2866,7 +2866,7 @@
         15
       ],
       "level": 1,
-      "jewelType": "shared",
+      "jewelType": "emerald",
       "functionalCategory": "ailments"
     },
     {
@@ -3960,7 +3960,7 @@
         29
       ],
       "level": 1,
-      "jewelType": "shared",
+      "jewelType": "ruby",
       "functionalCategory": "area-duration"
     },
     {
@@ -4121,7 +4121,7 @@
         39
       ],
       "level": 1,
-      "jewelType": "shared",
+      "jewelType": "ruby",
       "functionalCategory": "damage-type"
     },
     {
@@ -4628,7 +4628,7 @@
         12
       ],
       "level": 1,
-      "jewelType": "emerald",
+      "jewelType": "shared",
       "functionalCategory": "weapon-specific"
     },
     {
@@ -5488,7 +5488,7 @@
           "активация"
         ]
       },
-      "jewelType": "shared",
+      "jewelType": "emerald",
       "functionalCategory": "other",
       "regexPrefixContext": {
         "ru": "заканчиваются"
@@ -6472,7 +6472,7 @@
         25
       ],
       "level": 1,
-      "jewelType": "emerald",
+      "jewelType": "shared",
       "functionalCategory": "flasks"
     },
     {
@@ -7028,7 +7028,7 @@
         53
       ],
       "level": 1,
-      "jewelType": "sapphire",
+      "jewelType": "shared",
       "functionalCategory": "minions"
     },
     {

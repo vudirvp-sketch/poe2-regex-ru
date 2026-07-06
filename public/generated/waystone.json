@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-29T10:47:42.440Z",
+  "version": "2026-07-06T10:08:14.061Z",
   "category": "waystone",
   "source": "poe2db.tw",
   "tokens": [
@@ -4917,6 +4917,17 @@
       },
       "weight": 134,
       "count": 20
+    },
+    "waystone.implicit.item_rarity:waystone.implicit.monster_rarity": {
+      "ids": [
+        "waystone.implicit.item_rarity",
+        "waystone.implicit.monster_rarity"
+      ],
+      "regex": {
+        "ru": "едкость.*предмет.*ов|едкость.*монстр.*ов"
+      },
+      "weight": 40,
+      "count": 2
     }
   }
 }

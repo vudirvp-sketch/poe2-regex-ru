@@ -1,23 +1,830 @@
 {
-  "version": "2026-06-29T10:47:45.312Z",
+  "version": "2026-07-06T10:08:18.235Z",
   "category": "relic",
   "source": "poe2db.tw",
   "tokens": [
     {
-      "id": "relic.sanctumgoldonroomcompletion1",
+      "id": "relic.sanctummaximumlife1",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "Дарует святой воды по завершению вами комнаты: (11—15)"
+        "ru": "(5—8)% увеличение максимума здоровья"
       },
       "rawTextTemplate": {
-        "ru": "Дарует святой воды по завершению вами комнаты: ##"
+        "ru": "##% увеличение максимума здоровья"
       },
       "regex": {
-        "ru": "арует святой воды по завершению"
+        "ru": "здоровья"
       },
       "familyKey": {
-        "ru": "Дарует святой воды по завершению вами комнаты: #"
+        "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Убеждённый",
+          "fs": "Убеждённая",
+          "ns": "Убеждённое",
+          "mp": "Убеждённые",
+          "fp": "Убеждённые",
+          "np": "Убеждённые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctummaximumlife2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(9—12)% увеличение максимума здоровья"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума здоровья"
+      },
+      "regex": {
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Твёрдый",
+          "fs": "Твёрдая",
+          "ns": "Твёрдое",
+          "mp": "Твёрдые",
+          "fp": "Твёрдые",
+          "np": "Твёрдые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          9,
+          12
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14
+      ],
+      "level": 40
+    },
+    {
+      "id": "relic.sanctummaximumlife3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(13—16)% увеличение максимума здоровья"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума здоровья"
+      },
+      "regex": {
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Решительный",
+          "fs": "Решительная",
+          "ns": "Решительное",
+          "mp": "Решительные",
+          "fp": "Решительные",
+          "np": "Решительные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          13,
+          16
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15
+      ],
+      "level": 55
+    },
+    {
+      "id": "relic.sanctummaximumlife4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(17—20)% увеличение максимума здоровья"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума здоровья"
+      },
+      "regex": {
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Ретивый",
+          "fs": "Ретивая",
+          "ns": "Ретивое",
+          "mp": "Ретивые",
+          "fp": "Ретивые",
+          "np": "Ретивые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          17,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15
+      ],
+      "level": 67
+    },
+    {
+      "id": "relic.sanctummaximumlife5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(21—25)% увеличение максимума здоровья"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума здоровья"
+      },
+      "regex": {
+        "ru": "здоровья"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума здоровья"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Решительный",
+          "fs": "Решительная",
+          "ns": "Решительное",
+          "mp": "Решительные",
+          "fp": "Решительные",
+          "np": "Решительные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          21,
+          25
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15
+      ],
+      "level": 76
+    },
+    {
+      "id": "relic.sanctummaximumhonour1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(9—12)% увеличение максимума чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума чести"
+      },
+      "regex": {
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Почётный",
+          "fs": "Почётная",
+          "ns": "Почётное",
+          "mp": "Почётные",
+          "fp": "Почётные",
+          "np": "Почётные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          9,
+          12
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        30
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctummaximumhonour2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(13—16)% увеличение максимума чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума чести"
+      },
+      "regex": {
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Нравственный",
+          "fs": "Нравственная",
+          "ns": "Нравственное",
+          "mp": "Нравственные",
+          "fp": "Нравственные",
+          "np": "Нравственные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          13,
+          16
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        31
+      ],
+      "level": 40
+    },
+    {
+      "id": "relic.sanctummaximumhonour3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(17—20)% увеличение максимума чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума чести"
+      },
+      "regex": {
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Устоявшийся",
+          "fs": "Устоявшаяся",
+          "ns": "Устоявшееся",
+          "mp": "Устоявшиеся",
+          "fp": "Устоявшиеся",
+          "np": "Устоявшиеся"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          17,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        31
+      ],
+      "level": 55
+    },
+    {
+      "id": "relic.sanctummaximumhonour4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(21—24)% увеличение максимума чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума чести"
+      },
+      "regex": {
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Признанный",
+          "fs": "Признанная",
+          "ns": "Признанное",
+          "mp": "Признанные",
+          "fp": "Признанные",
+          "np": "Признанные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          21,
+          24
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        31
+      ],
+      "level": 67
+    },
+    {
+      "id": "relic.sanctummaximumhonour5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—30)% увеличение максимума чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение максимума чести"
+      },
+      "regex": {
+        "ru": "максимума чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение максимума чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Почитаемый",
+          "fs": "Почитаемая",
+          "ns": "Почитаемое",
+          "mp": "Почитаемые",
+          "fp": "Почитаемые",
+          "np": "Почитаемые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          30
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        31
+      ],
+      "level": 76
+    },
+    {
+      "id": "relic.sanctumresolverecoverysmall1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(6—10)% увеличение восстановления чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение восстановления чести"
+      },
+      "regex": {
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Восстанавливающий",
+          "fs": "Восстанавливающая",
+          "ns": "Восстанавливающее",
+          "mp": "Восстанавливающие",
+          "fp": "Восстанавливающие",
+          "np": "Восстанавливающие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          6,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        29,
+        35
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumresolverecoverysmall2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(11—15)% увеличение восстановления чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение восстановления чести"
+      },
+      "regex": {
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Возбуждающий",
+          "fs": "Возбуждающая",
+          "ns": "Возбуждающее",
+          "mp": "Возбуждающие",
+          "fp": "Возбуждающие",
+          "np": "Возбуждающие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          11,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        30,
+        36
+      ],
+      "level": 50
+    },
+    {
+      "id": "relic.sanctumresolverecoverysmall3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(16—20)% увеличение восстановления чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение восстановления чести"
+      },
+      "regex": {
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Оживляющий",
+          "fs": "Оживляющая",
+          "ns": "Оживляющее",
+          "mp": "Оживляющие",
+          "fp": "Оживляющие",
+          "np": "Оживляющие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          16,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        30,
+        36
+      ],
+      "level": 70
+    },
+    {
+      "id": "relic.sanctumresolverecoverysmall4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(21—24)% увеличение восстановления чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение восстановления чести"
+      },
+      "regex": {
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Ободряющий",
+          "fs": "Ободряющая",
+          "ns": "Ободряющее",
+          "mp": "Ободряющие",
+          "fp": "Ободряющие",
+          "np": "Ободряющие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          21,
+          24
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        30,
+        36
+      ],
+      "level": 75
+    },
+    {
+      "id": "relic.sanctumresolverecoverysmall5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(25—29)% увеличение восстановления чести"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение восстановления чести"
+      },
+      "regex": {
+        "ru": "восстановления чести"
+      },
+      "familyKey": {
+        "ru": "#% увеличение восстановления чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Осветляющий",
+          "fs": "Осветляющая",
+          "ns": "Осветляющее",
+          "mp": "Осветляющие",
+          "fp": "Осветляющие",
+          "np": "Осветляющие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          25,
+          29
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        30,
+        36
+      ],
+      "level": 80
+    },
+    {
+      "id": "relic.sanctummonstersdoublegoldchance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Из монстров с (5—6)% шансом может выпасть двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        31,
+        55
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctummonstersdoublegoldchance2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Из монстров с (7—8)% шансом может выпасть двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          7,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        31,
+        55
+      ],
+      "level": 35
+    },
+    {
+      "id": "relic.sanctummonstersdoublegoldchance3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Из монстров с (9—10)% шансом может выпасть двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          9,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        32,
+        56
+      ],
+      "level": 54
+    },
+    {
+      "id": "relic.sanctummonstersdoublegoldchance4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Из монстров с (11—15)% шансом может выпасть двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Из монстров с ##% шансом может выпасть двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "выпасть двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Из монстров с #% шансом может выпасть двойное количество святой воды"
       },
       "regexPrefix": {
         "ru": ""
@@ -37,25 +844,483 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        28
+        33,
+        57
+      ],
+      "level": 70
+    },
+    {
+      "id": "relic.sanctumfountaindoublegoldchance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Фонтаны с (5—6)% шансом могут даровать двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        52
       ],
       "level": 1
     },
     {
-      "id": "relic.sanctumgoldonroomcompletion2",
+      "id": "relic.sanctumfountaindoublegoldchance2",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "Дарует святой воды по завершению вами комнаты: (16—20)"
+        "ru": "Фонтаны с (7—8)% шансом могут даровать двойное количество святой воды"
       },
       "rawTextTemplate": {
-        "ru": "Дарует святой воды по завершению вами комнаты: ##"
+        "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
       },
       "regex": {
-        "ru": "арует святой воды по завершению"
+        "ru": "даровать двойное количество святой воды"
       },
       "familyKey": {
-        "ru": "Дарует святой воды по завершению вами комнаты: #"
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          7,
+          8
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        52
+      ],
+      "level": 35
+    },
+    {
+      "id": "relic.sanctumfountaindoublegoldchance3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Фонтаны с (9—10)% шансом могут даровать двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          9,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        53
+      ],
+      "level": 54
+    },
+    {
+      "id": "relic.sanctumfountaindoublegoldchance4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Фонтаны с (11—15)% шансом могут даровать двойное количество святой воды"
+      },
+      "rawTextTemplate": {
+        "ru": "Фонтаны с ##% шансом могут даровать двойное количество святой воды"
+      },
+      "regex": {
+        "ru": "даровать двойное количество святой воды"
+      },
+      "familyKey": {
+        "ru": "Фонтаны с #% шансом могут даровать двойное количество святой воды"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          11,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        54
+      ],
+      "level": 70
+    },
+    {
+      "id": "relic.sanctumstartinggold1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (30—39)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Нищенский",
+          "fs": "Нищенская",
+          "ns": "Нищенское",
+          "mp": "Нищенские",
+          "fp": "Нищенские",
+          "np": "Нищенские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          39
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumstartinggold2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (40—49)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Мещанский",
+          "fs": "Мещанская",
+          "ns": "Мещанское",
+          "mp": "Мещанские",
+          "fp": "Мещанские",
+          "np": "Мещанские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          40,
+          49
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 40
+    },
+    {
+      "id": "relic.sanctumstartinggold3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (50—59)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Купеческий",
+          "fs": "Купеческая",
+          "ns": "Купеческое",
+          "mp": "Купеческие",
+          "fp": "Купеческие",
+          "np": "Купеческие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          59
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 55
+    },
+    {
+      "id": "relic.sanctumstartinggold4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (40—49)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Дворянский",
+          "fs": "Дворянская",
+          "ns": "Дворянское",
+          "mp": "Дворянские",
+          "fp": "Дворянские",
+          "np": "Дворянские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          40,
+          49
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 67
+    },
+    {
+      "id": "relic.sanctumstartinggold5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Дарует святой воды в начале испытания: (50—59)"
+      },
+      "rawTextTemplate": {
+        "ru": "Дарует святой воды в начале испытания: ##"
+      },
+      "regex": {
+        "ru": "святой воды в начале испытания:"
+      },
+      "familyKey": {
+        "ru": "Дарует святой воды в начале испытания: #"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Королевский",
+          "fs": "Королевская",
+          "ns": "Королевское",
+          "mp": "Королевские",
+          "fp": "Королевские",
+          "np": "Королевские"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          59
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        26
+      ],
+      "level": 76
+    },
+    {
+      "id": "relic.sanctumrelicquantity1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(6—10)% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "regex": {
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          6,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        31
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.mod_adffki",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(11—15)% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "regex": {
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          11,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        32
+      ],
+      "level": 50
+    },
+    {
+      "id": "relic.mod_dtchb1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(16—20)% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества реликвий, выпадающих из монстров"
+      },
+      "regex": {
+        "ru": "реликвий, выпадающих из монстров"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества реликвий, выпадающих из монстров"
       },
       "regexPrefix": {
         "ru": ""
@@ -75,341 +1340,527 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        28
-      ],
-      "level": 56
-    },
-    {
-      "id": "relic.sanctumgoldonroomcompletion3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Дарует святой воды по завершению вами комнаты: (21—30)"
-      },
-      "rawTextTemplate": {
-        "ru": "Дарует святой воды по завершению вами комнаты: ##"
-      },
-      "regex": {
-        "ru": "арует святой воды по завершению"
-      },
-      "familyKey": {
-        "ru": "Дарует святой воды по завершению вами комнаты: #"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        28
-      ],
-      "level": 77
-    },
-    {
-      "id": "relic.sanctumresolveonroomcomplete1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (10—14) чести при завершении комнаты"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при завершении комнаты"
-      },
-      "regex": {
-        "ru": "завершении комнаты"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при завершении комнаты"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          10,
-          14
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
+        15,
         25,
-        40
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumresolveonroomcomplete2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (15—19) чести при завершении комнаты"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при завершении комнаты"
-      },
-      "regex": {
-        "ru": "завершении комнаты"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при завершении комнаты"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          15,
-          19
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        40
-      ],
-      "level": 70
-    },
-    {
-      "id": "relic.sanctumresolveonroomcomplete3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (20—24) чести при завершении комнаты"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при завершении комнаты"
-      },
-      "regex": {
-        "ru": "завершении комнаты"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при завершении комнаты"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          20,
-          24
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        40
-      ],
-      "level": 75
-    },
-    {
-      "id": "relic.sanctumresolveonroomcomplete4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (25—30) чести при завершении комнаты"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при завершении комнаты"
-      },
-      "regex": {
-        "ru": "завершении комнаты"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при завершении комнаты"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          25,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        40
+        32
       ],
       "level": 80
     },
     {
-      "id": "relic.sanctumrevealextraroomeachfloorlarge1",
+      "id": "relic.mod_xdjcm1",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: (2—3)"
+        "ru": "(20—29)% увеличение брони, уклонения и энергетического щита"
       },
       "rawTextTemplate": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: ##"
+        "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "на карте испытаний раскрывается"
+        "ru": "энергетического щита"
       },
       "familyKey": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: #"
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
       },
       "regexPrefix": {
         "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
-        "ru": {}
+        "ru": {
+          "ms": "Усиленный",
+          "fs": "Усиленная",
+          "ns": "Усиленное",
+          "mp": "Усиленные",
+          "fp": "Усиленные",
+          "np": "Усиленные"
+        }
       },
-      "affix": "suffix",
+      "affix": "prefix",
       "tags": [],
       "ranges": [
         [
-          2,
-          3
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        40
-      ],
-      "level": 1,
-      "regexExclude": {
-        "ru": [
-          "дополнительная"
-        ]
-      }
-    },
-    {
-      "id": "relic.sanctumrevealextraroomeachfloorlarge2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: 4"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: #"
-      },
-      "regex": {
-        "ru": "на карте испытаний раскрывается"
-      },
-      "familyKey": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: #"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        4
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 76,
-      "regexExclude": {
-        "ru": [
-          "дополнительная"
-        ]
-      },
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctumavoidafflictionchance1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(6—7)% шанс избежать получения проклятия"
-      },
-      "rawTextTemplate": {
-        "ru": "##% шанс избежать получения проклятия"
-      },
-      "regex": {
-        "ru": "проклятия"
-      },
-      "familyKey": {
-        "ru": "#% шанс избежать получения проклятия"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          6,
-          7
+          20,
+          29
         ]
       ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
         15,
-        26
+        32,
+        41,
+        48
       ],
       "level": 1
     },
     {
-      "id": "relic.sanctumavoidafflictionchance2",
+      "id": "relic.sanctumdefences2",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "(8—9)% шанс избежать получения проклятия"
+        "ru": "(30—39)% увеличение брони, уклонения и энергетического щита"
       },
       "rawTextTemplate": {
-        "ru": "##% шанс избежать получения проклятия"
+        "ru": "##% увеличение брони, уклонения и энергетического щита"
       },
       "regex": {
-        "ru": "проклятия"
+        "ru": "энергетического щита"
       },
       "familyKey": {
-        "ru": "#% шанс избежать получения проклятия"
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Слоистый",
+          "fs": "Слоистая",
+          "ns": "Слоистое",
+          "mp": "Слоистые",
+          "fp": "Слоистые",
+          "np": "Слоистые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          30,
+          39
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        32,
+        41,
+        48
+      ],
+      "level": 50
+    },
+    {
+      "id": "relic.sanctumdefences3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(40—49)% увеличение брони, уклонения и энергетического щита"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение брони, уклонения и энергетического щита"
+      },
+      "regex": {
+        "ru": "энергетического щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Утолщённый",
+          "fs": "Утолщённая",
+          "ns": "Утолщённое",
+          "mp": "Утолщённые",
+          "fp": "Утолщённые",
+          "np": "Утолщённые"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          40,
+          49
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        32,
+        41,
+        48
+      ],
+      "level": 65
+    },
+    {
+      "id": "relic.sanctumdefences4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(50—70)% увеличение брони, уклонения и энергетического щита"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение брони, уклонения и энергетического щита"
+      },
+      "regex": {
+        "ru": "энергетического щита"
+      },
+      "familyKey": {
+        "ru": "#% увеличение брони, уклонения и энергетического щита"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Опоясанный",
+          "fs": "Опоясанная",
+          "ns": "Опоясанное",
+          "mp": "Опоясанные",
+          "fp": "Опоясанные",
+          "np": "Опоясанные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          50,
+          70
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        32,
+        41,
+        48
+      ],
+      "level": 75
+    },
+    {
+      "id": "relic.sanctumreducedtrapdamage2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Ловушки наносят уменьшенный на (5—7)% урон"
+      },
+      "rawTextTemplate": {
+        "ru": "Ловушки наносят уменьшенный на ##% урон"
+      },
+      "regex": {
+        "ru": "ловушки наносят уменьшенный на "
+      },
+      "familyKey": {
+        "ru": "Ловушки наносят уменьшенный на #% урон"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Акробатический",
+          "fs": "Акробатическая",
+          "ns": "Акробатическое",
+          "mp": "Акробатические",
+          "fp": "Акробатические",
+          "np": "Акробатические"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          7
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18,
+        22
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumreducedtrapdamage3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "Ловушки наносят уменьшенный на (8—10)% урон"
+      },
+      "rawTextTemplate": {
+        "ru": "Ловушки наносят уменьшенный на ##% урон"
+      },
+      "regex": {
+        "ru": "ловушки наносят уменьшенный на "
+      },
+      "familyKey": {
+        "ru": "Ловушки наносят уменьшенный на #% урон"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Гибкий",
+          "fs": "Гибкая",
+          "ns": "Гибкое",
+          "mp": "Гибкие",
+          "fp": "Гибкие",
+          "np": "Гибкие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        18,
+        22
+      ],
+      "level": 78
+    },
+    {
+      "id": "relic.sanctummovementspeed1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(3—4)% повышение скорости передвижения"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение скорости передвижения"
+      },
+      "regex": {
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Проворный",
+          "fs": "Проворная",
+          "ns": "Проворное",
+          "mp": "Проворные",
+          "fp": "Проворные",
+          "np": "Проворные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          3,
+          4
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12,
+        27,
+        29,
+        34
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctummovementspeed2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(5—6)% повышение скорости передвижения"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение скорости передвижения"
+      },
+      "regex": {
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Подвижный",
+          "fs": "Подвижная",
+          "ns": "Подвижное",
+          "mp": "Подвижные",
+          "fp": "Подвижные",
+          "np": "Подвижные"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          5,
+          6
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        12,
+        27,
+        29,
+        34
+      ],
+      "level": 55
+    },
+    {
+      "id": "relic.sanctummovementspeed3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(7—10)% повышение скорости передвижения"
+      },
+      "rawTextTemplate": {
+        "ru": "##% повышение скорости передвижения"
+      },
+      "regex": {
+        "ru": "передвижения"
+      },
+      "familyKey": {
+        "ru": "#% повышение скорости передвижения"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {
+          "ms": "Ускоряющий",
+          "fs": "Ускоряющая",
+          "ns": "Ускоряющее",
+          "mp": "Ускоряющие",
+          "fp": "Ускоряющие",
+          "np": "Ускоряющие"
+        }
+      },
+      "affix": "prefix",
+      "tags": [],
+      "ranges": [
+        [
+          7,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        13,
+        28,
+        30,
+        35
+      ],
+      "level": 78
+    },
+    {
+      "id": "relic.sanctumdodgerolldistance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(0.3—0.4) м к дальности кувырка"
+      },
+      "rawTextTemplate": {
+        "ru": "+## м к дальности кувырка"
+      },
+      "regex": {
+        "ru": "кувырка"
+      },
+      "familyKey": {
+        "ru": "+# м к дальности кувырка"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          0.3,
+          0.4
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumdodgerolldistance2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(0.5—0.7) м к дальности кувырка"
+      },
+      "rawTextTemplate": {
+        "ru": "+## м к дальности кувырка"
+      },
+      "regex": {
+        "ru": "кувырка"
+      },
+      "familyKey": {
+        "ru": "+# м к дальности кувырка"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          0.5,
+          0.7
+        ]
+      ],
+      "values": [],
+      "hasYofication": false,
+      "yoficationPositions": [],
+      "level": 70
+    },
+    {
+      "id": "relic.sanctumslowresistance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(8—11)% ослабление влияния замедления от отрицательных эффектов на вас"
+      },
+      "rawTextTemplate": {
+        "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
+      },
+      "regex": {
+        "ru": "на вас"
+      },
+      "familyKey": {
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regexPrefix": {
         "ru": ""
@@ -423,71 +1874,34 @@
       "ranges": [
         [
           8,
-          9
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        26
-      ],
-      "level": 55
-    },
-    {
-      "id": "relic.sanctumavoidafflictionchance3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(10—11)% шанс избежать получения проклятия"
-      },
-      "rawTextTemplate": {
-        "ru": "##% шанс избежать получения проклятия"
-      },
-      "regex": {
-        "ru": "проклятия"
-      },
-      "familyKey": {
-        "ru": "#% шанс избежать получения проклятия"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          10,
           11
         ]
       ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        17,
-        28
+        14,
+        30,
+        33,
+        48
       ],
-      "level": 69
+      "level": 1
     },
     {
-      "id": "relic.sanctumavoidafflictionchance4",
+      "id": "relic.sanctumslowresistance2",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "(12—15)% шанс избежать получения проклятия"
+        "ru": "(12—15)% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "rawTextTemplate": {
-        "ru": "##% шанс избежать получения проклятия"
+        "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "проклятия"
+        "ru": "на вас"
       },
       "familyKey": {
-        "ru": "#% шанс избежать получения проклятия"
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regexPrefix": {
         "ru": ""
@@ -507,87 +1921,37 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        17,
-        28
+        15,
+        31,
+        34,
+        49
       ],
-      "level": 78
+      "level": 55
     },
     {
-      "id": "relic.sanctummonstersincreaseddamagetaken1",
+      "id": "relic.sanctumslowresistance3",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "Монстры получают увеличенный на (11—15)% урон"
+        "ru": "(16—20)% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "rawTextTemplate": {
-        "ru": "Монстры получают увеличенный на ##% урон"
+        "ru": "##% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regex": {
-        "ru": "монстры получают увеличенный на"
+        "ru": "на вас"
       },
       "familyKey": {
-        "ru": "Монстры получают увеличенный на #% урон"
+        "ru": "#% ослабление влияния замедления от отрицательных эффектов на вас"
       },
       "regexPrefix": {
         "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
-        "ru": {
-          "ms": "Сокрушающий",
-          "fs": "Сокрушающая",
-          "ns": "Сокрушающее",
-          "mp": "Сокрушающие",
-          "fp": "Сокрушающие",
-          "np": "Сокрушающие"
-        }
+        "ru": {}
       },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          11,
-          15
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        23
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctummonstersincreaseddamagetaken2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры получают увеличенный на (16—20)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "монстры получают увеличенный на"
-      },
-      "familyKey": {
-        "ru": "Монстры получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Карающий",
-          "fs": "Карающая",
-          "ns": "Карающее",
-          "mp": "Карающие",
-          "fp": "Карающие",
-          "np": "Карающие"
-        }
-      },
-      "affix": "prefix",
+      "affix": "suffix",
       "tags": [],
       "ranges": [
         [
@@ -598,976 +1962,490 @@
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        23
-      ],
-      "level": 56
-    },
-    {
-      "id": "relic.sanctummonstersincreaseddamagetaken3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры получают увеличенный на (21—30)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "монстры получают увеличенный на"
-      },
-      "familyKey": {
-        "ru": "Монстры получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Уничтожающий",
-          "fs": "Уничтожающая",
-          "ns": "Уничтожающее",
-          "mp": "Уничтожающие",
-          "fp": "Уничтожающие",
-          "np": "Уничтожающие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        23
-      ],
-      "level": 77
-    },
-    {
-      "id": "relic.sanctummonstersreduceddamage1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры наносят уменьшенный на 6% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры наносят уменьшенный на #% урон"
-      },
-      "regex": {
-        "ru": "монстры наносят уменьшенный на "
-      },
-      "familyKey": {
-        "ru": "Монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Устойчивый",
-          "fs": "Устойчивая",
-          "ns": "Устойчивое",
-          "mp": "Устойчивые",
-          "fp": "Устойчивые",
-          "np": "Устойчивые"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        6
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 1,
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctummonstersreduceddamage2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры наносят уменьшенный на (7—8)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "монстры наносят уменьшенный на "
-      },
-      "familyKey": {
-        "ru": "Монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Укреплённый",
-          "fs": "Укреплённая",
-          "ns": "Укреплённое",
-          "mp": "Укреплённые",
-          "fp": "Укреплённые",
-          "np": "Укреплённые"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          7,
-          8
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        18,
-        22
-      ],
-      "level": 56
-    },
-    {
-      "id": "relic.sanctummonstersreduceddamage3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Монстры наносят уменьшенный на (9—12)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Монстры наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "монстры наносят уменьшенный на "
-      },
-      "familyKey": {
-        "ru": "Монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Непроницаемый",
-          "fs": "Непроницаемая",
-          "ns": "Непроницаемое",
-          "mp": "Непроницаемые",
-          "fp": "Непроницаемые",
-          "np": "Непроницаемые"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          9,
-          12
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        18,
-        22
-      ],
-      "level": 77
-    },
-    {
-      "id": "relic.sanctumadditionalkeychance1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Когда вы получаете ключ, вы с (7—9)% шансом получаете еще один"
-      },
-      "rawTextTemplate": {
-        "ru": "Когда вы получаете ключ, вы с ##% шансом получаете еще один"
-      },
-      "regex": {
-        "ru": "еще один"
-      },
-      "familyKey": {
-        "ru": "Когда вы получаете ключ, вы с #% шансом получаете еще один"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Растаскивающий",
-          "fs": "Растаскивающая",
-          "ns": "Растаскивающее",
-          "mp": "Растаскивающие",
-          "fp": "Растаскивающие",
-          "np": "Растаскивающие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          7,
-          9
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
         15,
-        17,
-        50,
-        52,
-        54,
-        56
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumadditionalkeychance2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Когда вы получаете ключ, вы с (10—12)% шансом получаете еще один"
-      },
-      "rawTextTemplate": {
-        "ru": "Когда вы получаете ключ, вы с ##% шансом получаете еще один"
-      },
-      "regex": {
-        "ru": "еще один"
-      },
-      "familyKey": {
-        "ru": "Когда вы получаете ключ, вы с #% шансом получаете еще один"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Взломщицкий",
-          "fs": "Взломщицкая",
-          "ns": "Взломщицкое",
-          "mp": "Взломщицкие",
-          "fp": "Взломщицкие",
-          "np": "Взломщицкие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          10,
-          12
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        17,
-        52,
-        54,
-        56,
-        58
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumadditionalkeychance3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Когда вы получаете ключ, вы с (13—16)% шансом получаете еще один"
-      },
-      "rawTextTemplate": {
-        "ru": "Когда вы получаете ключ, вы с ##% шансом получаете еще один"
-      },
-      "regex": {
-        "ru": "еще один"
-      },
-      "familyKey": {
-        "ru": "Когда вы получаете ключ, вы с #% шансом получаете еще один"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Воровской",
-          "fs": "Воровская",
-          "ns": "Воровское",
-          "mp": "Воровские",
-          "fp": "Воровские",
-          "np": "Воровские"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          13,
-          16
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        17,
-        52,
-        54,
-        56,
-        58
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumhonourongainkey1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (25—35) чести при поднятии ключа"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при поднятии ключа"
-      },
-      "regex": {
-        "ru": "ключа"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при поднятии ключа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          25,
-          35
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumhonourongainkey2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (30—39) чести при поднятии ключа"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при поднятии ключа"
-      },
-      "regex": {
-        "ru": "ключа"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при поднятии ключа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          30,
-          39
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 45
-    },
-    {
-      "id": "relic.sanctumhonourongainkey3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (40—49) чести при поднятии ключа"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при поднятии ключа"
-      },
-      "regex": {
-        "ru": "ключа"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при поднятии ключа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          40,
-          49
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumhonourongainkey4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (50—59) чести при поднятии ключа"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при поднятии ключа"
-      },
-      "regex": {
-        "ru": "ключа"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при поднятии ключа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          50,
-          59
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 72
-    },
-    {
-      "id": "relic.sanctumhonourongainkey5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (60—75) чести при поднятии ключа"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при поднятии ключа"
-      },
-      "regex": {
-        "ru": "ключа"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при поднятии ключа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          60,
-          75
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctummonsterspeed1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на 4%"
-      },
-      "rawTextTemplate": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%"
-      },
-      "regex": {
-        "ru": "корость атаки, сотворения чар и"
-      },
-      "familyKey": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Искажающий время",
-          "fs": "Искажающая время",
-          "ns": "Искажающее время",
-          "mp": "Искажающие время",
-          "fp": "Искажающие время",
-          "np": "Искажающие время"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        4
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 1,
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctummonsterspeed2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на 5%"
-      },
-      "rawTextTemplate": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%"
-      },
-      "regex": {
-        "ru": "корость атаки, сотворения чар и"
-      },
-      "familyKey": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Хрономантский",
-          "fs": "Хрономантская",
-          "ns": "Хрономантское",
-          "mp": "Хрономантские",
-          "fp": "Хрономантские",
-          "np": "Хрономантские"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        5
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 60,
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctummonsterspeed3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на (6—7)%"
-      },
-      "rawTextTemplate": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на ##%"
-      },
-      "regex": {
-        "ru": "корость атаки, сотворения чар и"
-      },
-      "familyKey": {
-        "ru": "Скорость атаки, сотворения чар и передвижения монстров снижена на #%"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Временной",
-          "fs": "Временная",
-          "ns": "Временное",
-          "mp": "Временные",
-          "fp": "Временные",
-          "np": "Временные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          6,
-          7
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        22,
-        34,
-        36,
-        41,
-        59
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctummaximumhonourresistance1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(2—3)% к максимальному сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к максимальному сопротивлению чести"
-      },
-      "regex": {
-        "ru": "максимальному сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к максимальному сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          2,
-          3
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        33,
-        39
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctummaximumhonourresistance2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(4—5)% к максимальному сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к максимальному сопротивлению чести"
-      },
-      "regex": {
-        "ru": "максимальному сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к максимальному сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          4,
-          5
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        33,
-        39
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumchancetopreventhonourdeath1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(5—8)% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
-      },
-      "rawTextTemplate": {
-        "ru": "##% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
-      },
-      "regex": {
-        "ru": "честью"
-      },
-      "familyKey": {
-        "ru": "#% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Жульнический",
-          "fs": "Жульническая",
-          "ns": "Жульническое",
-          "mp": "Жульнические",
-          "fp": "Жульнические",
-          "np": "Жульнические"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          5,
-          8
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        19,
-        21,
-        25,
         31,
-        35,
-        42,
-        67
+        34,
+        49
       ],
-      "level": 1
+      "level": 76
     },
     {
-      "id": "relic.sanctumchancetopreventhonourdeath2",
+      "id": "relic.sanctumreducedcritdamage1",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "(9—12)% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
+        "ru": "(12—15)% уменьшение дополнительного критического урона от ударов по вам"
       },
       "rawTextTemplate": {
-        "ru": "##% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
+        "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regex": {
-        "ru": "честью"
+        "ru": "по вам"
       },
       "familyKey": {
-        "ru": "#% шанс при вотере всей вашей чести вместо этого остаться с 1 честью"
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
       },
       "regexPrefix": {
         "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
-        "ru": {
-          "ms": "Мошеннический",
-          "fs": "Мошенническая",
-          "ns": "Мошенническое",
-          "mp": "Мошеннические",
-          "fp": "Мошеннические",
-          "np": "Мошеннические"
-        }
+        "ru": {}
       },
-      "affix": "prefix",
+      "affix": "suffix",
       "tags": [],
       "ranges": [
         [
-          9,
-          12
+          12,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        15,
+        28,
+        42
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumreducedcritdamage2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(16—19)% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "rawTextTemplate": {
+        "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "regex": {
+        "ru": "по вам"
+      },
+      "familyKey": {
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          16,
+          19
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        15,
+        28,
+        42
+      ],
+      "level": 55
+    },
+    {
+      "id": "relic.sanctumreducedcritdamage3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(20—25)% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "rawTextTemplate": {
+        "ru": "##% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "regex": {
+        "ru": "по вам"
+      },
+      "familyKey": {
+        "ru": "#% уменьшение дополнительного критического урона от ударов по вам"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          25
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        11,
+        15,
+        28,
+        42
+      ],
+      "level": 76
+    },
+    {
+      "id": "relic.sanctumhonourresistance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(8—10)% к сопротивлению чести"
+      },
+      "rawTextTemplate": {
+        "ru": "+##% к сопротивлению чести"
+      },
+      "regex": {
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          8,
+          10
         ]
       ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
         20,
-        22,
-        26,
-        32,
-        36,
-        43,
-        68
-      ],
-      "level": 75
-    },
-    {
-      "id": "relic.sanctumkeyupgradechance1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(3—4)% шанс для каждого из ваших ключей улучшиться при завершении этажа"
-      },
-      "rawTextTemplate": {
-        "ru": "##% шанс для каждого из ваших ключей улучшиться при завершении этажа"
-      },
-      "regex": {
-        "ru": "этажа"
-      },
-      "familyKey": {
-        "ru": "#% шанс для каждого из ваших ключей улучшиться при завершении этажа"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Усиливающий",
-          "fs": "Усиливающая",
-          "ns": "Усиливающее",
-          "mp": "Усиливающие",
-          "fp": "Усиливающие",
-          "np": "Усиливающие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          3,
-          4
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        37,
-        61
+        26
       ],
       "level": 1
     },
     {
-      "id": "relic.sanctumkeyupgradechance2",
+      "id": "relic.sanctumhonourresistance2",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "(5—6)% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+(11—13)% к сопротивлению чести"
       },
       "rawTextTemplate": {
-        "ru": "##% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "этажа"
+        "ru": "сопротивлению чести"
       },
       "familyKey": {
-        "ru": "#% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+#% к сопротивлению чести"
       },
       "regexPrefix": {
         "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
-        "ru": {
-          "ms": "Перековывающий",
-          "fs": "Перековывающая",
-          "ns": "Перековывающее",
-          "mp": "Перековывающие",
-          "fp": "Перековывающие",
-          "np": "Перековывающие"
-        }
+        "ru": {}
       },
-      "affix": "prefix",
+      "affix": "suffix",
       "tags": [],
       "ranges": [
         [
-          5,
-          6
+          11,
+          13
         ]
       ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        37,
-        61
+        21,
+        27
       ],
-      "level": 60
+      "level": 40
     },
     {
-      "id": "relic.sanctumkeyupgradechance3",
+      "id": "relic.sanctumhonourresistance3",
       "category": "relic",
       "origin": "normal",
       "rawText": {
-        "ru": "(7—9)% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+(14—16)% к сопротивлению чести"
       },
       "rawTextTemplate": {
-        "ru": "##% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+##% к сопротивлению чести"
       },
       "regex": {
-        "ru": "этажа"
+        "ru": "сопротивлению чести"
       },
       "familyKey": {
-        "ru": "#% шанс для каждого из ваших ключей улучшиться при завершении этажа"
+        "ru": "+#% к сопротивлению чести"
       },
       "regexPrefix": {
         "ru": ""
       },
       "hasMultiPlaceholder": false,
       "genderForms": {
-        "ru": {
-          "ms": "Улучшающий",
-          "fs": "Улучшающая",
-          "ns": "Улучшающее",
-          "mp": "Улучшающие",
-          "fp": "Улучшающие",
-          "np": "Улучшающие"
-        }
+        "ru": {}
       },
-      "affix": "prefix",
+      "affix": "suffix",
       "tags": [],
       "ranges": [
         [
-          7,
-          9
+          14,
+          16
         ]
       ],
       "values": [],
       "hasYofication": true,
       "yoficationPositions": [
-        37,
-        61
+        21,
+        27
       ],
-      "level": 77
+      "level": 55
+    },
+    {
+      "id": "relic.sanctumhonourresistance4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(17—19)% к сопротивлению чести"
+      },
+      "rawTextTemplate": {
+        "ru": "+##% к сопротивлению чести"
+      },
+      "regex": {
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          17,
+          19
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        21,
+        27
+      ],
+      "level": 67
+    },
+    {
+      "id": "relic.sanctumhonourresistance5",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "+(20—22)% к сопротивлению чести"
+      },
+      "rawTextTemplate": {
+        "ru": "+##% к сопротивлению чести"
+      },
+      "regex": {
+        "ru": "сопротивлению чести"
+      },
+      "familyKey": {
+        "ru": "+#% к сопротивлению чести"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          20,
+          22
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        21,
+        27
+      ],
+      "level": 76
+    },
+    {
+      "id": "relic.sanctumkeydropchance1",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(6—10)% увеличение количества выпадающих из монстров ключей"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из монстров ключей"
+      },
+      "regex": {
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          6,
+          10
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        14,
+        24,
+        57
+      ],
+      "level": 1
+    },
+    {
+      "id": "relic.sanctumkeydropchance2",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(11—15)% увеличение количества выпадающих из монстров ключей"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из монстров ключей"
+      },
+      "regex": {
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          11,
+          15
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        58
+      ],
+      "level": 50
+    },
+    {
+      "id": "relic.sanctumkeydropchance3",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(16—20)% увеличение количества выпадающих из монстров ключей"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из монстров ключей"
+      },
+      "regex": {
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          16,
+          20
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        58
+      ],
+      "level": 65
+    },
+    {
+      "id": "relic.sanctumkeydropchance4",
+      "category": "relic",
+      "origin": "normal",
+      "rawText": {
+        "ru": "(21—25)% увеличение количества выпадающих из монстров ключей"
+      },
+      "rawTextTemplate": {
+        "ru": "##% увеличение количества выпадающих из монстров ключей"
+      },
+      "regex": {
+        "ru": "ключей"
+      },
+      "familyKey": {
+        "ru": "#% увеличение количества выпадающих из монстров ключей"
+      },
+      "regexPrefix": {
+        "ru": ""
+      },
+      "hasMultiPlaceholder": false,
+      "genderForms": {
+        "ru": {}
+      },
+      "affix": "suffix",
+      "tags": [],
+      "ranges": [
+        [
+          21,
+          25
+        ]
+      ],
+      "values": [],
+      "hasYofication": true,
+      "yoficationPositions": [
+        15,
+        25,
+        58
+      ],
+      "level": 75
     },
     {
       "id": "relic.sanctumcorruptionresolverecovered_corrupted",
@@ -1608,1996 +2486,30 @@
         35
       ],
       "level": 1
-    },
-    {
-      "id": "relic.sanctummaximumhonourmedium1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(17—20)% увеличение максимума чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение максимума чести"
-      },
-      "regex": {
-        "ru": "максимума чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение максимума чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Почётный",
-          "fs": "Почётная",
-          "ns": "Почётное",
-          "mp": "Почётные",
-          "fp": "Почётные",
-          "np": "Почётные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          17,
-          20
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        31
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctummaximumhonourmedium2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(21—24)% увеличение максимума чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение максимума чести"
-      },
-      "regex": {
-        "ru": "максимума чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение максимума чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Нравственный",
-          "fs": "Нравственная",
-          "ns": "Нравственное",
-          "mp": "Нравственные",
-          "fp": "Нравственные",
-          "np": "Нравственные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          24
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        31
-      ],
-      "level": 40
-    },
-    {
-      "id": "relic.sanctummaximumhonourmedium3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(25—30)% увеличение максимума чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение максимума чести"
-      },
-      "regex": {
-        "ru": "максимума чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение максимума чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Устоявшийся",
-          "fs": "Устоявшаяся",
-          "ns": "Устоявшееся",
-          "mp": "Устоявшиеся",
-          "fp": "Устоявшиеся",
-          "np": "Устоявшиеся"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          25,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        31
-      ],
-      "level": 55
-    },
-    {
-      "id": "relic.sanctummaximumhonourmedium4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(31—35)% увеличение максимума чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение максимума чести"
-      },
-      "regex": {
-        "ru": "максимума чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение максимума чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Признанный",
-          "fs": "Признанная",
-          "ns": "Признанное",
-          "mp": "Признанные",
-          "fp": "Признанные",
-          "np": "Признанные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          31,
-          35
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        31
-      ],
-      "level": 67
-    },
-    {
-      "id": "relic.sanctummaximumhonourmedium5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(36—45)% увеличение максимума чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение максимума чести"
-      },
-      "regex": {
-        "ru": "максимума чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение максимума чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Почитаемый",
-          "fs": "Почитаемая",
-          "ns": "Почитаемое",
-          "mp": "Почитаемые",
-          "fp": "Почитаемые",
-          "np": "Почитаемые"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          36,
-          45
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        31
-      ],
-      "level": 76
-    },
-    {
-      "id": "relic.sanctumresolverecovery1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(16—20)% увеличение восстановления чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение восстановления чести"
-      },
-      "regex": {
-        "ru": "восстановления чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение восстановления чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Восстанавливающий",
-          "fs": "Восстанавливающая",
-          "ns": "Восстанавливающее",
-          "mp": "Восстанавливающие",
-          "fp": "Восстанавливающие",
-          "np": "Восстанавливающие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          16,
-          20
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        30,
-        36
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumresolverecovery2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(21—24)% увеличение восстановления чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение восстановления чести"
-      },
-      "regex": {
-        "ru": "восстановления чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение восстановления чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Возбуждающий",
-          "fs": "Возбуждающая",
-          "ns": "Возбуждающее",
-          "mp": "Возбуждающие",
-          "fp": "Возбуждающие",
-          "np": "Возбуждающие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          24
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        30,
-        36
-      ],
-      "level": 50
-    },
-    {
-      "id": "relic.sanctumresolverecovery3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(25—29)% увеличение восстановления чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение восстановления чести"
-      },
-      "regex": {
-        "ru": "восстановления чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение восстановления чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Оживляющий",
-          "fs": "Оживляющая",
-          "ns": "Оживляющее",
-          "mp": "Оживляющие",
-          "fp": "Оживляющие",
-          "np": "Оживляющие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          25,
-          29
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        30,
-        36
-      ],
-      "level": 70
-    },
-    {
-      "id": "relic.sanctumresolverecovery4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(30—34)% увеличение восстановления чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение восстановления чести"
-      },
-      "regex": {
-        "ru": "восстановления чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение восстановления чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Ободряющий",
-          "fs": "Ободряющая",
-          "ns": "Ободряющее",
-          "mp": "Ободряющие",
-          "fp": "Ободряющие",
-          "np": "Ободряющие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          30,
-          34
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        30,
-        36
-      ],
-      "level": 75
-    },
-    {
-      "id": "relic.sanctumresolverecovery5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(35—45)% увеличение восстановления чести"
-      },
-      "rawTextTemplate": {
-        "ru": "##% увеличение восстановления чести"
-      },
-      "regex": {
-        "ru": "восстановления чести"
-      },
-      "familyKey": {
-        "ru": "#% увеличение восстановления чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Осветляющий",
-          "fs": "Осветляющая",
-          "ns": "Осветляющее",
-          "mp": "Осветляющие",
-          "fp": "Осветляющие",
-          "np": "Осветляющие"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          35,
-          45
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        15,
-        30,
-        36
-      ],
-      "level": 80
-    },
-    {
-      "id": "relic.sanctummerchantreducedcosts1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(6—7)% снижение цен у торговца"
-      },
-      "rawTextTemplate": {
-        "ru": "##% снижение цен у торговца"
-      },
-      "regex": {
-        "ru": "торговца"
-      },
-      "familyKey": {
-        "ru": "#% снижение цен у торговца"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          6,
-          7
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctummerchantreducedcosts2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "(8—10)% снижение цен у торговца"
-      },
-      "rawTextTemplate": {
-        "ru": "##% снижение цен у торговца"
-      },
-      "regex": {
-        "ru": "торговца"
-      },
-      "familyKey": {
-        "ru": "#% снижение цен у торговца"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          8,
-          10
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        12
-      ],
-      "level": 74
-    },
-    {
-      "id": "relic.sanctumrestorehonouronbosskill1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (40—59) чести при убийстве босса"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при убийстве босса"
-      },
-      "regex": {
-        "ru": "босса"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при убийстве босса"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          40,
-          59
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumrestorehonouronbosskill2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (60—79) чести при убийстве босса"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при убийстве босса"
-      },
-      "regex": {
-        "ru": "босса"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при убийстве босса"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          60,
-          79
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 45
-    },
-    {
-      "id": "relic.sanctumrestorehonouronbosskill3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (80—99) чести при убийстве босса"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при убийстве босса"
-      },
-      "regex": {
-        "ru": "босса"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при убийстве босса"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          80,
-          99
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumrestorehonouronbosskill4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (100—119) чести при убийстве босса"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при убийстве босса"
-      },
-      "regex": {
-        "ru": "босса"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при убийстве босса"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          100,
-          119
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        27
-      ],
-      "level": 72
-    },
-    {
-      "id": "relic.sanctumrestorehonouronbosskill5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (120—150) чести при убийстве босса"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при убийстве босса"
-      },
-      "regex": {
-        "ru": "босса"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при убийстве босса"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          120,
-          150
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        27
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumrestorehonouronfountainuse1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (25—35) чести при оказании почестей у маракетского алтаря"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при оказании почестей у маракетского алтаря"
-      },
-      "regex": {
-        "ru": "алтаря"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при оказании почестей у маракетского алтаря"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          25,
-          35
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        46,
-        49
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumrestorehonouronfountainuse2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (30—39) чести при оказании почестей у маракетского алтаря"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при оказании почестей у маракетского алтаря"
-      },
-      "regex": {
-        "ru": "алтаря"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при оказании почестей у маракетского алтаря"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          30,
-          39
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        46,
-        49
-      ],
-      "level": 45
-    },
-    {
-      "id": "relic.sanctumrestorehonouronfountainuse3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (40—49) чести при оказании почестей у маракетского алтаря"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при оказании почестей у маракетского алтаря"
-      },
-      "regex": {
-        "ru": "алтаря"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при оказании почестей у маракетского алтаря"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          40,
-          49
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        46,
-        49
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumrestorehonouronfountainuse4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (50—59) чести при оказании почестей у маракетского алтаря"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при оказании почестей у маракетского алтаря"
-      },
-      "regex": {
-        "ru": "алтаря"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при оказании почестей у маракетского алтаря"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          50,
-          59
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        46,
-        49
-      ],
-      "level": 72
-    },
-    {
-      "id": "relic.sanctumrestorehonouronfountainuse5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Восстанавливает (60—75) чести при оказании почестей у маракетского алтаря"
-      },
-      "rawTextTemplate": {
-        "ru": "Восстанавливает ## чести при оказании почестей у маракетского алтаря"
-      },
-      "regex": {
-        "ru": "алтаря"
-      },
-      "familyKey": {
-        "ru": "Восстанавливает # чести при оказании почестей у маракетского алтаря"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          60,
-          75
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        25,
-        46,
-        49
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumrevealextraroomeachfloor1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте испытаний раскрывается дополнительная комната"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте испытаний раскрывается дополнительная комната"
-      },
-      "regex": {
-        "ru": "мната"
-      },
-      "familyKey": {
-        "ru": "На карте испытаний раскрывается дополнительная комната"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        7,
-        40
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumrevealextraroomeachfloor2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: 2"
-      },
-      "rawTextTemplate": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: #"
-      },
-      "regex": {
-        "ru": "на карте испытаний раскрывается"
-      },
-      "familyKey": {
-        "ru": "На карте испытаний раскрывается дополнительных комнат: #"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        2
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 76,
-      "regexExclude": {
-        "ru": [
-          "дополнительная"
-        ]
-      },
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctumguardsincreaseddamagetaken1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры получают увеличенный на (11—15)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "ие монстры получают увеличенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Преступный",
-          "fs": "Преступная",
-          "ns": "Преступное",
-          "mp": "Преступные",
-          "fp": "Преступные",
-          "np": "Преступные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          11,
-          15
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        1,
-        30
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumguardsincreaseddamagetaken2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры получают увеличенный на (16—20)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "ие монстры получают увеличенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Нарушительский",
-          "fs": "Нарушительская",
-          "ns": "Нарушительское",
-          "mp": "Нарушительские",
-          "fp": "Нарушительские",
-          "np": "Нарушительские"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          16,
-          20
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        1,
-        30
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumguardsincreaseddamagetaken3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры получают увеличенный на (21—30)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "ие монстры получают увеличенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Опальный",
-          "fs": "Опальная",
-          "ns": "Опальное",
-          "mp": "Опальные",
-          "fp": "Опальные",
-          "np": "Опальные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        1,
-        30
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumbossincreaseddamagetaken1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы получают увеличенный на (11—15)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Претендентский",
-          "fs": "Претендентская",
-          "ns": "Претендентское",
-          "mp": "Претендентские",
-          "fp": "Претендентские",
-          "np": "Претендентские"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          11,
-          15
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21
-      ],
-      "level": 1,
-      "regexPrefixContext": {
-        "ru": "Боссы получают"
-      },
-      "regexExclude": {
-        "ru": []
-      }
-    },
-    {
-      "id": "relic.sanctumbossincreaseddamagetaken2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы получают увеличенный на (16—20)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Узурпаторский",
-          "fs": "Узурпаторская",
-          "ns": "Узурпаторское",
-          "mp": "Узурпаторские",
-          "fp": "Узурпаторские",
-          "np": "Узурпаторские"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          16,
-          20
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21
-      ],
-      "level": 60,
-      "regexPrefixContext": {
-        "ru": "Боссы получают"
-      },
-      "regexExclude": {
-        "ru": []
-      }
-    },
-    {
-      "id": "relic.sanctumbossincreaseddamagetaken3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы получают увеличенный на (21—30)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы получают увеличенный на ##% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы получают увеличенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Цареубийственный",
-          "fs": "Цареубийственная",
-          "ns": "Цареубийственное",
-          "mp": "Цареубийственные",
-          "fp": "Цареубийственные",
-          "np": "Цареубийственные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21
-      ],
-      "level": 78,
-      "regexPrefixContext": {
-        "ru": "Боссы получают"
-      },
-      "regexExclude": {
-        "ru": []
-      }
-    },
-    {
-      "id": "relic.sanctummerchantextraoptions1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Торговец предлагает дополнительный товар на выбор"
-      },
-      "rawTextTemplate": {
-        "ru": "Торговец предлагает дополнительный товар на выбор"
-      },
-      "regex": {
-        "ru": "говец"
-      },
-      "familyKey": {
-        "ru": "Торговец предлагает дополнительный товар на выбор"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Обильный",
-          "fs": "Обильная",
-          "ns": "Обильное",
-          "mp": "Обильные",
-          "fp": "Обильные",
-          "np": "Обильные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        11,
-        28
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumguardsreduceddamage1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры наносят уменьшенный на 5% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры наносят уменьшенный на #% урон"
-      },
-      "regex": {
-        "ru": "кие монстры наносят уменьшенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Крепостной",
-          "fs": "Крепостная",
-          "ns": "Крепостное",
-          "mp": "Крепостные",
-          "fp": "Крепостные",
-          "np": "Крепостные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        5
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 1,
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctumguardsreduceddamage2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры наносят уменьшенный на (6—7)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "кие монстры наносят уменьшенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Бастионный",
-          "fs": "Бастионная",
-          "ns": "Бастионное",
-          "mp": "Бастионные",
-          "fp": "Бастионные",
-          "np": "Бастионные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          6,
-          7
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        1,
-        25,
-        29
-      ],
-      "level": 60
-    },
-    {
-      "id": "relic.sanctumguardsreduceddamage3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Редкие монстры наносят уменьшенный на (8—10)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Редкие монстры наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "кие монстры наносят уменьшенный"
-      },
-      "familyKey": {
-        "ru": "Редкие монстры наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Осадный",
-          "fs": "Осадная",
-          "ns": "Осадное",
-          "mp": "Осадные",
-          "fp": "Осадные",
-          "np": "Осадные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          8,
-          10
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        1,
-        25,
-        29
-      ],
-      "level": 78
-    },
-    {
-      "id": "relic.sanctumbossreduceddamage1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы наносят уменьшенный на 5% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы наносят уменьшенный на #% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Эгидный",
-          "fs": "Эгидная",
-          "ns": "Эгидное",
-          "mp": "Эгидные",
-          "fp": "Эгидные",
-          "np": "Эгидные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [],
-      "values": [
-        5
-      ],
-      "hasYofication": false,
-      "yoficationPositions": [],
-      "level": 1,
-      "regexPrefixContext": {
-        "ru": "Боссы наносят"
-      },
-      "manualOverride": true
-    },
-    {
-      "id": "relic.sanctumbossreduceddamage2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы наносят уменьшенный на (6—7)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Авангардный",
-          "fs": "Авангардная",
-          "ns": "Авангардное",
-          "mp": "Авангардные",
-          "fp": "Авангардные",
-          "np": "Авангардные"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          6,
-          7
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        16,
-        20
-      ],
-      "level": 60,
-      "regexPrefixContext": {
-        "ru": "Боссы наносят"
-      },
-      "regexExclude": {
-        "ru": []
-      }
-    },
-    {
-      "id": "relic.sanctumbossreduceddamage3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "Боссы наносят уменьшенный на (8—10)% урон"
-      },
-      "rawTextTemplate": {
-        "ru": "Боссы наносят уменьшенный на ##% урон"
-      },
-      "regex": {
-        "ru": "урон"
-      },
-      "familyKey": {
-        "ru": "Боссы наносят уменьшенный на #% урон"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {
-          "ms": "Строевой",
-          "fs": "Строевая",
-          "ns": "Строевое",
-          "mp": "Строевые",
-          "fp": "Строевые",
-          "np": "Строевые"
-        }
-      },
-      "affix": "prefix",
-      "tags": [],
-      "ranges": [
-        [
-          8,
-          10
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        16,
-        20
-      ],
-      "level": 78,
-      "regexPrefixContext": {
-        "ru": "Боссы наносят"
-      },
-      "regexExclude": {
-        "ru": []
-      }
-    },
-    {
-      "id": "relic.sanctumhonourresistancemedium1",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(15—20)% к сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению чести"
-      },
-      "regex": {
-        "ru": "к сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          15,
-          20
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21,
-        27
-      ],
-      "level": 1
-    },
-    {
-      "id": "relic.sanctumhonourresistancemedium2",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(21—25)% к сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению чести"
-      },
-      "regex": {
-        "ru": "к сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          21,
-          25
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21,
-        27
-      ],
-      "level": 40
-    },
-    {
-      "id": "relic.sanctumhonourresistancemedium3",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(26—30)% к сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению чести"
-      },
-      "regex": {
-        "ru": "к сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          26,
-          30
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21,
-        27
-      ],
-      "level": 55
-    },
-    {
-      "id": "relic.sanctumhonourresistancemedium4",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(31—35)% к сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению чести"
-      },
-      "regex": {
-        "ru": "к сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          31,
-          35
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21,
-        27
-      ],
-      "level": 67
-    },
-    {
-      "id": "relic.sanctumhonourresistancemedium5",
-      "category": "relic",
-      "origin": "normal",
-      "rawText": {
-        "ru": "+(36—40)% к сопротивлению чести"
-      },
-      "rawTextTemplate": {
-        "ru": "+##% к сопротивлению чести"
-      },
-      "regex": {
-        "ru": "к сопротивлению чести"
-      },
-      "familyKey": {
-        "ru": "+#% к сопротивлению чести"
-      },
-      "regexPrefix": {
-        "ru": ""
-      },
-      "hasMultiPlaceholder": false,
-      "genderForms": {
-        "ru": {}
-      },
-      "affix": "suffix",
-      "tags": [],
-      "ranges": [
-        [
-          36,
-          40
-        ]
-      ],
-      "values": [],
-      "hasYofication": true,
-      "yoficationPositions": [
-        21,
-        27
-      ],
-      "level": 76
     }
   ],
   "optimizationTable": {
-    "relic.sanctumgoldonroomcompletion1:relic.sanctumgoldonroomcompletion2:relic.sanctumgoldonroomcompletion3": {
+    "relic.sanctummaximumlife1:relic.sanctummaximumlife2:relic.sanctummaximumlife3:relic.sanctummaximumlife4:relic.sanctummaximumlife5": {
       "ids": [
-        "relic.sanctumgoldonroomcompletion1",
-        "relic.sanctumgoldonroomcompletion2",
-        "relic.sanctumgoldonroomcompletion3"
+        "relic.sanctummaximumlife1",
+        "relic.sanctummaximumlife2",
+        "relic.sanctummaximumlife3",
+        "relic.sanctummaximumlife4",
+        "relic.sanctummaximumlife5"
       ],
       "regex": {
-        "ru": "по зав"
-      },
-      "weight": 6,
-      "count": 3
-    },
-    "relic.sanctumresolveonroomcomplete1:relic.sanctumresolveonroomcomplete2:relic.sanctumresolveonroomcomplete3:relic.sanctumresolveonroomcomplete4": {
-      "ids": [
-        "relic.sanctumresolveonroomcomplete1",
-        "relic.sanctumresolveonroomcomplete2",
-        "relic.sanctumresolveonroomcomplete3",
-        "relic.sanctumresolveonroomcomplete4"
-      ],
-      "regex": {
-        "ru": "завершении ком"
-      },
-      "weight": 14,
-      "count": 4
-    },
-    "relic.sanctumrevealextraroomeachfloor2:relic.sanctumrevealextraroomeachfloorlarge1:relic.sanctumrevealextraroomeachfloorlarge2": {
-      "ids": [
-        "relic.sanctumrevealextraroomeachfloor2",
-        "relic.sanctumrevealextraroomeachfloorlarge1",
-        "relic.sanctumrevealextraroomeachfloorlarge2"
-      ],
-      "regex": {
-        "ru": "на карте испытаний раскрывается"
-      },
-      "weight": 31,
-      "count": 3,
-      "regexExclude": {
-        "ru": [
-          "дополнительная"
-        ]
-      }
-    },
-    "relic.sanctumavoidafflictionchance1:relic.sanctumavoidafflictionchance2:relic.sanctumavoidafflictionchance3:relic.sanctumavoidafflictionchance4": {
-      "ids": [
-        "relic.sanctumavoidafflictionchance1",
-        "relic.sanctumavoidafflictionchance2",
-        "relic.sanctumavoidafflictionchance3",
-        "relic.sanctumavoidafflictionchance4"
-      ],
-      "regex": {
-        "ru": "прок"
-      },
-      "weight": 4,
-      "count": 4
-    },
-    "relic.sanctummonstersincreaseddamagetaken1:relic.sanctummonstersincreaseddamagetaken2:relic.sanctummonstersincreaseddamagetaken3": {
-      "ids": [
-        "relic.sanctummonstersincreaseddamagetaken1",
-        "relic.sanctummonstersincreaseddamagetaken2",
-        "relic.sanctummonstersincreaseddamagetaken3"
-      ],
-      "regex": {
-        "ru": "монстры получают увеличенный на"
-      },
-      "weight": 31,
-      "count": 3
-    },
-    "relic.sanctummonstersreduceddamage1:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3": {
-      "ids": [
-        "relic.sanctummonstersreduceddamage1",
-        "relic.sanctummonstersreduceddamage2",
-        "relic.sanctummonstersreduceddamage3"
-      ],
-      "regex": {
-        "ru": "монстры наносят уменьшенный на "
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctumadditionalkeychance1:relic.sanctumadditionalkeychance2:relic.sanctumadditionalkeychance3": {
-      "ids": [
-        "relic.sanctumadditionalkeychance1",
-        "relic.sanctumadditionalkeychance2",
-        "relic.sanctumadditionalkeychance3"
-      ],
-      "regex": {
-        "ru": "оди"
+        "ru": "здо"
       },
       "weight": 3,
-      "count": 3
-    },
-    "relic.sanctumhonourongainkey1:relic.sanctumhonourongainkey2:relic.sanctumhonourongainkey3:relic.sanctumhonourongainkey4:relic.sanctumhonourongainkey5": {
-      "ids": [
-        "relic.sanctumhonourongainkey1",
-        "relic.sanctumhonourongainkey2",
-        "relic.sanctumhonourongainkey3",
-        "relic.sanctumhonourongainkey4",
-        "relic.sanctumhonourongainkey5"
-      ],
-      "regex": {
-        "ru": "ключа"
-      },
-      "weight": 5,
       "count": 5
     },
-    "relic.sanctummonsterspeed1:relic.sanctummonsterspeed2:relic.sanctummonsterspeed3": {
+    "relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5": {
       "ids": [
-        "relic.sanctummonsterspeed1",
-        "relic.sanctummonsterspeed2",
-        "relic.sanctummonsterspeed3"
-      ],
-      "regex": {
-        "ru": "корость атаки, сотворения чар и"
-      },
-      "weight": 5,
-      "count": 3
-    },
-    "relic.sanctummaximumhonourresistance1:relic.sanctummaximumhonourresistance2": {
-      "ids": [
-        "relic.sanctummaximumhonourresistance1",
-        "relic.sanctummaximumhonourresistance2"
-      ],
-      "regex": {
-        "ru": "максимальному сопротивлению чес"
-      },
-      "weight": 31,
-      "count": 2
-    },
-    "relic.sanctumchancetopreventhonourdeath1:relic.sanctumchancetopreventhonourdeath2": {
-      "ids": [
-        "relic.sanctumchancetopreventhonourdeath1",
-        "relic.sanctumchancetopreventhonourdeath2"
-      ],
-      "regex": {
-        "ru": "честь"
-      },
-      "weight": 5,
-      "count": 2
-    },
-    "relic.sanctumkeyupgradechance1:relic.sanctumkeyupgradechance2:relic.sanctumkeyupgradechance3": {
-      "ids": [
-        "relic.sanctumkeyupgradechance1",
-        "relic.sanctumkeyupgradechance2",
-        "relic.sanctumkeyupgradechance3"
-      ],
-      "regex": {
-        "ru": "эта"
-      },
-      "weight": 3,
-      "count": 3
-    },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumresolverecovery1:relic.sanctumresolverecovery2:relic.sanctumresolverecovery3:relic.sanctumresolverecovery4:relic.sanctumresolverecovery5": {
-      "ids": [
-        "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctumresolverecovery1",
-        "relic.sanctumresolverecovery2",
-        "relic.sanctumresolverecovery3",
-        "relic.sanctumresolverecovery4",
-        "relic.sanctumresolverecovery5"
-      ],
-      "regex": {
-        "ru": "восстановления чес"
-      },
-      "weight": 18,
-      "count": 6
-    },
-    "relic.sanctummaximumhonourmedium1:relic.sanctummaximumhonourmedium2:relic.sanctummaximumhonourmedium3:relic.sanctummaximumhonourmedium4:relic.sanctummaximumhonourmedium5": {
-      "ids": [
-        "relic.sanctummaximumhonourmedium1",
-        "relic.sanctummaximumhonourmedium2",
-        "relic.sanctummaximumhonourmedium3",
-        "relic.sanctummaximumhonourmedium4",
-        "relic.sanctummaximumhonourmedium5"
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5"
       ],
       "regex": {
         "ru": "максимума чес"
@@ -3605,229 +2517,212 @@
       "weight": 13,
       "count": 5
     },
-    "relic.sanctummerchantreducedcosts1:relic.sanctummerchantreducedcosts2": {
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
       "ids": [
-        "relic.sanctummerchantreducedcosts1",
-        "relic.sanctummerchantreducedcosts2"
+        "relic.sanctumcorruptionresolverecovered_corrupted",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "торговц"
+        "ru": "восстановления чес"
       },
-      "weight": 7,
-      "count": 2
+      "weight": 18,
+      "count": 6
     },
-    "relic.sanctumrestorehonouronbosskill1:relic.sanctumrestorehonouronbosskill2:relic.sanctumrestorehonouronbosskill3:relic.sanctumrestorehonouronbosskill4:relic.sanctumrestorehonouronbosskill5": {
+    "relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
       "ids": [
-        "relic.sanctumrestorehonouronbosskill1",
-        "relic.sanctumrestorehonouronbosskill2",
-        "relic.sanctumrestorehonouronbosskill3",
-        "relic.sanctumrestorehonouronbosskill4",
-        "relic.sanctumrestorehonouronbosskill5"
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
       ],
       "regex": {
-        "ru": "босса"
+        "ru": "выпасть двойное количество святой вод"
       },
-      "weight": 5,
-      "count": 5
+      "weight": 37,
+      "count": 4
     },
-    "relic.sanctumrestorehonouronfountainuse1:relic.sanctumrestorehonouronfountainuse2:relic.sanctumrestorehonouronfountainuse3:relic.sanctumrestorehonouronfountainuse4:relic.sanctumrestorehonouronfountainuse5": {
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4": {
       "ids": [
-        "relic.sanctumrestorehonouronfountainuse1",
-        "relic.sanctumrestorehonouronfountainuse2",
-        "relic.sanctumrestorehonouronfountainuse3",
-        "relic.sanctumrestorehonouronfountainuse4",
-        "relic.sanctumrestorehonouronfountainuse5"
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4"
       ],
       "regex": {
-        "ru": "алт"
+        "ru": "даровать двойное количество святой вод"
+      },
+      "weight": 38,
+      "count": 4
+    },
+    "relic.sanctumstartinggold1:relic.sanctumstartinggold2:relic.sanctumstartinggold3:relic.sanctumstartinggold4:relic.sanctumstartinggold5": {
+      "ids": [
+        "relic.sanctumstartinggold1",
+        "relic.sanctumstartinggold2",
+        "relic.sanctumstartinggold3",
+        "relic.sanctumstartinggold4",
+        "relic.sanctumstartinggold5"
+      ],
+      "regex": {
+        "ru": "исп"
       },
       "weight": 3,
       "count": 5
     },
-    "relic.sanctumguardsincreaseddamagetaken1:relic.sanctumguardsincreaseddamagetaken2:relic.sanctumguardsincreaseddamagetaken3": {
+    "relic.mod_adffki:relic.mod_dtchb1:relic.sanctumrelicquantity1": {
       "ids": [
-        "relic.sanctumguardsincreaseddamagetaken1",
-        "relic.sanctumguardsincreaseddamagetaken2",
-        "relic.sanctumguardsincreaseddamagetaken3"
+        "relic.mod_adffki",
+        "relic.mod_dtchb1",
+        "relic.sanctumrelicquantity1"
       ],
       "regex": {
-        "ru": "ие монстры получают уве"
-      },
-      "weight": 23,
-      "count": 3
-    },
-    "relic.sanctumbossincreaseddamagetaken1:relic.sanctumbossincreaseddamagetaken2:relic.sanctumbossincreaseddamagetaken3": {
-      "ids": [
-        "relic.sanctumbossincreaseddamagetaken1",
-        "relic.sanctumbossincreaseddamagetaken2",
-        "relic.sanctumbossincreaseddamagetaken3"
-      ],
-      "regex": {
-        "ru": "урон"
-      },
-      "weight": 4,
-      "count": 3,
-      "regexPrefixContext": {
-        "ru": "Боссы получают"
-      }
-    },
-    "relic.sanctumguardsreduceddamage1:relic.sanctumguardsreduceddamage2:relic.sanctumguardsreduceddamage3": {
-      "ids": [
-        "relic.sanctumguardsreduceddamage1",
-        "relic.sanctumguardsreduceddamage2",
-        "relic.sanctumguardsreduceddamage3"
-      ],
-      "regex": {
-        "ru": "кие монстры наносят уменьшенный"
+        "ru": "реликвий, выпадающих из мон"
       },
       "weight": 27,
       "count": 3
     },
-    "relic.sanctumbossreduceddamage1:relic.sanctumbossreduceddamage2:relic.sanctumbossreduceddamage3": {
+    "relic.mod_xdjcm1:relic.sanctumdefences2:relic.sanctumdefences3:relic.sanctumdefences4": {
       "ids": [
-        "relic.sanctumbossreduceddamage1",
-        "relic.sanctumbossreduceddamage2",
-        "relic.sanctumbossreduceddamage3"
+        "relic.mod_xdjcm1",
+        "relic.sanctumdefences2",
+        "relic.sanctumdefences3",
+        "relic.sanctumdefences4"
       ],
       "regex": {
-        "ru": "урон"
+        "ru": "щит"
       },
-      "weight": 27,
-      "count": 3,
-      "regexPrefixContext": {
-        "ru": "Боссы наносят"
-      }
+      "weight": 3,
+      "count": 4
     },
-    "relic.sanctumhonourresistancemedium1:relic.sanctumhonourresistancemedium2:relic.sanctumhonourresistancemedium3:relic.sanctumhonourresistancemedium4:relic.sanctumhonourresistancemedium5": {
+    "relic.sanctumreducedtrapdamage2:relic.sanctumreducedtrapdamage3": {
       "ids": [
-        "relic.sanctumhonourresistancemedium1",
-        "relic.sanctumhonourresistancemedium2",
-        "relic.sanctumhonourresistancemedium3",
-        "relic.sanctumhonourresistancemedium4",
-        "relic.sanctumhonourresistancemedium5"
+        "relic.sanctumreducedtrapdamage2",
+        "relic.sanctumreducedtrapdamage3"
       ],
       "regex": {
-        "ru": "к сопротивлению чес"
+        "ru": "уменьшенный на "
       },
-      "weight": 19,
+      "weight": 15,
+      "count": 2
+    },
+    "relic.sanctummovementspeed1:relic.sanctummovementspeed2:relic.sanctummovementspeed3": {
+      "ids": [
+        "relic.sanctummovementspeed1",
+        "relic.sanctummovementspeed2",
+        "relic.sanctummovementspeed3"
+      ],
+      "regex": {
+        "ru": "пер"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "relic.sanctumdodgerolldistance1:relic.sanctumdodgerolldistance2": {
+      "ids": [
+        "relic.sanctumdodgerolldistance1",
+        "relic.sanctumdodgerolldistance2"
+      ],
+      "regex": {
+        "ru": "кув"
+      },
+      "weight": 3,
+      "count": 2
+    },
+    "relic.sanctumslowresistance1:relic.sanctumslowresistance2:relic.sanctumslowresistance3": {
+      "ids": [
+        "relic.sanctumslowresistance1",
+        "relic.sanctumslowresistance2",
+        "relic.sanctumslowresistance3"
+      ],
+      "regex": {
+        "ru": "вас"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "relic.sanctumreducedcritdamage1:relic.sanctumreducedcritdamage2:relic.sanctumreducedcritdamage3": {
+      "ids": [
+        "relic.sanctumreducedcritdamage1",
+        "relic.sanctumreducedcritdamage2",
+        "relic.sanctumreducedcritdamage3"
+      ],
+      "regex": {
+        "ru": "вам"
+      },
+      "weight": 3,
+      "count": 3
+    },
+    "relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5": {
+      "ids": [
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5"
+      ],
+      "regex": {
+        "ru": "сопротивлению чес"
+      },
+      "weight": 17,
       "count": 5
     },
-    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistancemedium1:relic.sanctumhonourresistancemedium2:relic.sanctumhonourresistancemedium3:relic.sanctumhonourresistancemedium4:relic.sanctumhonourresistancemedium5:relic.sanctummaximumhonourmedium1:relic.sanctummaximumhonourmedium2:relic.sanctummaximumhonourmedium3:relic.sanctummaximumhonourmedium4:relic.sanctummaximumhonourmedium5:relic.sanctummaximumhonourresistance1:relic.sanctummaximumhonourresistance2:relic.sanctumresolverecovery1:relic.sanctumresolverecovery2:relic.sanctumresolverecovery3:relic.sanctumresolverecovery4:relic.sanctumresolverecovery5": {
+    "relic.sanctumkeydropchance1:relic.sanctumkeydropchance2:relic.sanctumkeydropchance3:relic.sanctumkeydropchance4": {
+      "ids": [
+        "relic.sanctumkeydropchance1",
+        "relic.sanctumkeydropchance2",
+        "relic.sanctumkeydropchance3",
+        "relic.sanctumkeydropchance4"
+      ],
+      "regex": {
+        "ru": "клю"
+      },
+      "weight": 3,
+      "count": 4
+    },
+    "relic.sanctumfountaindoublegoldchance1:relic.sanctumfountaindoublegoldchance2:relic.sanctumfountaindoublegoldchance3:relic.sanctumfountaindoublegoldchance4:relic.sanctummonstersdoublegoldchance1:relic.sanctummonstersdoublegoldchance2:relic.sanctummonstersdoublegoldchance3:relic.sanctummonstersdoublegoldchance4": {
+      "ids": [
+        "relic.sanctumfountaindoublegoldchance1",
+        "relic.sanctumfountaindoublegoldchance2",
+        "relic.sanctumfountaindoublegoldchance3",
+        "relic.sanctumfountaindoublegoldchance4",
+        "relic.sanctummonstersdoublegoldchance1",
+        "relic.sanctummonstersdoublegoldchance2",
+        "relic.sanctummonstersdoublegoldchance3",
+        "relic.sanctummonstersdoublegoldchance4"
+      ],
+      "regex": {
+        "ru": "выпас.*ть двойное количество святой воды|дарова.*ть двойное количество святой воды"
+      },
+      "weight": 82,
+      "count": 8
+    },
+    "relic.sanctumcorruptionresolverecovered_corrupted:relic.sanctumhonourresistance1:relic.sanctumhonourresistance2:relic.sanctumhonourresistance3:relic.sanctumhonourresistance4:relic.sanctumhonourresistance5:relic.sanctummaximumhonour1:relic.sanctummaximumhonour2:relic.sanctummaximumhonour3:relic.sanctummaximumhonour4:relic.sanctummaximumhonour5:relic.sanctumresolverecoverysmall1:relic.sanctumresolverecoverysmall2:relic.sanctumresolverecoverysmall3:relic.sanctumresolverecoverysmall4:relic.sanctumresolverecoverysmall5": {
       "ids": [
         "relic.sanctumcorruptionresolverecovered_corrupted",
-        "relic.sanctumhonourresistancemedium1",
-        "relic.sanctumhonourresistancemedium2",
-        "relic.sanctumhonourresistancemedium3",
-        "relic.sanctumhonourresistancemedium4",
-        "relic.sanctumhonourresistancemedium5",
-        "relic.sanctummaximumhonourmedium1",
-        "relic.sanctummaximumhonourmedium2",
-        "relic.sanctummaximumhonourmedium3",
-        "relic.sanctummaximumhonourmedium4",
-        "relic.sanctummaximumhonourmedium5",
-        "relic.sanctummaximumhonourresistance1",
-        "relic.sanctummaximumhonourresistance2",
-        "relic.sanctumresolverecovery1",
-        "relic.sanctumresolverecovery2",
-        "relic.sanctumresolverecovery3",
-        "relic.sanctumresolverecovery4",
-        "relic.sanctumresolverecovery5"
+        "relic.sanctumhonourresistance1",
+        "relic.sanctumhonourresistance2",
+        "relic.sanctumhonourresistance3",
+        "relic.sanctumhonourresistance4",
+        "relic.sanctumhonourresistance5",
+        "relic.sanctummaximumhonour1",
+        "relic.sanctummaximumhonour2",
+        "relic.sanctummaximumhonour3",
+        "relic.sanctummaximumhonour4",
+        "relic.sanctummaximumhonour5",
+        "relic.sanctumresolverecoverysmall1",
+        "relic.sanctumresolverecoverysmall2",
+        "relic.sanctumresolverecoverysmall3",
+        "relic.sanctumresolverecoverysmall4",
+        "relic.sanctumresolverecoverysmall5"
       ],
       "regex": {
-        "ru": "восстановления.*чести|максим.*альному сопротивлению.*чести|максим.*ума.*чести|к сопротивлению.*чести"
+        "ru": "максимума.*чести|восстановления.*чести|сопротивлению.*чести"
       },
-      "weight": 100,
-      "count": 18
-    },
-    "relic.sanctumhonourresistancemedium1:relic.sanctumhonourresistancemedium2:relic.sanctumhonourresistancemedium3:relic.sanctumhonourresistancemedium4:relic.sanctumhonourresistancemedium5:relic.sanctummaximumhonourresistance1:relic.sanctummaximumhonourresistance2": {
-      "ids": [
-        "relic.sanctumhonourresistancemedium1",
-        "relic.sanctumhonourresistancemedium2",
-        "relic.sanctumhonourresistancemedium3",
-        "relic.sanctumhonourresistancemedium4",
-        "relic.sanctumhonourresistancemedium5",
-        "relic.sanctummaximumhonourresistance1",
-        "relic.sanctummaximumhonourresistance2"
-      ],
-      "regex": {
-        "ru": "максимальному.*сопротивлению чести|к.*сопротивлению чести"
-      },
-      "weight": 57,
-      "count": 7
-    },
-    "relic.sanctummaximumhonourmedium1:relic.sanctummaximumhonourmedium2:relic.sanctummaximumhonourmedium3:relic.sanctummaximumhonourmedium4:relic.sanctummaximumhonourmedium5:relic.sanctummaximumhonourresistance1:relic.sanctummaximumhonourresistance2": {
-      "ids": [
-        "relic.sanctummaximumhonourmedium1",
-        "relic.sanctummaximumhonourmedium2",
-        "relic.sanctummaximumhonourmedium3",
-        "relic.sanctummaximumhonourmedium4",
-        "relic.sanctummaximumhonourmedium5",
-        "relic.sanctummaximumhonourresistance1",
-        "relic.sanctummaximumhonourresistance2"
-      ],
-      "regex": {
-        "ru": "максим.*альному сопротивлению.*чести|максим.*ума.*чести"
-      },
-      "weight": 55,
-      "count": 7
-    },
-    "relic.sanctummonstersincreaseddamagetaken1:relic.sanctummonstersincreaseddamagetaken2:relic.sanctummonstersincreaseddamagetaken3:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3": {
-      "ids": [
-        "relic.sanctummonstersincreaseddamagetaken1",
-        "relic.sanctummonstersincreaseddamagetaken2",
-        "relic.sanctummonstersincreaseddamagetaken3",
-        "relic.sanctummonstersreduceddamage2",
-        "relic.sanctummonstersreduceddamage3"
-      ],
-      "regex": {
-        "ru": "монстры.*получают увеличенный на|монстры.*наносят уменьшенный на "
-      },
-      "weight": 65,
-      "count": 5
-    },
-    "relic.sanctumguardsincreaseddamagetaken1:relic.sanctumguardsincreaseddamagetaken2:relic.sanctumguardsincreaseddamagetaken3:relic.sanctumguardsreduceddamage2:relic.sanctumguardsreduceddamage3": {
-      "ids": [
-        "relic.sanctumguardsincreaseddamagetaken1",
-        "relic.sanctumguardsincreaseddamagetaken2",
-        "relic.sanctumguardsincreaseddamagetaken3",
-        "relic.sanctumguardsreduceddamage2",
-        "relic.sanctumguardsreduceddamage3"
-      ],
-      "regex": {
-        "ru": "ие монстры получают увелич.*енный|кие монстры наносят уменьш.*енный"
-      },
-      "weight": 67,
-      "count": 5
-    },
-    "relic.sanctummonstersincreaseddamagetaken1:relic.sanctummonstersincreaseddamagetaken2:relic.sanctummonstersincreaseddamagetaken3:relic.sanctummonstersreduceddamage1:relic.sanctummonstersreduceddamage2:relic.sanctummonstersreduceddamage3": {
-      "ids": [
-        "relic.sanctummonstersincreaseddamagetaken1",
-        "relic.sanctummonstersincreaseddamagetaken2",
-        "relic.sanctummonstersincreaseddamagetaken3",
-        "relic.sanctummonstersreduceddamage1",
-        "relic.sanctummonstersreduceddamage2",
-        "relic.sanctummonstersreduceddamage3"
-      ],
-      "regex": {
-        "ru": "монстры.*получают увеличенный на|монстры.*наносят уменьшенный на 6"
-      },
-      "weight": 66,
-      "count": 6
-    },
-    "relic.sanctumguardsincreaseddamagetaken1:relic.sanctumguardsincreaseddamagetaken2:relic.sanctumguardsincreaseddamagetaken3:relic.sanctumguardsreduceddamage1:relic.sanctumguardsreduceddamage2:relic.sanctumguardsreduceddamage3": {
-      "ids": [
-        "relic.sanctumguardsincreaseddamagetaken1",
-        "relic.sanctumguardsincreaseddamagetaken2",
-        "relic.sanctumguardsincreaseddamagetaken3",
-        "relic.sanctumguardsreduceddamage1",
-        "relic.sanctumguardsreduceddamage2",
-        "relic.sanctumguardsreduceddamage3"
-      ],
-      "regex": {
-        "ru": "ие монстры получают увелич.*енный|кие монстры наносят уменьш.*енный"
-      },
-      "weight": 67,
-      "count": 6
+      "weight": 59,
+      "count": 16
     }
   }
 }
