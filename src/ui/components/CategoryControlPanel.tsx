@@ -19,7 +19,7 @@
  * iter 148 (toolbar refactor): sort/show-mode toggles collapsed from
  * radiogroups into <select>s to reduce visual noise. The И/ИЛИ toggle
  * stays as prominent buttons because it changes query semantics (constant
- * usage). See docs/ITER148_TOOLBAR_REFACTOR.md for full rationale.
+ * usage).
  *
  * iter 149: Priority tier filter (`<select aria-label="Приоритет">`) removed
  * entirely — the feature was rarely used and added visual clutter. All

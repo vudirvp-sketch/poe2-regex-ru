@@ -944,7 +944,7 @@ main {
 }
 
 /* ─── Level 2 Origin Section header frame ─── */
-/* iter 164 (REDESIGN_CONCEPT_v3 §2.2 / §3 P1): the L2 origin section header
+/* iter 164 (redesign v3, §2.2 / §3 P1): the L2 origin section header
    (Обычные / Осквернённые / Очернённые / Сущность / Разлома) sat visually
    too close to the L3 sub-group badge — both had a similar bg-tint + border,
    differing only in font-size (14 vs 12) and weight (bold vs semibold).
@@ -1008,7 +1008,7 @@ main {
    Pattern mirrors .affix-header-* Level 1 frames (gradient bg + colored border-l
    + corner accents) but uses the gold brand accent (var(--poe-gold) = #C89A4A)
    to mark RegexOutput as the central functional element of every category page.
-   iter 164 (REDESIGN_CONCEPT_v3 §3 P3): border alpha 0.35 → 0.48, box-shadow
+   iter 164 (redesign v3, §3 P3): border alpha 0.35 → 0.48, box-shadow
    alpha 0.06 → 0.10 / 0.10 → 0.18 — RegexOutput is the SINGLE most important
    element on the right panel (the user's actual deliverable), so its visual
    weight must clearly dominate SelectedBasket above and StatusPanel below.
@@ -1337,7 +1337,7 @@ main {
    because it overlays the parent `.topnav` border seamlessly without
    needing negative margins or padding compensation.
 
-   iter 164 (REDESIGN_CONCEPT_v3 §3 P2): alpha gradient 0.14 → 0.20 /
+   iter 164 (redesign v3, §3 P2): alpha gradient 0.14 → 0.20 /
    0.04 → 0.06, box-shadow 0.10 → 0.16 / 0.10 → 0.18, added
    text-shadow for the active label. The active tab must read
    INSTANTLY — on bright OLED laptop panels the previous gold-on-warm-

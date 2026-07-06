@@ -43,7 +43,7 @@
  *  4. The alpha tiebreaker within the same order bucket preserves
  *     alphabetical readability for mods that share the same semantic slot.
  *
- * Source: docs/AFFIX_ORDERING_PLAN.md (iter 112).
+ * Source: iter 112 block-sort-rules design (historical).
  */
 import type { FunctionalBlock } from './mod-classifier';
 

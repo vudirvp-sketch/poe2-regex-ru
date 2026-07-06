@@ -2,29 +2,35 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 178 (полировка `/timeless-jewel` — rename, иконка, MobileRegexBar, SEO, self-host atlas-icons).
+> **Текущая итерация:** 179 (README rewrite как SEO-витрина + docs/ cleanup — удалены 4 устаревших iter-плана).
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы в §3, §4, §5).
 
 ---
 
-## Текущее состояние (iter 178 — DONE)
+## Текущее состояние (iter 179 — DONE)
+
+**iter 179: README rewrite + docs/ cleanup.** Чисто documentation-only iter, без изменений в коде-функциональности. Цель — превратить README в SEO-оптимизированную «витрину» и облегчить docs/.
+
+**Что сделано:**
+- **README.md** полностью переписан как SEO-landing: что это + для кого + key features + quick start + поддерживаемые категории + стек/структура + документация + контакты. Ключевые слова: регексы poe2, регулярное выражение poe2, фильтр предметов poe2, поиск предметов poe2, poe2 regex generator, path of exile 2 search string.
+- **docs/ cleanup** — удалены 4 устаревших iter-плана (все DONE/superseded):
+  - `docs/ITER142_PROPOSALS.md` — design proposals для KI#23/30/31 (история, ~280 строк).
+  - `docs/ITER148_TOOLBAR_REFACTOR.md` — iter 148 toolbar refactor (DONE).
+  - `docs/REDESIGN_CONCEPT_v3.md` — iter 164, superseded by `REDESIGN_CONCEPT_v4.md`.
+  - `docs/AFFIX_ORDERING_PLAN.md` — iter 112 block-sort-rules (DONE, 100% coverage iter 119).
+- **Обновлены stale references** в коде и docs: `src/ui/components/CategoryControlPanel.tsx` (comment про ITER148), `src/shared/block-sort-rules.ts` (comment про AFFIX_ORDERING_PLAN), `src/ui/components/RegexOutput.tsx` + `src/index.css` (3 места — `REDESIGN_CONCEPT_v3 §X` → `redesign v3, §X`), `docs/UI_AUDIT.md` §6 (убрана ссылка на AFFIX_ORDERING_PLAN.md), `docs/REDESIGN_CONCEPT_v4.md` (отметка что v3 удалён), `docs/UI_REFACTOR_PLAN.md` (4 references на ITER142_PROPOSALS — помечены как «удалено в iter 179 cleanup»).
+- **`UI_REFACTOR_PLAN.md` оставлен** — слишком много активных code-references (~15 source files ссылаются на «§4 Phase X»). Удаление потребует mass-comment-cleanup — отложено на отдельную итерацию.
+- **Проверки**: `tsc` 0, `eslint` 0, `pnpm test` 2405 passed | 5 skipped (без регрессий — код не изменён, только comments + docs). `pnpm build` OK (10 prerendered routes — без изменений).
+
+---
+
+## iter 178 — полировка `/timeless-jewel` (предыдущая)
 
 **iter 178: Полировка `/timeless-jewel`.** Косметика + SEO + производительность иконок. Никаких изменений в regex-engine или других категориях.
 
-**Что сделано:**
-- **Rename** `'timeless_jewel.title'`: `Особые самоцветы` → `Вневременные самоцветы` (соответствует inside-game item class name). Затронут только `src/shared/i18n.ts`.
-- **Иконка** `public/icons/timeless-jewel.png` — пользовательская, 128×128 RGBA, 28 KB, прозрачный фон. `nav-items.ts` обновлён: `icon: 'jewel'` → `icon: 'timeless-jewel'`. Header `TimelessJewelPage.tsx` тоже использует новый path. Формат консистентен с остальными иконками навигации (waystone/tablet/relic/jewel/vendor/belt/ring/amulet/logo).
-- **MobileRegexBar** интегрирован в `TimelessJewelPage.tsx`: RegexOutput рендерится в двух местах (desktop aside + mobile sticky-bottom bar), тот же паттерн что `BeltPage`/`RingPage`/etc. Atlas-semantics notice передан как alert.
-- **Self-host atlas-node иконки**: 15 уникальных `.webp` скачаны в `public/icons/atlas-nodes/` (~50 KB суммарно). `public/generated/timeless-jewel.json` пропатчен — все 75 `iconUrl` теперь локальные (`icons/atlas-nodes/X.webp`). `AtlasNodeList.tsx` резолвит относительные пути через `import.meta.env.BASE_URL`. **Решает проблему «иконки подгружаются со скрипом»** — больше не нужен DNS/TLS handshake к `cdn.poe2db.tw` при первом заходе.
-- **Zod-схема** `AtlasNodeTokenSchema.iconUrl` обновлена: принимает и `https://...` URL, и относительные пути `icons/...` (через `.refine()`).
-- **Парсер** `scripts/etl/parse-timeless-jewel.ts` обновлён: новый helper `localizeIconUrl(remoteUrl)` скачивает иконку в `public/icons/atlas-nodes/` (idempotent, с browser-like headers для обхода 403). Future re-runs парсера будут автоматически self-host новые иконки.
-- **Prerender + SEO**: `/timeless-jewel` добавлен в `scripts/prerender.ts` (routes[] + navLinks[]) и `public/sitemap.xml`. Сгенерирован `dist/timeless-jewel/index.html` с уникальным `<title>`, `<meta description>`, og:*, canonical.
-- **Проверки**: `tsc` 0, `eslint` 0, `pnpm test` 2405 passed | 5 skipped (KI#53), `pnpm build` OK (10 prerendered routes — было 9). TimelessJewelPage chunk 7.09 → 7.63 KB (+MobileRegexBar).
+**iter 178-fix (post-iter 178 patch):** Файл `public/icons/timeless-jewel.png` перезаписан пользовательской иконкой (commit `8143975`). MD5 `af23c6063c27da0fed56801ccdbe0515`, 28093 bytes, 128×128 RGBA. Очищены устаревшие комментарии в коде. **Если в браузере всё ещё видна старая фиолетовая иконка** — это кэш. Hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) или инкогнито.
 
-**iter 178 icon-fix (post-iter 178 patch):**
-- Файл `public/icons/timeless-jewel.png` перезаписан пользовательской иконкой (commit `8143975`). MD5 `af23c6063c27da0fed56801ccdbe0515`, размер 28093 bytes, 128×128 RGBA, прозрачный фон 47.9% — в том же диапазоне что у соседних иконок (22–71%).
-- **Если в браузере всё ещё видна старая фиолетовая иконка** — это кэш. Решение: hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) или открыть сайт в режиме инкогнито. GitHub Pages кэширует статику; новая иконка применится после сброса кэша браузера.
-- Очистка устаревших комментариев в коде: `nav-items.ts` (убрано упоминание «purple cosmic gem»), `TimelessJewelPage.tsx` (убрано «purple cosmic gem» в JSDoc).
+Подробности iter 178 — в `worklog.md`.
 
 ---
 
@@ -36,8 +42,8 @@
 | 176 | Дата-модель + JSON + минимальная страница + builder + тесты | ✅ DONE |
 | 177 | Фикс деплоя — KI#53 closed | ✅ DONE |
 | 178 | Rename + иконка + MobileRegexBar + SEO + self-host icons | ✅ DONE |
-| 179 | README rewrite (SEO-витрина) + docs/ cleanup | ⏳ NEXT |
-| 180 | URL-sync + ProfilePanel + SelectedBasket для timeless-jewel | ⏳ |
+| 179 | README rewrite (SEO-витрина) + docs/ cleanup | ✅ DONE |
+| 180 | URL-sync + ProfilePanel + SelectedBasket для timeless-jewel | ⏳ NEXT |
 | 181+ | ETL-интеграция `parse-timeless-jewel.ts` в `run-etl.ts` (опционально) | ⏳ |
 
 ---
@@ -116,14 +122,9 @@ A: Нет, это кэш браузера. Файл `public/icons/timeless-jewel
 
 ---
 
-## Next iteration (iter 178 → iter 179)
+## Next iteration (iter 179 → iter 180)
 
-**iter 178 завершён.** Косметика + SEO + self-host иконок. CI зелёный: 2405 passed | 5 skipped, `pnpm build` OK (10 prerendered routes).
-
-**iter 179 — README rewrite (SEO-витрина) + docs/ cleanup:**
-1. **README.md rewrite** — превратить в SEO-оптимизированную «витрину» сайта и генератора. Цель: пользователи и AI-агенты находили репозиторий и сайт через поисковые запросы и AI-чаты. Структура: что это + для кого + key features + скриншот/preview + ссылки (online + repo + Discord) + quick start + как использовать генератор + stack/structure (кратко).
-2. **docs/ cleanup** — удалить устаревшие итерационные планы (`ITER142_PROPOSALS.md`, `ITER148_TOOLBAR_REFACTOR.md`, `REDESIGN_CONCEPT_v3.md`, `AFFIX_ORDERING_PLAN.md` — все DONE/superseded). Оставить только актуальные reference-документы. Обновить `AGENT_NAVIGATION.md` §13 Documentation Map.
-3. **worklog.md trim** — перенести iter 175 в одну строку.
+**iter 179 завершён.** README переписан как SEO-витрина, docs/ почищен (4 устаревших файла удалено). CI зелёный: 2405 passed | 5 skipped, `pnpm build` OK (10 prerendered routes — без изменений).
 
 **iter 180 — state-features для `/timeless-jewel`:**
 1. **URL-sync** — selection в hash (через `url-sync.ts`, отдельная логика для atlas-узлов — НЕ filter-store).
@@ -132,7 +133,9 @@ A: Нет, это кэш браузера. Файл `public/icons/timeless-jewel
 
 **iter 181+ (опционально):** ETL-интеграция парсера в `run-etl.ts` (сейчас отдельный скрипт `scripts/etl/parse-timeless-jewel.ts`).
 
-**Технический долг:** 7 relic overrides в `i18n-overrides.json` сейчас no-ops — можно удалить, когда точно убедимся, что они не нужны.
+**Технический долг:**
+- 7 relic overrides в `i18n-overrides.json` сейчас no-ops — можно удалить, когда точно убедимся, что они не нужны.
+- `docs/UI_REFACTOR_PLAN.md` (iter 137) — все 7 фаз DONE, но ~15 source files ссылаются на «§4 Phase X» в комментариях. Удаление требует mass-comment-cleanup — отложено.
 
 **Активные KI без изменений:** KI#45, KI#46, KI#47, KI#43. Фоновые: APCA Lc<75, MobileRegexBar 168 KB.
 

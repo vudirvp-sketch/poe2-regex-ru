@@ -122,7 +122,7 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  // iter 164 (REDESIGN_CONCEPT_v3 §3 P3): pulse-on-change — when the compiled
+  // iter 164 (redesign v3, P3): pulse-on-change — when the compiled
   // regex string changes (user selected/deselected an affix), toggle the
   // `regex-output--pulse` CSS modifier for ~600ms. This gives instant visual
   // feedback «selected → result» and makes the RegexOutput block read as the

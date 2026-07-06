@@ -376,6 +376,6 @@ font-feature-settings: "tnum";
 3. Опционально: пристроить `faf.png` (1672×941, landscape) — если пользователь определит место.
 4. Опционально (перенос из iter 111): cleanup `--text-faint-val` alias / lift `--text-dim-val` до #8A92A2.
 5. Опционально: систематизация `other` block (27 family-keys) — LOW priority, heterogeneous.
-6. Полный план и статус — в STATUS.md, docs/AFFIX_ORDERING_PLAN.md и worklog.md.
+6. Полный план и статус — в STATUS.md и worklog.md.
 
 

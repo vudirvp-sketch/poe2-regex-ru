@@ -1,0 +1,65 @@
+# iter 179 — Patch Archive
+
+**Дата:** 2026-07-06
+**Итерация:** iter 179 (README rewrite как SEO-витрина + docs/ cleanup)
+**Базовый коммит:** `6ae1dea` (iter 178-fix: cleanup stale 'purple gem' comments + docs sync)
+
+---
+
+## Что в архиве
+
+Только изменённые файлы (preserve relative paths). Извлеки поверх локальной копии репозитория — `tar xzf iter179-patch.tar.gz -C /path/to/local/repo`.
+
+## Изменённые файлы (11)
+
+```
+README.md                                  — полный rewrite как SEO-витрина (landing page)
+STATUS.md                                  — header iter 179 + текущее состояние + roadmap + Next iter
+AGENT_NAVIGATION.md                        — header iter 179 + §13 Documentation Map
+worklog.md                                 — iter 176/177 → one-liners + iter-179 entry
+docs/REDESIGN_CONCEPT_v4.md                — отметка что v3 удалён (2 ref cleanup)
+docs/UI_AUDIT.md                           — убрана ссылка на AFFIX_ORDERING_PLAN.md (1 ref)
+docs/UI_REFACTOR_PLAN.md                   — 4 references на ITER142_PROPOSALS помечены как «удалено в iter 179 cleanup»
+src/index.css                              — 3 исторических маркера: REDESIGN_CONCEPT_v3 §X → redesign v3, §X
+src/shared/block-sort-rules.ts             — comment: AFFIX_ORDERING_PLAN.md → «iter 112 block-sort-rules design (historical)»
+src/ui/components/CategoryControlPanel.tsx — comment: убрано «See docs/ITER148_TOOLBAR_REFACTOR.md for full rationale.»
+src/ui/components/RegexOutput.tsx          — comment: REDESIGN_CONCEPT_v3 §3 P3 → redesign v3, §3 P3
+```
+
+## Удалённые файлы (4) — удали локально
+
+```bash
+rm docs/AFFIX_ORDERING_PLAN.md
+rm docs/ITER142_PROPOSALS.md
+rm docs/ITER148_TOOLBAR_REFACTOR.md
+rm docs/REDESIGN_CONCEPT_v3.md
+```
+
+## Верификация (на стороне агента)
+
+- `npx tsc -b` ✅ 0 errors
+- `npx eslint .` ✅ 0 errors
+- `npx vitest run` ✅ 2405 passed | 5 skipped (без регрессий)
+- `npm run build` ✅ OK (10 prerendered routes — без изменений)
+
+## Git-команды для коммита
+
+```bash
+cd /path/to/local/repo
+# Извлечь патч
+tar xzf iter179-patch.tar.gz
+# Удалить устаревшие файлы
+rm docs/AFFIX_ORDERING_PLAN.md docs/ITER142_PROPOSALS.md docs/ITER148_TOOLBAR_REFACTOR.md docs/REDESIGN_CONCEPT_v3.md
+# Stage + commit
+git add -A
+git commit -m "iter 179: README rewrite (SEO-витрина) + docs/ cleanup (4 stale iter-plans removed)"
+git push origin main
+```
+
+## Точка остановки
+
+**iter 179 завершён.** Documentation-only iter — код-функциональность не изменена, только comments + docs. CI зелёный: 2405 passed | 5 skipped, build OK.
+
+**Next iteration (iter 180):** state-features для `/timeless-jewel` — URL-sync (selection в hash через `url-sync.ts`, отдельная логика для atlas-узлов), ProfilePanel integration, SelectedBasket (упрощённая версия без family-group).
+
+**Техдолг для iter 180+:** `docs/UI_REFACTOR_PLAN.md` НЕ удалён — слишком много активных code-references (~15 source files ссылаются на «§4 Phase X»). Удаление требует mass-comment-cleanup.

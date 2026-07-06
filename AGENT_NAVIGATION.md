@@ -1,7 +1,7 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 178 — полировка `/timeless-jewel` (rename, иконка, MobileRegexBar, SEO, self-host atlas-icons). 2405 passed | 5 skipped (KI#53-relic секции). iter 178 icon-fix — пользовательская иконка залита (commit `8143975`, MD5 `af23c6063c27da0fed56801ccdbe0515`). iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
+> **Текущее состояние:** iter 179 — README rewrite (SEO-витрина) + docs/ cleanup (удалены 4 устаревших iter-плана: ITER142_PROPOSALS, ITER148_TOOLBAR_REFACTOR, REDESIGN_CONCEPT_v3, AFFIX_ORDERING_PLAN). 2405 passed | 5 skipped (KI#53-relic секции). iter 178 — полировка `/timeless-jewel`. iter 178 icon-fix — пользовательская иконка залита (commit `8143975`, MD5 `af23c6063c27da0fed56801ccdbe0515`). iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
 > **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#53 — ЗАКРЫТ (iter 177)**.
 > **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
@@ -226,7 +226,8 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `docs/SEO_PLAN.md` | On SEO workflow changes |
 | `docs/UI_AUDIT.md` | UI-аудит v2 (iter 110) — reference, read-only |
 | `docs/UI_REFACTOR_PLAN.md` | iter 137 — 7 фаз UI-рефакторинга. All DONE. |
-| `docs/REDESIGN_CONCEPT_v3.md` | iter 164 — реализован (P1/P2/P3). Ревизия в v4 §4. |
 | `docs/REDESIGN_CONCEPT_v4.md` | iter 165 — концепт-спецификация редизайна (реализован в iter 166-170). Reference only. |
-| `docs/ATLAS_JEWEL_PLAN.md` | iter 175–176 — план + реализация категории `/timeless-jewel`. iter 176 DONE (минимальная рабочая версия). iter 177 DONE (KI#53 фикс деплоя). iter 178 DONE (rename + иконка + MobileRegexBar + SEO + self-host icons). iter 179 — README rewrite (SEO-витрина) + docs/ cleanup. iter 180+ — state-features (URL-sync, profile, SelectedBasket). |
+| `docs/ATLAS_JEWEL_PLAN.md` | iter 175–178 — план + реализация категории `/timeless-jewel`. iter 178 DONE (rename + иконка + MobileRegexBar + SEO + self-host icons). iter 179 DONE (README + docs cleanup). iter 180+ — state-features (URL-sync, profile, SelectedBasket). |
 | `worklog.md` | Every iteration — append new Task ID section |
+
+**Удалены в iter 179 cleanup** (DONE/superseded): `ITER142_PROPOSALS.md`, `ITER148_TOOLBAR_REFACTOR.md`, `REDESIGN_CONCEPT_v3.md` (superseded by v4), `AFFIX_ORDERING_PLAN.md`.

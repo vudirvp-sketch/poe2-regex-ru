@@ -848,8 +848,8 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 - **KI#27 (FIXED):** VirtualizedModList prefix/suffix 50/50 alignment. iter 139 KI#17 fix (`md:grid-cols-2`) был применён ТОЛЬКО к `ModList.tsx`, но НЕ к `VirtualizedModList.tsx` — там осталось `md:grid-cols-[2fr_3fr]` (40/60 split). Fix: одна строка заменена на `md:grid-cols-2`. **Lesson: при fixed-bug-in-one-place, audit ALL similar components.**
 - **KI#28 (FIXED):** Favorites counter — 1 per family, not N per tier. `handleTogglePinned` в 7 pages simplified from `ids.forEach(id => togglePinned(id))` to `if (ids.length > 0) togglePinned(ids[0])`. `pinnedIds.size` теперь = число favorited семей.
 - **KI#29 (FIXED):** Aside collapse header упрощён. CategoryLayout.tsx aside header rewritten — removed `bg-panel border p-2` panel wrapper + empty `<span>` title placeholder. Новая structure: compact `flex items-center justify-end gap-1` row + small chevron button.
-- **KI#30 (MONITORING — not fixed):** Cross-tab persistence favorites (pinnedIds). Design proposal — в `docs/ITER142_PROPOSALS.md` §2. Отложено на iter 143+ (требует user decision).
-- **KI#31 (MONITORING — not fixed):** Favorites как quick-select feature. Design proposal — в `docs/ITER142_PROPOSALS.md` §3. Отложено на iter 143+ (требует UX design + user feedback).
+- **KI#30 (MONITORING — not fixed):** Cross-tab persistence favorites (pinnedIds). Отложено на iter 143+ (требует user decision). Историческое design proposal (iter 142) удалено в iter 179 cleanup.
+- **KI#31 (MONITORING — not fixed):** Favorites как quick-select feature. Отложено на iter 143+ (требует UX design + user feedback). Историческое design proposal (iter 142) удалено в iter 179 cleanup.
 
 **iter 141 changes:** NEW `src/store/local-settings.ts`, `src/ui/hooks/useCategoryPage.ts` (defaultRound10 true→false + 7 useState initializers + URL-sync effect + restoreFilterState), `src/ui/components/VirtualizedModList.tsx` (1-line grid-cols fix), 7 page files (`handleTogglePinned` simplified), `src/ui/layout/CategoryLayout.tsx` (aside header rewrite), NEW `tests/store/local-settings.test.ts` (8 tests), NEW `tests/ui/CategoryLayout.test.tsx` KI#29 describe block (4 tests), NEW `tests/ui/VirtualizedModList.test.tsx` KI#27 describe block (1 test). vitest 2177→2190 (+13 net), tsc 0, eslint 0.
 
@@ -857,7 +857,7 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
 
 **iter 142 completed as documentation-only iteration** — без кодовых изменений, согласно правилу «лучше недоделать, чем сломать». Все 3 активные KI (KI#23/30/31) требуют либо browser testing (KI#23), либо UX design решения от user (KI#30/31) — реализация без discussion была бы guesswork.
 
-**iter 143 (current): awaiting user input — no code changes.** Все 3 приоритета iter 143 заблокированы user-dependent решениями: (1) UX verification KI#26/27/28/29 требует user browser testing (агент не имеет доступа к браузеру); (2) KI#23/30/31 variant selection требует user decision (6 questions в `docs/ITER142_PROPOSALS.md` §5 ИЛИ явное «approve recommended b/a/b»); (3) implementation BLOCKED by (2). См. `STATUS.md` «Next iteration (iter 143 → iter 144)» для подробностей.
+**iter 143 (current): awaiting user input — no code changes.** Все 3 приоритета iter 143 заблокированы user-dependent решениями: (1) UX verification KI#26/27/28/29 требует user browser testing (агент не имеет доступа к браузеру); (2) KI#23/30/31 variant selection требует user decision; (3) implementation BLOCKED by (2). См. `STATUS.md` для актуального статуса.
 
 **iter 142 deliverables:**
 
@@ -866,13 +866,13 @@ as Known Issue FIRST, then fix. (Per user's standing instruction.)
    - `AGENT_NAVIGATION.md` (419→339 строк, -19% lines / -29.5% bytes) — header сжат, Pitfalls 20-29 сжаты в 1-2 строки, Pitfalls 41-47 объединены в один Pitfall 41, Pitfalls 49-50 сжаты, §14 OP-1 сжат.
    - `worklog.md` — iter 141 сжат в 1 строку в «Предыдущие итерации», iter 142 entry добавлен.
    - `docs/UI_REFACTOR_PLAN.md` §13.6 → iter 141 reference (archive), NEW §13.7 = iter 142 reference.
-2. **NEW `docs/ITER142_PROPOSALS.md`** (~280 строк) — design proposals для KI#23/30/31 с 3 вариантами каждый, pros/cons, recommendation, тест-план, user questions. Подготовлен для user review.
+2. **NEW `docs/ITER142_PROPOSALS.md`** (~280 строк, удалён в iter 179 cleanup) — design proposals для KI#23/30/31 с 3 вариантами каждый. Подготовлен для user review (история).
 3. **Baseline проверки подтверждены:** tsc 0 / eslint 0 / vitest 2190/2190 (без изменений — doc cleanup не влияет на тесты).
 
 **Remaining optional enhancements** (если user запросит):
-- **KI#23 scroll jitter fix** — see `docs/ITER142_PROPOSALS.md` §1 for 3 variants + recommendation.
-- **KI#30 cross-tab favorites persistence** — see `docs/ITER142_PROPOSALS.md` §2 for 3 variants + recommendation.
-- **KI#31 favorites как quick-select** — see `docs/ITER142_PROPOSALS.md` §3 for 3 UX variants + recommendation.
+- **KI#23 scroll jitter fix** — историческое design proposal (iter 142, удалено в iter 179 cleanup) содержало 3 variants + recommendation.
+- **KI#30 cross-tab favorites persistence** — историческое design proposal (iter 142, удалено в iter 179 cleanup) содержало 3 variants + recommendation.
+- **KI#31 favorites как quick-select** — историческое design proposal (iter 142, удалено в iter 179 cleanup) содержало 3 UX variants + recommendation.
 - Persist `rightPanelCollapsed` to URL — currently local state. Add `rpc` boolean field to filter-store if user requests.
 - VendorPage Phase 5 wiring — VendorPage uses custom FilterChip. To wire favorites for vendor, need to add ⭐ pin slot to vendor FilterChip + render FavoritesIndicator (compact version). Deferred until user requests.
 - Phase 5 scroll-to-mod on mobile / virtualized lists — currently degrades gracefully (no-op) when chip is virtualized out of DOM. Could be enhanced to scroll to sub-group header instead. Deferred.
