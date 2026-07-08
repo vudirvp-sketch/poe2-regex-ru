@@ -1,9 +1,9 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 179 — README rewrite (SEO-витрина) + docs/ cleanup (удалены 4 устаревших iter-плана: ITER142_PROPOSALS, ITER148_TOOLBAR_REFACTOR, REDESIGN_CONCEPT_v3, AFFIX_ORDERING_PLAN). 2405 passed | 5 skipped (KI#53-relic секции). iter 178 — полировка `/timeless-jewel`. iter 178 icon-fix — пользовательская иконка залита (commit `8143975`, MD5 `af23c6063c27da0fed56801ccdbe0515`). iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
+> **Текущее состояние:** iter 180 — SEO technical fixes (`<title>` 80→58 chars, удалён `meta keywords`, добавлены FAQ JSON-LD + FAQ-секция в SeoBlock, синонимы, KI#54 fix: `/timeless-jewel` добавлен в `prerender-full.ts` и IndexNow urlList). iter 179 — README rewrite + docs/ cleanup. iter 178 — полировка `/timeless-jewel`. iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#53 — ЗАКРЫТ (iter 177)**.
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#54 — ЗАКРЫТ (iter 180).** **KI#53 — ЗАКРЫТ (iter 177).**
 > **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
@@ -161,6 +161,7 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 27. **Atlas regex-семантика ОТЛИЧАЕТСЯ от item-семантики (iter 175 VERIFIED IN-GAME):** На древе атласа **multi-word OR работает** (`"А Б\|В Г"` ✅), но **AND не работает** (`"А" "Б"` = 0 matches ❌) и **NOT не работает** (`"!А\|Б"` подсвечивает ВСЕ ноды ❌). Substring / quoted phrase / `.*` bridge / case-insensitive — всё работает ✅. Единственная рабочая логика для Atlas — **OR** (подсветить любые ноды, содержащие ЛЮБОЕ из перечисленных названий). Это критично для планируемой категории `/timeless-jewel` (`docs/ATLAS_JEWEL_PLAN.md`) — она НЕ может использовать существующий regex-engine (завязан на AND/NOT/ranges). Нужен отдельный упрощённый `buildAtlasRegex()` (iter 176+). См. STATUS.md → «Atlas-семантика».
 28. **Atlas Timeless Jewel — ОТДЕЛЬНЫЙ pipeline (iter 176, iter 178 polish):** Категория `/timeless-jewel` НЕ использует `useCategoryPage`, `filter-store`, `compiler.ts`, `optimizer.ts`, `ast.ts` или `ModList`/`VirtualizedModList`. Причины: (1) Atlas-семантика OR-only (см. pitfall #27) — существующий engine заточен под AND/NOT/ranges; (2) `GameToken` schema избыточна (нет ranges/familyKey/affix/genderForms). Используются: `AtlasNodeToken` (новый минимальный тип), `atlas-jewel-loader.ts` (отдельный loader), `atlas-regex-builder.ts` (новый `buildAtlasRegex()` — OR-only + alphabetical sort + dedupe + overflow split), `AtlasNodeList` (новый компонент — плоский список с чекбоксами/иконками/описаниями), `TimelessJewelPage` (новая страница). Переиспользуется только `RegexOutput` (props `filterStore` передаётся как `null` — share-кнопка disabled) и `MobileRegexBar` (iter 178 — sticky-bottom на mobile, regexOutput передаётся как prop, два отдельных RegexOutput instance'а). **iter 178:** (a) иконка навигации `jewel` → `timeless-jewel` (отдельный `public/icons/timeless-jewel.png` 128×128 RGBA — пользовательская, залитая в commit `8143975`); (b) title `Особые самоцветы` → `Вневременные самоцветы`; (c) 15 atlas-node иконок self-hosted в `public/icons/atlas-nodes/` (был remote CDN `cdn.poe2db.tw`), `iconUrl` в `timeless-jewel.json` теперь локальные (`icons/atlas-nodes/X.webp`); (d) `AtlasNodeTokenSchema.iconUrl` принимает и http(s) URL, и относительные пути `icons/...` через `.refine()`; (e) `AtlasNodeList.tsx` резолвит относительные пути через `import.meta.env.BASE_URL`; (f) парсер `parse-timeless-jewel.ts` автоматически скачивает новые иконки в `public/icons/atlas-nodes/` через helper `localizeIconUrl()` (idempotent, fallback на remote URL при 403); (g) `/timeless-jewel` добавлен в `scripts/prerender.ts` (routes + navLinks) и `public/sitemap.xml`. При модификации `/timeless-jewel` — НЕ трогать `/jewel` и наоборот. Парсер данных — отдельный скрипт `scripts/etl/parse-timeless-jewel.ts` (НЕ в `run-etl.ts`).
 29. **KI#53 (iter 177, ЗАКРЫТ):** ETL-обновление `2d48349` регрессировало данные двумя путями: (1) 4 tablet-токена (KI#12-pattern, single-# template + ## sibling) получили tier-hardcoded regex — пофикшено 4 override'ами в `scripts/etl/i18n-overrides.json` (см. `tablet.mod_od9m77.f2md77`, `tablet.mod_xhncu6.yctrln`, `tablet.mod_as23xk.63l845`, `tablet.mod_as23xk.ckza9l`); (2) 7 relic-токенов из iter 127 KI#12 fix пропали из `relic.json` (poe2db.tw убрал эти моды) — SECTIONS 1+2 `iter127-ki12-tier-hardcoded-regex.test.ts` обёрнуты в `describe.skipIf(KI53_RELIC_TOKENS_MISSING)` (synchronous check via `relicTokensExistSync()`). SECTION 6 (audit) остаётся активным — это каноническая регрессионная защита. 7 relic overrides в `i18n-overrides.json` сейчас no-ops — можно удалить в будущем iter. **При следующем ETL-обновлении:** 4 tablet override'а автоматически применятся через `applyI18nOverrides()` — повторная регрессия исключена.
+30. **KI#54 (iter 180, ЗАКРЫТ):** iter 178 regression — при добавлении `/timeless-jewel` в `scripts/prerender.ts` (shell) и `public/sitemap.xml` забыли добавить тот же route в два других места: (a) `scripts/prerender-full.ts` — массив `routes[]` (Playwright full-prerender), из-за чего `/timeless-jewel` НЕ получал React-контент в `#root` для краулеров; (b) `.github/workflows/deploy.yml` → `indexnow` job → `urlList` — IndexNow НЕ уведомлял Bing/Яндекс о новом URL при деплое. Fix iter 180: добавлен в оба места. **Берегись при добавлении новых routes:** обновлять ОДНОВРЕМЕННО 4 места — `scripts/prerender.ts` (routes[] + navLinks[]), `scripts/prerender-full.ts` (routes[]), `public/sitemap.xml`, `.github/workflows/deploy.yml` (IndexNow urlList).
 
 ## 9. Deterministic Regex Strategy (8 Principles — UNIFIED for ALL categories)
 
@@ -177,18 +178,24 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 
 ## 10. Pre-rendering (Two Levels)
 
-**Level 1 (`scripts/prerender.ts`):** Generates 10 route-specific HTML files (iter 178: +1 for `/timeless-jewel`) with unique meta tags + `<noscript>` fallback. Pure string manipulation. Runs automatically after `vite build`.
+**Level 1 (`scripts/prerender.ts`):** Generates 10 route-specific HTML files (iter 178: +1 for `/timeless-jewel`) with unique meta tags + `<noscript>` fallback. Pure string manipulation. Runs automatically after `vite build`. iter 180: home `<title>` сокращён 80→58 chars, `meta keywords` удалён из `index.html`.
 
-**Level 2 (`scripts/prerender-full.ts`):** Playwright + headless Chromium renders React content into `<div id="root">`. Graceful: if Playwright not installed, falls back to Level 1.
+**Level 2 (`scripts/prerender-full.ts`):** Playwright + headless Chromium renders React content into `<div id="root">`. Graceful: if Playwright not installed, falls back to Level 1. **iter 180 — KI#54 fix:** `/timeless-jewel` добавлен в `routes[]` (был missing iter 178 regression).
 
 **CI build flow:** `tsc -b → vite build → prerender.ts (shell) → prerender-full.ts (Playwright) → deploy + IndexNow`
 **Local build flow:** `tsc -b → vite build → prerender.ts (shell only)`
+
+**⚠️ При добавлении нового route:** обновлять ОДНОВРЕМЕННО 4 места (см. pitfall #30 — KI#54):
+1. `scripts/prerender.ts` (routes[] + navLinks[])
+2. `scripts/prerender-full.ts` (routes[])
+3. `public/sitemap.xml`
+4. `.github/workflows/deploy.yml` (IndexNow urlList)
 
 ## 11. SEO Assets (public/)
 
 | File | Purpose |
 |------|---------|
-| `robots.txt` | Allow /, ссылка на sitemap |
+| `robots.txt` | Allow /, ссылка на sitemap. **Ограничение:** на project page доступен только по `/poe2-regex-ru/robots.txt`, не в корне хоста — см. `docs/SEO_GROWTH_PLAN.md` |
 | `sitemap.xml` | 10 URL с lastmod и priority (iter 178: +`/timeless-jewel`) |
 | `404.html` | SPA-редирект + `<meta name="robots" content="noindex, follow">` |
 | `7cf0e35e568e2791d08835cdbd1d8a97.txt` | IndexNow API key |
@@ -196,6 +203,11 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `yandex_227088c0d89586c7.html` | Яндекс Вебмастер верификация |
 | `og-banner.png` | Open Graph image (1200x630) |
 | `favicon.svg` | Favicon |
+
+**iter 180 SEO changes:**
+- `index.html`: `<title>` 80→58 chars (keyword forward «Path of Exile 2»), удалён `meta keywords`, обновлён `meta description` (+синонимы «лут-фильтр», «аффиксы и моды»), добавлен `FAQPage` JSON-LD (6 Q&A), обновлён `WebApplication` JSON-LD (9 категорий, `featureList`).
+- `src/ui/pages/home/SeoBlock.tsx`: добавлена FAQ-секция (6 вопросов, соответствует FAQPage JSON-LD), синонимы в основном тексте.
+- `docs/SEO_PLAN.md` + `docs/SEO_GROWTH_PLAN.md` (новый): технические шаги — DONE; ручные шаги — pending.
 
 ## 12. i18n Keys for Home Page
 
@@ -223,7 +235,8 @@ Compiler (`compiler.ts`) `normalizeAst` for **AND(LITERAL..., EXCLUDE) inside OR
 | `docs/ETL_GUIDE.md` | On ETL pipeline changes |
 | `docs/DATA_CONTRACTS.md` | On type changes |
 | `docs/IN_GAME_TESTS.md` | On new in-game test results |
-| `docs/SEO_PLAN.md` | On SEO workflow changes |
+| `docs/SEO_PLAN.md` | On SEO workflow changes. iter 180: технические шаги DONE, ручные — pending. |
+| `docs/SEO_GROWTH_PLAN.md` | iter 180 — единый план роста (REPO / MANUAL / DEFERRED buckets). |
 | `docs/UI_AUDIT.md` | UI-аудит v2 (iter 110) — reference, read-only |
 | `docs/UI_REFACTOR_PLAN.md` | iter 137 — 7 фаз UI-рефакторинга. All DONE. |
 | `docs/REDESIGN_CONCEPT_v4.md` | iter 165 — концепт-спецификация редизайна (реализован в iter 166-170). Reference only. |

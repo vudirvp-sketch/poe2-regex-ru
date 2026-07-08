@@ -150,3 +150,50 @@ Stage Summary:
   - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — iter 180.
   - **ETL-интеграция `parse-timeless-jewel.ts` в `run-etl.ts`** — iter 181+.
 - **Next iteration (iter 180):** state-features для `/timeless-jewel` — URL-sync (selection в hash через `url-sync.ts`, отдельная логика для atlas-узлов), ProfilePanel integration, SelectedBasket (упрощённая версия без family-group).
+
+---
+
+Task ID: iter-180-seo-fixes
+Agent: main
+Task: SEO technical fixes на основе двух внешних анализов. Цель — решить технические проблемы SEO, которые не затрагивают интерфейс и не требуют переезда на домен. DTF / Steam / форум-посты — пользователь делает сам. Переезд на домен — отложен пользователем.
+
+Work Log:
+- 0: **Контекст из чата:** Пользователь прислал два независимых анализа (внешний + внутренний) о том, почему сайт не появляется в выдаче. Оба сошлись на диагнозе: техническая SEO-база отличная, проблема во внешних сигналах (ссылки, ручные шаги в GSC/Яндекс.Вебмастере). Пользователь явно ограничил scope: НЕ трогать интерфейс, НЕ предлагать домен, посты на DTF/Steam — берёт на себя. Моя задача — порешать «остальные проблемы».
+- 1: **Клонировал репозиторий**, установил npm-зависимости, baseline: `tsc` 0, `eslint` 0, `vitest run` 2405 passed | 5 skipped.
+- 2: **Нашёл новый баг (KI#54):** При анализе репозитория заметил, что iter 178 добавил `/timeless-jewel` в `scripts/prerender.ts` (shell) и `public/sitemap.xml`, но НЕ добавил в два других места: (a) `scripts/prerender-full.ts` (массив `routes[]` для Playwright full-prerender) — краулеры без JS видят shell + `<noscript>`, но не React-контент для timeless-jewel; (b) `.github/workflows/deploy.yml` → `indexnow` job → `urlList` — IndexNow НЕ уведомлял Bing/Яндекс о новом URL при деплое. **По правилу пользователя — сначала задокументировал в STATUS.md как KI#54, потом пофиксил.**
+- 3: **STATUS.md — полный рерайт.** Убрана длинная iter 178 история (оставлен 1 параграф). Добавлен KI#54 в Known Issues → Активные. Roadmap: iter 180 = SEO fixes, iter 181 = state-features (бывший iter 180). FAQ сохранён (regexExclude, atlas-семантика, кэш иконок). Next iteration переписан под iter 181.
+- 4: **Fix KI#54:** Добавлен `/timeless-jewel` в `scripts/prerender-full.ts` `routes[]` и в `.github/workflows/deploy.yml` `indexnow` job `urlList`. Теперь 4 места синхронизированы: `prerender.ts` (routes+navLinks), `prerender-full.ts` (routes), `sitemap.xml`, `deploy.yml` (IndexNow urlList).
+- 5: **`index.html` правки:**
+  - `<title>` сокращён с 80 → 58 символов: `PoE2 Regex — Регексы и фильтрация предметов для Path of Exile 2 (русский клиент)` → `Генератор regex для Path of Exile 2 (PoE2) — русский клиент`. Ключевое «Path of Exile 2» вынесено вперёд.
+  - `meta keywords` удалён полностью (мёртвый груз, поисковики не используют ~15 лет).
+  - `meta description` обновлён: добавлены синонимы «лут-фильтр», «аффиксы и моды», «лимит 250 символов».
+  - OG / Twitter теги синхронизированы с новым `<title>` и `<description>`.
+  - JSON-LD WebApplication обновлён: 8→9 категорий, добавлено `featureList`.
+  - JSON-LD FAQPage добавлен (6 Q&A, синхронизирован с FAQ-секцией в `SeoBlock.tsx`).
+- 6: **`scripts/prerender.ts` правки:** Home route — title/description/noscriptIntro синхронизированы с новыми значениями из `index.html`.
+- 7: **`src/ui/pages/home/SeoBlock.tsx` правки:**
+  - Добавлена FAQ-секция (6 вопросов, соответствует FAQPage JSON-LD). Размещена внутри `<details>` — НЕ влияет на интерфейс (свёрнуто по умолчанию).
+  - В основной текст добавлены синонимы: «лут-фильтр», «поиск в тайнике», «аффиксы и моды», «трейдеры и крафтеры», «на poe2db.tw и в самой игре», «вневременные самоцветы» (категория добавлена в список).
+  - JSDoc-комментарий обновлён — iter 180 изменения зафиксированы.
+- 8: **`README.md` правки:**
+  - Добавлен раздел «Настройка репозитория (вручную, один раз)» с конкретным списком: GitHub Topics (`path-of-exile-2`, `poe2`, `regex`, `loot-filter`, `russian-localization`, `poe2-tools`, `game-tools`, `search-filter`, `poe2db`, `regex-generator`), Website (`https://vudirvp-sketch.github.io/poe2-regex-ru/`), Description.
+  - В таблице документации добавлена ссылка на новый `docs/SEO_GROWTH_PLAN.md`.
+- 9: **`docs/SEO_GROWTH_PLAN.md` (новый):** Единый план роста на основе двух анализов. 3 bucket'а: REPO (сделано в iter 180), MANUAL (пользователь — GSC/Яндекс/Bing верификация, GitHub Topics, внешние ссылки), DEFERRED (домен, отложено пользователем). Метрики успеха через 4–8 недель.
+- 10: **`docs/SEO_PLAN.md` актуализирован:** 9 URL → 10 URL, добавлены строки про FAQPage/FAQ-секцию/KI#54 fix/удаление keywords/сокращение title. Раздел «Чеклист» разбит на «Технические (DONE)» и «Ручные (pending)».
+- 11: **`AGENT_NAVIGATION.md` актуализирован:** Header — iter 180 + KI#54 closed. §10 Pre-rendering — добавлен warning про 4 места для обновления при новом route. §11 SEO Assets — добавлен блок «iter 180 SEO changes». §8 Pitfalls — добавлен #30 (KI#54, закрыт). §13 Documentation Map — добавлен `SEO_GROWTH_PLAN.md`.
+- 12: **Финальные проверки**: `npx tsc -b` ✅ 0 errors, `npx eslint .` ✅ 0 errors, `npx vitest run` — **2405 passed | 5 skipped** (без регрессий — SeoBlock-контент не покрывается тестами, meta-tags тоже). `npx vite build` ✅ OK (10 prerendered routes).
+
+Stage Summary:
+- **iter 180 завершён.** Технические SEO-правки без изменения интерфейса: исправлены `<title>` (80→58, ключевое вперёд), удалён мёртвый `meta keywords`, обновлён `meta description` (+синонимы), добавлены `FAQPage` JSON-LD + FAQ-секция в `SeoBlock.tsx` (внутри `<details>`), синонимы в SEO-тексте, пофикшен KI#54 (prerender-full.ts + IndexNow urlList — iter 178 regression). CI зелёный: 2405 passed | 5 skipped, build OK (10 prerendered routes).
+- **Изменённые файлы (iter 180):**
+  - ИЗМЕНЁННЫЕ: `index.html`, `scripts/prerender.ts`, `scripts/prerender-full.ts`, `.github/workflows/deploy.yml`, `src/ui/pages/home/SeoBlock.tsx`, `README.md`, `STATUS.md`, `AGENT_NAVIGATION.md`, `docs/SEO_PLAN.md`, `worklog.md`.
+  - НОВЫЕ: `docs/SEO_GROWTH_PLAN.md`.
+- **Stopping point:** iter 180 завершён. Технические SEO-правки сделаны, KI#54 закрыт. CI зелёный без регрессий. Можно пушить.
+- **Что НЕ сделано (намеренно, по контракту с пользователем):**
+  - **Переезд на домен** — отложен пользователем. В `docs/SEO_GROWTH_PLAN.md` зафиксирован в Bucket 3 (DEFERRED).
+  - **Анонсирующие посты на DTF / Steam / форуме** — пользователь делает сам. В `docs/SEO_GROWTH_PLAN.md` §2.3 — чеклист.
+  - **Раздел готовых примеров regex** — НЕ сделано (требует UX-дизайна, отложено в iter 181+ опционально).
+  - **Breadcrumbs JSON-LD** — НЕ сделано (опционально, iter 181+).
+  - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — iter 181.
+- **Next iteration (iter 181):** state-features для `/timeless-jewel` — URL-sync (selection в hash через `url-sync.ts`, отдельная логика для atlas-узлов), ProfilePanel integration, SelectedBasket (упрощённая версия без family-group).
+

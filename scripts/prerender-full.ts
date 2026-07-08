@@ -38,6 +38,7 @@ const routes = [
   '/tablet',
   '/relic',
   '/jewel',
+  '/timeless-jewel', // iter 180 — KI#54 fix: was missing (iter 178 regression).
   '/vendor',
   '/belt',
   '/ring',

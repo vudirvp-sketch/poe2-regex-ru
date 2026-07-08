@@ -113,6 +113,22 @@ npx tsx scripts/etl/parse-timeless-jewel.ts
 
 ---
 
+## Настройка репозитория (вручную, один раз)
+
+Эти действия выполняются в GitHub-веб-интерфейсе один раз и не относятся к коду:
+
+1. **Topics (теги).** На странице репозитория → `⚙` справа от «About» → поле **Topics** → добавить:
+   `path-of-exile-2`, `poe2`, `regex`, `loot-filter`, `russian-localization`,
+   `poe2-tools`, `game-tools`, `search-filter`, `poe2db`, `regex-generator`.
+   Это улучшает обнаруживаемость через GitHub-поиск и тематические подборки.
+2. **Website в About.** Там же, в поле **Website**, указать:
+   `https://vudirvp-sketch.github.io/poe2-regex-ru/` — кнопка-ссылка
+   появится в правой колонке репозитория.
+3. **Description в About.** Короткое описание, например:
+   «Бесплатный генератор regex для фильтра предметов Path of Exile 2 (русский клиент)».
+
+---
+
 ## Документация
 
 | Файл | Назначение |
@@ -125,7 +141,8 @@ npx tsx scripts/etl/parse-timeless-jewel.ts
 | `docs/ETL_GUIDE.md` | ETL-пайплайн: poe2db.tw → `public/generated/*.json` |
 | `docs/DATA_CONTRACTS.md` | Контракты типов данных |
 | `docs/IN_GAME_TESTS.md` | In-game верификация regex-семантики |
-| `docs/SEO_PLAN.md` | SEO-план: индексация, sitemap, meta-теги |
+| `docs/SEO_PLAN.md` | SEO-план: индексация, sitemap, meta-теги (технические шаги) |
+| `docs/SEO_GROWTH_PLAN.md` | iter 180 — единый план роста: внешние сигналы, контент, дистрибуция |
 | `docs/UI_AUDIT.md` | UI-аудит v2 (iter 110) — reference |
 | `docs/UI_REFACTOR_PLAN.md` | iter 137 — 7 фаз UI-рефакторинга. All DONE. |
 | `docs/REDESIGN_CONCEPT_v4.md` | iter 165–170 — концепт-спецификация редизайна (реализован) |
