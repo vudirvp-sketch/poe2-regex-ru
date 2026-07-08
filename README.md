@@ -113,22 +113,6 @@ npx tsx scripts/etl/parse-timeless-jewel.ts
 
 ---
 
-## Настройка репозитория (вручную, один раз)
-
-Эти действия выполняются в GitHub-веб-интерфейсе один раз и не относятся к коду:
-
-1. **Topics (теги).** На странице репозитория → `⚙` справа от «About» → поле **Topics** → добавить:
-   `path-of-exile-2`, `poe2`, `regex`, `loot-filter`, `russian-localization`,
-   `poe2-tools`, `game-tools`, `search-filter`, `poe2db`, `regex-generator`.
-   Это улучшает обнаруживаемость через GitHub-поиск и тематические подборки.
-2. **Website в About.** Там же, в поле **Website**, указать:
-   `https://vudirvp-sketch.github.io/poe2-regex-ru/` — кнопка-ссылка
-   появится в правой колонке репозитория.
-3. **Description в About.** Короткое описание, например:
-   «Бесплатный генератор regex для фильтра предметов Path of Exile 2 (русский клиент)».
-
----
-
 ## Документация
 
 | Файл | Назначение |
