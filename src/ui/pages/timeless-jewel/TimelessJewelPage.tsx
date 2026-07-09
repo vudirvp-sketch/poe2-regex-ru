@@ -1,5 +1,6 @@
 /**
  * TimelessJewelPage — iter 176 — NEW. iter 178: icon + MobileRegexBar polish.
+ * iter 183: state-features — URL-sync + ProfilePanel + AtlasSelectedBasket.
  *
  * Generates Atlas-tree search regexes for the 2 Timeless Jewels:
  *   - Вечная ненависть (Undying Hate) — 35 nodes
@@ -29,56 +30,102 @@
  *     string is the same. This mirrors the MobileRegexBar tradeoff
  *     documented in `MobileRegexBar.tsx` header.
  *
- * ## UI shape (iter 178)
+ * ## iter 183 changes (state-features)
+ *
+ *   - **URL-sync**: selection (jewel + node ids) is now persisted in the
+ *     URL hash via `#tj=<lz-string>` (see `src/store/atlas-state-sync.ts`).
+ *     On mount, the page restores from the URL; on every state change, it
+ *     writes back via `replaceState` (no history spam). The `#tj=` prefix
+ *     is distinct from filter-store's `#q=` so the two systems don't
+ *     misparse each other's hashes when navigating between pages.
+ *   - **ProfilePanel**: reused as-is (props `category`, `currentFilterData`,
+ *     `onRestore`). Profile data shape = `SerializedAtlasState` (`{ j, s }`).
+ *     Saved per profile name in localStorage via `profile-store.ts`. The
+ *     same ProfilePanel component as item-category pages — no adapter needed
+ *     because ProfilePanel is generic over `currentFilterData` shape.
+ *   - **AtlasSelectedBasket**: new minimal component (`AtlasSelectedBasket.tsx`)
+ *     renders selected node names as chips above RegexOutput. Click a chip
+ *     to deselect. Cap = 20 with «+N ещё» expander (mirrors `SelectedBasket`
+ *     cap). Empty state placeholder.
+ *
+ *   The page still does NOT use `useCategoryPage`, `filter-store`, or any
+ *     item-pipeline machinery — the Atlas pipeline stays self-contained
+ *     per AGENT_NAVIGATION.md pitfall #28.
+ *
+ * ## UI shape (iter 183)
  *
  *   ┌──────────────────────────────────────────────────────────────┐
  *   │ [icon] Вневременные самоцветы   [Вечная ненависть] [Трагедия…]│
  *   │ N of M нод · ⟨info: Atlas OR-only⟩                          │
  *   ├──────────────────────────────────────────────────────────────┤
- *   │ AtlasNodeList (left)         │ RegexOutput (right, sticky)    │
- *   │   search + checkboxes        │   "Name1|Name2|..."            │
- *   │   icon + name + description  │   250-char health bar          │
+ *   │ AtlasNodeList (left)         │ AtlasSelectedBasket (right)    │
+ *   │   search + checkboxes        │ RegexOutput (sticky)           │
+ *   │   icon + name + description  │   "Name1|Name2|..."            │
+ *   │                              │   250-char health bar          │
  *   │                              │   ⚠ Atlas semantics notice      │
+ *   │                              │ ProfilePanel (collapsible)     │
  *   └──────────────────────────────────────────────────────────────┘
  *   Mobile (< lg): RegexOutput also rendered in MobileRegexBar (sticky bottom).
  *
- * ## What this page still does NOT do (deferred to iter 179+)
+ * ## What this page still does NOT do (deferred)
  *
- *   - URL-sync (selection not persisted in URL hash yet — needs separate
- *     serialize/deserialize logic for atlas-node ids).
- *   - Profile persistence (ProfilePanel wired to filter-store, not atlas
- *     node selections — would require new profile-store section).
- *   - SelectedBasket (filter-store-driven component; would need an
- *     atlas-node-specific variant or a generic adapter).
+ *   - Cross-tab persistence via localStorage (analog of `poe2:favorites:<cat>`
+ *     / `poe2:uistate:<cat>`). When the user navigates to another tab, the
+ *     URL hash gets overwritten by the new page — selection is lost. URL
+ *     share still works (opening a `#tj=...` link restores). iter 184+.
+ *   - Realtime multi-tab sync via `storage` event (analog of KI#30 favorites
+ *     sync). iter 184+.
  *
- *   These are deliberate scope cuts to land iter 178 without regression.
+ *   These are deliberate scope cuts to land iter 183 without regression.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { loadAtlasJewelData, getJewelNodes } from '@data/atlas-jewel-loader';
 import { AtlasNodeList } from '@ui/components/AtlasNodeList';
+import { AtlasSelectedBasket } from '@ui/components/AtlasSelectedBasket';
 import { RegexOutput } from '@ui/components/RegexOutput';
+import { ProfilePanel } from '@ui/components/ProfilePanel';
 import { MobileRegexBar } from '@ui/components/MobileRegexBar';
 import { PageStateWrapper } from '@ui/components/PageStateWrapper';
 import { buildAtlasRegex } from '@core/atlas-regex-builder';
 import { t } from '@shared/i18n';
 import type { AtlasJewelCategoryData, AtlasJewelId } from '@shared/types';
+import {
+  DEFAULT_ATLAS_JEWEL,
+  serializeAtlasState,
+  deserializeAtlasState,
+  syncAtlasStateToUrl,
+  syncAtlasStateFromUrl,
+} from '@store/atlas-state-sync';
 
 const JEWEL_OPTIONS: Array<{ id: AtlasJewelId; labelKey: string }> = [
   { id: 'undying-hate', labelKey: 'timeless_jewel.undying_hate' },
   { id: 'heroic-tragedy', labelKey: 'timeless_jewel.heroic_tragedy' },
 ];
 
+/** Category id used by ProfilePanel (`profile-store.ts` keys profiles by
+ *  category — using a fixed string keeps timeless-jewel profiles separate
+ *  from item-category profiles). */
+const PROFILE_CATEGORY = 'timeless-jewel';
+
 export function TimelessJewelPage() {
   const [data, setData] = useState<AtlasJewelCategoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Default to the first jewel (Undying Hate).
-  const [selectedJewel, setSelectedJewel] = useState<AtlasJewelId>('undying-hate');
+  // ─── iter 183: URL-restore on mount (synchronous, before effects) ───
+  // Restore jewel + selection from `#tj=...` URL hash. Falls back to defaults
+  // when URL has no hash or hash is invalid. Uses useState lazy initializer
+  // so the FIRST render shows the restored state (no flash of empty selection).
+  const [selectedJewel, setSelectedJewel] = useState<AtlasJewelId>(() => {
+    const restored = syncAtlasStateFromUrl();
+    return restored?.jewel ?? DEFAULT_ATLAS_JEWEL;
+  });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
+    const restored = syncAtlasStateFromUrl();
+    return restored?.ids ?? new Set<string>();
+  });
 
-  // Selection state — Set of node ids. Owned locally; URL-sync deferred.
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
+  // ─── Data loading effect (unchanged from iter 178) ───
   useEffect(() => {
     let cancelled = false;
     // Initial state already has loading=true / error=null, so we don't
@@ -103,9 +150,22 @@ export function TimelessJewelPage() {
     };
   }, []);
 
+  // ─── iter 183: URL-sync effect ───
+  // Skip the first render to avoid overwriting URL-restored values (mirrors
+  // the `syncReadyRef` pattern from `useCategoryPage.ts`). On subsequent
+  // state changes, serialize + write to URL hash via `replaceState`.
+  const syncReadyRef = useRef(false);
+  useEffect(() => {
+    if (!syncReadyRef.current) {
+      syncReadyRef.current = true;
+      return;
+    }
+    syncAtlasStateToUrl(serializeAtlasState(selectedJewel, selectedIds));
+  }, [selectedJewel, selectedIds]);
+
   // Reset selection when switching jewels — ids are namespaced per jewel,
   // so cross-jewel selection would be silently invisible. Clear is the
-  // honest UX.
+  // honest UX. (Same behaviour as iter 178 — preserved in iter 183.)
   const handleJewelChange = (jewel: AtlasJewelId) => {
     if (jewel === selectedJewel) return;
     setSelectedJewel(jewel);
@@ -147,6 +207,23 @@ export function TimelessJewelPage() {
   }, [data, nodes, selectedIds]);
 
   const selectedCount = selectedIds.size;
+
+  // ─── iter 183: ProfilePanel integration ───
+  // ProfilePanel is generic over `currentFilterData: Record<string, unknown>`
+  // and `onRestore: (filterData) => void`. We pass the serialized atlas state
+  // (which is `{ j, s }` — a plain JSON object) as currentFilterData, and
+  // restore by deserializing on onRestore. No adapter needed.
+  const currentFilterData = useMemo(
+    () => serializeAtlasState(selectedJewel, selectedIds) as unknown as Record<string, unknown>,
+    [selectedJewel, selectedIds],
+  );
+
+  const handleRestoreProfile = (filterData: Record<string, unknown>) => {
+    const restored = deserializeAtlasState(filterData);
+    if (!restored) return;
+    setSelectedJewel(restored.jewel);
+    setSelectedIds(restored.ids);
+  };
 
   return (
     <PageStateWrapper loading={loading} error={error} data={data}>
@@ -210,8 +287,10 @@ export function TimelessJewelPage() {
               mobile MobileRegexBar) — same pattern as other category pages
               (see BeltPage.tsx, etc.). Each instance has its own transient
               copy/share state; autoCopy is persisted to localStorage so
-              both stay in sync. */}
-          <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
+              both stay in sync.
+              iter 183: AtlasSelectedBasket + ProfilePanel added to the
+              right aside (and to the mobile section below). */}
+          <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-start">
             <div className="flex flex-col gap-2 min-w-0">
               <AtlasNodeList
                 nodes={nodes}
@@ -226,6 +305,12 @@ export function TimelessJewelPage() {
                 Mobile gets its own RegexOutput in MobileRegexBar below
                 (sticky-bottom). Two separate instances — intentional. */}
             <aside className="hidden lg:flex flex-col gap-3 lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-auto">
+              <AtlasSelectedBasket
+                nodes={nodes}
+                selectedIds={selectedIds}
+                onToggle={handleToggle}
+                onClear={handleClearAll}
+              />
               <RegexOutput
                 regex={regexResult.regex}
                 isOverflow={regexResult.isOverflow}
@@ -243,7 +328,29 @@ export function TimelessJewelPage() {
                 <br />
                 {t('timeless_jewel.atlas_semantics_notice')}
               </div>
+              <ProfilePanel
+                category={PROFILE_CATEGORY}
+                currentFilterData={currentFilterData}
+                onRestore={handleRestoreProfile}
+              />
             </aside>
+          </div>
+
+          {/* iter 183: mobile-only section for AtlasSelectedBasket + ProfilePanel
+              (kept accessible when aside is hidden on mobile). Same pattern
+              as CategoryLayout's mobile section for item-category pages. */}
+          <div className="flex flex-col gap-3 lg:hidden">
+            <AtlasSelectedBasket
+              nodes={nodes}
+              selectedIds={selectedIds}
+              onToggle={handleToggle}
+              onClear={handleClearAll}
+            />
+            <ProfilePanel
+              category={PROFILE_CATEGORY}
+              currentFilterData={currentFilterData}
+              onRestore={handleRestoreProfile}
+            />
           </div>
 
           {/* MobileRegexBar — sticky-bottom on mobile (< lg), hidden on

@@ -403,6 +403,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'timeless_jewel.atlas_semantics_title': 'Atlas-семантика',
     'timeless_jewel.atlas_semantics_notice':
       'На древе атласа работают только OR-паттерны (подсветить любое из названий). AND и НЕ не поддерживаются — поэтому выбраны только имена нод, без их эффектов.',
+    // iter 183: AtlasSelectedBasket i18n keys. Mirror the shape of `basket.*`
+    // keys used by item-category pages, but under the `timeless_jewel.*`
+    // namespace because the atlas basket uses «нод» (node) instead of «афф.»
+    // (affix). {n} = number of selected atlas nodes.
+    'timeless_jewel.basket_title': 'Выбрано: {n} нод',
+    'timeless_jewel.basket_empty': 'Выберите ноды из списка',
+    'timeless_jewel.basket_clear': 'Очистить все',
+    'timeless_jewel.basket_clear_aria': 'Очистить все выбранные ноды',
+    'timeless_jewel.basket_unselect_aria': 'Убрать ноду из выбора',
   },
 };
 

@@ -276,3 +276,60 @@ Stage Summary:
   - **Дальнейшая visual density** — если пользователь захочет ещё компактнее, можно попробовать tighter chip padding (но рискованно — `px-1.5 py-0.5` уже близко к min-height floor 22px).
 - **Next iteration (iter 183):** state-features для `/timeless-jewel` — URL-sync (selection в hash), ProfilePanel integration, SelectedBasket. Сейчас `/timeless-jewel` — статичная страница без интерактивности.
 
+---
+
+Task ID: iter-183-state-features
+Agent: main
+Task: state-features для `/timeless-jewel` — URL-sync (выбор в hash), ProfilePanel integration, AtlasSelectedBasket. Цель: `/timeless-jewel` теперь соответствует тому, как работают 7 других категорийных страниц (share-link + profile save/load + visible selection basket). Подход: lightweight, self-contained pipeline (НЕ переиспользуем filter-store/useCategoryPage — они завязаны на GameToken с ranges/familyKey/affix).
+
+Work Log:
+- 0: **Контекст из чата:** Точка остановки iter 182: CI зелёный (tsc 0, eslint 0, vitest 2425 passed | 5 skipped, vite build OK). Задача на iter 183: state-features для `/timeless-jewel` — URL-sync + ProfilePanel + SelectedBasket. Сейчас `/timeless-jewel` — статичная страница без интерактивности (только локальный useState для selectedJewel + selectedIds, не персистится). Правило пользователя: «Лучше недоделать, чем сломать» + «Если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись».
+- 1: **Клонировал репозиторий**, `npm install`, baseline: `tsc` 0, `eslint` 0, `vitest run` — 2425 passed | 5 skipped. Подтверждено.
+- 2: **Архитектурный анализ.** Прочитал `url-sync.ts` (filter-store #q= hash), `profile-store.ts` (Zustand persist, generic over filterData), `local-settings.ts` (cross-tab persistence patterns KI#30/KI#50), `SelectedBasket.tsx` (tightly coupled to GameToken + family-grouper), `useCategoryPage.ts` (heavy compose-hook), `TimelessJewelPage.tsx` (iter 178 — отдельный pipeline, см. AGENT_NAVIGATION pitfall #28). **Решение:** NOT переиспользовать filter-store/useCategoryPage/SelectedBasket. Создать lightweight аналоги: `atlas-state-sync.ts` (URL hash) + `AtlasSelectedBasket.tsx` (minimal basket). ProfilePanel reused as-is (он generic над currentFilterData — работает с любым JSON-serializable state).
+- 3: **Создал `src/store/atlas-state-sync.ts`** (~170 строк):
+  - `serializeAtlasState(jewel, ids): SerializedAtlasState` → `{ j: jewel, s: ids[] }` (compact keys).
+  - `deserializeAtlasState(data): { jewel, ids } | null` — validates jewel + ids, defaults `j` to `DEFAULT_ATLAS_JEWEL` (backward compat), filters non-string/empty entries in `s`, dedupes preserving first-occurrence order.
+  - `syncAtlasStateToUrl(state)` — uses lz-string `compressToEncodedURIComponent` + `#tj=` prefix (INTENTIONALLY distinct from filter-store's `#q=` — страницы не парсят чужой хэш).
+  - `syncAtlasStateFromUrl()` — reads URL hash, returns null when prefix mismatch / decompression fail / JSON.parse fail / deserialize fail.
+  - `getAtlasShareableUrl(state)` — full URL for sharing.
+  - `DEFAULT_ATLAS_JEWEL = 'undying-hate'` (matches TimelessJewelPage default).
+- 4: **Создал `src/ui/components/AtlasSelectedBasket.tsx`** (~150 строк):
+  - Props: `nodes`, `selectedIds`, `onToggle`, `onClear`.
+  - Empty state: «Выберите ноды из списка» placeholder (no clear button).
+  - Non-empty: header «Выбрано: N нод» + «Очистить все» button + chip list (flex-wrap, max-height 30vh scroll).
+  - Chips: node name + ✗ icon, click → `onToggle(id)`, keyboard accessible (Enter/Space).
+  - Cap = `SELECTED_BASKET_CAP` (20) с «+N ещё» / «свернуть» expander (mirrors SelectedBasket).
+  - Defensive: ids without a matching node (stale from previous jewel) silently dropped — no chip rendered. Header count = filtered count (only chips user can interact with).
+- 5: **Обновил `TimelessJewelPage.tsx`:**
+  - Импорты: `AtlasSelectedBasket`, `ProfilePanel`, atlas-state-sync functions.
+  - `selectedJewel` useState lazy initializer: `syncAtlasStateFromUrl()?.jewel ?? DEFAULT_ATLAS_JEWEL`.
+  - `selectedIds` useState lazy initializer: `syncAtlasStateFromUrl()?.ids ?? new Set()`.
+  - URL-sync `useEffect` с `syncReadyRef` guard (mirrors `useCategoryPage` pattern — skip first render, sync on subsequent changes).
+  - `currentFilterData` = `serializeAtlasState(jewel, ids)` (memoized).
+  - `handleRestoreProfile(data)` = `deserializeAtlasState(data)` → setSelectedJewel + setSelectedIds.
+  - Desktop aside: `AtlasSelectedBasket` + `RegexOutput` + atlas-semantics notice + `ProfilePanel` (collapsible).
+  - Mobile section (`lg:hidden`): `AtlasSelectedBasket` + `ProfilePanel` (kept accessible when aside is hidden).
+  - JSDoc header обновлён с описанием iter 183 changes + что НЕ сделано (cross-tab persistence deferred to iter 184).
+- 6: **i18n keys (5 новых)** в `src/shared/i18n.ts` под `timeless_jewel.*` namespace (not `basket.*` — atlas basket использует «нод», не «афф.»): `basket_title`, `basket_empty`, `basket_clear`, `basket_clear_aria`, `basket_unselect_aria`. `basket.more` / `basket.collapse` / `basket.more_aria` / `basket.collapse_aria` reused from existing item-basket i18n (текст generic: «+N ещё» / «свернуть» — работает для обоих).
+- 7: **Тесты (30 новых):**
+  - `tests/store/atlas-state-sync.test.ts` (18 тестов): serialize/deserialize round-trip, default jewel when `j` missing, invalid jewel → null, non-object input → null, non-array `s` → null, non-string entries filtered, dedup preserving order, URL hash round-trip, `#q=` prefix ignored, invalid lz-string → null, invalid JSON → null, invalid shape → null, `getAtlasShareableUrl` contains `#tj=`.
+  - `tests/ui/AtlasSelectedBasket.test.tsx` (12 тестов): empty state, non-empty renders chips, «Очистить все» calls onClear, chip click calls onToggle, keyboard Enter/Space, cap=20 без expander, cap+5 → «+N ещё» expander, click expander reveals all + «свернуть», click «свернуть» collapses, stale id silently dropped (header shows filtered count).
+- 8: **Документация актуализирована:**
+  - `STATUS.md` — полный рерайт: iter 183 в заголовке + текущее состояние (3 пункта: URL-sync, ProfilePanel, AtlasSelectedBasket), roadmap iter 183 ✅ DONE / iter 184 cross-tab persistence ⏳ NEXT, FAQ добавлен Q про share-link на `/timeless-jewel`, Next iteration переписан под iter 184.
+  - `AGENT_NAVIGATION.md` — header: iter 183 + test count 2425→2455; §1 Where Things Are: добавлены `AtlasSelectedBasket.tsx` + `atlas-state-sync` в `src/store/`; pitfall #28 расширен iter 183 деталями (a) URL-sync `#tj=` prefix, (b) ProfilePanel wiring, (c) AtlasSelectedBasket в aside + mobile, + «iter 183 НЕ делает: cross-tab persistence deferred to iter 184»; §13 Documentation Map: ATLAS_JEWEL_PLAN.md iter 183 DONE.
+  - `worklog.md` — этот Task ID iter-183-state-features.
+- 9: **Финальные проверки**: `npx tsc -b` ✅ 0 errors, `npx eslint .` ✅ 0 errors, `npx vitest run` — **2455 passed | 5 skipped** (+30 новых тестов: 18 atlas-state-sync + 12 AtlasSelectedBasket, без регрессий). `npx vite build` ✅ OK (10 prerendered routes, TimelessJewelPage chunk 7.63→11.89 KB — ожидаемо из-за новых импортов ProfilePanel + AtlasSelectedBasket + atlas-state-sync). `npx tsx scripts/prerender.ts` ✅ 10 route-specific HTML files.
+
+Stage Summary:
+- **iter 183 завершён.** state-features для `/timeless-jewel`: URL-sync (`#tj=` prefix), ProfilePanel integration, AtlasSelectedBasket. CI зелёный: tsc 0, eslint 0, vitest 2455 passed | 5 skipped (+30 новых тестов), vite build OK (10 prerendered routes).
+- **Изменённые файлы (iter 183):**
+  - НОВЫЕ: `src/store/atlas-state-sync.ts` (URL hash serialize/deserialize/sync), `src/ui/components/AtlasSelectedBasket.tsx` (minimal basket для atlas-нод), `tests/store/atlas-state-sync.test.ts` (18 тестов), `tests/ui/AtlasSelectedBasket.test.tsx` (12 тестов).
+  - ИЗМЕНЁННЫЕ: `src/ui/pages/timeless-jewel/TimelessJewelPage.tsx` (URL-sync on mount/change, ProfilePanel, AtlasSelectedBasket, mobile section), `src/shared/i18n.ts` (5 new timeless_jewel.basket_* keys), `STATUS.md` (полный рерайт), `AGENT_NAVIGATION.md` (header + §1 + pitfall #28 + §13), `worklog.md` (этот Task ID).
+- **Stopping point:** iter 183 завершён. CI зелёный: 2455 passed | 5 skipped, build OK (10 prerendered routes). Можно пушить.
+- **Что НЕ сделано (намеренно, deferred to iter 184+):**
+  - **Cross-tab persistence для `/timeless-jewel`** (analog `poe2:favorites:<cat>` / `poe2:uistate:<cat>`). Сейчас при навигации между табами выбор теряется (URL hash перезаписывается новой страницей). iter 183 заложил foundation (`atlas-state-sync.ts`) — осталось добавить `read/write/clear` в `local-settings.ts` + `storage` event listener в `TimelessJewelPage.tsx`.
+  - **Realtime multi-tab sync** (analog KI#30 favorites sync через `storage` event) — iter 184.
+  - **ETL-интеграция `parse-timeless-jewel.ts` в `run-etl.ts`** — iter 185+ (опционально).
+- **Next iteration (iter 184):** Cross-tab persistence для `/timeless-jewel` — `read/write/clearAtlasState(categoryId)` в `local-settings.ts` + useState initializer в `TimelessJewelPage.tsx` (restore from localStorage when URL had no `#tj=`) + `storage` event listener (realtime multi-tab sync). Pattern mirrors KI#30 favorites + KI#50 UI state — уже обкатан в `useCategoryPage.ts`, низкий риск.
+
+
