@@ -38,7 +38,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // button — full tooltip explains the semantics.
     'logic.mixed': 'Смешанный',
     // Tooltip / aria-description for the MIXED toggle button.
-    'logic.mixed_tooltip': 'Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по чипу — хочу, Shift+клик — опционально, правый клик — исключить.',
+    // iter 181 (KI#56): updated to mention Ctrl+клик (added as alternative to
+    // Shift+клик because Shift+клик triggers browser text selection) and the
+    // new ⊕ button (mobile-friendly, no keyboard needed). Right-click stays
+    // for EXCLUDE (also works on mobile as long-press).
+    'logic.mixed_tooltip': 'Смешанный режим: обязательные аффиксы (И) + опциональные (ИЛИ). Клик по чипу — хочу, Ctrl+клик (или Shift+клик, или кнопка ⊕) — опционально, правый клик — исключить.',
     // iter 162: aria-label for the ⓘ icon next to the MIXED chip.
     // The ⓘ glyph opens a delayed tooltip (350ms hover) with the same
     // explanation as `logic.mixed_tooltip` — gives beginners a visible
@@ -88,7 +92,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'health.green': 'Норма',
     'health.yellow': 'Много',
     'health.red': 'Критично',
-    'tablet.title': 'Башни Предтеч',
+    // iter 181: renamed 'Башни Предтеч' → 'Плитки Предтеч' per user feedback.
+    // The category covers PoE2 "tablets" — flat tablet-like map modifiers
+    // (Breach/Delirium/Ritual/Vaal/Expedition tablets), not "towers". The old
+    // name «Башни» was a misleading translation; «Плитки» matches the actual
+    // in-game item class semantics. NOTE: in-game individual item names like
+    // «Башня Бездны Предтеч» (Breach Tablet) are NOT changed — those are
+    // canonical PoE2 ru-client strings used in regex matching (see
+    // tests/core/tablet-patterns.test.ts).
+    'tablet.title': 'Плитки Предтеч',
     'chip.selected': 'выбрано',
     'chip.partial': 'частично выбрано',
     'chip.excluded': 'исключено',
@@ -108,6 +120,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'chip.unexclude_tooltip': 'Убрать из исключения',
     'chip.exclude_aria': 'Исключить аффикс',
     'chip.unexclude_aria': 'Убрать аффикс из исключения',
+    // iter 181 (KI#56): OPT toggle button (⊕ / ⊖) on FilterChip.
+    // Rendered ONLY in MIXED mode (mobile-friendly alternative to
+    // shift+click / ctrl+click). Title + aria-label for the ⊕ button.
+    'chip.opt_tooltip': 'Сделать аффикс опциональным (хотя бы 1 из группы)',
+    'chip.unopt_tooltip': 'Убрать из опциональных',
+    'chip.opt_aria': 'Сделать семейство опциональным',
+    'chip.unopt_aria': 'Убрать семейство из опциональных',
     'vendor.verification': 'Требуется проверка: Regex строки для свойств торговца основаны на переводах русского клиента и ещё не проверены в игре. Если какая-то строка не работает, сообщите об этом для исправления.',
     'affix.prefix': 'Префикс',
     'affix.suffix': 'Суффикс',
@@ -214,12 +233,16 @@ const translations: Record<Locale, Record<string, string>> = {
     // ARIA label for the «свернуть» button — mirrors chip.more_aria pattern.
     'chip.collapse_aria': 'Свернуть оставшиеся аффиксы',
 
-    // Phase 3 (iter 135): «Все / Выбранные» toggle in CategoryControlPanel
+    // Phase 3 (iter 135): «Все / Мои» toggle in CategoryControlPanel
     // + SelectedBasket component in right aside.
-    // Toggle shows ALL chips OR only selected/excluded/pinned ones.
+    // iter 181 (KI#55): label renamed «Выбранные ({n})» → «Мои ({n})» — the
+    // toggle filter keeps family groups that have at least one selected OR
+    // excluded OR pinned (and optional in MIXED mode) member, so «Мои» is a
+    // more honest description than «Выбранные» (which implied want-only).
+    // {n} = totalVisibleCount (selected + excluded + optional + pinned family
+    // groups). When 0 → button is disabled.
     'filter.show_all': 'Все',
-    // {n} = selected token count (selectedIds.size). When 0 → button is disabled.
-    'filter.show_selected': 'Выбранные ({n})',
+    'filter.show_selected': 'Мои ({n})',
     // ARIA label for the show-selected-only radio group.
     'filter.show_mode_label': 'Режим отображения аффиксов',
     // iter 148 (toolbar refactor): short label for compact <select> variant.
@@ -322,7 +345,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.info': 'наведите для подсказки',
     // iter 161: shift+click hint for MIXED mode. Rendered only when
     // searchLogic==='mixed' (IconLegend accepts optional `showMixedHint`).
-    'legend.opt_shift_click': 'Shift+клик по чипу — опционально (хотя бы 1)',
+    // iter 181 (KI#56): updated to mention Ctrl+клик + ⊕ button alternatives.
+    'legend.opt_shift_click': 'Ctrl/Shift+клик по чипу (или кнопка ⊕) — опционально (хотя бы 1)',
     // iter 140 (KI#25): tooltip text for show-selected-only radio toggle.
     // User asked: «кнопка режим отображения аффиксов и сама функция для чего
     // собственно?». Tooltip explains what the toggle does.

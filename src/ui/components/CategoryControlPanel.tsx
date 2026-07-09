@@ -91,17 +91,30 @@ interface CategoryControlPanelProps {
   // See docs/UI_REFACTOR_PLAN.md §4 Phase 3 for full spec.
   // When true, ModList/VirtualizedModList filter familyGroups to only those
   // with selected/excluded/pinned members. iter 148 (toolbar refactor):
-  // toggle is a compact <select> («Все» / «Выбранные (N)») placed next to
+  // toggle is a compact <select> («Все» / «Мои (N)») placed next to
   // the sortMode select. Was a 2-button radiogroup before iter 148.
+  //
+  // iter 181 (KI#55): the toggle's enable/counter logic was previously broken
+  // — `selectedCount` only counted `selectedIds` (want), so the toggle stayed
+  // disabled even when the user had pinned favorites or excluded affixes (which
+  // DO show up in the filtered view per `VirtualizedModList.visibleGroups`).
+  // Fix: introduce `pinnedCount` prop + compute totalVisibleCount = selected +
+  // excluded + optional + pinned. Disable when totalVisibleCount === 0. The
+  // counter in the option label now reflects what the user will actually see.
 
   /** Current value of `showSelectedOnly` from filter-store.
    *  Optional — when omitted, the toggle is NOT rendered (backward compat). */
   showSelectedOnly?: boolean;
   /** Set show-selected-only mode. Optional — when omitted, toggle not rendered. */
   onSetShowSelectedOnly?: (v: boolean) => void;
-  /** Count of selected tokens — for the «Выбранные (N)» option label.
-   *  When 0, the «Выбранные» option is disabled. */
+  /** Count of selected (want) family groups. iter 181 (KI#55): only one of the
+   *  four inputs to the toggle's enable/counter logic — see `pinnedCount`. */
   selectedCount?: number;
+  /** iter 181 (KI#55): Count of pinned (favorited) family groups. The toggle
+   *  filter in `VirtualizedModList.visibleGroups` keeps pinned groups visible,
+   *  so the counter must include them. When 0 AND selectedCount=0 AND
+   *  excludedCount=0 AND optionalCount=0 → toggle disabled. */
+  pinnedCount?: number;
 }
 
 /**
@@ -156,6 +169,9 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
   showSelectedOnly = false,
   onSetShowSelectedOnly,
   selectedCount = 0,
+  // iter 181 (KI#55): pinned family-group count — feeds the toggle's enable
+  // condition + visible counter alongside selected/excluded/optional.
+  pinnedCount = 0,
 }) => {
   const showRound10Toggle = showRound10 ?? hasRangedTokens;
 
@@ -386,28 +402,41 @@ export const CategoryControlPanel: React.FC<CategoryControlPanelProps> = ({
             compact <select>. Old long label «Режим отображения аффиксов»
             replaced with short aria-label «Показывать» (filter.show_mode_label_short)
             — the user is already in the affix list, no need to re-state
-            context. Selected count surfaced via the option label itself.
+            context.
+            iter 181 (KI#55): the toggle's filter logic (in
+            `VirtualizedModList.visibleGroups`) keeps family groups that have
+            at least one selected OR excluded OR pinned member (and optional
+            in MIXED mode). Previously the toggle's disable condition + counter
+            only considered `selectedCount` (want), so the toggle stayed
+            disabled even when the user had pinned favorites or excluded
+            affixes — making the feature look broken. Fix: totalVisibleCount
+            = selected + excluded + optional + pinned; disabled when 0; the
+            counter shows what the user will actually see when the toggle is
+            on. The label is now «Мои (N)» instead of «Выбранные (N)» to
+            reflect that it includes favorites and excludes, not just wants.
             Backward compat: when onSetShowSelectedOnly is NOT provided
-            (e.g. VendorPage uses custom FilterChip), the select is NOT rendered.
-            iter 140 (KI#25): `title` tooltip preserved on the wrapper to
-            explain what the toggle does when the user hovers. */}
-        {onSetShowSelectedOnly && (
-          <select
-            value={showSelectedOnly ? 'selected' : 'all'}
-            onChange={(e) => onSetShowSelectedOnly(e.target.value === 'selected')}
-            disabled={selectedCount === 0}
-            aria-label={t('filter.show_mode_label_short')}
-            title={t('filter.show_mode_hint')}
-            className={`px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer ${
-              selectedCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            <option value="all">{t('filter.show_all')}</option>
-            <option value="selected">
-              {t('filter.show_selected').replace('{n}', String(selectedCount))}
-            </option>
-          </select>
-        )}
+            (e.g. VendorPage uses custom FilterChip), the select is NOT rendered. */}
+        {onSetShowSelectedOnly && (() => {
+          const totalVisibleCount =
+            selectedCount + excludedCount + optionalCount + pinnedCount;
+          return (
+            <select
+              value={showSelectedOnly ? 'selected' : 'all'}
+              onChange={(e) => onSetShowSelectedOnly(e.target.value === 'selected')}
+              disabled={totalVisibleCount === 0}
+              aria-label={t('filter.show_mode_label_short')}
+              title={t('filter.show_mode_hint')}
+              className={`px-2.5 py-1.5 bg-surface border border-edge rounded text-[13px] text-bright focus:outline-none focus:border-accent-amber cursor-pointer ${
+                totalVisibleCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              <option value="all">{t('filter.show_all')}</option>
+              <option value="selected">
+                {t('filter.show_selected').replace('{n}', String(totalVisibleCount))}
+              </option>
+            </select>
+          );
+        })()}
 
         {/* Category-specific controls slot */}
         {extraControls}

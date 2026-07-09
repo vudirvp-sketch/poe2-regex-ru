@@ -164,10 +164,14 @@ export function WaystonePage() {
         const wantTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
         const excludeTokens = data.tokens.filter(tok => excludedIds.has(tok.id));
         const optionalTokens = data.tokens.filter(tok => optionalIds.has(tok.id));
+        // iter 181 (KI#55): pinned tokens (favorites) — needed by the
+        // show-selected-only toggle. See RingPage.tsx for full rationale.
+        const pinnedTokens = data.tokens.filter(tok => pinnedIds.has(tok.id));
         // iter 161: counters show family-group (affix) count, not token count.
         const wantGroupCount = countUniqueFamilyKeys(wantTokens);
         const excludeGroupCount = countUniqueFamilyKeys(excludeTokens);
         const optionalGroupCount = countUniqueFamilyKeys(optionalTokens);
+        const pinnedGroupCount = countUniqueFamilyKeys(pinnedTokens);
         const activeGroupCount = countUniqueFamilyKeys(allActiveTokens);
         const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
         const rangedSuffixes = [...new Set(
@@ -220,6 +224,9 @@ export function WaystonePage() {
                 showSelectedOnly={showSelectedOnly}
                 onSetShowSelectedOnly={setShowSelectedOnly}
                 selectedCount={wantGroupCount}
+                // iter 181 (KI#55): pinned family-group count — without this
+                // the toggle stays disabled when only favorites (⭐) are set.
+                pinnedCount={pinnedGroupCount}
                 extraControls={
                   // iter 148 (toolbar refactor): map-state filters restyled
                   // from bare checkboxes + text labels to colored chip-toggles

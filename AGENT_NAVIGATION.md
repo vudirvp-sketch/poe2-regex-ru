@@ -1,10 +1,10 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 180 — SEO technical fixes (`<title>` 80→58 chars, удалён `meta keywords`, добавлены FAQ JSON-LD + FAQ-секция в SeoBlock, синонимы, KI#54 fix: `/timeless-jewel` добавлен в `prerender-full.ts` и IndexNow urlList). iter 179 — README rewrite + docs/ cleanup. iter 178 — полировка `/timeless-jewel`. iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
+> **Текущее состояние:** iter 181 — UI fixes по фидбеку пользователя (KI#55: show-selected-only toggle fix + KI#56: MIXED-mode hotkeys + rename «Башни» → «Плитки»). iter 180 — SEO technical fixes. iter 179 — README rewrite + docs/ cleanup. iter 178 — полировка `/timeless-jewel`. iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#54 — ЗАКРЫТ (iter 180).** **KI#53 — ЗАКРЫТ (iter 177).**
-> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2405 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#55 — ЗАКРЫТ (iter 181).** **KI#56 — ЗАКРЫТ (iter 181).** **KI#54 — ЗАКРЫТ (iter 180).** **KI#53 — ЗАКРЫТ (iter 177).**
+> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2418 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 
@@ -36,7 +36,7 @@
 | `public/icons/atlas-nodes/` | iter 178: 15 self-hosted `.webp` atlas-node icons (was remote `cdn.poe2db.tw`). ~50 KB total. Referenced from `public/generated/timeless-jewel.json` `iconUrl` field as relative paths `icons/atlas-nodes/X.webp`. | `AtlasNodeList.tsx` prepends `import.meta.env.BASE_URL` for relative paths. Parser `parse-timeless-jewel.ts` auto-downloads new icons via `localizeIconUrl()`. |
 | `public/atmosphere/` | PoE2-themed textures: `bg.webp` (body bg), `bg-2x.webp` (divider ornate), hero portraits (`hero-shaman.webp` left, `hero-iva.webp` right), `seo-atmosphere.webp` (SeoBlock backdrop, lg+ only). | All assets actively referenced from JSX or CSS |
 | `scripts/` | ETL pipeline (`scripts/etl/`) + prerender (`prerender.ts` / `prerender-full.ts`) + analysis. **НЕ добавлять новые verify-iter*-*.ts** — покрывать через `tests/` (vitest). | `pnpm etl` / `tsx scripts/prerender.ts` / `tsx scripts/prerender-full.ts` |
-| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2405 passing + 5 KI#53-skipped) |
+| `tests/` | Vitest — core/, shared/, etl/, ui/, integration/ | `pnpm test` (2418 passing + 5 KI#53-skipped) |
 | `docs/` | Architecture, ETL guide, data contracts, in-game tests, SEO plan, UI audits, redesign concepts | See §13 |
 | `регис/` | User-provided in-game test data (Russian source mod lists + test items) | Reference only — do not modify |
 

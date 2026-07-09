@@ -176,13 +176,24 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     : (group.priorityTier === 'S' ? 'border-l-bl-amber-soft' : affixColor);
 
   // iter 159: 3-state click handler for MIXED mode.
-  //  - shift+click → opt (onToggleOptional) — only when mixedMode + onToggleOptional.
+  //  - shift+click OR ctrl+click → opt (onToggleOptional) — only when mixedMode + onToggleOptional.
   //  - plain click → want (onToggleTokens) — default behaviour.
-  // Backward compat: when mixedMode is false, shift+click is treated as a
-  // plain click (no OPT toggle), preserving pre-iter-159 behaviour for tests
-  // and VendorPage.
+  // Backward compat: when mixedMode is false, shift+click / ctrl+click are
+  // treated as a plain click (no OPT toggle), preserving pre-iter-159
+  // behaviour for tests and VendorPage.
+  //
+  // iter 181 (KI#56): added ctrl+click as alternative to shift+click.
+  // Reason: shift+click triggers browser text selection (extends an existing
+  // selection or starts a new one), which made the MIXED-mode OPT gesture
+  // feel broken — the user clicked, the chip toggled, but the page also got
+  // a text selection rectangle. Ctrl+click has no such browser side-effect.
+  // Shift+click still works (kept for muscle memory + existing tests) but
+  // `handleMouseDown` calls `preventDefault()` when shift is pressed to
+  // suppress the text-selection side-effect. The visible ⊕ OPT button
+  // (added iter 181) is the recommended path for mobile users (no shift/ctrl
+  // available on touch).
   const handleClick = (e: React.MouseEvent) => {
-    if (mixedMode && e.shiftKey && onToggleOptional) {
+    if (mixedMode && onToggleOptional && (e.shiftKey || e.ctrlKey)) {
       e.stopPropagation();
       onToggleOptional(memberIds);
       return;
@@ -190,14 +201,28 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     onToggleTokens(memberIds);
   };
 
+  // iter 181 (KI#56): suppress browser text selection when shift is pressed
+  // during mousedown on the chip. The browser starts a text selection on
+  // shift+mousedown BEFORE the click event fires — so calling preventDefault
+  // in onClick is too late. preventDefault on mousedown stops the selection
+  // before it starts, while still allowing the click event to fire normally.
+  // We deliberately do NOT preventDefault on plain mousedown (would break
+  // clicking input fields inside the chip, e.g. range inputs).
+  // Ctrl+click doesn't need this — ctrl alone doesn't trigger text selection.
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (mixedMode && e.shiftKey && onToggleOptional) {
+      e.preventDefault();
+    }
+  };
+
   // iter 159: 3-state keyboard handler for MIXED mode.
-  //  - shift+Enter / shift+Space → opt (onToggleOptional).
+  //  - shift+Enter / shift+Space / ctrl+Enter / ctrl+Space → opt (onToggleOptional).
   //  - plain Enter / plain Space → want (onToggleTokens).
   // Matches handleClick semantics for keyboard users (WCAG-compliant parity).
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     e.preventDefault();
-    if (mixedMode && e.shiftKey && onToggleOptional) {
+    if (mixedMode && onToggleOptional && (e.shiftKey || e.ctrlKey)) {
       onToggleOptional(memberIds);
       return;
     }
@@ -208,12 +233,26 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   // preventDefault suppresses the browser's context menu so the chip owns the
   // right-click gesture. In non-MIXED mode, right-click falls through to the
   // browser context menu (no behaviour change for pre-iter-159 callers).
+  // Mobile: long-press on touch devices fires `contextmenu` — so right-click
+  // == long-press == EXCLUDE on mobile.
   const handleContextMenu = (e: React.MouseEvent) => {
     if (!mixedMode || !onToggleExclude) return;
     e.preventDefault();
     e.stopPropagation();
     onToggleExclude(memberIds);
   };
+
+  // iter 181 (KI#56): OPT toggle button click handler.
+  // stopPropagation so clicking ⊕ does NOT also trigger the chip's main
+  // onClick (which would toggle WANT). The ⊕ is a sibling button, not a
+  // child of the role="switch" div — same pattern as the existing ✗ exclude
+  // button + ⭐ pin button. Visible only in MIXED mode (when onToggleOptional
+  // is wired) as a mobile-friendly alternative to shift/ctrl+click.
+  const handleOptClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleOptional?.(memberIds);
+  }, [onToggleOptional, memberIds]);
+
 
   // Whether this group has ranged tokens (supports per-chip min/max)
   const hasRanges = group.rangeSlots.length > 0;
@@ -496,6 +535,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       {/* Switch element: just the label + badges, clickable */}
       <div
         onClick={handleClick}
+        onMouseDown={handleMouseDown}
         role="switch"
         aria-checked={selectionState === 'full' ? 'true' : selectionState === 'partial' ? 'mixed' : selectionState === 'excluded' ? 'true' : selectionState === 'partial-excluded' ? 'mixed' : selectionState === 'full-optional' ? 'true' : selectionState === 'partial-optional' ? 'mixed' : 'false'}
         aria-label={ariaLabel}
@@ -531,6 +571,32 @@ export const FilterChip: React.FC<FilterChipProps> = ({
           </span>
         )}
       </div>
+      {/* iter 181 (KI#56): Per-mod OPT toggle button — ⊕ / ⊖.
+          Rendered ONLY in MIXED mode (when `onToggleOptional` is wired) as a
+          mobile-friendly alternative to shift+click / ctrl+click. Touch devices
+          have no shift/ctrl key, so without this button mobile users would
+          have no way to mark an affix as OPT (only EXCLUDE via long-press).
+          Visual: ⊕ (circled plus, "add to opt set") when not optional; ⊖
+          (circled minus, "remove from opt set") when optional. Amber-tinted
+          to match the OPT state's amber dashed border.
+          SIBLING of the role="switch" div — valid ARIA tree (button + switch
+          are both interactive; they don't nest). Same pattern as ⭐ and ✗. */}
+      {mixedMode && onToggleOptional && (
+        <button
+          type="button"
+          onClick={handleOptClick}
+          className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-[12px] font-bold transition-colors ${
+            isOptional
+              ? 'bg-amber-700/60 text-bright hover:bg-amber-600/70'
+              : 'bg-raised text-muted hover:bg-chip-hover hover:text-accent-amber-soft'
+          }`}
+          title={isOptional ? t('chip.unopt_tooltip') : t('chip.opt_tooltip')}
+          aria-label={isOptional ? t('chip.unopt_aria') : t('chip.opt_aria')}
+          aria-pressed={isOptional}
+        >
+          {isOptional ? '⊖' : '⊕'}
+        </button>
+      )}
       {/* Per-mod exclude toggle button — small ✗/✓ */}
       {onToggleExclude && (
         <button

@@ -97,11 +97,18 @@ export function RingPage() {
         const wantTokens = data.tokens.filter(tok => selectedIds.has(tok.id));
         const excludeTokens = data.tokens.filter(tok => excludedIds.has(tok.id));
         const optionalTokens = data.tokens.filter(tok => optionalIds.has(tok.id));
+        // iter 181 (KI#55): pinned tokens (favorites) — needed by the
+        // show-selected-only toggle in CategoryControlPanel. The toggle's
+        // filter logic keeps family groups with at least one selected OR
+        // excluded OR pinned member, so the counter must include pinned
+        // family groups to accurately reflect what the user will see.
+        const pinnedTokens = data.tokens.filter(tok => pinnedIds.has(tok.id));
         // iter 161: counters show family-group (affix) count, not token count.
         // A 12-tier affix chip = 1 family group, displayed as "1 выбрано" (was "12").
         const wantGroupCount = countUniqueFamilyKeys(wantTokens);
         const excludeGroupCount = countUniqueFamilyKeys(excludeTokens);
         const optionalGroupCount = countUniqueFamilyKeys(optionalTokens);
+        const pinnedGroupCount = countUniqueFamilyKeys(pinnedTokens);
         const activeGroupCount = countUniqueFamilyKeys(allActiveTokens);
         const hasRangedTokens = allActiveTokens.some(tok => tok.ranges.length > 0);
         const rangedSuffixes = [...new Set(
@@ -154,6 +161,11 @@ export function RingPage() {
                 showSelectedOnly={showSelectedOnly}
                 onSetShowSelectedOnly={setShowSelectedOnly}
                 selectedCount={wantGroupCount}
+                // iter 181 (KI#55): pinned family-group count — feeds the
+                // toggle's enable condition + visible counter alongside
+                // selected/excluded/optional. Without this, the toggle stays
+                // disabled even when the user has favorites (⭐) pinned.
+                pinnedCount={pinnedGroupCount}
               />
             }
             basket={

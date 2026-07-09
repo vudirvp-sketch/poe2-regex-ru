@@ -136,7 +136,10 @@ describe('IconLegend', () => {
     const { container } = render(<IconLegend />);
     const rows = container.querySelectorAll('.icon-legend__row');
     expect(rows).toHaveLength(3);
+    // iter 181 (KI#56): updated regex to match either the old or new label
+    // wording (Ctrl/Shift+клик ... опционально).
     expect(screen.queryByText(/Shift\+клик по чипу/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Ctrl\/Shift\+клик по чипу.*опционально/)).not.toBeInTheDocument();
   });
 
   it('iter 161: showMixedHint=true → 4 rows, last row is the OPT shift+click hint', () => {
@@ -144,7 +147,9 @@ describe('IconLegend', () => {
     const rows = container.querySelectorAll('.icon-legend__row');
     expect(rows).toHaveLength(4);
     // The 4th row text matches the i18n key 'legend.opt_shift_click'.
-    expect(screen.getByText(/Shift\+клик по чипу — опционально/)).toBeInTheDocument();
+    // iter 181 (KI#56): updated regex to match the new label mentioning
+    // Ctrl+клик + ⊕ button alternatives (was "Shift+клик по чипу — опционально").
+    expect(screen.getByText(/Ctrl\/Shift\+клик по чипу.*опционально/)).toBeInTheDocument();
     // The 4th row icon is ⇄ (left-right arrow, metaphor for "either this OR that").
     expect(screen.getByText('⇄')).toBeInTheDocument();
   });

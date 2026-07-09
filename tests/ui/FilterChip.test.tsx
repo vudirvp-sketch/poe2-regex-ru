@@ -894,6 +894,128 @@ describe('FilterChip', () => {
       expect(onToggleTokens).not.toHaveBeenCalled();
     });
 
+    // ─── iter 181 (KI#56): Ctrl+click alternative + visible ⊕ OPT button ───
+
+    it('iter 181 (KI#56): ctrl+click calls onToggleOptional when mixedMode is true', () => {
+      // Ctrl+click is an alternative to shift+click that doesn't trigger
+      // browser text selection. Same semantic — toggles OPT state.
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.click(switchEl, { ctrlKey: true });
+
+      expect(onToggleOptional).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('iter 181 (KI#56): ctrl+Enter calls onToggleOptional (keyboard parity)', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const switchEl = screen.getByRole('switch');
+      fireEvent.keyDown(switchEl, { key: 'Enter', ctrlKey: true });
+
+      expect(onToggleOptional).toHaveBeenCalledWith(['t1', 't2']);
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('iter 181 (KI#56): renders visible ⊕ OPT button when mixedMode + onToggleOptional', () => {
+      // The ⊕ button is the mobile-friendly alternative to shift/ctrl+click.
+      // Should render ONLY when mixedMode=true AND onToggleOptional is wired.
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          mixedMode
+        />,
+      );
+
+      const optButton = screen.getByRole('button', { name: /сделать семейство опциональным/i });
+      expect(optButton).toHaveTextContent('⊕');
+    });
+
+    it('iter 181 (KI#56): does NOT render ⊕ OPT button when mixedMode is false', () => {
+      // Backward compat: non-MIXED-mode callers should not see the new button.
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          // mixedMode defaults to false
+        />,
+      );
+
+      expect(screen.queryByRole('button', { name: /опциональн/i })).not.toBeInTheDocument();
+    });
+
+    it('iter 181 (KI#56): clicking ⊕ button calls onToggleOptional', () => {
+      const group = makeGroup();
+      const onToggleTokens = vi.fn();
+      const onToggleOptional = vi.fn();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          onToggleTokens={onToggleTokens}
+          onToggleOptional={onToggleOptional}
+          mixedMode
+        />,
+      );
+
+      const optButton = screen.getByRole('button', { name: /сделать семейство опциональным/i });
+      fireEvent.click(optButton);
+
+      expect(onToggleOptional).toHaveBeenCalledWith(['t1', 't2']);
+      // Clicking ⊕ should NOT also trigger the chip's main onClick (would
+      // toggle WANT) — stopPropagation in handleOptClick prevents that.
+      expect(onToggleTokens).not.toHaveBeenCalled();
+    });
+
+    it('iter 181 (KI#56): ⊕ button shows ⊖ and "убрать" aria-label when chip is optional', () => {
+      const group = makeGroup();
+      render(
+        <FilterChip
+          group={group}
+          selectedIds={new Set()}
+          optionalIds={new Set(['t1', 't2'])}
+          onToggleTokens={vi.fn()}
+          onToggleOptional={vi.fn()}
+          mixedMode
+        />,
+      );
+
+      // When chip is in OPT state, the button shows ⊖ (remove from opt) and
+      // has the "убрать" aria-label.
+      const unoptButton = screen.getByRole('button', { name: /убрать семейство из опциональных/i });
+      expect(unoptButton).toHaveTextContent('⊖');
+    });
+
     it('OPT state shows range inputs when chip has ranges (isSelectedForRanges)', () => {
       const group = makeGroup(); // has rangeSlots: [[10, 35]]
       render(

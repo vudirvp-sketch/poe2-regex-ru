@@ -197,3 +197,45 @@ Stage Summary:
   - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — iter 181.
 - **Next iteration (iter 181):** state-features для `/timeless-jewel` — URL-sync (selection в hash через `url-sync.ts`, отдельная логика для atlas-узлов), ProfilePanel integration, SelectedBasket (упрощённая версия без family-group).
 
+---
+
+Task ID: iter-181-ui-fixes
+Agent: main
+Task: UI fixes по фидбеку пользователя. Три точечных баг-фикса без визуального рефакторинга: (1) `<select>` «Показывать» никогда не активировался; (2) Shift+LMB в MIXED-режиме выделял текст; (3) rename «Башни Предтеч» → «Плитки Предтеч». Пользователь явно просил итеративный подход — лучше недоделать, чем сломать. Visual layout density (четвёртый пункт фидбека) отложен на iter 182.
+
+Work Log:
+- 0: **Контекст из чата:** Пользователь сообщил 4 проблемы: (a) disabled `<select aria-label="Показывать">` никогда не активируется, даже при выбранных избранных аффиксах; (b) MIXED-режиме Shift+LMB выделяет текст — нужно сменить на более безопасную комбинацию (для ПК — Ctrl+LMB, для мобильных — непонятно); (c) категория «Башни Предтеч» названа странно, переименовать в «Плитки Предтеч»; (d) визуально увеличить плотность — много пустого места (пользователь не уверен, как сделать, не сломав). Пользователь привёл развёрнутый технический анализ с вариантами решений и явно отверг GridLayout 2 колонки.
+- 1: **Клонировал репозиторий**, `npm install` (pnpm не установлен), baseline: `tsc` 0, `eslint` 0, `vitest run` — 2405 passed | 5 skipped.
+- 2: **Анализ проблемы (a) — showSelectedOnly toggle.** Нашёл root cause: в `CategoryControlPanel.tsx` disable condition = `selectedCount === 0`, где `selectedCount` = `wantGroupCount` (только `selectedIds`). Но реальный фильтр в `VirtualizedModList.visibleGroups` фильтрует по `selectedIds ∪ excludedIds ∪ pinnedIds`. То есть если пользователь отметит ⭐ (pinned) или ✗ (excluded) — toggle остаётся disabled, хотя нажатие показало бы эти чипы. Tooltip «Показывать все аффиксы или только выбранные, исключённые и избранные» подтвердил интенцию. **По правилу пользователя — сначала задокументировал как KI#55 в STATUS.md, потом пофиксил.**
+- 3: **Fix KI#55:** В `CategoryControlPanel.tsx` добавлен prop `pinnedCount?: number`; computed `totalVisibleCount = selectedCount + excludedCount + optionalCount + pinnedCount`; disable condition изменено на `totalVisibleCount === 0`; лейбл в option — `totalVisibleCount` вместо `selectedCount`. В `i18n.ts` лейбл «Выбранные ({n})» → «Мои ({n})» (честнее отражает, что включает favorites/excludes, не только wants). Все 7 категорийных страниц (RingPage, RelicPage, WaystonePage, JewelPage, BeltPage, TabletPage, AmuletPage) обновлены: добавлен `pinnedTokens` filter + `pinnedGroupCount = countUniqueFamilyKeys(pinnedTokens)` + `pinnedCount={pinnedGroupCount}` prop.
+- 4: **Анализ проблемы (b) — MIXED Shift+LMB text selection.** Нашёл root cause: в `FilterChip.tsx` `handleClick` проверяет `e.shiftKey` и вызывает `onToggleOptional`, но browser начинает text selection на `mousedown` (с shift), ДО `click` event — так что `preventDefault` в `handleClick` слишком поздно. Пользователь предложил Ctrl+LMB для ПК. Для мобильных — touch не имеет shift/ctrl. **По правилу — сначала KI#56 в STATUS.md, потом фикс.**
+- 5: **Fix KI#56:** В `FilterChip.tsx`:
+  - Добавлен `handleMouseDown` — `e.preventDefault()` когда `mixedMode && e.shiftKey && onToggleOptional` (подавляет text selection ДО click event). Не preventDefault на plain mousedown (сломало бы клик по input-полям внутри чипа).
+  - `handleClick` + `handleKeyDown` — теперь принимают `e.shiftKey || e.ctrlKey` для OPT (Ctrl+LMB — альтернатива без side-effect).
+  - **Новая видимая кнопка ⊕/⊖ на чипе** — рендерится только когда `mixedMode && onToggleOptional` (mobile-friendly альтернатива shift/ctrl+click). SIBLING кнопки ⭐ и ✗ (valid ARIA tree). Amber-tinted bg когда isOptional, neutral когда нет. `stopPropagation` чтобы не триггерить main onClick.
+  - `handleOptClick` via `useCallback`.
+  - 4 новых i18n ключа: `chip.opt_tooltip`, `chip.unopt_tooltip`, `chip.opt_aria`, `chip.unopt_aria`.
+  - Обновлены существующие ключи: `logic.mixed_tooltip` (упомянут Ctrl+клик + ⊕), `legend.opt_shift_click` (Ctrl/Shift+клик или кнопка ⊕).
+- 6: **Анализ проблемы (c) — rename «Башни» → «Плитки».** Нашёл 4 места использования «Башни Предтеч» как категории: `i18n.ts` ('tablet.title'), `SeoBlock.tsx`, `README.md`, `scripts/prerender.ts` (title + navLink label), `TabletPage.tsx` JSDoc. **Важно:** in-game item names в тестах («Башня Бездны Предтеч», «Башня Делириума Предтеч» и т.д.) НЕ трогать — это каноничные строки PoE2 ru-клиента, используемые в regex-matching тестах.
+- 7: **Rename выполнен** во всех 5 местах. В `i18n.ts` добавлен комментарий-объяснение: категория покрывает PoE2 «tablets» (плоские модификаторы карт), а не «towers»; in-game individual item names не изменены (см. `tests/core/tablet-patterns.test.ts`).
+- 8: **Новые тесты:**
+  - `tests/ui/FilterChip.test.tsx` — +6 тестов (ctrl+click, ctrl+Enter, ⊕ button render/disabled/click, ⊖ state).
+  - `tests/ui/CategoryControlPanel.test.tsx` — НОВЫЙ файл, 7 тестов (toggle disabled when all 0; enabled when only pinned; enabled when only excluded; enabled when only optional; counter shows total; backward compat; onChange calls setter).
+  - `tests/ui/IconLegend.test.tsx` — обновлён regex в 2 тестах (учитывает новый текст «Ctrl/Shift+клик по чипу (или кнопка ⊕) — опционально»).
+- 9: **Документация актуализирована:**
+  - `STATUS.md` — полный рерайт: iter 181 в заголовке + текущее состояние, KI#55 + KI#56 добавлены в Known Issues (FIXED), roadmap обновлён (iter 182 — visual layout density, iter 183 — state-features, бывший iter 181).
+  - `AGENT_NAVIGATION.md` — header: iter 181 + KI#55/KI#56 closed; test count 2405 → 2418.
+  - `worklog.md` — этот Task ID iter-181-ui-fixes.
+- 10: **Финальные проверки**: `npx tsc -b` ✅ 0 errors, `npx eslint .` ✅ 0 errors, `npx vitest run` — **2418 passed | 5 skipped** (+13 новых тестов: 6 FilterChip + 7 CategoryControlPanel, без регрессий). `npm run build` ✅ OK (10 prerendered routes).
+
+Stage Summary:
+- **iter 181 завершён.** Три точечных UI-fixа по фидбеку пользователя: KI#55 (show-selected-only toggle) + KI#56 (MIXED hotkeys + ⊕ button) + rename «Башни» → «Плитки». CI зелёный: 2418 passed | 5 skipped (+13 новых тестов), build OK (10 prerendered routes).
+- **Изменённые файлы (iter 181):**
+  - ИЗМЕНЁННЫЕ: `src/ui/components/CategoryControlPanel.tsx` (KI#55 fix: pinnedCount prop + totalVisibleCount), `src/ui/components/FilterChip.tsx` (KI#56 fix: handleMouseDown preventDefault + ctrl+click + ⊕ button), `src/shared/i18n.ts` (KI#55: «Мои» label; KI#56: 4 new opt_ keys + updated tooltips; rename: 'tablet.title'), `src/ui/pages/ring/RingPage.tsx` (pinnedGroupCount + pinnedCount prop), `src/ui/pages/relic/RelicPage.tsx` (то же), `src/ui/pages/waystone/WaystonePage.tsx` (то же), `src/ui/pages/jewel/JewelPage.tsx` (то же), `src/ui/pages/belt/BeltPage.tsx` (то же), `src/ui/pages/tablet/TabletPage.tsx` (то же + JSDoc rename), `src/ui/pages/amulet/AmuletPage.tsx` (то же), `src/ui/pages/home/SeoBlock.tsx` (rename «Башни» → «Плитки»), `README.md` (rename), `scripts/prerender.ts` (rename: title + description + noscriptIntro + navLink label), `tests/ui/FilterChip.test.tsx` (+6 тестов KI#56), `tests/ui/IconLegend.test.tsx` (updated regex), `STATUS.md` (полный рерайт), `AGENT_NAVIGATION.md` (header + test count), `worklog.md` (этот Task ID).
+  - НОВЫЕ: `tests/ui/CategoryControlPanel.test.tsx` (7 тестов KI#55).
+- **Stopping point:** iter 181 завершён. CI зелёный: 2418 passed | 5 skipped, build OK (10 prerendered routes). Можно пушить.
+- **Что НЕ сделано (намеренно, deferred):**
+  - **Visual layout density** (четвёртый пункт фидбека пользователя — «много пустого места») — отложено на iter 182. Пользователь явно не уверен, как сделать, не сломав. Фикс KI#55 уже частично помогает: пользователь может скрыть невыбранные чипы через «Мои» toggle — сразу становится плотнее. В iter 182 можно осторожно попробовать: уменьшить right-aside ширину (320px → 280px), tighten chip gap (gap-2 → gap-1.5), tighter chip padding. Каждое изменение отдельно тестировать.
+  - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — сдвинуто с iter 181 на iter 183 (iter 182 занят visual density).
+- **Next iteration (iter 182):** Visual layout density — осторожные точечные правки CSS/JSX для уменьшения «воздуха» в интерфейсе. Пользователь явно просил не ломать логику и не делать GridLayout 2 колонки (нарушает вертикальное сканирование). Лучше недоделать, чем сломать.
+
