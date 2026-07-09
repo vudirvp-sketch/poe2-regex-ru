@@ -309,6 +309,11 @@ export function WaystonePage() {
                 regexParts={regexParts}
                 filterStore={filterStore}
                 activeTokenCount={activeGroupCount}
+                mixedModeInfo={searchLogic === 'mixed' ? {
+                  mustCount: wantGroupCount,
+                  optCount: optionalGroupCount,
+                  excludeCount: excludeGroupCount,
+                } : undefined}
               />
             }
             status={
@@ -343,6 +348,11 @@ export function WaystonePage() {
                     regexParts={regexParts}
                     filterStore={filterStore}
                     activeTokenCount={activeGroupCount}
+                    mixedModeInfo={searchLogic === 'mixed' ? {
+                      mustCount: wantGroupCount,
+                      optCount: optionalGroupCount,
+                      excludeCount: excludeGroupCount,
+                    } : undefined}
                   />
                 }
               />

@@ -337,6 +337,11 @@ export function JewelPage() {
                 regexParts={regexParts}
                 filterStore={filterStore}
                 activeTokenCount={activeGroupCount}
+                mixedModeInfo={searchLogic === 'mixed' ? {
+                  mustCount: wantGroupCount,
+                  optCount: optionalGroupCount,
+                  excludeCount: excludeGroupCount,
+                } : undefined}
               />
             }
             status={
@@ -377,6 +382,11 @@ export function JewelPage() {
                     regexParts={regexParts}
                     filterStore={filterStore}
                     activeTokenCount={activeGroupCount}
+                    mixedModeInfo={searchLogic === 'mixed' ? {
+                      mustCount: wantGroupCount,
+                      optCount: optionalGroupCount,
+                      excludeCount: excludeGroupCount,
+                    } : undefined}
                   />
                 }
                 alerts={hiddenActiveCount > 0 ? [

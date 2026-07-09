@@ -35,6 +35,18 @@ interface RegexOutputProps {
    *  Each part is a valid regex content (without outer quotes) that can be
    *  pasted separately in PoE2. Undefined when within limit or cannot split. */
   regexParts?: string[];
+  /** iter 182 (KI#57): MIXED-mode breakdown badge. When provided, renders a
+   *  small info-line above the regex display showing MUST/OPT/EXCLUDE counts.
+   *  Purpose: visually confirm that OPT/EXCLUDE tokens are accounted for,
+   *  even when single-OPT regex looks identical to AND output (per T1 docs).
+   *  Only render when at least one of optCount/excludeCount > 0 — otherwise
+   *  the badge is noise (the regex already shows the must-tokens plainly).
+   *  Pages pass this only when `searchLogic === 'mixed'`. */
+  mixedModeInfo?: {
+    mustCount: number;
+    optCount: number;
+    excludeCount: number;
+  };
 }
 
 /** Get health level for character count */
@@ -118,7 +130,7 @@ const PartCopyButton: React.FC<{ part: string; index: number; total: number }> =
   );
 };
 
-export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore, activeTokenCount = 0, regexParts }) => {
+export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, filterStore, activeTokenCount = 0, regexParts, mixedModeInfo }) => {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
@@ -315,6 +327,30 @@ export const RegexOutput: React.FC<RegexOutputProps> = ({ regex, isOverflow, fil
         <div className="mb-2 p-2 bg-section-amber border border-aborder-amber-strong rounded text-atext-amber text-[12px] flex items-center gap-1.5">
           <span>\u26A0</span>
           <span>{t('regex.budget_warning').replace('{chars}', String(MAX_CHARS - charCount)).replace('{mods}', String(activeTokenCount))}</span>
+        </div>
+      )}
+
+      {/* iter 182 (KI#57): MIXED-mode info badge — confirms OPT/EXCLUDE tokens
+          are accounted for, even when single-OPT regex looks identical to AND
+          output (per T1 docs). Rendered only when at least one of opt/exclude
+          counts > 0, otherwise the badge is noise (the regex already shows the
+          must-tokens plainly). */}
+      {mixedModeInfo && (mixedModeInfo.optCount > 0 || mixedModeInfo.excludeCount > 0) && (
+        <div
+          className="mb-2 px-2 py-1 rounded text-[11px] flex items-center gap-2 bg-amber-900/15 border border-amber-700/40 text-accent-amber-warn"
+          role="note"
+          aria-label={t('regex.mixed_badge_aria')
+            .replace('{must}', String(mixedModeInfo.mustCount))
+            .replace('{opt}', String(mixedModeInfo.optCount))
+            .replace('{excl}', String(mixedModeInfo.excludeCount))}
+        >
+          <span aria-hidden="true">⇄</span>
+          <span>
+            {t('regex.mixed_badge')
+              .replace('{must}', String(mixedModeInfo.mustCount))
+              .replace('{opt}', String(mixedModeInfo.optCount))
+              .replace('{excl}', String(mixedModeInfo.excludeCount))}
+          </span>
         </div>
       )}
 

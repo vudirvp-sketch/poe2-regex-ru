@@ -245,4 +245,72 @@ describe('RegexOutput', () => {
     // Should NOT show budget warning (charCount <= 180)
     expect(screen.queryByText(/осталось/i)).not.toBeInTheDocument();
   });
+
+  // ─── iter 182 (KI#57): MIXED-mode info badge ───
+
+  it('iter 182: renders MIXED-mode badge when optCount > 0', () => {
+    render(
+      <RegexOutput
+        regex="максимуму здоровья характеристикам"
+        isOverflow={false}
+        mixedModeInfo={{ mustCount: 1, optCount: 1, excludeCount: 0 }}
+      />
+    );
+
+    // Badge should be visible with the breakdown
+    expect(screen.getByText(/Смешанный: 1 обяз\. \+ 1 опц\. \+ 0 искл\./i)).toBeInTheDocument();
+  });
+
+  it('iter 182: renders MIXED-mode badge when excludeCount > 0', () => {
+    render(
+      <RegexOutput
+        regex="максимуму здоровья"
+        isOverflow={false}
+        mixedModeInfo={{ mustCount: 1, optCount: 0, excludeCount: 1 }}
+      />
+    );
+
+    expect(screen.getByText(/Смешанный: 1 обяз\. \+ 0 опц\. \+ 1 искл\./i)).toBeInTheDocument();
+  });
+
+  it('iter 182: does NOT render MIXED-mode badge when only mustCount > 0 (no opt/exclude)', () => {
+    render(
+      <RegexOutput
+        regex="максимуму здоровья"
+        isOverflow={false}
+        mixedModeInfo={{ mustCount: 2, optCount: 0, excludeCount: 0 }}
+      />
+    );
+
+    // Badge should NOT render — would be noise (regex already shows the must-tokens)
+    expect(screen.queryByText(/Смешанный:/i)).not.toBeInTheDocument();
+  });
+
+  it('iter 182: does NOT render MIXED-mode badge when mixedModeInfo is undefined', () => {
+    render(
+      <RegexOutput
+        regex="максимуму здоровья"
+        isOverflow={false}
+        // mixedModeInfo not provided — backward compat for non-MIXED mode
+      />
+    );
+
+    expect(screen.queryByText(/Смешанный:/i)).not.toBeInTheDocument();
+  });
+
+  it('iter 182: badge has accessible aria-label with full breakdown', () => {
+    render(
+      <RegexOutput
+        regex="test"
+        isOverflow={false}
+        mixedModeInfo={{ mustCount: 2, optCount: 3, excludeCount: 1 }}
+      />
+    );
+
+    const badge = screen.getByRole('note');
+    const ariaLabel = badge.getAttribute('aria-label') ?? '';
+    expect(ariaLabel).toContain('2 обязательных');
+    expect(ariaLabel).toContain('3 опциональных');
+    expect(ariaLabel).toContain('1 исключённ');
+  });
 });

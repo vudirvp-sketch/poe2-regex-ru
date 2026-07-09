@@ -312,7 +312,7 @@ const ModSubGroupSection: React.FC<{
         )
       )}
       {showChips && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {visibleChips.map((group) => (
             <FilterChip
               key={group.familyKey}
@@ -827,7 +827,7 @@ export const ModList: React.FC<ModListProps> = ({
               {sg.label} ({sg.groups.length})
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {sg.groups.map(group => (
               <FilterChip key={group.familyKey} group={group} selectedIds={selectedIds} excludedIds={excludedIds} onToggleTokens={onToggleTokens} onToggleExclude={onToggleExclude} perTokenRanges={perTokenRanges} onSetTokenRange={onSetTokenRange} onClearTokenRange={onClearTokenRange} collapsedTokenIds={collapsedTokenIds} sortMode={sortMode} pinnedIds={pinnedIds} onTogglePinned={onTogglePinned} optionalIds={optionalIds} onToggleOptional={onToggleOptional} mixedMode={mixedMode} />
             ))}

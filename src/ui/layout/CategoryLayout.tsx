@@ -12,10 +12,10 @@
  *
  *   Actually — to preserve the legacy DOM order (controls + ModList in left
  *   col, RegexOutput in right aside) AND give the chips area more horizontal
- *   space, we keep the 2-column structure (1fr / 380px) but adjust the grid
- *   template to `1fr 320px` (20%/20% of total with min 60% for left col).
- *   The 20%/60%/20% spec from iter 131 §13.7 #2 maps cleanly to this when
- *   the right aside is collapsible (chevron toggle in header).
+ *   space, we keep the 2-column structure (1fr / 280px) — iter 182 tightened
+ *   from 320px → 280px per user feedback «много пустого места». The 20%/60%/20%
+ *   spec from iter 131 §13.7 #2 maps cleanly to this when the right aside is
+ *   collapsible (chevron toggle in header).
  *
  * - Mobile (< lg): single column, natural DOM order:
  *     header → controls → ModList → status → sidebar → mobileBar (sticky bottom).
@@ -169,14 +169,17 @@ export function CategoryLayout({
           height 8px + 0 margin so spacing stays predictable. */}
       <hr className="poe-divider--ornate" aria-hidden="true" />
 
-      {/* Phase 3 (iter 135): grid template adjusted to 1fr / 320px.
-          320px ≈ 20% of a 1600px laptop viewport — matches iter 131 §13.7 #2.
+      {/* Phase 3 (iter 135): grid template adjusted to 1fr / 280px.
+          iter 182: 320px → 280px per user feedback «много пустого места».
+          280px still comfortably fits RegexOutput + SelectedBasket on laptops
+          (≥1024px) while giving the ModList chips area ~12% more horizontal
+          space. Mobile is unaffected (single-column layout).
           When `rightPanelCollapsed` is true, the right column collapses to
           `48px` (just enough for the chevron + chip-count badge). */}
       <div className={`grid gap-4 lg:items-start ${
         rightPanelCollapsed
           ? 'lg:grid-cols-[1fr_48px]'
-          : 'lg:grid-cols-[1fr_320px]'
+          : 'lg:grid-cols-[1fr_280px]'
       }`}>
         {/* Left column: favorites (Phase 5) → controls → main content (ModList).
             Scrolls naturally. */}

@@ -28,6 +28,12 @@ const translations: Record<Locale, Record<string, string>> = {
     // placeholder text.
     'regex.empty_hint': 'Выбор аффиксов выше построит строку здесь',
     'regex.copy_shortcut': 'Копировать (Ctrl+Shift+X)',
+    // iter 182 (KI#57): MIXED-mode info badge in RegexOutput. Confirms that
+    // OPT/EXCLUDE tokens are accounted for even when single-OPT regex looks
+    // identical to AND output (per T1 docs). {must}/{opt}/{excl} are integer
+    // counts of MUST/OPT/EXCLUDE family groups respectively.
+    'regex.mixed_badge': 'Смешанный: {must} обяз. + {opt} опц. + {excl} искл.',
+    'regex.mixed_badge_aria': 'Смешанный режим: {must} обязательных, {opt} опциональных, {excl} исключённых аффиксов.',
     'regex.share_title': 'Скопировать ссылку для обмена',
     'logic.label': 'Логика поиска',
     'logic.and': 'Все (И)',

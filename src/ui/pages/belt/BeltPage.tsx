@@ -186,6 +186,12 @@ export function BeltPage() {
                 regexParts={regexParts}
                 filterStore={filterStore}
                 activeTokenCount={activeGroupCount}
+                // iter 182 (KI#57): MIXED-mode badge — only pass when in MIXED mode.
+                mixedModeInfo={searchLogic === 'mixed' ? {
+                  mustCount: wantGroupCount,
+                  optCount: optionalGroupCount,
+                  excludeCount: excludeGroupCount,
+                } : undefined}
               />
             }
             status={
@@ -211,6 +217,11 @@ export function BeltPage() {
                     regexParts={regexParts}
                     filterStore={filterStore}
                     activeTokenCount={activeGroupCount}
+                    mixedModeInfo={searchLogic === 'mixed' ? {
+                      mustCount: wantGroupCount,
+                      optCount: optionalGroupCount,
+                      excludeCount: excludeGroupCount,
+                    } : undefined}
                   />
                 }
               />

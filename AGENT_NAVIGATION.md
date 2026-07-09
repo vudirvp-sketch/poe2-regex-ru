@@ -1,10 +1,10 @@
 # PoE2 Regex RU — Agent Navigation
 
 > **Entry document.** Read this first.
-> **Текущее состояние:** iter 181 — UI fixes по фидбеку пользователя (KI#55: show-selected-only toggle fix + KI#56: MIXED-mode hotkeys + rename «Башни» → «Плитки»). iter 180 — SEO technical fixes. iter 179 — README rewrite + docs/ cleanup. iter 178 — полировка `/timeless-jewel`. iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
+> **Текущее состояние:** iter 182 — UX-fix KI#57 (MIXED-mode info-badge в RegexOutput) + visual density (right-aside 320→280px, chip gap-2→gap-1.5). iter 181 — UI fixes (KI#55/KI#56 + rename). iter 180 — SEO technical fixes. iter 179 — README rewrite. iter 178 — полировка `/timeless-jewel`. iter 177 (KI#53 fix), iter 176 (категория `/timeless-jewel`), iter 175 (разведка + план) — все DONE ✅.
 > **План категории:** `docs/ATLAS_JEWEL_PLAN.md` (решения пользователя зафиксированы).
-> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#55 — ЗАКРЫТ (iter 181).** **KI#56 — ЗАКРЫТ (iter 181).** **KI#54 — ЗАКРЫТ (iter 180).** **KI#53 — ЗАКРЫТ (iter 177).**
-> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2418 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
+> **Активные KI:** KI#45 (`^` на 2+ ALT — mitigation в core), KI#46 (250 char limit — auto-mitigation), KI#47 (cross-suppression excludes — low priority), KI#43 (deploy retry — пассивная проверка). **KI#57 — ЗАКРЫТ (iter 182).** **KI#55, KI#56 — ЗАКРЫТЫ (iter 181).** **KI#54 — ЗАКРЫТ (iter 180).** **KI#53 — ЗАКРЫТ (iter 177).**
+> **Базовые проверки:** `npx tsc -b`, `npx eslint .`, `npx vitest run` (2425 passed | 5 skipped), `npx vite build`. Актуальный статус — в `STATUS.md`, история — в `worklog.md`.
 
 ---
 

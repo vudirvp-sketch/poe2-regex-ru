@@ -2,18 +2,17 @@
 
 > **Репозиторий:** https://github.com/vudirvp-sketch/poe2-regex-ru
 > **Онлайн:** https://vudirvp-sketch.github.io/poe2-regex-ru/
-> **Текущая итерация:** 181 (UI fixes — KI#55 toggle + KI#56 MIXED hotkeys + rename «Башни» → «Плитки»).
+> **Текущая итерация:** 182 (UX-fix KI#57 + visual density tuning).
 
 ---
 
-## Текущее состояние (iter 181 — DONE)
+## Текущее состояние (iter 182 — DONE)
 
-**iter 181: UI fixes по фидбеку пользователя.** Три точечных баг-фикса без визуального рефакторинга:
-1. **KI#55** — `<select>` «Показывать» (showSelectedOnly) никогда не активировался, даже при выбранных избранных/исключённых аффиксах. Корень: disable-condition считал только `selectedCount` (want), а фильтр в `VirtualizedModList.visibleGroups` реально оставляет `selected ∪ excluded ∪ pinned ∪ optional`. Fix: добавлен prop `pinnedCount`, totalVisibleCount = selected + excluded + optional + pinned; лейбл «Выбранные (N)» → «Мои (N)».
-2. **KI#56** — Shift+LMB в MIXED-режиме выделял текст (браузерный default). Fix: `onMouseDown` preventDefault при shift; добавлен Ctrl+LMB как альтернатива; добавлена видимая кнопка ⊕/⊖ на чипе для мобильных (touch не имеет shift/ctrl).
-3. **Rename** — категория «Башни Предтеч» → «Плитки Предтеч» (i18n, SeoBlock, README, prerender). In-game item names («Башня Бездны Предтеч») не тронуты — это каноничные строки PoE2 ru-клиента.
+**iter 182: UX-fix для MIXED-mode + visual density.** Два точечных изменения без визуального рефакторинга:
+1. **KI#57 FIXED** — пользователь жаловался, что в MIXED-режиме с 1 OPT регекс выглядит идентично AND-режиму (`"MUST1" "MUST2" "OPT1"`). После ревизии выяснилось: **код корректен** (поведение документировано в T1 — single-OPT деградирует до AND). Реальная проблема — UX: пользователь не видит, что OPT-токен действительно учтён. Fix: в RegexOutput добавлен info-бейдж «Смешанный: N обяз. + M опц. + K искл.», рендерится только в MIXED-режиме при наличии OPT/EXCLUDE. Проп `mixedModeInfo` проброшен во все 7 категорийных страниц.
+2. **Visual density** — уменьшена ширина right-aside (320→280px), tighten chip gap (gap-2 → gap-1.5) в ModList + VirtualizedModList. GridLayout 2 колонки **НЕ делался** — пользователь явно отверг (нарушает вертикальное сканирование).
 
-Подробности — в `worklog.md` (Task ID: iter-181-ui-fixes).
+Подробности — в `worklog.md` (Task ID: iter-182-ux-density).
 
 ---
 
@@ -21,10 +20,9 @@
 
 | iter | Задача | Статус |
 |------|--------|--------|
-| 178–180 | Timeless-jewel category + SEO fixes | ✅ DONE |
-| 181 | UI fixes (KI#55 toggle + KI#56 MIXED hotkeys + rename) | ✅ DONE |
-| 182 | Visual layout density (Flow Layout / chips tuning) — см. `docs/UI_AUDIT.md` | ⏳ NEXT |
-| 183 | state-features для `/timeless-jewel` (URL-sync + ProfilePanel + SelectedBasket) | ⏳ |
+| 178–181 | Timeless-jewel + UI fixes (KI#55/KI#56) | ✅ DONE |
+| 182 | UX-fix KI#57 (MIXED info-badge) + visual density | ✅ DONE |
+| 183 | state-features для `/timeless-jewel` (URL-sync + ProfilePanel + SelectedBasket) | ⏳ NEXT |
 | 184+ | ETL-интеграция `parse-timeless-jewel.ts` в `run-etl.ts` (опционально) | ⏳ |
 
 ---
@@ -33,11 +31,8 @@
 
 ### Активные
 
-**KI#55 — iter 181 FIXED: show-selected-only toggle никогда не активировался.**
-Root: disable-condition считал только `selectedCount` (wantGroupCount), игнорируя `excludedIds` / `pinnedIds` / `optionalIds`, которые тоже попадают в фильтр `visibleGroups`. Fix iter 181: добавлен prop `pinnedCount`, totalVisibleCount = selected + excluded + optional + pinned; лейбл «Выбранные (N)» → «Мои (N)». Все 7 категорийных страниц обновлены.
-
-**KI#56 — iter 181 FIXED: Shift+LMB в MIXED-режиме выделял текст.**
-Root: shift+mousedown запускает browser text selection ДО click event — preventDefault в onClick слишком поздно. Fix iter 181: `onMouseDown` preventDefault при shift + добавлен Ctrl+LMB как альтернатива (нет side-effect) + видимая кнопка ⊕/⊖ на чипе (mobile-friendly). Shift+click сохранён для muscle memory + backward compat с тестами.
+**KI#57 — iter 182 FIXED: single-OPT regex выглядит идентично AND — пользователь думает, что OPT не работает.**
+Root: T1-документация (`docs/MIXED_MODE_UI_TESTS.md` §T1) — при единственном OPT токене MIXED_OR деградирует в обычный AND. Это **корректное поведение** (семантически `"MUST" "OPT"` = оба должны быть на предмете). Проблема — UX: пользователь не получает визуального подтверждения, что OPT-токен действительно учтён. Fix iter 182: info-бейдж в RegexOutput с разбивкой MUST/OPT/EXCLUDE. Код генерации regex НЕ менялся (он корректен).
 
 **KI#45 — `^`-anchor на 2+ ALT в OR ломает матч.**
 Mitigation: `MIXED_OR` с `anchorFirstAltOnly: true` в компиляторе. Builder `buildMixedAstFromSelections` включает эту опцию по умолчанию.
@@ -51,6 +46,7 @@ Mitigation: `truncateMixedOrLiterals(ast, maxLen=12)` автоматически
 
 ### Закрытые
 
+- **KI#55, KI#56** — закрыты iter 181 (toggle + MIXED hotkeys).
 - **KI#54** — `/timeless-jewel` отсутствовал в `prerender-full.ts` и IndexNow urlList. ✅ FIXED (iter 180).
 - **KI#53** — Pre-existing data regression в `iter127-ki12-tier-hardcoded-regex.test.ts`. ✅ FIXED (iter 177).
 - **KI#48, KI#49, KI#50, KI#51, KI#52** — закрыты в iter 163–174.
@@ -60,11 +56,13 @@ Mitigation: `truncateMixedOrLiterals(ast, maxLen=12)` автоматически
 1. APCA Lc<75 для small text weight 400 — WCAG AA PASS, APCA FAIL.
 2. MobileRegexBar chunk 168.37 KB (gzip 39.42 KB) — отдельный chunk для mobile-only.
 3. 7 relic overrides в `i18n-overrides.json` сейчас no-ops — можно удалить.
-4. `docs/UI_REFACTOR_PLAN.md` — все 7 фаз DONE, но ~15 source files ссылаются на «§4 Phase X» в комментариях.
 
 ---
 
 ## FAQ (частые вопросы)
+
+**Q: В MIXED-режиме добавил 1 OPT через Ctrl+клик, но регекс выглядит как AND — баг?**
+A: Не баг. При единственном OPT токене MIXED_OR деградирует в AND (T1 в `docs/MIXED_MODE_UI_TESTS.md`). Семантически `"MUST" "OPT"` = оба должны быть на предмете. Чтобы убедиться, что OPT учтён, смотрите info-бейдж в RegexOutput. С 2+ OPT они объединяются через `|` (`"OPT1|OPT2"`).
 
 **Q: Почему в регексе появился `"!100%"` (или другой `"!..."` токен)? Это баг?**
 A: Не баг. Это намереренная защита от ложных срабатываний (FP) через поле `regexExclude` в ETL-данных.
@@ -108,20 +106,13 @@ A: Нет, это кэш браузера. Hard refresh (`Ctrl+Shift+R`) или 
 
 ---
 
-## Next iteration (iter 181 → iter 182)
+## Next iteration (iter 182 → iter 183)
 
-**iter 181 завершён.** UI fixes: KI#55 (toggle) + KI#56 (MIXED hotkeys) + rename «Башни» → «Плитки». CI зелёный: 2418 passed | 5 skipped (+13 новых тестов), build OK (10 prerendered routes).
+**iter 182 завершён.** UX-fix KI#57 (info-бейдж MIXED-режима в RegexOutput) + visual density (right-aside 320→280px, chip gap-2→gap-1.5). CI зелёный.
 
-**iter 182 — visual layout density.** Пользователь сообщил об избыточном «воздухе» в интерфейсе, но попросил не ломать логику. Анализ показал, что чипы уже используют `inline-flex` + `flex-wrap`, так что проблема не в layout-движке. Возможные направления:
-1. Уменьшить right-aside ширину (320px → 280px) — больше места для чипов.
-2. Уменьшить gap между чипами (`gap-2` → `gap-1.5`) при сохранении tap-target a11y.
-3. Slightly tighter chip padding (`px-1.5 py-0.5` → `px-1.25 py-0.4`).
-4. Пересмотреть `maxWidth: 100%` на chip — возможно, ограничение по max-content.
-**Важно:** пользователь явно просил итеративный подход — лучше недоделать, чем сломать. Каждое изменение отдельно тестировать.
+**iter 183 — state-features для `/timeless-jewel`:** URL-sync, ProfilePanel, SelectedBasket. Сейчас `/timeless-jewel` — статичная страница без интерактивности. Добавить filter-store, URL hash sync, SelectedBasket + RegexOutput — соответствует тому, как работают 7 других категорийных страниц.
 
-**iter 183 — state-features для `/timeless-jewel`:** URL-sync, ProfilePanel, SelectedBasket (раньше был iter 181, сдвинут).
-
-**Активные KI:** KI#55 (FIXED iter 181), KI#56 (FIXED iter 181), KI#45, KI#46, KI#47, KI#43.
+**Активные KI:** KI#57 (FIXED iter 182), KI#45, KI#46, KI#47, KI#43.
 
 **Правило:** если найден новый баг — сначала документируй в STATUS.md как Known Issue, потом фиксись.
 

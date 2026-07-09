@@ -239,3 +239,40 @@ Stage Summary:
   - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — сдвинуто с iter 181 на iter 183 (iter 182 занят visual density).
 - **Next iteration (iter 182):** Visual layout density — осторожные точечные правки CSS/JSX для уменьшения «воздуха» в интерфейсе. Пользователь явно просил не ломать логику и не делать GridLayout 2 колонки (нарушает вертикальное сканирование). Лучше недоделать, чем сломать.
 
+---
+
+Task ID: iter-182-ux-density
+Agent: main
+Task: UX-fix для MIXED-mode (пользователь сообщил о «баге»: в смешанном режиме 1 OPT выглядит как AND) + visual density tuning (right-aside 320→280px, chip gap-2→gap-1.5). По правилу пользователя — сначала документировать как KI, потом фиксить.
+
+Work Log:
+- 0: **Контекст из чата:** Пользователь сообщил: «в смешанном режиме, когда я кликаю по аффиксам мне генерирует регис вида 'максимуму здоровья' 'максимуму маны', а далее когда я через контр + лкм или кнопку ⊕ выбираю опциональный аффикс то так же прописывает 'максимуму здоровья' 'максимуму маны' 'характеристикам' ==== то есть по умолчанию он не генерирует как режим 'или' а тупо все через 'и'». Короче: «перепроверь все!»
+- 1: **Клонировал репозиторий**, `npm install`, baseline: `tsc` 0, `eslint` 0, `vitest run` — 2418 passed | 5 skipped.
+- 2: **Ревизия MIXED-mode end-to-end.** Прочитал `category-ast-utils.ts` (buildMixedAstFromSelections), `useCategoryPage.ts` (useRegexBuilder), `filter-store.ts` (toggleOptional), `FilterChip.tsx` (handleClick/handleOptClick), `compiler.ts` (MIXED_OR compile). **Вывод: код корректен.** Все 2418 тестов проходят, включая `'builds canonical MIXED pattern: "MUST1" "MUST2" "OPT1|OPT2"'`.
+- 3: **Воспроизвёл сценарий пользователя** через новый тест `tests/integration/user-mixed-scenario.test.ts`: 2 MUST (health + mana) + 1 OPT (characteristics) на Ring page → regex = `"максимуму здоровья" "максимуму маны" "характеристикам"`. Это **ожидаемое поведение** per T1 в `docs/MIXED_MODE_UI_TESTS.md`: «при единственном OPT токене MIXED_OR деградирует в обычный AND — это корректное поведение».
+- 4: **Diagnose:** Это UX-проблема, не код-баг. С 1 OPT регекс выглядит идентично AND — пользователь не видит, что OPT-токен учтён. С 2+ OPT они объединяются через `|` корректно (проверено). **По правилу пользователя — сначала KI#57 в STATUS.md, потом фикс.**
+- 5: **Fix KI#57 (UX, не код):** В `RegexOutput.tsx` добавлен новый optional prop `mixedModeInfo?: { mustCount, optCount, excludeCount }`. Когда prop передан И (optCount > 0 OR excludeCount > 0), рендерится info-бейдж: «⇄ Смешанный: N обяз. + M опц. + K искл.» с amber-tinted фоном. Бейдж даёт визуальное подтверждение, что OPT/EXCLUDE учтены, даже когда regex выглядит как AND. Проп рендерится только когда есть OPT/EXCLUDE — иначе это noise.
+- 6: **i18n keys:** Добавлены `regex.mixed_badge` + `regex.mixed_badge_aria` в `src/shared/i18n.ts` с подстановкой {must}/{opt}/{excl}.
+- 7: **Wiring в 6 категорийных страниц** (BeltPage, RingPage, AmuletPage, RelicPage, WaystonePage, TabletPage, JewelPage): проп `mixedModeInfo` передаётся в оба RegexOutput (desktop aside + mobile bar) только когда `searchLogic === 'mixed'`. VendorPage НЕ обновлён — не использует MIXED mode. Каждая страница уже считает `wantGroupCount`, `optionalGroupCount`, `excludeGroupCount` — просто пробрасываются в проп.
+- 8: **Тесты:** В `tests/ui/RegexOutput.test.tsx` добавлено 5 новых тестов: badge renders when optCount>0, badge renders when excludeCount>0, badge NOT rendered when only mustCount>0, badge NOT rendered when mixedModeInfo undefined, badge aria-label contains full breakdown.
+- 9: **Visual density (iter 182 часть 2):**
+  - `CategoryLayout.tsx`: `lg:grid-cols-[1fr_320px]` → `lg:grid-cols-[1fr_280px]` (right-aside 320→280px, даёт ~12% больше места для ModList chips).
+  - `ModList.tsx` 2 места: `flex flex-wrap gap-2` → `flex flex-wrap gap-1.5` (chip-container gap 8px→6px).
+  - `VirtualizedModList.tsx` 1 место: то же `gap-2` → `gap-1.5`.
+  - **НЕ делалось:** GridLayout 2 колонки (пользователь явно отверг — нарушает вертикальное сканирование), tighter chip padding (FilterChip уже `px-1.5 py-0.5` + min-height 22px — дальше уменьшать рискованно).
+- 10: **Документация актуализирована:**
+  - `STATUS.md` — полный рерайт: iter 182 в заголовке, KI#57 FIXED добавлен, FAQ добавлен вопрос про single-OPT, roadmap обновлён (iter 183 — state-features).
+  - `worklog.md` — этот Task ID iter-182-ux-density.
+- 11: **Финальные проверки**: `npx tsc -b` ✅ 0 errors, `npx eslint .` ✅ 0 errors, `npx vitest run` — **2425 passed | 5 skipped** (+7 новых тестов: 5 RegexOutput + 2 integration user-scenario, без регрессий). `npm run build` ✅ OK (10 prerendered routes).
+
+Stage Summary:
+- **iter 182 завершён.** UX-fix KI#57 (MIXED-mode info-badge в RegexOutput) + visual density (right-aside 320→280px, chip gap-2→gap-1.5). Код генерации regex НЕ менялся — он корректен per T1. CI зелёный: 2425 passed | 5 skipped, build OK (10 prerendered routes).
+- **Изменённые файлы (iter 182):**
+  - ИЗМЕНЁННЫЕ: `src/ui/components/RegexOutput.tsx` (mixedModeInfo prop + badge render), `src/shared/i18n.ts` (2 new keys), `src/ui/layout/CategoryLayout.tsx` (320→280px), `src/ui/components/ModList.tsx` (gap-2→gap-1.5 ×2), `src/ui/components/VirtualizedModList.tsx` (gap-2→gap-1.5 ×1), `src/ui/pages/belt/BeltPage.tsx` (mixedModeInfo prop ×2), `src/ui/pages/ring/RingPage.tsx` (то же), `src/ui/pages/amulet/AmuletPage.tsx` (то же), `src/ui/pages/relic/RelicPage.tsx` (то же), `src/ui/pages/waystone/WaystonePage.tsx` (то же), `src/ui/pages/tablet/TabletPage.tsx` (то же), `src/ui/pages/jewel/JewelPage.tsx` (то же), `tests/ui/RegexOutput.test.tsx` (+5 тестов), `STATUS.md` (полный рерайт), `worklog.md` (этот Task ID).
+  - НОВЫЕ: `tests/integration/user-mixed-scenario.test.ts` (2 теста — воспроизведение сценария пользователя).
+- **Stopping point:** iter 182 завершён. CI зелёный: 2425 passed | 5 skipped, build OK (10 prerendered routes). Можно пушить.
+- **Что НЕ сделано (намеренно, deferred):**
+  - **state-features для `/timeless-jewel`** (URL-sync, ProfilePanel, SelectedBasket) — iter 183.
+  - **Дальнейшая visual density** — если пользователь захочет ещё компактнее, можно попробовать tighter chip padding (но рискованно — `px-1.5 py-0.5` уже близко к min-height floor 22px).
+- **Next iteration (iter 183):** state-features для `/timeless-jewel` — URL-sync (selection в hash), ProfilePanel integration, SelectedBasket. Сейчас `/timeless-jewel` — статичная страница без интерактивности.
+

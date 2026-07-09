@@ -188,6 +188,11 @@ export function AmuletPage() {
                 regexParts={regexParts}
                 filterStore={filterStore}
                 activeTokenCount={activeGroupCount}
+                mixedModeInfo={searchLogic === 'mixed' ? {
+                  mustCount: wantGroupCount,
+                  optCount: optionalGroupCount,
+                  excludeCount: excludeGroupCount,
+                } : undefined}
               />
             }
             status={
@@ -213,6 +218,11 @@ export function AmuletPage() {
                     regexParts={regexParts}
                     filterStore={filterStore}
                     activeTokenCount={activeGroupCount}
+                    mixedModeInfo={searchLogic === 'mixed' ? {
+                      mustCount: wantGroupCount,
+                      optCount: optionalGroupCount,
+                      excludeCount: excludeGroupCount,
+                    } : undefined}
                   />
                 }
               />
